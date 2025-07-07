@@ -13,6 +13,7 @@ CONSOLE       = $(SYMFONY) console
 PHPUNIT       = ./vendor/bin/phpunit
 PHPSTAN       = ./vendor/bin/phpstan
 PHP_CS_FIXER  = ./vendor/bin/php-cs-fixer
+PSALM         = ./vendor/bin/psalm
 
 ## —— 🎵 🐳 The Symfony Docker makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -46,7 +47,7 @@ logs: ## Show live logs
 	@$(DOCKER) compose logs --tail=0 --follow
 
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
-lint: lint-php phpstan ## Run continuous integration pipeline
+lint: lint-php phpstan psalm ## Run continuous integration pipeline
 
 cs: fix-php ## Run all coding standards checks
 
@@ -60,6 +61,9 @@ lint-php: ## Lint files with php-cs-fixer
 
 phpstan: ## Run PHPStan
 	@$(PHPSTAN) analyse --memory-limit=-1
+
+psalm: ## Run Psalm
+	@$(PSALM) --show-info=true
 
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
 test: ## Run tests
