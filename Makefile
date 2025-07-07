@@ -14,6 +14,8 @@ PHPUNIT       = ./vendor/bin/phpunit
 PHPSTAN       = ./vendor/bin/phpstan
 PHP_CS_FIXER  = ./vendor/bin/php-cs-fixer
 PSALM         = ./vendor/bin/psalm
+RECTOR        = ./vendor/bin/rector
+TWIG_CS_FIXER = ./vendor/bin/twig-cs-fixer
 
 ## —— 🎵 🐳 The Symfony Docker makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -47,23 +49,32 @@ logs: ## Show live logs
 	@$(DOCKER) compose logs --tail=0 --follow
 
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
-lint: lint-php phpstan psalm ## Run continuous integration pipeline
+lint: lint-php phpstan static-analysis ## Run continuous integration pipeline
 
-cs: fix-php ## Run all coding standards checks
+cs: rector fix-php ## Run all coding standards checks
 
-static-analysis: phpstan  ## Run the static analysis
+static-analysis: phpstan psalm ## Run the static analysis
 
 fix-php: ## Fix files with php-cs-fixer
 	@$(PHP_CS_FIXER) fix
 
+fix-twig: ## Fix files with twig-cs-fixer
+	@$(TWIG_CS_FIXER) --fix
+
 lint-php: ## Lint files with php-cs-fixer
 	@$(PHP_CS_FIXER) fix --dry-run
+
+lint-twig: ## Lint files with twig-cs-fixer
+	@$(TWIG_CS_FIXER)
 
 phpstan: ## Run PHPStan
 	@$(PHPSTAN) analyse --memory-limit=-1
 
 psalm: ## Run Psalm
 	@$(PSALM) --show-info=true
+
+rector: ## Run Rector
+	@$(RECTOR)
 
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
 test: ## Run tests

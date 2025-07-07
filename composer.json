@@ -117,6 +117,7 @@
         "symfony/stopwatch": "7.3.*",
         "symfony/web-profiler-bundle": "7.3.*",
         "vimeo/psalm": "^6.12",
+        "vincentlanglet/twig-cs-fixer": "^3.8",
         "weirdan/doctrine-psalm-plugin": "^2.10"
     }
 }
