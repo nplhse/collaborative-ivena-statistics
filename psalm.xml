@@ -24,4 +24,11 @@
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
         <pluginClass class="Psalm\MockeryPlugin\Plugin"/>
     </plugins>
+    <issueHandlers>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <directory name="src/Controller"/>
+            </errorLevel>
+        </UnusedClass>
+    </issueHandlers>
 </psalm>
