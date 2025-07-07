@@ -26,6 +26,7 @@ install: ## Setup the whole project
 	@$(COMPOSER) install --no-interaction
 
 warmup: ## Warmup the dev environment (e.g. after purge)
+	@$(SYMFONY) composer setup-env
 	@$(CONSOLE) asset-map:compile
 	@$(CONSOLE) cache:warmup
 
@@ -49,9 +50,11 @@ logs: ## Show live logs
 	@$(DOCKER) compose logs --tail=0 --follow
 
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
-lint: lint-php phpstan static-analysis ## Run continuous integration pipeline
+lint: lint-php lint-twig static-analysis ## Run continuous integration pipeline
 
 cs: rector fix-php ## Run all coding standards checks
+
+ci: rector fix-php fix-twig static-analysis
 
 static-analysis: phpstan psalm ## Run the static analysis
 
