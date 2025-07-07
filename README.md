@@ -1,6 +1,6 @@
-# COIS-Lab - A space for collaborative IVENA statistics
+# A space for collaborative IVENA statistics
 
-[![Testsuite](https://github.com/nplhse/cois-lab/actions/workflows/tests.yml/badge.svg)](https://github.com/nplhse/cois-lab/actions/workflows/tests.yml) [![Linting](https://github.com/nplhse/cois-lab/actions/workflows/lint.yml/badge.svg)](https://github.com/nplhse/cois-lab/actions/workflows/lint.yml)
+[![Testsuite](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml) [![Linting](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml)
 
 # Requirements
 -   Webserver (Apache, Nginx, LiteSpeed, IIS, etc.) with PHP 8.4 or higher
