@@ -1,0 +1,16 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+    doctrine:
+        objectManagerLoader: tests/object-manager.php
+    symfony:
+        consoleApplicationLoader: tests/console-application.php
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
