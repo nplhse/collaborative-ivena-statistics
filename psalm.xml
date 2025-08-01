@@ -25,10 +25,41 @@
         <pluginClass class="Psalm\MockeryPlugin\Plugin"/>
     </plugins>
     <issueHandlers>
+        <ClassMustBeFinal>
+            <errorLevel type="suppress">
+                <directory name="src/Entity"/>
+            </errorLevel>
+        </ClassMustBeFinal>
+        <LessSpecificReturnStatement>
+            <errorLevel type="suppress">
+                <directory name="src/Entity"/>
+            </errorLevel>
+        </LessSpecificReturnStatement>
+        <MoreSpecificReturnType>
+            <errorLevel type="suppress">
+                <directory name="src/Entity"/>
+            </errorLevel>
+        </MoreSpecificReturnType>
+        <PossiblyNullArgument>
+            <errorLevel type="suppress">
+                <directory name="src/Entity"/>
+            </errorLevel>
+        </PossiblyNullArgument>
+        <PossiblyUnusedMethod>
+            <errorLevel type="suppress">
+                <directory name="src/Entity"/>
+                <directory name="src/Repository"/>
+            </errorLevel>
+        </PossiblyUnusedMethod>
         <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="src/Controller"/>
             </errorLevel>
         </UnusedClass>
+        <UnusedParam>
+            <errorLevel type="suppress">
+                <directory name="src/Repository"/>
+            </errorLevel>
+        </UnusedParam>
     </issueHandlers>
 </psalm>

@@ -11,6 +11,7 @@ parameters:
         - tests/
     doctrine:
         objectManagerLoader: tests/object-manager.php
+        allowNullablePropertyForRequiredField: true
     symfony:
         consoleApplicationLoader: tests/console-application.php
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
