@@ -47,6 +47,7 @@
         </PossiblyNullArgument>
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
+                <directory name="src/DataFixtures"/>
                 <directory name="src/Entity"/>
                 <directory name="src/Repository"/>
             </errorLevel>
