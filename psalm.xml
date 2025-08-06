@@ -53,6 +53,7 @@
             <errorLevel type="suppress">
                 <directory name="src/Controller"/>
                 <directory name="src/Security"/>
+                <directory name="src/Twig/Components/"/>
             </errorLevel>
         </UnusedClass>
         <UnusedParam>
