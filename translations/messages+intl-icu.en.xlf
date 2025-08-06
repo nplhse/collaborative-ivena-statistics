@@ -5,12 +5,20 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
+      <trans-unit id="vLldAk9" resname="label.login">
+        <source>label.login</source>
+        <target>Login</target>
+      </trans-unit>
       <trans-unit id="3hZO6SI" resname="label.logout">
         <source>label.logout</source>
         <target>Logout</target>
       </trans-unit>
-      <trans-unit id="vLldAk9" resname="label.login">
-        <source>label.login</source>
+      <trans-unit id="_gI37hZ" resname="label.signin">
+        <source>label.signin</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="Q.Y20KD" resname="title.login">
+        <source>title.login</source>
         <target>Login</target>
       </trans-unit>
     </body>
