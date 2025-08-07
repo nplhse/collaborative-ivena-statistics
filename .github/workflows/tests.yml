@@ -74,6 +74,7 @@ jobs:
               run: vendor/bin/phpunit
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
+                  XDEBUG_MODE: coverage
 
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v5
