@@ -97,10 +97,13 @@ rector: ## Run Rector
 
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
 test: ## Run tests
-	@$(PHPUNIT) --stop-on-failure -d memory_limit=-1
+	@$(PHPUNIT) --stop-on-failure -d memory_limit=-1 --no-coverage
 
 testdox: ## Run tests with testdox
-	@$(PHPUNIT) --testdox -d memory_limit=-1
+	@$(PHPUNIT) --testdox -d memory_limit=-1 --no-coverage
+
+coverage: ## Run tests with Coverage reports
+	@XDEBUG_MODE=coverage $(PHPUNIT) -d memory_limit=-1
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge: ## Purge temporary files
