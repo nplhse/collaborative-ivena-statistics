@@ -24,14 +24,14 @@ preferably with the symfony binary in your development environment.
     ```
     $ cd ~/webroot/collaborative-ivena-statistics
     $ make install
-    ``` 
-
-   > [!NOTE]
-   > Please note that in this case you'll get an empty application. If you'd
-   like to populate the app with some reasonable default data run `make
-      install-dev` to include the fixtures.
+    ```
 
 3. You are ready to go, just open the site with your favorite browser!
+
+> [!NOTE]
+> Please note that with this instruction you'll get an empty application. If 
+  you'd like to populate the app with some reasonable default data run `make
+  install-dev` to include the fixtures.
 
 # Contributing
 Any contribution to this project is appreciated, whether it is related to
