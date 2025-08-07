@@ -1,6 +1,6 @@
 # A space for collaborative IVENA statistics
 
-[![Testsuite](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml) [![Linting](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml)
+[![Testsuite](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml) [![Linting](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml) [![codecov](https://codecov.io/gh/nplhse/collaborative-ivena-statistics/graph/badge.svg?token=0MQSZG4OTM)](https://codecov.io/gh/nplhse/collaborative-ivena-statistics)
 
 # Requirements
 -   Webserver (Apache, Nginx, LiteSpeed, IIS, etc.) with PHP 8.4 or higher
@@ -25,6 +25,11 @@ preferably with the symfony binary in your development environment.
     $ cd ~/webroot/collaborative-ivena-statistics
     $ make install
     ``` 
+
+   > [!NOTE]
+   > Please note that in this case you'll get an empty application. If you'd
+   like to populate the app with some reasonable default data run `make
+      install-dev` to include the fixtures.
 
 3. You are ready to go, just open the site with your favorite browser!
 
