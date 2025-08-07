@@ -30,22 +30,26 @@
         <LessSpecificReturnStatement>
             <errorLevel type="suppress">
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
             </errorLevel>
         </LessSpecificReturnStatement>
         <MoreSpecificReturnType>
             <errorLevel type="suppress">
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
             </errorLevel>
         </MoreSpecificReturnType>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
             </errorLevel>
         </PossiblyNullArgument>
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
                 <directory name="src/DataFixtures"/>
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
                 <directory name="src/Repository"/>
             </errorLevel>
         </PossiblyUnusedMethod>
