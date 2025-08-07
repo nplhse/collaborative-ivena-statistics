@@ -105,7 +105,6 @@
         }
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "doctrine/doctrine-fixtures-bundle": "^4.1",
         "friendsofphp/php-cs-fixer": "^3.80",
         "phpstan/extension-installer": "^1.4",
@@ -119,6 +118,7 @@
         "psalm/plugin-phpunit": "^0.19.5",
         "psalm/plugin-symfony": "^5.2",
         "rector/rector": "^2.1",
+        "roave/security-advisories": "dev-latest",
         "symfony/browser-kit": "7.3.*",
         "symfony/css-selector": "7.3.*",
         "symfony/debug-bundle": "7.3.*",
@@ -127,6 +127,7 @@
         "symfony/web-profiler-bundle": "7.3.*",
         "vimeo/psalm": "^6.12",
         "vincentlanglet/twig-cs-fixer": "^3.8",
-        "weirdan/doctrine-psalm-plugin": "^2.10"
+        "weirdan/doctrine-psalm-plugin": "^2.10",
+        "zenstruck/browser": "^1.9"
     }
 }

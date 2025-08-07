@@ -375,5 +375,14 @@
             "version": "3.0",
             "ref": "d42582ae1bce86fd43491d6264c738b0867f8ffe"
         }
+    },
+    "zenstruck/browser": {
+        "version": "1.9",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.9",
+            "ref": "66c5290398734ff02cedddf44dce6eb2002d958c"
+        }
     }
 }
