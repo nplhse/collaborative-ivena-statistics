@@ -49,8 +49,18 @@ down: ## Stop the docker hub
 logs: ## Show live logs
 	@$(DOCKER) compose logs --tail=0 --follow
 
+## —— Symfony 🎵 ———————————————————————————————————————————————————————————————
+compile: ## Execute some tasks before deployment
+	rm -rf public/assets/*
+	@$(CONSOLE) asset-map:compile
+	@$(CONSOLE) cache:clear
+	@$(CONSOLE) cache:warmup
+
+trans: ## Extract translations from symfony
+	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc en
+
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
-lint: lint-php lint-twig static-analysis ## Run continuous integration pipeline
+lint: lint-container lint-php lint-twig lint-trans static-analysis ## Run continuous integration pipeline
 
 cs: rector fix-php ## Run all coding standards checks
 
@@ -64,8 +74,14 @@ fix-php: ## Fix files with php-cs-fixer
 fix-twig: ## Fix files with twig-cs-fixer
 	@$(TWIG_CS_FIXER) --fix
 
+lint-container: ## Lint translations
+	@$(CONSOLE) lint:container
+
 lint-php: ## Lint files with php-cs-fixer
 	@$(PHP_CS_FIXER) fix --dry-run
+
+lint-trans: ## Lint translations
+	@$(CONSOLE) lint:translations --locale=en
 
 lint-twig: ## Lint files with twig-cs-fixer
 	@$(TWIG_CS_FIXER)
@@ -81,10 +97,13 @@ rector: ## Run Rector
 
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
 test: ## Run tests
-	@$(PHPUNIT) --stop-on-failure -d memory_limit=-1
+	@$(PHPUNIT) --stop-on-failure -d memory_limit=-1 --no-coverage
 
 testdox: ## Run tests with testdox
-	@$(PHPUNIT) --testdox -d memory_limit=-1
+	@$(PHPUNIT) --testdox -d memory_limit=-1 --no-coverage
+
+coverage: ## Run tests with Coverage reports
+	@XDEBUG_MODE=coverage $(PHPUNIT) -d memory_limit=-1
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge: ## Purge temporary files

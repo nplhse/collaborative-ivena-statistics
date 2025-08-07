@@ -13,6 +13,9 @@
                     </a>
                 </h1>
             {% endblock %}
+            {% block navbar_user %}
+                {{ include('_includes/navbar_user.html.twig') }}
+            {% endblock %}
         </div>
     </header>
 {% endblock %}

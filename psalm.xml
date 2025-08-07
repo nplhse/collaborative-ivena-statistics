@@ -16,11 +16,11 @@
         <extension name=".twig" checker="/vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/>
     </fileExtensions>
     <plugins>
-        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin" />
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
         <pluginClass class="Psalm\MockeryPlugin\Plugin"/>
-    </plugins>
+    <pluginClass class="Zenstruck\Foundry\Psalm\FoundryPlugin"/></plugins>
     <issueHandlers>
         <ClassMustBeFinal>
             <errorLevel type="suppress">
@@ -30,28 +30,34 @@
         <LessSpecificReturnStatement>
             <errorLevel type="suppress">
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
             </errorLevel>
         </LessSpecificReturnStatement>
         <MoreSpecificReturnType>
             <errorLevel type="suppress">
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
             </errorLevel>
         </MoreSpecificReturnType>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
             </errorLevel>
         </PossiblyNullArgument>
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
                 <directory name="src/DataFixtures"/>
                 <directory name="src/Entity"/>
+                <directory name="src/Factory"/>
                 <directory name="src/Repository"/>
             </errorLevel>
         </PossiblyUnusedMethod>
         <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="src/Controller"/>
+                <directory name="src/Security"/>
+                <directory name="src/Twig/Components/"/>
             </errorLevel>
         </UnusedClass>
         <UnusedParam>
