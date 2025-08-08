@@ -21,7 +21,7 @@
                     <ul class="navbar-nav">
                         {% block navbar_links %}
                             <li class="nav-item {{ route starts with 'app_data' ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ path('app_data_area_list') }}">
+                                <a class="nav-link" href="{{ path('app_data_index') }}">
                                     <span class="nav-link-title">
                                         <twig:ux:icon name="tabler:database" style="height: 1.5em;" />
                                         {{ 'link.data'|trans }}
