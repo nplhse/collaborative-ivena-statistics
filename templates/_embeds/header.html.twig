@@ -16,6 +16,25 @@
             {% block navbar_user %}
                 {{ include('_includes/navbar_user.html.twig') }}
             {% endblock %}
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
+                    <ul class="navbar-nav">
+                        {% block navbar_links %}
+                            <li class="nav-item {{ route starts with 'app_data' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ path('app_data_area_list') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:database" style="height: 1.5em;" />
+                                        {{ 'link.data'|trans }}
+                                    </span>
+                                </a>
+                            </li>
+                        {% endblock %}
+                    </ul>
+                </div>
+            </div>
         </div>
     </header>
+{% endblock %}
+
+{% block header_after %}
 {% endblock %}
