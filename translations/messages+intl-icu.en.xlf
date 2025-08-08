@@ -5,6 +5,22 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
+      <trans-unit id="IlEDRed" resname="help.search_no_results">
+        <source>help.search_no_results</source>
+        <target>Try adjusting your search or filter to find what you're looking for.</target>
+      </trans-unit>
+      <trans-unit id="jGMjpWb" resname="label.id">
+        <source>label.id</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="QlpT4ZW" resname="label.last_changed_at">
+        <source>label.last_changed_at</source>
+        <target>Last changed at</target>
+      </trans-unit>
+      <trans-unit id="vCMHgqm" resname="label.last_changed_by">
+        <source>label.last_changed_by</source>
+        <target>Last changed by</target>
+      </trans-unit>
       <trans-unit id="vLldAk9" resname="label.login">
         <source>label.login</source>
         <target>Login</target>
@@ -13,9 +29,29 @@
         <source>label.logout</source>
         <target>Logout</target>
       </trans-unit>
+      <trans-unit id="aSiMEIt" resname="label.name">
+        <source>label.name</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="uARVlbj" resname="label.search_no_results">
+        <source>label.search_no_results</source>
+        <target>Sorry, no results found.</target>
+      </trans-unit>
       <trans-unit id="_gI37hZ" resname="label.signin">
         <source>label.signin</source>
         <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="UpIMnT4" resname="label.state">
+        <source>label.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="kU2zrlb" resname="link.data">
+        <source>link.data</source>
+        <target>Data</target>
+      </trans-unit>
+      <trans-unit id="kdy2QhG" resname="title.area.list">
+        <source>title.area.list</source>
+        <target>List Areas</target>
       </trans-unit>
       <trans-unit id="Q.Y20KD" resname="title.login">
         <source>title.login</source>
