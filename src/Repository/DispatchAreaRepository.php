@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\DataTransferObjects\AreaListQueryParametersDTO;
 use App\Entity\DispatchArea;
 use App\Entity\State;
+use App\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,23 +20,24 @@ final class DispatchAreaRepository extends ServiceEntityRepository
         parent::__construct($registry, DispatchArea::class);
     }
 
-    /**
-     * @return DispatchArea[] Returns an array of DispatchArea objects
-     */
-    public function findAreasByQueryParameterDTO(AreaListQueryParametersDTO $queryParametersDTO): array
+    public function getAreaListPaginator(AreaListQueryParametersDTO $queryParametersDTO): Paginator
     {
-        return $this->createQueryBuilder('da')
+        $qb = $this->createQueryBuilder('da')
+            ->addSelect('(CASE WHEN da.updatedAt IS NOT NULL THEN da.updatedAt ELSE da.createdAt END) AS HIDDEN sortDate')
             ->leftJoin(
                 State::class,
                 's',
                 Join::WITH,
                 'da.state = s.id'
             )
-            ->setFirstResult(($queryParametersDTO->page - 1) * $queryParametersDTO->limit)
-            ->orderBy('da.id', $queryParametersDTO->orderBy)
-            ->setMaxResults($queryParametersDTO->limit)
-            ->getQuery()
-            ->getResult()
         ;
+
+        if ('lastChange' === $queryParametersDTO->sortBy) {
+            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
+        } else {
+            $qb->orderBy('da.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+        }
+
+        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
 }

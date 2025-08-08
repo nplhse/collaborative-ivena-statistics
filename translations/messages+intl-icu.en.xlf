@@ -33,6 +33,22 @@
         <source>label.name</source>
         <target>Name</target>
       </trans-unit>
+      <trans-unit id="C62419s" resname="label.next">
+        <source>label.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="Pak93P_" resname="label.pagination_numbers">
+        <source>label.pagination_numbers</source>
+        <target>Showing {first}-{last} of {total} results.</target>
+      </trans-unit>
+      <trans-unit id="XGA5uHp" resname="label.pagination_results">
+        <source>label.pagination_results</source>
+        <target>Showing {numResults} results, with {pageSize} per page.</target>
+      </trans-unit>
+      <trans-unit id="qRwFlMY" resname="label.previous">
+        <source>label.previous</source>
+        <target>Previous</target>
+      </trans-unit>
       <trans-unit id="uARVlbj" resname="label.search_no_results">
         <source>label.search_no_results</source>
         <target>Sorry, no results found.</target>

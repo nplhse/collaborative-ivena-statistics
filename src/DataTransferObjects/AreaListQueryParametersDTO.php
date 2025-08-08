@@ -14,7 +14,10 @@ final readonly class AreaListQueryParametersDTO
         public int $limit = 25,
 
         #[Assert\Choice(choices: ['asc', 'desc'])]
-        public string $orderBy = 'desc',
+        public string $orderBy = 'asc',
+
+        #[Assert\Choice(choices: ['id', 'name', 'state', 'lastChange', ''])]
+        public string $sortBy = 'name',
     ) {
     }
 }

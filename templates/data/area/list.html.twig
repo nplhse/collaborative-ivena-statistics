@@ -13,7 +13,7 @@
                         </h2>
                         {% block page_subtitle %}
                             <div class="text-body-secondary mt-1">
-                                1-10 of 100
+                                {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}) }}
                             </div>
                         {% endblock %}
                     {% endblock %}
@@ -24,21 +24,48 @@
 {% endblock %}
 
 {% block page_content %}
-    <twig:Card>
+    <twig:Card
+        :paginator="paginator"
+    >
+        {% import '_macros/pagination.html.twig' as pagination %}
         <table class="table">
             <thead>
             <tr>
                 <th class="col-1">
-                    {{ 'label.id'|trans }}
+                    <a href="{{ path('app_data_area_list', {
+                        ...app.request.query.all(),
+                        sortBy: 'id',
+                        orderBy: sortBy == 'id' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.id'|trans }} {{ pagination.sortArrow('id', sortBy, orderBy) }}
+                    </a>
                 </th>
                 <th class="col-3">
-                    {{ 'label.name'|trans }}
+                    <a href="{{ path('app_data_area_list', {
+                        ...app.request.query.all(),
+                        sortBy: 'name',
+                        orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
+                    </a>
                 </th>
                 <th class="col-2">
-                    {{ 'label.state'|trans }}
+                    <a href="{{ path('app_data_area_list', {
+                        ...app.request.query.all(),
+                        sortBy: 'state',
+                        orderBy: sortBy == 'state' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.state'|trans }} {{ pagination.sortArrow('state', sortBy, orderBy) }}
+                    </a>
                 </th>
                 <th class="col-2">
-                    {{ 'label.last_changed_at'|trans }}
+                    <a href="{{ path('app_data_area_list', {
+                        ...app.request.query.all(),
+                        sortBy: 'lastChange',
+                        orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.last_changed_at'|trans }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
+                    </a>
                 </th>
                 <th class="col-2">
                     {{ 'label.last_changed_by'|trans }}
@@ -46,7 +73,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for dispatch_area in results %}
+            {% for dispatch_area in paginator.results %}
                 <tr>
                     <td>
                         {{ dispatch_area.id }}

@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ListAreaController extends AbstractController
 {
     public function __construct(
-        private DispatchAreaRepository $dispatchAreaRepository,
+        private readonly DispatchAreaRepository $dispatchAreaRepository,
     ) {
     }
 
@@ -20,10 +20,12 @@ final class ListAreaController extends AbstractController
     public function index(
         #[MapQueryString] AreaListQueryParametersDTO $query,
     ): Response {
-        $results = $this->dispatchAreaRepository->findAreasByQueryParameterDTO($query);
+        $paginator = $this->dispatchAreaRepository->getAreaListPaginator($query);
 
         return $this->render('data/area/list.html.twig', [
-            'results' => $results,
+            'paginator' => $paginator,
+            'sortBy' => $query->sortBy,
+            'orderBy' => $query->orderBy,
         ]);
     }
 }

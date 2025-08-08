@@ -7,4 +7,14 @@
     <div class="card-body">
         {% block content %}{% endblock %}
     </div>
+
+    {% if paginator is defined %}
+        {% import '_macros/pagination.html.twig' as pagination %}
+
+        <div class="card-footer d-flex align-items-center">
+            {{ pagination.results(paginator.numResults, paginator.pageSize) }}
+
+            {{ pagination.navbar(paginator, 'app_data_area_list') }}
+        </div>
+    {% endif %}
 </div>

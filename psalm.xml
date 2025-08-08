@@ -51,6 +51,7 @@
                 <directory name="src/DataTransferObjects"/>
                 <directory name="src/Entity"/>
                 <directory name="src/Factory"/>
+                <directory name="src/Pagination"/>
                 <directory name="src/Repository"/>
             </errorLevel>
         </PossiblyUnusedMethod>

@@ -2,6 +2,7 @@
 
 namespace App\Twig\Components;
 
+use App\Pagination\Paginator;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
@@ -12,6 +13,8 @@ final class Card
     public ?string $size = null;
 
     public ?string $title = null;
+
+    public ?Paginator $paginator = null;
 
     public function getCssClass(): string
     {
