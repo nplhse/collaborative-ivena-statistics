@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block page %}
+    <div class="page">
+        {% block header %}
+            {% embed "_embeds/header.html.twig" %}{% endembed %}
+        {% endblock %}
+
+        <div class="page-wrapper">
+            {% block body %}{% endblock %}
+        </div>
+
+        {% include "_includes/footer.html.twig" %}
+    </div>
+{% endblock %}
