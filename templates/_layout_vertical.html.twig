@@ -3,13 +3,35 @@
 {% block page %}
     <div class="page">
         {% block header %}
-            {% embed "_embeds/header.html.twig" %}{% endembed %}
+            {% embed '_embeds/header.html.twig' %}{% endembed %}
         {% endblock %}
 
-        <div class="page-wrapper">
-            {% block body %}{% endblock %}
-        </div>
+        {{ include('_includes/flash_messages.html.twig') }}
 
-        {% include "_includes/footer.html.twig" %}
+        {% block page_wrapper %}
+            <div class="page-wrapper">
+                {% block page_header %}
+
+                {% endblock %}
+
+                {% block page_body %}
+                    <div class="page-body">
+                        <div class="container-xl">
+                            {% block page_content_before %}{% endblock %}
+
+                                <section id="{% block page_content_id %}{% endblock %}" class="{% block page_content_class %}content{% endblock %}">
+                                    {% block page_content_start %}{% endblock %}
+                                    {% block page_content %}{% endblock %}
+                                    {% block page_content_end %}{% endblock %}
+                                </section>
+
+                            {% block page_content_after %}{% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {{ include('_includes/footer.html.twig') }}
     </div>
 {% endblock %}
