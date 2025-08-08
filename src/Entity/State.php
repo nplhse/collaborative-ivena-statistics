@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Entity\Traits\Blamable;
 use App\Repository\StateRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StateRepository::class)]
@@ -19,6 +21,12 @@ class State
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
+
+    /**
+     * @var Collection<int, DispatchArea>
+     */
+    #[ORM\OneToMany(targetEntity: DispatchArea::class, mappedBy: 'state')]
+    private Collection $dispatchAreas;
 
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
@@ -37,6 +45,7 @@ class State
 
     public function __construct()
     {
+        $this->dispatchAreas = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable('now');
     }
 
@@ -53,6 +62,36 @@ class State
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DispatchArea>
+     */
+    public function getDispatchAreas(): Collection
+    {
+        return $this->dispatchAreas;
+    }
+
+    public function addDispatchArea(DispatchArea $dispatchArea): static
+    {
+        if (!$this->dispatchAreas->contains($dispatchArea)) {
+            $this->dispatchAreas->add($dispatchArea);
+            $dispatchArea->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDispatchArea(DispatchArea $dispatchArea): static
+    {
+        if ($this->dispatchAreas->removeElement($dispatchArea)) {
+            // set the owning side to null (unless already changed)
+            if ($dispatchArea->getState() === $this) {
+                $dispatchArea->setState(null);
+            }
+        }
 
         return $this;
     }
@@ -85,5 +124,10 @@ class State
     public function updateTimestamps(): void
     {
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
+    }
+
+    public function __toString(): string
+    {
+        return $this->name ?? 'No name';
     }
 }
