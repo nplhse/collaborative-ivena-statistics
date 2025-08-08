@@ -8,9 +8,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class DataController extends AbstractController
 {
-    #[Route('/data', name: 'app_data')]
+    #[Route('/data', name: 'app_data_index')]
     public function index(): Response
     {
-        return $this-$this->redirectToRoute('app_data_area_list');
+        return $this->redirectToRoute('app_data_area_list');
     }
 }
