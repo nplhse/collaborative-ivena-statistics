@@ -34,8 +34,8 @@ final class Paginator
     /** @psalm-suppress PropertyNotSetInConstructor */
     private int $numResults;
 
-    /** @psalm-suppress PropertyNotSetInConstructor */
     /**
+     * @psalm-suppress PropertyNotSetInConstructor
      * @var \Traversable<array-key, object>
      */
     private \Traversable $results;

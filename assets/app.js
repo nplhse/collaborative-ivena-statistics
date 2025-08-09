@@ -6,5 +6,7 @@ import './bootstrap.js';
  * which should already be in your base.html.twig.
  */
 
+import './styles/app.css'
+
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core'
