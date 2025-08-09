@@ -38,6 +38,13 @@ final class DispatchAreaRepository extends ServiceEntityRepository
             $qb->orderBy('da.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
         }
 
+        if (null !== $queryParametersDTO->search) {
+            $qb->andWhere($qb->expr()->like('da.name', ':search'))
+                ->orWhere($qb->expr()->like('s.name', ':search'))
+                ->setParameter('search', '%'.$queryParametersDTO->search.'%')
+            ;
+        }
+
         return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
 }

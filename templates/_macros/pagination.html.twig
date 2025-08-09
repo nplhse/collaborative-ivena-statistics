@@ -1,19 +1,19 @@
 {% macro sortArrow(sortName, sortBy, orderBy) %}
     {% if sortBy == sortName %}
         {% if orderBy == 'asc' %}
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block " width="1em" height="1em" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M6 15l6 -6l6 6"></path>
             </svg>
         {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block " width="1em" height="1em" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M6 9l6 6l6 -6"></path>
             </svg>
         {% endif %}
     {% else %}
         <!-- up and down arrow svg -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4 text-slate-300" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="inline-block text-slate-300" width="1em" height="1em" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
             <path d="M8 9l4 -4l4 4"></path>
             <path d="M16 15l-4 4l-4 -4"></path>
@@ -22,9 +22,30 @@
 {% endmacro %}
 
 {% macro results(numResults, pageSize) %}
-    <p class="m-0 text-muted">
-        {{ 'label.pagination_results'|trans({numResults: numResults, pageSize: pageSize}) }}
-    </p>
+    <div class="dropdown">
+        <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="me-1">
+                {{ 'label.pagination_results'|trans({pageSize: pageSize}) }}
+            </span>
+        </a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item"
+               href="{{ path(app.request.attributes.get('_route'),
+                   app.request.query.all|merge({limit: 25, page: 1})) }}">
+                {{ 'label.pagination_results'|trans({pageSize: 25}) }}
+            </a>
+            <a class="dropdown-item"
+               href="{{ path(app.request.attributes.get('_route'),
+                   app.request.query.all|merge({limit: 50, page: 1})) }}">
+                {{ 'label.pagination_results'|trans({pageSize: 50}) }}
+            </a>
+            <a class="dropdown-item"
+               href="{{ path(app.request.attributes.get('_route'),
+                   app.request.query.all|merge({limit: 100, page: 1})) }}">
+                {{ 'label.pagination_results'|trans({pageSize: 100}) }}
+            </a>
+        </div>
+    </div>
 {% endmacro %}
 
 {% macro navbar(paginator, targetPath) %}

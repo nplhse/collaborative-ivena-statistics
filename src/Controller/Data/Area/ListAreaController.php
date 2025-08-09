@@ -24,6 +24,7 @@ final class ListAreaController extends AbstractController
 
         return $this->render('data/area/list.html.twig', [
             'paginator' => $paginator,
+            'search' => $query->search,
             'sortBy' => $query->sortBy,
             'orderBy' => $query->orderBy,
         ]);

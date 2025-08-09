@@ -43,11 +43,19 @@
       </trans-unit>
       <trans-unit id="XGA5uHp" resname="label.pagination_results">
         <source>label.pagination_results</source>
-        <target>Showing {numResults} results, with {pageSize} per page.</target>
+        <target>{pageSize} records</target>
       </trans-unit>
       <trans-unit id="qRwFlMY" resname="label.previous">
         <source>label.previous</source>
         <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="iw9qUxb" resname="label.search">
+        <source>label.search</source>
+        <target>Search...</target>
+      </trans-unit>
+      <trans-unit id="E78H_sa" resname="label.search_for">
+        <source>label.search_for</source>
+        <target>Searching for: {term}</target>
       </trans-unit>
       <trans-unit id="uARVlbj" resname="label.search_no_results">
         <source>label.search_no_results</source>
