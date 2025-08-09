@@ -14,7 +14,7 @@
         {% block importmap %}{{ importmap('app') }}{% endblock %}
     {% endblock %}
 </head>
-<body>
+<body {% block turbo_drive %}{% endblock %}>
 {% block body %}
     {% block page %}
         <div class="page">

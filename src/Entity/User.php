@@ -110,6 +110,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $data;
     }
 
+    public function __toString(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
     #[\Override]
     #[\Deprecated]
     public function eraseCredentials(): void
