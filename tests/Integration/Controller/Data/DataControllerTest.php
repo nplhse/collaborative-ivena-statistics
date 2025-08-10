@@ -10,8 +10,6 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 class DataControllerTest extends WebTestCase
 {
     use HasBrowser;
-    use ResetDatabase;
-    use Factories;
 
     public function testUsersGetRedirected(): void
     {
