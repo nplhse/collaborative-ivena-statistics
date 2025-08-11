@@ -6,7 +6,6 @@ use App\Entity\Hospital;
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
-use Zenstruck\Foundry\Factory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -28,6 +27,7 @@ final class HospitalFactory extends PersistentProxyObjectFactory
     {
         /**
          * @see App\Faker\Provider\Hospital
+         *
          * @var \Faker\Generator&\App\Faker\Provider\HospitalFakerMethods $faker
          */
         $faker = self::faker();

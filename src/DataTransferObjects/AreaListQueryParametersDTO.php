@@ -16,7 +16,7 @@ final readonly class AreaListQueryParametersDTO
         #[Assert\Choice(choices: ['asc', 'desc'])]
         public string $orderBy = 'asc',
 
-        #[Assert\Choice(choices: ['id', 'name', 'state', 'lastChange', ''])]
+        #[Assert\Choice(choices: ['id', 'name', 'state', 'lastChange'])]
         public string $sortBy = 'name',
 
         public ?string $search = null,

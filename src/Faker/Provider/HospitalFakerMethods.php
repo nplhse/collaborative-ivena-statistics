@@ -8,7 +8,6 @@ namespace App\Faker\Provider;
  * we assign self::faker() just for this one case to a $faker variable and
  * manually assign this interface alongside the usual generator.
  */
-
 interface HospitalFakerMethods
 {
     /**

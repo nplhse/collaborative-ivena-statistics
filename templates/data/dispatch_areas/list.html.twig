@@ -1,6 +1,6 @@
 {% extends '_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.area.list'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.dispatch_area.list'|trans }} - {{ parent() }}{% endblock %}
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
@@ -19,7 +19,7 @@
                 <div class="col">
                     {% block page_intro %}
                         <h2 class="page-title">
-                            {% block page_title %}{{ 'title.area.list'|trans }}{% endblock %}
+                            {% block page_title %}{{ 'title.dispatch_area.list'|trans }}{% endblock %}
                         </h2>
                         {% block page_subtitle %}
                             {% block result_count %}
@@ -35,7 +35,7 @@
                     <div class="btn-list">
                         <form
                             method="GET"
-                            action="{{ path('app_data_area_list') }}"
+                            action="{{ path('app_data_dispatch_area_list') }}"
                             data-controller="autosubmit"
                             data-turbo-frame="area-list"
                         >
@@ -89,7 +89,7 @@
                 <thead>
                 <tr>
                     <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_data_area_list', {
+                        <a class="text-muted" href="{{ path('app_data_dispatch_area_list', {
                             ...app.request.query.all(),
                             sortBy: 'id',
                             orderBy: sortBy == 'id' and orderBy == 'asc' ? 'desc' : 'asc',
@@ -98,7 +98,7 @@
                         </a>
                     </th>
                     <th class="col-3">
-                        <a class="text-muted" href="{{ path('app_data_area_list', {
+                        <a class="text-muted" href="{{ path('app_data_dispatch_area_list', {
                             ...app.request.query.all(),
                             sortBy: 'name',
                             orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
@@ -107,7 +107,7 @@
                         </a>
                     </th>
                     <th class="col-2">
-                        <a class="text-muted" href="{{ path('app_data_area_list', {
+                        <a class="text-muted" href="{{ path('app_data_dispatch_area_list', {
                             ...app.request.query.all(),
                             sortBy: 'state',
                             orderBy: sortBy == 'state' and orderBy == 'asc' ? 'desc' : 'asc',
@@ -116,7 +116,7 @@
                         </a>
                     </th>
                     <th class="col-2">
-                        <a class="text-muted" href="{{ path('app_data_area_list', {
+                        <a class="text-muted" href="{{ path('app_data_dispatch_area_list', {
                             ...app.request.query.all(),
                             sortBy: 'lastChange',
                             orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
