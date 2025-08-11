@@ -32,4 +32,7 @@ return [
         'version' => '1.3.2',
         'type' => 'css',
     ],
+    'debounce' => [
+        'version' => '2.2.0',
+    ],
 ];

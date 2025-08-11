@@ -4,7 +4,11 @@
             <h3 class="card-title">{{ title }}</h3>
         </div>
     {% endif %}
-    <div class="card-body">
+    <div class="card-body {% if noPadding %}p-0{% endif %}">
         {% block content %}{% endblock %}
     </div>
+
+    {% if paginator is not null %}
+        {{ include('_includes/card_pagination_footer.html.twig') }}
+    {% endif %}
 </div>
