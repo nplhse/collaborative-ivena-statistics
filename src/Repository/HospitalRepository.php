@@ -2,8 +2,13 @@
 
 namespace App\Repository;
 
+use App\DataTransferObjects\HospitalQueryParametersDTO;
+use App\Entity\DispatchArea;
 use App\Entity\Hospital;
+use App\Entity\State;
+use App\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,28 +21,40 @@ final class HospitalRepository extends ServiceEntityRepository
         parent::__construct($registry, Hospital::class);
     }
 
-    //    /**
-    //     * @return Hospital[] Returns an array of Hospital objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('h')
-    //            ->andWhere('h.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('h.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getHospitalListPaginator(HospitalQueryParametersDTO $queryParametersDTO): Paginator
+    {
+        $qb = $this->createQueryBuilder('h')
+            ->addSelect('(CASE WHEN h.updatedAt IS NOT NULL THEN h.updatedAt ELSE h.createdAt END) AS HIDDEN sortDate')
+            ->leftJoin(
+                State::class,
+                's',
+                Join::WITH,
+                'h.state = s.id'
+            )
+            ->leftJoin(
+                DispatchArea::class,
+                'da',
+                Join::WITH,
+                'h.dispatchArea = da.id'
+            )
+        ;
 
-    //    public function findOneBySomeField($value): ?Hospital
-    //    {
-    //        return $this->createQueryBuilder('h')
-    //            ->andWhere('h.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $field = match ($queryParametersDTO->sortBy) {
+            'lastChange' => 'sortDate',
+            'size' => 'h.beds',
+            'dispatchArea' => 'da.name',
+            'state' => 's.name',
+            default => 'h.'.$queryParametersDTO->sortBy, // bewusstes, sicheres Default
+        };
+
+        $qb->orderBy($field, $queryParametersDTO->orderBy);
+
+        if (null !== $queryParametersDTO->search) {
+            $qb->andWhere($qb->expr()->like('h.name', ':search'))
+                ->setParameter('search', '%'.$queryParametersDTO->search.'%')
+            ;
+        }
+
+        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+    }
 }

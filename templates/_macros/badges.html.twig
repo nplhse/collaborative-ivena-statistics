@@ -1,0 +1,25 @@
+{% macro render(type, value, number = null) %}
+    {% import _self as self %}
+
+    {% set mappings = {
+        hospital_location: {
+            Urban: {class: 'bg-indigo text-indigo-fg', label: 'Urban'},
+            Mixed: {class: 'bg-azure text-azure-fg', label: 'Mixed'},
+            Rural: {class: 'bg-blue text-blue-fg', label: 'Rural'},
+        },
+        hospital_tier: {
+            Basic: {class: 'bg-purple text-purple-fg', label: 'Basic'},
+            Extended: {class: 'bg-pink text-pink-fg', label: 'Extended'},
+            Full: {class: 'bg-red text-red-fg', label: 'Full'},
+        },
+        hospital_size: {
+            Small: {class: 'bg-lime text-lime-fg', label: 'Small'},
+            Medium: {class: 'bg-green text-green-fg', label: 'Medium'},
+            Large: {class: 'bg-teal text-teal-fg', label: 'Large'},
+        },
+    } %}
+
+    {% set badge = mappings[type][value] ?? {class: 'bg-secondary text-secondary-fg', label: value} %}
+
+    <span class="badge {{ badge.class }}">{{ badge.label }} {% if number is not null %}({{ number }}){% endif %}</span>
+{% endmacro %}

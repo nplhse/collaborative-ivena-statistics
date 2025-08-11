@@ -35,7 +35,7 @@
     <div class="row g-3">
         <!-- Card: Areas -->
         <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_data_area_list') }}">
+            <a href="{{ path('app_data_dispatch_area_list') }}">
                 <div class="card p-3 d-flex flex-row align-items-center">
                     <!-- Icon -->
                     <div class="me-3 text-primary">
@@ -43,8 +43,25 @@
                     </div>
                     <!-- Text -->
                     <div>
-                        <div class="h3 mb-0">{{ 'link.areas'|trans }}</div>
-                        <small class="text-muted">{{ 'label.link.areas'|trans }}</small>
+                        <div class="h3 mb-0">{{ 'link.dispatch_areas'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.dispatch_areas'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Hospitals -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_hospital_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:building-hospital" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.hospitals'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.hospitals'|trans }}</small>
                     </div>
                 </div>
             </a>
