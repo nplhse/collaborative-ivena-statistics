@@ -32,7 +32,7 @@ final readonly class BlamableListener
             return;
         }
 
-        if (isset($entity->getCreatedBy)) {
+        if (method_exists($entity, 'getCreatedBy') && null !== $entity->getCreatedBy()) {
             return;
         }
 

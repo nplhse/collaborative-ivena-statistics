@@ -6,11 +6,11 @@ use App\Entity\User;
 
 trait Blamable
 {
-    protected User $createdBy;
+    protected ?User $createdBy = null;
 
     protected ?User $updatedBy = null;
 
-    public function getCreatedBy(): User
+    public function getCreatedBy(): ?User
     {
         return $this->createdBy;
     }

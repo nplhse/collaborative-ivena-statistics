@@ -33,7 +33,7 @@ class DispatchArea
     /** @psalm-suppress PropertyNotSetInConstructor */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    protected User $createdBy;
+    protected ?User $createdBy = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true)]
