@@ -11,6 +11,6 @@ final class DataController extends AbstractController
     #[Route('/data', name: 'app_data_index')]
     public function index(): Response
     {
-        return $this->redirectToRoute('app_data_area_list');
+        return $this->render('data/index.html.twig', []);
     }
 }

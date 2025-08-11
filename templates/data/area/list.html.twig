@@ -4,6 +4,14 @@
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
+{% block header %}
+    {% embed '_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('_includes/subnav_data.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
 {% block page_header %}
     <div class="container-xl">
         <div class="page-header d-print-none">

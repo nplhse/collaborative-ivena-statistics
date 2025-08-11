@@ -3,20 +3,20 @@
 namespace App\Tests\Integration\Controller\Data;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Browser\Test\HasBrowser;
 
 class DataControllerTest extends WebTestCase
 {
-    use HasBrowser;
-
-    public function testUsersGetRedirected(): void
+    public function testOverviewIsDisplayed(): void
     {
-        // Act& Assert
-        $this->browser()
-            ->interceptRedirects()
-            ->visit('/data')
-            ->assertRedirectedTo('/data/area')
-            ->assertSuccessful()
-        ;
+        // Arrange
+        $client = static::createClient();
+
+        // Act
+        $crawler = $client->request('GET', '/data');
+
+        // Assert
+        self::assertResponseIsSuccessful();
+        self::assertPageTitleContains('Data Overview');
+        self::assertSelectorTextContains('h2', 'Data Overview');
     }
 }
