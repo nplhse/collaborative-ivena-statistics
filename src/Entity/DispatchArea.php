@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Entity\Traits\Blamable;
 use App\Repository\DispatchAreaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DispatchAreaRepository::class)]
@@ -24,6 +26,12 @@ class DispatchArea
     #[ORM\JoinColumn(nullable: false)]
     private ?State $state = null;
 
+    /**
+     * @var Collection<int, Hospital>
+     */
+    #[ORM\OneToMany(targetEntity: Hospital::class, mappedBy: 'dispatchArea')]
+    private Collection $hospitals;
+
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
 
@@ -42,6 +50,7 @@ class DispatchArea
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
+        $this->hospitals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -69,6 +78,36 @@ class DispatchArea
     public function setState(?State $state): static
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Hospital>
+     */
+    public function getHospitals(): Collection
+    {
+        return $this->hospitals;
+    }
+
+    public function addHospital(Hospital $hospital): static
+    {
+        if (!$this->hospitals->contains($hospital)) {
+            $this->hospitals->add($hospital);
+            $hospital->setDispatchArea($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHospital(Hospital $hospital): static
+    {
+        if ($this->hospitals->removeElement($hospital)) {
+            // set the owning side to null (unless already changed)
+            if ($hospital->getDispatchArea() === $this) {
+                $hospital->setDispatchArea(null);
+            }
+        }
 
         return $this;
     }

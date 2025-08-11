@@ -28,6 +28,12 @@ class State
     #[ORM\OneToMany(targetEntity: DispatchArea::class, mappedBy: 'state')]
     private Collection $dispatchAreas;
 
+    /**
+     * @var Collection<int, Hospital>
+     */
+    #[ORM\OneToMany(targetEntity: Hospital::class, mappedBy: 'state')]
+    private Collection $hospitals;
+
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
 
@@ -47,6 +53,7 @@ class State
     {
         $this->dispatchAreas = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable('now');
+        $this->hospitals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -90,6 +97,36 @@ class State
             // set the owning side to null (unless already changed)
             if ($dispatchArea->getState() === $this) {
                 $dispatchArea->setState(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Hospital>
+     */
+    public function getHospitals(): Collection
+    {
+        return $this->hospitals;
+    }
+
+    public function addHospital(Hospital $hospital): static
+    {
+        if (!$this->hospitals->contains($hospital)) {
+            $this->hospitals->add($hospital);
+            $hospital->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHospital(Hospital $hospital): static
+    {
+        if ($this->hospitals->removeElement($hospital)) {
+            // set the owning side to null (unless already changed)
+            if ($hospital->getState() === $this) {
+                $hospital->setState(null);
             }
         }
 
