@@ -49,8 +49,10 @@
             <errorLevel type="suppress">
                 <directory name="src/DataFixtures"/>
                 <directory name="src/DataTransferObjects"/>
+                <directory name="src/Enum"/>
                 <directory name="src/Entity"/>
                 <directory name="src/Factory"/>
+                <directory name="src/Faker/Provider"/>
                 <directory name="src/Pagination"/>
                 <directory name="src/Repository"/>
             </errorLevel>

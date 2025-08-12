@@ -9,9 +9,57 @@
         <source>help.search_no_results</source>
         <target>Try adjusting your search or filter to find what you're looking for.</target>
       </trans-unit>
+      <trans-unit id="CEVgeJ7" resname="label.address">
+        <source>label.address</source>
+        <target>Address</target>
+      </trans-unit>
+      <trans-unit id="1GXuSep" resname="label.back_to_list">
+        <source>label.back_to_list</source>
+        <target>Back to list</target>
+      </trans-unit>
+      <trans-unit id="qEe9Os6" resname="label.basic_info">
+        <source>label.basic_info</source>
+        <target>Basic info</target>
+      </trans-unit>
+      <trans-unit id="rsh4cOO" resname="label.created_at">
+        <source>label.created_at</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="fyW6_QN" resname="label.created_by">
+        <source>label.created_by</source>
+        <target>Created by</target>
+      </trans-unit>
+      <trans-unit id="yxZ6XcL" resname="label.data.index.subtitle">
+        <source>label.data.index.subtitle</source>
+        <target>Overview of all available data records</target>
+      </trans-unit>
+      <trans-unit id="7Oebk.l" resname="label.dispatch_area">
+        <source>label.dispatch_area</source>
+        <target>Dispatch Area</target>
+      </trans-unit>
+      <trans-unit id="O4DzdiL" resname="label.hospital_beds">
+        <source>label.hospital_beds</source>
+        <target>Beds</target>
+      </trans-unit>
+      <trans-unit id="lylZSZS" resname="label.hospital_location">
+        <source>label.hospital_location</source>
+        <target>Location</target>
+      </trans-unit>
+      <trans-unit id="r.6slYv" resname="label.hospital_size">
+        <source>label.hospital_size</source>
+        <target>Size</target>
+      </trans-unit>
+      <trans-unit id="ja0Zumw" resname="label.hospital_tier">
+        <source>label.hospital_tier</source>
+        <target>Tier</target>
+      </trans-unit>
       <trans-unit id="jGMjpWb" resname="label.id">
         <source>label.id</source>
         <target>ID</target>
+      </trans-unit>
+      <trans-unit id="KrdI.1U" resname="label.last_change">
+        <source>label.last_change</source>
+        <target>Last change</target>
       </trans-unit>
       <trans-unit id="QlpT4ZW" resname="label.last_changed_at">
         <source>label.last_changed_at</source>
@@ -20,6 +68,18 @@
       <trans-unit id="vCMHgqm" resname="label.last_changed_by">
         <source>label.last_changed_by</source>
         <target>Last changed by</target>
+      </trans-unit>
+      <trans-unit id="lcY9EMq" resname="label.link.dispatch_areas">
+        <source>label.link.dispatch_areas</source>
+        <target>Regions covered by emergency dispatch centers</target>
+      </trans-unit>
+      <trans-unit id="EvJ25zq" resname="label.link.hospitals">
+        <source>label.link.hospitals</source>
+        <target>Facilities delivering medical care and patient services.</target>
+      </trans-unit>
+      <trans-unit id="QgJjQWe" resname="label.location">
+        <source>label.location</source>
+        <target>Location</target>
       </trans-unit>
       <trans-unit id="vLldAk9" resname="label.login">
         <source>label.login</source>
@@ -49,6 +109,10 @@
         <source>label.previous</source>
         <target>Previous</target>
       </trans-unit>
+      <trans-unit id="WhXFmcQ" resname="label.properties">
+        <source>label.properties</source>
+        <target>Properties</target>
+      </trans-unit>
       <trans-unit id="iw9qUxb" resname="label.search">
         <source>label.search</source>
         <target>Search...</target>
@@ -65,17 +129,57 @@
         <source>label.signin</source>
         <target>Sign in</target>
       </trans-unit>
+      <trans-unit id="qrQpMy4" resname="label.size">
+        <source>label.size</source>
+        <target>Size (Beds)</target>
+      </trans-unit>
       <trans-unit id="UpIMnT4" resname="label.state">
         <source>label.state</source>
         <target>State</target>
+      </trans-unit>
+      <trans-unit id="MWqKCgE" resname="label.tier">
+        <source>label.tier</source>
+        <target>Tier</target>
+      </trans-unit>
+      <trans-unit id="qTLpU1R" resname="label.updated_at">
+        <source>label.updated_at</source>
+        <target>Updated at</target>
+      </trans-unit>
+      <trans-unit id="YCDRQcj" resname="label.updated_by">
+        <source>label.updated_by</source>
+        <target>Updated by</target>
       </trans-unit>
       <trans-unit id="kU2zrlb" resname="link.data">
         <source>link.data</source>
         <target>Data</target>
       </trans-unit>
-      <trans-unit id="kdy2QhG" resname="title.area.list">
-        <source>title.area.list</source>
-        <target>List Areas</target>
+      <trans-unit id="V.DoFiU" resname="link.dispatch_areas">
+        <source>link.dispatch_areas</source>
+        <target>Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="xnwGILx" resname="link.hospitals">
+        <source>link.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="6k49n8G" resname="title.data">
+        <source>title.data</source>
+        <target>Data</target>
+      </trans-unit>
+      <trans-unit id="psOkg8i" resname="title.data.index">
+        <source>title.data.index</source>
+        <target>Data Overview</target>
+      </trans-unit>
+      <trans-unit id="edHHJTH" resname="title.dispatch_area.list">
+        <source>title.dispatch_area.list</source>
+        <target>Listing Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="0bnImEj" resname="title.hospital.list">
+        <source>title.hospital.list</source>
+        <target>Listing Hospitals</target>
+      </trans-unit>
+      <trans-unit id="ipAfzN6" resname="title.hospital_show">
+        <source>title.hospital_show</source>
+        <target>Showing Hospital detail</target>
       </trans-unit>
       <trans-unit id="Q.Y20KD" resname="title.login">
         <source>title.login</source>

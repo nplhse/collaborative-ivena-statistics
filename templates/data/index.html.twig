@@ -1,0 +1,70 @@
+{% extends '_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.data.index'|trans }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('_includes/subnav_data.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    {% block page_intro %}
+                        <h2 class="page-title">
+                            {% block page_title %}{{ 'title.data.index'|trans }}{% endblock %}
+                        </h2>
+                    {% endblock %}
+                    {% block page_subtitle %}
+                        <div id="result-count" class="text-body-secondary mt-1">
+                            {{ 'label.data.index.subtitle'|trans }}
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row g-3">
+        <!-- Card: Areas -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_dispatch_area_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:map" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.dispatch_areas'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.dispatch_areas'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Hospitals -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_hospital_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:building-hospital" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.hospitals'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.hospitals'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endblock %}

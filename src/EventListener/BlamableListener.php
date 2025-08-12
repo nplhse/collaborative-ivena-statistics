@@ -62,7 +62,6 @@ final readonly class BlamableListener
     {
         $usedTraits = \class_uses($class);
 
-        /* @phpstan-ignore identical.alwaysFalse */
         if (false === $usedTraits) {
             return [];
         }

@@ -8,4 +8,7 @@ when@dev: &dev
             # Flush only once per call of `PersistentObjectFactory::create()`
             flush_once: true
 
+        faker:
+            locale: de_DE
+
 when@test: *dev

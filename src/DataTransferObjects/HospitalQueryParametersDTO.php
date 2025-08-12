@@ -4,7 +4,7 @@ namespace App\DataTransferObjects;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class AreaListQueryParametersDTO
+final readonly class HospitalQueryParametersDTO
 {
     public function __construct(
         #[Assert\GreaterThan(0)]
@@ -16,7 +16,7 @@ final readonly class AreaListQueryParametersDTO
         #[Assert\Choice(choices: ['asc', 'desc'])]
         public string $orderBy = 'asc',
 
-        #[Assert\Choice(choices: ['id', 'name', 'state', 'lastChange'])]
+        #[Assert\Choice(choices: ['id', 'name', 'dispatchArea', 'state', 'location', 'tier', 'size', 'lastChange'])]
         public string $sortBy = 'name',
 
         public ?string $search = null,

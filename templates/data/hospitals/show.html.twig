@@ -1,0 +1,131 @@
+{% extends '_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.hospital_show'|trans }}: {{ hospital.name }} - {{ 'title.data'|trans }} - {{ parent() }}{% endblock %}
+
+{% import '_macros/badges.html.twig' as badges %}
+
+{% block header %}
+    {% embed '_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('_includes/subnav_data.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span class="avatar avatar-lg rounded">
+                        <twig:ux:icon name="tabler:building-hospital" width="36px" height="36px" />
+                    </span>
+                </div>
+                <div class="col">
+                    <h1 id="hospital-name" class="fw-bold">{{ hospital.name }}</h1>
+                    <div class="list-inline list-inline-dots text-muted">
+                        <div class="list-inline-item">
+                            <twig:ux:icon name="tabler:map" width="1em" height="1em" />
+                            {{ hospital.dispatchArea }}, {{ hospital.state }}
+                        </div>
+                        <div id="hospital-owned-by" class="list-inline-item">
+                            <twig:ux:icon name="tabler:user-square" width="1em" height="1em" />
+                            {{ hospital.owner.userIdentifier }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto ms-auto">
+                    <div class="btn-list">
+                        <span class="d-none d-sm-inline">
+                            <a class="btn btn-outline-secondary" href="{{ path('app_data_hospital_list') }}">
+                                <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                                {{ 'label.back_to_list'|trans }}
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row g-3">
+                <div class="col">
+                </div>
+                <div class="col-lg-4">
+                    <div class="row row-cards">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-title">
+                                        {{ 'label.basic_info'|trans }}
+                                    </div>
+                                    <div id="hospital-created-at" class="mb-2">
+                                        <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                                        {{ 'label.created_at'|trans }} <strong>{{ hospital.createdAt|date('d.m.Y H:i') }}</strong>
+                                    </div>
+                                    <div id="hospital-created-by" class="mb-2">
+                                        <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
+                                        {{ 'label.created_by'|trans }} <strong>{{ hospital.createdBy }}</strong>
+                                    </div>
+                                    {% if hospital.updatedBy and hospital.updatedAt %}
+                                        <div class="mt-1 mb-2">
+                                            <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em"  />
+                                            {{ 'label.updated_at'|trans }} <strong>{{ hospital.updatedAt|date('d.m.Y H:i') }}</strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em"  />
+                                            {{ 'label.updated_by'|trans }} <strong>{{ hospital.updatedBy }}</strong>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-title">
+                                        {{ 'label.address'|trans }}
+                                    </div>
+                                    <div id="hospital-address" class="mb-2">
+                                        <em>
+                                            {{ hospital.address.street }}<br />
+                                            {{ hospital.address.postalCode }}, {{ hospital.address.city }}<br />
+                                            {{ hospital.address.state }}, {{ hospital.address.country }}
+                                        </em>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-title">
+                                        {{ 'label.properties'|trans }}
+                                    </div>
+                                    <div id="hospital-size" class="mb-2">
+                                        <twig:ux:icon name="tabler:aspect-ratio" width="1.5em" height="1.5em"  />
+                                        {{ 'label.hospital_size'|trans }} {{ badges.render('hospital_size', hospital.size.value) }}
+                                    </div>
+                                    <div id="hospital-beds" class="mb-2">
+                                        <twig:ux:icon name="tabler:bed" width="1.5em" height="1.5em"  />
+                                        {{ 'label.hospital_beds'|trans }} <strong>{{ hospital.beds }}</strong>
+                                    </div>
+                                    <div id="hospital-location" class="mb-2">
+                                        <twig:ux:icon name="tabler:map-pin" width="1.5em" height="1.5em"  />
+                                        {{ 'label.hospital_location'|trans }} {{ badges.render('hospital_location', hospital.location.value) }}
+                                    </div>
+                                    <div id="hospital-tier" class="mb-2">
+                                        <twig:ux:icon name="tabler:hierarchy-2" width="1.5em" height="1.5em"  />
+                                        {{ 'label.hospital_tier'|trans }} {{ badges.render('hospital_tier', hospital.tier.value) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
