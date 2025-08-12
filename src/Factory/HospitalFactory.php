@@ -35,6 +35,7 @@ final class HospitalFactory extends PersistentProxyObjectFactory
         return [
             'address' => AddressFactory::new()->create(),
             'beds' => self::faker()->numberBetween(100, 1250),
+            'owner' => UserFactory::random(),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
             'createdBy' => UserFactory::random(),
             'dispatchArea' => DispatchAreaFactory::random(),
