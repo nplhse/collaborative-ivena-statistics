@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/data/area', name: 'app_data_dispatch_area_list')]
+#[Route('/data/dispatch_area', name: 'app_data_dispatch_area_list')]
 final class ListDispatchAreasController extends AbstractController
 {
     public function __construct(

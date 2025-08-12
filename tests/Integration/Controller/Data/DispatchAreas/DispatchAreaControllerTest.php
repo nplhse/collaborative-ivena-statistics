@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Integration\Controller\Data;
+namespace App\Tests\Integration\Controller\Data\DispatchAreas;
 
 use App\Factory\DispatchAreaFactory;
 use App\Factory\StateFactory;
@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class AreaControllerTest extends WebTestCase
+class DispatchAreaControllerTest extends WebTestCase
 {
     use ResetDatabase;
     use Factories;
@@ -23,12 +23,12 @@ class AreaControllerTest extends WebTestCase
         DispatchAreaFactory::createMany(50);
 
         // Act
-        $crawler = $client->request('GET', '/data/area');
+        $crawler = $client->request('GET', '/data/dispatch_area');
 
         // Assert
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('List Areas');
-        self::assertSelectorTextContains('h2', 'List Areas');
+        self::assertPageTitleContains('Listing Dispatch Areas');
+        self::assertSelectorTextContains('h2', 'Listing Dispatch Areas');
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');
@@ -60,7 +60,7 @@ class AreaControllerTest extends WebTestCase
         DispatchAreaFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/data/area?sortBy=name&orderBy=desc');
+        $crawler = $client->request('GET', '/data/dispatch_area?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -80,7 +80,7 @@ class AreaControllerTest extends WebTestCase
         DispatchAreaFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/data/area?page=2');
+        $crawler = $client->request('GET', '/data/dispatch_area?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();
