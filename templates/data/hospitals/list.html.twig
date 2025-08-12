@@ -34,7 +34,7 @@
 {% endblock %}
 
 {% block page_content %}
-    <turbo-frame id="area-list" data-turbo-action="advance">
+    <turbo-frame id="hospital-list" data-turbo-action="advance">
         {% if search is not empty %}
             <twig:Alert type="info" :message="'label.search_for'|trans({term: search})" />
         {% endif %}
@@ -118,7 +118,7 @@
                     {% import '_macros/badges.html.twig' as badges %}
                     <tr>
                         <td>
-                            {{ hospital.name }}
+                            <a href="{{ path('app_data_hospital_show', {id: hospital.id}) }}" target="_top">{{ hospital.name }}</a>
                         </td>
                         <td>
                             {{ hospital.dispatchArea }}
