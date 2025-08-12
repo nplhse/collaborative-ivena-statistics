@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/data/hospitals', name: 'app_data_hospital_list')]
+#[Route('/data/hospital', name: 'app_data_hospital_list')]
 final class ListHospitalsController extends AbstractController
 {
     public function __construct(
