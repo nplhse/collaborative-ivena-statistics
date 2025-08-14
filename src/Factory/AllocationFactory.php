@@ -3,7 +3,8 @@
 namespace App\Factory;
 
 use App\Entity\Allocation;
-use PHPUnit\Framework\Attributes\CoversNothing;
+use App\Enum\AllocationGender;
+use App\Enum\AllocationTransportType;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -30,7 +31,8 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'arrivalAt' => $createdAt,
             'createdAt' => $arrivalAt,
             'dispatchArea' => DispatchAreaFactory::random(),
-            'gender' => self::faker()->randomElement(['M', 'W', 'D']),
+            'gender' => self::faker()->randomElement(AllocationGender::cases()),
+            'age' => self::faker()->numberBetween(1, 99),
             'hospital' => HospitalFactory::random(),
             'isCPR' => self::faker()->boolean(),
             'isPregnant' => self::faker()->boolean(),
@@ -40,6 +42,7 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'requiresCathlab' => self::faker()->boolean(),
             'requiresResus' => self::faker()->boolean(),
             'state' => StateFactory::random(),
+            'transportType' => self::faker()->randomElement(AllocationTransportType::cases()),
         ];
     }
 }

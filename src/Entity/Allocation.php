@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Enum\AllocationGender;
+use App\Enum\AllocationTransportType;
 use App\Repository\AllocationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -31,14 +33,17 @@ class Allocation
     #[ORM\Column]
     private ?\DateTimeImmutable $arrivalAt = null;
 
+    #[ORM\Column(enumType: AllocationGender::class)]
+    private ?AllocationGender $gender = null;
+
+    #[ORM\Column]
+    private ?int $age = null;
+
     #[ORM\Column]
     private ?bool $requiresResus = null;
 
     #[ORM\Column]
     private ?bool $requiresCathlab = null;
-
-    #[ORM\Column(length: 1)]
-    private ?string $gender = null;
 
     #[ORM\Column]
     private ?bool $isCPR = null;
@@ -54,6 +59,9 @@ class Allocation
 
     #[ORM\Column]
     private ?bool $isWithPhysician = null;
+
+    #[ORM\Column(nullable: true, enumType: AllocationTransportType::class)]
+    private ?AllocationTransportType $transportType = null;
 
     public function getId(): ?int
     {
@@ -120,6 +128,30 @@ class Allocation
         return $this;
     }
 
+    public function getGender(): ?AllocationGender
+    {
+        return $this->gender;
+    }
+
+    public function setGender(AllocationGender $gender): static
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+    public function getAge(): ?int
+    {
+        return $this->age;
+    }
+
+    public function setAge(int $age): static
+    {
+        $this->age = $age;
+
+        return $this;
+    }
+
     public function isRequiresResus(): ?bool
     {
         return $this->requiresResus;
@@ -140,18 +172,6 @@ class Allocation
     public function setRequiresCathlab(bool $requiresCathlab): static
     {
         $this->requiresCathlab = $requiresCathlab;
-
-        return $this;
-    }
-
-    public function getGender(): ?string
-    {
-        return $this->gender;
-    }
-
-    public function setGender(string $gender): static
-    {
-        $this->gender = $gender;
 
         return $this;
     }
@@ -212,6 +232,18 @@ class Allocation
     public function setIsWithPhysician(bool $isWithPhysician): static
     {
         $this->isWithPhysician = $isWithPhysician;
+
+        return $this;
+    }
+
+    public function getTransportType(): ?AllocationTransportType
+    {
+        return $this->transportType;
+    }
+
+    public function setTransportType(?AllocationTransportType $transportType): static
+    {
+        $this->transportType = $transportType;
 
         return $this;
     }
