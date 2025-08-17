@@ -28,8 +28,8 @@ final class AllocationFactory extends PersistentProxyObjectFactory
         $arrivalAt = $createdAt->add(new \DateInterval('PT'.random_int(1, 60).'M'));
 
         return [
-            'arrivalAt' => $createdAt,
-            'createdAt' => $arrivalAt,
+            'arrivalAt' => $arrivalAt,
+            'createdAt' => $createdAt,
             'dispatchArea' => DispatchAreaFactory::random(),
             'gender' => self::faker()->randomElement(AllocationGender::cases()),
             'age' => self::faker()->numberBetween(1, 99),
