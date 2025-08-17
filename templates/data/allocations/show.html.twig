@@ -1,0 +1,284 @@
+{% extends '_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.allocation.show'|trans }}: {{ allocation.id }} - {{ 'title.data'|trans }} - {{ parent() }}{% endblock %}
+
+{% import '_macros/badges.html.twig' as badges %}
+
+{% block header %}
+    {% embed '_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('_includes/subnav_data.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span class="avatar avatar-lg rounded">
+                        <twig:ux:icon name="tabler:ambulance" width="36px" height="36px" />
+                    </span>
+                </div>
+                <div class="col">
+                    <h1 id="hospital-name" class="fw-bold">#{{ allocation.id }}</h1>
+                    <div class="list-inline list-inline-dots text-muted">
+                        <div class="list-inline-item">
+                            <twig:ux:icon name="tabler:map" width="1em" height="1em" />
+                            {{ allocation.dispatchArea }}, {{ allocation.state }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto ms-auto">
+                    <div class="btn-list">
+                        <span class="d-none d-sm-inline">
+                            <a class="btn btn-outline-secondary" href="{{ path('app_data_allocation_list') }}">
+                                <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                                {{ 'label.back_to_list'|trans }}
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row g-3">
+                <div class="col">
+                    <div class="col-12">
+                        <twig:Card
+                            title="{{ 'label.hospital'|trans }}"
+                        >
+                            {% import '_macros/badges.html.twig' as badges %}
+
+                            <h3 class="card-title mb-1 fs-3">
+                                {{ allocation.hospital.name }}
+                            </h3>
+
+                            <!-- Subheader: Leitstelle + Staat -->
+                            <div class="text-muted small mb-3 d-flex align-items-center gap-2">
+                                <twig:ux:icon name="tabler:building" width="1em" height="1em" />
+                                <span>
+                                    {{ allocation.hospital.dispatchArea }} · {{ allocation.hospital.state }}
+                                </span>
+                            </div>
+
+                            <div class="text-secondary small mb-3">
+                                {{ allocation.hospital.address.street }}, {{ allocation.hospital.address.postalCode }} {{ allocation.hospital.address.city }}
+                                · {{ allocation.hospital.address.country }}
+                            </div>
+
+                            {% set props = [
+                                {
+                                    icon: 'tabler:aspect-ratio',
+                                    label: 'label.hospital_size'|trans,
+                                    content: badges.render('hospital_size', allocation.hospital.size.value),
+                                },
+                                {
+                                    icon: 'tabler:bed',
+                                    label: 'label.hospital_beds'|trans,
+                                    content: '<strong>' ~ (allocation.hospital.beds ?? '—') ~ '</strong>',
+                                },
+                                {
+                                    icon: 'tabler:map-pin',
+                                    label: 'label.hospital_location'|trans,
+                                    content: badges.render('hospital_location', allocation.hospital.location.value),
+                                },
+                                {
+                                    icon: 'tabler:hierarchy-2',
+                                    label: 'label.hospital_tier'|trans,
+                                    content: badges.render('hospital_tier', allocation.hospital.tier.value),
+                                },
+                            ] %}
+
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                {% for p in props %}
+                                    <span class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 py-2 px-3" title="{{ p.label }}">
+                                            <twig:ux:icon name="{{ p.icon }}" width="1.1em" height="1.1em" />
+                                            <span class="text-muted">{{ p.label }}</span>
+                                            <span class="ms-1">
+                                                {% autoescape false %}{{ p.content }}{% endautoescape %}
+                                            </span>
+                                        </span>
+                                {% endfor %}
+                            </div>
+                        </twig:Card>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="row row-cards">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-title">
+                                        {{ 'label.basic_info'|trans }}
+                                    </div>
+                                    <div id="hospital-created-at" class="mb-2">
+                                        <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                                        {{ 'label.created_at'|trans }} <strong>{{ allocation.createdAt|date('d.m.Y H:i') }}</strong>
+                                    </div>
+                                    <div id="hospital-created-by" class="mb-2">
+                                        <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
+                                        {{ 'label.arrival_at'|trans }} <strong>{{ allocation.arrivalAt|date('d.m.Y H:i') }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-title">
+                                        {{ 'label.transport'|trans }}
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'field.transportType'|trans }}
+                                            </h3>
+                                            <p id="allocation-transportType">
+                                                {% if allocation.transportType.value == 'G' %}
+                                                    <twig:ux:icon name="tabler:ambulance" width="1.5em" height="1.5em" />
+                                                    <strong>{{ allocation.transportType.label()|trans }}</strong>
+                                                {% elseif allocation.transportType.value == 'A' %}
+                                                    <twig:ux:icon name="tabler:helicopter" width="1.5em" height="1.5em" />
+                                                    <strong>{{ allocation.transportType.label()|trans }}</strong>
+                                                {% else %}
+                                                    <strong>{{ 'field.transportType.unknown'|trans }}</strong>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'field.isWithPhysician'|trans }}
+                                            </h3>
+                                            <p {{ allocation.isWithPhysician ? 'class="text-danger fw-bold"' : 'class="text-success mb-2"' }}>
+                                                {% if allocation.isWithPhysician %}
+                                                    {{ 'field.isWithPhysician.true'|trans }}
+                                                {% else %}
+                                                    {{ 'field.isWithPhysician.false'|trans }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-title">
+                                        {{ 'label.properties'|trans }}
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle text-muted">
+                                                {{ 'field.requiresResus'|trans }}
+                                            </h3>
+                                            <p {{ allocation.requiresResus ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
+                                                {% if allocation.requiresResus %}
+                                                    {{ 'field.true'|trans }}
+                                                {% else %}
+                                                    {{ 'field.false'|trans }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle text-muted">
+                                                {{ 'field.requiresCathlab'|trans }}
+                                            </h3>
+                                            <p {{ allocation.requiresCathlab ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
+                                                {% if allocation.requiresCathlab %}
+                                                    {{ 'field.true'|trans }}
+                                                {% else %}
+                                                    {{ 'field.false'|trans }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'field.age'|trans }}
+                                            </h3>
+                                            <p>
+                                                {{ allocation.age }}
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'field.gender'|trans }}
+                                            </h3>
+                                            <p>
+                                                {% if allocation.gender.value == 'M' %}
+                                                    <twig:ux:icon name="tabler:gender-male" width="1em" height="1em" />
+                                                {% elseif allocation.gender.value == 'F' %}
+                                                    <twig:ux:icon name="tabler:gender-female" width="1em" height="1em" />
+                                                {% else %}
+                                                    <twig:ux:icon name="tabler:gender-agender" width="1em" height="1em" />
+                                                {% endif %}
+                                                <strong>{{ allocation.gender.label|trans }}</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'field.isCPR'|trans }}
+                                            </h3>
+                                            <p {{ allocation.isCPR ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
+                                                {% if allocation.isCPR %}
+                                                    {{ 'field.true'|trans }}
+                                                {% else %}
+                                                    {{ 'field.false'|trans }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'allocations.field.isVentilated'|trans }}
+                                            </h3>
+                                            <p {{ allocation.isVentilated ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
+                                                {% if allocation.isVentilated %}
+                                                    {{ 'field.true'|trans }}
+                                                {% else %}
+                                                    {{ 'field.false'|trans }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'allocations.field.isShock'|trans }}
+                                            </h3>
+                                            <p {{ allocation.isShock ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
+                                                {% if allocation.isShock %}
+                                                    {{ 'field.true'|trans }}
+                                                {% else %}
+                                                    {{ 'field.false'|trans }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-6">
+                                            <h3 class="card-subtitle">
+                                                {{ 'allocations.field.isPregnant'|trans }}
+                                            </h3>
+                                            <p {{ allocation.isPregnant ? 'class="text-warning fw-bold"' : '' }}>
+                                                {% if allocation.isPregnant %}
+                                                    {{ 'field.true'|trans }}
+                                                {% else %}
+                                                    {{ 'field.false'|trans }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

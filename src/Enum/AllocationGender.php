@@ -30,4 +30,13 @@ enum AllocationGender: string
             self::OTHER->value,
         ];
     }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::MALE => 'label.gender.male',
+            self::FEMALE => 'label.gender.female',
+            self::OTHER => 'label.gender.other',
+        };
+    }
 }

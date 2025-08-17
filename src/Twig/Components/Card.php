@@ -16,6 +16,8 @@ final class Card
 
     public ?Paginator $paginator = null;
 
+    public ?string $paginationRoute = null;
+
     public bool $noPadding = false;
 
     public function getCssClass(): string

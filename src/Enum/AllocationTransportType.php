@@ -27,4 +27,12 @@ enum AllocationTransportType: string
             self::AIR->value,
         ];
     }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::GROUND => 'label.transportType.ground',
+            self::AIR => 'label.transportType.air',
+        };
+    }
 }
