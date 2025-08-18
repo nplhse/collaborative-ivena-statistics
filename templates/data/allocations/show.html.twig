@@ -18,14 +18,14 @@
             <div class="row align-items-center">
                 <div class="col-auto">
                     <span class="avatar avatar-lg rounded">
-                        <twig:ux:icon name="tabler:ambulance" width="36px" height="36px" />
+                        <twig:ux:icon name="tabler:ambulance" class="w-5 h-5" />
                     </span>
                 </div>
                 <div class="col">
                     <h1 id="hospital-name" class="fw-bold">#{{ allocation.id }}</h1>
                     <div class="list-inline list-inline-dots text-muted">
                         <div class="list-inline-item">
-                            <twig:ux:icon name="tabler:map" width="1em" height="1em" />
+                            <twig:ux:icon name="tabler:map" class="w-3 h-3" />
                             {{ allocation.dispatchArea }}, {{ allocation.state }}
                         </div>
                     </div>
@@ -34,7 +34,7 @@
                     <div class="btn-list">
                         <span class="d-none d-sm-inline">
                             <a class="btn btn-outline-secondary" href="{{ path('app_data_allocation_list') }}">
-                                <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                                <twig:ux:icon name="tabler:chevron-left" class="w-3 h-3" />
                                 {{ 'label.back_to_list'|trans }}
                             </a>
                         </span>
@@ -58,15 +58,15 @@
                                 {{ allocation.hospital.name }}
                             </h3>
 
-                            <!-- Subheader: Leitstelle + Staat -->
                             <div class="text-muted small mb-3 d-flex align-items-center gap-2">
-                                <twig:ux:icon name="tabler:building" width="1em" height="1em" />
+                                <twig:ux:icon name="tabler:building" class="w-3 h-3" />
                                 <span>
                                     {{ allocation.hospital.dispatchArea }} · {{ allocation.hospital.state }}
                                 </span>
                             </div>
 
-                            <div class="text-secondary small mb-3">
+                            <div class="text-secondary small mb-3 d-flex align-items-center gap-2">
+                                <twig:ux:icon name="tabler:map-pin" class="w-3 h-3" />
                                 {{ allocation.hospital.address.street }}, {{ allocation.hospital.address.postalCode }} {{ allocation.hospital.address.city }}
                                 · {{ allocation.hospital.address.country }}
                             </div>
@@ -97,7 +97,7 @@
                             <div class="d-flex flex-wrap gap-2 mt-2">
                                 {% for p in props %}
                                     <span class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 py-2 px-3" title="{{ p.label }}">
-                                            <twig:ux:icon name="{{ p.icon }}" width="1.1em" height="1.1em" />
+                                            <twig:ux:icon name="{{ p.icon }}" class="w-3 h-3" />
                                             <span class="text-muted">{{ p.label }}</span>
                                             <span class="ms-1">
                                                 {% autoescape false %}{{ p.content }}{% endautoescape %}
@@ -180,70 +180,63 @@
                 <div class="col-lg-4">
                     <div class="row row-cards">
                         <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="card-title">
-                                        {{ 'label.basic_info'|trans }}
-                                    </div>
-                                    <div id="allocation-created-at" class="mb-2">
-                                        <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
-                                        {{ 'label.created_at'|trans }} <strong>{{ allocation.createdAt|date('d.m.Y H:i') }}</strong>
-                                    </div>
-                                    <div id="allocation-arrival-at" class="mb-2">
-                                        <twig:ux:icon name="tabler:clock-check" class="w-3 h-3" />
-                                        {{ 'label.arrival_at'|trans }} <strong>{{ allocation.arrivalAt|date('d.m.Y H:i') }}</strong>
-                                    </div>
-                                    <div id="allocation-age" class="mb-2">
-                                        <twig:ux:icon name="tabler:user" class="w-3 h-3" />
-                                        {{ 'field.age'|trans }} <strong>{{ allocation.age }}</strong>
-                                    </div>
-                                    <div id="allocation-gender" class="mb-2">
-                                        {% if allocation.gender.value == 'M' %}
-                                            <twig:ux:icon name="tabler:gender-male" class="w-3 h-3"  />
-                                        {% elseif allocation.gender.value == 'F' %}
-                                            <twig:ux:icon name="tabler:gender-female" class="w-3 h-3"  />
-                                        {% else %}
-                                            <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
-                                        {% endif %}
-                                        {{ 'field.gender'|trans }}
-                                        <strong>{{ allocation.gender.label|trans }}</strong>
-                                    </div>
+                            <twig:Card
+                                title="{{ 'label.basic_info'|trans }}"
+                            >
+                                <div id="allocation-created-at" class="mb-2">
+                                    <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
+                                    {{ 'label.created_at'|trans }} <strong>{{ allocation.createdAt|date('d.m.Y H:i') }}</strong>
                                 </div>
-                            </div>
+                                <div id="allocation-arrival-at" class="mb-2">
+                                    <twig:ux:icon name="tabler:clock-check" class="w-3 h-3" />
+                                    {{ 'label.arrival_at'|trans }} <strong>{{ allocation.arrivalAt|date('d.m.Y H:i') }}</strong>
+                                </div>
+                                <div id="allocation-age" class="mb-2">
+                                    <twig:ux:icon name="tabler:user" class="w-3 h-3" />
+                                    {{ 'field.age'|trans }} <strong>{{ allocation.age }}</strong>
+                                </div>
+                                <div id="allocation-gender">
+                                    {% if allocation.gender.value == 'M' %}
+                                        <twig:ux:icon name="tabler:gender-male" class="w-3 h-3" />
+                                    {% elseif allocation.gender.value == 'F' %}
+                                        <twig:ux:icon name="tabler:gender-female" class="w-3 h-3" />
+                                    {% else %}
+                                        <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
+                                    {% endif %}
+                                    {{ 'field.gender'|trans }} <strong>{{ allocation.gender.label|trans }}</strong>
+                                </div>
+                            </twig:Card>
                         </div>
                         <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="card-title">
-                                        {{ 'label.transport'|trans }}
+                            <twig:Card
+                                title="{{ 'label.transport'|trans }}"
+                            >
+                                <div class="datagrid">
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">{{ 'field.transportType'|trans }}</div>
+                                        <div class="datagrid-content">
+                                            {% if allocation.transportType.value == 'G' %}
+                                                <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" />
+                                                <strong>{{ allocation.transportType.label()|trans }}</strong>
+                                            {% elseif allocation.transportType.value == 'A' %}
+                                                <twig:ux:icon name="tabler:helicopter" class="w-3 h-3" />
+                                                <strong>{{ allocation.transportType.label()|trans }}</strong>
+                                            {% else %}
+                                                {{ 'field.transportType.unknown'|trans }}
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                    <div class="datagrid">
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">{{ 'field.transportType'|trans }}</div>
-                                            <div class="datagrid-content">
-                                                {% if allocation.transportType.value == 'G' %}
-                                                    <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" />
-                                                    <strong>{{ allocation.transportType.label()|trans }}</strong>
-                                                {% elseif allocation.transportType.value == 'A' %}
-                                                    <twig:ux:icon name="tabler:helicopter" class="w-3 h-3" />
-                                                    <strong>{{ allocation.transportType.label()|trans }}</strong>
-                                                {% else %}
-                                                    {{ 'field.transportType.unknown'|trans }}
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">{{ 'field.isWithPhysician'|trans }}</div>
-                                            <div class="datagrid-content">
-                                                {% if allocation.isWithPhysician %}
-                                                    <strong>{{ 'field.isWithPhysician.true'|trans }}</strong>
-                                                {% else %}
-                                                    {{ 'field.isWithPhysician.false'|trans }}
-                                                {% endif %}</div>
-                                        </div>
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">{{ 'field.isWithPhysician'|trans }}</div>
+                                        <div class="datagrid-content">
+                                            {% if allocation.isWithPhysician %}
+                                                <strong>{{ 'field.isWithPhysician.true'|trans }}</strong>
+                                            {% else %}
+                                                {{ 'field.isWithPhysician.false'|trans }}
+                                            {% endif %}</div>
                                     </div>
                                 </div>
-                            </div>
+                            </twig:Card>
                         </div>
                     </div>
                 </div>

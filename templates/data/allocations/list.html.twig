@@ -37,8 +37,7 @@
 
 {% block page_content %}
     <turbo-frame id="allocation-list" data-turbo-action="advance">
-        <twig:Card
-            noPadding="true"
+        <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
         >
@@ -66,7 +65,7 @@
                         </a>
                     </th>
                     <th class="col-3">
-                        {{ 'label.hospital'|trans }} {
+                        {{ 'label.hospital'|trans }}
                     </th>
                     <th class="col-2">
                         {{ 'label.locations'|trans }}
@@ -82,16 +81,16 @@
                 {% for allocation in paginator.results %}
                     <tr>
                         <td>
-                            <twig:ux:icon name="tabler:clock-play" width="1em" height="1em" /> {{ allocation.createdAt|date('d.m.Y H:i') }}<br/>
-                            <twig:ux:icon name="tabler:clock-check" width="1em" height="1em" /> {{ allocation.arrivalAt|date('d.m.Y H:i') }}
+                            <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" /> {{ allocation.createdAt|date('d.m.Y H:i') }}<br/>
+                            <twig:ux:icon name="tabler:clock-check" class="w-3 h-3" /> {{ allocation.arrivalAt|date('d.m.Y H:i') }}
                         </td>
                         <td>
                             {% if allocation.gender.value == 'M' %}
-                                <twig:ux:icon name="tabler:gender-male" width="1em" height="1em" />
+                                <twig:ux:icon name="tabler:gender-male" class="w-3 h-3" />
                             {% elseif allocation.gender.value == 'F' %}
-                                <twig:ux:icon name="tabler:gender-female" width="1em" height="1em" />
+                                <twig:ux:icon name="tabler:gender-female" class="w-3 h-3" />
                             {% else %}
-                                <twig:ux:icon name="tabler:gender-agender" width="1em" height="1em" />
+                                <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
                             {% endif %}
                             {{ allocation.age }}
                         </td>
@@ -160,7 +159,7 @@
                 {% endfor %}
                 </tbody>
             </table>
-        </twig:Card>
+        </twig:DataTable>
 
         <turbo-stream action="replace" target="result-count">
             <template>
