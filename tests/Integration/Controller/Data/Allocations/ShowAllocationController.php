@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Tests\Integration\Controller\Data\Hospitals;
+namespace App\Tests\Integration\Controller\Data\Allocations;
 
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
 use App\Factory\AddressFactory;
+use App\Factory\AllocationFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\StateFactory;
@@ -13,14 +14,14 @@ use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
 
-final class ShowHospitalController extends WebTestCase
+final class ShowAllocationController extends WebTestCase
 {
     use Factories;
 
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = self::createClient();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -37,26 +38,31 @@ final class ShowHospitalController extends WebTestCase
             'name' => 'St. Test Hospital',
             'beds' => 321,
             'address' => $address,
-            'owner' => $owner,
-            'createdBy' => $createdBy,
             'state' => $state,
             'dispatchArea' => $dispatch,
             'location' => HospitalLocation::cases()[0],
             'size' => HospitalSize::cases()[0],
             'tier' => HospitalTier::cases()[0],
+        ]);
+
+        $allocation = AllocationFactory::createOne([
+            'age' => '99',
+            'gender' => 'M',
             'createdAt' => new \DateTimeImmutable('2025-01-02 03:04:05'),
+            'arrivalAt' => new \DateTimeImmutable('2025-02-02 03:15:05'),
         ]);
 
         // Act
-        $crawler = $client->request('GET', '/data/hospital/'.$hospital->getId());
+        $client->request('GET', '/data/allocation/'.$allocation->getId());
 
         // Assert
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorTextContains('#hospital-name', 'St. Test Hospital');
-        self::assertSelectorTextContains('#hospital-created-by', 'area-user');
-        self::assertSelectorTextContains('#hospital-owned-by', 'owner-user');
-        self::assertSelectorTextContains('#hospital-created-at', '01.02.2025');
+        self::assertSelectorTextContains('#allocation-id', '#'.$allocation->getId());
+        self::assertSelectorTextContains('#allocation-created-by', '01.02.2025');
+        self::assertSelectorTextContains('#allocation-arrival-at', '01.02.2025');
+        self::assertSelectorTextContains('#allocation-age', '99');
+        self::assertSelectorTextContains('#allocation-gender', 'Male');
         self::assertSelectorTextContains('#hospital-address', 'Teststadt');
         self::assertSelectorTextContains('#hospital-address', 'Hessen');
         self::assertSelectorTextContains('#hospital-size', HospitalSize::cases()[0]->value);
@@ -67,7 +73,7 @@ final class ShowHospitalController extends WebTestCase
 
     public function testShow404ForUnknownHospital(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/data/hospital/999999');
         self::assertResponseStatusCodeSame(404);
     }
