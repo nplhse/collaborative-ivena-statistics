@@ -123,6 +123,10 @@ class Allocation
 
     public function setArrivalAt(\DateTimeImmutable $arrivalAt): static
     {
+        if ($this->createdAt && $arrivalAt < $this->createdAt) {
+            throw new \InvalidArgumentException('ArrivalAt cannot be before createdAt');
+        }
+
         $this->arrivalAt = $arrivalAt;
 
         return $this;
@@ -147,6 +151,10 @@ class Allocation
 
     public function setAge(int $age): static
     {
+        if ($age < 1 || $age > 99) {
+            throw new \InvalidArgumentException('Age is out of range');
+        }
+
         $this->age = $age;
 
         return $this;

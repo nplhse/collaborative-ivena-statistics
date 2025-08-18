@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Test\Unit\Entity;
+namespace App\Tests\Unit\Entity;
 
 use App\Entity\Address;
 use App\Entity\DispatchArea;
