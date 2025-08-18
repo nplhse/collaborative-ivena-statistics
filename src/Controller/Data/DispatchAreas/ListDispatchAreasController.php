@@ -24,6 +24,7 @@ final class ListDispatchAreasController extends AbstractController
 
         return $this->render('data/dispatch_areas/list.html.twig', [
             'paginator' => $paginator,
+            'pagination_route' => 'app_data_dispatch_area_list',
             'search' => $query->search,
             'sortBy' => $query->sortBy,
             'orderBy' => $query->orderBy,

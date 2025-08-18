@@ -24,6 +24,7 @@ final class ListHospitalsController extends AbstractController
 
         return $this->render('data/hospitals/list.html.twig', [
             'paginator' => $paginator,
+            'pagination_route' => 'app_data_hospital_list',
             'search' => $queryParametersDTO->search,
             'sortBy' => $queryParametersDTO->sortBy,
             'orderBy' => $queryParametersDTO->orderBy,

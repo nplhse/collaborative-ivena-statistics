@@ -5,6 +5,86 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
+      <trans-unit id="TwkKbdo" resname="B+">
+        <source>B+</source>
+        <target>B+</target>
+      </trans-unit>
+      <trans-unit id="4A29cgX" resname="H+">
+        <source>H+</source>
+        <target>H+</target>
+      </trans-unit>
+      <trans-unit id="rZqleUO" resname="N+">
+        <source>N+</source>
+        <target>N+</target>
+      </trans-unit>
+      <trans-unit id="OypyADq" resname="R+">
+        <source>R+</source>
+        <target>R+</target>
+      </trans-unit>
+      <trans-unit id="InZUSNI" resname="S+">
+        <source>S+</source>
+        <target>S+</target>
+      </trans-unit>
+      <trans-unit id="H1OgFhe" resname="allocations.field.isPregnant">
+        <source>allocations.field.isPregnant</source>
+        <target>Is Pregnant</target>
+      </trans-unit>
+      <trans-unit id="T4rWOlm" resname="allocations.field.isShock">
+        <source>allocations.field.isShock</source>
+        <target>Is in Shock</target>
+      </trans-unit>
+      <trans-unit id="sldZ8hU" resname="allocations.field.isVentilated">
+        <source>allocations.field.isVentilated</source>
+        <target>Is Ventilated</target>
+      </trans-unit>
+      <trans-unit id="EiKSkqu" resname="field.age">
+        <source>field.age</source>
+        <target>Age</target>
+      </trans-unit>
+      <trans-unit id="am2xMRr" resname="field.false">
+        <source>field.false</source>
+        <target>False</target>
+      </trans-unit>
+      <trans-unit id="ulUyIcP" resname="field.gender">
+        <source>field.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="nbfKbvC" resname="field.isCPR">
+        <source>field.isCPR</source>
+        <target>Is CPR</target>
+      </trans-unit>
+      <trans-unit id="zUpvkUF" resname="field.isWithPhysician">
+        <source>field.isWithPhysician</source>
+        <target>Is with Physician</target>
+      </trans-unit>
+      <trans-unit id="dr5rc5A" resname="field.isWithPhysician.false">
+        <source>field.isWithPhysician.false</source>
+        <target>Without Physician</target>
+      </trans-unit>
+      <trans-unit id="Zjb_FKn" resname="field.isWithPhysician.true">
+        <source>field.isWithPhysician.true</source>
+        <target>With Physician</target>
+      </trans-unit>
+      <trans-unit id="uFBVePw" resname="field.requiresCathlab">
+        <source>field.requiresCathlab</source>
+        <target>Requires Cathlab</target>
+      </trans-unit>
+      <trans-unit id="AUQV8qD" resname="field.requiresResus">
+        <source>field.requiresResus</source>
+        <target>Requires Resus</target>
+      </trans-unit>
+      <trans-unit id="d833nvj" resname="field.transportType">
+        <source>field.transportType</source>
+        <target>Transport Type</target>
+      </trans-unit>
+      <trans-unit id="9rOVgrM" resname="field.transportType.unknown">
+        <source>field.transportType.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="XMMwdWV" resname="field.true">
+        <source>field.true</source>
+        <target>True</target>
+      </trans-unit>
       <trans-unit id="IlEDRed" resname="help.search_no_results">
         <source>help.search_no_results</source>
         <target>Try adjusting your search or filter to find what you're looking for.</target>
@@ -12,6 +92,14 @@
       <trans-unit id="CEVgeJ7" resname="label.address">
         <source>label.address</source>
         <target>Address</target>
+      </trans-unit>
+      <trans-unit id="dnzVgba" resname="label.age">
+        <source>label.age</source>
+        <target>Age</target>
+      </trans-unit>
+      <trans-unit id="InXuxeP" resname="label.arrival_at">
+        <source>label.arrival_at</source>
+        <target>Arrival at</target>
       </trans-unit>
       <trans-unit id="1GXuSep" resname="label.back_to_list">
         <source>label.back_to_list</source>
@@ -36,6 +124,22 @@
       <trans-unit id="7Oebk.l" resname="label.dispatch_area">
         <source>label.dispatch_area</source>
         <target>Dispatch Area</target>
+      </trans-unit>
+      <trans-unit id="cpKk2WF" resname="label.gender.female">
+        <source>label.gender.female</source>
+        <target>Female</target>
+      </trans-unit>
+      <trans-unit id="jEyk7sz" resname="label.gender.male">
+        <source>label.gender.male</source>
+        <target>Male</target>
+      </trans-unit>
+      <trans-unit id="0z0VQ32" resname="label.gender.other">
+        <source>label.gender.other</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="wyzinGh" resname="label.hospital">
+        <source>label.hospital</source>
+        <target>Hospital</target>
       </trans-unit>
       <trans-unit id="O4DzdiL" resname="label.hospital_beds">
         <source>label.hospital_beds</source>
@@ -69,6 +173,10 @@
         <source>label.last_changed_by</source>
         <target>Last changed by</target>
       </trans-unit>
+      <trans-unit id="mcp_slZ" resname="label.link.allocations">
+        <source>label.link.allocations</source>
+        <target>Emergency service deployments recorded in IVENA with their details.</target>
+      </trans-unit>
       <trans-unit id="lcY9EMq" resname="label.link.dispatch_areas">
         <source>label.link.dispatch_areas</source>
         <target>Regions covered by emergency dispatch centers</target>
@@ -80,6 +188,10 @@
       <trans-unit id="QgJjQWe" resname="label.location">
         <source>label.location</source>
         <target>Location</target>
+      </trans-unit>
+      <trans-unit id="YgXFkLl" resname="label.locations">
+        <source>label.locations</source>
+        <target>Locations</target>
       </trans-unit>
       <trans-unit id="vLldAk9" resname="label.login">
         <source>label.login</source>
@@ -104,6 +216,10 @@
       <trans-unit id="XGA5uHp" resname="label.pagination_results">
         <source>label.pagination_results</source>
         <target>{pageSize} records</target>
+      </trans-unit>
+      <trans-unit id="dzmkSoD" resname="label.pregnant">
+        <source>label.pregnant</source>
+        <target>Pregnant</target>
       </trans-unit>
       <trans-unit id="qRwFlMY" resname="label.previous">
         <source>label.previous</source>
@@ -141,6 +257,22 @@
         <source>label.tier</source>
         <target>Tier</target>
       </trans-unit>
+      <trans-unit id="obqbGpe" resname="label.timestamps">
+        <source>label.timestamps</source>
+        <target>Timestamps</target>
+      </trans-unit>
+      <trans-unit id="lwBygYd" resname="label.transport">
+        <source>label.transport</source>
+        <target>Mode of transport</target>
+      </trans-unit>
+      <trans-unit id="qSTAVrt" resname="label.transportType.air">
+        <source>label.transportType.air</source>
+        <target>Air</target>
+      </trans-unit>
+      <trans-unit id="8enqG3e" resname="label.transportType.ground">
+        <source>label.transportType.ground</source>
+        <target>Ground</target>
+      </trans-unit>
       <trans-unit id="qTLpU1R" resname="label.updated_at">
         <source>label.updated_at</source>
         <target>Updated at</target>
@@ -148,6 +280,10 @@
       <trans-unit id="YCDRQcj" resname="label.updated_by">
         <source>label.updated_by</source>
         <target>Updated by</target>
+      </trans-unit>
+      <trans-unit id="ZdrXMaQ" resname="link.allocations">
+        <source>link.allocations</source>
+        <target>Allocations</target>
       </trans-unit>
       <trans-unit id="kU2zrlb" resname="link.data">
         <source>link.data</source>
@@ -160,6 +296,14 @@
       <trans-unit id="xnwGILx" resname="link.hospitals">
         <source>link.hospitals</source>
         <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="GhGeHI9" resname="title.allocation.list">
+        <source>title.allocation.list</source>
+        <target>Listing Allocations</target>
+      </trans-unit>
+      <trans-unit id="fykBocL" resname="title.allocation.show">
+        <source>title.allocation.show</source>
+        <target>Show Allocation Detail</target>
       </trans-unit>
       <trans-unit id="6k49n8G" resname="title.data">
         <source>title.data</source>

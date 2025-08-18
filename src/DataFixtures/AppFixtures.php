@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Factory\AllocationFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\StateFactory;
@@ -21,6 +22,8 @@ final class AppFixtures extends Fixture
         DispatchAreaFactory::createMany(50);
 
         HospitalFactory::createMany(10);
+
+        AllocationFactory::createMany(100);
 
         $manager->flush();
     }

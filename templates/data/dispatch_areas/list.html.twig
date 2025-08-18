@@ -79,9 +79,9 @@
             <twig:Alert type="info" :message="'label.search_for'|trans({term: search})" />
         {% endif %}
 
-        <twig:Card
-            noPadding="true"
+        <twig:DataTable
             :paginator="paginator"
+            :paginationRoute="pagination_route"
         >
             {% import '_macros/pagination.html.twig' as pagination %}
 
@@ -171,7 +171,7 @@
                 {% endfor %}
                 </tbody>
             </table>
-        </twig:Card>
+        </twig:DataTable>
 
         <turbo-stream action="replace" target="result-count">
             <template>

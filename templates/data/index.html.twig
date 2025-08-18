@@ -33,7 +33,24 @@
 
 {% block page_content %}
     <div class="row g-3">
-        <!-- Card: Areas -->
+        <!-- Card: Allocations -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_allocation_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:list" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.allocations'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.allocations'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: DispatchAreas -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ path('app_data_dispatch_area_list') }}">
                 <div class="card p-3 d-flex flex-row align-items-center">
