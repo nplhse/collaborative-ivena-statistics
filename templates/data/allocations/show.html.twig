@@ -48,7 +48,7 @@
         <div class="container-xl">
             <div class="row g-3">
                 <div class="col">
-                    <div class="col-12">
+                    <div class="col-12 mb-3">
                         <twig:Card
                             title="{{ 'label.hospital'|trans }}"
                         >
@@ -106,6 +106,75 @@
                                 {% endfor %}
                             </div>
                         </twig:Card>
+
+                    </div>
+                    <div class="col-12">
+                        <twig:Card
+                            title="{{ 'label.properties'|trans }}"
+                        >
+                            <div class="datagrid">
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'field.requiresResus'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {% if allocation.requiresResus %}
+                                            <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                        {% else %}
+                                            <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'field.requiresCathlab'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {% if allocation.requiresCathlab %}
+                                            <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                        {% else %}
+                                            <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'field.isCPR'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {% if allocation.isCPR %}
+                                            <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                        {% else %}
+                                            <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'allocations.field.isVentilated'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {% if allocation.isVentilated %}
+                                            <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                        {% else %}
+                                            <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'allocations.field.isShock'|trans }}r</div>
+                                    <div class="datagrid-content">
+                                        {% if allocation.isShock %}
+                                            <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                        {% else %}
+                                            <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'allocations.field.isPregnant'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {% if allocation.isPregnant %}
+                                            <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                        {% else %}
+                                            <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </twig:Card>
                     </div>
                 </div>
                 <div class="col-lg-4">
@@ -116,13 +185,28 @@
                                     <div class="card-title">
                                         {{ 'label.basic_info'|trans }}
                                     </div>
-                                    <div id="hospital-created-at" class="mb-2">
-                                        <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                                    <div id="allocation-created-at" class="mb-2">
+                                        <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
                                         {{ 'label.created_at'|trans }} <strong>{{ allocation.createdAt|date('d.m.Y H:i') }}</strong>
                                     </div>
-                                    <div id="hospital-created-by" class="mb-2">
-                                        <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
+                                    <div id="allocation-arrival-at" class="mb-2">
+                                        <twig:ux:icon name="tabler:clock-check" class="w-3 h-3" />
                                         {{ 'label.arrival_at'|trans }} <strong>{{ allocation.arrivalAt|date('d.m.Y H:i') }}</strong>
+                                    </div>
+                                    <div id="allocation-age" class="mb-2">
+                                        <twig:ux:icon name="tabler:user" class="w-3 h-3" />
+                                        {{ 'field.age'|trans }} <strong>{{ allocation.age }}</strong>
+                                    </div>
+                                    <div id="allocation-gender" class="mb-2">
+                                        {% if allocation.gender.value == 'M' %}
+                                            <twig:ux:icon name="tabler:gender-male" class="w-3 h-3"  />
+                                        {% elseif allocation.gender.value == 'F' %}
+                                            <twig:ux:icon name="tabler:gender-female" class="w-3 h-3"  />
+                                        {% else %}
+                                            <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
+                                        {% endif %}
+                                        {{ 'field.gender'|trans }}
+                                        <strong>{{ allocation.gender.label|trans }}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -133,144 +217,29 @@
                                     <div class="card-title">
                                         {{ 'label.transport'|trans }}
                                     </div>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'field.transportType'|trans }}
-                                            </h3>
-                                            <p id="allocation-transportType">
+                                    <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">{{ 'field.transportType'|trans }}</div>
+                                            <div class="datagrid-content">
                                                 {% if allocation.transportType.value == 'G' %}
-                                                    <twig:ux:icon name="tabler:ambulance" width="1.5em" height="1.5em" />
+                                                    <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" />
                                                     <strong>{{ allocation.transportType.label()|trans }}</strong>
                                                 {% elseif allocation.transportType.value == 'A' %}
-                                                    <twig:ux:icon name="tabler:helicopter" width="1.5em" height="1.5em" />
+                                                    <twig:ux:icon name="tabler:helicopter" class="w-3 h-3" />
                                                     <strong>{{ allocation.transportType.label()|trans }}</strong>
                                                 {% else %}
-                                                    <strong>{{ 'field.transportType.unknown'|trans }}</strong>
+                                                    {{ 'field.transportType.unknown'|trans }}
                                                 {% endif %}
-                                            </p>
+                                            </div>
                                         </div>
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'field.isWithPhysician'|trans }}
-                                            </h3>
-                                            <p {{ allocation.isWithPhysician ? 'class="text-danger fw-bold"' : 'class="text-success mb-2"' }}>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">{{ 'field.isWithPhysician'|trans }}</div>
+                                            <div class="datagrid-content">
                                                 {% if allocation.isWithPhysician %}
-                                                    {{ 'field.isWithPhysician.true'|trans }}
+                                                    <strong>{{ 'field.isWithPhysician.true'|trans }}</strong>
                                                 {% else %}
                                                     {{ 'field.isWithPhysician.false'|trans }}
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="card-title">
-                                        {{ 'label.properties'|trans }}
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle text-muted">
-                                                {{ 'field.requiresResus'|trans }}
-                                            </h3>
-                                            <p {{ allocation.requiresResus ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
-                                                {% if allocation.requiresResus %}
-                                                    {{ 'field.true'|trans }}
-                                                {% else %}
-                                                    {{ 'field.false'|trans }}
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle text-muted">
-                                                {{ 'field.requiresCathlab'|trans }}
-                                            </h3>
-                                            <p {{ allocation.requiresCathlab ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
-                                                {% if allocation.requiresCathlab %}
-                                                    {{ 'field.true'|trans }}
-                                                {% else %}
-                                                    {{ 'field.false'|trans }}
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'field.age'|trans }}
-                                            </h3>
-                                            <p>
-                                                {{ allocation.age }}
-                                            </p>
-                                        </div>
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'field.gender'|trans }}
-                                            </h3>
-                                            <p>
-                                                {% if allocation.gender.value == 'M' %}
-                                                    <twig:ux:icon name="tabler:gender-male" width="1em" height="1em" />
-                                                {% elseif allocation.gender.value == 'F' %}
-                                                    <twig:ux:icon name="tabler:gender-female" width="1em" height="1em" />
-                                                {% else %}
-                                                    <twig:ux:icon name="tabler:gender-agender" width="1em" height="1em" />
-                                                {% endif %}
-                                                <strong>{{ allocation.gender.label|trans }}</strong>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'field.isCPR'|trans }}
-                                            </h3>
-                                            <p {{ allocation.isCPR ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
-                                                {% if allocation.isCPR %}
-                                                    {{ 'field.true'|trans }}
-                                                {% else %}
-                                                    {{ 'field.false'|trans }}
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'allocations.field.isVentilated'|trans }}
-                                            </h3>
-                                            <p {{ allocation.isVentilated ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
-                                                {% if allocation.isVentilated %}
-                                                    {{ 'field.true'|trans }}
-                                                {% else %}
-                                                    {{ 'field.false'|trans }}
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'allocations.field.isShock'|trans }}
-                                            </h3>
-                                            <p {{ allocation.isShock ? 'class="text-danger fw-bold"' : 'class="text-success"' }}>
-                                                {% if allocation.isShock %}
-                                                    {{ 'field.true'|trans }}
-                                                {% else %}
-                                                    {{ 'field.false'|trans }}
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                        <div class="col-6">
-                                            <h3 class="card-subtitle">
-                                                {{ 'allocations.field.isPregnant'|trans }}
-                                            </h3>
-                                            <p {{ allocation.isPregnant ? 'class="text-warning fw-bold"' : '' }}>
-                                                {% if allocation.isPregnant %}
-                                                    {{ 'field.true'|trans }}
-                                                {% else %}
-                                                    {{ 'field.false'|trans }}
-                                                {% endif %}
-                                            </p>
+                                                {% endif %}</div>
                                         </div>
                                     </div>
                                 </div>
