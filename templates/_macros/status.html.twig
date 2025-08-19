@@ -1,0 +1,22 @@
+{% macro import_status(status) %}
+    {% set map = {
+        Pending: {color: 'dark', icon: 'tabler:clock'},
+        Running: {color: 'lime', icon: 'tabler:loader-2'},
+        Completed: {color: 'green', icon: 'tabler:circle-check'},
+        Failed: {color: 'red', icon: 'tabler:alert-triangle'},
+        Cancelled: {color: 'orange', icon: 'tabler:circle-x'},
+        Partial: {color: 'yellow', icon: 'tabler:circle-half'},
+    } %}
+
+    {% set color = map[status].color ?? 'secondary' %}
+    {% set icon = map[status].icon ?? 'tabler:circle' %}
+
+    <span class="status status-{{ color }}">
+        {% if color == 'lime' %}
+            <span class="status-dot status-dot-animated"></span>
+        {% else %}
+            {{ ux_icon(icon, {width: 12, height: 12}) }}
+        {% endif %}
+        {{ status }}
+    </span>
+{% endmacro %}

@@ -4,6 +4,10 @@
 
 {% block page_header %}
     <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.import' }
+        ]" />
+
         <div class="page-header d-print-none">
             <div class="row align-items-center">
                 <div class="col">
@@ -13,10 +17,50 @@
                         </h2>
                     {% endblock %}
                     {% block page_subtitle %}
-                        <div id="result-count" class="text-body-secondary mt-1">
-                            {{ 'label.import.index.subtitle'|trans }}
-                        </div>
+                        {% block result_count %}
+                            <div id="result-count" class="text-body-secondary mt-1">
+                                {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}) }}
+                            </div>
+                        {% endblock %}
                     {% endblock %}
+                </div>
+                <!-- Page title actions -->
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <form
+                            method="GET"
+                            action="{{ path('app_import_index') }}"
+                            data-controller="autosubmit"
+                            data-turbo-frame="import-list"
+                        >
+                            <div class="input-icon">
+                                <input
+                                    type="search"
+                                    name="search"
+                                    value="{{ app.request.query.get('search') }}"
+                                    aria-label="{{ 'label.search'|trans }}"
+                                    placeholder="{{ 'label.search'|trans }}"
+                                    class="form-control d-inline-block w-9 me-3"
+                                    data-action="autosubmit#debouncedSubmit"
+                                    autofocus
+                                >
+                                <span class="input-icon-addon">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24" height="24" viewBox="0 0 24 24"
+                                        stroke-width="2" stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <circle cx="10" cy="10" r="7" />
+                                        <line x1="21" y1="21" x2="15" y2="15" />
+                                    </svg>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -24,5 +68,122 @@
 {% endblock %}
 
 {% block page_content %}
+    <turbo-frame id="import-list" data-turbo-action="advance">
+        {% if search is not empty %}
+            <twig:Alert type="info" :message="'label.search_for'|trans({term: search})" />
+        {% endif %}
 
+        <twig:DataTable
+            :paginator="paginator"
+            :paginationRoute="pagination_route"
+        >
+            {% import '_macros/pagination.html.twig' as pagination %}
+
+            <table class="table data-table-card">
+                <thead>
+                <tr>
+                    <th class="col-1">
+                        <a class="text-muted" href="{{ path('app_import_index', {
+                            ...app.request.query.all(),
+                            sortBy: 'type',
+                            orderBy: sortBy == 'type' and orderBy == 'asc' ? 'desc' : 'asc',
+                        }) }}">
+                            {{ 'label.type'|trans }} {{ pagination.sortArrow('type', sortBy, orderBy) }}
+                        </a>
+                    </th>
+                    <th class="col-3">
+                        <a class="text-muted" href="{{ path('app_import_index', {
+                            ...app.request.query.all(),
+                            sortBy: 'name',
+                            orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
+                        }) }}">
+                            {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
+                        </a>
+                    </th>
+                    <th class="col-1">
+                        <a class="text-muted" href="{{ path('app_import_index', {
+                            ...app.request.query.all(),
+                            sortBy: 'status',
+                            orderBy: sortBy == 'status' and orderBy == 'asc' ? 'desc' : 'asc',
+                        }) }}">
+                            {{ 'label.status'|trans }} {{ pagination.sortArrow('status', sortBy, orderBy) }}
+                        </a>
+                    </th>
+                    <th class="col-2">
+                        <a class="text-muted" href="{{ path('app_import_index', {
+                            ...app.request.query.all(),
+                            sortBy: 'hospital',
+                            orderBy: sortBy == 'hospital' and orderBy == 'asc' ? 'desc' : 'asc',
+                        }) }}">
+                            {{ 'label.hospital'|trans }} {{ pagination.sortArrow('hospital', sortBy, orderBy) }}
+                        </a>
+                    </th>
+                    <th class="col-2">
+                        <a class="text-muted" href="{{ path('app_import_index', {
+                            ...app.request.query.all(),
+                            sortBy: 'lastChange',
+                            orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
+                        }) }}">
+                            {{ 'label.last_changed_at'|trans }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
+                        </a>
+                    </th>
+                    <th class="col-2">
+                        {{ 'label.last_changed_by'|trans }}
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for import in paginator.results %}
+                    {% import '_macros/status.html.twig' as macros %}
+                    <tr>
+                        <td>
+                            <span class="status status-blue">{{ import.type.value }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ path('app_import_show', {id: import.id}) }}" target="_top">{{ import.name }}</a>
+                        </td>
+                        <td>
+                            {{ macros.import_status(import.status.value) }}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_data_hospital_show', {id: import.hospital.id}) }}" target="_top">{{ import.hospital }}</a>
+                        </td>
+                        <td>
+                            {{ import.updatedAt ? import.updatedAt|date('d.m.Y H:i') : import.createdAt|date('d.m.Y H:i') }}
+                        </td>
+                        <td>
+                            {{ import.updatedBy ? import.updatedBy : import.createdBy }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <circle cx="12" cy="12" r="9" />
+                                        <line x1="9" y1="10" x2="9.01" y2="10" />
+                                        <line x1="15" y1="10" x2="15.01" y2="10" />
+                                        <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
+                                    </svg>
+                                </div>
+                                <p class="empty-title">{{ 'label.search_no_results'|trans }}</p>
+                                <p class="empty-subtitle text-secondary">
+                                    {{ 'help.search_no_results'|trans }}
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </twig:DataTable>
+
+        <turbo-stream action="replace" target="result-count">
+            <template>
+                {{ block('result_count') }}
+            </template>
+        </turbo-stream>
+    </turbo-frame>
 {% endblock %}

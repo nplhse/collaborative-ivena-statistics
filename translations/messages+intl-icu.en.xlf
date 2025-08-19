@@ -89,6 +89,46 @@
         <source>help.search_no_results</source>
         <target>Try adjusting your search or filter to find what you're looking for.</target>
       </trans-unit>
+      <trans-unit id="2_8EtuE" resname="import.action.preview_rows">
+        <source>import.action.preview_rows</source>
+        <target>Preview Rows</target>
+      </trans-unit>
+      <trans-unit id="T_sGody" resname="import.field.fileExtension">
+        <source>import.field.fileExtension</source>
+        <target>Extension</target>
+      </trans-unit>
+      <trans-unit id="XWUPA8u" resname="import.field.fileMimeType">
+        <source>import.field.fileMimeType</source>
+        <target>MimeType</target>
+      </trans-unit>
+      <trans-unit id="WKEj59F" resname="import.field.fileSize">
+        <source>import.field.fileSize</source>
+        <target>File size</target>
+      </trans-unit>
+      <trans-unit id="YIl4XxP" resname="import.field.rowCount">
+        <source>import.field.rowCount</source>
+        <target>Row count</target>
+      </trans-unit>
+      <trans-unit id="oiSvDD9" resname="import.field.runCount">
+        <source>import.field.runCount</source>
+        <target>Run count</target>
+      </trans-unit>
+      <trans-unit id="1qEVxEZ" resname="import.field.runTime">
+        <source>import.field.runTime</source>
+        <target>Run time</target>
+      </trans-unit>
+      <trans-unit id="twzu6Ol" resname="import.field.status">
+        <source>import.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="v6YYkzw" resname="import.field.type">
+        <source>import.field.type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="ndwEyiW" resname="imports.field.filePath">
+        <source>imports.field.filePath</source>
+        <target>File path</target>
+      </trans-unit>
       <trans-unit id="CEVgeJ7" resname="label.address">
         <source>label.address</source>
         <target>Address</target>
@@ -160,6 +200,18 @@
       <trans-unit id="jGMjpWb" resname="label.id">
         <source>label.id</source>
         <target>ID</target>
+      </trans-unit>
+      <trans-unit id="UcQSwTu" resname="label.import.section.quick_actions">
+        <source>label.import.section.quick_actions</source>
+        <target>Quick actions</target>
+      </trans-unit>
+      <trans-unit id="ssEMXJ8" resname="label.import.section.run">
+        <source>label.import.section.run</source>
+        <target>Run results</target>
+      </trans-unit>
+      <trans-unit id="_i2.tz3" resname="label.import.section.source_file">
+        <source>label.import.section.source_file</source>
+        <target>Source file</target>
       </trans-unit>
       <trans-unit id="KrdI.1U" resname="label.last_change">
         <source>label.last_change</source>
@@ -253,6 +305,10 @@
         <source>label.state</source>
         <target>State</target>
       </trans-unit>
+      <trans-unit id="8nXIScQ" resname="label.status">
+        <source>label.status</source>
+        <target>Status</target>
+      </trans-unit>
       <trans-unit id="MWqKCgE" resname="label.tier">
         <source>label.tier</source>
         <target>Tier</target>
@@ -272,6 +328,10 @@
       <trans-unit id="8enqG3e" resname="label.transportType.ground">
         <source>label.transportType.ground</source>
         <target>Ground</target>
+      </trans-unit>
+      <trans-unit id="ZQcON8C" resname="label.type">
+        <source>label.type</source>
+        <target>Type</target>
       </trans-unit>
       <trans-unit id="qTLpU1R" resname="label.updated_at">
         <source>label.updated_at</source>
@@ -293,9 +353,17 @@
         <source>link.dispatch_areas</source>
         <target>Dispatch Areas</target>
       </trans-unit>
+      <trans-unit id="9XmczE8" resname="link.home">
+        <source>link.home</source>
+        <target>Home</target>
+      </trans-unit>
       <trans-unit id="xnwGILx" resname="link.hospitals">
         <source>link.hospitals</source>
         <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="000N_Am" resname="link.import">
+        <source>link.import</source>
+        <target>Import</target>
       </trans-unit>
       <trans-unit id="GhGeHI9" resname="title.allocation.list">
         <source>title.allocation.list</source>
@@ -324,6 +392,14 @@
       <trans-unit id="ipAfzN6" resname="title.hospital_show">
         <source>title.hospital_show</source>
         <target>Showing Hospital detail</target>
+      </trans-unit>
+      <trans-unit id="J7c0M1U" resname="title.import.index">
+        <source>title.import.index</source>
+        <target>Listing Imports</target>
+      </trans-unit>
+      <trans-unit id="tBRiow3" resname="title.import.show">
+        <source>title.import.show</source>
+        <target>Showing Import detail</target>
       </trans-unit>
       <trans-unit id="Q.Y20KD" resname="title.login">
         <source>title.login</source>
