@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Factory\AllocationFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
+use App\Factory\ImportFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -22,6 +23,8 @@ final class AppFixtures extends Fixture
         DispatchAreaFactory::createMany(50);
 
         HospitalFactory::createMany(10);
+
+        ImportFactory::createMany(15);
 
         AllocationFactory::createMany(100);
 
