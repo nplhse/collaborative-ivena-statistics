@@ -137,6 +137,10 @@
         <source>label.age</source>
         <target>Age</target>
       </trans-unit>
+      <trans-unit id="6QPDzOS" resname="label.allocation">
+        <source>label.allocation</source>
+        <target>Allocation</target>
+      </trans-unit>
       <trans-unit id="InXuxeP" resname="label.arrival_at">
         <source>label.arrival_at</source>
         <target>Arrival at</target>
