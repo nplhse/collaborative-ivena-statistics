@@ -1,0 +1,28 @@
+{% extends '_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.import.index'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    {% block page_intro %}
+                        <h2 class="page-title">
+                            {% block page_title %}{{ 'title.import.index'|trans }}{% endblock %}
+                        </h2>
+                    {% endblock %}
+                    {% block page_subtitle %}
+                        <div id="result-count" class="text-body-secondary mt-1">
+                            {{ 'label.import.index.subtitle'|trans }}
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+
+{% endblock %}

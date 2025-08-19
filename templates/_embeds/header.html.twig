@@ -28,6 +28,14 @@
                                     </span>
                                 </a>
                             </li>
+                            <li class="nav-item {{ route starts with 'app_import' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ path('app_import_index') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:database-import" style="height: 1.5em;" />
+                                        {{ 'link.import'|trans }}
+                                    </span>
+                                </a>
+                            </li>
                         {% endblock %}
                     </ul>
                 </div>
