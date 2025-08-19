@@ -1,501 +1,501 @@
-Versorgungsbereich;KHS-Versorgungsgebiet;Krankenhaus;Krankenhaus-Kurzname;Datum;Uhrzeit;Datum (Eintreffzeit);Uhrzeit (Eintreffzeit);Geschlecht;Alter;Schockraum;Herzkatheter;Reanimation;Beatmet;Schwanger;Arztbegleitet;Transportmittel
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;10:19;07.01.2025;13:14;W;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;15:09;02.03.2025;16:43;W;67;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;12:00;16.02.2025;13:01;W;84;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;22:32;09.01.2025;01:12;M;79;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;08:02;11.02.2025;09:33;M;64;;;R+;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;11:00;11.03.2025;13:58;M;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;20:38;01.02.2025;22:23;W;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:03;06.01.2025;12:48;W;78;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;10:12;23.03.2025;12:08;M;55;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;17:45;12.02.2025;18:16;M;41;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;11:44;26.01.2025;13:05;W;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;06:08;08.02.2025;07:40;W;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;10:28;27.01.2025;10:48;M;21;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;07:46;29.03.2025;10:30;M;19;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;15:42;18.02.2025;16:06;M;93;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.01.2025;16:35;20.01.2025;17:08;M;84;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;08:55;16.02.2025;09:10;M;85;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;12:03;08.03.2025;13:39;W;92;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;22:47;28.02.2025;23:37;M;60;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;15:47;11.01.2025;16:16;W;93;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;10:36;27.01.2025;11:08;M;57;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;01:50;11.01.2025;03:19;M;77;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;11:35;27.02.2025;12:14;M;46;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;16:48;11.02.2025;17:59;D;36;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;04:07;04.01.2025;06:25;M;59;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;12:25;13.03.2025;15:00;W;72;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;11:46;26.03.2025;12:29;M;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.03.2025;14:38;07.03.2025;15:08;W;81;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;23:01;16.02.2025;00:54;W;82;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;16:47;30.01.2025;17:41;W;75;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;17:20;29.03.2025;18:05;M;69;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;21:54;07.01.2025;23:00;W;88;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;17:03;05.02.2025;18:49;M;80;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;04:48;24.02.2025;06:22;M;77;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;14:02;18.02.2025;14:05;M;36;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;12:31;26.01.2025;14:40;M;79;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;12:29;15.01.2025;13:38;M;35;S+;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;23:44;16.01.2025;01:47;W;78;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;16:56;09.01.2025;17:04;W;62;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;02:18;07.01.2025;04:03;M;57;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;12:13;28.01.2025;12:20;M;67;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;10:59;03.03.2025;11:58;W;87;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;19:37;23.02.2025;21:30;M;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;14:13;12.03.2025;15:06;W;67;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;14:59;07.02.2025;16:02;W;92;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;21:48;18.03.2025;22:32;M;70;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.03.2025;15:29;19.03.2025;16:12;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;20:18;10.02.2025;20:20;M;68;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;16:37;27.01.2025;18:17;M;92;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;18:19;31.03.2025;18:44;W;37;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;09:44;29.01.2025;11:24;W;77;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;12:56;28.02.2025;13:15;M;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;17:59;17.03.2025;20:19;M;76;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;11:14;26.03.2025;12:24;M;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;07:48;15.02.2025;10:44;W;75;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;21:50;09.02.2025;22:32;W;78;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;12:20;18.03.2025;14:10;W;72;;;;B-;Schwanger;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;12:02;13.02.2025;13:28;M;94;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;01:11;13.03.2025;01:45;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;10:09;27.02.2025;12:13;M;64;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;00:56;22.02.2025;01:25;M;36;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;11:35;24.03.2025;11:42;M;53;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;00:40;02.02.2025;02:01;M;77;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;14:41;17.01.2025;15:33;M;69;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;09:01;10.02.2025;10:32;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;12:50;05.01.2025;14:01;M;57;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;21:11;28.03.2025;21:24;M;78;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;07:05;16.01.2025;07:43;W;88;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;14:24;29.03.2025;15:33;W;50;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;05:49;12.02.2025;06:25;M;70;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;05:50;29.03.2025;06:07;W;57;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;21:36;01.02.2025;00:19;M;13;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;20:19;16.01.2025;23:07;M;67;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;11:20;16.03.2025;14:08;M;84;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;13:08;25.01.2025;13:31;M;66;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;00:35;08.03.2025;00:56;M;63;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;11:23;10.03.2025;12:33;M;52;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.03.2025;12:58;01.03.2025;14:27;M;76;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;12:24;20.03.2025;13:50;M;85;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;11:38;17.01.2025;13:02;W;63;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;03:37;18.02.2025;04:10;M;66;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;18:18;07.02.2025;20:19;W;86;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;07:31;26.01.2025;10:20;W;98;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;10:51;31.01.2025;13:17;M;66;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;07:34;05.02.2025;07:52;M;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;04:49;06.03.2025;07:19;W;63;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;21:37;24.01.2025;21:59;W;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;05:35;18.03.2025;08:34;W;87;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;14:59;16.03.2025;15:27;M;91;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;19:09;28.01.2025;20:32;M;69;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;13:48;11.01.2025;15:18;W;19;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;07:39;08.01.2025;07:41;M;73;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;18:23;07.01.2025;19:10;W;50;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;10:45;17.03.2025;13:12;W;86;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.02.2025;14:03;19.02.2025;15:32;M;49;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;12:00;03.03.2025;13:24;M;75;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;14:27;16.02.2025;14:38;M;9;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;11:20;12.02.2025;11:35;W;62;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;21:56;12.01.2025;00:07;W;57;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;13:44;21.03.2025;16:25;W;92;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;11:28;18.02.2025;13:40;W;44;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;07:42;05.02.2025;09:57;M;45;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;20:44;07.01.2025;21:38;W;85;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;17:27;30.01.2025;18:07;M;57;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;16:25;22.01.2025;16:57;M;52;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.03.2025;12:48;14.03.2025;13:24;M;11;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;17:01;03.03.2025;18:45;W;54;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;09:19;11.01.2025;09:58;M;58;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;04:52;15.01.2025;06:02;M;73;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;10:56;12.03.2025;11:18;M;91;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;08:38;03.01.2025;09:04;W;40;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;14:05;25.02.2025;14:17;W;59;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;09:40;01.02.2025;12:37;W;71;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;13:38;25.02.2025;15:05;M;55;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;09:54;26.03.2025;11:07;W;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;14:43;04.01.2025;15:32;M;43;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;21:48;03.02.2025;23:25;M;52;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;00:49;02.01.2025;03:39;M;16;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;23:06;25.03.2025;00:38;M;82;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;17:56;02.03.2025;20:46;M;35;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;12:54;31.01.2025;14:47;M;47;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.01.2025;16:16;19.01.2025;17:06;W;87;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;11:06;15.02.2025;12:43;M;67;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.02.2025;15:16;17.02.2025;18:05;W;56;S+;H-;R+;B+;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;11:36;22.02.2025;13:37;M;83;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.01.2025;21:59;15.01.2025;00:54;W;59;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;18:37;06.02.2025;19:28;M;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;05:54;08.03.2025;05:58;M;64;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.03.2025;08:43;14.03.2025;09:42;W;67;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;21:54;03.02.2025;22:15;W;94;;;R+;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;20:23;25.03.2025;21:37;W;66;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;11:29;10.03.2025;11:41;W;40;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;08:41;02.01.2025;11:28;M;62;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;23:19;17.01.2025;00:34;M;69;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;10:36;12.01.2025;13:34;M;51;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:25;06.01.2025;12:59;W;77;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;07:40;26.03.2025;10:40;W;66;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;15:34;13.03.2025;18:33;M;25;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;15:30;26.03.2025;18:08;M;60;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;20:49;14.02.2025;22:15;M;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;14:25;20.03.2025;16:35;W;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.03.2025;18:41;27.03.2025;19:06;M;46;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;07:31;24.01.2025;09:43;W;64;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;14:01;07.01.2025;16:38;M;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;01:12;24.02.2025;01:47;W;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;00:35;08.02.2025;01:52;M;86;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;10:16;16.01.2025;11:41;M;74;S-;H+;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;18:18;15.03.2025;20:12;M;62;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;14:20;15.02.2025;14:40;M;66;S+;H-;R-;B-;;N+;Luft
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;21:19;11.03.2025;23:43;M;63;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.02.2025;13:20;17.02.2025;15:45;M;88;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.03.2025;15:55;01.03.2025;16:54;W;78;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;15:58;23.02.2025;16:27;W;55;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;13:18;12.01.2025;15:46;M;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;20:29;15.03.2025;22:29;M;93;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;15:55;06.02.2025;16:43;W;86;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;13:28;22.02.2025;14:43;M;71;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;19:09;26.03.2025;21:29;M;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;13:26;17.03.2025;13:28;M;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;07:45;08.02.2025;09:35;W;97;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;10:45;12.01.2025;12:17;W;91;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;13:12;08.02.2025;14:44;W;83;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;16:02;27.01.2025;17:56;W;88;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;15:37;11.02.2025;18:11;W;69;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;20:15;11.02.2025;22:47;M;95;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;09:58;11.01.2025;12:19;W;32;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;01:32;14.02.2025;04:24;W;31;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;12:44;22.02.2025;13:16;M;74;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;13:57;06.01.2025;14:55;M;43;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;19:27;15.02.2025;21:06;M;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;13:09;15.01.2025;15:10;W;74;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;16:29;03.03.2025;17:35;M;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;11:13;16.03.2025;11:14;W;61;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;12:41;11.01.2025;14:56;M;76;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;13:08;01.02.2025;14:30;W;22;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;10:03;09.01.2025;10:57;M;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;07:49;08.03.2025;08:46;M;96;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;11:17;20.02.2025;11:21;M;75;;;;;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;21:54;06.01.2025;22:15;M;63;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;14:25;13.03.2025;17:06;W;76;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;08:34;20.02.2025;08:48;W;71;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;15:13;29.01.2025;16:01;M;47;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;05:52;11.01.2025;08:02;W;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;21:13;18.03.2025;23:19;W;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;14:22;23.01.2025;15:44;M;59;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;14:35;01.02.2025;15:48;W;60;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;17:22;02.03.2025;17:54;D;20;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;15:02;01.01.2025;17:53;W;79;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;19:48;16.01.2025;20:44;W;58;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;15:13;23.03.2025;16:28;M;64;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;17:03;30.03.2025;19:05;M;55;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;17:36;08.01.2025;19:26;M;67;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;18:53;30.03.2025;20:03;W;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;10:54;26.02.2025;13:23;W;47;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;17:08;09.01.2025;18:08;W;78;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;07:19;20.03.2025;07:25;M;44;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;11:17;21.02.2025;13:49;M;89;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;13:45;01.02.2025;16:16;W;30;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;12:25;24.03.2025;14:32;M;28;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.01.2025;09:57;14.01.2025;10:54;W;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;08:52;09.01.2025;10:36;W;44;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;15:51;23.02.2025;16:20;W;85;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;01:39;09.02.2025;03:38;W;83;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;11:55;30.01.2025;13:45;W;55;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;18:17;31.01.2025;21:11;W;79;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.01.2025;18:22;13.01.2025;18:59;W;86;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;15:32;06.03.2025;17:29;M;83;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;09:59;01.01.2025;12:47;M;92;;;;B-;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;15:22;28.03.2025;16:09;M;68;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;15:57;06.02.2025;18:28;M;76;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;16:12;08.02.2025;16:49;W;84;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;19:07;22.01.2025;19:58;M;84;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;07:35;04.01.2025;09:20;W;53;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;18:11;07.01.2025;19:17;M;17;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;15:11;23.01.2025;17:18;M;64;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;23:28;07.02.2025;01:02;W;92;S+;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;12:56;26.02.2025;15:08;M;26;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;21:20;24.03.2025;22:33;M;56;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;18:34;12.03.2025;20:29;W;92;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;21:05;21.03.2025;21:41;W;77;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;11:30;28.01.2025;11:34;M;89;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;21:53;07.03.2025;00:03;M;57;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;05:03;07.02.2025;08:01;M;77;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;17:08;08.01.2025;17:52;W;19;S+;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;20:19;12.02.2025;20:49;M;35;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;20:13;16.03.2025;22:09;M;28;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.01.2025;10:31;19.01.2025;12:35;W;87;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;13:15;02.02.2025;15:09;M;58;S+;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;22:28;10.03.2025;01:21;W;54;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;02:10;12.03.2025;02:33;W;54;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;09:30;29.01.2025;09:44;M;64;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;13:57;09.02.2025;14:39;M;64;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;16:09;24.02.2025;16:41;M;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;19:39;25.03.2025;20:46;M;80;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.01.2025;08:43;18.01.2025;10:32;M;71;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;01:56;27.01.2025;04:05;W;75;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.02.2025;19:31;19.02.2025;21:08;M;92;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;10:26;15.03.2025;12:03;M;70;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;09:01;21.03.2025;09:58;W;85;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;08:29;16.01.2025;10:40;M;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;12:41;23.03.2025;12:57;M;32;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;16:33;29.03.2025;17:47;M;73;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;12:11;31.01.2025;12:12;W;87;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;18:54;06.03.2025;20:51;M;79;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;16:38;24.02.2025;17:00;W;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;15:13;18.02.2025;17:06;M;70;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;20:50;27.02.2025;22:49;W;62;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;20:46;23.01.2025;21:59;M;74;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.01.2025;22:29;10.01.2025;22:35;M;62;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;06:15;08.01.2025;06:23;M;88;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;15:01;29.03.2025;15:20;W;73;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;10:31;23.03.2025;12:08;M;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.03.2025;19:18;07.03.2025;19:18;W;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;21:05;04.03.2025;21:15;M;72;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;08:56;06.01.2025;10:54;W;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;19:39;01.02.2025;20:50;W;72;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;17:35;15.02.2025;17:46;M;16;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;09:20;14.02.2025;11:46;W;54;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;07:18;25.01.2025;09:54;W;79;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;11:02;26.03.2025;11:59;M;84;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;05:06;03.01.2025;07:07;M;39;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;13:43;05.03.2025;14:23;M;23;S+;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;13:47;22.01.2025;14:02;W;82;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;20:22;09.03.2025;22:54;M;86;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.03.2025;11:24;27.03.2025;13:18;M;77;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;22:28;08.03.2025;22:38;M;73;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;22:04;23.02.2025;23:50;M;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;09:53;01.02.2025;12:30;M;85;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;12:09;05.02.2025;12:29;M;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;20:27;27.02.2025;21:02;W;52;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;01:01;20.03.2025;03:07;W;52;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;18:58;02.02.2025;20:15;W;20;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;23:15;04.02.2025;01:37;M;60;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;12:45;21.03.2025;14:55;M;48;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;18:07;12.02.2025;19:34;W;62;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;15:22;27.02.2025;17:30;W;81;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;12:02;02.03.2025;13:13;M;24;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;09:54;09.03.2025;10:34;W;19;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:40;06.01.2025;12:19;M;60;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;03:48;21.03.2025;04:16;M;54;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;22:52;15.02.2025;00:54;W;26;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;17:43;15.01.2025;17:47;M;77;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;21:46;14.03.2025;00:21;M;74;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;19:00;05.01.2025;20:57;M;84;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;13:57;29.03.2025;16:25;W;74;;;;;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;09:33;05.01.2025;10:48;M;66;;;;B-;Schwanger;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;00:53;21.02.2025;01:58;W;86;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;21:29;02.01.2025;22:15;M;66;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;12:18;18.02.2025;12:56;M;88;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;17:53;02.01.2025;18:01;W;74;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;15:59;11.03.2025;16:40;M;47;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;22:13;09.01.2025;23:43;M;67;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;14:56;18.03.2025;16:34;W;71;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;09:58;13.02.2025;12:19;M;58;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;17:11;27.02.2025;19:12;W;91;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;07:22;12.02.2025;07:25;W;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;21:07;25.02.2025;22:39;M;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;10:45;11.01.2025;11:38;M;85;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;21:57;28.02.2025;00:04;M;43;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;16:12;25.01.2025;16:38;M;62;;;;;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;18:41;18.02.2025;21:14;M;11;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:03;06.01.2025;10:30;M;64;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;17:37;11.03.2025;17:55;W;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;15:56;04.01.2025;17:26;W;60;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;19:46;25.03.2025;22:31;M;69;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;21:12;16.02.2025;21:37;W;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;12:58;16.02.2025;14:07;W;81;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;00:54;21.02.2025;02:30;W;54;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;09:27;01.02.2025;09:49;M;72;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;21:16;01.02.2025;00:13;M;90;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.03.2025;18:24;07.03.2025;21:15;W;22;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;00:24;24.01.2025;02:01;W;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.01.2025;10:52;14.01.2025;11:16;M;33;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;09:54;27.02.2025;11:22;W;56;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;01:47;20.02.2025;04:19;M;69;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;21:31;13.03.2025;23:30;M;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;04:41;30.03.2025;07:39;W;61;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;13:57;14.02.2025;15:11;W;82;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;08:01;07.02.2025;10:48;M;77;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;10:43;28.03.2025;10:58;W;66;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;11:53;26.02.2025;12:53;M;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;22:44;07.01.2025;00:43;M;67;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;10:02;26.01.2025;10:32;W;31;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;19:43;27.01.2025;21:48;M;68;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;10:48;12.01.2025;11:28;M;30;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;13:49;17.03.2025;16:32;M;80;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;14:49;25.03.2025;16:38;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;10:57;03.01.2025;11:07;M;74;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;16:40;23.03.2025;19:24;W;72;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;12:59;02.01.2025;14:20;W;82;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;09:18;03.02.2025;10:16;M;73;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;10:12;04.01.2025;10:29;M;63;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.02.2025;18:57;17.02.2025;21:03;W;66;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;14:42;07.02.2025;15:15;M;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;20:50;20.02.2025;23:18;M;76;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;06:00;05.02.2025;07:37;M;91;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;10:18;29.01.2025;10:30;M;60;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;13:12;14.02.2025;14:06;W;54;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;17:04;28.03.2025;17:59;M;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;11:16;23.02.2025;13:16;W;60;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;12:10;25.02.2025;12:22;M;81;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;14:59;28.02.2025;15:01;W;69;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;15:19;23.01.2025;18:04;W;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;11:27;11.01.2025;14:17;W;62;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;23:06;03.03.2025;01:03;M;27;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;10:16;17.01.2025;12:52;M;74;S-;H+;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;22:11;07.03.2025;00:07;W;63;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;10:14;13.03.2025;12:02;M;55;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;21:07;04.03.2025;21:44;M;62;;;;;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.02.2025;11:27;04.02.2025;11:29;M;52;S+;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;17:22;09.02.2025;19:03;M;58;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.03.2025;20:42;19.03.2025;23:07;W;47;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;06:11;18.03.2025;09:03;M;30;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;12:03;06.03.2025;14:57;M;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;12:02;20.03.2025;13:38;M;51;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;00:46;16.03.2025;01:41;M;77;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;12:45;12.03.2025;14:03;M;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;13:21;22.02.2025;13:25;W;67;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;12:39;28.03.2025;15:08;W;74;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;11:58;10.03.2025;12:22;M;60;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;12:58;03.02.2025;15:47;M;51;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.02.2025;12:11;04.02.2025;14:54;M;38;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;09:16;12.01.2025;11:59;W;73;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;16:23;22.01.2025;16:25;M;80;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;10:58;01.02.2025;13:29;W;61;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;15:36;11.03.2025;17:51;W;56;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;08:49;16.01.2025;09:05;M;67;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;12:08;12.01.2025;12:24;M;70;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;12:57;26.03.2025;13:40;M;32;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;17:54;10.02.2025;19:23;W;91;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;13:21;13.02.2025;14:55;W;61;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;07:35;12.02.2025;10:25;M;94;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;18:24;05.01.2025;19:45;M;79;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;15:55;29.01.2025;17:09;W;64;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;09:42;08.03.2025;12:08;M;26;S+;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;07:24;08.03.2025;08:04;W;87;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;10:15;04.03.2025;10:20;W;73;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;08:22;10.02.2025;08:38;M;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;08:28;20.03.2025;11:04;M;92;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;09:12;31.03.2025;10:46;M;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;18:56;05.02.2025;19:33;W;54;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;20:22;18.02.2025;22:44;M;66;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;11:27;31.01.2025;14:18;W;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;12:45;12.03.2025;14:51;W;71;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;09:43;02.03.2025;12:09;M;63;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;17:00;12.01.2025;17:46;M;64;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.01.2025;12:09;21.01.2025;13:55;W;79;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;18:56;09.02.2025;19:33;M;67;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;22:30;04.01.2025;00:49;W;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;21:28;31.01.2025;21:51;W;66;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;21:48;31.03.2025;23:59;W;92;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;02:10;30.03.2025;02:16;M;72;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;01:19;01.01.2025;03:36;M;47;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;08:42;30.01.2025;08:54;M;77;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;18:02;01.02.2025;19:03;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;02:10;22.01.2025;02:40;M;51;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.03.2025;18:20;22.03.2025;20:41;M;35;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;19:27;24.01.2025;20:04;W;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;22:15;16.03.2025;00:39;M;66;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;10:04;11.02.2025;12:07;W;83;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;13:18;24.01.2025;13:30;M;64;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;18:20;24.02.2025;19:45;M;35;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;16:07;11.02.2025;17:31;M;85;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;17:10;23.01.2025;17:41;W;54;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;07:32;03.03.2025;07:44;M;25;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;08:09;03.03.2025;09:54;W;66;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;13:36;12.02.2025;14:34;M;77;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;13:01;29.01.2025;13:09;W;69;;;;B-;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;07:55;10.02.2025;08:24;M;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;14:04;29.01.2025;14:07;M;67;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;19:40;02.02.2025;21:04;W;72;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;05:52;07.01.2025;06:44;W;62;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;11:55;12.02.2025;12:04;M;89;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;13:07;17.01.2025;13:19;W;88;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;17:21;30.01.2025;18:38;M;77;;;;B+;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;09:34;15.02.2025;11:42;M;78;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.01.2025;18:22;19.01.2025;19:50;M;80;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;20:38;05.01.2025;23:14;W;62;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;11:23;03.02.2025;12:28;M;54;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;08:52;07.02.2025;08:52;W;41;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;11:58;28.02.2025;13:01;M;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;23:01;10.03.2025;00:46;M;24;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;21:16;10.02.2025;22:45;W;67;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;13:12;29.01.2025;13:24;M;22;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;14:38;09.02.2025;15:12;W;65;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;13:32;08.02.2025;14:34;W;66;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;08:34;12.01.2025;10:43;M;71;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;03:00;05.03.2025;05:05;W;55;S-;H+;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;05:42;20.02.2025;07:58;M;52;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;10:23;08.03.2025;12:05;W;83;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;18:24;02.01.2025;20:32;W;97;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;12:24;06.03.2025;14:18;W;53;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;09:53;24.02.2025;11:44;W;52;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;16:00;12.01.2025;17:23;M;91;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;16:13;25.02.2025;18:03;W;58;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;00:52;31.03.2025;02:43;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;15:14;08.01.2025;16:26;M;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;12:00;26.03.2025;12:49;M;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;10:23;08.02.2025;11:13;W;92;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.03.2025;06:08;19.03.2025;08:50;M;72;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;12:20;06.01.2025;13:12;M;77;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;18:23;14.02.2025;20:50;W;85;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;11:12;01.01.2025;13:15;W;89;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;11:03;08.01.2025;11:41;W;83;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;15:28;18.02.2025;15:55;W;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;13:20;10.02.2025;13:41;W;64;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;18:19;03.02.2025;19:18;M;73;S-;H-;R-;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;15:58;05.02.2025;17:08;W;67;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;11:01;05.02.2025;12:41;W;18;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;00:32;14.02.2025;02:47;M;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;09:31;11.03.2025;10:41;M;76;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;22:49;10.02.2025;01:31;M;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;18:30;25.01.2025;18:38;M;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;14:36;13.03.2025;14:48;M;68;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;11:12;22.02.2025;11:25;W;62;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;12:35;05.03.2025;14:15;W;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;21:12;23.03.2025;22:18;W;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.03.2025;20:23;27.03.2025;21:10;M;71;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;14:23;10.03.2025;15:53;M;88;;;;B-;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;11:44;01.02.2025;14:44;W;72;S+;H-;R-;B+;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.01.2025;09:33;18.01.2025;10:52;W;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.01.2025;20:38;20.01.2025;21:31;M;76;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;08:59;11.03.2025;11:31;M;83;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;23:42;19.03.2025;01:29;M;61;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;10:09;27.02.2025;12:05;M;71;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;21:07;24.01.2025;23:14;W;63;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;14:02;24.03.2025;14:20;M;67;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;07:24;13.02.2025;08:24;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;16:40;05.03.2025;18:56;M;78;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;11:33;03.01.2025;11:35;W;95;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;15:18;07.01.2025;16:26;W;78;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;10:00;13.03.2025;10:00;W;84;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;09:35;30.03.2025;10:03;M;88;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;23:24;15.02.2025;02:16;M;84;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;09:33;21.02.2025;12:05;M;82;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;13:53;25.02.2025;14:35;W;58;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;00:56;12.02.2025;03:56;W;83;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;17:37;04.03.2025;18:07;M;53;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;16:12;26.02.2025;18:34;M;70;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;11:57;23.02.2025;11:59;M;71;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;11:42;10.02.2025;13:26;M;86;;;;;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;17:57;25.01.2025;19:30;M;19;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;11:37;22.01.2025;11:38;W;74;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;19:21;16.02.2025;21:26;M;62;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;15:26;06.01.2025;18:21;M;82;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.03.2025;20:39;01.03.2025;21:49;M;60;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;20:26;06.03.2025;23:06;W;87;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;08:34;20.02.2025;09:27;W;86;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;16:44;16.02.2025;19:39;M;43;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;10:48;10.02.2025;13:32;M;71;;;;B-;Schwanger;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.03.2025;02:01;14.03.2025;02:01;M;16;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;11:39;28.01.2025;13:30;M;60;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;20:26;24.02.2025;22:26;W;81;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;20:02;11.02.2025;22:11;M;74;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;15:14;16.01.2025;15:31;M;77;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;12:15;13.02.2025;13:56;W;59;S-;H-;R-;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;18:07;27.02.2025;18:26;W;78;;;;;;;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;16:16;10.02.2025;18:41;M;60;;;;B-;;N-;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;16:58;02.01.2025;19:44;M;60;;;;B-;;N+;Boden
-Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;08:29;16.03.2025;10:25;W;79;S-;H-;R-;B-;;N+;Boden
+Versorgungsbereich;KHS-Versorgungsgebiet;Krankenhaus;Krankenhaus-Kurzname;Datum;Uhrzeit;Datum (Eintreffzeit);Uhrzeit (Eintreffzeit);Geschlecht;Alter;Schockraum;Herzkatheter;Reanimation;Beatmet;Schwanger;Arztbegleitet;Transportmittel;Erstellungsdatum
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;10:19;07.01.2025;13:14;W;74;;;;B-;;N-;Boden;07.01.2025 10:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;15:09;02.03.2025;16:43;W;67;;;;B-;;N-;Boden;02.03.2025 15:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;12:00;16.02.2025;13:01;W;84;;;;B-;;N-;Boden;16.02.2025 12:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;22:32;09.01.2025;01:12;M;79;;;;B-;;N-;Boden;08.01.2025 22:32
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;08:02;11.02.2025;09:33;M;64;;;R+;B-;;N-;Boden;11.02.2025 08:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;11:00;11.03.2025;13:58;M;89;;;;B-;;N-;Boden;11.03.2025 11:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;20:38;01.02.2025;22:23;W;89;;;;B-;;N-;Boden;01.02.2025 20:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:03;06.01.2025;12:48;W;78;;;;B-;;N-;Boden;06.01.2025 10:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;10:12;23.03.2025;12:08;M;55;;;;B-;;N-;Boden;23.03.2025 10:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;17:45;12.02.2025;18:16;M;41;;;;B-;;N-;Boden;12.02.2025 17:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;11:44;26.01.2025;13:05;W;65;;;;B-;;N-;Boden;26.01.2025 11:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;06:08;08.02.2025;07:40;W;84;;;;;;;Boden;08.02.2025 06:08
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;10:28;27.01.2025;10:48;M;21;;;;;;;Boden;27.01.2025 10:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;07:46;29.03.2025;10:30;M;19;;;;;;;Boden;29.03.2025 07:46
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;15:42;18.02.2025;16:06;M;93;;;;B-;;N-;Boden;18.02.2025 15:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.01.2025;16:35;20.01.2025;17:08;M;84;;;;;;N-;Boden;20.01.2025 16:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;08:55;16.02.2025;09:10;M;85;;;;B-;;N-;Boden;16.02.2025 08:55
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;12:03;08.03.2025;13:39;W;92;;;;;;;Boden;08.03.2025 12:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;22:47;28.02.2025;23:37;M;60;;;;;;;Boden;28.02.2025 22:47
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;15:47;11.01.2025;16:16;W;93;;;;B-;;N-;Boden;11.01.2025 15:47
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;10:36;27.01.2025;11:08;M;57;;;;B-;;N-;Boden;27.01.2025 10:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;01:50;11.01.2025;03:19;M;77;;;;;;;Boden;11.01.2025 01:50
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;11:35;27.02.2025;12:14;M;46;;;;B-;;N-;Boden;27.02.2025 11:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;16:48;11.02.2025;17:59;D;36;;;;B-;;N-;Boden;11.02.2025 16:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;04:07;04.01.2025;06:25;M;59;;;;B-;;N-;Boden;04.01.2025 04:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;12:25;13.03.2025;15:00;W;72;;;;;;;Boden;13.03.2025 12:25
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;11:46;26.03.2025;12:29;M;83;;;;B-;;N-;Boden;26.03.2025 11:46
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.03.2025;14:38;07.03.2025;15:08;W;81;;;;;;N-;Boden;07.03.2025 14:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;23:01;16.02.2025;00:54;W;82;;;;B-;;N-;Boden;15.02.2025 23:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;16:47;30.01.2025;17:41;W;75;;;;B-;;N-;Boden;30.01.2025 16:47
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;17:20;29.03.2025;18:05;M;69;;;;B-;;N-;Boden;29.03.2025 17:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;21:54;07.01.2025;23:00;W;88;;;;;;;Boden;07.01.2025 21:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;17:03;05.02.2025;18:49;M;80;;;;B-;;N-;Boden;05.02.2025 17:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;04:48;24.02.2025;06:22;M;77;;;;B-;;N-;Boden;24.02.2025 04:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;14:02;18.02.2025;14:05;M;36;;;;B-;;N-;Boden;18.02.2025 14:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;12:31;26.01.2025;14:40;M;79;;;;B-;;N-;Boden;26.01.2025 12:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;12:29;15.01.2025;13:38;M;35;S+;H-;R-;B-;;N+;Boden;15.01.2025 12:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;23:44;16.01.2025;01:47;W;78;;;;B-;;N-;Boden;15.01.2025 23:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;16:56;09.01.2025;17:04;W;62;;;;B-;;N-;Boden;09.01.2025 16:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;02:18;07.01.2025;04:03;M;57;;;;B-;;N-;Boden;07.01.2025 02:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;12:13;28.01.2025;12:20;M;67;;;;;;;Boden;28.01.2025 12:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;10:59;03.03.2025;11:58;W;87;;;;;;;Boden;03.03.2025 10:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;19:37;23.02.2025;21:30;M;81;;;;B-;;N-;Boden;23.02.2025 19:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;14:13;12.03.2025;15:06;W;67;;;;;;;Boden;12.03.2025 14:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;14:59;07.02.2025;16:02;W;92;S-;H-;R-;B-;;N-;Boden;07.02.2025 14:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;21:48;18.03.2025;22:32;M;70;;;;;;;Boden;18.03.2025 21:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.03.2025;15:29;19.03.2025;16:12;M;84;;;;;;;Boden;19.03.2025 15:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;20:18;10.02.2025;20:20;M;68;;;;B-;;N-;Boden;10.02.2025 20:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;16:37;27.01.2025;18:17;M;92;;;;;;;Boden;27.01.2025 16:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;18:19;31.03.2025;18:44;W;37;;;;;;;Boden;31.03.2025 18:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;09:44;29.01.2025;11:24;W;77;;;;B-;;N-;Boden;29.01.2025 09:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;12:56;28.02.2025;13:15;M;81;;;;B-;;N-;Boden;28.02.2025 12:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;17:59;17.03.2025;20:19;M;76;;;;B-;;N-;Boden;17.03.2025 17:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;11:14;26.03.2025;12:24;M;74;;;;B-;;N-;Boden;26.03.2025 11:14
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;07:48;15.02.2025;10:44;W;75;;;;B-;;N-;Boden;15.02.2025 07:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;21:50;09.02.2025;22:32;W;78;;;;;;;Boden;09.02.2025 21:50
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;12:20;18.03.2025;14:10;W;72;;;;B-;Schwanger;N-;Boden;18.03.2025 12:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;12:02;13.02.2025;13:28;M;94;;;;;;N-;Boden;13.02.2025 12:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;01:11;13.03.2025;01:45;M;84;;;;;;;Boden;13.03.2025 01:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;10:09;27.02.2025;12:13;M;64;;;;B-;;N-;Boden;27.02.2025 10:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;00:56;22.02.2025;01:25;M;36;;;;B-;;N-;Boden;22.02.2025 00:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;11:35;24.03.2025;11:42;M;53;;;;;;;Boden;24.03.2025 11:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;00:40;02.02.2025;02:01;M;77;;;;B-;;N-;Boden;02.02.2025 00:40
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;14:41;17.01.2025;15:33;M;69;;;;B-;;N-;Boden;17.01.2025 14:41
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;09:01;10.02.2025;10:32;M;84;;;;;;;Boden;10.02.2025 09:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;12:50;05.01.2025;14:01;M;57;;;;B-;;N-;Boden;05.01.2025 12:50
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;21:11;28.03.2025;21:24;M;78;;;;;;N-;Boden;28.03.2025 21:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;07:05;16.01.2025;07:43;W;88;;;;B-;;N-;Boden;16.01.2025 07:05
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;14:24;29.03.2025;15:33;W;50;;;;B-;;N-;Boden;29.03.2025 14:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;05:49;12.02.2025;06:25;M;70;;;;;;;Boden;12.02.2025 05:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;05:50;29.03.2025;06:07;W;57;;;;;;;Boden;29.03.2025 05:50
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;21:36;01.02.2025;00:19;M;13;;;;;;;Boden;31.01.2025 21:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;20:19;16.01.2025;23:07;M;67;;;;B-;;N-;Boden;16.01.2025 20:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;11:20;16.03.2025;14:08;M;84;;;;B-;;N-;Boden;16.03.2025 11:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;13:08;25.01.2025;13:31;M;66;;;;;;;Boden;25.01.2025 13:08
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;00:35;08.03.2025;00:56;M;63;;;;B-;;N-;Boden;08.03.2025 00:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;11:23;10.03.2025;12:33;M;52;;;;B-;;N-;Boden;10.03.2025 11:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.03.2025;12:58;01.03.2025;14:27;M;76;;;;;;;Boden;01.03.2025 12:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;12:24;20.03.2025;13:50;M;85;;;;B-;;N-;Boden;20.03.2025 12:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;11:38;17.01.2025;13:02;W;63;;;;;;;Boden;17.01.2025 11:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;03:37;18.02.2025;04:10;M;66;;;;;;;Boden;18.02.2025 03:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;18:18;07.02.2025;20:19;W;86;;;;;;;Boden;07.02.2025 18:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;07:31;26.01.2025;10:20;W;98;;;;;;;Boden;26.01.2025 07:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;10:51;31.01.2025;13:17;M;66;;;;;;;Boden;31.01.2025 10:51
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;07:34;05.02.2025;07:52;M;86;;;;B-;;N-;Boden;05.02.2025 07:34
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;04:49;06.03.2025;07:19;W;63;;;;;;;Boden;06.03.2025 04:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;21:37;24.01.2025;21:59;W;70;;;;B-;;N-;Boden;24.01.2025 21:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;05:35;18.03.2025;08:34;W;87;;;;B-;;N-;Boden;18.03.2025 05:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;14:59;16.03.2025;15:27;M;91;S-;H-;R-;B-;;N-;Boden;16.03.2025 14:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;19:09;28.01.2025;20:32;M;69;;;;B-;;N-;Boden;28.01.2025 19:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;13:48;11.01.2025;15:18;W;19;;;;B-;;N-;Boden;11.01.2025 13:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;07:39;08.01.2025;07:41;M;73;;;;;;;Boden;08.01.2025 07:39
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;18:23;07.01.2025;19:10;W;50;;;;B-;;N-;Boden;07.01.2025 18:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;10:45;17.03.2025;13:12;W;86;;;;;;;Boden;17.03.2025 10:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.02.2025;14:03;19.02.2025;15:32;M;49;S-;H-;R-;B-;;N+;Boden;19.02.2025 14:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;12:00;03.03.2025;13:24;M;75;;;;B-;;N-;Boden;03.03.2025 12:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;14:27;16.02.2025;14:38;M;9;;;;;;;Boden;16.02.2025 14:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;11:20;12.02.2025;11:35;W;62;;;;B-;;N-;Boden;12.02.2025 11:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;21:56;12.01.2025;00:07;W;57;S-;H-;R-;B-;;N+;Boden;11.01.2025 21:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;13:44;21.03.2025;16:25;W;92;;;;B-;;N-;Boden;21.03.2025 13:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;11:28;18.02.2025;13:40;W;44;;;;;;;Boden;18.02.2025 11:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;07:42;05.02.2025;09:57;M;45;;;;;;;Boden;05.02.2025 07:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;20:44;07.01.2025;21:38;W;85;;;;B-;;N-;Boden;07.01.2025 20:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;17:27;30.01.2025;18:07;M;57;;;;B-;;N-;Boden;30.01.2025 17:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;16:25;22.01.2025;16:57;M;52;;;;B-;;N-;Boden;22.01.2025 16:25
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.03.2025;12:48;14.03.2025;13:24;M;11;;;;;;;Boden;14.03.2025 12:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;17:01;03.03.2025;18:45;W;54;;;;;;;Boden;03.03.2025 17:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;09:19;11.01.2025;09:58;M;58;;;;B-;;N-;Boden;11.01.2025 09:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;04:52;15.01.2025;06:02;M;73;;;;;;;Boden;15.01.2025 04:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;10:56;12.03.2025;11:18;M;91;;;;B-;;N-;Boden;12.03.2025 10:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;08:38;03.01.2025;09:04;W;40;;;;B-;;N-;Boden;03.01.2025 08:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;14:05;25.02.2025;14:17;W;59;;;;B-;;N-;Boden;25.02.2025 14:05
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;09:40;01.02.2025;12:37;W;71;S-;H-;R-;B-;;N+;Boden;01.02.2025 09:40
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;13:38;25.02.2025;15:05;M;55;;;;B-;;N-;Boden;25.02.2025 13:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;09:54;26.03.2025;11:07;W;81;;;;B-;;N-;Boden;26.03.2025 09:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;14:43;04.01.2025;15:32;M;43;;;;B-;;N-;Boden;04.01.2025 14:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;21:48;03.02.2025;23:25;M;52;;;;;;N-;Boden;03.02.2025 21:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;00:49;02.01.2025;03:39;M;16;;;;B-;;N-;Boden;02.01.2025 00:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;23:06;25.03.2025;00:38;M;82;;;;;;;Boden;24.03.2025 23:06
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;17:56;02.03.2025;20:46;M;35;;;;B-;;N-;Boden;02.03.2025 17:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;12:54;31.01.2025;14:47;M;47;;;;;;;Boden;31.01.2025 12:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.01.2025;16:16;19.01.2025;17:06;W;87;;;;;;N-;Boden;19.01.2025 16:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;11:06;15.02.2025;12:43;M;67;;;;B-;;N+;Boden;15.02.2025 11:06
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.02.2025;15:16;17.02.2025;18:05;W;56;S+;H-;R+;B+;;N+;Boden;17.02.2025 15:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;11:36;22.02.2025;13:37;M;83;;;;;;N-;Boden;22.02.2025 11:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.01.2025;21:59;15.01.2025;00:54;W;59;;;;B-;;N-;Boden;14.01.2025 21:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;18:37;06.02.2025;19:28;M;81;;;;B-;;N-;Boden;06.02.2025 18:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;05:54;08.03.2025;05:58;M;64;;;;B-;;N-;Boden;08.03.2025 05:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.03.2025;08:43;14.03.2025;09:42;W;67;;;;;;;Boden;14.03.2025 08:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;21:54;03.02.2025;22:15;W;94;;;R+;;;;Boden;03.02.2025 21:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;20:23;25.03.2025;21:37;W;66;;;;B-;;N-;Boden;25.03.2025 20:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;11:29;10.03.2025;11:41;W;40;;;;B-;;N-;Boden;10.03.2025 11:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;08:41;02.01.2025;11:28;M;62;;;;B-;;N-;Boden;02.01.2025 08:41
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;23:19;17.01.2025;00:34;M;69;;;;;;;Boden;16.01.2025 23:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;10:36;12.01.2025;13:34;M;51;;;;B-;;N-;Boden;12.01.2025 10:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:25;06.01.2025;12:59;W;77;;;;;;;Boden;06.01.2025 10:25
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;07:40;26.03.2025;10:40;W;66;;;;B-;;N-;Boden;26.03.2025 07:40
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;15:34;13.03.2025;18:33;M;25;S-;H-;R-;B-;;N+;Boden;13.03.2025 15:34
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;15:30;26.03.2025;18:08;M;60;;;;B-;;N-;Boden;26.03.2025 15:30
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;20:49;14.02.2025;22:15;M;89;;;;B-;;N-;Boden;14.02.2025 20:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;14:25;20.03.2025;16:35;W;81;;;;B-;;N-;Boden;20.03.2025 14:25
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.03.2025;18:41;27.03.2025;19:06;M;46;;;;B-;;N-;Boden;27.03.2025 18:41
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;07:31;24.01.2025;09:43;W;64;;;;;;;Boden;24.01.2025 07:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;14:01;07.01.2025;16:38;M;89;;;;B-;;N-;Boden;07.01.2025 14:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;01:12;24.02.2025;01:47;W;86;;;;B-;;N-;Boden;24.02.2025 01:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;00:35;08.02.2025;01:52;M;86;;;;;;;Boden;08.02.2025 00:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;10:16;16.01.2025;11:41;M;74;S-;H+;R-;B-;;N+;Boden;16.01.2025 10:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;18:18;15.03.2025;20:12;M;62;;;;;;;Boden;15.03.2025 18:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;14:20;15.02.2025;14:40;M;66;S+;H-;R-;B-;;N+;Luft;15.02.2025 14:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;21:19;11.03.2025;23:43;M;63;;;;B-;;N-;Boden;11.03.2025 21:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.02.2025;13:20;17.02.2025;15:45;M;88;;;;B-;;N-;Boden;17.02.2025 13:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.03.2025;15:55;01.03.2025;16:54;W;78;;;;B-;;N+;Boden;01.03.2025 15:55
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;15:58;23.02.2025;16:27;W;55;;;;;;;Boden;23.02.2025 15:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;13:18;12.01.2025;15:46;M;83;;;;B-;;N-;Boden;12.01.2025 13:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;20:29;15.03.2025;22:29;M;93;;;;B-;;N-;Boden;15.03.2025 20:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;15:55;06.02.2025;16:43;W;86;S-;H-;R-;B-;;N-;Boden;06.02.2025 15:55
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;13:28;22.02.2025;14:43;M;71;;;;B-;;N-;Boden;22.02.2025 13:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;19:09;26.03.2025;21:29;M;65;;;;B-;;N-;Boden;26.03.2025 19:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;13:26;17.03.2025;13:28;M;65;;;;B-;;N-;Boden;17.03.2025 13:26
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;07:45;08.02.2025;09:35;W;97;;;;;;;Boden;08.02.2025 07:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;10:45;12.01.2025;12:17;W;91;;;;B-;;N-;Boden;12.01.2025 10:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;13:12;08.02.2025;14:44;W;83;S-;H-;R-;B-;;N-;Boden;08.02.2025 13:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;16:02;27.01.2025;17:56;W;88;;;;;;;Boden;27.01.2025 16:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;15:37;11.02.2025;18:11;W;69;;;;B-;;N+;Boden;11.02.2025 15:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;20:15;11.02.2025;22:47;M;95;;;;;;;Boden;11.02.2025 20:15
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;09:58;11.01.2025;12:19;W;32;;;;;;;Boden;11.01.2025 09:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;01:32;14.02.2025;04:24;W;31;;;;B-;;N-;Boden;14.02.2025 01:32
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;12:44;22.02.2025;13:16;M;74;;;;;;;Boden;22.02.2025 12:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;13:57;06.01.2025;14:55;M;43;;;;B-;;N-;Boden;06.01.2025 13:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;19:27;15.02.2025;21:06;M;74;;;;B-;;N-;Boden;15.02.2025 19:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;13:09;15.01.2025;15:10;W;74;;;;;;;Boden;15.01.2025 13:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;16:29;03.03.2025;17:35;M;83;;;;B-;;N-;Boden;03.03.2025 16:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;11:13;16.03.2025;11:14;W;61;;;;;;;Boden;16.03.2025 11:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;12:41;11.01.2025;14:56;M;76;;;;B-;;N+;Boden;11.01.2025 12:41
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;13:08;01.02.2025;14:30;W;22;;;;;;;Boden;01.02.2025 13:08
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;10:03;09.01.2025;10:57;M;81;;;;B-;;N-;Boden;09.01.2025 10:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;07:49;08.03.2025;08:46;M;96;;;;;;;Boden;08.03.2025 07:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;11:17;20.02.2025;11:21;M;75;;;;;;N+;Boden;20.02.2025 11:17
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;21:54;06.01.2025;22:15;M;63;;;;B-;;N-;Boden;06.01.2025 21:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;14:25;13.03.2025;17:06;W;76;;;;B-;;N-;Boden;13.03.2025 14:25
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;08:34;20.02.2025;08:48;W;71;S-;H-;R-;B-;;N+;Boden;20.02.2025 08:34
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;15:13;29.01.2025;16:01;M;47;;;;;;;Boden;29.01.2025 15:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;05:52;11.01.2025;08:02;W;84;;;;;;;Boden;11.01.2025 05:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;21:13;18.03.2025;23:19;W;74;;;;B-;;N-;Boden;18.03.2025 21:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;14:22;23.01.2025;15:44;M;59;;;;;;;Boden;23.01.2025 14:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;14:35;01.02.2025;15:48;W;60;;;;B-;;N-;Boden;01.02.2025 14:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;17:22;02.03.2025;17:54;D;20;;;;B-;;N+;Boden;02.03.2025 17:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;15:02;01.01.2025;17:53;W;79;S-;H-;R-;B-;;N+;Boden;01.01.2025 15:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;19:48;16.01.2025;20:44;W;58;S-;H-;R-;B-;;N-;Boden;16.01.2025 19:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;15:13;23.03.2025;16:28;M;64;;;;;;;Boden;23.03.2025 15:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;17:03;30.03.2025;19:05;M;55;;;;B-;;N-;Boden;30.03.2025 17:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;17:36;08.01.2025;19:26;M;67;;;;B-;;N+;Boden;08.01.2025 17:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;18:53;30.03.2025;20:03;W;89;;;;B-;;N-;Boden;30.03.2025 18:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;10:54;26.02.2025;13:23;W;47;;;;B-;;N-;Boden;26.02.2025 10:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;17:08;09.01.2025;18:08;W;78;;;;;;N-;Boden;09.01.2025 17:08
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;07:19;20.03.2025;07:25;M;44;;;;B-;;N-;Boden;20.03.2025 07:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;11:17;21.02.2025;13:49;M;89;;;;;;;Boden;21.02.2025 11:17
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;13:45;01.02.2025;16:16;W;30;;;;B-;;N-;Boden;01.02.2025 13:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;12:25;24.03.2025;14:32;M;28;;;;B-;;N-;Boden;24.03.2025 12:25
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.01.2025;09:57;14.01.2025;10:54;W;86;;;;B-;;N-;Boden;14.01.2025 09:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;08:52;09.01.2025;10:36;W;44;;;;;;;Boden;09.01.2025 08:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;15:51;23.02.2025;16:20;W;85;;;;B-;;N-;Boden;23.02.2025 15:51
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;01:39;09.02.2025;03:38;W;83;;;;;;;Boden;09.02.2025 01:39
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;11:55;30.01.2025;13:45;W;55;;;;B-;;N-;Boden;30.01.2025 11:55
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;18:17;31.01.2025;21:11;W;79;;;;;;;Boden;31.01.2025 18:17
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.01.2025;18:22;13.01.2025;18:59;W;86;;;;B-;;N+;Boden;13.01.2025 18:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;15:32;06.03.2025;17:29;M;83;;;;;;;Boden;06.03.2025 15:32
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;09:59;01.01.2025;12:47;M;92;;;;B-;;;Boden;01.01.2025 09:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;15:22;28.03.2025;16:09;M;68;;;;B-;;N-;Boden;28.03.2025 15:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;15:57;06.02.2025;18:28;M;76;;;;B-;;N-;Boden;06.02.2025 15:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;16:12;08.02.2025;16:49;W;84;;;;B-;;N-;Boden;08.02.2025 16:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;19:07;22.01.2025;19:58;M;84;;;;B-;;N-;Boden;22.01.2025 19:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;07:35;04.01.2025;09:20;W;53;;;;;;;Boden;04.01.2025 07:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;18:11;07.01.2025;19:17;M;17;;;;;;;Boden;07.01.2025 18:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;15:11;23.01.2025;17:18;M;64;;;;B-;;N-;Boden;23.01.2025 15:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.02.2025;23:28;07.02.2025;01:02;W;92;S+;H-;R-;B-;;N-;Boden;06.02.2025 23:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;12:56;26.02.2025;15:08;M;26;;;;B-;;N-;Boden;26.02.2025 12:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;21:20;24.03.2025;22:33;M;56;;;;B-;;N-;Boden;24.03.2025 21:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;18:34;12.03.2025;20:29;W;92;;;;;;;Boden;12.03.2025 18:34
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;21:05;21.03.2025;21:41;W;77;;;;;;;Boden;21.03.2025 21:05
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;11:30;28.01.2025;11:34;M;89;;;;;;;Boden;28.01.2025 11:30
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;21:53;07.03.2025;00:03;M;57;S-;H-;R-;B-;;N-;Boden;06.03.2025 21:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;05:03;07.02.2025;08:01;M;77;;;;B-;;N-;Boden;07.02.2025 05:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;17:08;08.01.2025;17:52;W;19;S+;H-;R-;B-;;N-;Boden;08.01.2025 17:08
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;20:19;12.02.2025;20:49;M;35;;;;;;;Boden;12.02.2025 20:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;20:13;16.03.2025;22:09;M;28;;;;;;;Boden;16.03.2025 20:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.01.2025;10:31;19.01.2025;12:35;W;87;;;;B-;;N-;Boden;19.01.2025 10:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;13:15;02.02.2025;15:09;M;58;S+;H-;R-;B-;;N-;Boden;02.02.2025 13:15
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;22:28;10.03.2025;01:21;W;54;;;;B-;;N-;Boden;09.03.2025 22:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;02:10;12.03.2025;02:33;W;54;;;;;;;Boden;12.03.2025 02:10
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;09:30;29.01.2025;09:44;M;64;;;;B-;;N-;Boden;29.01.2025 09:30
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;13:57;09.02.2025;14:39;M;64;;;;;;;Boden;09.02.2025 13:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;16:09;24.02.2025;16:41;M;65;;;;B-;;N-;Boden;24.02.2025 16:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;19:39;25.03.2025;20:46;M;80;;;;B-;;N-;Boden;25.03.2025 19:39
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.01.2025;08:43;18.01.2025;10:32;M;71;;;;B-;;N-;Boden;18.01.2025 08:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;01:56;27.01.2025;04:05;W;75;;;;;;N-;Boden;27.01.2025 01:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.02.2025;19:31;19.02.2025;21:08;M;92;;;;;;;Boden;19.02.2025 19:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;10:26;15.03.2025;12:03;M;70;;;;;;;Boden;15.03.2025 10:26
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;09:01;21.03.2025;09:58;W;85;;;;B-;;N-;Boden;21.03.2025 09:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;08:29;16.01.2025;10:40;M;86;;;;B-;;N-;Boden;16.01.2025 08:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;12:41;23.03.2025;12:57;M;32;;;;;;;Boden;23.03.2025 12:41
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;16:33;29.03.2025;17:47;M;73;;;;;;;Boden;29.03.2025 16:33
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;12:11;31.01.2025;12:12;W;87;;;;B-;;N-;Boden;31.01.2025 12:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;18:54;06.03.2025;20:51;M;79;;;;;;;Boden;06.03.2025 18:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;16:38;24.02.2025;17:00;W;84;;;;;;;Boden;24.02.2025 16:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;15:13;18.02.2025;17:06;M;70;S-;H-;R-;B-;;N-;Boden;18.02.2025 15:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;20:50;27.02.2025;22:49;W;62;S-;H-;R-;B-;;N+;Boden;27.02.2025 20:50
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;20:46;23.01.2025;21:59;M;74;;;;;;;Boden;23.01.2025 20:46
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.01.2025;22:29;10.01.2025;22:35;M;62;S-;H-;R-;B-;;N-;Boden;10.01.2025 22:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;06:15;08.01.2025;06:23;M;88;;;;B-;;N-;Boden;08.01.2025 06:15
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;15:01;29.03.2025;15:20;W;73;;;;;;N-;Boden;29.03.2025 15:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;10:31;23.03.2025;12:08;M;65;;;;B-;;N-;Boden;23.03.2025 10:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.03.2025;19:18;07.03.2025;19:18;W;74;;;;B-;;N-;Boden;07.03.2025 19:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;21:05;04.03.2025;21:15;M;72;;;;B-;;N-;Boden;04.03.2025 21:05
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;08:56;06.01.2025;10:54;W;89;;;;B-;;N-;Boden;06.01.2025 08:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;19:39;01.02.2025;20:50;W;72;;;;B-;;N+;Boden;01.02.2025 19:39
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;17:35;15.02.2025;17:46;M;16;;;;;;;Boden;15.02.2025 17:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;09:20;14.02.2025;11:46;W;54;;;;;;;Boden;14.02.2025 09:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;07:18;25.01.2025;09:54;W;79;;;;;;;Boden;25.01.2025 07:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;11:02;26.03.2025;11:59;M;84;;;;B-;;N-;Boden;26.03.2025 11:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;05:06;03.01.2025;07:07;M;39;;;;B-;;N-;Boden;03.01.2025 05:06
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;13:43;05.03.2025;14:23;M;23;S+;H-;R-;B-;;N-;Boden;05.03.2025 13:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;13:47;22.01.2025;14:02;W;82;;;;;;;Boden;22.01.2025 13:47
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;20:22;09.03.2025;22:54;M;86;;;;;;;Boden;09.03.2025 20:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.03.2025;11:24;27.03.2025;13:18;M;77;;;;B-;;N-;Boden;27.03.2025 11:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;22:28;08.03.2025;22:38;M;73;;;;B-;;N-;Boden;08.03.2025 22:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;22:04;23.02.2025;23:50;M;86;;;;B-;;N-;Boden;23.02.2025 22:04
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;09:53;01.02.2025;12:30;M;85;;;;;;;Boden;01.02.2025 09:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;12:09;05.02.2025;12:29;M;65;;;;B-;;N-;Boden;05.02.2025 12:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;20:27;27.02.2025;21:02;W;52;S-;H-;R-;B-;;N-;Boden;27.02.2025 20:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;01:01;20.03.2025;03:07;W;52;;;;B-;;N-;Boden;20.03.2025 01:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;18:58;02.02.2025;20:15;W;20;;;;;;;Boden;02.02.2025 18:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;23:15;04.02.2025;01:37;M;60;;;;;;;Boden;03.02.2025 23:15
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;12:45;21.03.2025;14:55;M;48;;;;B-;;N+;Boden;21.03.2025 12:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;18:07;12.02.2025;19:34;W;62;S-;H-;R-;B-;;N+;Boden;12.02.2025 18:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;15:22;27.02.2025;17:30;W;81;S-;H-;R-;B-;;N+;Boden;27.02.2025 15:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;12:02;02.03.2025;13:13;M;24;;;;B-;;N-;Boden;02.03.2025 12:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;09:54;09.03.2025;10:34;W;19;;;;B-;;N-;Boden;09.03.2025 09:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:40;06.01.2025;12:19;M;60;;;;B-;;N-;Boden;06.01.2025 10:40
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.03.2025;03:48;21.03.2025;04:16;M;54;;;;B-;;N-;Boden;21.03.2025 03:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;22:52;15.02.2025;00:54;W;26;;;;B-;;N-;Boden;14.02.2025 22:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.01.2025;17:43;15.01.2025;17:47;M;77;;;;B-;;N-;Boden;15.01.2025 17:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;21:46;14.03.2025;00:21;M;74;;;;;;N-;Boden;13.03.2025 21:46
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;19:00;05.01.2025;20:57;M;84;;;;B-;;N-;Boden;05.01.2025 19:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.03.2025;13:57;29.03.2025;16:25;W;74;;;;;;N+;Boden;29.03.2025 13:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;09:33;05.01.2025;10:48;M;66;;;;B-;Schwanger;N+;Boden;05.01.2025 09:33
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;00:53;21.02.2025;01:58;W;86;;;;B-;;N+;Boden;21.02.2025 00:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;21:29;02.01.2025;22:15;M;66;;;;B-;;N-;Boden;02.01.2025 21:29
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;12:18;18.02.2025;12:56;M;88;;;;;;;Boden;18.02.2025 12:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;17:53;02.01.2025;18:01;W;74;;;;;;;Boden;02.01.2025 17:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;15:59;11.03.2025;16:40;M;47;;;;;;;Boden;11.03.2025 15:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;22:13;09.01.2025;23:43;M;67;;;;;;;Boden;09.01.2025 22:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;14:56;18.03.2025;16:34;W;71;;;;B-;;N-;Boden;18.03.2025 14:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;09:58;13.02.2025;12:19;M;58;;;;B-;;N+;Boden;13.02.2025 09:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;17:11;27.02.2025;19:12;W;91;;;;B-;;N-;Boden;27.02.2025 17:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;07:22;12.02.2025;07:25;W;86;;;;B-;;N-;Boden;12.02.2025 07:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;21:07;25.02.2025;22:39;M;70;;;;B-;;N-;Boden;25.02.2025 21:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;10:45;11.01.2025;11:38;M;85;;;;;;;Boden;11.01.2025 10:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;21:57;28.02.2025;00:04;M;43;;;;B-;;N-;Boden;27.02.2025 21:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;16:12;25.01.2025;16:38;M;62;;;;;;N+;Boden;25.01.2025 16:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;18:41;18.02.2025;21:14;M;11;;;;;;;Boden;18.02.2025 18:41
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;10:03;06.01.2025;10:30;M;64;;;;;;;Boden;06.01.2025 10:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;17:37;11.03.2025;17:55;W;83;;;;B-;;N-;Boden;11.03.2025 17:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;15:56;04.01.2025;17:26;W;60;;;;;;;Boden;04.01.2025 15:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;19:46;25.03.2025;22:31;M;69;;;;B-;;N-;Boden;25.03.2025 19:46
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;21:12;16.02.2025;21:37;W;70;;;;B-;;N-;Boden;16.02.2025 21:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;12:58;16.02.2025;14:07;W;81;;;;;;;Boden;16.02.2025 12:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;00:54;21.02.2025;02:30;W;54;;;;B-;;N-;Boden;21.02.2025 00:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;09:27;01.02.2025;09:49;M;72;;;;;;;Boden;01.02.2025 09:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;21:16;01.02.2025;00:13;M;90;;;;;;;Boden;31.01.2025 21:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.03.2025;18:24;07.03.2025;21:15;W;22;;;;;;;Boden;07.03.2025 18:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;00:24;24.01.2025;02:01;W;86;;;;B-;;N-;Boden;24.01.2025 00:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.01.2025;10:52;14.01.2025;11:16;M;33;;;;B-;;N-;Boden;14.01.2025 10:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;09:54;27.02.2025;11:22;W;56;;;;;;N-;Boden;27.02.2025 09:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;01:47;20.02.2025;04:19;M;69;;;;B-;;N-;Boden;20.02.2025 01:47
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;21:31;13.03.2025;23:30;M;86;;;;B-;;N-;Boden;13.03.2025 21:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;04:41;30.03.2025;07:39;W;61;;;;;;;Boden;30.03.2025 04:41
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;13:57;14.02.2025;15:11;W;82;;;;B-;;N-;Boden;14.02.2025 13:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;08:01;07.02.2025;10:48;M;77;;;;B-;;N-;Boden;07.02.2025 08:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;10:43;28.03.2025;10:58;W;66;S-;H-;R-;B-;;N+;Boden;28.03.2025 10:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;11:53;26.02.2025;12:53;M;65;;;;B-;;N-;Boden;26.02.2025 11:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;22:44;07.01.2025;00:43;M;67;;;;B-;;N-;Boden;06.01.2025 22:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.01.2025;10:02;26.01.2025;10:32;W;31;;;;B-;;N-;Boden;26.01.2025 10:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.01.2025;19:43;27.01.2025;21:48;M;68;;;;;;;Boden;27.01.2025 19:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;10:48;12.01.2025;11:28;M;30;;;;B-;;N-;Boden;12.01.2025 10:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.03.2025;13:49;17.03.2025;16:32;M;80;;;;;;;Boden;17.03.2025 13:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.03.2025;14:49;25.03.2025;16:38;M;84;;;;;;;Boden;25.03.2025 14:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;10:57;03.01.2025;11:07;M;74;S-;H-;R-;B-;;N-;Boden;03.01.2025 10:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;16:40;23.03.2025;19:24;W;72;;;;B-;;N-;Boden;23.03.2025 16:40
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;12:59;02.01.2025;14:20;W;82;;;;B-;;N-;Boden;02.01.2025 12:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;09:18;03.02.2025;10:16;M;73;;;;B-;;N-;Boden;03.02.2025 09:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.01.2025;10:12;04.01.2025;10:29;M;63;;;;B-;;N-;Boden;04.01.2025 10:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.02.2025;18:57;17.02.2025;21:03;W;66;;;;B-;;N-;Boden;17.02.2025 18:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;14:42;07.02.2025;15:15;M;74;;;;B-;;N-;Boden;07.02.2025 14:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;20:50;20.02.2025;23:18;M;76;;;;;;;Boden;20.02.2025 20:50
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;06:00;05.02.2025;07:37;M;91;;;;;;;Boden;05.02.2025 06:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;10:18;29.01.2025;10:30;M;60;;;;B-;;N+;Boden;29.01.2025 10:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;13:12;14.02.2025;14:06;W;54;;;;B-;;N-;Boden;14.02.2025 13:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;17:04;28.03.2025;17:59;M;81;;;;B-;;N-;Boden;28.03.2025 17:04
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;11:16;23.02.2025;13:16;W;60;S-;H-;R-;B-;;N-;Boden;23.02.2025 11:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;12:10;25.02.2025;12:22;M;81;;;;;;;Boden;25.02.2025 12:10
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;14:59;28.02.2025;15:01;W;69;;;;;;N-;Boden;28.02.2025 14:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;15:19;23.01.2025;18:04;W;84;;;;;;;Boden;23.01.2025 15:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.01.2025;11:27;11.01.2025;14:17;W;62;;;;;;;Boden;11.01.2025 11:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;23:06;03.03.2025;01:03;M;27;;;;B-;;N-;Boden;02.03.2025 23:06
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;10:16;17.01.2025;12:52;M;74;S-;H+;R-;B-;;N+;Boden;17.01.2025 10:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;22:11;07.03.2025;00:07;W;63;;;;;;;Boden;06.03.2025 22:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;10:14;13.03.2025;12:02;M;55;;;;B-;;N-;Boden;13.03.2025 10:14
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;21:07;04.03.2025;21:44;M;62;;;;;;N+;Boden;04.03.2025 21:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.02.2025;11:27;04.02.2025;11:29;M;52;S+;H-;R-;B-;;N+;Boden;04.02.2025 11:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;17:22;09.02.2025;19:03;M;58;S-;H-;R-;B-;;N-;Boden;09.02.2025 17:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.03.2025;20:42;19.03.2025;23:07;W;47;;;;B-;;N-;Boden;19.03.2025 20:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;06:11;18.03.2025;09:03;M;30;;;;B-;;N-;Boden;18.03.2025 06:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;12:03;06.03.2025;14:57;M;83;;;;B-;;N-;Boden;06.03.2025 12:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;12:02;20.03.2025;13:38;M;51;;;;B-;;N-;Boden;20.03.2025 12:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;00:46;16.03.2025;01:41;M;77;;;;;;;Boden;16.03.2025 00:46
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;12:45;12.03.2025;14:03;M;86;;;;B-;;N-;Boden;12.03.2025 12:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;13:21;22.02.2025;13:25;W;67;;;;B-;;N-;Boden;22.02.2025 13:21
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.03.2025;12:39;28.03.2025;15:08;W;74;;;;B-;;N+;Boden;28.03.2025 12:39
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;11:58;10.03.2025;12:22;M;60;;;;;;;Boden;10.03.2025 11:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;12:58;03.02.2025;15:47;M;51;;;;B-;;N-;Boden;03.02.2025 12:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.02.2025;12:11;04.02.2025;14:54;M;38;;;;;;;Boden;04.02.2025 12:11
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;09:16;12.01.2025;11:59;W;73;;;;B-;;N-;Boden;12.01.2025 09:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;16:23;22.01.2025;16:25;M;80;;;;;;;Boden;22.01.2025 16:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;10:58;01.02.2025;13:29;W;61;;;;;;;Boden;01.02.2025 10:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;15:36;11.03.2025;17:51;W;56;;;;B-;;N-;Boden;11.03.2025 15:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;08:49;16.01.2025;09:05;M;67;;;;B-;;N-;Boden;16.01.2025 08:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;12:08;12.01.2025;12:24;M;70;;;;;;;Boden;12.01.2025 12:08
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;12:57;26.03.2025;13:40;M;32;;;;;;;Boden;26.03.2025 12:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;17:54;10.02.2025;19:23;W;91;S-;H-;R-;B-;;N-;Boden;10.02.2025 17:54
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;13:21;13.02.2025;14:55;W;61;;;;B-;;N-;Boden;13.02.2025 13:21
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;07:35;12.02.2025;10:25;M;94;;;;B-;;N-;Boden;12.02.2025 07:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;18:24;05.01.2025;19:45;M;79;;;;B-;;N-;Boden;05.01.2025 18:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;15:55;29.01.2025;17:09;W;64;;;;B-;;N-;Boden;29.01.2025 15:55
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;09:42;08.03.2025;12:08;M;26;S+;H-;R-;B-;;N+;Boden;08.03.2025 09:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;07:24;08.03.2025;08:04;W;87;;;;B-;;N-;Boden;08.03.2025 07:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;10:15;04.03.2025;10:20;W;73;;;;B-;;N-;Boden;04.03.2025 10:15
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;08:22;10.02.2025;08:38;M;86;;;;B-;;N-;Boden;10.02.2025 08:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.03.2025;08:28;20.03.2025;11:04;M;92;;;;;;;Boden;20.03.2025 08:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;09:12;31.03.2025;10:46;M;89;;;;B-;;N-;Boden;31.03.2025 09:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;18:56;05.02.2025;19:33;W;54;;;;;;;Boden;05.02.2025 18:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;20:22;18.02.2025;22:44;M;66;;;;;;;Boden;18.02.2025 20:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;11:27;31.01.2025;14:18;W;83;;;;B-;;N-;Boden;31.01.2025 11:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.03.2025;12:45;12.03.2025;14:51;W;71;;;;B-;;N+;Boden;12.03.2025 12:45
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;09:43;02.03.2025;12:09;M;63;;;;B-;;N-;Boden;02.03.2025 09:43
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;17:00;12.01.2025;17:46;M;64;;;;B-;;N-;Boden;12.01.2025 17:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.01.2025;12:09;21.01.2025;13:55;W;79;S-;H-;R-;B-;;N-;Boden;21.01.2025 12:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;18:56;09.02.2025;19:33;M;67;;;;;;;Boden;09.02.2025 18:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;22:30;04.01.2025;00:49;W;65;;;;B-;;N-;Boden;03.01.2025 22:30
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.01.2025;21:28;31.01.2025;21:51;W;66;;;;B-;;N-;Boden;31.01.2025 21:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;21:48;31.03.2025;23:59;W;92;;;;B-;;N+;Boden;31.03.2025 21:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;02:10;30.03.2025;02:16;M;72;;;;B-;;N-;Boden;30.03.2025 02:10
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;01:19;01.01.2025;03:36;M;47;;;;B-;;N-;Boden;01.01.2025 01:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;08:42;30.01.2025;08:54;M;77;;;;;;;Boden;30.01.2025 08:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;18:02;01.02.2025;19:03;M;84;;;;;;;Boden;01.02.2025 18:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;02:10;22.01.2025;02:40;M;51;;;;B-;;N-;Boden;22.01.2025 02:10
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.03.2025;18:20;22.03.2025;20:41;M;35;;;;;;;Boden;22.03.2025 18:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;19:27;24.01.2025;20:04;W;86;;;;B-;;N-;Boden;24.01.2025 19:27
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.03.2025;22:15;16.03.2025;00:39;M;66;;;;B-;;N+;Boden;15.03.2025 22:15
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;10:04;11.02.2025;12:07;W;83;;;;;;;Boden;11.02.2025 10:04
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;13:18;24.01.2025;13:30;M;64;;;;B-;;N+;Boden;24.01.2025 13:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;18:20;24.02.2025;19:45;M;35;;;;;;;Boden;24.02.2025 18:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;16:07;11.02.2025;17:31;M;85;;;;;;;Boden;11.02.2025 16:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.01.2025;17:10;23.01.2025;17:41;W;54;;;;;;;Boden;23.01.2025 17:10
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;07:32;03.03.2025;07:44;M;25;;;;B-;;N-;Boden;03.03.2025 07:32
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.03.2025;08:09;03.03.2025;09:54;W;66;;;;B-;;N-;Boden;03.03.2025 08:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;13:36;12.02.2025;14:34;M;77;;;;;;N-;Boden;12.02.2025 13:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;13:01;29.01.2025;13:09;W;69;;;;B-;;;Boden;29.01.2025 13:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;07:55;10.02.2025;08:24;M;89;;;;B-;;N-;Boden;10.02.2025 07:55
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;14:04;29.01.2025;14:07;M;67;S-;H-;R-;B-;;N+;Boden;29.01.2025 14:04
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.02.2025;19:40;02.02.2025;21:04;W;72;;;;B-;;N-;Boden;02.02.2025 19:40
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;05:52;07.01.2025;06:44;W;62;;;;;;;Boden;07.01.2025 05:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;11:55;12.02.2025;12:04;M;89;;;;B-;;N-;Boden;12.02.2025 11:55
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;17.01.2025;13:07;17.01.2025;13:19;W;88;;;;;;N-;Boden;17.01.2025 13:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.01.2025;17:21;30.01.2025;18:38;M;77;;;;B+;;N-;Boden;30.01.2025 17:21
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;15.02.2025;09:34;15.02.2025;11:42;M;78;;;;B-;;N-;Boden;15.02.2025 09:34
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.01.2025;18:22;19.01.2025;19:50;M;80;;;;;;N-;Boden;19.01.2025 18:22
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.01.2025;20:38;05.01.2025;23:14;W;62;;;;;;;Boden;05.01.2025 20:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;11:23;03.02.2025;12:28;M;54;;;;B-;;N-;Boden;03.02.2025 11:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.02.2025;08:52;07.02.2025;08:52;W;41;;;;;;;Boden;07.02.2025 08:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.02.2025;11:58;28.02.2025;13:01;M;70;;;;B-;;N-;Boden;28.02.2025 11:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.03.2025;23:01;10.03.2025;00:46;M;24;;;;B-;;N-;Boden;09.03.2025 23:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;21:16;10.02.2025;22:45;W;67;;;;B-;;N-;Boden;10.02.2025 21:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;29.01.2025;13:12;29.01.2025;13:24;M;22;;;;;;;Boden;29.01.2025 13:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;14:38;09.02.2025;15:12;W;65;;;;B-;;N-;Boden;09.02.2025 14:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;13:32;08.02.2025;14:34;W;66;;;;;;;Boden;08.02.2025 13:32
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;08:34;12.01.2025;10:43;M;71;;;;B-;;N+;Boden;12.01.2025 08:34
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;03:00;05.03.2025;05:05;W;55;S-;H+;R-;B-;;N-;Boden;05.03.2025 03:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;05:42;20.02.2025;07:58;M;52;;;;B-;;N-;Boden;20.02.2025 05:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.03.2025;10:23;08.03.2025;12:05;W;83;;;;;;;Boden;08.03.2025 10:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;18:24;02.01.2025;20:32;W;97;;;;;;;Boden;02.01.2025 18:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;12:24;06.03.2025;14:18;W;53;;;;;;N-;Boden;06.03.2025 12:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;09:53;24.02.2025;11:44;W;52;;;;;;;Boden;24.02.2025 09:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.01.2025;16:00;12.01.2025;17:23;M;91;;;;B-;;N-;Boden;12.01.2025 16:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;16:13;25.02.2025;18:03;W;58;;;;;;;Boden;25.02.2025 16:13
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;31.03.2025;00:52;31.03.2025;02:43;M;84;;;;;;;Boden;31.03.2025 00:52
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;15:14;08.01.2025;16:26;M;81;;;;B-;;N-;Boden;08.01.2025 15:14
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.03.2025;12:00;26.03.2025;12:49;M;70;;;;B-;;N-;Boden;26.03.2025 12:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.02.2025;10:23;08.02.2025;11:13;W;92;;;;;;;Boden;08.02.2025 10:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;19.03.2025;06:08;19.03.2025;08:50;M;72;;;;B-;;N-;Boden;19.03.2025 06:08
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;12:20;06.01.2025;13:12;M;77;;;;;;N-;Boden;06.01.2025 12:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;18:23;14.02.2025;20:50;W;85;;;;B-;;N-;Boden;14.02.2025 18:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.01.2025;11:12;01.01.2025;13:15;W;89;;;;;;;Boden;01.01.2025 11:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;08.01.2025;11:03;08.01.2025;11:41;W;83;;;;;;;Boden;08.01.2025 11:03
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.02.2025;15:28;18.02.2025;15:55;W;86;;;;B-;;N-;Boden;18.02.2025 15:28
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;13:20;10.02.2025;13:41;W;64;;;;;;;Boden;10.02.2025 13:20
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.02.2025;18:19;03.02.2025;19:18;M;73;S-;H-;R-;B-;;N+;Boden;03.02.2025 18:19
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;15:58;05.02.2025;17:08;W;67;;;;B-;;N-;Boden;05.02.2025 15:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.02.2025;11:01;05.02.2025;12:41;W;18;;;;B-;;N-;Boden;05.02.2025 11:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;00:32;14.02.2025;02:47;M;74;;;;B-;;N-;Boden;14.02.2025 00:32
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;09:31;11.03.2025;10:41;M;76;;;;B-;;N-;Boden;11.03.2025 09:31
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.02.2025;22:49;10.02.2025;01:31;M;70;;;;B-;;N-;Boden;09.02.2025 22:49
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;18:30;25.01.2025;18:38;M;70;;;;B-;;N-;Boden;25.01.2025 18:30
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;14:36;13.03.2025;14:48;M;68;;;;B-;;N-;Boden;13.03.2025 14:36
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.02.2025;11:12;22.02.2025;11:25;W;62;;;;B-;;N-;Boden;22.02.2025 11:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;12:35;05.03.2025;14:15;W;70;;;;B-;;N-;Boden;05.03.2025 12:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.03.2025;21:12;23.03.2025;22:18;W;83;;;;B-;;N-;Boden;23.03.2025 21:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.03.2025;20:23;27.03.2025;21:10;M;71;;;;B-;;N-;Boden;27.03.2025 20:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.03.2025;14:23;10.03.2025;15:53;M;88;;;;B-;;;Boden;10.03.2025 14:23
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.02.2025;11:44;01.02.2025;14:44;W;72;S+;H-;R-;B+;;N+;Boden;01.02.2025 11:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.01.2025;09:33;18.01.2025;10:52;W;83;;;;B-;;N-;Boden;18.01.2025 09:33
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.01.2025;20:38;20.01.2025;21:31;M;76;;;;B-;;N-;Boden;20.01.2025 20:38
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.03.2025;08:59;11.03.2025;11:31;M;83;;;;;;;Boden;11.03.2025 08:59
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;18.03.2025;23:42;19.03.2025;01:29;M;61;;;;B-;;N-;Boden;18.03.2025 23:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;10:09;27.02.2025;12:05;M;71;;;;B-;;N-;Boden;27.02.2025 10:09
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.01.2025;21:07;24.01.2025;23:14;W;63;;;;;;;Boden;24.01.2025 21:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.03.2025;14:02;24.03.2025;14:20;M;67;;;;;;;Boden;24.03.2025 14:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;07:24;13.02.2025;08:24;M;84;;;;;;;Boden;13.02.2025 07:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;05.03.2025;16:40;05.03.2025;18:56;M;78;;;;B-;;N+;Boden;05.03.2025 16:40
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;03.01.2025;11:33;03.01.2025;11:35;W;95;;;;B-;;N+;Boden;03.01.2025 11:33
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;15:18;07.01.2025;16:26;W;78;;;;B-;;N-;Boden;07.01.2025 15:18
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.03.2025;10:00;13.03.2025;10:00;W;84;;;;B-;;N-;Boden;13.03.2025 10:00
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;30.03.2025;09:35;30.03.2025;10:03;M;88;;;;B-;;N-;Boden;30.03.2025 09:35
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.02.2025;23:24;15.02.2025;02:16;M;84;;;;;;;Boden;14.02.2025 23:24
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;21.02.2025;09:33;21.02.2025;12:05;M;82;;;;;;N-;Boden;21.02.2025 09:33
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.02.2025;13:53;25.02.2025;14:35;W;58;;;;B-;;N-;Boden;25.02.2025 13:53
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;12.02.2025;00:56;12.02.2025;03:56;W;83;;;;B-;;N-;Boden;12.02.2025 00:56
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;04.03.2025;17:37;04.03.2025;18:07;M;53;;;;B-;;N-;Boden;04.03.2025 17:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;26.02.2025;16:12;26.02.2025;18:34;M;70;;;;B-;;N-;Boden;26.02.2025 16:12
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;23.02.2025;11:57;23.02.2025;11:59;M;71;;;;B-;;N-;Boden;23.02.2025 11:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;11:42;10.02.2025;13:26;M;86;;;;;;N-;Boden;10.02.2025 11:42
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;25.01.2025;17:57;25.01.2025;19:30;M;19;;;;B-;;N+;Boden;25.01.2025 17:57
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;22.01.2025;11:37;22.01.2025;11:38;W;74;;;;;;;Boden;22.01.2025 11:37
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;19:21;16.02.2025;21:26;M;62;;;;B-;;N-;Boden;16.02.2025 19:21
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.01.2025;15:26;06.01.2025;18:21;M;82;;;;;;;Boden;06.01.2025 15:26
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;01.03.2025;20:39;01.03.2025;21:49;M;60;;;;B-;;N-;Boden;01.03.2025 20:39
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;06.03.2025;20:26;06.03.2025;23:06;W;87;;;;;;;Boden;06.03.2025 20:26
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;20.02.2025;08:34;20.02.2025;09:27;W;86;;;;B-;;N-;Boden;20.02.2025 08:34
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;16:44;16.02.2025;19:39;M;43;;;;B-;;N-;Boden;16.02.2025 16:44
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;10:48;10.02.2025;13:32;M;71;;;;B-;Schwanger;N-;Boden;10.02.2025 10:48
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;14.03.2025;02:01;14.03.2025;02:01;M;16;;;;B-;;N-;Boden;14.03.2025 02:01
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;28.01.2025;11:39;28.01.2025;13:30;M;60;;;;B-;;N-;Boden;28.01.2025 11:39
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;24.02.2025;20:26;24.02.2025;22:26;W;81;;;;B-;;N-;Boden;24.02.2025 20:26
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;20:02;11.02.2025;22:11;M;74;;;;B-;;N-;Boden;11.02.2025 20:02
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.01.2025;15:14;16.01.2025;15:31;M;77;;;;;;;Boden;16.01.2025 15:14
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;13.02.2025;12:15;13.02.2025;13:56;W;59;S-;H-;R-;B-;;N-;Boden;13.02.2025 12:15
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;27.02.2025;18:07;27.02.2025;18:26;W;78;;;;;;;Boden;27.02.2025 18:07
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;10.02.2025;16:16;10.02.2025;18:41;M;60;;;;B-;;N-;Boden;10.02.2025 16:16
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.01.2025;16:58;02.01.2025;19:44;M;60;;;;B-;;N+;Boden;02.01.2025 16:58
+Leitstelle Test;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.03.2025;08:29;16.03.2025;10:25;W;79;S-;H-;R-;B-;;N+;Boden;16.03.2025 08:29
