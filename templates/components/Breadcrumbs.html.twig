@@ -1,0 +1,23 @@
+<div{{ attributes }}>
+    <nav aria-label="breadcrumb" class="mt-2 mb-2">
+        <ol class="breadcrumb breadcrumb-arrows">
+            {% for item in this.fullItems %}
+                <li class="breadcrumb-item {% if loop.last %}active{% endif %}">
+                    {% if item.path is defined and not loop.last %}
+                        <a href="{{ item.path }}">
+                            {% if item.icon is defined %}
+                                <twig:ux:icon name="{{ item.icon }}" class="w-3 h-3 me-1" />
+                            {% endif %}
+                            {{ item.label|trans }}
+                        </a>
+                    {% else %}
+                        {% if item.icon is defined %}
+                            <twig:ux:icon name="{{ item.icon }}" class="w-3 h-3 me-1" />
+                        {% endif %}
+                        {{ item.label|trans }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+    </nav>
+</div>

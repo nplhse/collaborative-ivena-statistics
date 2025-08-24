@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use App\Entity\Traits\Blamable;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -36,7 +37,11 @@ final readonly class BlamableListener
             return;
         }
 
-        $entity->setCreatedBy($currentUser);
+        $user = $this->getManagedUserOrNull($args);
+
+        if ($user) {
+            $entity->setCreatedBy($user);
+        }
     }
 
     public function preUpdate(PreUpdateEventArgs $args): void
@@ -52,7 +57,11 @@ final readonly class BlamableListener
             return;
         }
 
-        $entity->setUpdatedBy($currentUser);
+        $user = $this->getManagedUserOrNull($args);
+
+        if ($user) {
+            $entity->setUpdatedBy($user);
+        }
     }
 
     /**
@@ -67,5 +76,21 @@ final readonly class BlamableListener
         }
 
         return $usedTraits;
+    }
+
+    private function getManagedUserOrNull(mixed $args): ?User
+    {
+        $rawUser = $this->security->getUser();
+
+        if (!$rawUser instanceof User || null === $rawUser->getId()) {
+            return null;
+        }
+
+        $em = $args->getObjectManager();
+
+        /** @var User $managed */
+        $managed = $em->getReference(User::class, $rawUser->getId());
+
+        return $managed;
     }
 }

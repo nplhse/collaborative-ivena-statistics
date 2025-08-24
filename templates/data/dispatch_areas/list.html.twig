@@ -14,6 +14,13 @@
 
 {% block page_header %}
     <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.data', path: path('app_data_index') },
+                    { label: 'title.dispatch_area.list' }
+                ]"
+        />
+
         <div class="page-header d-print-none">
             <div class="row align-items-center">
                 <div class="col">

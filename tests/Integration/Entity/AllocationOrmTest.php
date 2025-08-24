@@ -7,11 +7,13 @@ namespace App\Tests\Integration\Entity;
 use App\Entity\Allocation;
 use App\Entity\DispatchArea;
 use App\Entity\Hospital;
+use App\Entity\Import;
 use App\Entity\State;
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
+use App\Factory\ImportFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,10 +41,12 @@ final class AllocationOrmTest extends KernelTestCase
             'dispatchArea' => $area,
             'name' => 'St. Test Hospital',
         ]);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
 
         $state = $this->em->getRepository(State::class)->find($state->getId());
         $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
         $hospital = $this->em->getRepository(Hospital::class)->find($hospital->getId());
+        $import = $this->em->getRepository(Import::class)->find($import->getId());
 
         $createdAt = new \DateTimeImmutable('now');
         $arrivalAt = new \DateTimeImmutable('+10 minutes');
@@ -51,6 +55,7 @@ final class AllocationOrmTest extends KernelTestCase
             ->setHospital($hospital)
             ->setDispatchArea($area)
             ->setState($state)
+            ->setImport($import)
             ->setCreatedAt($createdAt)
             ->setArrivalAt($arrivalAt)
             ->setGender(AllocationGender::FEMALE)
@@ -94,6 +99,7 @@ final class AllocationOrmTest extends KernelTestCase
         self::assertSame('St. Test Hospital', $object->getHospital()?->getName());
         self::assertSame('Alpha Area', $object->getDispatchArea()?->getName());
         self::assertSame('Hessen', $object->getState()?->getName());
+        self::assertSame('Test Import', $object->getImport()->getName());
     }
 
     public function testTransportTypeCanBeNull(): void
@@ -103,15 +109,18 @@ final class AllocationOrmTest extends KernelTestCase
         $state = StateFactory::createOne();
         $area = DispatchAreaFactory::createOne(['state' => $state]);
         $hospital = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $area]);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
 
         $state = $this->em->getRepository(State::class)->find($state->getId());
         $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
         $hospital = $this->em->getRepository(Hospital::class)->find($hospital->getId());
+        $import = $this->em->getRepository(Import::class)->find($import->getId());
 
         $allocation = new Allocation()
             ->setHospital($hospital)
             ->setDispatchArea($area)
             ->setState($state)
+            ->setImport($import)
             ->setCreatedAt(new \DateTimeImmutable('now'))
             ->setArrivalAt(new \DateTimeImmutable('+10 minutes'))
             ->setGender(AllocationGender::OTHER)

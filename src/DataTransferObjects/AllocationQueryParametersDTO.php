@@ -18,6 +18,9 @@ final readonly class AllocationQueryParametersDTO
 
         #[Assert\Choice(choices: ['age', 'arrivalAt'])]
         public string $sortBy = 'arrivalAt',
+
+        #[Assert\GreaterThan(0)]
+        public ?int $importId = null,
     ) {
     }
 }
