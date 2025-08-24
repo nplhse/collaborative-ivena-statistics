@@ -25,7 +25,6 @@ final class AllocationRowDTOTest extends TestCase
     {
         $dto = new AllocationRowDTO();
         $dto->dispatchArea = 'Leitstelle Test';
-        $dto->state = 'Hessen';
         $dto->hospital = 'Test Hospital';
         $dto->createdAt = '01.01.2025 10:00';
         $dto->arrivalAt = '01.01.2025 10:30';
@@ -38,7 +37,7 @@ final class AllocationRowDTOTest extends TestCase
         $dto->isShock = false;
         $dto->isPregnant = false;
         $dto->isWithPhysician = true;
-        $dto->transportType = 'Boden';
+        $dto->transportType = 'G';
 
         return $dto;
     }
@@ -56,19 +55,17 @@ final class AllocationRowDTOTest extends TestCase
     {
         $dto = $this->makeValidDto();
         $dto->dispatchArea = '';
-        $dto->state = '';
         $dto->hospital = '';
         $dto->createdAt = '';
         $dto->arrivalAt = '';
 
         $violations = $this->validator->validate($dto);
 
-        self::assertGreaterThanOrEqual(5, count($violations));
+        self::assertGreaterThanOrEqual(4, count($violations));
 
         $props = array_map(static fn ($v) => $v->getPropertyPath(), iterator_to_array($violations));
 
         self::assertContains('dispatchArea', $props);
-        self::assertContains('state', $props);
         self::assertContains('hospital', $props);
         self::assertContains('createdAt', $props);
         self::assertContains('arrivalAt', $props);
@@ -142,6 +139,19 @@ final class AllocationRowDTOTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<array{0: int|null, 1: bool}>
+     */
+    public static function ageProvider(): iterable
+    {
+        yield 'null is not allowed' => [null, false];
+        yield 'Zero is too small' => [0, false];
+        yield 'Minimum is valid' => [1, true];
+        yield 'In Between is valid' => [50, true];
+        yield 'Maximum is valid' => [99, true];
+        yield 'Too large is invalid' => [100, false];
+    }
+
     #[DataProvider('transportProvider')]
     public function testTransportChoice(?string $value, bool $isValid): void
     {
@@ -158,20 +168,13 @@ final class AllocationRowDTOTest extends TestCase
         }
     }
 
-    public static function ageProvider(): iterable
-    {
-        yield 'null is not allowed' => [null, false];
-        yield 'Zero is too small' => [0, false];
-        yield 'Minimum is valid' => [1, true];
-        yield 'In Between is valid' => [50, true];
-        yield 'Maximum is valid' => [99, true];
-        yield 'Too large is invalid' => [100, false];
-    }
-
+    /**
+     * @return iterable<array{0: string|null, 1: bool}>
+     */
     public static function transportProvider(): iterable
     {
         yield 'null is allowed' => [null, true];
-        yield 'Valid value' => ['Boden', true];
+        yield 'Valid value' => ['G', true];
         yield 'Invalid value' => ['Flugtaxi', false];
     }
 }

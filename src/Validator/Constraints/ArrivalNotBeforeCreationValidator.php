@@ -2,17 +2,14 @@
 
 namespace App\Validator\Constraints;
 
-use App\Service\Import\DTO\AllocationRowDTO;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-class ArrivalNotBeforeCreationValidator extends ConstraintValidator
+final class ArrivalNotBeforeCreationValidator extends ConstraintValidator
 {
-    /**
-     * @param AllocationRowDTO|null $value
-     */
-    public function validate($value, Constraint $constraint): void
+    #[\Override]
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ArrivalNotBeforeCreation) {
             throw new UnexpectedTypeException($constraint, ArrivalNotBeforeCreation::class);
@@ -25,14 +22,14 @@ class ArrivalNotBeforeCreationValidator extends ConstraintValidator
         $createdRaw = $value->{$constraint->createdAtField} ?? null;
         $arrivalRaw = $value->{$constraint->arrivalAtField} ?? null;
 
-        if (!$createdRaw || !$arrivalRaw) {
+        if (!is_string($createdRaw) || '' === $createdRaw || !is_string($arrivalRaw) || '' === $arrivalRaw) {
             return;
         }
 
-        $created = \DateTimeImmutable::createFromFormat($constraint->format, (string) $createdRaw) ?: null;
-        $arrival = \DateTimeImmutable::createFromFormat($constraint->format, (string) $arrivalRaw) ?: null;
+        $created = \DateTimeImmutable::createFromFormat($constraint->format, $createdRaw);
+        $arrival = \DateTimeImmutable::createFromFormat($constraint->format, $arrivalRaw);
 
-        if (!$created || !$arrival) {
+        if (!$created instanceof \DateTimeImmutable || !$arrival instanceof \DateTimeImmutable) {
             return;
         }
 

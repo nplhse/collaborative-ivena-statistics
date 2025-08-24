@@ -15,45 +15,42 @@ final class TraitHelper
         normalizeAge as private traitNormalizeAge;
         combineDateAndTime as private traitCombineDateAndTime;
         normalizeDateTimeString as private traitNormalizeDateTimeString;
-        chooseCreatedAt as private traitChooseCreatedAt;
         getStringOrNull as private traitGetStringOrNull;
     }
 
-    public static function normalizeGender(?string $v): string
+    public static function normalizeGender(?string $value): string
     {
-        return self::traitNormalizeGender($v);
+        return self::traitNormalizeGender($value);
     }
 
-    public static function normalizeTransportType(?string $v): ?string
+    public static function normalizeTransportType(?string $value): ?string
     {
-        return self::traitNormalizeTransportType($v);
+        return self::traitNormalizeTransportType($value);
     }
 
-    public static function normalizeBoolean(?string $v): ?bool
+    public static function normalizeBoolean(?string $value): ?bool
     {
-        return self::traitNormalizeBoolean($v);
+        return self::traitNormalizeBoolean($value);
     }
 
-    public static function normalizeAge(?string $v): ?int
+    public static function normalizeAge(?string $value): ?int
     {
-        return self::traitNormalizeAge($v);
+        return self::traitNormalizeAge($value);
     }
 
-    public static function combineDateAndTime(?string $d, ?string $t): ?string
+    public static function combineDateAndTime(?string $date, ?string $time): ?string
     {
-        return self::traitCombineDateAndTime($d, $t);
+        return self::traitCombineDateAndTime($date, $time);
     }
 
-    public static function normalizeDateTimeString(string $v): string
+    public static function normalizeDateTimeString(string $value): string
     {
-        return self::traitNormalizeDateTimeString($v);
+        return self::traitNormalizeDateTimeString($value);
     }
 
-    public static function chooseCreatedAt(?string $c, ?string $e): ?string
-    {
-        return self::traitChooseCreatedAt($c, $e);
-    }
-
+    /**
+     * @param array<string, string|null> $row
+     */
     public static function getStringOrNull(array $row, string $key): ?string
     {
         return self::traitGetStringOrNull($row, $key);

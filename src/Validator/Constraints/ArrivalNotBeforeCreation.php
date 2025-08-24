@@ -5,7 +5,7 @@ namespace App\Validator\Constraints;
 use Symfony\Component\Validator\Constraint;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class ArrivalNotBeforeCreation extends Constraint
+final class ArrivalNotBeforeCreation extends Constraint
 {
     public string $createdAtField = 'createdAt';
 

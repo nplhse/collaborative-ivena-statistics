@@ -15,12 +15,15 @@ final class AllocationRowMapperTest extends TestCase
         self::assertSame($expected, TraitHelper::normalizeGender($input));
     }
 
+    /**
+     * @return iterable<array{0: string|null, 1: 'M'|'F'|'X'}>
+     */
     public static function genderProvider(): iterable
     {
         yield 'M' => ['M', 'M'];
         yield 'm' => ['m', 'M'];
-        yield 'W' => ['W', 'W'];
-        yield 'w' => ['w', 'W'];
+        yield 'W' => ['W', 'F'];
+        yield 'w' => ['w', 'F'];
         yield 'D->X' => ['D', 'X'];
         yield 'X' => ['X', 'X'];
         yield 'empty' => ['', 'X'];
@@ -34,20 +37,23 @@ final class AllocationRowMapperTest extends TestCase
         self::assertSame($expected, TraitHelper::normalizeTransportType($input));
     }
 
+    /**
+     * @return iterable<array{0: string|null, 1: 'G'|'A'|null}>
+     */
     public static function transportProvider(): iterable
     {
-        yield 'Boden upper' => ['BODEN', 'Ground'];
-        yield 'Boden mixed' => ['Boden', 'Ground'];
-        yield 'boden lower' => ['boden', 'Ground'];
+        yield 'Boden upper' => ['BODEN', 'G'];
+        yield 'Boden mixed' => ['Boden', 'G'];
+        yield 'boden lower' => ['boden', 'G'];
 
-        yield 'Luft upper' => ['LUFT', 'Air'];
-        yield 'Luft mixed' => ['Luft', 'Air'];
-        yield 'luft lower' => ['luft', 'Air'];
+        yield 'Luft upper' => ['LUFT', 'A'];
+        yield 'Luft mixed' => ['Luft', 'A'];
+        yield 'luft lower' => ['luft', 'A'];
 
-        yield 'NAW -> Boden' => ['NAW', 'Ground'];
-        yield 'ITW -> Boden' => ['ITW', 'Ground'];
-        yield 'MZF -> Boden' => ['MZF', 'Ground'];
-        yield 'RTW -> Boden' => ['RTW', 'Ground'];
+        yield 'NAW -> Boden' => ['NAW', 'G'];
+        yield 'ITW -> Boden' => ['ITW', 'G'];
+        yield 'MZF -> Boden' => ['MZF', 'G'];
+        yield 'RTW -> Boden' => ['RTW', 'G'];
 
         yield 'unknown -> null' => ['HEL', null];
         yield 'empty -> null' => ['', null];
@@ -60,6 +66,9 @@ final class AllocationRowMapperTest extends TestCase
         self::assertSame($expected, TraitHelper::normalizeBoolean($input));
     }
 
+    /**
+     * @return iterable<array{0: string|null, 1: bool|null}>
+     */
     public static function booleanProvider(): iterable
     {
         yield 'suffix plus' => ['S+', true];
@@ -80,6 +89,9 @@ final class AllocationRowMapperTest extends TestCase
         self::assertSame($expected, TraitHelper::normalizeAge($input));
     }
 
+    /**
+     * @return iterable<array{0: string|null, 1: int|null}>
+     */
     public static function ageProvider(): iterable
     {
         yield 'null -> null' => [null, null];
@@ -96,6 +108,9 @@ final class AllocationRowMapperTest extends TestCase
         self::assertSame($expected, TraitHelper::combineDateAndTime($date, $time));
     }
 
+    /**
+     * @return iterable<array{0: string|null, 1: string|null, 2: string|null}>
+     */
     public static function dateTimeCombineProvider(): iterable
     {
         yield 'ok HH:MM' => ['01.01.2025', '12:34', '01.01.2025 12:34'];
@@ -103,42 +118,5 @@ final class AllocationRowMapperTest extends TestCase
         yield 'missing time' => ['01.01.2025', null, null];
         yield 'missing date' => [null, '12:34', null];
         yield 'both missing' => [null, null, null];
-    }
-
-    public function testChooseCreatedAtPrefersErstellungsdatumOnMismatch(): void
-    {
-        self::assertSame(
-            '01.01.2025 10:05',
-            TraitHelper::chooseCreatedAt('01.01.2025 10:00', '01.01.2025 10:05')
-        );
-    }
-
-    public function testChooseCreatedAtUsesCombinedIfErstellungsdatumMissing(): void
-    {
-        self::assertSame(
-            '01.01.2025 10:00',
-            TraitHelper::chooseCreatedAt('01.01.2025 10:00', null)
-        );
-    }
-
-    public function testChooseCreatedAtUsesErstellungsdatumIfCombinedMissing(): void
-    {
-        self::assertSame(
-            '02.02.2025 12:34',
-            TraitHelper::chooseCreatedAt(null, '02.02.2025 12:34')
-        );
-    }
-
-    public function testChooseCreatedAtNormalizesSeconds(): void
-    {
-        self::assertSame(
-            '01.01.2025 10:00',
-            TraitHelper::chooseCreatedAt('01.01.2025 10:00', '01.01.2025 10:00:30')
-        );
-    }
-
-    public function testChooseCreatedAtBothMissing(): void
-    {
-        self::assertNull(TraitHelper::chooseCreatedAt(null, null));
     }
 }

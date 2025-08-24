@@ -11,6 +11,9 @@ use App\Validator\Constraints\ArrivalNotBeforeCreation;
 use App\Validator\Constraints\ArrivalNotBeforeCreationValidator;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
+/**
+ * @extends ConstraintValidatorTestCase<ArrivalNotBeforeCreationValidator>
+ */
 final class ArrivalNotBeforeCreationValidatorTest extends ConstraintValidatorTestCase
 {
     protected function createValidator(): ArrivalNotBeforeCreationValidator
