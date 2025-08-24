@@ -18,3 +18,16 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\Import\Adapter\SplCsvRowReader: ~
+    App\Service\Import\Mapping\AllocationRowMapper: ~
+    App\Service\Import\Mapping\AllocationImportFactory: ~
+    App\Service\Import\Adapter\DoctrineAllocationPersister:
+        arguments:
+            $batchSize: 250
+    App\Service\Import\AllocationImporter:
+        arguments:
+            $logger: '@monolog.logger.import'
+    # App\Service\Import\Adapter\CsvRejectWriter:
+    #    arguments:
+    #        $baseDir: '%kernel.project_dir%/var/import/rejects'
