@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class ShowImportController extends AbstractController
 {
-    #[Route('/data/import/{id}', name: 'app_import_show')]
+    #[Route('/import/{id}', name: 'app_import_show')]
     public function __invoke(Import $import): Response
     {
         return $this->render('import/show.html.twig', [
