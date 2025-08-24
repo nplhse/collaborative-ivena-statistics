@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Enum\ImportStatus;
 use App\Factory\AllocationFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
@@ -20,11 +21,24 @@ final class AppFixtures extends Fixture
         UserFactory::createMany(5);
 
         StateFactory::createMany(3);
-        DispatchAreaFactory::createMany(50);
+        DispatchAreaFactory::createMany(49);
+        $dispatchArea = DispatchAreaFactory::createOne(
+            ['name' => 'Test Area'])
+        ;
 
-        HospitalFactory::createMany(10);
+        HospitalFactory::createMany(9);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Test Hospital',
+            'dispatchArea' => $dispatchArea,
+        ]);
 
-        ImportFactory::createMany(15);
+        ImportFactory::createMany(14);
+        ImportFactory::createOne([
+            'name' => 'Test Import',
+            'hospital' => $hospital,
+            'status' => ImportStatus::PENDING,
+        ]
+        );
 
         AllocationFactory::createMany(100);
 

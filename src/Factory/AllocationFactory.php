@@ -31,6 +31,8 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'arrivalAt' => $arrivalAt,
             'createdAt' => $createdAt,
             'dispatchArea' => DispatchAreaFactory::random(),
+            'state' => StateFactory::random(),
+            'import' => ImportFactory::random(),
             'gender' => self::faker()->randomElement(AllocationGender::cases()),
             'age' => self::faker()->numberBetween(1, 99),
             'hospital' => HospitalFactory::random(),
@@ -41,7 +43,6 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'isWithPhysician' => self::faker()->boolean(),
             'requiresCathlab' => self::faker()->boolean(),
             'requiresResus' => self::faker()->boolean(),
-            'state' => StateFactory::random(),
             'transportType' => self::faker()->randomElement(AllocationTransportType::cases()),
         ];
     }
