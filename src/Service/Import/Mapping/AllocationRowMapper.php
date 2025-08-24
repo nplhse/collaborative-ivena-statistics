@@ -27,33 +27,34 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
     /**
      * @param array<string,string> $row
      */
+    #[\Override]
     public function mapAssoc(array $row): AllocationRowDTO
     {
         $dto = new AllocationRowDTO();
 
         // Direct string fields
         $dto->dispatchArea = self::getStringOrNull($row, 'versorgungsbereich');
-        $dto->state = self::getStringOrNull($row, 'khs_versorgungsgebiet');
         $dto->hospital = self::getStringOrNull($row, 'krankenhaus_kurzname');
 
         // Date fields
-        $datum = self::getStringOrNull($row, 'datum');
-        $uhrzeit = self::getStringOrNull($row, 'uhrzeit');
-        $combined = self::combineDateAndTime($datum, $uhrzeit);
+        $date_created = self::getStringOrNull($row, 'datum_erstellungsdatum');
+        $time_created = self::getStringOrNull($row, 'uhrzeit_erstellungsdatum');
+        $dto->createdAt = self::combineDateAndTime($date_created, $time_created);
 
-        $erstellungsdatum = self::getStringOrNull($row, 'erstellungsdatum'); // NEW
-        $dto->createdAt = self::chooseCreatedAt($combined, $erstellungsdatum);
+        $date_arrival = self::getStringOrNull($row, 'datum_eintreffzeit');
+        $time_arrival = self::getStringOrNull($row, 'uhrzeit_eintreffzeit');
+        $dto->arrivalAt = self::combineDateAndTime($date_arrival, $time_arrival);
 
         // Normalized fields
         $dto->gender = self::normalizeGender(self::getStringOrNull($row, 'geschlecht'));
         $dto->age = self::normalizeAge(self::getStringOrNull($row, 'alter'));
-        $dto->requiresResus = self::normalizeBoolean(self::getStringOrNull($row, 'schockraum'));
-        $dto->requiresCathlab = self::normalizeBoolean(self::getStringOrNull($row, 'herzkatheter'));
-        $dto->isCPR = self::normalizeBoolean(self::getStringOrNull($row, 'reanimation'));
-        $dto->isVentilated = self::normalizeBoolean(self::getStringOrNull($row, 'beatmet'));
-        $dto->isShock = self::normalizeBoolean(self::getStringOrNull($row, 'schock'));
-        $dto->isPregnant = self::normalizeBoolean(self::getStringOrNull($row, 'schwanger'));
-        $dto->isWithPhysician = self::normalizeBoolean(self::getStringOrNull($row, 'arztbegleitet'));
+        $dto->requiresResus = self::normalizeBoolean(self::getStringOrNull($row, 'schockraum') ?? 'false');
+        $dto->requiresCathlab = self::normalizeBoolean(self::getStringOrNull($row, 'herzkatheter') ?? 'false');
+        $dto->isCPR = self::normalizeBoolean(self::getStringOrNull($row, 'reanimation') ?? 'false');
+        $dto->isVentilated = self::normalizeBoolean(self::getStringOrNull($row, 'beatmet') ?? 'false');
+        $dto->isShock = self::normalizeBoolean(self::getStringOrNull($row, 'schock') ?? 'false');
+        $dto->isPregnant = self::normalizeBoolean(self::getStringOrNull($row, 'schwanger') ?? 'false');
+        $dto->isWithPhysician = self::normalizeBoolean(self::getStringOrNull($row, 'arztbegleitet') ?? 'false');
         $dto->transportType = self::normalizeTransportType(self::getStringOrNull($row, 'transportmittel'));
 
         return $dto;

@@ -31,30 +31,34 @@ final class SplCsvRowReader implements RowReaderInterface
     /** @var array<int,string>|null */
     private ?array $headerRow = null;
 
-    /** @var array<int,string>|null */
+    /**
+     * @psalm-suppress UnusedProperty
+     *
+     * @var array<int,string>|null
+     */
     private ?array $rawHeaderRow = null;
 
     public function __construct(
         private readonly \SplFileObject $file,
-        private string $delimiter = ';',
-        private string $enclosure = '"',
-        private string $escape = '\\',
-        private bool $hasHeader = true,
-        private string $inputEncoding = 'ISO-8859-1',
+        private readonly string $inputEncoding = 'ISO-8859-1',
+        string $delimiter = ';',
+        string $enclosure = "\0",
+        string $escape = '\\',
     ) {
         $this->file->setFlags(
             \SplFileObject::READ_CSV
             | \SplFileObject::SKIP_EMPTY
             | \SplFileObject::DROP_NEW_LINE
         );
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
-        if ($this->hasHeader) {
-            $this->rawHeaderRow = $this->readUtf8Row();
-            if (null !== $this->rawHeaderRow) {
-                $this->headerRow = array_map([$this, 'normalizeHeader'], $this->rawHeaderRow);
-            }
+        $this->file->setCsvControl($delimiter, $enclosure, $escape);
+
+        $this->rawHeaderRow = $this->readUtf8Row();
+        if (null === $this->rawHeaderRow) {
+            throw new \RuntimeException('CSV appears to be empty or header row could not be read.');
         }
+
+        $this->headerRow = array_map([$this, 'normalizeHeader'], $this->rawHeaderRow);
     }
 
     /**
@@ -62,50 +66,69 @@ final class SplCsvRowReader implements RowReaderInterface
      *
      * @return array<int,string>|null
      */
+    #[\Override]
     public function header(): ?array
     {
         return $this->headerRow;
     }
 
     /**
-     * Original header (UTF-8, unnormalized).
-     *
-     * @return array<int,string>|null
-     */
-    public function rawHeader(): ?array
-    {
-        return $this->rawHeaderRow;
-    }
-
-    /**
-     * Iterate raw numeric rows (UTF-8, trimmed).
-     *
      * @return iterable<array<int,string>>
      */
+    #[\Override]
     public function rows(): iterable
     {
-        foreach ($this->file as $row) {
+        while (!$this->file->eof()) {
+            /** @var array<int,string|null>|false $row */
+            $row = $this->file->fgetcsv();
+
             if (false === $row || $row === [null]) {
                 continue;
             }
 
-            yield array_map(fn ($v) => $this->toUtf8($v), $row);
+            $utf8 = \array_map(fn (?string $value): string => $this->toUtf8($value), $row);
+            $allEmpty = true;
+
+            foreach ($utf8 as $cell) {
+                if ('' !== $cell) {
+                    $allEmpty = false;
+                    break;
+                }
+            }
+
+            if ($allEmpty) {
+                continue;
+            }
+
+            yield $utf8;
         }
     }
 
     /**
      * @return iterable<array<string,string>>
      */
+    #[\Override]
     public function rowsAssoc(): iterable
     {
-        if (!$this->headerRow) {
-            throw new \RuntimeException('rowsAssoc() requires hasHeader=true and a valid header row.');
+        if (null === $this->headerRow) {
+            throw new \RuntimeException('CSV header is missing or invalid.');
         }
+
+        $len = \count($this->headerRow);
+
         foreach ($this->rows() as $row) {
-            // array_combine absichern
-            $values = array_slice($row, 0, count($this->headerRow));
-            $values += array_fill(0, count($this->headerRow) - count($values), '');
-            yield array_combine($this->headerRow, $values);
+            $cnt = \count($row);
+
+            if ($cnt > $len) {
+                $row = \array_slice($row, 0, $len);
+            } elseif ($cnt < $len) {
+                $row = \array_pad($row, $len, '');
+            }
+
+            $assoc = \array_combine($this->headerRow, $row);
+            $assoc = \array_map(static fn (string $value): string => $value, $assoc);
+
+            yield $assoc;
         }
     }
 
@@ -115,21 +138,24 @@ final class SplCsvRowReader implements RowReaderInterface
     private function readUtf8Row(): ?array
     {
         $row = $this->file->fgetcsv();
+
         if (false === $row || $row === [null]) {
             return null;
         }
 
-        return array_map(fn ($v) => $this->toUtf8($v), $row);
+        return \array_map(fn (?string $value): string => $this->toUtf8($value), $row);
     }
 
-    private function toUtf8(?string $v): string
+    private function toUtf8(?string $value): string
     {
-        $v = $v ?? '';
+        $value = $value ?? '';
+
         if ('UTF-8' !== $this->inputEncoding) {
-            $v = mb_convert_encoding($v, 'UTF-8', $this->inputEncoding);
+            $converted = \mb_convert_encoding($value, 'UTF-8', $this->inputEncoding);
+            $value = (string) $converted;
         }
 
-        return trim($v);
+        return trim($value);
     }
 
     /**
@@ -160,11 +186,7 @@ final class SplCsvRowReader implements RowReaderInterface
             'ß' => 'ss',
         ];
         $header = strtr($header, $map);
-
-        // Nicht-Alnum zu Leerzeichen
         $header = preg_replace('/[^A-Za-z0-9]+/', ' ', $header) ?? '';
-
-        // collapse spaces
         $header = trim(preg_replace('/\s+/', ' ', $header) ?? '');
 
         if ('' === $header) {
