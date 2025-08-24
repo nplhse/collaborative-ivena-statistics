@@ -44,8 +44,20 @@ class Import
     #[ORM\Column]
     private ?int $fileSize = null;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $fileChecksum = null;
+
     #[ORM\Column]
     private ?int $rowCount = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $rowsPassed = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $rowsRejected = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $rejectFilePath = null;
 
     #[ORM\Column]
     private ?int $runCount = null;
@@ -174,6 +186,18 @@ class Import
         return $this;
     }
 
+    public function getFileChecksum(): ?string
+    {
+        return $this->fileChecksum;
+    }
+
+    public function setFileChecksum(?string $fileChecksum): static
+    {
+        $this->fileChecksum = $fileChecksum;
+
+        return $this;
+    }
+
     public function getRowCount(): ?int
     {
         return $this->rowCount;
@@ -182,6 +206,42 @@ class Import
     public function setRowCount(int $rowCount): static
     {
         $this->rowCount = $rowCount;
+
+        return $this;
+    }
+
+    public function getRowsPassed(): ?int
+    {
+        return $this->rowsPassed;
+    }
+
+    public function setRowsPassed(?int $rowsPassed): static
+    {
+        $this->rowsPassed = $rowsPassed;
+
+        return $this;
+    }
+
+    public function getRowsRejected(): ?int
+    {
+        return $this->rowsRejected;
+    }
+
+    public function setRowsRejected(?int $rowsRejected): static
+    {
+        $this->rowsRejected = $rowsRejected;
+
+        return $this;
+    }
+
+    public function getRejectFilePath(): ?string
+    {
+        return $this->rejectFilePath;
+    }
+
+    public function setRejectFilePath(?string $rejectFilePath): static
+    {
+        $this->rejectFilePath = $rejectFilePath;
 
         return $this;
     }

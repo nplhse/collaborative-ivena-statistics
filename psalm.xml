@@ -52,6 +52,7 @@
                 <directory name="src/Enum"/>
                 <directory name="src/Entity"/>
                 <directory name="src/Factory"/>
+                <directory name="src/Form"/>
                 <directory name="src/Faker/Provider"/>
                 <directory name="src/Pagination"/>
                 <directory name="src/Query"/>

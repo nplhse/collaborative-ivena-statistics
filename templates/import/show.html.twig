@@ -1,7 +1,7 @@
 {# templates/data/import/show.html.twig #}
 {% extends '_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.import.show'|trans }}: {{ import.name ?? ('#' ~ import.id) }} - {{ 'title.data'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.import.show'|trans }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
 
 {% import '_macros/badges.html.twig' as badges %}
 
@@ -201,9 +201,8 @@
                         <div class="col-12">
                             <twig:Card title="{{ 'label.import.section.quick_actions'|trans }}">
                                 <div class="btn-list">
-                                    <a class="btn btn-outline-primary disabled" href="#">
-                                        <twig:ux:icon name="tabler:table" class="w-3 h-3" />
-                                        {{ 'import.action.preview_rows'|trans }}
+                                    <a class="btn btn-outline-primary" href="{{ path('app_data_allocation_list', {importId: import.id}) }}">
+                                        <twig:ux:icon name="tabler:table" class="w-3 h-3" /> {{ 'import.action.preview_rows'|trans }}
                                     </a>
                                 </div>
                             </twig:Card>

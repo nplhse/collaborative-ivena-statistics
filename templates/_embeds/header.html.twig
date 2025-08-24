@@ -13,9 +13,6 @@
                     </a>
                 </h1>
             {% endblock %}
-            {% block navbar_user %}
-                {{ include('_includes/navbar_user.html.twig') }}
-            {% endblock %}
             <div class="collapse navbar-collapse" id="navbar-menu">
                 <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
                     <ul class="navbar-nav">
@@ -40,6 +37,9 @@
                     </ul>
                 </div>
             </div>
+            {% block navbar_user %}
+                {{ include('_includes/navbar_user.html.twig') }}
+            {% endblock %}
         </div>
     </header>
 {% endblock %}

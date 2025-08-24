@@ -23,7 +23,6 @@ final class ImportAllocationsMessageHandler
 {
     public function __construct(
         private readonly ImportRepository $importRepository,
-
         private readonly EntityManagerInterface $em,
         private readonly ValidatorInterface $validator,
         private readonly RowToDtoMapperInterface $mapper,
@@ -31,17 +30,11 @@ final class ImportAllocationsMessageHandler
         private readonly AllocationPersisterInterface $persister,
         private readonly LoggerInterface $importLogger,
 
-        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
-        private string $importsDir = '',
-        private string $rejectsDir = '',
+        #[Autowire(param: 'app.imports_base_dir')] private readonly string $importsDir,
+        #[Autowire(param: 'app.rejects_base_dir')] private readonly string $rejectsDir,
     ) {
-        $this->importsDir = $this->projectDir.'/';
-        $this->rejectsDir = $this->projectDir.'/var/import/rejects';
     }
 
-    /**
-     * Vorbereitung: Import laden, Pfad prüfen/auflösen, Status Running, IO bauen → run().
-     */
     public function __invoke(ImportAllocationsMessage $message): void
     {
         $import = $this->importRepository->findOneBy(['id' => $message->importId]);
@@ -84,8 +77,6 @@ final class ImportAllocationsMessageHandler
     }
 
     /**
-     * Ausführung: Importer mit IO starten, Summary speichern.
-     *
      * @return array{total:int,ok:int,rejected:int}
      */
     public function run(Import $import, SplCsvRowReader $reader, CsvRejectWriter $writer): array
@@ -115,6 +106,8 @@ final class ImportAllocationsMessageHandler
             $import
                 ->setStatus(ImportStatus::COMPLETED)
                 ->setRowCount($summary['total'] ?? 0)
+                ->setRowsPassed($summary['ok'] ?? 0)
+                ->setRowsRejected($summary['rejected'] ?? 0)
                 ->setRunCount(($import->getRunCount() ?? 0) + 1)
                 ->setRunTime((int) round((microtime(true) - $started) * 1000.0));
 
@@ -136,21 +129,20 @@ final class ImportAllocationsMessageHandler
     private function buildReader(string $filePath): SplCsvRowReader
     {
         return new SplCsvRowReader(
-            new \SplFileObject($filePath, 'r'),
-            delimiter: ';',
-            enclosure: '"',
-            escape: '\\',
-            inputEncoding: 'UTF-8'
+            new \SplFileObject($filePath, 'r')
         );
     }
 
     private function buildRejectWriter(int $importId): CsvRejectWriter
     {
-        if (!is_dir($this->rejectsDir) && !@mkdir($this->rejectsDir, 0775, true) && !is_dir($this->rejectsDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $this->rejectsDir));
+        $subDir = date('Y').'/'.date('m');
+        $dir = rtrim($this->rejectsDir, '/').'/'.$subDir;
+
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
         }
 
-        $path = sprintf('%s/rejects_%d_%s.csv', $this->rejectsDir, $importId, date('Ymd_His'));
+        $path = sprintf('%s/alloc_import_%d_rejects_%s.csv', $dir, $importId, date('Ymd_His'));
 
         return new CsvRejectWriter($path);
     }
