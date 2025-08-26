@@ -103,6 +103,10 @@ final class ImportAllocationsMessageHandler
                 throw new \RuntimeException('Import not found after refresh');
             }
 
+            if ($writer->getCount() > 0) {
+                $import->setRejectFilePath($writer->getPath());
+            }
+
             $import
                 ->setStatus(ImportStatus::COMPLETED)
                 ->setRowCount($summary['total'] ?? 0)

@@ -14,7 +14,6 @@ final class TraitHelper
         normalizeBoolean as private traitNormalizeBoolean;
         normalizeAge as private traitNormalizeAge;
         combineDateAndTime as private traitCombineDateAndTime;
-        normalizeDateTimeString as private traitNormalizeDateTimeString;
         getStringOrNull as private traitGetStringOrNull;
     }
 
@@ -41,11 +40,6 @@ final class TraitHelper
     public static function combineDateAndTime(?string $date, ?string $time): ?string
     {
         return self::traitCombineDateAndTime($date, $time);
-    }
-
-    public static function normalizeDateTimeString(string $value): string
-    {
-        return self::traitNormalizeDateTimeString($value);
     }
 
     /**

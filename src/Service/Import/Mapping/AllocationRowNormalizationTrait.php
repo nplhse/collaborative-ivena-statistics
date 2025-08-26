@@ -28,14 +28,6 @@ trait AllocationRowNormalizationTrait
         return sprintf('%s %s', $date, $time);
     }
 
-    private static function normalizeDateTimeString(string $value): ?string
-    {
-        $dt = \DateTimeImmutable::createFromFormat('d.m.Y H:i', $value)
-            ?: \DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $value);
-
-        return $dt ? $dt->format('d.m.Y H:i') : null;
-    }
-
     protected static function normalizeAge(?string $value): ?int
     {
         if (null === $value) {
