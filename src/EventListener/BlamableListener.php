@@ -78,7 +78,7 @@ final readonly class BlamableListener
         return $usedTraits;
     }
 
-    private function getManagedUserOrNull(mixed $args): ?User
+    private function getManagedUserOrNull(PrePersistEventArgs|PreUpdateEventArgs $args): ?User
     {
         $rawUser = $this->security->getUser();
 
