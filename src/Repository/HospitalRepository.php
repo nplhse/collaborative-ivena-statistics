@@ -35,7 +35,7 @@ final class HospitalRepository extends ServiceEntityRepository
         return $qb
             ->innerJoin('h.owner', 'o')
             ->andWhere('o = :user')
-            ->setParameter('user', $user);
+            ->setParameter('user', $user->getId());
     }
 
     public function getHospitalListPaginator(HospitalQueryParametersDTO $queryParametersDTO): Paginator
@@ -61,7 +61,7 @@ final class HospitalRepository extends ServiceEntityRepository
             'size' => 'h.beds',
             'dispatchArea' => 'da.name',
             'state' => 's.name',
-            default => 'h.'.$queryParametersDTO->sortBy, // bewusstes, sicheres Default
+            default => 'h.'.$queryParametersDTO->sortBy,
         };
 
         $qb->orderBy($field, $queryParametersDTO->orderBy);
