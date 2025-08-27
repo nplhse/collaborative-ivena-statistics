@@ -122,6 +122,12 @@
                                         {{ import.rowCount|number_format(0, ',', '.') }}
                                     </div>
                                 </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.type'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        <span class="status status-blue">{{ import.type.value }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </twig:Card>
                     </div>
@@ -144,12 +150,6 @@
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.type'|trans }}</div>
-                                    <div class="datagrid-content">
-                                        <span class="status status-blue">{{ import.type.value }}</span>
-                                    </div>
-                                </div>
-                                <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.runCount'|trans }}</div>
                                     <div class="datagrid-content">
                                         {{ import.runCount }}
@@ -159,6 +159,24 @@
                                     <div class="datagrid-title">{{ 'import.field.runTime'|trans }}</div>
                                     <div class="datagrid-content">
                                         {{ runTimeHuman }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowsPassed'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowsPassed }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowsRejected'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowsRejected }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rejectionRate'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ (import.rowsRejected / import.rowCount * 100)|number_format(2, ',', '.') }}%
                                     </div>
                                 </div>
                             </div>

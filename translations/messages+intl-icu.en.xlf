@@ -105,9 +105,21 @@
         <source>import.field.fileSize</source>
         <target>File size</target>
       </trans-unit>
+      <trans-unit id="_AQ_ZqM" resname="import.field.rejectionRate">
+        <source>import.field.rejectionRate</source>
+        <target>Rejection Rate</target>
+      </trans-unit>
       <trans-unit id="YIl4XxP" resname="import.field.rowCount">
         <source>import.field.rowCount</source>
         <target>Row count</target>
+      </trans-unit>
+      <trans-unit id="Au8OS5f" resname="import.field.rowsPassed">
+        <source>import.field.rowsPassed</source>
+        <target>Successful rows</target>
+      </trans-unit>
+      <trans-unit id="OGahhM8" resname="import.field.rowsRejected">
+        <source>import.field.rowsRejected</source>
+        <target>Rejected rows</target>
       </trans-unit>
       <trans-unit id="oiSvDD9" resname="import.field.runCount">
         <source>import.field.runCount</source>
