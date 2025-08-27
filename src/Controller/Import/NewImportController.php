@@ -88,6 +88,6 @@ final class NewImportController extends AbstractController
 
         $this->addFlash('success', 'flash.import.created');
 
-        return $this->redirectToRoute('app_import_index');
+        return $this->redirectToRoute('app_import_show', ['id' => $importId]);
     }
 }
