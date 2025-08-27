@@ -585,6 +585,10 @@
         <source>This value should satisfy at least one of the following constraints:</source>
         <target>This value should satisfy at least one of the following constraints:</target>
       </trans-unit>
+      <trans-unit id="Swa.X1h" resname="Unknown transport">
+        <source>Unknown transport</source>
+        <target>This value is an unknown Mode of Transport.</target>
+      </trans-unit>
       <trans-unit id="Y8YNvWG" resname="Unsupported card type or invalid card number.">
         <source>Unsupported card type or invalid card number.</source>
         <target>Unsupported card type or invalid card number.</target>
@@ -604,6 +608,14 @@
       <trans-unit id="65n9dGQ" resname="You must select at most {{ limit }} choice.|You must select at most {{ limit }} choices.">
         <source>You must select at most {{ limit }} choice.|You must select at most {{ limit }} choices.</source>
         <target>You must select at most {{ limit }} choice.|You must select at most {{ limit }} choices.</target>
+      </trans-unit>
+      <trans-unit id="4KVsmSc" resname="arrivalAt cannot be before createdAt">
+        <source>arrivalAt cannot be before createdAt</source>
+        <target>The Time of an Arrival cannot be before Creation</target>
+      </trans-unit>
+      <trans-unit id="XVreFZm" resname="label.import.mimeTypes">
+        <source>label.import.mimeTypes</source>
+        <target>Mime Types</target>
       </trans-unit>
     </body>
   </file>

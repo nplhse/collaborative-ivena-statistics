@@ -99,7 +99,7 @@
       </trans-unit>
       <trans-unit id="XWUPA8u" resname="import.field.fileMimeType">
         <source>import.field.fileMimeType</source>
-        <target>MimeType</target>
+        <target>Mime Type</target>
       </trans-unit>
       <trans-unit id="WKEj59F" resname="import.field.fileSize">
         <source>import.field.fileSize</source>
@@ -204,6 +204,10 @@
       <trans-unit id="jGMjpWb" resname="label.id">
         <source>label.id</source>
         <target>ID</target>
+      </trans-unit>
+      <trans-unit id="2suWc6O" resname="label.import.new">
+        <source>label.import.new</source>
+        <target>Create new Import</target>
       </trans-unit>
       <trans-unit id="UcQSwTu" resname="label.import.section.quick_actions">
         <source>label.import.section.quick_actions</source>
@@ -400,6 +404,10 @@
       <trans-unit id="J7c0M1U" resname="title.import.index">
         <source>title.import.index</source>
         <target>Listing Imports</target>
+      </trans-unit>
+      <trans-unit id="u4I7D4_" resname="title.import.new">
+        <source>title.import.new</source>
+        <target>Create new Import</target>
       </trans-unit>
       <trans-unit id="tBRiow3" resname="title.import.show">
         <source>title.import.show</source>
