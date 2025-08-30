@@ -42,6 +42,11 @@ final class ListAllocationsQuery
                 'a.hospital = h.id'
             );
 
+        if (null !== $queryParametersDTO->importId) {
+            $qb->andWhere('a.import = :importId')  // Allocation hat ManyToOne Import
+            ->setParameter('importId', $queryParametersDTO->importId);
+        }
+
         $field = match ($queryParametersDTO->sortBy) {
             'arrivalAt' => 'a.arrivalAt',
             'age' => 'a.age',
