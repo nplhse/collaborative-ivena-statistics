@@ -37,51 +37,33 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 
     public function testHandlerRunsImportUpdatesImportEntityAndTracksRejectsInMemory(): void
     {
-        // --- Arrange: Stammdaten & Hospital ---
+        // Arrange
         $owner = UserFactory::createOne();
         $state = StateFactory::createOne();
-        $da = DispatchAreaFactory::createOne(['state' => $state]);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Leitstelle Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
+            'name' => 'Testkrankenhaus Musterstadt',
             'state' => $state,
-            'dispatchArea' => $da,
-            'owner' => $owner,
+            'dispatchArea' => $dispatch,
         ]);
 
-        // --- Arrange: In-Memory "CSV" (Header + 3 Rows; 1 davon invalid: age=0) ---
         $header = [
-            'versorgungsbereich',
-            'khs_versorgungsgebiet',
-            'krankenhaus',
-            'krankenhaus_kurzname',
-            'datum',
-            'uhrzeit',
-            'datum_eintreffzeit',
-            'uhrzeit_eintreffzeit',
-            'geschlecht',
-            'alter',
-            'schockraum',
-            'herzkatheter',
-            'reanimation',
-            'beatmet',
-            'schwanger',
-            'arztbegleitet',
-            'transportmittel',
-            'datum_erstellungsdatum',
-            'uhrzeit_erstellungsdatum',
+            'Versorgungsbereich', 'KHS-Versorgungsgebiet', 'Krankenhaus', 'Krankenhaus-Kurzname',
+            'Datum', 'Uhrzeit', 'Datum (Eintreffzeit)', 'Uhrzeit (Eintreffzeit)',
+            'Geschlecht', 'Alter', 'Schockraum', 'Herzkatheter', 'Reanimation', 'Beatmet',
+            'Schwanger', 'Arztbegleitet', 'Transportmittel', 'Datum (Erstellungsdatum)', 'Uhrzeit (Erstellungsdatum)',
         ];
 
         $rows = [
-            // 19 Werte:
-            ['Leitstelle Test','1',"Test Krankenhaus, Teststraße 1, 12345 Musterstadt",'KH Test','07.01.2025','10:19','07.01.2025','13:14','W','74','S+','H+','R+','B-','Schwanger','N+','Boden','07.01.2025','10:19'],
-            ['Leitstelle Test','1',"Test Krankenhaus, Teststraße 1, 12345 Musterstadt",'KH Test','16.02.2025','12:00','16.02.2025','13:01','W','0','','','','B-','','N-','Boden','16.02.2025','12:00'],
-            ['Leitstelle Test','1',"Test Krankenhaus, Teststraße 1, 12345 Musterstadt",'KH Test','08.01.2025','01:10','09.01.2025','01:12','M','79','','','','B-','','N-','Boden','08.01.2025','01:10'],
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19'],
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '02.03.2025', '15:09', '02.03.2025', '16:43', 'D', '34', 'S-', '', '', 'B-', '', 'N-', 'Boden', '02.03.2025', '15:09'],
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '16.02.2025', '12:00', '16.02.2025', '13:01', 'W', '0', '', '', '', 'B-', '', 'N-', 'Boden', '16.02.2025', '12:00'],
         ];
 
         $userRef = $this->em->getReference(\App\Entity\User::class, $owner->getId());
         $hospitalRef = $this->em->getReference(\App\Entity\Hospital::class, $hospital->getId());
 
-        // --- Arrange: Import-Entity (filePath nur symbolisch, da In-Memory) ---
-        $import = (new Import())
+        $import = new Import()
             ->setName('Handler IT (in-memory)')
             ->setHospital($hospitalRef)
             ->setCreatedBy($userRef)
@@ -101,25 +83,20 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $this->em->persist($import);
         $this->em->flush();
 
-        // --- Act: Handler.run() direkt mit In-Memory Adaptern ---
+        // Act
         $summary = $this->handler->run($import, $reader, $rejectWriter);
 
-        // --- Reload Import (Handler setzt Status, rows, usw.) ---
         $fresh = $this->imports->find($import->getId());
         self::assertNotNull($fresh);
 
-        // --- Assert: Summary & Entity-Status ---
+        // Assert
         self::assertSame(ImportStatus::COMPLETED, $fresh->getStatus());
         self::assertSame(3, $fresh->getRowCount());
         self::assertSame(2, $fresh->getRowsPassed());
         self::assertSame(1, $fresh->getRowsRejected());
+        self::assertSame(1, $rejectWriter->getCount());
 
-        // Da der InMemoryRejectWriter keinen Dateipfad besitzt, bleibt rejectFilePath null.
-        // Wichtig ist: Die inhaltlichen Rejects sind vorhanden:
-        self::assertCount(1, $rejectWriter->getRows());
-
-        // Optional: einfache Plausibilitäts-Prüfung der Reject-Meldungen
-        $firstReject = $rejectWriter->getRows()[0];
+        $firstReject = $rejectWriter->all()[0];
         self::assertArrayHasKey('messages', $firstReject);
         self::assertNotEmpty($firstReject['messages']);
     }

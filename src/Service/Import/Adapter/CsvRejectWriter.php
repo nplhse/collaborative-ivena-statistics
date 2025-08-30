@@ -1,8 +1,5 @@
 <?php
 
-// src/Service/Import/Adapter/CsvRejectWriter.php
-declare(strict_types=1);
-
 namespace App\Service\Import\Adapter;
 
 use App\Service\Import\Contracts\RejectWriterInterface;
@@ -17,7 +14,7 @@ final class CsvRejectWriter implements RejectWriterInterface
 
     public function __construct(
         string $absolutePath,
-        private readonly Filesystem $filesystem,
+        readonly Filesystem $filesystem,
         private readonly string $delimiter = ';',
         private readonly string $enclosure = "\0",
         private readonly string $escape = '\\',
@@ -69,7 +66,7 @@ final class CsvRejectWriter implements RejectWriterInterface
     }
 
     #[\Override]
-    public function getPath(): ?string
+    public function getPath(): string
     {
         return $this->absolutePath;
     }

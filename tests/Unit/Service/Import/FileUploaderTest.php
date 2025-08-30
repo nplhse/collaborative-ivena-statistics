@@ -21,11 +21,9 @@ final class FileUploaderTest extends TestCase
 
     protected function setUp(): void
     {
-        // eigenes "Projektverzeichnis" im /tmp
         $this->projectDir = sys_get_temp_dir().'/proj_'.bin2hex(random_bytes(4));
         @mkdir($this->projectDir, 0775, true);
 
-        // Basis-Upload-Verzeichnis relativ zum Projekt
         $this->baseDir = Path::join($this->projectDir, 'var', 'imports');
 
         $this->filesystem = new Filesystem();
@@ -66,28 +64,23 @@ final class FileUploaderTest extends TestCase
 
         $this->logger->expects($this->once())->method('info');
 
-        // ACHTUNG: Reihenfolge ggf. an deinen Konstruktor anpassen
         $uploader = new FileUploader(
-            $this->projectDir,
             $this->baseDir,
+            $this->projectDir,
+            $this->logger,
             $this->filesystem,
-            $this->logger
         );
 
         // Act
-        $returnedRel = $uploader->upload($uploaded); // jetzt RELATIVER Pfad
+        $returnedRel = $uploader->upload($uploaded);
 
-        // Assert (relativer Pfad + Datei existiert am absoluten Ort)
+        // Assert
         self::assertIsString($returnedRel);
-        // sollte mit "var/imports/" beginnen
-        self::assertStringStartsWith('var/imports/', str_replace('\\', '/', $returnedRel));
 
         $absTarget = Path::join($this->projectDir, $returnedRel);
         self::assertFileExists($absTarget);
 
-        // Struktur: var/imports/YYYY/MM/filename.ext
         $parts = explode('/', str_replace('\\', '/', $returnedRel));
-        // ['var','imports','YYYY','MM','filename.ext']
         self::assertCount(5, $parts);
         self::assertSame('var', $parts[0]);
         self::assertSame('imports', $parts[1]);
@@ -122,16 +115,16 @@ final class FileUploaderTest extends TestCase
             });
 
         $uploader = new FileUploader(
-            $this->projectDir,
             $this->baseDir,
+            $this->projectDir,
+            $this->logger,
             $this->filesystem,
-            $this->logger
         );
 
         // Act
         $returnedRel = $uploader->upload($file);
 
-        // Assert: relative Rückgabe + .bin-Endung + Existenz
+        // Assert
         self::assertIsString($returnedRel);
         self::assertStringEndsWith('.bin', $returnedRel);
 
@@ -160,8 +153,8 @@ final class FileUploaderTest extends TestCase
         $uploader = new FileUploader(
             $this->projectDir,
             $this->baseDir,
+            $this->logger,
             $this->filesystem,
-            $this->logger
         );
 
         // Act + Assert

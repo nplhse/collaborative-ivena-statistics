@@ -36,7 +36,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
 
     public function testFullImportPipelinePersistsEntitiesAndWritesRejects(): void
     {
-        // Arrange: User/Hospital mit State/DispatchArea
+        // Arrange
         $user = UserFactory::createOne();
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Leitstelle Test', 'state' => $state]);
@@ -49,13 +49,13 @@ final class AllocationImportFeatureTest extends KernelTestCase
         $userRef = $this->em->getReference(\App\Entity\User::class, $user->getId());
         $hospitalRef = $this->em->getReference(\App\Entity\Hospital::class, $hospital->getId());
 
-        // Simulierte CSV: Header + 3 Rows (2 ok, 1 reject age=0)
         $header = [
             'Versorgungsbereich', 'KHS-Versorgungsgebiet', 'Krankenhaus', 'Krankenhaus-Kurzname',
             'Datum', 'Uhrzeit', 'Datum (Eintreffzeit)', 'Uhrzeit (Eintreffzeit)',
             'Geschlecht', 'Alter', 'Schockraum', 'Herzkatheter', 'Reanimation', 'Beatmet',
             'Schwanger', 'Arztbegleitet', 'Transportmittel', 'Datum (Erstellungsdatum)', 'Uhrzeit (Erstellungsdatum)',
         ];
+
         $rows = [
             ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19'],
             ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '02.03.2025', '15:09', '02.03.2025', '16:43', 'D', '34', 'S-', '', '', 'B-', '', 'N-', 'Boden', '02.03.2025', '15:09'],
@@ -65,8 +65,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
         $reader = new InMemoryRowReader($header, $rows);
         $rejectWriter = new InMemoryRejectWriter();
 
-        // Import-Entity
-        $import = (new Import())
+        $import = new Import()
             ->setName('Integration Import')
             ->setHospital($hospitalRef)
             ->setCreatedBy($userRef)
@@ -102,13 +101,10 @@ final class AllocationImportFeatureTest extends KernelTestCase
         // Act
         $result = $importer->import($import);
 
-        // Assert Summary
+        // Assert
         self::assertSame(['total' => 3, 'ok' => 2, 'rejected' => 1], $result);
+        self::assertSame(1, $rejectWriter->getCount());
 
-        // RejectWriter hat genau 1 Row gespeichert
-        self::assertCount(1, $rejectWriter->getRows());
-
-        // 2 Allocations persistiert
         $countOk = $this->countAllocationsForImportId((int) $import->getId());
         self::assertSame(2, $countOk, 'Expected 2 persisted allocations');
 

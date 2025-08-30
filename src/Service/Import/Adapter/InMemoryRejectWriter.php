@@ -14,15 +14,14 @@ final class InMemoryRejectWriter implements RejectWriterInterface
     #[\Override]
     public function write(array $row, array $messages, ?int $line = null): void
     {
-        // normalize types
         $assocRow = [];
         foreach ($row as $k => $v) {
-            $assocRow[(string) $k] = (string) $v;
+            $assocRow[$k] = $v ?? '';
         }
 
         $this->records[] = [
             'line' => $line,
-            'messages' => \array_values($messages),
+            'messages' => $messages,
             'row' => $assocRow,
         ];
         ++$this->count;
@@ -53,10 +52,6 @@ final class InMemoryRejectWriter implements RejectWriterInterface
         return $this->records;
     }
 
-    /**
-     * Convenience for assertions: build a CSV string.
-     * Delimiter default matches your CsvRejectWriter (';').
-     */
     public function toCsv(string $delimiter = ';'): string
     {
         $lines = [];

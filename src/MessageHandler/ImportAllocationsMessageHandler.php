@@ -25,6 +25,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[AsMessageHandler]
 final class ImportAllocationsMessageHandler
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly ImportRepository $importRepository,
         private readonly EntityManagerInterface $em,
@@ -36,7 +37,6 @@ final class ImportAllocationsMessageHandler
         private readonly Filesystem $filesystem,
 
         #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
-        #[Autowire(param: 'app.imports_base_dir')] private readonly string $importsDir,
         #[Autowire(param: 'app.rejects_base_dir')] private readonly string $rejectsDir,
     ) {
     }
@@ -107,10 +107,9 @@ final class ImportAllocationsMessageHandler
                 throw new \RuntimeException('Import not found after refresh');
             }
 
-            // Reject-Datei (falls vorhanden) relativ speichern
-            if (($summary['rejected'] ?? 0) > 0 && $writer->getPath()) {
-                $abs = $writer->getPath();
-                $rel = Path::makeRelative($abs, $this->projectDir);
+            $absRejectPath = $writer->getPath();
+            if (($summary['rejected'] ?? 0) > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
+                $rel = Path::makeRelative($absRejectPath, $this->projectDir);
                 $fresh->setRejectFilePath(\str_replace('\\', '/', $rel));
             }
 
@@ -120,7 +119,7 @@ final class ImportAllocationsMessageHandler
                 ->setRowsPassed($summary['ok'] ?? 0)
                 ->setRowsRejected($summary['rejected'] ?? 0)
                 ->setRunCount(($fresh->getRunCount() ?? 0) + 1)
-                ->setRunTime((int) \round((\microtime(true) - $started) * 1000));
+                ->setRunTime((int) \round((\microtime(true) - $started) * 1000.0));
 
             $this->em->flush();
 
@@ -129,7 +128,7 @@ final class ImportAllocationsMessageHandler
             $import
                 ->setStatus(ImportStatus::FAILED)
                 ->setRunCount(($import->getRunCount() ?? 0) + 1)
-                ->setRunTime((int) \round((\microtime(true) - $started) * 1000));
+                ->setRunTime((int) \round((\microtime(true) - $started) * 1000.0));
 
             $this->em->flush();
 

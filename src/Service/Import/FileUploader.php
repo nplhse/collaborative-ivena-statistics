@@ -27,7 +27,11 @@ final class FileUploader
         $absDir = Path::join($this->baseDir, date('Y'), date('m'));
         $this->filesystem->mkdir($absDir, 0775);
 
-        $ext = $file->guessExtension() ?: $file->getClientOriginalExtension() ?: 'bin';
+        $ext = $file->guessExtension();
+        if (null === $ext || '' === $ext) {
+            $fallback = $file->getClientOriginalExtension();
+            $ext = ('' === $fallback) ? 'bin' : $fallback;
+        }
 
         $fileName = sprintf('import_%s_%s.%s', uniqid('', true), date('Ymd_His'), $ext);
         $targetAbs = Path::canonicalize(Path::join($absDir, $fileName));
