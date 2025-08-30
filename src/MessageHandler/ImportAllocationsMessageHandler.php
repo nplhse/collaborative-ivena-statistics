@@ -10,11 +10,15 @@ use App\Service\Import\Adapter\CsvRejectWriter;
 use App\Service\Import\Adapter\SplCsvRowReader;
 use App\Service\Import\AllocationImporter;
 use App\Service\Import\Contracts\AllocationPersisterInterface;
+use App\Service\Import\Contracts\RejectWriterInterface;
+use App\Service\Import\Contracts\RowReaderInterface;
 use App\Service\Import\Contracts\RowToDtoMapperInterface;
 use App\Service\Import\Mapping\AllocationImportFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -29,7 +33,9 @@ final class ImportAllocationsMessageHandler
         private readonly AllocationImportFactory $factory,
         private readonly AllocationPersisterInterface $persister,
         private readonly LoggerInterface $importLogger,
+        private readonly Filesystem $filesystem,
 
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
         #[Autowire(param: 'app.imports_base_dir')] private readonly string $importsDir,
         #[Autowire(param: 'app.rejects_base_dir')] private readonly string $rejectsDir,
     ) {
@@ -38,7 +44,6 @@ final class ImportAllocationsMessageHandler
     public function __invoke(ImportAllocationsMessage $message): void
     {
         $import = $this->importRepository->findOneBy(['id' => $message->importId]);
-
         if (!$import) {
             $this->importLogger->error('import.not_found', ['id' => $message->importId]);
 
@@ -51,9 +56,9 @@ final class ImportAllocationsMessageHandler
 
             return;
         }
-        $filePath = $this->resolvePath($filePath);
 
-        if (!is_file($filePath)) {
+        $filePath = $this->resolvePath($filePath);
+        if (!\is_file($filePath)) {
             $this->markFailed($import, 'CSV not found: '.$filePath);
 
             return;
@@ -79,9 +84,9 @@ final class ImportAllocationsMessageHandler
     /**
      * @return array{total:int,ok:int,rejected:int}
      */
-    public function run(Import $import, SplCsvRowReader $reader, CsvRejectWriter $writer): array
+    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): array
     {
-        $started = microtime(true);
+        $started = \microtime(true);
 
         try {
             $importer = new AllocationImporter(
@@ -97,23 +102,25 @@ final class ImportAllocationsMessageHandler
             $summary = $importer->import($import);
 
             $this->em->clear();
-
-            $import = $this->importRepository->findOneBy(['id' => $import->getId()]);
-            if (null === $import) {
+            $fresh = $this->importRepository->find($import->getId());
+            if (!$fresh) {
                 throw new \RuntimeException('Import not found after refresh');
             }
 
-            if ($writer->getCount() > 0) {
-                $import->setRejectFilePath($writer->getPath());
+            // Reject-Datei (falls vorhanden) relativ speichern
+            if (($summary['rejected'] ?? 0) > 0 && $writer->getPath()) {
+                $abs = $writer->getPath();
+                $rel = Path::makeRelative($abs, $this->projectDir);
+                $fresh->setRejectFilePath(\str_replace('\\', '/', $rel));
             }
 
-            $import
+            $fresh
                 ->setStatus(ImportStatus::COMPLETED)
                 ->setRowCount($summary['total'] ?? 0)
                 ->setRowsPassed($summary['ok'] ?? 0)
                 ->setRowsRejected($summary['rejected'] ?? 0)
-                ->setRunCount(($import->getRunCount() ?? 0) + 1)
-                ->setRunTime((int) round((microtime(true) - $started) * 1000.0));
+                ->setRunCount(($fresh->getRunCount() ?? 0) + 1)
+                ->setRunTime((int) \round((\microtime(true) - $started) * 1000));
 
             $this->em->flush();
 
@@ -122,12 +129,23 @@ final class ImportAllocationsMessageHandler
             $import
                 ->setStatus(ImportStatus::FAILED)
                 ->setRunCount(($import->getRunCount() ?? 0) + 1)
-                ->setRunTime((int) round((microtime(true) - $started) * 1000.0));
+                ->setRunTime((int) \round((\microtime(true) - $started) * 1000));
 
             $this->em->flush();
 
             throw $e;
         }
+    }
+
+    private function markFailed(Import $import, string $reason): void
+    {
+        $import->setStatus(ImportStatus::FAILED);
+        $this->em->flush();
+
+        $this->importLogger->error('import.failed.precondition', [
+            'id' => $import->getId(),
+            'reason' => $reason,
+        ]);
     }
 
     private function buildReader(string $filePath): SplCsvRowReader
@@ -140,33 +158,43 @@ final class ImportAllocationsMessageHandler
     private function buildRejectWriter(int $importId): CsvRejectWriter
     {
         $subDir = date('Y').'/'.date('m');
-        $dir = rtrim($this->rejectsDir, '/').'/'.$subDir;
+        $dirAbs = Path::join($this->rejectsDir, $subDir);
 
-        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+        $this->filesystem->mkdir($dirAbs, 0775);
+
+        $absPath = Path::join(
+            $dirAbs,
+            sprintf('alloc_import_%d_rejects_%s.csv', $importId, date('Ymd_His'))
+        );
+
+        return new CsvRejectWriter($absPath, $this->filesystem);
+    }
+
+    private function resolvePath(string $stored): string
+    {
+        if ($this->isAbsolutePath($stored)) {
+            return $stored;
         }
 
-        $path = sprintf('%s/alloc_import_%d_rejects_%s.csv', $dir, $importId, date('Ymd_His'));
-
-        return new CsvRejectWriter($path);
+        return Path::join($this->projectDir, $stored);
     }
 
-    private function resolvePath(string $arg): string
+    private function isAbsolutePath(string $path): bool
     {
-        $isAbsolute = \str_starts_with($arg, DIRECTORY_SEPARATOR)
-            || (bool) preg_match('#^[A-Za-z]:[\\\\/]#', $arg); // Windows
+        if ('' === $path) {
+            return false;
+        }
 
-        return $isAbsolute ? $arg : $this->importsDir.'/'.ltrim($arg, '/');
-    }
+        // Unix: starts with /
+        if (DIRECTORY_SEPARATOR === $path[0]) {
+            return true;
+        }
 
-    private function markFailed(Import $import, string $reason): void
-    {
-        $import->setStatus(ImportStatus::FAILED);
-        $this->em->flush();
+        // Windows: drive letter + colon
+        if (\preg_match('#^[A-Za-z]:[\\\\/]#', $path)) {
+            return true;
+        }
 
-        $this->importLogger->error('import.failed.precondition', [
-            'id' => $import->getId(),
-            'reason' => $reason,
-        ]);
+        return false;
     }
 }

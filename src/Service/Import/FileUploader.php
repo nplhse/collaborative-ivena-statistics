@@ -7,78 +7,57 @@ namespace App\Service\Import;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class FileUploader
 {
     public function __construct(
-        #[Autowire(param: 'app.imports_base_dir')]
-        private readonly string $baseDir,
+        #[Autowire(param: 'app.imports_base_dir')] private readonly string $baseDir,
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
         private readonly LoggerInterface $logger,
+        private readonly Filesystem $filesystem,
     ) {
     }
 
     public function upload(UploadedFile $file): string
     {
-        $absDir = $this->ensureTargetDir($this->baseDir);
+        $absDir = Path::join($this->baseDir, date('Y'), date('m'));
+        $this->filesystem->mkdir($absDir, 0775);
 
-        $extension = $file->guessExtension();
+        $ext = $file->guessExtension() ?: $file->getClientOriginalExtension() ?: 'bin';
 
-        if (null === $extension || '' === $extension) {
-            $fallback = $file->getClientOriginalExtension();
-            $extension = ('' === $fallback) ? 'bin' : $fallback;
-        }
+        $fileName = sprintf('import_%s_%s.%s', uniqid('', true), date('Ymd_His'), $ext);
+        $targetAbs = Path::canonicalize(Path::join($absDir, $fileName));
 
-        $fileName = $this->buildFileName($extension);
-        $targetAbs = rtrim($absDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$fileName;
+        try {
+            $size = $file->getSize();
+            $mime = $file->getClientMimeType();
+            $orig = $file->getClientOriginalName();
 
-        $this->moveUploadedFile($file, $absDir, $fileName);
+            $file->move($absDir, $fileName);
 
-        return $targetAbs;
-    }
+            $relative = Path::makeRelative($targetAbs, $this->projectDir);
+            $relative = str_replace('\\', '/', $relative);
 
-    private function ensureTargetDir(string $baseDir): string
-    {
-        $subDir = date('Y').DIRECTORY_SEPARATOR.date('m');
-        $absDir = rtrim($baseDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$subDir;
+            $this->logger->info('upload.success', [
+                'target_abs' => $targetAbs,
+                'target_rel' => $relative,
+                'size' => $size,
+                'mime' => $mime,
+                'orig' => $orig,
+            ]);
 
-        if (!is_dir($absDir) && !@mkdir($absDir, 0775, true) && !is_dir($absDir)) {
-            throw new \RuntimeException(sprintf('Could not create directory for uploads: %s', $absDir));
-        }
-
-        return $absDir;
-    }
-
-    private function buildFileName(string $extension): string
-    {
-        return sprintf('import_%s_%s.%s', uniqid('', true), date('Ymd_His'), $extension);
-    }
-
-    private function moveUploadedFile(UploadedFile $file, string $absDir, string $fileName): void
-    {
-        if ($file->isValid()) {
-            $fileSize = $file->getSize();
-            $fileMime = $file->getClientMimeType();
-
-            try {
-                $file->move($absDir, $fileName);
-                $this->logger->info('File uploaded successfully', [
-                    'target' => $absDir.$fileName,
-                    'size' => $fileSize,
-                    'mime' => $fileMime,
-                ]);
-
-                return;
-            } catch (FileException $e) {
-                $this->logger->error('File upload failed', [
-                    'target' => $absDir.$fileName,
-                    'error' => $e->getMessage(),
-                    'original' => $file->getClientOriginalName(),
-                ]);
-
-                throw $e;
-            }
+            return $relative;
+        } catch (FileException $e) {
+            $this->logger->error('upload.failed', [
+                'target_abs' => $targetAbs,
+                'error' => $e->getMessage(),
+                'orig' => $file->getClientOriginalName(),
+            ]);
+            throw $e;
         }
     }
 }

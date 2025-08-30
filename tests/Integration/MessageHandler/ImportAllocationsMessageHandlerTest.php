@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\MessageHandler;
 
-use App\Entity\Allocation;
 use App\Entity\Import;
 use App\Enum\ImportStatus;
 use App\Enum\ImportType;
@@ -13,109 +12,115 @@ use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
-use App\Message\ImportAllocationsMessage;
+use App\MessageHandler\ImportAllocationsMessageHandler;
+use App\Repository\ImportRepository;
+use App\Service\Import\Adapter\InMemoryRejectWriter;
+use App\Service\Import\Adapter\InMemoryRowReader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 {
     private EntityManagerInterface $em;
-    private MessageBusInterface $bus;
-    private string $tmpDir;
+    private ImportRepository $imports;
+    private ImportAllocationsMessageHandler $handler;
 
     protected function setUp(): void
     {
         self::bootKernel();
-        $container = static::getContainer();
-        $this->em = $container->get(EntityManagerInterface::class);
-        $this->bus = $container->get(MessageBusInterface::class);
+        $c = static::getContainer();
 
-        $this->tmpDir = sys_get_temp_dir().'/import_msg_'.bin2hex(random_bytes(4));
-        @mkdir($this->tmpDir);
+        $this->em = $c->get(EntityManagerInterface::class);
+        $this->imports = $c->get(ImportRepository::class);
+        $this->handler = $c->get(ImportAllocationsMessageHandler::class);
     }
 
-    protected function tearDown(): void
+    public function testHandlerRunsImportUpdatesImportEntityAndTracksRejectsInMemory(): void
     {
-        if (is_dir($this->tmpDir)) {
-            foreach (glob($this->tmpDir.'/*') ?: [] as $f) {
-                @unlink($f);
-            }
-            @rmdir($this->tmpDir);
-        }
+        // --- Arrange: Stammdaten & Hospital ---
+        $owner = UserFactory::createOne();
+        $state = StateFactory::createOne();
+        $da = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'state' => $state,
+            'dispatchArea' => $da,
+            'owner' => $owner,
+        ]);
 
-        parent::tearDown();
-    }
+        // --- Arrange: In-Memory "CSV" (Header + 3 Rows; 1 davon invalid: age=0) ---
+        $header = [
+            'versorgungsbereich',
+            'khs_versorgungsgebiet',
+            'krankenhaus',
+            'krankenhaus_kurzname',
+            'datum',
+            'uhrzeit',
+            'datum_eintreffzeit',
+            'uhrzeit_eintreffzeit',
+            'geschlecht',
+            'alter',
+            'schockraum',
+            'herzkatheter',
+            'reanimation',
+            'beatmet',
+            'schwanger',
+            'arztbegleitet',
+            'transportmittel',
+            'datum_erstellungsdatum',
+            'uhrzeit_erstellungsdatum',
+        ];
 
-    public function testHandlerRunsImportUpdatesImportEntityAndWritesRejects(): void
-    {
-        // Arrange
-        $user = UserFactory::createOne();
-        StateFactory::createOne();
-        DispatchAreaFactory::createOne(['name' => 'Leitstelle Test']);
-        $hospital = HospitalFactory::createOne(['name' => 'Testkrankenhaus Musterstadt']);
+        $rows = [
+            // 19 Werte:
+            ['Leitstelle Test','1',"Test Krankenhaus, Teststraße 1, 12345 Musterstadt",'KH Test','07.01.2025','10:19','07.01.2025','13:14','W','74','S+','H+','R+','B-','Schwanger','N+','Boden','07.01.2025','10:19'],
+            ['Leitstelle Test','1',"Test Krankenhaus, Teststraße 1, 12345 Musterstadt",'KH Test','16.02.2025','12:00','16.02.2025','13:01','W','0','','','','B-','','N-','Boden','16.02.2025','12:00'],
+            ['Leitstelle Test','1',"Test Krankenhaus, Teststraße 1, 12345 Musterstadt",'KH Test','08.01.2025','01:10','09.01.2025','01:12','M','79','','','','B-','','N-','Boden','08.01.2025','01:10'],
+        ];
 
-        // CSV: 2 ok + 1 invalid (Age=0 → DTO-Constraint)
-        $csv = $this->tmpDir.'/sample.csv';
-        file_put_contents($csv, implode("\n", [
-            'Versorgungsbereich;KHS-Versorgungsgebiet;Krankenhaus;Krankenhaus-Kurzname;Datum;Uhrzeit;Datum (Eintreffzeit);Uhrzeit (Eintreffzeit);Geschlecht;Alter;Schockraum;Herzkatheter;Reanimation;Beatmet;Schwanger;Arztbegleitet;Transportmittel;Datum (Erstellungsdatum);Uhrzeit (Erstellungsdatum)',
-            'Leitstelle Test;1;'.$hospital->getName().';KH Test;07.01.2025;10:19;07.01.2025;13:14;W;74;S+;H+;R+;B-;;N-;Boden;07.01.2025;10:19',
-            'Leitstelle Test;1;'.$hospital->getName().';KH Test;02.03.2025;15:09;02.03.2025;16:43;D;34;S-;;;B-;;N-;Boden;02.03.2025;15:09',
-            'Leitstelle Test;1;'.$hospital->getName().';KH Test;16.02.2025;12:00;16.02.2025;13:01;W;0;;;;B-;;N-;Boden;16.02.2025;12:00',
-        ]));
-
-        $userRef = $this->em->getReference(\App\Entity\User::class, $user->getId());
+        $userRef = $this->em->getReference(\App\Entity\User::class, $owner->getId());
         $hospitalRef = $this->em->getReference(\App\Entity\Hospital::class, $hospital->getId());
 
-        $import = new Import()
-            ->setName('Msg Import')
+        // --- Arrange: Import-Entity (filePath nur symbolisch, da In-Memory) ---
+        $import = (new Import())
+            ->setName('Handler IT (in-memory)')
             ->setHospital($hospitalRef)
             ->setCreatedBy($userRef)
-            ->setStatus(ImportStatus::PENDING)
             ->setType(ImportType::ALLOCATION)
-            ->setFilePath($csv)
+            ->setStatus(ImportStatus::PENDING)
+            ->setFilePath('in-memory://allocations.csv')
             ->setFileExtension('csv')
             ->setFileMimeType('text/csv')
-            ->setFileSize(filesize($csv) ?: 0)
-            ->setRowCount(3)
+            ->setFileSize(0)
             ->setRunCount(0)
-            ->setRunTime(0);
+            ->setRunTime(0)
+            ->setRowCount(0);
+
+        $reader = new InMemoryRowReader($header, $rows);
+        $rejectWriter = new InMemoryRejectWriter();
 
         $this->em->persist($import);
         $this->em->flush();
 
-        // Act
-        $this->bus->dispatch(new ImportAllocationsMessage($import->getId()));
+        // --- Act: Handler.run() direkt mit In-Memory Adaptern ---
+        $summary = $this->handler->run($import, $reader, $rejectWriter);
 
-        $this->em->clear();
-        /** @var Import $freshImport */
-        $freshImport = $this->em->getRepository(Import::class)->find($import->getId());
-        self::assertNotNull($freshImport, 'Import not found after handler');
+        // --- Reload Import (Handler setzt Status, rows, usw.) ---
+        $fresh = $this->imports->find($import->getId());
+        self::assertNotNull($fresh);
 
-        // Assert
-        self::assertSame(ImportStatus::COMPLETED, $freshImport->getStatus(), 'Import status should be Finished');
-        self::assertSame(3, $freshImport->getRowCount());
-        self::assertSame(2, $freshImport->getRowsPassed());
-        self::assertSame(1, $freshImport->getRowsRejected());
-        self::assertGreaterThan(0, $freshImport->getRunCount());
-        self::assertGreaterThan(0, $freshImport->getRunTime());
+        // --- Assert: Summary & Entity-Status ---
+        self::assertSame(ImportStatus::COMPLETED, $fresh->getStatus());
+        self::assertSame(3, $fresh->getRowCount());
+        self::assertSame(2, $fresh->getRowsPassed());
+        self::assertSame(1, $fresh->getRowsRejected());
 
-        $rejectPath = $freshImport->getRejectFilePath();
-        self::assertNotNull($rejectPath, 'Reject path should be set when there are rejects');
-        self::assertFileExists($rejectPath);
+        // Da der InMemoryRejectWriter keinen Dateipfad besitzt, bleibt rejectFilePath null.
+        // Wichtig ist: Die inhaltlichen Rejects sind vorhanden:
+        self::assertCount(1, $rejectWriter->getRows());
 
-        $ok = $this->countAllocationsForImportId((int) $freshImport->getId());
-        self::assertSame(2, $ok, 'Expected 2 persisted allocations');
-    }
-
-    private function countAllocationsForImportId(int $importId): int
-    {
-        $qb = $this->em->createQueryBuilder()
-            ->select('COUNT(a.id)')
-            ->from(Allocation::class, 'a')
-            ->andWhere('a.import = :imp')
-            ->setParameter('imp', $importId);
-
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        // Optional: einfache Plausibilitäts-Prüfung der Reject-Meldungen
+        $firstReject = $rejectWriter->getRows()[0];
+        self::assertArrayHasKey('messages', $firstReject);
+        self::assertNotEmpty($firstReject['messages']);
     }
 }

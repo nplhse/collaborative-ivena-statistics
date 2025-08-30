@@ -57,22 +57,22 @@ final class NewImportController extends AbstractController
 
         $clientMime = $file->getClientMimeType();
         $clientSize = $file->getSize();
-        $targetAbs = $this->fileUploader->upload($file);
+        $targetPath = $this->fileUploader->upload($file);
 
         $import = new Import()
             ->setName($name)
             ->setHospital($hospital)
             ->setType(ImportType::ALLOCATION)
             ->setStatus(ImportStatus::PENDING)
-            ->setFilePath($targetAbs)
-            ->setFileExtension(pathinfo($targetAbs, PATHINFO_EXTENSION) ?: 'csv')
+            ->setFilePath($targetPath)
+            ->setFileExtension(pathinfo($targetPath, PATHINFO_EXTENSION) ?: 'csv')
             ->setFileMimeType($clientMime)
             ->setFileSize($clientSize)
             ->setRunCount(0)
             ->setRunTime(0)
             ->setRowCount(0);
 
-        $checksum = $this->checksumCalculator->forPath($targetAbs);
+        $checksum = $this->checksumCalculator->forPath($targetPath);
         $import->setFileChecksum($checksum);
 
         $this->em->persist($import);

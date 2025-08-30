@@ -21,31 +21,45 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     /** @var list<array<string,string>> */
     private array $rows = [];
 
+    /** @var array<string,string> Baseline-Zeile aus der Fixture (erste Datenzeile) */
+    private array $baselineRow = [];
+
     protected function setUp(): void
     {
+        self::bootKernel();
         $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         $this->fixturePath = $projectDir.'/tests/Fixtures/'.$this->fixtureFile;
 
         self::assertFileExists($this->fixturePath, 'Fixture CSV missing at '.$this->fixturePath);
 
         $this->mapper = new AllocationRowMapper();
-
         $this->rows = $this->loadRows();
+
+        self::assertNotEmpty($this->rows, 'Fixture has no data rows.');
+        $this->baselineRow = $this->rows[0]; // erste Datenzeile als Baseline für Provider-Tests
     }
 
     /**
+     * Liest die CSV als assoziative Zeilen (Header wird im Reader normalisiert).
+     *
      * @return array<int,array<string,string>>
      */
     private function loadRows(): array
     {
         $reader = new SplCsvRowReader(
-            new \SplFileObject($this->fixturePath),
+            new \SplFileObject($this->fixturePath, 'r'),
+            inputEncoding: 'UTF-8',
+            delimiter: ';',
+            enclosure: '"',
+            escape: '\\',
         );
 
         return \iterator_to_array($reader->rowsAssoc(), preserve_keys: false);
     }
 
     /**
+     * Validiert ein DTO (standalone Validator) und gibt die Violation-Messages zurück.
+     *
      * @return list<string>
      */
     private function validateDto(object $dto): array
@@ -65,6 +79,8 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     }
 
     /**
+     * Führt Mapping + Validation für eine gegebene assoziative Zeile aus.
+     *
      * @param array<string,string> $row
      *
      * @return array{0: object, 1: list<string>}
@@ -75,6 +91,24 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
         $violations = $this->validateDto($dto);
 
         return [$dto, $violations];
+    }
+
+    /**
+     * Wie runPipeline(), aber mergen gezielte Overrides in eine Baseline-Zeile,
+     * damit Pflichtspalten vorhanden sind (nützlich für DataProvider-Tests).
+     *
+     * @param array<string,?string> $overrides
+     *
+     * @return array{0: object, 1: list<string>}
+     */
+    private function runPipelineWithOverrides(array $overrides): array
+    {
+        $row = $this->baselineRow;
+        foreach ($overrides as $k => $v) {
+            $row[$k] = $v ?? ''; // fehlende Werte als leere Strings
+        }
+
+        return $this->runPipeline($row);
     }
 
     public function testRow1IsValidAndMapsFields(): void
@@ -132,30 +166,31 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     #[DataProvider('transportProvider')]
     public function testTransportVariants(?string $input, ?string $expected): void
     {
-        $row = ['transportmittel' => $input];
-        [$dto] = $this->runPipeline($row);
+        // nur das Transportfeld überschreiben – Rest kommt aus Baseline-Zeile
+        [$dto] = $this->runPipelineWithOverrides(['transportmittel' => $input]);
 
         self::assertSame($expected, $dto->transportType);
     }
 
     /**
-     * @return iterable<array{0: string, 1: 'G'|'A'|null}>
+     * @return iterable<array{0: string|null, 1: 'G'|'A'|null}>
      */
     public static function transportProvider(): iterable
     {
         yield 'Boden (lower)' => ['boden', 'G'];
         yield 'Boden (mixed)' => ['BoDeN', 'G'];
         yield 'Luft (upper)' => ['LUFT',  'A'];
-        yield 'Alias RTW → Boden' => ['RTW', 'G'];
-        yield 'Unknown → null' => ['Heli', null];
-        yield 'Empty → null' => ['', null];
+        yield 'Alias RTW → Boden' => ['RTW',   'G'];
+        yield 'Unknown → null' => ['Heli',  null];
+        yield 'Empty → null' => ['',      null];
+        yield 'Null → null' => [null,    null];
     }
 
     #[DataProvider('genderProvider')]
     public function testGenderVariants(?string $input, ?string $expected): void
     {
-        $row = ['geschlecht' => $input];
-        [$dto] = $this->runPipeline($row);
+        // nur Geschlecht überschreiben – Rest aus Baseline-Zeile
+        [$dto] = $this->runPipelineWithOverrides(['geschlecht' => $input]);
 
         self::assertSame($expected, $dto->gender);
     }

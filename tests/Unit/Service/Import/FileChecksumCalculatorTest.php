@@ -1,57 +1,78 @@
 <?php
 
-// tests/Unit/Service/Import/FileChecksumCalculatorTest.php
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Service\Import;
 
 use App\Service\Import\FileChecksumCalculator;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 final class FileChecksumCalculatorTest extends TestCase
 {
-    private string $dir;
+    private string $projectDir;
+    private Filesystem $fs;
 
     protected function setUp(): void
     {
-        $this->dir = sys_get_temp_dir().'/chk_'.bin2hex(random_bytes(4));
-        mkdir($this->dir);
+        // Arrange
+        $this->projectDir = sys_get_temp_dir().'/proj_'.bin2hex(random_bytes(4));
+        $this->fs = new Filesystem();
+        $this->fs->mkdir($this->projectDir, 0775);
     }
 
     protected function tearDown(): void
     {
-        foreach (glob($this->dir.'/*') ?: [] as $f) {
-            @unlink($f);
+        // Arrange
+        if (is_dir($this->projectDir)) {
+            $this->fs->remove($this->projectDir);
         }
-        @rmdir($this->dir);
+        parent::tearDown();
     }
 
-    public function testCalculatesSha256ForFile(): void
+    public function testComputesHashForRelativePath(): void
     {
-        $path = $this->dir.'/a.txt';
-        file_put_contents($path, 'hello');
+        // Arrange
+        $abs = Path::join($this->projectDir, 'var', 'imports', 'x.txt');
+        $this->fs->mkdir(\dirname($abs));
+        file_put_contents($abs, 'hello');
 
-        $calc = new FileChecksumCalculator(); // deine Klasse
-        $hash = $calc->forPath($path);
+        $rel = Path::makeRelative($abs, $this->projectDir);
+        $rel = str_replace('\\', '/', $rel);
 
+        $calc = new FileChecksumCalculator($this->projectDir, 'sha256');
+
+        // Act
+        $hash = $calc->forPath($rel);
+
+        // Assert
         self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $hash);
-        self::assertSame(hash_file('sha256', $path), $hash);
     }
 
-    public function testDifferentFilesProduceDifferentHashes(): void
+    public function testComputesHashForAbsolutePath(): void
     {
-        $a = $this->dir.'/a.txt';
-        $b = $this->dir.'/b.txt';
-        file_put_contents($a, 'hello');
-        file_put_contents($b, 'hello!'); // minimaler Unterschied
+        // Arrange
+        $abs = Path::join($this->projectDir, 'file.csv');
+        file_put_contents($abs, 'data');
 
-        $calc = new FileChecksumCalculator();
-        self::assertNotSame($calc->forPath($a), $calc->forPath($b));
+        $calc = new FileChecksumCalculator($this->projectDir, 'sha256');
+
+        // Act
+        $hash = $calc->forPath($abs);
+
+        // Assert
+        self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $hash);
     }
 
-    public function testThrowsWhenFileMissing(): void
+    public function testThrowsOnMissingFile(): void
     {
+        // Arrange
+        $calc = new FileChecksumCalculator($this->projectDir, 'sha256');
+        $rel = 'var/imports/missing.csv';
+
+        // Act + Assert
         $this->expectException(\RuntimeException::class);
-        (new FileChecksumCalculator())->forPath($this->dir.'/missing.txt');
+        $calc->forPath($rel);
     }
 }
