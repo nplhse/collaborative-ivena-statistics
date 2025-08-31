@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/import', name: 'app_import_index')]
-final class ImportController extends AbstractController
+final class ListImportController extends AbstractController
 {
     public function __construct(
         private readonly ImportRepository $importRepository,

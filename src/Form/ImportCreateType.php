@@ -17,6 +17,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\File as FileConstraint;
 
 /**
  * @extends AbstractType<\App\Entity\Import>
@@ -56,15 +57,11 @@ final class ImportCreateType extends AbstractType
                 'required' => true,
                 'constraints' => [
                     new Assert\NotNull(),
-                    new Assert\File([
-                        'maxSize' => $this->maxSize,
-                        'mimeTypes' => [
-                            'text/plain',
-                            'text/csv',
-                            'application/vnd.ms-excel',
-                        ],
-                        'mimeTypesMessage' => 'label.import.mimeTypes',
-                    ]),
+                    new FileConstraint(
+                        maxSize: $this->maxSize,
+                        mimeTypes: ['text/csv', 'application/vnd.ms-excel', 'text/plain'],
+                        mimeTypesMessage: 'label.import.mimeTypes',
+                    ),
                 ],
                 'help' => 'label.import.helpFile',
             ])

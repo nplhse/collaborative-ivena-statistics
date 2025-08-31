@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Integration\Controller\Data\Hospitals;
+namespace App\Tests\Functional\Controller\Data\Allocations;
 
 use App\Factory\AllocationFactory;
 use App\Factory\DispatchAreaFactory;

@@ -85,6 +85,10 @@
         <source>field.true</source>
         <target>True</target>
       </trans-unit>
+      <trans-unit id="oB3P1Zq" resname="flash.import.created">
+        <source>flash.import.created</source>
+        <target>New Import has been created successfully!</target>
+      </trans-unit>
       <trans-unit id="IlEDRed" resname="help.search_no_results">
         <source>help.search_no_results</source>
         <target>Try adjusting your search or filter to find what you're looking for.</target>

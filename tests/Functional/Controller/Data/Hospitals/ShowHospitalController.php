@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Integration\Controller\Data\Hospitals;
+namespace App\Tests\Functional\Controller\Data\Hospitals;
 
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;

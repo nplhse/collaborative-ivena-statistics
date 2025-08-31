@@ -5,7 +5,8 @@ namespace App\Service\Import;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Path;
 
-final readonly class FileChecksumCalculator
+/** @psalm-suppress ClassMustBeFinal */
+readonly class FileChecksumCalculator
 {
     public function __construct(
         #[Autowire('%kernel.project_dir%')]

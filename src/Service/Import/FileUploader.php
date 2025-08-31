@@ -12,13 +12,14 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class FileUploader
+/** @psalm-suppress ClassMustBeFinal */
+readonly class FileUploader
 {
     public function __construct(
-        #[Autowire(param: 'app.imports_base_dir')] private readonly string $baseDir,
-        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
-        private readonly LoggerInterface $logger,
-        private readonly Filesystem $filesystem,
+        #[Autowire(param: 'app.imports_base_dir')] private string $baseDir,
+        #[Autowire('%kernel.project_dir%')] private string $projectDir,
+        private LoggerInterface $logger,
+        private Filesystem $filesystem,
     ) {
     }
 
