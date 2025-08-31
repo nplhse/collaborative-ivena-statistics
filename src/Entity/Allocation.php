@@ -27,6 +27,10 @@ class Allocation
     #[ORM\JoinColumn(nullable: false)]
     private ?State $state = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Import $import = null;
+
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -100,6 +104,18 @@ class Allocation
     public function setState(?State $state): static
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    public function getImport(): ?Import
+    {
+        return $this->import;
+    }
+
+    public function setImport(?Import $import): static
+    {
+        $this->import = $import;
 
         return $this;
     }

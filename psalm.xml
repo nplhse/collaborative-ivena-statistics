@@ -52,24 +52,31 @@
                 <directory name="src/Enum"/>
                 <directory name="src/Entity"/>
                 <directory name="src/Factory"/>
+                <directory name="src/Form"/>
                 <directory name="src/Faker/Provider"/>
                 <directory name="src/Pagination"/>
                 <directory name="src/Query"/>
                 <directory name="src/Repository"/>
+                <directory name="src/Service/Import"/>
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>
             <errorLevel type="suppress">
                 <directory name="src/DataTransferObjects"/>
+                <directory name="src/Service/Import"/>
             </errorLevel>
         </PossiblyUnusedProperty>
         <UnusedClass>
             <errorLevel type="suppress">
+                <directory name="src/Command"/>
                 <directory name="src/Controller"/>
                 <directory name="src/DataFixtures"/>
                 <directory name="src/EventListener"/>
+                <directory name="src/MessageHandler"/>
                 <directory name="src/Security"/>
                 <directory name="src/Twig/Components/"/>
+                <directory name="src/Service/Import/Adapter"/>
+                <directory name="src/Service/Import/Mapping"/>
             </errorLevel>
         </UnusedClass>
         <UnusedParam>

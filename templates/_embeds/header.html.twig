@@ -13,9 +13,6 @@
                     </a>
                 </h1>
             {% endblock %}
-            {% block navbar_user %}
-                {{ include('_includes/navbar_user.html.twig') }}
-            {% endblock %}
             <div class="collapse navbar-collapse" id="navbar-menu">
                 <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
                     <ul class="navbar-nav">
@@ -28,10 +25,21 @@
                                     </span>
                                 </a>
                             </li>
+                            <li class="nav-item {{ route starts with 'app_import' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ path('app_import_index') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:database-import" style="height: 1.5em;" />
+                                        {{ 'link.import'|trans }}
+                                    </span>
+                                </a>
+                            </li>
                         {% endblock %}
                     </ul>
                 </div>
             </div>
+            {% block navbar_user %}
+                {{ include('_includes/navbar_user.html.twig') }}
+            {% endblock %}
         </div>
     </header>
 {% endblock %}
