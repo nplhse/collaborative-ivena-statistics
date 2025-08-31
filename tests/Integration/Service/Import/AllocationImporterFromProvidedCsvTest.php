@@ -15,8 +15,8 @@ use App\Factory\UserFactory;
 use App\Repository\AllocationRepository;
 use App\Repository\DispatchAreaRepository;
 use App\Repository\StateRepository;
-use App\Service\Import\Adapter\CsvRejectWriter;
 use App\Service\Import\Adapter\DoctrineAllocationPersister;
+use App\Service\Import\Adapter\SplCsvRejectWriter;
 use App\Service\Import\Adapter\SplCsvRowReader;
 use App\Service\Import\AllocationImporter;
 use App\Service\Import\Mapping\AllocationImportFactory;
@@ -111,7 +111,7 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
             escape: '\\',
         );
 
-        $rejectWriter = new CsvRejectWriter(
+        $rejectWriter = new SplCsvRejectWriter(
             absolutePath: $this->rejectPath,
             filesystem: $this->fs,
             delimiter: ';',

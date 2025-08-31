@@ -6,7 +6,7 @@ use App\Entity\Import;
 use App\Enum\ImportStatus;
 use App\Message\ImportAllocationsMessage;
 use App\Repository\ImportRepository;
-use App\Service\Import\Adapter\CsvRejectWriter;
+use App\Service\Import\Adapter\SplCsvRejectWriter;
 use App\Service\Import\Adapter\SplCsvRowReader;
 use App\Service\Import\AllocationImporter;
 use App\Service\Import\Contracts\AllocationPersisterInterface;
@@ -154,7 +154,7 @@ final class ImportAllocationsMessageHandler
         );
     }
 
-    private function buildRejectWriter(int $importId): CsvRejectWriter
+    private function buildRejectWriter(int $importId): SplCsvRejectWriter
     {
         $subDir = date('Y').'/'.date('m');
         $dirAbs = Path::join($this->rejectsDir, $subDir);
@@ -166,7 +166,7 @@ final class ImportAllocationsMessageHandler
             sprintf('alloc_import_%d_rejects_%s.csv', $importId, date('Ymd_His'))
         );
 
-        return new CsvRejectWriter($absPath, $this->filesystem);
+        return new SplCsvRejectWriter($absPath, $this->filesystem);
     }
 
     private function resolvePath(string $stored): string

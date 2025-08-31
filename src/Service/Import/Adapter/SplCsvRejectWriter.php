@@ -6,7 +6,7 @@ use App\Service\Import\Contracts\RejectWriterInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-final class CsvRejectWriter implements RejectWriterInterface
+final class SplCsvRejectWriter implements RejectWriterInterface
 {
     private \SplFileObject $file;
     private int $count = 0;
@@ -20,14 +20,11 @@ final class CsvRejectWriter implements RejectWriterInterface
         private readonly string $escape = '\\',
     ) {
         $this->absolutePath = Path::canonicalize($absolutePath);
-
-        // Ensure directory exists
         $this->filesystem->mkdir(\dirname($this->absolutePath), 0775);
 
         $this->file = new \SplFileObject($this->absolutePath, 'w');
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
-        // Add the header
         $this->file->fputcsv(
             ['line', 'error_messages', 'row_json'],
             $this->delimiter,
