@@ -60,8 +60,6 @@ final class FileUploaderTest extends TestCase
             true
         );
 
-        $expectedExt = $uploaded->guessExtension() ?: $uploaded->getClientOriginalExtension() ?: 'bin';
-
         $this->logger->expects($this->once())->method('info');
 
         $uploader = new FileUploader(
@@ -86,7 +84,7 @@ final class FileUploaderTest extends TestCase
         self::assertSame('imports', $parts[1]);
         self::assertMatchesRegularExpression('/^\d{4}$/', $parts[2]);
         self::assertMatchesRegularExpression('/^\d{2}$/', $parts[3]);
-        self::assertStringEndsWith('.'.$expectedExt, $parts[4]);
+        self::assertStringEndsWith('.csv', $parts[4]);
     }
 
     public function testUploadUsesBinFallbackWhenNoExtensionAvailable(): void

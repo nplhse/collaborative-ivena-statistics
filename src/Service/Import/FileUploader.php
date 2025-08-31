@@ -28,12 +28,7 @@ readonly class FileUploader
         $absDir = Path::join($this->baseDir, date('Y'), date('m'));
         $this->filesystem->mkdir($absDir, 0775);
 
-        $ext = $file->guessExtension();
-        if (null === $ext || '' === $ext) {
-            $fallback = $file->getClientOriginalExtension();
-            $ext = ('' === $fallback) ? 'bin' : $fallback;
-        }
-
+        $ext = $this->resolveExtension($file);
         $fileName = sprintf('import_%s_%s.%s', uniqid('', true), date('Ymd_His'), $ext);
         $targetAbs = Path::canonicalize(Path::join($absDir, $fileName));
 
@@ -64,5 +59,31 @@ readonly class FileUploader
             ]);
             throw $e;
         }
+    }
+
+    private function resolveExtension(UploadedFile $file): string
+    {
+        $originalExt = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+        if ('' !== $originalExt) {
+            return $originalExt;
+        }
+
+        $mime = strtolower($file->getClientMimeType());
+        $csvMimes = [
+            'text/csv',
+            'text/plain',
+            'application/vnd.ms-excel',
+        ];
+
+        if (in_array($mime, $csvMimes, true)) {
+            return 'csv';
+        }
+
+        $guessed = $file->guessExtension();
+        if (is_string($guessed) && '' !== $guessed) {
+            return strtolower($guessed);
+        }
+
+        return 'bin';
     }
 }

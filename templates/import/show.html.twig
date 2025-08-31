@@ -94,7 +94,7 @@
                                         {{ 'imports.field.filePath'|trans }}
                                     </div>
                                     <div class="datagrid-content">
-                                        <code class="text-break">{{ import.filePath }}</code>
+                                        <code class="text-break">{{ import.filePath|split('/')|last }}</code>
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
