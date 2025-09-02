@@ -160,7 +160,7 @@
                             </div>
                         </div>
                         <div class="datagrid-item">
-                            <div class="datagrid-title">{{ 'allocations.field.isShock'|trans }}r</div>
+                            <div class="datagrid-title">{{ 'allocations.field.isShock'|trans }}</div>
                             <div class="datagrid-content">
                                 {% if allocation.isShock %}
                                     <span class="status status-green">{{ 'field.true'|trans }}</span>
@@ -189,6 +189,8 @@
                     <twig:Card
                         title="{{ 'label.basic_info'|trans }}"
                     >
+                        {% import '_macros/badges.html.twig' as badges %}
+
                         <div id="allocation-created-at" class="mb-2">
                             <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
                             {{ 'label.created_at'|trans }} <strong>{{ allocation.createdAt|date('d.m.Y H:i') }}</strong>
@@ -201,7 +203,7 @@
                             <twig:ux:icon name="tabler:user" class="w-3 h-3" />
                             {{ 'field.age'|trans }} <strong>{{ allocation.age }}</strong>
                         </div>
-                        <div id="allocation-gender">
+                        <div id="allocation-gender" class="mb-2">
                             {% if allocation.gender.value == 'M' %}
                                 <twig:ux:icon name="tabler:gender-male" class="w-3 h-3" />
                             {% elseif allocation.gender.value == 'F' %}
@@ -210,6 +212,10 @@
                                 <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
                             {% endif %}
                             {{ 'field.gender'|trans }} <strong>{{ allocation.gender.label|trans }}</strong>
+                        </div>
+                        <div id="allocation-urgency">
+                            <twig:ux:icon name="tabler:traffic-lights" class="w-3 h-3" />
+                            {{ 'field.urgency'|trans }} {{ badges.render('allocation_urgency', allocation.urgency.value) }}
                         </div>
                     </twig:Card>
                 </div>

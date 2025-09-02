@@ -17,6 +17,11 @@
             Medium: {class: 'bg-green text-green-fg', label: 'Medium'},
             Large: {class: 'bg-teal text-teal-fg', label: 'Large'},
         },
+        allocation_urgency: {
+            1: {class: 'bg-red text-red-fg', label: 'Immediate'},
+            2: {class: 'bg-yellow text-yellow-fg', label: 'Urgent'},
+            3: {class: 'bg-green text-green-fg', label: 'Delayed'},
+        },
     } %}
 
     {% set badge = mappings[type][value] ?? {class: 'bg-secondary text-secondary-fg', label: value} %}
