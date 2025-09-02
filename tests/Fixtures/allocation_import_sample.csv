@@ -1,6 +1,6 @@
-Versorgungsbereich;KHS-Versorgungsgebiet;Krankenhaus;Krankenhaus-Kurzname;Datum (Eintreffzeit);Uhrzeit (Eintreffzeit);Geschlecht;Alter;Schockraum;Herzkatheter;Reanimation;Beatmet;Schock;Schwanger;Arztbegleitet;Transportmittel;Datum (Erstellungsdatum);Uhrzeit (Erstellungsdatum)
-Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;13:14;W;74;S+;H+;R+;B-;;Schwanger;N+;Boden;07.01.2025;10:19;
-Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;16:43;D;34;S-;;;B-;;;N-;Boden;02.03.2025;15:09
-Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;13:01:43;W;0;;;;B-;;;N-;Boden;16.02.2025;12:00:43
-Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;01:12:55;M;79;;;;B-;;;N-;Luft;08.01.2025;01:10:55
-Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;09:33;M;64;;;R+;B-;;;N-;Boden;11.02.2025;08:02
+Versorgungsbereich;KHS-Versorgungsgebiet;Krankenhaus;Krankenhaus-Kurzname;Datum (Eintreffzeit);Uhrzeit (Eintreffzeit);Geschlecht;Alter;Schockraum;Herzkatheter;Reanimation;Beatmet;Schock;Schwanger;Arztbegleitet;Transportmittel;Datum (Erstellungsdatum);Uhrzeit (Erstellungsdatum);PZC
+Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;07.01.2025;13:14;W;74;S+;H+;R+;B-;;Schwanger;N+;Boden;07.01.2025;10:19;123741
+Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;02.03.2025;16:43;D;34;S-;;;B-;;;N-;Boden;02.03.2025;15:09;123342
+Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;16.02.2025;13:01:43;W;0;;;;B-;;;N-;Boden;16.02.2025;12:00:43;123433
+Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;09.01.2025;01:12:55;M;79;;;;B-;;;N-;Luft;08.01.2025;01:10:55;123551
+Test Area;1;Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt;KH Test;11.02.2025;09:33;M;64;;;R+;B-;;;N-;Boden;11.02.2025;08:02;123642
