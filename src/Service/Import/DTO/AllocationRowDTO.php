@@ -66,4 +66,9 @@ final class AllocationRowDTO
 
     #[Assert\Choice(choices: ['G', 'A'], message: 'Unknown transport')]
     public ?string $transportType = null;
+
+    #[Assert\NotNull]
+    #[Assert\Type('integer')]
+    #[Assert\Range(min: 1, max: 3)]
+    public ?int $urgency = null;
 }
