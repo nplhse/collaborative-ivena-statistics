@@ -42,7 +42,7 @@ final class SplCsvRowReader implements RowReaderInterface
         private readonly \SplFileObject $file,
         private readonly string $inputEncoding = 'ISO-8859-1',
         string $delimiter = ';',
-        string $enclosure = "\0",
+        string $enclosure = '"',
         string $escape = '\\',
     ) {
         $this->file->setFlags(
