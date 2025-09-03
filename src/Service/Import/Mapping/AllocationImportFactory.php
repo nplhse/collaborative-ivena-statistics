@@ -9,6 +9,7 @@ use App\Entity\Import;
 use App\Entity\State;
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
+use App\Enum\AllocationUrgency;
 use App\Repository\DispatchAreaRepository;
 use App\Repository\StateRepository;
 use App\Service\Import\DTO\AllocationRowDTO;
@@ -152,7 +153,7 @@ final class AllocationImportFactory
         $allocation->setIsShock($dto->isShock ?? false);
         $allocation->setIsPregnant($dto->isPregnant ?? false);
         $allocation->setIsWithPhysician($dto->isWithPhysician ?? false);
-        $allocation->setUrgency($dto->urgency);
+        $allocation->setUrgency(AllocationUrgency::from($dto->urgency));
 
         return $allocation;
     }

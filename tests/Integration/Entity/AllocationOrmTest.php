@@ -11,6 +11,7 @@ use App\Entity\Import;
 use App\Entity\State;
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
+use App\Enum\AllocationUrgency;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
@@ -67,7 +68,8 @@ final class AllocationOrmTest extends KernelTestCase
             ->setIsShock(false)
             ->setIsPregnant(false)
             ->setIsWithPhysician(true)
-            ->setTransportType(AllocationTransportType::GROUND);
+            ->setTransportType(AllocationTransportType::GROUND)
+            ->setUrgency(AllocationUrgency::IMMEDIATE);
 
         $this->em->persist($allocation);
         $this->em->flush();
@@ -94,6 +96,7 @@ final class AllocationOrmTest extends KernelTestCase
         self::assertFalse($object->isShock());
         self::assertFalse($object->isPregnant());
         self::assertTrue($object->isWithPhysician());
+        self::assertSame($object->getUrgency(), AllocationUrgency::IMMEDIATE);
 
         // Relations
         self::assertSame('St. Test Hospital', $object->getHospital()?->getName());
@@ -132,7 +135,8 @@ final class AllocationOrmTest extends KernelTestCase
             ->setIsShock(false)
             ->setIsPregnant(false)
             ->setIsWithPhysician(false)
-            ->setTransportType(null);
+            ->setTransportType(null)
+            ->setUrgency(AllocationUrgency::IMMEDIATE);
 
         $this->em->persist($allocation);
         $this->em->flush();

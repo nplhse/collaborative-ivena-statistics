@@ -18,7 +18,7 @@ enum AllocationUrgency: int
     }
 
     /**
-     * @return string[]
+     * @return int[]
      */
     public static function getValues(): array
     {
