@@ -17,26 +17,6 @@ trait AllocationRowNormalizationTrait
         return '' === $value ? null : $value;
     }
 
-    /**
-     * Extracts an integer value from the given row key, or returns null if not set or not numeric.
-     *
-     * @param array<string, scalar|null> $row
-     */
-    protected static function getIntegerOrNull(array $row, string $key): ?int
-    {
-        if (!array_key_exists($key, $row)) {
-            return null;
-        }
-
-        $value = trim((string) $row[$key]);
-
-        if ('' === $value || !ctype_digit($value)) {
-            return null;
-        }
-
-        return (int) $value;
-    }
-
     protected static function combineDateAndTime(?string $date, ?string $time): ?string
     {
         if (null === $date || null === $time) {
