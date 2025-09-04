@@ -131,4 +131,34 @@ trait AllocationRowNormalizationTrait
 
         return null;
     }
+
+    /**
+     * Extracts the last digit from a six-digit integer string representing the
+     * PZC and returns it as an int if it is 1, 2 or 3. Otherwise, returns null.
+     *
+     * Examples:
+     *  '123451' → 1
+     *  '000002' → 2
+     *  '999993' → 3
+     *  '123450' → null   (last digit not in 1..3)
+     *  '12345'  → null   (not six digits)
+     *  null     → null
+     */
+    protected static function normalizeUrgencyFromPZC(?string $value): ?int
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $clean = trim($value);
+
+        // PZC must be exactly six digits (allow leading zeros)
+        if (6 !== strlen($clean) || !ctype_digit($clean)) {
+            return null;
+        }
+
+        $last = (int) substr($clean, -1);
+
+        return \in_array($last, [1, 2, 3], true) ? $last : null;
+    }
 }

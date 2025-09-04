@@ -38,6 +38,7 @@ final class AllocationRowDTOTest extends TestCase
         $dto->isPregnant = false;
         $dto->isWithPhysician = true;
         $dto->transportType = 'G';
+        $dto->urgency = 1;
 
         return $dto;
     }

@@ -9,6 +9,7 @@ use App\Entity\Import;
 use App\Entity\State;
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
+use App\Enum\AllocationUrgency;
 use App\Repository\DispatchAreaRepository;
 use App\Repository\StateRepository;
 use App\Service\Import\DTO\AllocationRowDTO;
@@ -140,6 +141,10 @@ final class AllocationImportFactory
             throw new \LogicException('Age must be integer after validation');
         }
 
+        if (!\is_int($dto->urgency)) {
+            throw new \LogicException('Urgency must be integer after validation');
+        }
+
         $allocation->setAge($dto->age);
         $allocation->setRequiresResus($dto->requiresResus ?? false);
         $allocation->setRequiresCathlab($dto->requiresCathlab ?? false);
@@ -148,6 +153,7 @@ final class AllocationImportFactory
         $allocation->setIsShock($dto->isShock ?? false);
         $allocation->setIsPregnant($dto->isPregnant ?? false);
         $allocation->setIsWithPhysician($dto->isWithPhysician ?? false);
+        $allocation->setUrgency(AllocationUrgency::from($dto->urgency));
 
         return $allocation;
     }

@@ -13,6 +13,7 @@ final class TraitHelper
         normalizeTransportType as private traitNormalizeTransportType;
         normalizeBoolean as private traitNormalizeBoolean;
         normalizeAge as private traitNormalizeAge;
+        normalizeUrgencyFromPZC as private traitNormalizeUrgencyFromPZC;
         combineDateAndTime as private traitCombineDateAndTime;
         getStringOrNull as private traitGetStringOrNull;
     }
@@ -35,6 +36,11 @@ final class TraitHelper
     public static function normalizeAge(?string $value): ?int
     {
         return self::traitNormalizeAge($value);
+    }
+
+    public static function normalizeUrgencyFromPZC(?string $value): ?int
+    {
+        return self::traitNormalizeUrgencyFromPZC($value);
     }
 
     public static function combineDateAndTime(?string $date, ?string $time): ?string

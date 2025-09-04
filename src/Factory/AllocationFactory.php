@@ -5,6 +5,7 @@ namespace App\Factory;
 use App\Entity\Allocation;
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
+use App\Enum\AllocationUrgency;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -44,6 +45,7 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'requiresCathlab' => self::faker()->boolean(),
             'requiresResus' => self::faker()->boolean(),
             'transportType' => self::faker()->randomElement(AllocationTransportType::cases()),
+            'urgency' => self::faker()->randomElement(AllocationUrgency::cases()),
         ];
     }
 }

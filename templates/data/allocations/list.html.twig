@@ -77,7 +77,10 @@
                     <th class="col-2">
                         {{ 'label.locations'|trans }}
                     </th>
-                    <th class="col-3">
+                    <th class="col-1">
+                        {{ 'label.urgency'|trans }}
+                    </th>
+                    <th class="col-2">
                         {{ 'label.properties'|trans }}
                     </th>
                     <th class="col-1">
@@ -107,6 +110,11 @@
                         <td>
                             {{ allocation.dispatchArea }}<br/>
                             {{ allocation.state }}
+                        </td>
+                        <td>
+                            {% import '_macros/badges.html.twig' as badges %}
+
+                            {{ badges.render('allocation_urgency', allocation.urgency.value) }}
                         </td>
                         <td>
                             <span class="text-danger fw-bold">

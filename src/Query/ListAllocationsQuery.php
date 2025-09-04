@@ -21,7 +21,7 @@ final class ListAllocationsQuery
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('a.id, a.createdAt, a.arrivalAt, s.id as state_id, s.name as state, da.id as dispatchArea_id, da.name as dispatchArea,
-                h.id as hospital_id, h.name as hospital, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock, a.isPregnant, a.isWithPhysician')
+                h.id as hospital_id, h.name as hospital, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock, a.isPregnant, a.isWithPhysician, a.urgency')
             ->from(Allocation::class, 'a')
             ->leftJoin(
                 State::class,
@@ -43,7 +43,7 @@ final class ListAllocationsQuery
             );
 
         if (null !== $queryParametersDTO->importId) {
-            $qb->andWhere('a.import = :importId')  // Allocation hat ManyToOne Import
+            $qb->andWhere('a.import = :importId')
             ->setParameter('importId', $queryParametersDTO->importId);
         }
 

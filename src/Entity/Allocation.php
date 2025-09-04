@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
+use App\Enum\AllocationUrgency;
 use App\Repository\AllocationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -66,6 +67,9 @@ class Allocation
 
     #[ORM\Column(nullable: true, enumType: AllocationTransportType::class)]
     private ?AllocationTransportType $transportType = null;
+
+    #[ORM\Column(enumType: AllocationUrgency::class)]
+    private ?AllocationUrgency $urgency = null;
 
     public function getId(): ?int
     {
@@ -268,6 +272,18 @@ class Allocation
     public function setTransportType(?AllocationTransportType $transportType): static
     {
         $this->transportType = $transportType;
+
+        return $this;
+    }
+
+    public function getUrgency(): ?AllocationUrgency
+    {
+        return $this->urgency;
+    }
+
+    public function setUrgency(AllocationUrgency $urgency): static
+    {
+        $this->urgency = $urgency;
 
         return $this;
     }

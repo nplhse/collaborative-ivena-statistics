@@ -85,6 +85,10 @@
         <source>field.true</source>
         <target>True</target>
       </trans-unit>
+      <trans-unit id="GvBH7QF" resname="field.urgency">
+        <source>field.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
       <trans-unit id="oB3P1Zq" resname="flash.import.created">
         <source>flash.import.created</source>
         <target>New Import has been created successfully!</target>
@@ -364,6 +368,22 @@
       <trans-unit id="YCDRQcj" resname="label.updated_by">
         <source>label.updated_by</source>
         <target>Updated by</target>
+      </trans-unit>
+      <trans-unit id="2WVqGGv" resname="label.urgency">
+        <source>label.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="krNU.kK" resname="label.urgency.delayed">
+        <source>label.urgency.delayed</source>
+        <target>Delayed</target>
+      </trans-unit>
+      <trans-unit id="3kkNmIA" resname="label.urgency.immediate">
+        <source>label.urgency.immediate</source>
+        <target>Immediate</target>
+      </trans-unit>
+      <trans-unit id="Ogn7GN1" resname="label.urgency.urgent">
+        <source>label.urgency.urgent</source>
+        <target>Urgent</target>
       </trans-unit>
       <trans-unit id="ZdrXMaQ" resname="link.allocations">
         <source>link.allocations</source>

@@ -69,6 +69,7 @@ final class AllocationImportFactoryTest extends KernelTestCase
         $dto->isPregnant = false;
         $dto->isWithPhysician = true;
         $dto->transportType = 'G';
+        $dto->urgency = 1;
 
         foreach ($override as $k => $v) {
             $dto->$k = $v;
