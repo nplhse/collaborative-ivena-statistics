@@ -31,6 +31,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
+
         $this->em = static::getContainer()->get(EntityManagerInterface::class);
     }
 
