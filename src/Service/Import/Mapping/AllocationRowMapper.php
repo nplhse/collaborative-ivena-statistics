@@ -58,6 +58,11 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
         $dto->transportType = self::normalizeTransportType(self::getStringOrNull($row, 'transportmittel'));
         $dto->urgency = self::normalizeUrgencyFromPZC(self::getStringOrNull($row, 'pzc'));
 
+        // Specialities
+        $dto->speciality = self::getStringOrNull($row, 'fachgebiet');
+        $dto->department = self::getStringOrNull($row, 'fachbereich');
+        $dto->departmentWasClosed = self::normalizeBoolean(self::getStringOrNull($row, 'fachbereich_war_abgemeldet') ?? 'false');
+
         return $dto;
     }
 }

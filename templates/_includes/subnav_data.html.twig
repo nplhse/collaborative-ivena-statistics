@@ -15,6 +15,16 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_data_department' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_data_department_list') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <twig:ux:icon name="tabler:folder-dollar" width="1,5em" height="1,5em" />
+                            </span>
+                            <span class="nav-link-title">
+                                {{ 'link.departments'|trans }}
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ route starts with 'app_data_dispatch_area' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_data_dispatch_area_list') }}">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -32,6 +42,16 @@
                             </span>
                             <span class="nav-link-title">
                                 {{ 'link.hospitals'|trans }}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ route starts with 'app_data_speciality' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_data_speciality_list') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <twig:ux:icon name="tabler:folder-pin" width="1,5em" height="1,5em" />
+                            </span>
+                            <span class="nav-link-title">
+                                {{ 'link.specialities'|trans }}
                             </span>
                         </a>
                     </li>

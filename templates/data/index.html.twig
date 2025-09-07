@@ -54,6 +54,23 @@
             </a>
         </div>
 
+        <!-- Card: Departments -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_department_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:folder-dollar" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.departments'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.departments'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         <!-- Card: DispatchAreas -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ path('app_data_dispatch_area_list') }}">
@@ -83,6 +100,23 @@
                     <div>
                         <div class="h3 mb-0">{{ 'link.hospitals'|trans }}</div>
                         <small class="text-muted">{{ 'label.link.hospitals'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Specialities -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_speciality_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:folder-pin" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.specialities'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.specialities'|trans }}</small>
                     </div>
                 </div>
             </a>

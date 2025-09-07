@@ -7,9 +7,11 @@ namespace App\Tests\Integration\Service\Import;
 use App\Entity\Import;
 use App\Entity\User;
 use App\Enum\ImportStatus;
+use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use App\Repository\AllocationRepository;
@@ -81,6 +83,9 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         $state = StateFactory::createOne(['name' => 'Test State']);
         $area = DispatchAreaFactory::createOne(['name' => 'Test Area', 'state' => $state]);
         $hospital = HospitalFactory::createOne(['name' => 'Test Hospital', 'state' => $state, 'dispatchArea' => $area]);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+
         $importFA = ImportFactory::createOne([
             'name' => 'Test Import',
             'hospital' => $hospital,

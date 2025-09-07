@@ -3,9 +3,11 @@
 namespace App\Tests\Functional\Controller\Data\Allocations;
 
 use App\Factory\AllocationFactory;
+use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -26,6 +28,8 @@ class ListAllocationsControllerTest extends WebTestCase
         DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
         HospitalFactory::createOne(['name' => 'Test Hospital']);
         ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
         AllocationFactory::createMany(25);
 
         // Act
@@ -63,6 +67,8 @@ class ListAllocationsControllerTest extends WebTestCase
         DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
         HospitalFactory::createOne(['name' => 'Test Hospital']);
         ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
         AllocationFactory::createMany(30);
 
         // Act

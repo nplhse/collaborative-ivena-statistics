@@ -78,6 +78,7 @@
                 <directory name="src/Service/Import/Adapter"/>
                 <directory name="src/Service/Import/Mapping"/>
                 <directory name="src/Service/Import/Resolver"/>
+                <directory name="src/Service/Seed"/>
             </errorLevel>
         </UnusedClass>
         <UnusedParam>
