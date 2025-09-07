@@ -67,8 +67,8 @@
                     <div class="text-muted small mb-3 d-flex align-items-center gap-2">
                         <twig:ux:icon name="tabler:building" class="w-3 h-3" />
                         <span>
-                                    {{ allocation.hospital.dispatchArea }} · {{ allocation.hospital.state }}
-                                </span>
+                            {{ allocation.hospital.dispatchArea }} · {{ allocation.hospital.state }}
+                        </span>
                     </div>
 
                     <div class="text-secondary small mb-3 d-flex align-items-center gap-2">
@@ -103,16 +103,34 @@
                     <div class="d-flex flex-wrap gap-2 mt-2">
                         {% for p in props %}
                             <span class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 py-2 px-3" title="{{ p.label }}">
-                                            <twig:ux:icon name="{{ p.icon }}" class="w-3 h-3" />
-                                            <span class="text-muted">{{ p.label }}</span>
-                                            <span class="ms-1">
-                                                {% autoescape false %}{{ p.content }}{% endautoescape %}
-                                            </span>
-                                        </span>
+                                <twig:ux:icon name="{{ p.icon }}" class="w-3 h-3" />
+                                <span class="text-muted">{{ p.label }}</span>
+                                <span class="ms-1">
+                                    {% autoescape false %}{{ p.content }}{% endautoescape %}
+                                </span>
+                            </span>
                         {% endfor %}
                     </div>
                 </twig:Card>
 
+            </div>
+            <div class="col-12 mb-3">
+                <twig:Card
+                    title="{{ 'label.speciality'|trans }}"
+                >
+                    <div class="department-line">
+                        <div class="d-flex align-items-center">
+                            <span class="fw-bold me-1">{{ allocation.speciality }}</span>
+                            <span class="text-muted">({{ allocation.department }})</span>
+
+                            {% if allocation.departmentWasClosed %}
+                                <span class="badge bg-red-lt text-red ms-2 d-inline-flex align-items-center" title="Department was closed">
+                                    <twig:ux:icon name="tabler:alert-square-rounded" class="w-3 h-3" /> closed
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </twig:Card>
             </div>
             <div class="col-12">
                 <twig:Card
