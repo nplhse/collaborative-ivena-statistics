@@ -7,17 +7,10 @@ use App\Entity\DispatchArea;
 use App\Entity\Hospital;
 use App\Entity\Import;
 use App\Entity\State;
-use App\Enum\AllocationGender;
-use App\Enum\AllocationTransportType;
-use App\Enum\AllocationUrgency;
-use App\Repository\DispatchAreaRepository;
-use App\Repository\StateRepository;
+use App\Service\Import\Contracts\AllocationEntityResolverInterface;
 use App\Service\Import\DTO\AllocationRowDTO;
-use App\Service\Import\Exception\InvalidDateException;
-use App\Service\Import\Exception\InvalidEnumException;
-use App\Service\Import\Exception\ReferenceNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\ORMException;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 /**
  * AllocationFactory.
@@ -32,138 +25,40 @@ use Doctrine\ORM\Exception\ORMException;
  */
 final class AllocationImportFactory
 {
-    /** @var array<string,int> map(normalized_name => id) */
-    private array $dispatchIdByKey = [];
-
-    /** @var array<string,int> map(normalized_name => id) */
-    private array $stateIdByKey = [];
-
+    /**
+     * @param iterable<AllocationEntityResolverInterface> $resolvers
+     */
     public function __construct(
-        private readonly DispatchAreaRepository $dispatchRepo,
-        private readonly StateRepository $stateRepo,
         private readonly EntityManagerInterface $em,
+        #[AutowireIterator(tag: 'allocation.import_resolver')]
+        private readonly iterable $resolvers,
     ) {
     }
 
     public function warm(): void
     {
-        if ([] === $this->dispatchIdByKey) {
-            foreach ($this->dispatchRepo->findAll() as $d) {
-                $k = $this->key((string) $d->getName());
-                if ('' !== $k && null !== $d->getId()) {
-                    $this->dispatchIdByKey[$k] = (int) $d->getId();
-                }
-            }
-        }
-
-        if ([] === $this->stateIdByKey) {
-            foreach ($this->stateRepo->findAll() as $s) {
-                $k = $this->key((string) $s->getName());
-                if ('' !== $k && null !== $s->getId()) {
-                    $this->stateIdByKey[$k] = (int) $s->getId();
-                }
-            }
+        foreach ($this->resolvers as $resolver) {
+            $resolver->warm();
         }
     }
 
     public function fromDto(AllocationRowDTO $dto, Import $import): Allocation
     {
-        $hospital = $import->getHospital();
-
-        if (null === $hospital) {
-            throw new \LogicException('Import has no hospital assigned');
-        }
-
-        $state = $hospital->getState();
-
-        if (null === $state) {
-            throw new \LogicException('Hospital has no state assigned');
-        }
-
-        $importRef = $this->refImport($import);
-        $hospitalRef = $this->refHospital($import);
-
-        $dispatchRef = $this->refByName(
-            field: 'dispatchArea',
-            name: $dto->dispatchArea,
-            idMap: $this->dispatchIdByKey,
-            class: DispatchArea::class
-        );
-
-        $stateRef = $this->refByName(
-            field: 'state',
-            name: $state->getName(),
-            idMap: $this->stateIdByKey,
-            class: State::class
-        );
-
         $allocation = new Allocation();
 
+        $hospitalRef = $this->refHospital($import);
         $allocation->setHospital($hospitalRef);
-        $allocation->setDispatchArea($dispatchRef);
-        $allocation->setState($stateRef);
+
+        $importRef = $this->refImport($import);
         $allocation->setImport($importRef);
 
-        if (!\is_string($dto->createdAt) || '' === $dto->createdAt) {
-            throw InvalidDateException::forField('createdAt', $dto->createdAt);
+        foreach ($this->resolvers as $resolver) {
+            if ($resolver->supports($allocation, $dto)) {
+                $resolver->apply($allocation, $dto);
+            }
         }
-
-        try {
-            $allocation->setCreatedAt(new \DateTimeImmutable($dto->createdAt));
-        } catch (\Throwable) {
-            throw InvalidDateException::forField('createdAt', $dto->createdAt);
-        }
-
-        if (!\is_string($dto->arrivalAt) || '' === $dto->arrivalAt) {
-            throw InvalidDateException::forField('arrivalAt', $dto->arrivalAt);
-        }
-
-        try {
-            $allocation->setArrivalAt(new \DateTimeImmutable($dto->arrivalAt));
-        } catch (\Throwable) {
-            throw InvalidDateException::forField('arrivalAt', $dto->arrivalAt);
-        }
-
-        $allocation->setGender(
-            AllocationGender::tryFrom((string) $dto->gender)
-            ?? throw InvalidEnumException::forField('gender', (string) $dto->gender)
-        );
-
-        if (null !== $dto->transportType) {
-            $allocation->setTransportType(
-                AllocationTransportType::tryFrom($dto->transportType)
-                ?? throw InvalidEnumException::forField('transportType', $dto->transportType)
-            );
-        }
-
-        // Scalars / flags (already normalized by mapper)
-        if (!\is_int($dto->age)) {
-            throw new \LogicException('Age must be integer after validation');
-        }
-
-        if (!\is_int($dto->urgency)) {
-            throw new \LogicException('Urgency must be integer after validation');
-        }
-
-        $allocation->setAge($dto->age);
-        $allocation->setRequiresResus($dto->requiresResus ?? false);
-        $allocation->setRequiresCathlab($dto->requiresCathlab ?? false);
-        $allocation->setIsCPR($dto->isCPR ?? false);
-        $allocation->setIsVentilated($dto->isVentilated ?? false);
-        $allocation->setIsShock($dto->isShock ?? false);
-        $allocation->setIsPregnant($dto->isPregnant ?? false);
-        $allocation->setIsWithPhysician($dto->isWithPhysician ?? false);
-        $allocation->setUrgency(AllocationUrgency::from($dto->urgency));
 
         return $allocation;
-    }
-
-    private function key(string $name): string
-    {
-        $s = \mb_strtolower(\trim($name), 'UTF-8');
-        $normalized = \preg_replace('/\s+/', ' ', $s);
-
-        return $normalized ?? $s;
     }
 
     private function refImport(Import $import): Import
@@ -184,31 +79,6 @@ final class AllocationImportFactory
 
         /** @var Hospital $ref */
         $ref = $this->em->getReference(Hospital::class, $hospital->getId());
-
-        return $ref;
-    }
-
-    /**
-     * @template T of object
-     *
-     * @param array<string,int> $idMap
-     * @param class-string<T>   $class Classname der Entity
-     *
-     * @return T
-     *
-     * @throws ORMException
-     */
-    private function refByName(string $field, ?string $name, array $idMap, string $class): object
-    {
-        $k = $this->key((string) $name);
-        $id = $idMap[$k] ?? null;
-
-        if (null === $id) {
-            throw ReferenceNotFoundException::forField($field, $name);
-        }
-
-        /** @var T $ref */
-        $ref = $this->em->getReference($class, $id);
 
         return $ref;
     }

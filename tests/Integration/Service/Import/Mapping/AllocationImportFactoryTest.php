@@ -41,12 +41,7 @@ final class AllocationImportFactoryTest extends KernelTestCase
 
         $this->import = $em->getRepository(Import::class)->find($import->getId());
 
-        $dispatchRepo = self::getContainer()->get(\App\Repository\DispatchAreaRepository::class);
-        $stateRepo = self::getContainer()->get(\App\Repository\StateRepository::class);
-
-        $this->factory = new AllocationImportFactory($dispatchRepo, $stateRepo, $em);
-
-        // Cache warmfahren
+        $this->factory = self::getContainer()->get(AllocationImportFactory::class);
         $this->factory->warm();
     }
 

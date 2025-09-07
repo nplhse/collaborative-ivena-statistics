@@ -13,8 +13,6 @@ use App\Factory\ImportFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use App\Repository\AllocationRepository;
-use App\Repository\DispatchAreaRepository;
-use App\Repository\StateRepository;
 use App\Service\Import\Adapter\DoctrineAllocationPersister;
 use App\Service\Import\Adapter\SplCsvRejectWriter;
 use App\Service\Import\Adapter\SplCsvRowReader;
@@ -93,11 +91,7 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         $managedImport = $em->getRepository(Import::class)->find($importFA->getId());
         $this->import = $managedImport;
 
-        /** @var DispatchAreaRepository $dispatchRepo */
-        $dispatchRepo = self::getContainer()->get(DispatchAreaRepository::class);
-        /** @var StateRepository $stateRepo */
-        $stateRepo = self::getContainer()->get(StateRepository::class);
-        $this->factory = new AllocationImportFactory($dispatchRepo, $stateRepo, $em);
+        $this->factory = self::getContainer()->get(AllocationImportFactory::class);
     }
 
     public function testImporterRunsOnSampleAndPersists4RowsWrites1Reject(): void
