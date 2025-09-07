@@ -24,10 +24,11 @@ final class DepartmentRepository extends ServiceEntityRepository
             ->addSelect('(CASE WHEN d.updatedAt IS NOT NULL THEN d.updatedAt ELSE d.createdAt END) AS HIDDEN sortDate')
         ;
 
-        $sortField = match ($queryParametersDTO->sortBy) {
-            'lastChange' => 'sortDate',
-            default => 's.'.$queryParametersDTO->sortBy,
-        };
+        if ('lastChange' === $queryParametersDTO->sortBy) {
+            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
+        } else {
+            $qb->orderBy('d.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+        }
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('LOWER(d.name)', ':search'))
