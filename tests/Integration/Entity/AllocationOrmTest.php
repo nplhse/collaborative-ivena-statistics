@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Tests\Integration\Entity;
 
 use App\Entity\Allocation;
+use App\Entity\Department;
 use App\Entity\DispatchArea;
 use App\Entity\Hospital;
 use App\Entity\Import;
+use App\Entity\Speciality;
 use App\Entity\State;
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
 use App\Enum\AllocationUrgency;
+use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,10 +48,15 @@ final class AllocationOrmTest extends KernelTestCase
         ]);
         $import = ImportFactory::createOne(['name' => 'Test Import']);
 
+        $speciality = SpecialityFactory::createOne(['name' => 'Speciality']);
+        $department = DepartmentFactory::createOne(['name' => 'Department']);
+
         $state = $this->em->getRepository(State::class)->find($state->getId());
         $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
         $hospital = $this->em->getRepository(Hospital::class)->find($hospital->getId());
         $import = $this->em->getRepository(Import::class)->find($import->getId());
+        $speciality = $this->em->getRepository(Speciality::class)->find($speciality->getId());
+        $department = $this->em->getRepository(Department::class)->find($department->getId());
 
         $createdAt = new \DateTimeImmutable('now');
         $arrivalAt = new \DateTimeImmutable('+10 minutes');
@@ -69,7 +78,11 @@ final class AllocationOrmTest extends KernelTestCase
             ->setIsPregnant(false)
             ->setIsWithPhysician(true)
             ->setTransportType(AllocationTransportType::GROUND)
-            ->setUrgency(AllocationUrgency::IMMEDIATE);
+            ->setUrgency(AllocationUrgency::IMMEDIATE)
+            ->setSpeciality($speciality)
+            ->setDepartment($department)
+            ->setDepartmentWasClosed(false)
+        ;
 
         $this->em->persist($allocation);
         $this->em->flush();
@@ -96,13 +109,18 @@ final class AllocationOrmTest extends KernelTestCase
         self::assertFalse($object->isShock());
         self::assertFalse($object->isPregnant());
         self::assertTrue($object->isWithPhysician());
-        self::assertSame($object->getUrgency(), AllocationUrgency::IMMEDIATE);
+        self::assertSame(AllocationUrgency::IMMEDIATE, $object->getUrgency());
+        self::assertFalse($object->isDepartmentWasClosed());
 
         // Relations
         self::assertSame('St. Test Hospital', $object->getHospital()?->getName());
         self::assertSame('Alpha Area', $object->getDispatchArea()?->getName());
         self::assertSame('Hessen', $object->getState()?->getName());
         self::assertSame('Test Import', $object->getImport()->getName());
+
+        // Specialities
+        self::assertSame('Speciality', $object->getSpeciality()->getName());
+        self::assertSame('Department', $object->getDepartment()->getName());
     }
 
     public function testTransportTypeCanBeNull(): void
@@ -113,11 +131,15 @@ final class AllocationOrmTest extends KernelTestCase
         $area = DispatchAreaFactory::createOne(['state' => $state]);
         $hospital = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $area]);
         $import = ImportFactory::createOne(['name' => 'Test Import']);
+        $speciality = SpecialityFactory::createOne(['name' => 'Speciality']);
+        $department = DepartmentFactory::createOne(['name' => 'Department']);
 
         $state = $this->em->getRepository(State::class)->find($state->getId());
         $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
         $hospital = $this->em->getRepository(Hospital::class)->find($hospital->getId());
         $import = $this->em->getRepository(Import::class)->find($import->getId());
+        $speciality = $this->em->getRepository(Speciality::class)->find($speciality->getId());
+        $department = $this->em->getRepository(Department::class)->find($department->getId());
 
         $allocation = new Allocation()
             ->setHospital($hospital)
@@ -136,7 +158,11 @@ final class AllocationOrmTest extends KernelTestCase
             ->setIsPregnant(false)
             ->setIsWithPhysician(false)
             ->setTransportType(null)
-            ->setUrgency(AllocationUrgency::IMMEDIATE);
+            ->setUrgency(AllocationUrgency::IMMEDIATE)
+            ->setSpeciality($speciality)
+            ->setDepartment($department)
+            ->setDepartmentWasClosed(false)
+        ;
 
         $this->em->persist($allocation);
         $this->em->flush();
