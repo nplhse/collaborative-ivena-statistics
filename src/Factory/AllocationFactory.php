@@ -46,6 +46,9 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'requiresResus' => self::faker()->boolean(),
             'transportType' => self::faker()->randomElement(AllocationTransportType::cases()),
             'urgency' => self::faker()->randomElement(AllocationUrgency::cases()),
+            'speciality' => SpecialityFactory::random(),
+            'department' => DepartmentFactory::random(),
+            'departmentWasClosed' => self::faker()->boolean(),
         ];
     }
 }

@@ -4,9 +4,11 @@ namespace App\DataFixtures;
 
 use App\Enum\ImportStatus;
 use App\Factory\AllocationFactory;
+use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -39,6 +41,9 @@ final class AppFixtures extends Fixture
             'status' => ImportStatus::PENDING,
         ]
         );
+
+        DepartmentFactory::createMany(5);
+        SpecialityFactory::createMany(10);
 
         AllocationFactory::createMany(100);
 

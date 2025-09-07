@@ -71,6 +71,17 @@ class Allocation
     #[ORM\Column(enumType: AllocationUrgency::class)]
     private ?AllocationUrgency $urgency = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Speciality $speciality = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Department $department = null;
+
+    #[ORM\Column]
+    private ?bool $departmentWasClosed = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -284,6 +295,42 @@ class Allocation
     public function setUrgency(AllocationUrgency $urgency): static
     {
         $this->urgency = $urgency;
+
+        return $this;
+    }
+
+    public function getSpeciality(): ?Speciality
+    {
+        return $this->speciality;
+    }
+
+    public function setSpeciality(?Speciality $speciality): static
+    {
+        $this->speciality = $speciality;
+
+        return $this;
+    }
+
+    public function getDepartment(): ?Department
+    {
+        return $this->department;
+    }
+
+    public function setDepartment(?Department $department): static
+    {
+        $this->department = $department;
+
+        return $this;
+    }
+
+    public function isDepartmentWasClosed(): ?bool
+    {
+        return $this->departmentWasClosed;
+    }
+
+    public function setDepartmentWasClosed(bool $departmentWasClosed): static
+    {
+        $this->departmentWasClosed = $departmentWasClosed;
 
         return $this;
     }
