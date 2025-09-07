@@ -257,6 +257,10 @@
         <source>label.link.allocations</source>
         <target>Emergency service deployments recorded in IVENA with their details.</target>
       </trans-unit>
+      <trans-unit id="DY0xtzN" resname="label.link.departments">
+        <source>label.link.departments</source>
+        <target>Specialized clinical units within a medical field, e.g. Cardiology or General Surgery.</target>
+      </trans-unit>
       <trans-unit id="lcY9EMq" resname="label.link.dispatch_areas">
         <source>label.link.dispatch_areas</source>
         <target>Regions covered by emergency dispatch centers</target>
@@ -264,6 +268,10 @@
       <trans-unit id="EvJ25zq" resname="label.link.hospitals">
         <source>label.link.hospitals</source>
         <target>Facilities delivering medical care and patient services.</target>
+      </trans-unit>
+      <trans-unit id=".Ub3pp_" resname="label.link.specialities">
+        <source>label.link.specialities</source>
+        <target>Overarching medical fields such as Internal Medicine or Surgery.</target>
       </trans-unit>
       <trans-unit id="QgJjQWe" resname="label.location">
         <source>label.location</source>
@@ -329,6 +337,10 @@
         <source>label.size</source>
         <target>Size (Beds)</target>
       </trans-unit>
+      <trans-unit id="TbPF.SF" resname="label.speciality">
+        <source>label.speciality</source>
+        <target>Speciality</target>
+      </trans-unit>
       <trans-unit id="UpIMnT4" resname="label.state">
         <source>label.state</source>
         <target>State</target>
@@ -393,6 +405,10 @@
         <source>link.data</source>
         <target>Data</target>
       </trans-unit>
+      <trans-unit id="AWjlM2g" resname="link.departments">
+        <source>link.departments</source>
+        <target>Departments</target>
+      </trans-unit>
       <trans-unit id="V.DoFiU" resname="link.dispatch_areas">
         <source>link.dispatch_areas</source>
         <target>Dispatch Areas</target>
@@ -409,6 +425,10 @@
         <source>link.import</source>
         <target>Import</target>
       </trans-unit>
+      <trans-unit id="y8kuDU3" resname="link.specialities">
+        <source>link.specialities</source>
+        <target>Specialities</target>
+      </trans-unit>
       <trans-unit id="GhGeHI9" resname="title.allocation.list">
         <source>title.allocation.list</source>
         <target>Listing Allocations</target>
@@ -424,6 +444,10 @@
       <trans-unit id="psOkg8i" resname="title.data.index">
         <source>title.data.index</source>
         <target>Data Overview</target>
+      </trans-unit>
+      <trans-unit id="mUiiLKD" resname="title.departments.list">
+        <source>title.departments.list</source>
+        <target>Listing Departments</target>
       </trans-unit>
       <trans-unit id="edHHJTH" resname="title.dispatch_area.list">
         <source>title.dispatch_area.list</source>
@@ -452,6 +476,10 @@
       <trans-unit id="Q.Y20KD" resname="title.login">
         <source>title.login</source>
         <target>Login</target>
+      </trans-unit>
+      <trans-unit id="uhopb3E" resname="title.speciality.list">
+        <source>title.speciality.list</source>
+        <target>Listing Specialities</target>
       </trans-unit>
     </body>
   </file>

@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\DataTransferObjects\SpecialityQueryParametersDTO;
 use App\Entity\Department;
+use App\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +18,23 @@ final class DepartmentRepository extends ServiceEntityRepository
         parent::__construct($registry, Department::class);
     }
 
-    //    /**
-    //     * @return Department[] Returns an array of Department objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('d')
-    //            ->andWhere('d.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('d.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getListPaginator(SpecialityQueryParametersDTO $queryParametersDTO): Paginator
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->addSelect('(CASE WHEN d.updatedAt IS NOT NULL THEN d.updatedAt ELSE d.createdAt END) AS HIDDEN sortDate')
+        ;
 
-    //    public function findOneBySomeField($value): ?Department
-    //    {
-    //        return $this->createQueryBuilder('d')
-    //            ->andWhere('d.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $sortField = match ($queryParametersDTO->sortBy) {
+            'lastChange' => 'sortDate',
+            default => 's.'.$queryParametersDTO->sortBy,
+        };
+
+        if (null !== $queryParametersDTO->search) {
+            $qb->andWhere($qb->expr()->like('LOWER(d.name)', ':search'))
+                ->setParameter('search', '%'.mb_strtolower($queryParametersDTO->search).'%')
+            ;
+        }
+
+        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+    }
 }
