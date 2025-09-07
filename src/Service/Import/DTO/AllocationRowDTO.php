@@ -71,4 +71,14 @@ final class AllocationRowDTO
     #[Assert\Type('integer')]
     #[Assert\Range(min: 1, max: 3)]
     public ?int $urgency = null;
+
+    #[Assert\NotBlank]
+    public ?string $speciality = null;
+
+    #[Assert\NotBlank]
+    public ?string $department = null;
+
+    #[Assert\NotNull]
+    #[Assert\Type('bool')]
+    public ?bool $departmentWasClosed = null;
 }
