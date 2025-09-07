@@ -1,6 +1,8 @@
 <?php
 
-namespace Faker\Provider;
+namespace App\Faker\Provider;
+
+use Faker\Provider\Base;
 
 /** @psalm-suppress PropertyNotSetInConstructor */
 final class MedicalSpecialities extends Base

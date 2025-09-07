@@ -3,7 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Department;
-use Faker\Provider\MedicalSpecialities;
+use App\Faker\Provider\MedicalSpecialities;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -24,7 +24,7 @@ final class DepartmentFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         /**
-         * @see App\Faker\Provider\MedicalSpecialites
+         * @see App\Faker\Provider\MedicalSpecialities
          *
          * @var \Faker\Generator&\App\Faker\Provider\MedicalSpecialityFakerMethods $faker
          */
