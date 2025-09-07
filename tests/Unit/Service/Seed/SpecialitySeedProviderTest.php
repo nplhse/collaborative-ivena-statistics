@@ -10,11 +10,7 @@ final class SpecialitySeedProviderTest extends TestCase
     public function testProvideReturnsExpectedSpecialitiesInOrder(): void
     {
         $provider = new SpecialitySeedProvider();
-
-        $gen = $provider->provide();
-        self::assertInstanceOf(\Generator::class, $gen, 'provide() must return a Generator');
-
-        $values = \iterator_to_array($gen, false);
+        $values = \iterator_to_array($provider->provide(), false);
 
         self::assertSame('Augenheilkunde', $values[0] ?? null);
         self::assertContains('Innere Medizin', $values);

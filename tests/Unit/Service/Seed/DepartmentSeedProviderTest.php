@@ -10,11 +10,7 @@ final class DepartmentSeedProviderTest extends TestCase
     public function testProvideReturnsExpectedSpecialitiesInOrder(): void
     {
         $provider = new DepartmentSeedProvider();
-
-        $gen = $provider->provide();
-        self::assertInstanceOf(\Generator::class, $gen, 'provide() must return a Generator');
-
-        $values = \iterator_to_array($gen, false);
+        $values = \iterator_to_array($provider->provide(), false);
 
         self::assertSame('Akut- und Gerontopsych. / Isolierung', $values[0] ?? null);
         self::assertContains('Kardiologie', $values);
