@@ -2,6 +2,7 @@
 
 namespace App\Service\Import\Adapter;
 
+use App\Service\Import\Charset\EncodingDetector;
 use App\Service\Import\Contracts\RowReaderInterface;
 
 /**
@@ -31,71 +32,71 @@ final class SplCsvRowReader implements RowReaderInterface
     /** @var array<int,string>|null */
     private ?array $headerRow = null;
 
-    /**
-     * @psalm-suppress UnusedProperty
-     *
-     * @var array<int,string>|null
-     */
+    /** @var array<int,string>|null */
     private ?array $rawHeaderRow = null;
 
+    private \SplFileObject $file;
+
     public function __construct(
-        private readonly \SplFileObject $file,
-        private readonly string $inputEncoding = 'ISO-8859-1',
+        \SplFileObject $file,
+        private readonly EncodingDetector $detector,
+        private readonly SplCsvStreamFactory $streamFactory,
+        private readonly string $encodingHint = 'auto',
         string $delimiter = ';',
         string $enclosure = '"',
         string $escape = '\\',
     ) {
-        $this->file->setFlags(
-            \SplFileObject::READ_CSV
-            | \SplFileObject::SKIP_EMPTY
-            | \SplFileObject::DROP_NEW_LINE
-        );
+        $path = $file->getRealPath();
+        if (false === $path) {
+            throw new \RuntimeException('Cannot resolve CSV path.');
+        }
 
-        $this->file->setCsvControl($delimiter, $enclosure, $escape);
+        $sourceEncoding = $this->detector->detectFromPath($path, $this->encodingHint);
+
+        $this->file = $this->streamFactory->openUtf8($path, $sourceEncoding, $delimiter, $enclosure, $escape);
 
         $this->rawHeaderRow = $this->readUtf8Row();
         if (null === $this->rawHeaderRow) {
             throw new \RuntimeException('CSV appears to be empty or header row could not be read.');
         }
 
-        $this->headerRow = array_map([$this, 'normalizeHeader'], $this->rawHeaderRow);
+        $normalized = \array_map([$this, 'normalizeHeader'], $this->rawHeaderRow);
+        $this->headerRow = $this->makeUniqueHeaders($normalized);
     }
 
-    /**
-     * Normalized header (snake_case).
-     *
-     * @return array<int,string>|null
-     */
     #[\Override]
     public function header(): ?array
     {
         return $this->headerRow;
     }
 
-    /**
-     * @return iterable<array<int,string>>
-     */
     #[\Override]
     public function rows(): iterable
     {
         while (!$this->file->eof()) {
             /** @var array<int,string|null>|false $row */
             $row = $this->file->fgetcsv();
-
             if (false === $row || $row === [null]) {
                 continue;
             }
 
-            $utf8 = \array_map(fn (?string $value): string => $this->toUtf8($value), $row);
-            $allEmpty = true;
+            $utf8 = [];
+            foreach ($row as $i => $value) {
+                $cell = $value ?? '';
+                if (0 === $i) {
+                    $cell = $this->stripBom($cell);
+                }
+                $cell = $this->nfc($cell);
+                $utf8[] = \trim($cell);
+            }
 
+            $allEmpty = true;
             foreach ($utf8 as $cell) {
                 if ('' !== $cell) {
                     $allEmpty = false;
                     break;
                 }
             }
-
             if ($allEmpty) {
                 continue;
             }
@@ -104,9 +105,6 @@ final class SplCsvRowReader implements RowReaderInterface
         }
     }
 
-    /**
-     * @return iterable<array<string,string>>
-     */
     #[\Override]
     public function rowsAssoc(): iterable
     {
@@ -115,86 +113,88 @@ final class SplCsvRowReader implements RowReaderInterface
         }
 
         $len = \count($this->headerRow);
-
         foreach ($this->rows() as $row) {
             $cnt = \count($row);
-
             if ($cnt > $len) {
                 $row = \array_slice($row, 0, $len);
             } elseif ($cnt < $len) {
                 $row = \array_pad($row, $len, '');
             }
-
-            $assoc = \array_combine($this->headerRow, $row);
-            $assoc = \array_map(static fn (string $value): string => $value, $assoc);
-
-            yield $assoc;
+            yield \array_combine($this->headerRow, $row);
         }
     }
 
-    /**
-     * @return array<int,string>|null
-     */
+    /** @return array<int,string>|null */
     private function readUtf8Row(): ?array
     {
         $row = $this->file->fgetcsv();
-
         if (false === $row || $row === [null]) {
             return null;
         }
 
-        return \array_map(fn (?string $value): string => $this->toUtf8($value), $row);
-    }
-
-    private function toUtf8(?string $value): string
-    {
-        $value = $value ?? '';
-
-        if ('UTF-8' !== $this->inputEncoding) {
-            $converted = \mb_convert_encoding($value, 'UTF-8', $this->inputEncoding);
-            $value = (string) $converted;
+        $out = [];
+        foreach ($row as $i => $value) {
+            $cell = $value ?? '';
+            if (0 === $i) {
+                $cell = $this->stripBom($cell);
+            }
+            $cell = $this->nfc($cell);
+            $out[] = \trim($cell);
         }
 
-        return trim($value);
+        return $out;
+    }
+
+    private function nfc(string $value): string
+    {
+        if (\class_exists(\Normalizer::class)) {
+            $n = \Normalizer::normalize($value, \Normalizer::FORM_C);
+
+            return false !== $n ? $n : $value;
+        }
+
+        return $value;
+    }
+
+    private function stripBom(string $value): string
+    {
+        return \str_starts_with($value, "\xEF\xBB\xBF") ? \substr($value, 3) : $value;
+    }
+
+    private function normalizeHeader(string $header): string
+    {
+        $header = $this->nfc(\trim($header));
+
+        $map = [
+            'ä' => 'ae', 'Ä' => 'ae', 'ö' => 'oe', 'Ö' => 'oe', 'ü' => 'ue', 'Ü' => 'ue', 'ß' => 'ss',
+        ];
+        $header = \strtr($header, $map);
+        $header = \preg_replace('/[^A-Za-z0-9]+/', ' ', $header) ?? '';
+        $header = \trim(\preg_replace('/\s+/', ' ', $header) ?? '');
+
+        return '' === $header ? '' : \implode('_', \explode(' ', \strtolower($header)));
     }
 
     /**
-     * Normalizes raw CSV header names into a predictable, developer-friendly format.
+     * @param array<int, string> $headers
      *
-     * Effects:
-     *  - Converts to UTF-8 and trims whitespace
-     *  - Replaces German umlauts and ß with ASCII equivalents (ä → ae, ö → oe, ü → ue, ß → ss)
-     *  - Removes non-alphanumeric characters (replaced by spaces)
-     *  - Converts to lowercase
-     *  - Joins words with underscores (snake_case)
-     *
-     * Example:
-     *   "Krankenhaus Kurzname"   → "krankenhaus_kurzname"
-     *   "KHS-Versorgungsgebiet"  → "khs_versorgungsgebiet"
-     *   "Ärztlich Begleitet"     → "aerztlich_begleitet"
-     *
-     * This ensures headers can be used as stable array keys in mappers and DTOs,
-     * independent of original formatting, casing, or special characters.
+     * @return list<string>
      */
-    private function normalizeHeader(string $header): string
+    private function makeUniqueHeaders(array $headers): array
     {
-        $header = trim($header);
-
-        $map = [
-            'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue',
-            'Ä' => 'ae', 'Ö' => 'oe', 'Ü' => 'ue',
-            'ß' => 'ss',
-        ];
-        $header = strtr($header, $map);
-        $header = preg_replace('/[^A-Za-z0-9]+/', ' ', $header) ?? '';
-        $header = trim(preg_replace('/\s+/', ' ', $header) ?? '');
-
-        if ('' === $header) {
-            return '';
+        $result = [];
+        $seen = [];
+        foreach ($headers as $idx => $h) {
+            $name = '' !== $h ? $h : 'col_'.($idx + 1);
+            if (!isset($seen[$name])) {
+                $seen[$name] = 1;
+                $result[] = $name;
+            } else {
+                ++$seen[$name];
+                $result[] = $name.'_'.$seen[$name]; // ab _2
+            }
         }
 
-        $parts = explode(' ', strtolower($header));
-
-        return implode('_', $parts);
+        return $result;
     }
 }

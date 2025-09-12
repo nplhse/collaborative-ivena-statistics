@@ -18,7 +18,9 @@ use App\Repository\AllocationRepository;
 use App\Service\Import\Adapter\DoctrineAllocationPersister;
 use App\Service\Import\Adapter\SplCsvRejectWriter;
 use App\Service\Import\Adapter\SplCsvRowReader;
+use App\Service\Import\Adapter\SplCsvStreamFactory;
 use App\Service\Import\AllocationImporter;
+use App\Service\Import\Charset\EncodingDetector;
 use App\Service\Import\Mapping\AllocationImportFactory;
 use App\Service\Import\Mapping\AllocationRowMapper;
 use Doctrine\ORM\EntityManagerInterface;
@@ -104,7 +106,9 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         // Arrange
         $reader = new SplCsvRowReader(
             new \SplFileObject($this->fixturePath, 'r'),
-            inputEncoding: 'UTF-8',
+            new EncodingDetector(),
+            new SplCsvStreamFactory($this->logger),
+            encodingHint: 'UTF-8',
             delimiter: ';',
             enclosure: '"',
             escape: '\\',
