@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Console;
@@ -25,7 +26,7 @@ final class GenerateCsvFixturesCommandTest extends KernelTestCase
         $tester = new CommandTester($command);
 
         $exitCode = $tester->execute([]);
-        $output   = $tester->getDisplay();
+        $output = $tester->getDisplay();
 
         self::assertSame(0, $exitCode, 'Command should exit successfully');
 
