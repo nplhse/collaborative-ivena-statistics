@@ -87,5 +87,10 @@
                 <directory name="src/Repository"/>
             </errorLevel>
         </UnusedParam>
+        <UnusedProperty>
+            <errorLevel type="suppress">
+                <directory name="src/Service/Import/Adapter"/>
+            </errorLevel>
+        </UnusedProperty>
     </issueHandlers>
 </psalm>

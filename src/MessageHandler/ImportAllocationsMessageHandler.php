@@ -8,7 +8,9 @@ use App\Message\ImportAllocationsMessage;
 use App\Repository\ImportRepository;
 use App\Service\Import\Adapter\SplCsvRejectWriter;
 use App\Service\Import\Adapter\SplCsvRowReader;
+use App\Service\Import\Adapter\SplCsvStreamFactory;
 use App\Service\Import\AllocationImporter;
+use App\Service\Import\Charset\EncodingDetector;
 use App\Service\Import\Contracts\AllocationPersisterInterface;
 use App\Service\Import\Contracts\RejectWriterInterface;
 use App\Service\Import\Contracts\RowReaderInterface;
@@ -150,7 +152,9 @@ final class ImportAllocationsMessageHandler
     private function buildReader(string $filePath): SplCsvRowReader
     {
         return new SplCsvRowReader(
-            new \SplFileObject($filePath, 'r')
+            new \SplFileObject($filePath, 'r'),
+            new EncodingDetector(),
+            new SplCsvStreamFactory($this->importLogger)
         );
     }
 

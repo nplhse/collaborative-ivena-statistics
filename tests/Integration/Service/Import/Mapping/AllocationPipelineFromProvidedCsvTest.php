@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Integration\Service\Import\Mapping;
 
 use App\Service\Import\Adapter\SplCsvRowReader;
+use App\Service\Import\Adapter\SplCsvStreamFactory;
+use App\Service\Import\Charset\EncodingDetector;
 use App\Service\Import\Mapping\AllocationRowMapper;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Validation;
@@ -40,15 +44,18 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     }
 
     /**
-     * Liest die CSV als assoziative Zeilen (Header wird im Reader normalisiert).
-     *
      * @return array<int,array<string,string>>
      */
     private function loadRows(): array
     {
+        $handler = new TestHandler();
+        $logger = new Logger('test', [$handler]);
+
         $reader = new SplCsvRowReader(
             new \SplFileObject($this->fixturePath, 'r'),
-            inputEncoding: 'UTF-8',
+            new EncodingDetector(),
+            new SplCsvStreamFactory($logger),
+            encodingHint: 'UTF-8',
             delimiter: ';',
             enclosure: '"',
             escape: '\\',
