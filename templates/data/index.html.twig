@@ -54,6 +54,23 @@
             </a>
         </div>
 
+        <!-- Card: Assignments -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_assignment_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:archery-arrow" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.assignments'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.assignments'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         <!-- Card: Departments -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ path('app_data_department_list') }}">
@@ -100,6 +117,40 @@
                     <div>
                         <div class="h3 mb-0">{{ 'link.hospitals'|trans }}</div>
                         <small class="text-muted">{{ 'label.link.hospitals'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Infections -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_infection_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:biohazard" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.infections'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.infections'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Occasions -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_occasion_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:affiliate" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.occasions'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.occasions'|trans }}</small>
                     </div>
                 </div>
             </a>

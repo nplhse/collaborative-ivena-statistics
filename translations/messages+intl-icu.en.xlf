@@ -49,6 +49,10 @@
         <source>field.gender</source>
         <target>Gender</target>
       </trans-unit>
+      <trans-unit id="G2hTjTe" resname="field.infection">
+        <source>field.infection</source>
+        <target>Is infectious?</target>
+      </trans-unit>
       <trans-unit id="nbfKbvC" resname="field.isCPR">
         <source>field.isCPR</source>
         <target>Is CPR</target>
@@ -165,9 +169,17 @@
         <source>label.arrival_at</source>
         <target>Arrival at</target>
       </trans-unit>
+      <trans-unit id="31aVbXL" resname="label.assignment">
+        <source>label.assignment</source>
+        <target>Assignment</target>
+      </trans-unit>
       <trans-unit id="1GXuSep" resname="label.back_to_list">
         <source>label.back_to_list</source>
         <target>Back to list</target>
+      </trans-unit>
+      <trans-unit id="LsBidrc" resname="label.background">
+        <source>label.background</source>
+        <target>Background</target>
       </trans-unit>
       <trans-unit id="qEe9Os6" resname="label.basic_info">
         <source>label.basic_info</source>
@@ -257,6 +269,10 @@
         <source>label.link.allocations</source>
         <target>Emergency service deployments recorded in IVENA with their details.</target>
       </trans-unit>
+      <trans-unit id="_jHXFXz" resname="label.link.assignments">
+        <source>label.link.assignments</source>
+        <target>Indicates who initiated the hospital selection, e.g. patient, physician, or emergency service.</target>
+      </trans-unit>
       <trans-unit id="DY0xtzN" resname="label.link.departments">
         <source>label.link.departments</source>
         <target>Specialized clinical units within a medical field, e.g. Cardiology or General Surgery.</target>
@@ -268,6 +284,14 @@
       <trans-unit id="EvJ25zq" resname="label.link.hospitals">
         <source>label.link.hospitals</source>
         <target>Facilities delivering medical care and patient services.</target>
+      </trans-unit>
+      <trans-unit id="nEIq_sW" resname="label.link.infections">
+        <source>label.link.infections</source>
+        <target>Potential infectious diseases that may require isolation at the destination hospital.</target>
+      </trans-unit>
+      <trans-unit id="FMtrgMt" resname="label.link.occasions">
+        <source>label.link.occasions</source>
+        <target>Origins or contexts of an emergency case, such as public space, doctor’s office, or home environment.</target>
       </trans-unit>
       <trans-unit id=".Ub3pp_" resname="label.link.specialities">
         <source>label.link.specialities</source>
@@ -296,6 +320,18 @@
       <trans-unit id="C62419s" resname="label.next">
         <source>label.next</source>
         <target>Next</target>
+      </trans-unit>
+      <trans-unit id="jtXVNCd" resname="label.no_infection">
+        <source>label.no_infection</source>
+        <target>No infection</target>
+      </trans-unit>
+      <trans-unit id="55Ev2LR" resname="label.no_occasion">
+        <source>label.no_occasion</source>
+        <target>No occasion</target>
+      </trans-unit>
+      <trans-unit id="u3qOfXy" resname="label.occasion">
+        <source>label.occasion</source>
+        <target>Occasion</target>
       </trans-unit>
       <trans-unit id="Pak93P_" resname="label.pagination_numbers">
         <source>label.pagination_numbers</source>
@@ -401,6 +437,10 @@
         <source>link.allocations</source>
         <target>Allocations</target>
       </trans-unit>
+      <trans-unit id="DPbhibY" resname="link.assignments">
+        <source>link.assignments</source>
+        <target>Assignments</target>
+      </trans-unit>
       <trans-unit id="kU2zrlb" resname="link.data">
         <source>link.data</source>
         <target>Data</target>
@@ -425,6 +465,14 @@
         <source>link.import</source>
         <target>Import</target>
       </trans-unit>
+      <trans-unit id="hmthOUc" resname="link.infections">
+        <source>link.infections</source>
+        <target>Infections</target>
+      </trans-unit>
+      <trans-unit id="C4XIIu3" resname="link.occasions">
+        <source>link.occasions</source>
+        <target>Occasions</target>
+      </trans-unit>
       <trans-unit id="y8kuDU3" resname="link.specialities">
         <source>link.specialities</source>
         <target>Specialities</target>
@@ -436,6 +484,10 @@
       <trans-unit id="fykBocL" resname="title.allocation.show">
         <source>title.allocation.show</source>
         <target>Show Allocation Detail</target>
+      </trans-unit>
+      <trans-unit id="2yVgyK_" resname="title.assignment.list">
+        <source>title.assignment.list</source>
+        <target>Listing Assignments</target>
       </trans-unit>
       <trans-unit id="6k49n8G" resname="title.data">
         <source>title.data</source>
@@ -473,9 +525,17 @@
         <source>title.import.show</source>
         <target>Showing Import detail</target>
       </trans-unit>
+      <trans-unit id="wCSNNqO" resname="title.infection.list">
+        <source>title.infection.list</source>
+        <target>Listing Infections</target>
+      </trans-unit>
       <trans-unit id="Q.Y20KD" resname="title.login">
         <source>title.login</source>
         <target>Login</target>
+      </trans-unit>
+      <trans-unit id="x2zBU9m" resname="title.occasion.list">
+        <source>title.occasion.list</source>
+        <target>Listing Occasions</target>
       </trans-unit>
       <trans-unit id="uhopb3E" resname="title.speciality.list">
         <source>title.speciality.list</source>
