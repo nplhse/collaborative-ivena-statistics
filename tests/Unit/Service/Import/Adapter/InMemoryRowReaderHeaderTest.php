@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Tests\Unit\Service\Import\Adapter;
 
 use App\Tests\Doubles\Service\Import\Adapter\InMemoryRowReader;
@@ -8,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 final class InMemoryRowReaderHeaderTest extends TestCase
 {
     /**
-     * @return iterable<string, array{0: ?array, 1: ?array}>
+     * @return iterable<string, array{0: list<string>|null, 1: list<string>|null}>
      */
     public static function rawHeaderProvider(): iterable
     {
@@ -23,7 +24,7 @@ final class InMemoryRowReaderHeaderTest extends TestCase
      * @param list<string>|null $expected
      */
     #[DataProvider('rawHeaderProvider')]
-    public function test_raw_header_returns_original_values(?array $input, ?array $expected): void
+    public function testRawHeaderReturnsOriginalValues(?array $input, ?array $expected): void
     {
         $reader = new InMemoryRowReader($input, []);
         $raw = $reader->rawHeader();
@@ -32,7 +33,7 @@ final class InMemoryRowReaderHeaderTest extends TestCase
         self::assertSame($expected, $raw);
     }
 
-    public function test_rows_yield_all_rows_in_order(): void
+    public function testRowsYieldAllRowsInOrder(): void
     {
         /** @var list<list<string>> $numeric */
         $numeric = [
