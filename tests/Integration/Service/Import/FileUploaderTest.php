@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Service\Import;
+namespace App\Tests\Integration\Service\Import;
 
 use App\Service\Import\FileUploader;
 use PHPUnit\Framework\TestCase;

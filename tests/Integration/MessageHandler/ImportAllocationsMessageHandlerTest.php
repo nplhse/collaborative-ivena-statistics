@@ -16,8 +16,8 @@ use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use App\MessageHandler\ImportAllocationsMessageHandler;
 use App\Repository\ImportRepository;
-use App\Service\Import\Adapter\InMemoryRejectWriter;
-use App\Service\Import\Adapter\InMemoryRowReader;
+use App\Tests\Doubles\Service\Import\Adapter\InMemoryRejectWriter;
+use App\Tests\Doubles\Service\Import\Adapter\InMemoryRowReader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

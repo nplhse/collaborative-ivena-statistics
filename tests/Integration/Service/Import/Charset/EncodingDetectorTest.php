@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Service\Import\Charset;
+namespace App\Tests\Integration\Service\Import\Charset;
 
 use App\Service\Import\Charset\EncodingDetector;
 use PHPUnit\Framework\Attributes\DataProvider;

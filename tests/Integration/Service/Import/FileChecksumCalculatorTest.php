@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Service\Import;
+namespace App\Tests\Integration\Service\Import;
 
 use App\Service\Import\FileChecksumCalculator;
 use PHPUnit\Framework\TestCase;

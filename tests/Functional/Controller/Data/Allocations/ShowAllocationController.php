@@ -7,8 +7,10 @@ use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
 use App\Factory\AddressFactory;
 use App\Factory\AllocationFactory;
+use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
+use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -33,6 +35,9 @@ final class ShowAllocationController extends WebTestCase
             'city' => 'Teststadt',
             'country' => 'DE',
         ])->create();
+
+        $department = DepartmentFactory::createOne(['name' => 'Test Department']);
+        $speciality = SpecialityFactory::createOne(['name' => 'Test Speciality']);
 
         $hospital = HospitalFactory::createOne([
             'name' => 'St. Test Hospital',
@@ -69,6 +74,8 @@ final class ShowAllocationController extends WebTestCase
         self::assertSelectorTextContains('#hospital-beds', '321');
         self::assertSelectorTextContains('#hospital-location', HospitalLocation::cases()[0]->value);
         self::assertSelectorTextContains('#hospital-tier', HospitalTier::cases()[0]->value);
+        self::assertSelectorTextContains('#department-line', 'Test Department');
+        self::assertSelectorTextContains('#department-line', 'Test Speciality');
     }
 
     public function testShow404ForUnknownHospital(): void

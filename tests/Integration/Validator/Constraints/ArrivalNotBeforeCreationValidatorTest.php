@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Validator\Constraints;
+namespace App\Tests\Integration\Validator\Constraints;
 
 use App\Service\Import\DTO\AllocationRowDTO;
 use App\Validator\Constraints\ArrivalNotBeforeCreation;
