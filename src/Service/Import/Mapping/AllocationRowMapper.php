@@ -63,6 +63,17 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
         $dto->department = self::getStringOrNull($row, 'fachbereich');
         $dto->departmentWasClosed = self::normalizeBoolean(self::getStringOrNull($row, 'fachbereich_war_abgemeldet') ?? 'false');
 
+        // Other relations
+        $dto->assignment = self::getStringOrNull($row, 'grund');
+        $dto->occasion = self::getStringOrNull($row, 'anlass');
+
+        // Infections
+        $infection = self::getStringOrNull($row, 'ansteckungsfaehig');
+        $dto->infection = match ($infection) {
+            'k.A.', 'Keine' => null,
+            default => $infection,
+        };
+
         return $dto;
     }
 }

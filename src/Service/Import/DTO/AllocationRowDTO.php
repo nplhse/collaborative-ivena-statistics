@@ -81,4 +81,11 @@ final class AllocationRowDTO
     #[Assert\NotNull]
     #[Assert\Type('bool')]
     public ?bool $departmentWasClosed = null;
+
+    #[Assert\NotBlank]
+    public ?string $assignment = null;
+
+    public ?string $occasion = null;
+
+    public ?string $infection = null;
 }

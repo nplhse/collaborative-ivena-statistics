@@ -6,6 +6,7 @@ use App\DataTransferObjects\AllocationQueryParametersDTO;
 use App\Entity\Allocation;
 use App\Entity\DispatchArea;
 use App\Entity\Hospital;
+use App\Entity\Infection;
 use App\Entity\State;
 use App\Pagination\Paginator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,7 @@ final class ListAllocationsQuery
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('a.id, a.createdAt, a.arrivalAt, s.id as state_id, s.name as state, da.id as dispatchArea_id, da.name as dispatchArea,
-                h.id as hospital_id, h.name as hospital, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock, a.isPregnant, a.isWithPhysician, a.urgency')
+                h.id as hospital_id, h.name as hospital, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock, a.isPregnant, a.isWithPhysician, a.urgency, i.name as infection')
             ->from(Allocation::class, 'a')
             ->leftJoin(
                 State::class,
@@ -40,6 +41,12 @@ final class ListAllocationsQuery
                 'h',
                 \Doctrine\ORM\Query\Expr\Join::WITH,
                 'a.hospital = h.id'
+            )
+            ->leftJoin(
+                Infection::class,
+                'i',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'a.infection = i.id'
             );
 
         if (null !== $queryParametersDTO->importId) {

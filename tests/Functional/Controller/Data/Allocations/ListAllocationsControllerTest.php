@@ -3,10 +3,13 @@
 namespace App\Tests\Functional\Controller\Data\Allocations;
 
 use App\Factory\AllocationFactory;
+use App\Factory\AssignmentFactory;
 use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\InfectionFactory;
+use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
@@ -30,6 +33,9 @@ class ListAllocationsControllerTest extends WebTestCase
         ImportFactory::createOne(['name' => 'Test Import']);
         SpecialityFactory::createOne(['name' => 'Innere Medizin']);
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        InfectionFactory::createOne(['name' => 'Test Infection']);
         AllocationFactory::createMany(25);
 
         // Act
@@ -69,6 +75,9 @@ class ListAllocationsControllerTest extends WebTestCase
         ImportFactory::createOne(['name' => 'Test Import']);
         SpecialityFactory::createOne(['name' => 'Innere Medizin']);
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        InfectionFactory::createOne(['name' => 'Test Infection']);
         AllocationFactory::createMany(30);
 
         // Act
