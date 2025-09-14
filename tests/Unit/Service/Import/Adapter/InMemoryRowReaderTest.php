@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service\Import\Adapter;
 
-use App\Service\Import\Adapter\InMemoryRowReader;
+use App\Tests\Doubles\Service\Import\Adapter\InMemoryRowReader;
 use PHPUnit\Framework\TestCase;
 
 final class InMemoryRowReaderTest extends TestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Import\Adapter;
+namespace App\Tests\Doubles\Service\Import\Adapter;
 
 use App\Service\Import\Contracts\RowReaderInterface;
 
