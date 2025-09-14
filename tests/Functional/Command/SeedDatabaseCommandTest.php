@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Command;
+namespace App\Tests\Functional\Command;
 
 use App\Command\SeedDatabaseCommand;
 use App\Entity\User;
@@ -58,7 +58,6 @@ final class SeedDatabaseCommandTest extends TestCase
     public function testDryRunPrintsValuesAndDoesNotWrite(): void
     {
         $em = $this->createMock(EntityManagerInterface::class);
-        // Keine Persist/Flush erwartet
         $em->expects($this->never())->method('persist');
         $em->expects($this->never())->method('flush');
 
