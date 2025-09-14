@@ -5,9 +5,12 @@ namespace App\Tests\Integration\Service\Import\Mapping;
 use App\Entity\Import;
 use App\Enum\AllocationGender;
 use App\Enum\AllocationTransportType;
+use App\Factory\AssignmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\InfectionFactory;
+use App\Factory\OccasionFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
 use App\Service\Import\DTO\AllocationRowDTO;
@@ -39,6 +42,10 @@ final class AllocationImportFactoryTest extends KernelTestCase
         $hospital = HospitalFactory::createOne(['name' => 'Test Hospital', 'state' => $state, 'dispatchArea' => $area]);
         $import = ImportFactory::createOne(['name' => 'Test Import', 'hospital' => $hospital]);
 
+        AssignmentFactory::createOne(['name' => 'Patient']);
+        OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+        InfectionFactory::createOne(['name' => '3MRGN']);
+
         $this->import = $em->getRepository(Import::class)->find($import->getId());
 
         $this->factory = self::getContainer()->get(AllocationImportFactory::class);
@@ -65,6 +72,9 @@ final class AllocationImportFactoryTest extends KernelTestCase
         $dto->isWithPhysician = true;
         $dto->transportType = 'G';
         $dto->urgency = 1;
+        $dto->assignment = 'Patient';
+        $dto->occasion = 'Sonstiger Einsatz';
+        $dto->infection = '3MRGN';
 
         foreach ($override as $k => $v) {
             $dto->$k = $v;
