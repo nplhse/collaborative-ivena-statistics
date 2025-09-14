@@ -4,10 +4,13 @@ namespace App\DataFixtures;
 
 use App\Enum\ImportStatus;
 use App\Factory\AllocationFactory;
+use App\Factory\AssignmentFactory;
 use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\InfectionFactory;
+use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
@@ -44,6 +47,10 @@ final class AppFixtures extends Fixture
 
         DepartmentFactory::createMany(5);
         SpecialityFactory::createMany(10);
+
+        AssignmentFactory::createMany(5);
+        InfectionFactory::createMany(10);
+        OccasionFactory::createMany(5);
 
         AllocationFactory::createMany(100);
 

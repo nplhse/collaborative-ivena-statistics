@@ -82,6 +82,17 @@ class Allocation
     #[ORM\Column]
     private ?bool $departmentWasClosed = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Occasion $occasion = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Assignment $assignment = null;
+
+    #[ORM\ManyToOne]
+    private ?Infection $infection = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -331,6 +342,42 @@ class Allocation
     public function setDepartmentWasClosed(bool $departmentWasClosed): static
     {
         $this->departmentWasClosed = $departmentWasClosed;
+
+        return $this;
+    }
+
+    public function getOccasion(): ?Occasion
+    {
+        return $this->occasion;
+    }
+
+    public function setOccasion(?Occasion $occasion): static
+    {
+        $this->occasion = $occasion;
+
+        return $this;
+    }
+
+    public function getAssignment(): ?Assignment
+    {
+        return $this->assignment;
+    }
+
+    public function setAssignment(?Assignment $assignment): static
+    {
+        $this->assignment = $assignment;
+
+        return $this;
+    }
+
+    public function getInfection(): ?Infection
+    {
+        return $this->infection;
+    }
+
+    public function setInfection(?Infection $infection): static
+    {
+        $this->infection = $infection;
 
         return $this;
     }

@@ -118,6 +118,9 @@
                         </td>
                         <td>
                             <span class="text-danger fw-bold">
+                                {% if allocation.infection is not null %}
+                                    <span class="badge bg-orange text-orange-fg">{{ allocation.infection }}</span>
+                                {% endif %}
                                 {% if allocation.requiresResus %}
                                     {{ 'S+'|trans }}
                                 {% endif %}

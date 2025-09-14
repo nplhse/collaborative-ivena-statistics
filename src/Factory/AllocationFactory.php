@@ -41,14 +41,17 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'isPregnant' => self::faker()->boolean(),
             'isShock' => self::faker()->boolean(),
             'isVentilated' => self::faker()->boolean(),
-            'isWithPhysician' => self::faker()->boolean(),
-            'requiresCathlab' => self::faker()->boolean(),
-            'requiresResus' => self::faker()->boolean(),
+            'isWithPhysician' => self::faker()->boolean(13),
+            'requiresCathlab' => self::faker()->boolean(1),
+            'requiresResus' => self::faker()->boolean(5),
             'transportType' => self::faker()->randomElement(AllocationTransportType::cases()),
             'urgency' => self::faker()->randomElement(AllocationUrgency::cases()),
             'speciality' => SpecialityFactory::random(),
             'department' => DepartmentFactory::random(),
             'departmentWasClosed' => self::faker()->boolean(),
+            'assignment' => AssignmentFactory::random(),
+            'infection' => self::faker()->boolean(10) ? InfectionFactory::random() : null,
+            'occasion' => self::faker()->boolean(95) ? OccasionFactory::random() : null,
         ];
     }
 }

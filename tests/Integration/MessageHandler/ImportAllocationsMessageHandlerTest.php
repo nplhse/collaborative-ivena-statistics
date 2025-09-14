@@ -8,9 +8,12 @@ namespace App\Tests\Integration\MessageHandler;
 use App\Entity\Import;
 use App\Enum\ImportStatus;
 use App\Enum\ImportType;
+use App\Factory\AssignmentFactory;
 use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
+use App\Factory\InfectionFactory;
+use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
@@ -52,18 +55,30 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         SpecialityFactory::createOne(['name' => 'Innere Medizin']);
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
 
+        AssignmentFactory::createOne(['name' => 'Patient']);
+        AssignmentFactory::createOne(['name' => 'RD']);
+        AssignmentFactory::createOne(['name' => 'ZLST']);
+
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        OccasionFactory::createOne(['name' => 'Häuslicher Einsatz']);
+        OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
+        OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+
+        InfectionFactory::createOne(['name' => 'Noro']);
+        InfectionFactory::createOne(['name' => 'V.a. COVID']);
+
         $header = [
             'Versorgungsbereich', 'KHS-Versorgungsgebiet', 'Krankenhaus', 'Krankenhaus-Kurzname',
             'Datum', 'Uhrzeit', 'Datum (Eintreffzeit)', 'Uhrzeit (Eintreffzeit)',
             'Geschlecht', 'Alter', 'Schockraum', 'Herzkatheter', 'Reanimation', 'Beatmet',
             'Schwanger', 'Arztbegleitet', 'Transportmittel', 'Datum (Erstellungsdatum)', 'Uhrzeit (Erstellungsdatum)',
-            'PZC', 'Fachgebiet', 'Fachbereich', 'Fachbereich war abgemeldet?',
+            'PZC', 'Fachgebiet', 'Fachbereich', 'Fachbereich war abgemeldet?', 'Anlass', 'Grund', 'Ansteckungsfähig',
         ];
 
         $rows = [
-            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', '123741', 'Innere Medizin', 'Kardiologie', 'Ja'],
-            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '02.03.2025', '15:09', '02.03.2025', '16:43', 'D', '34', 'S-', '', '', 'B-', '', 'N-', 'Boden', '02.03.2025', '15:09', '123341', 'Innere Medizin', 'Kardiologie', 'Ja'],
-            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '16.02.2025', '12:00', '16.02.2025', '13:01', 'W', '0', '', '', '', 'B-', '', 'N-', 'Boden', '16.02.2025', '12:00', '123001', 'Innere Medizin', 'Kardiologie', 'Ja'],
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', '123741', 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro'],
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '02.03.2025', '15:09', '02.03.2025', '16:43', 'D', '34', 'S-', '', '', 'B-', '', 'N-', 'Boden', '02.03.2025', '15:09', '123341', 'Innere Medizin', 'Kardiologie', 'Ja', 'Öffentlicher Raum', 'RD', 'Keine'],
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '16.02.2025', '12:00', '16.02.2025', '13:01', 'W', '0', '', '', '', 'B-', '', 'N-', 'Boden', '16.02.2025', '12:00', '123001', 'Innere Medizin', 'Kardiologie', 'Ja', 'Häuslicher Einsatz', 'Patient', 'V.a. COVID'],
         ];
 
         $userRef = $this->em->getReference(\App\Entity\User::class, $owner->getId());

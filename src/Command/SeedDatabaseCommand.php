@@ -4,7 +4,10 @@
 
 namespace App\Command;
 
+use App\Entity\Assignment;
 use App\Entity\Department;
+use App\Entity\Infection;
+use App\Entity\Occasion;
 use App\Entity\Speciality;
 use App\Entity\User;
 use App\Service\Seed\SeedProviderInterface;
@@ -84,6 +87,9 @@ final class SeedDatabaseCommand extends Command
                 $entity = match ($provider->getType()) {
                     'speciality' => new Speciality()->setName($value),
                     'department' => new Department()->setName($value),
+                    'assignment' => new Assignment()->setName($value),
+                    'occasion' => new Occasion()->setName($value),
+                    'infection' => new Infection()->setName($value),
                     default => throw new \RuntimeException('Unknown seed type: '.$provider->getType()),
                 };
 

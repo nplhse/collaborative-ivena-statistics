@@ -50,7 +50,6 @@ final class SplCsvRowReaderAllEncodingsTest extends TestCase
         self::assertTrue($handler->hasInfoRecords(), "Expected info log for $file");
 
         if ($expectWarning) {
-            dump($handler);
             self::assertTrue($handler->hasWarningRecords(), "Expected warning log for $file");
         } else {
             self::assertFalse($handler->hasWarningRecords(), "Did not expect warning log for $file");

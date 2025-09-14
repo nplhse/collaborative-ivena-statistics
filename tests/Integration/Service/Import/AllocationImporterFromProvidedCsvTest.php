@@ -7,10 +7,13 @@ namespace App\Tests\Integration\Service\Import;
 use App\Entity\Import;
 use App\Entity\User;
 use App\Enum\ImportStatus;
+use App\Factory\AssignmentFactory;
 use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\InfectionFactory;
+use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
@@ -85,8 +88,21 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         $state = StateFactory::createOne(['name' => 'Test State']);
         $area = DispatchAreaFactory::createOne(['name' => 'Test Area', 'state' => $state]);
         $hospital = HospitalFactory::createOne(['name' => 'Test Hospital', 'state' => $state, 'dispatchArea' => $area]);
+
         SpecialityFactory::createOne(['name' => 'Innere Medizin']);
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
+
+        AssignmentFactory::createOne(['name' => 'Patient']);
+        AssignmentFactory::createOne(['name' => 'RD']);
+        AssignmentFactory::createOne(['name' => 'ZLST']);
+
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        OccasionFactory::createOne(['name' => 'Häuslicher Einsatz']);
+        OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
+        OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+
+        InfectionFactory::createOne(['name' => 'Noro']);
+        InfectionFactory::createOne(['name' => 'V.a. COVID']);
 
         $importFA = ImportFactory::createOne([
             'name' => 'Test Import',
