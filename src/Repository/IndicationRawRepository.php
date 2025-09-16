@@ -9,35 +9,21 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<IndicationRaw>
  */
-final class IndicationRawRepository extends ServiceEntityRepository
+class IndicationRawRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, IndicationRaw::class);
     }
 
-    //    /**
-    //     * @return IndicationRaw[] Returns an array of IndicationRaw objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('i.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?IndicationRaw
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * @return array<int,array{hash:string,id:int,normalized_id:int}>
+     */
+    public function preloadAllLight(): array
+    {
+        return $this->createQueryBuilder('r')
+            ->select('r.hash AS hash, r.id AS id, IDENTITY(r.normalized) AS normalized_id')
+            ->getQuery()
+            ->getArrayResult();
+    }
 }

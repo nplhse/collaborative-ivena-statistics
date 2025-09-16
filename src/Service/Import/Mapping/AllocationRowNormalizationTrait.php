@@ -161,4 +161,31 @@ trait AllocationRowNormalizationTrait
 
         return \in_array($last, [1, 2, 3], true) ? $last : null;
     }
+
+    protected static function normalizeCodeFromPZC(?string $value): ?int
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $clean = trim($value);
+
+        // PZC must be exactly six digits (allow leading zeros)
+        if (6 !== strlen($clean) || !ctype_digit($clean)) {
+            return null;
+        }
+
+        return (int) substr($clean, 0, 3);
+    }
+
+    protected static function normalizeIndication(?string $value): ?int
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $clean = trim($value);
+
+        return mb_substr($clean, 4);
+    }
 }

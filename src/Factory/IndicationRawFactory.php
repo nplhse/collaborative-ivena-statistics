@@ -34,6 +34,7 @@ final class IndicationRawFactory extends PersistentProxyObjectFactory
             'createdBy' => UserFactory::randomOrCreate(),
             'code' => $faker->indicationCode(),
             'name' => $faker->indicationName(),
+            'hash' => $faker->text(64),
         ];
     }
 

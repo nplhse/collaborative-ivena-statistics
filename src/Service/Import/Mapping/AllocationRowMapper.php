@@ -74,6 +74,10 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
             default => $infection,
         };
 
+        // Indications
+        $dto->indicationCode = self::normalizeCodeFromPZC(self::getStringOrNull($row, 'pzc'));
+        $dto->indication = self::normalizeIndication(self::getStringOrNull($row, 'pzc_und_text'));
+
         return $dto;
     }
 }

@@ -88,4 +88,12 @@ final class AllocationRowDTO
     public ?string $occasion = null;
 
     public ?string $infection = null;
+
+    #[Assert\NotNull]
+    #[Assert\Type('integer')]
+    #[Assert\Range(min: 100, max: 999)]
+    public ?int $indicationCode = null;
+
+    #[Assert\NotBlank]
+    public ?string $indication = null;
 }

@@ -38,6 +38,9 @@ class IndicationRaw
     #[ORM\JoinColumn(nullable: true)]
     protected ?User $updatedBy = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $hash = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
@@ -105,5 +108,17 @@ class IndicationRaw
     public function __toString(): string
     {
         return $this->name ?? 'No name';
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash): static
+    {
+        $this->hash = $hash;
+
+        return $this;
     }
 }
