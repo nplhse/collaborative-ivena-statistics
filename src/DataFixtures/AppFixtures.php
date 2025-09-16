@@ -9,6 +9,8 @@ use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\IndicationNormalizedFactory;
+use App\Factory\IndicationRawFactory;
 use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
@@ -51,6 +53,9 @@ final class AppFixtures extends Fixture
         AssignmentFactory::createMany(5);
         InfectionFactory::createMany(10);
         OccasionFactory::createMany(5);
+
+        IndicationRawFactory::createMany(25);
+        IndicationNormalizedFactory::createMany(20);
 
         AllocationFactory::createMany(100);
 

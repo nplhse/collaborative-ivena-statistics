@@ -93,6 +93,13 @@ class Allocation
     #[ORM\ManyToOne]
     private ?Infection $infection = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?IndicationRaw $indicationRaw = null;
+
+    #[ORM\ManyToOne]
+    private ?IndicationNormalized $indicationNormalized = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -378,6 +385,30 @@ class Allocation
     public function setInfection(?Infection $infection): static
     {
         $this->infection = $infection;
+
+        return $this;
+    }
+
+    public function getIndicationRaw(): ?IndicationRaw
+    {
+        return $this->indicationRaw;
+    }
+
+    public function setIndicationRaw(?IndicationRaw $indicationRaw): static
+    {
+        $this->indicationRaw = $indicationRaw;
+
+        return $this;
+    }
+
+    public function getIndicationNormalized(): ?IndicationNormalized
+    {
+        return $this->indicationNormalized;
+    }
+
+    public function setIndicationNormalized(?IndicationNormalized $indicationNormalized): static
+    {
+        $this->indicationNormalized = $indicationNormalized;
 
         return $this;
     }

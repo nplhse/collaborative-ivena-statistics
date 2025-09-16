@@ -52,6 +52,8 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'assignment' => AssignmentFactory::random(),
             'infection' => self::faker()->boolean(10) ? InfectionFactory::random() : null,
             'occasion' => self::faker()->boolean(95) ? OccasionFactory::random() : null,
+            'indicationRaw' => IndicationRawFactory::random(),
+            'indicationNormalized' => self::faker()->boolean(90) ? IndicationNormalizedFactory::random() : null,
         ];
     }
 }
