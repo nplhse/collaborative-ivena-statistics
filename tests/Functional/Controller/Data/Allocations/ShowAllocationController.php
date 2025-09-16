@@ -10,6 +10,8 @@ use App\Factory\AllocationFactory;
 use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
+use App\Factory\IndicationNormalizedFactory;
+use App\Factory\IndicationRawFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
 use App\Factory\UserFactory;
@@ -38,6 +40,9 @@ final class ShowAllocationController extends WebTestCase
 
         $department = DepartmentFactory::createOne(['name' => 'Test Department']);
         $speciality = SpecialityFactory::createOne(['name' => 'Test Speciality']);
+
+        $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test Indication']);
+        $indicationNormal = IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
 
         $hospital = HospitalFactory::createOne([
             'name' => 'St. Test Hospital',

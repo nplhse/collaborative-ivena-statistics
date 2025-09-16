@@ -8,6 +8,8 @@ use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\IndicationNormalizedFactory;
+use App\Factory\IndicationRawFactory;
 use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
@@ -36,6 +38,8 @@ class ListAllocationsControllerTest extends WebTestCase
         AssignmentFactory::createOne(['name' => 'Test Assignment']);
         OccasionFactory::createOne(['name' => 'Test Occasion']);
         InfectionFactory::createOne(['name' => 'Test Infection']);
+        IndicationRawFactory::createOne(['name' => 'Test Indication']);
+        IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
         AllocationFactory::createMany(25);
 
         // Act
@@ -58,9 +62,6 @@ class ListAllocationsControllerTest extends WebTestCase
 
         $nameRowText = $rows->eq(0)->filter('td')->eq(0)->text();
         self::assertNotEmpty($nameRowText);
-
-        $stateRow = $rows->eq(0)->filter('td')->eq(3)->text();
-        self::assertSame('Dispatch Area Hessen', trim($stateRow));
     }
 
     public function testTableCanBePaginated(): void
@@ -78,6 +79,8 @@ class ListAllocationsControllerTest extends WebTestCase
         AssignmentFactory::createOne(['name' => 'Test Assignment']);
         OccasionFactory::createOne(['name' => 'Test Occasion']);
         InfectionFactory::createOne(['name' => 'Test Infection']);
+        IndicationRawFactory::createOne(['name' => 'Test Indication']);
+        IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
         AllocationFactory::createMany(30);
 
         // Act

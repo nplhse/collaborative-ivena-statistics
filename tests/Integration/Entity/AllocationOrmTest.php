@@ -10,6 +10,8 @@ use App\Entity\Department;
 use App\Entity\DispatchArea;
 use App\Entity\Hospital;
 use App\Entity\Import;
+use App\Entity\IndicationNormalized;
+use App\Entity\IndicationRaw;
 use App\Entity\Infection;
 use App\Entity\Occasion;
 use App\Entity\Speciality;
@@ -22,6 +24,8 @@ use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\IndicationNormalizedFactory;
+use App\Factory\IndicationRawFactory;
 use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
@@ -60,6 +64,8 @@ final class AllocationOrmTest extends KernelTestCase
         $assignment = AssignmentFactory::createOne(['name' => 'Test Assignment']);
         $occasion = OccasionFactory::createOne(['name' => 'Test Occasion']);
         $infection = InfectionFactory::createOne(['name' => 'Test Infection']);
+        $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test IndicationRaw']);
+        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'Test IndicationNormalized']);
 
         $state = $this->em->getRepository(State::class)->find($state->getId());
         $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
@@ -70,6 +76,8 @@ final class AllocationOrmTest extends KernelTestCase
         $assignment = $this->em->getRepository(Assignment::class)->find($assignment->getId());
         $occasion = $this->em->getRepository(Occasion::class)->find($occasion->getId());
         $infection = $this->em->getRepository(Infection::class)->find($infection->getId());
+        $indicationRaw = $this->em->getRepository(IndicationRaw::class)->find($indicationRaw->getId());
+        $indicationNormalized = $this->em->getRepository(IndicationNormalized::class)->find($indicationNormalized->getId());
 
         $createdAt = new \DateTimeImmutable('now');
         $arrivalAt = new \DateTimeImmutable('+10 minutes');
@@ -98,6 +106,8 @@ final class AllocationOrmTest extends KernelTestCase
             ->setAssignment($assignment)
             ->setOccasion($occasion)
             ->setInfection($infection)
+            ->setIndicationRaw($indicationRaw)
+            ->setIndicationNormalized($indicationNormalized)
         ;
 
         $this->em->persist($allocation);
@@ -142,6 +152,8 @@ final class AllocationOrmTest extends KernelTestCase
         self::assertSame('Test Assignment', $object->getAssignment()->getName());
         self::assertSame('Test Occasion', $object->getOccasion()->getName());
         self::assertSame('Test Infection', $object->getInfection()->getName());
+        self::assertSame('Test IndicationRaw', $object->getIndicationRaw()->getName());
+        self::assertSame('Test IndicationNormalized', $object->getIndicationNormalized()->getName());
     }
 
     public function testTransportTypeAndInfectionCanBeNull(): void
@@ -157,6 +169,17 @@ final class AllocationOrmTest extends KernelTestCase
 
         $assignment = AssignmentFactory::createOne(['name' => 'Test Assignment']);
         $occasion = OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test IndicationRaw']);
+
+        $state = $this->em->getRepository(State::class)->find($state->getId());
+        $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
+        $hospital = $this->em->getRepository(Hospital::class)->find($hospital->getId());
+        $import = $this->em->getRepository(Import::class)->find($import->getId());
+        $speciality = $this->em->getRepository(Speciality::class)->find($speciality->getId());
+        $department = $this->em->getRepository(Department::class)->find($department->getId());
+        $assignment = $this->em->getRepository(Assignment::class)->find($assignment->getId());
+        $occasion = $this->em->getRepository(Occasion::class)->find($occasion->getId());
+        $indicationRaw = $this->em->getRepository(IndicationRaw::class)->find($indicationRaw->getId());
 
         $state = $this->em->getRepository(State::class)->find($state->getId());
         $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
@@ -190,6 +213,7 @@ final class AllocationOrmTest extends KernelTestCase
             ->setDepartmentWasClosed(false)
             ->setAssignment($assignment)
             ->setOccasion($occasion)
+            ->setIndicationRaw($indicationRaw)
         ;
 
         $this->em->persist($allocation);
@@ -203,5 +227,6 @@ final class AllocationOrmTest extends KernelTestCase
 
         self::assertNull($object->getTransportType());
         self::assertNull($object->getInfection());
+        self::assertNull($object->getIndicationNormalized());
     }
 }
