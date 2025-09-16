@@ -6,6 +6,8 @@ use App\DataTransferObjects\AllocationQueryParametersDTO;
 use App\Entity\Allocation;
 use App\Entity\DispatchArea;
 use App\Entity\Hospital;
+use App\Entity\IndicationNormalized;
+use App\Entity\IndicationRaw;
 use App\Entity\Infection;
 use App\Entity\State;
 use App\Pagination\Paginator;
@@ -22,7 +24,9 @@ final class ListAllocationsQuery
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('a.id, a.createdAt, a.arrivalAt, s.id as state_id, s.name as state, da.id as dispatchArea_id, da.name as dispatchArea,
-                h.id as hospital_id, h.name as hospital, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock, a.isPregnant, a.isWithPhysician, a.urgency, i.name as infection')
+                h.id as hospital_id, h.name as hospital, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock,
+                a.isPregnant, a.isWithPhysician, a.urgency, i.name as infection, iraw.name as indicationRawName, iraw.code indicationRawCode,
+                inor.name as indicationNormalizedName, inor.code as indicationNormalizedCode')
             ->from(Allocation::class, 'a')
             ->leftJoin(
                 State::class,
@@ -47,6 +51,18 @@ final class ListAllocationsQuery
                 'i',
                 \Doctrine\ORM\Query\Expr\Join::WITH,
                 'a.infection = i.id'
+            )
+            ->leftJoin(
+                IndicationRaw::class,
+                'iraw',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'a.indicationRaw = iraw.id'
+            )
+            ->leftJoin(
+                IndicationNormalized::class,
+                'inor',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'a.indicationNormalized = inor.id'
             );
 
         if (null !== $queryParametersDTO->importId) {

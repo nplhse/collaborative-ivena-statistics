@@ -74,13 +74,13 @@
                     <th class="col-3">
                         {{ 'label.hospital'|trans }}
                     </th>
-                    <th class="col-2">
-                        {{ 'label.locations'|trans }}
+                    <th class="col-3">
+                        {{ 'label.indication'|trans }}
                     </th>
                     <th class="col-1">
                         {{ 'label.urgency'|trans }}
                     </th>
-                    <th class="col-2">
+                    <th class="col-1">
                         {{ 'label.properties'|trans }}
                     </th>
                     <th class="col-1">
@@ -105,11 +105,15 @@
                             {{ allocation.age }}
                         </td>
                         <td>
-                            <a href="{{ path('app_data_hospital_show', {id: allocation.hospital_id}) }}" target="_top">{{ allocation.hospital }}</a>
+                            <a href="{{ path('app_data_hospital_show', {id: allocation.hospital_id}) }}" target="_top">{{ allocation.hospital }}</a><br />
+                            {{ allocation.dispatchArea }} - {{ allocation.state }}
                         </td>
                         <td>
-                            {{ allocation.dispatchArea }}<br/>
-                            {{ allocation.state }}
+                            {% if allocation.indicationNormalizedName is not null %}
+                                <span class="badge">{{ allocation.indicationNormalizedCode }}</span> <strong>{{ allocation.indicationNormalizedName }}</strong>
+                            {% else %}
+                                <span class="badge">{{ allocation.indicationRawCode }}</span> {{ allocation.indicationRawName }}
+                            {% endif %}
                         </td>
                         <td>
                             {% import '_macros/badges.html.twig' as badges %}

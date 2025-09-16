@@ -22,6 +22,8 @@ final class ListAllocationsController extends AbstractController
     ): Response {
         $paginator = $this->allocationsQuery->getPaginator($query);
 
+        dump($paginator);
+
         return $this->render('data/allocations/list.html.twig', [
             'paginator' => $paginator,
             'pagination_route' => 'app_data_allocation_list',

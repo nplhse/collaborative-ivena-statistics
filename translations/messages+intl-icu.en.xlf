@@ -253,6 +253,18 @@
         <source>label.import.section.source_file</source>
         <target>Source file</target>
       </trans-unit>
+      <trans-unit id="UcOVbOd" resname="label.indication">
+        <source>label.indication</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="kpEIeqH" resname="label.indication.normalized">
+        <source>label.indication.normalized</source>
+        <target>Normalized Indication</target>
+      </trans-unit>
+      <trans-unit id="K7xiN6v" resname="label.indication.raw">
+        <source>label.indication.raw</source>
+        <target>Raw Indication</target>
+      </trans-unit>
       <trans-unit id="KrdI.1U" resname="label.last_change">
         <source>label.last_change</source>
         <target>Last change</target>
@@ -320,6 +332,10 @@
       <trans-unit id="C62419s" resname="label.next">
         <source>label.next</source>
         <target>Next</target>
+      </trans-unit>
+      <trans-unit id="2PKGSjQ" resname="label.no_indication">
+        <source>label.no_indication</source>
+        <target>No normalized indication</target>
       </trans-unit>
       <trans-unit id="jtXVNCd" resname="label.no_infection">
         <source>label.no_infection</source>

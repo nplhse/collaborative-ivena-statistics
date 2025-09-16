@@ -74,6 +74,25 @@
             </div>
             <div class="col-12 mb-3">
                 <twig:Card
+                    title="{{ 'label.indication'|trans }}"
+                >
+                    <div class="allocation-assignment row">
+                        <p>
+                            {{ 'label.indication.raw'|trans }}: <strong>{{ allocation.indicationRaw.name }}</strong> <span class="badge">{{ allocation.indicationRaw.code }}</span>
+                        </p>
+                        <p>
+                            {{ 'label.indication.normalized'|trans }}:
+                            {% if allocation.indicationNormalized is not null %}
+                                <strong>{{ allocation.indicationNormalized.name }}</strong> <span class="badge">{{ allocation.indicationNormalized.code }}</span>
+                            {% else %}
+                                <strong>{{ 'label.no_indication'|trans }}</strong>
+                            {% endif %}
+                        </p>
+                    </div>
+                </twig:Card>
+            </div>
+            <div class="col-12 mb-3">
+                <twig:Card
                     title="{{ 'label.background'|trans }}"
                 >
                     <div class="allocation-assignment row">
