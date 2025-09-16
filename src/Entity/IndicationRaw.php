@@ -7,6 +7,7 @@ use App\Repository\IndicationRawRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: IndicationRawRepository::class)]
+#[ORM\HasLifecycleCallbacks()]
 class IndicationRaw
 {
     use Blamable;
@@ -69,6 +70,11 @@ class IndicationRaw
         $this->name = $name;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): self

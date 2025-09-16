@@ -7,6 +7,7 @@ use App\Repository\IndicationNormalizedRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: IndicationNormalizedRepository::class)]
+#[ORM\HasLifecycleCallbacks()]
 class IndicationNormalized
 {
     use Blamable;
@@ -84,6 +85,11 @@ class IndicationNormalized
         $this->note = $note;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): self

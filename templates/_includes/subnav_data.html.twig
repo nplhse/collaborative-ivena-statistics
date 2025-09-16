@@ -40,6 +40,13 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_data_indication' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_data_indication_list') }}">
+                            <span class="nav-link-title">
+                                {{ 'link.indications'|trans }}
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ route starts with 'app_data_infection' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_data_infection_list') }}">
                             <span class="nav-link-title">

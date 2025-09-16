@@ -257,6 +257,10 @@
         <source>label.indication</source>
         <target>Indication</target>
       </trans-unit>
+      <trans-unit id="vBKlakB" resname="label.indication.code">
+        <source>label.indication.code</source>
+        <target>Code</target>
+      </trans-unit>
       <trans-unit id="kpEIeqH" resname="label.indication.normalized">
         <source>label.indication.normalized</source>
         <target>Normalized Indication</target>
@@ -296,6 +300,10 @@
       <trans-unit id="EvJ25zq" resname="label.link.hospitals">
         <source>label.link.hospitals</source>
         <target>Facilities delivering medical care and patient services.</target>
+      </trans-unit>
+      <trans-unit id="fPY_MOE" resname="label.link.indications">
+        <source>label.link.indications</source>
+        <target>Preliminary suspected diagnosis summarizing the primary medical problem or injury at the scene.</target>
       </trans-unit>
       <trans-unit id="nEIq_sW" resname="label.link.infections">
         <source>label.link.infections</source>
@@ -481,6 +489,10 @@
         <source>link.import</source>
         <target>Import</target>
       </trans-unit>
+      <trans-unit id="fEFqowr" resname="link.indications">
+        <source>link.indications</source>
+        <target>Indications</target>
+      </trans-unit>
       <trans-unit id="hmthOUc" resname="link.infections">
         <source>link.infections</source>
         <target>Infections</target>
@@ -540,6 +552,10 @@
       <trans-unit id="tBRiow3" resname="title.import.show">
         <source>title.import.show</source>
         <target>Showing Import detail</target>
+      </trans-unit>
+      <trans-unit id="EDuCAXA" resname="title.indication.list">
+        <source>title.indication.list</source>
+        <target>Listing Indications</target>
       </trans-unit>
       <trans-unit id="wCSNNqO" resname="title.infection.list">
         <source>title.infection.list</source>

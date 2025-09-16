@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\DataTransferObjects\IndicationQueryParametersDTO;
 use App\Entity\IndicationNormalized;
+use App\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +18,24 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
         parent::__construct($registry, IndicationNormalized::class);
     }
 
-    //    /**
-    //     * @return IndicationNormalized[] Returns an array of IndicationNormalized objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('i.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getListPaginator(IndicationQueryParametersDTO $queryParametersDTO): Paginator
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->addSelect('(CASE WHEN i.updatedAt IS NOT NULL THEN i.updatedAt ELSE i.createdAt END) AS HIDDEN sortDate')
+        ;
 
-    //    public function findOneBySomeField($value): ?IndicationNormalized
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ('lastChange' === $queryParametersDTO->sortBy) {
+            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
+        } else {
+            $qb->orderBy('i.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+        }
+
+        if (null !== $queryParametersDTO->search) {
+            $qb->andWhere($qb->expr()->like('LOWER(i.name)', ':search'))
+                ->setParameter('search', '%'.mb_strtolower($queryParametersDTO->search).'%')
+            ;
+        }
+
+        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+    }
 }

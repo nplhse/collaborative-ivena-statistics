@@ -122,6 +122,23 @@
             </a>
         </div>
 
+        <!-- Card: Indications -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_data_infection_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:id" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.indications'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.indications'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         <!-- Card: Infections -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ path('app_data_infection_list') }}">
