@@ -31,7 +31,7 @@ final class InfectionFactory extends PersistentProxyObjectFactory
 
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable($faker->dateTime()),
-            'createdBy' => UserFactory::random(),
+            'createdBy' => UserFactory::randomOrCreate(),
             'name' => $faker->infection(),
         ];
     }
