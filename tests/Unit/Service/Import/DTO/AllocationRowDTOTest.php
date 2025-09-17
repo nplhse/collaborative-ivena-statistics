@@ -45,6 +45,8 @@ final class AllocationRowDTOTest extends TestCase
         $dto->assignment = 'Patient';
         $dto->occasion = 'aus Arztpraxis';
         $dto->infection = '4MRGN';
+        $dto->indicationCode = 123;
+        $dto->indication = 'TestIndication';
 
         return $dto;
     }
@@ -68,10 +70,12 @@ final class AllocationRowDTOTest extends TestCase
         $dto->speciality = '';
         $dto->department = '';
         $dto->assignment = '';
+        $dto->indication = '';
+        $dto->indicationCode = null;
 
         $violations = $this->validator->validate($dto);
 
-        self::assertGreaterThanOrEqual(7, count($violations));
+        self::assertGreaterThanOrEqual(9, count($violations));
 
         $props = array_map(static fn ($v) => $v->getPropertyPath(), iterator_to_array($violations));
 
@@ -82,6 +86,8 @@ final class AllocationRowDTOTest extends TestCase
         self::assertContains('speciality', $props);
         self::assertContains('department', $props);
         self::assertContains('assignment', $props);
+        self::assertContains('indication', $props);
+        self::assertContains('indicationCode', $props);
     }
 
     public function testDateTimeFormatIsValidated(): void

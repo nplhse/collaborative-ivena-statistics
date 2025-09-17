@@ -16,23 +16,6 @@ use PHPUnit\Framework\TestCase;
 
 final class AllocationIndicationResolverTest extends TestCase
 {
-    /** kleine Reflection-Helfer zum Setzen der ID in Testobjekten */
-    private static function setId(object $entity, int $id): void
-    {
-        $ref = new \ReflectionObject($entity);
-        do {
-            if ($ref->hasProperty('id')) {
-                $prop = $ref->getProperty('id');
-                $prop->setAccessible(true);
-                $prop->setValue($entity, $id);
-
-                return;
-            }
-            $ref = $ref->getParentClass();
-        } while ($ref);
-        self::fail('Entity hat kein id-Property.');
-    }
-
     public function testHappyPathUsesPreloadedCacheAndSetsBothRelations(): void
     {
         // Arrange
@@ -54,13 +37,12 @@ final class AllocationIndicationResolverTest extends TestCase
         /** @var EntityManagerInterface|MockObject $em */
         $em = $this->createMock(EntityManagerInterface::class);
 
-        // getReference-Stubs: gib echte Objekte mit gesetzter ID zurück
         $rawRef = new IndicationRaw();
         self::setId($rawRef, $rawId);
         $normRef = new IndicationNormalized();
         self::setId($normRef, $normId);
 
-        $em->expects(self::never())->method('persist'); // Happy Path: nichts neu anlegen
+        $em->expects(self::never())->method('persist');
         $em->expects(self::any())
             ->method('getReference')
             ->willReturnCallback(function (string $class, int $id) use ($rawId, $normId, $rawRef, $normRef) {
@@ -70,7 +52,7 @@ final class AllocationIndicationResolverTest extends TestCase
                 if (IndicationNormalized::class === $class && $id === $normId) {
                     return $normRef;
                 }
-                $this->fail("Unerwarteter getReference-Aufruf: {$class}#{$id}");
+                $this->fail("Unexpected call to getReference: {$class}#{$id}");
             });
 
         $cache = new IndicationCache();
@@ -81,12 +63,10 @@ final class AllocationIndicationResolverTest extends TestCase
             cache: $cache,
         );
 
-        // Warmup lädt den Cache aus preloadAllLight()
         $resolver->warm();
 
-        // DTO für apply()
         $dto = new AllocationRowDTO();
-        $dto->indicationCode = $code;
+        $dto->indicationCode = (int) $code;
         $dto->indication = $text;
 
         $allocation = new Allocation();
@@ -95,10 +75,27 @@ final class AllocationIndicationResolverTest extends TestCase
         $resolver->apply($allocation, $dto);
 
         // Assert
-        self::assertSame($rawRef, $allocation->getIndicationRaw(), 'Raw-Indication muss via Cache/Reference gesetzt sein.');
-        self::assertSame($normRef, $allocation->getIndicationNormalized(), 'Normalized-Indication muss gesetzt sein (Happy Path).');
+        self::assertSame($rawRef, $allocation->getIndicationRaw(), 'Normalized indication must be set via cache/reference.');
+        self::assertSame($normRef, $allocation->getIndicationNormalized(), 'Normalized indication has to be set.');
 
-        // Cache sollte „hitbar“ sein und KEINE New-Entity für den Hash enthalten
-        self::assertTrue($cache->has($hash), 'Cache sollte den Hash kennen.');
+        self::assertTrue($cache->has($hash), 'Cache should know hash.');
+    }
+
+    private static function setId(object $entity, int $id): void
+    {
+        $ref = new \ReflectionObject($entity);
+
+        do {
+            if ($ref->hasProperty('id')) {
+                $prop = $ref->getProperty('id');
+                $prop->setAccessible(true);
+                $prop->setValue($entity, $id);
+
+                return;
+            }
+            $ref = $ref->getParentClass();
+        } while ($ref);
+
+        self::fail('Entity has no id property.');
     }
 }

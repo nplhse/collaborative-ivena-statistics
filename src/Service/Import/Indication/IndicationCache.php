@@ -47,14 +47,20 @@ final class IndicationCache
     {
         $id = $this->normIdByHash[$hash] ?? null;
 
-        return $id ? $em->getReference(IndicationNormalized::class, $id) : null;
+        if (null === $id) {
+            return null;
+        }
+
+        return $em->getReference(IndicationNormalized::class, $id);
     }
 
     public function promoteNewlyPersisted(): void
     {
         foreach ($this->newByHash as $hash => $raw) {
-            if (null !== $raw->getId()) {
-                $this->rawIdByHash[$hash] = $raw->getId();
+            $id = $raw->getId();
+
+            if (null !== $id) {
+                $this->rawIdByHash[$hash] = $id;
                 unset($this->newByHash[$hash]);
             }
         }

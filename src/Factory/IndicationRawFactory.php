@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\IndicationRaw;
+use App\Service\Import\Indication\IndicationKey;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -29,12 +30,15 @@ final class IndicationRawFactory extends PersistentProxyObjectFactory
          */
         $faker = self::faker();
 
+        $indicationCode = $faker->indicationCode();
+        $indicationName = $faker->indicationName();
+
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable($faker->dateTime()),
             'createdBy' => UserFactory::randomOrCreate(),
-            'code' => $faker->indicationCode(),
-            'name' => $faker->indicationName(),
-            'hash' => $faker->text(64),
+            'code' => $indicationCode,
+            'name' => $indicationName,
+            'hash' => IndicationKey::hashFrom($indicationCode, $indicationName),
         ];
     }
 

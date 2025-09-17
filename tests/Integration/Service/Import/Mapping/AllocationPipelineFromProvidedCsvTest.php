@@ -40,7 +40,7 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
         $this->rows = $this->loadRows();
 
         self::assertNotEmpty($this->rows, 'Fixture has no data rows.');
-        $this->baselineRow = $this->rows[0]; // erste Datenzeile als Baseline für Provider-Tests
+        $this->baselineRow = $this->rows[0];
     }
 
     /**
@@ -128,6 +128,8 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
         self::assertSame('F', $dto->gender);
         self::assertSame(74, $dto->age);
         self::assertSame('G', $dto->transportType);
+        self::assertSame(123, $dto->indicationCode);
+        self::assertSame('Test Indication', $dto->indication);
     }
 
     public function testRow2GenderDBecomesXAndIsValid(): void

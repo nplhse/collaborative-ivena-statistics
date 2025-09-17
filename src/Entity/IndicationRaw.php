@@ -41,6 +41,9 @@ class IndicationRaw
     #[ORM\Column(length: 255)]
     private ?string $hash = null;
 
+    #[ORM\ManyToOne]
+    private ?IndicationNormalized $normalized = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
@@ -118,6 +121,18 @@ class IndicationRaw
     public function setHash(string $hash): static
     {
         $this->hash = $hash;
+
+        return $this;
+    }
+
+    public function getNormalized(): ?IndicationNormalized
+    {
+        return $this->normalized;
+    }
+
+    public function setNormalized(?IndicationNormalized $normalized): static
+    {
+        $this->normalized = $normalized;
 
         return $this;
     }

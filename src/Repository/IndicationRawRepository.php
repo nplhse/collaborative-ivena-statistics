@@ -7,6 +7,8 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * @psalm-suppress ClassMustBeFinal
+ *
  * @extends ServiceEntityRepository<IndicationRaw>
  */
 class IndicationRawRepository extends ServiceEntityRepository
@@ -22,7 +24,7 @@ class IndicationRawRepository extends ServiceEntityRepository
     public function preloadAllLight(): array
     {
         return $this->createQueryBuilder('r')
-            ->select('r.hash AS hash, r.id AS id, IDENTITY(r.normalized) AS normalized_id')
+            ->select('r.id as id, r.hash AS hash, IDENTITY(r.normalized) AS normalized_id')
             ->getQuery()
             ->getArrayResult();
     }

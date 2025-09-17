@@ -17,6 +17,28 @@ trait AllocationRowNormalizationTrait
         return '' === $value ? null : $value;
     }
 
+    /**
+     * @param array<string, scalar|null> $row
+     */
+    protected static function getIntOrNull(array $row, string $key): ?int
+    {
+        if (!array_key_exists($key, $row)) {
+            return null;
+        }
+
+        $value = $row[$key];
+
+        if (null === $value || '' === trim((string) $value)) {
+            return null;
+        }
+
+        if (false !== filter_var($value, FILTER_VALIDATE_INT)) {
+            return (int) $value;
+        }
+
+        return null;
+    }
+
     protected static function combineDateAndTime(?string $date, ?string $time): ?string
     {
         if (null === $date || null === $time) {
@@ -178,7 +200,7 @@ trait AllocationRowNormalizationTrait
         return (int) substr($clean, 0, 3);
     }
 
-    protected static function normalizeIndication(?string $value): ?int
+    protected static function normalizeIndication(?string $value): ?string
     {
         if (null === $value) {
             return null;

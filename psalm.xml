@@ -72,6 +72,7 @@
                 <directory name="src/Controller"/>
                 <directory name="src/DataFixtures"/>
                 <directory name="src/EventListener"/>
+                <directory name="src/EventSubscriber"/>
                 <directory name="src/MessageHandler"/>
                 <directory name="src/Security"/>
                 <directory name="src/Twig/Components/"/>
@@ -84,6 +85,7 @@
         <UnusedParam>
             <errorLevel type="suppress">
                 <directory name="src/DataTransferObjects"/>
+                <directory name="src/EventSubscriber"/>
                 <directory name="src/Repository"/>
             </errorLevel>
         </UnusedParam>

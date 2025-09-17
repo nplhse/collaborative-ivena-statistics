@@ -9,6 +9,7 @@ use App\Factory\AssignmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\IndicationRawFactory;
 use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\StateFactory;
@@ -45,6 +46,7 @@ final class AllocationImportFactoryTest extends KernelTestCase
         AssignmentFactory::createOne(['name' => 'Patient']);
         OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
         InfectionFactory::createOne(['name' => '3MRGN']);
+        IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123]);
 
         $this->import = $em->getRepository(Import::class)->find($import->getId());
 
@@ -75,6 +77,8 @@ final class AllocationImportFactoryTest extends KernelTestCase
         $dto->assignment = 'Patient';
         $dto->occasion = 'Sonstiger Einsatz';
         $dto->infection = '3MRGN';
+        $dto->indication = 'Test Indication';
+        $dto->indicationCode = 123;
 
         foreach ($override as $k => $v) {
             $dto->$k = $v;
@@ -104,6 +108,8 @@ final class AllocationImportFactoryTest extends KernelTestCase
         self::assertTrue($allocation->isWithPhysician());
 
         self::assertSame(AllocationTransportType::tryFrom('G'), $allocation->getTransportType());
+
+        self::assertSame('Test Indication', $allocation->getIndicationRaw()->getName());
     }
 
     public function testUnknownDispatchAreaThrows(): void

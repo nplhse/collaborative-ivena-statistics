@@ -12,6 +12,7 @@ use App\Factory\DepartmentFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
+use App\Factory\IndicationRawFactory;
 use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
@@ -103,6 +104,8 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
 
         InfectionFactory::createOne(['name' => 'Noro']);
         InfectionFactory::createOne(['name' => 'V.a. COVID']);
+
+        IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
 
         $importFA = ImportFactory::createOne([
             'name' => 'Test Import',

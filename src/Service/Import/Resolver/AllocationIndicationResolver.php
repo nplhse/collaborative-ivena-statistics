@@ -22,30 +22,38 @@ final class AllocationIndicationResolver implements AllocationEntityResolverInte
     ) {
     }
 
+    #[\Override]
     public function warm(): void
     {
         foreach ($this->repo->preloadAllLight() as $row) {
+            /* @var array{hash:string, id:int, normalized_id:int|null} $row */
             $this->cache->addExisting(
                 $row['hash'],
-                (int) $row['id'],
-                null !== $row['normalized_id'] ? (int) $row['normalized_id'] : null
+                $row['id'],
+                $row['normalized_id']
             );
         }
     }
 
+    #[\Override]
     public function supports(Allocation $entity, AllocationRowDTO $dto): bool
     {
         return true;
     }
 
+    #[\Override]
     public function apply(Allocation $entity, AllocationRowDTO $dto): void
     {
-        $hash = IndicationKey::hashFrom($dto->indicationCode, $dto->indication);
+        if (null === $dto->indicationCode || null === $dto->indication) {
+            return;
+        }
+
+        $hash = IndicationKey::hashFrom((string) $dto->indicationCode, $dto->indication);
 
         if (!$this->cache->has($hash)) {
             $raw = new IndicationRaw()
-                ->setCode(IndicationKey::normalizeCode($dto->indicationCode))
-                ->setName(IndicationKey::normalizeText($dto->indication))
+                ->setCode($dto->indicationCode)
+                ->setName($dto->indication)
                 ->setHash($hash)
                 ->setCreatedAt(new \DateTimeImmutable());
 
