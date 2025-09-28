@@ -44,6 +44,9 @@ class IndicationRaw
     #[ORM\ManyToOne]
     private ?IndicationNormalized $normalized = null;
 
+    #[ORM\ManyToOne(inversedBy: 'children')]
+    private ?IndicationNormalized $target = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
@@ -133,6 +136,18 @@ class IndicationRaw
     public function setNormalized(?IndicationNormalized $normalized): static
     {
         $this->normalized = $normalized;
+
+        return $this;
+    }
+
+    public function getTarget(): ?IndicationNormalized
+    {
+        return $this->target;
+    }
+
+    public function setTarget(?IndicationNormalized $target): static
+    {
+        $this->target = $target;
 
         return $this;
     }

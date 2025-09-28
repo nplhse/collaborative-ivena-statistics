@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Entity\Traits\Blamable;
 use App\Repository\IndicationNormalizedRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: IndicationNormalizedRepository::class)]
@@ -41,9 +43,16 @@ class IndicationNormalized
     #[ORM\JoinColumn(nullable: true)]
     protected ?User $updatedBy = null;
 
+    /**
+     * @var Collection<int, IndicationRaw>
+     */
+    #[ORM\OneToMany(targetEntity: IndicationRaw::class, mappedBy: 'target')]
+    private Collection $children;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
+        $this->children = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -120,5 +129,35 @@ class IndicationNormalized
     public function __toString(): string
     {
         return $this->name ?? 'No name';
+    }
+
+    /**
+     * @return Collection<int, IndicationRaw>
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(IndicationRaw $child): static
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
+            $child->setTarget($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChild(IndicationRaw $child): static
+    {
+        if ($this->children->removeElement($child)) {
+            // set the owning side to null (unless already changed)
+            if ($child->getTarget() === $this) {
+                $child->setTarget(null);
+            }
+        }
+
+        return $this;
     }
 }
