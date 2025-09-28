@@ -6,10 +6,13 @@ namespace App\Command;
 
 use App\Entity\Assignment;
 use App\Entity\Department;
+use App\Entity\IndicationNormalized;
+use App\Entity\IndicationRaw;
 use App\Entity\Infection;
 use App\Entity\Occasion;
 use App\Entity\Speciality;
 use App\Entity\User;
+use App\Service\Import\Indication\IndicationKey;
 use App\Service\Seed\SeedProviderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -26,10 +29,11 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 final class SeedDatabaseCommand extends Command
 {
     /**
-     * @param iterable<SeedProviderInterface> $providers
+     * @param iterable<SeedProviderInterface<mixed>> $providers
      */
     public function __construct(
         private readonly EntityManagerInterface $em,
+        /** @var iterable<SeedProviderInterface<mixed>> */
         #[AutowireIterator(tag: 'app.seed_provider')]
         private readonly iterable $providers,
     ) {
@@ -83,19 +87,59 @@ final class SeedDatabaseCommand extends Command
         foreach ($this->providers as $provider) {
             $output->writeln(sprintf('<info>Seeding %s...</info>', $provider->getType()));
 
-            foreach ($provider->provide() as $value) {
-                $entity = match ($provider->getType()) {
-                    'speciality' => new Speciality()->setName($value),
-                    'department' => new Department()->setName($value),
-                    'assignment' => new Assignment()->setName($value),
-                    'occasion' => new Occasion()->setName($value),
-                    'infection' => new Infection()->setName($value),
-                    default => throw new \RuntimeException('Unknown seed type: '.$provider->getType()),
-                };
+            $type = $provider->getType();
 
-                $entity->setCreatedBy($user);
+            switch ($type) {
+                case 'speciality':
+                case 'department':
+                case 'assignment':
+                case 'occasion':
+                case 'infection':
+                    /** @var iterable<string> $values */
+                    $values = $provider->provide();
 
-                $this->em->persist($entity);
+                    $make = [
+                        'speciality' => fn (string $v): Speciality => new Speciality()->setName($v),
+                        'department' => fn (string $v): Department => new Department()->setName($v),
+                        'assignment' => fn (string $v): Assignment => new Assignment()->setName($v),
+                        'occasion' => fn (string $v): Occasion => new Occasion()->setName($v),
+                        'infection' => fn (string $v): Infection => new Infection()->setName($v),
+                    ];
+
+                    foreach ($values as $value) {
+                        $entity = $make[$type]($value);
+                        $entity->setCreatedBy($user);
+                        $this->em->persist($entity);
+                    }
+                    break;
+
+                case 'indication_raw':
+                case 'indication_normalized':
+                    /** @var iterable<array{name:string, code:string}> $values */
+                    $values = $provider->provide();
+
+                    if ('indication_raw' === $type) {
+                        foreach ($values as $value) {
+                            $entity = new IndicationRaw()
+                                ->setName($value['name'])
+                                ->setCode((int) $value['code'])
+                                ->setHash(IndicationKey::hashFrom($value['code'], $value['name']));
+                            $entity->setCreatedBy($user);
+                            $this->em->persist($entity);
+                        }
+                    } else {
+                        foreach ($values as $value) {
+                            $entity = new IndicationNormalized()
+                                ->setName($value['name'])
+                                ->setCode((int) $value['code']);
+                            $entity->setCreatedBy($user);
+                            $this->em->persist($entity);
+                        }
+                    }
+                    break;
+
+                default:
+                    throw new \RuntimeException('Unknown seed type: '.$type);
             }
         }
 

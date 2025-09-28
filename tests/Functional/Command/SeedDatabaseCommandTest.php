@@ -14,13 +14,17 @@ use Symfony\Component\Console\Tester\CommandTester;
 final class SeedDatabaseCommandTest extends TestCase
 {
     /**
-     * @phpstan-param list<string> $values
+     * @param non-empty-string $type
+     * @param list<string>     $values
+     *
+     * @return SeedProviderInterface<string>
      */
     private function provider(string $type, array $values): SeedProviderInterface
     {
         return new class($type, $values) implements SeedProviderInterface {
             /**
-             * @phpstan-param list<string> $values
+             * @param non-empty-string $type
+             * @param list<string>     $values
              */
             public function __construct(
                 private readonly string $type,
@@ -28,13 +32,14 @@ final class SeedDatabaseCommandTest extends TestCase
             ) {
             }
 
+            /** @return non-empty-string */
             public function getType(): string
             {
                 return $this->type;
             }
 
-            /** @return \Generator<string> */
-            public function provide(): \Generator
+            /** @return iterable<string> */
+            public function provide(): iterable
             {
                 foreach ($this->values as $value) {
                     yield $value;

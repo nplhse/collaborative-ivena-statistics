@@ -4,13 +4,17 @@ namespace App\Service\Seed;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * @template TValue
+ */
 #[AutoconfigureTag('app.seed_provider')]
 interface SeedProviderInterface
 {
     /**
-     * @return \Generator<string>
+     * @return iterable<TValue>
      */
-    public function provide(): \Generator;
+    public function provide(): iterable;
 
+    /** @return non-empty-string */
     public function getType(): string;
 }

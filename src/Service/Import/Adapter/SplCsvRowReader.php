@@ -147,7 +147,15 @@ final class SplCsvRowReader implements RowReaderInterface
 
     private function nfc(string $value): string
     {
+        if (\function_exists('normalizer_normalize')) {
+            $formC = \defined('\Normalizer::FORM_C') ? \Normalizer::FORM_C : 4;
+            $n = \normalizer_normalize($value, $formC);
+
+            return false !== $n ? $n : $value;
+        }
+
         if (\class_exists(\Normalizer::class)) {
+            /** @psalm-suppress InternalMethod */
             $n = \Normalizer::normalize($value, \Normalizer::FORM_C);
 
             return false !== $n ? $n : $value;

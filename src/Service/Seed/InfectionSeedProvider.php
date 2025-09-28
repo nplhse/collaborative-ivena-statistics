@@ -4,11 +4,17 @@ namespace App\Service\Seed;
 
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+/**
+ * @implements SeedProviderInterface<string>
+ */
 #[AsTaggedItem('app.seed_provider')]
 final class InfectionSeedProvider implements SeedProviderInterface
 {
+    /**
+     * @return iterable<string>
+     */
     #[\Override]
-    public function provide(): \Generator
+    public function provide(): iterable
     {
         yield '3MRGN';
         yield '4MRGN/CRE';
@@ -31,6 +37,9 @@ final class InfectionSeedProvider implements SeedProviderInterface
         yield 'Varizellen';
     }
 
+    /**
+     * @return non-empty-string
+     */
     #[\Override]
     public function getType(): string
     {
