@@ -17,9 +17,12 @@ final readonly class IndicationQueryParametersDTO
         public string $orderBy = 'asc',
 
         #[Assert\Choice(choices: ['id', 'name', 'code', 'lastChange'])]
-        public string $sortBy = 'name',
+        public string $sortBy = 'code',
 
         public ?string $search = null,
+
+        #[Assert\Choice(choices: ['normalized', 'raw'])]
+        public string $type = 'normalized',
     ) {
     }
 }

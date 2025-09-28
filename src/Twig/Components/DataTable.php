@@ -13,4 +13,6 @@ final class DataTable
     public ?Paginator $paginator = null;
 
     public ?string $paginationRoute = null;
+
+    public ?array $tabs = null;
 }
