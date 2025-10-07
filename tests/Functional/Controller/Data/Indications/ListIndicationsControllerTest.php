@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Functional\Controller\Data\Infections;
+namespace App\Tests\Functional\Controller\Data\Indications;
 
 use App\Factory\IndicationNormalizedFactory;
 use App\Factory\UserFactory;
@@ -20,9 +20,9 @@ class ListIndicationsControllerTest extends WebTestCase
         UserFactory::createOne(['username' => 'area-user']);
         IndicationNormalizedFactory::createOne([
             'code' => '232',
-            'name' => 'Test Infection',
+            'name' => 'Test Indication',
         ]);
-        IndicationNormalizedFactory::createMany(34, ['name' => 'Test Infection']);
+        IndicationNormalizedFactory::createMany(34, ['name' => 'Test Indication', 'code' => '232']);
 
         // Act
         $crawler = $client->request('GET', '/data/indication');
@@ -34,21 +34,21 @@ class ListIndicationsControllerTest extends WebTestCase
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');
-        self::assertSelectorTextContains('table.table thead th:nth-child(1)', 'ID');
-        self::assertSelectorTextContains('table.table thead th:nth-child(2)', 'Code');
+        self::assertSelectorTextContains('table.table thead th:nth-child(1)', 'Code');
+        self::assertSelectorTextContains('table.table thead th:nth-child(2)', 'Name');
 
         // Check for table contents
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(25, $rows, 'We should see 25 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 1-25 of 35 results.');
 
-        $codeRowText = $rows->eq(0)->filter('td')->eq(1)->text();
+        $codeRowText = $rows->eq(0)->filter('td')->eq(0)->text();
         self::assertSame('232', trim($codeRowText));
 
-        $nameRowText = $rows->eq(0)->filter('td')->eq(2)->text();
-        self::assertSame('Test Infection', trim($nameRowText));
+        $nameRowText = $rows->eq(0)->filter('td')->eq(1)->text();
+        self::assertSame('Test Indication', trim($nameRowText));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(4)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(3)->text();
         self::assertSame('area-user', trim($userRow));
     }
 
@@ -68,7 +68,7 @@ class ListIndicationsControllerTest extends WebTestCase
 
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(2, $rows, 'We should see 2 rows of results.');
-        $nameRow = $rows->eq(0)->filter('td')->eq(2)->text();
+        $nameRow = $rows->eq(0)->filter('td')->eq(1)->text();
         self::assertSame('XYZ', trim($nameRow));
     }
 
