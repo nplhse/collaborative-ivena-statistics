@@ -2,17 +2,24 @@
 
 namespace App\Form;
 
-use App\Entity\IndicationNormalized;
+use App\Form\Transformer\IndicationToIdTransformer;
 use App\Repository\IndicationNormalizedRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
+/**
+ * @extends AbstractType<array<string,mixed>>
+ */
 final class IndicationRawAssignType extends AbstractType
 {
+    public function __construct(
+        private IndicationNormalizedRepository $indicationNormalizedRepository,
+    ) {
+    }
+
     #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -25,16 +32,24 @@ final class IndicationRawAssignType extends AbstractType
                 'label' => 'Raw-Name',
                 'disabled' => true,
             ])
-            ->add('target', ChoiceType::class, [
-                'choices' => [
-                    'Choose a portion size' => '',
-                    'small' => 's',
-                    'medium' => 'm',
-                    'large' => 'l',
-                    'extra large' => 'xl',
-                    'all you can eat' => '∞',
+            ->add('target_label', TextType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Target',
+                'attr' => [
+                    'data-controller' => 'datalist-chooser',
                 ],
-                'autocomplete' => true,
-            ]);
+            ])
+            ->add('target', HiddenType::class, [
+                'required' => false,
+                'attr' => [
+                    'data-datalist-chooser-id-target' => '',
+                ],
+            ])
+        ;
+
+        $builder->get('target')->addModelTransformer(
+            new IndicationToIdTransformer($this->indicationNormalizedRepository)
+        );
     }
 }
