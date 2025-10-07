@@ -14,5 +14,8 @@ final class DataTable
 
     public ?string $paginationRoute = null;
 
+    /**
+     * @var array<int, string>|null
+     */
     public ?array $tabs = null;
 }
