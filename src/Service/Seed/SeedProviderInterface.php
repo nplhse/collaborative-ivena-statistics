@@ -2,6 +2,7 @@
 
 namespace App\Service\Seed;
 
+use App\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
@@ -11,9 +12,19 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 interface SeedProviderInterface
 {
     /**
+     * @return iterable<object>
+     */
+    public function build(User $user): iterable;
+
+    /**
      * @return iterable<TValue>
      */
     public function provide(): iterable;
+
+    /**
+     * @return list<string>
+     */
+    public function purgeTables(): array;
 
     /** @return non-empty-string */
     public function getType(): string;
