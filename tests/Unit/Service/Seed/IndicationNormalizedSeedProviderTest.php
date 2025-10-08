@@ -2,11 +2,32 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
+use App\Entity\IndicationNormalized;
+use App\Entity\User;
 use App\Service\Seed\IndicationNormalizedSeedProvider;
 use PHPUnit\Framework\TestCase;
 
 final class IndicationNormalizedSeedProviderTest extends TestCase
 {
+    public function testBuildCreatesFirstEntityWithExpectedNameAndCreatedBy(): void
+    {
+        $provider = new IndicationNormalizedSeedProvider();
+
+        $user = new User();
+
+        /** @var array<int, object> $entities */
+        $entities = \iterator_to_array($provider->build($user), false);
+
+        self::assertNotEmpty($entities, 'build() should yield at least one entity');
+
+        $first = $entities[0];
+
+        self::assertInstanceOf(IndicationNormalized::class, $first);
+        self::assertSame(000, $first->getCode());
+        self::assertSame('Kein Patient vorhanden', $first->getName());
+        self::assertSame($user, $first->getCreatedBy());
+    }
+
     public function testProvideReturnsExpectedInfectionsInOrder(): void
     {
         $provider = new IndicationNormalizedSeedProvider();
