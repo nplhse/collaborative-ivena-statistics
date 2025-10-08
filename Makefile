@@ -24,13 +24,6 @@ help: ## Outputs this help screen
 ## —— Project setup 🚀 ——————————————————————————————————————————————————————————
 install: ## Setup the whole project
 	@$(COMPOSER) install --no-interaction
-	@$(CONSOLE) doctrine:database:drop --if-exists --force
-	@$(CONSOLE) doctrine:database:create
-	@$(CONSOLE) doctrine:migrations:migrate --no-interaction
-	@$(CONSOLE) asset-map:compile
-
-install-dev: ## Setup the whole project in the dev environment
-	@$(COMPOSER) install --no-interaction
 	@$(SYMFONY) composer setup-env
 	@$(SYMFONY) composer setup-test-env
 	@$(CONSOLE) asset-map:compile
