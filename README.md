@@ -3,7 +3,8 @@
 [![Testsuite](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml) [![Linting](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml) [![codecov](https://codecov.io/gh/nplhse/collaborative-ivena-statistics/graph/badge.svg?token=0MQSZG4OTM)](https://codecov.io/gh/nplhse/collaborative-ivena-statistics)
 
 # Requirements
--   Webserver (Apache, Nginx, LiteSpeed, IIS, etc.) with PHP 8.4 or higher
+- Webserver (Apache, Nginx, LiteSpeed, IIS, etc.) with PHP 8.4 or higher
+- PostgreSQL with Version 16 or higher
 
 # Setup
 This project expects you to have local webserver (see requirements) running,
@@ -12,7 +13,8 @@ preferably with the symfony binary in your development environment.
 ## Install from GitHub
 1. Launch a **terminal** or **console** and navigate to the webroot folder.
    Clone [this repository from GitHub](https://github.com/nplhse/collaborative-ivena-statistics) to
-   a folder in the webroot of your server, e.g. `~/webroot/collaborative-ivena-statistics`.
+   a folder in the webroot of your server, e.g. 
+   `~/webroot/collaborative-ivena-statistics`.
 
     ```
     $ cd ~/webroot
@@ -29,9 +31,9 @@ preferably with the symfony binary in your development environment.
 3. You are ready to go, just open the site with your favorite browser!
 
 > [!NOTE]
-> Please note that with this instruction you'll get an empty application. If 
-  you'd like to populate the app with some reasonable default data run `make
-  install-dev` to include the fixtures.
+> Please note that with this instruction you'll get a ready to use development
+  application that is populated with some reasonable default data. Due to the 
+  very early development state there is no way to install an empty application.
 
 # Contributing
 Any contribution to this project is appreciated, whether it is related to
