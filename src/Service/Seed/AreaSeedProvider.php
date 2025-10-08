@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 /**
  * @implements SeedProviderInterface<array{state:string, name:string}>
  */
-#[AsTaggedItem('app.seed_provider')]
+#[AsTaggedItem('app.seed_provider', priority: 200)]
 final class AreaSeedProvider implements SeedProviderInterface
 {
     /**
