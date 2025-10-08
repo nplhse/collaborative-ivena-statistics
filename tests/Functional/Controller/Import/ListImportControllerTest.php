@@ -121,9 +121,9 @@ final class ListImportControllerTest extends WebTestCase
 
     /**
      * @return array{
-     *      0: \App\Entity\User&\Zenstruck\Foundry\Persistence\Proxy<\App\Entity\User>,
+     *      0: User&\Zenstruck\Foundry\Persistence\Proxy<User>,
      *      1: \App\Entity\Hospital&\Zenstruck\Foundry\Persistence\Proxy<\App\Entity\Hospital>,
-     *      2: \App\Entity\User&\Zenstruck\Foundry\Persistence\Proxy<\App\Entity\User>
+     *      2: User&\Zenstruck\Foundry\Persistence\Proxy<User>
      *  }
      */
     private function seedBaseActors(): array

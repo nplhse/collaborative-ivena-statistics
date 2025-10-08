@@ -14,7 +14,7 @@ final class SplCsvRejectWriter implements RejectWriterInterface
 
     public function __construct(
         string $absolutePath,
-        readonly Filesystem $filesystem,
+        public readonly Filesystem $filesystem,
         private readonly string $delimiter = ';',
         private readonly string $enclosure = "\0",
         private readonly string $escape = '\\',
