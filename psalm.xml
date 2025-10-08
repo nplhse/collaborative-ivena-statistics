@@ -58,6 +58,7 @@
                 <directory name="src/Query"/>
                 <directory name="src/Repository"/>
                 <directory name="src/Service/Import"/>
+                <directory name="src/Service/Seed/Areas/"/>
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>
