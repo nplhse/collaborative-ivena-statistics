@@ -89,6 +89,7 @@
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
+            :tabs="tabs"
         >
             {% import '_macros/pagination.html.twig' as pagination %}
 
@@ -98,31 +99,39 @@
                     <th class="col-1">
                         <a class="text-muted" href="{{ path('app_data_indication_list', {
                             ...app.request.query.all(),
-                            sortBy: 'id',
-                            orderBy: sortBy == 'id' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.id'|trans }} {{ pagination.sortArrow('id', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_data_indication_list', {
-                            ...app.request.query.all(),
                             sortBy: 'code',
                             orderBy: sortBy == 'code' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
                             {{ 'label.indication.code'|trans }} {{ pagination.sortArrow('code', sortBy, orderBy) }}
                         </a>
                     </th>
-                    <th class="col-4">
-                        <a class="text-muted" href="{{ path('app_data_indication_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'name',
-                            orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-3">
+                    {% if active_type == 'raw' %}
+                        <th class="col-3">
+                            <a class="text-muted" href="{{ path('app_data_indication_list', {
+                                ...app.request.query.all(),
+                                sortBy: 'name',
+                                orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
+                            }) }}">
+                                {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
+                            </a>
+                        </th>
+                        <th class="col-4">
+                            <a class="text-muted">
+                                {{ 'label.normalized'|trans }}
+                            </a>
+                        </th>
+                    {% else %}
+                        <th class="col-7">
+                            <a class="text-muted" href="{{ path('app_data_indication_list', {
+                                ...app.request.query.all(),
+                                sortBy: 'name',
+                                orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
+                            }) }}">
+                                {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
+                            </a>
+                        </th>
+                    {% endif %}
+                    <th class="col-2">
                         <a class="text-muted" href="{{ path('app_data_indication_list', {
                             ...app.request.query.all(),
                             sortBy: 'lastChange',
@@ -131,7 +140,7 @@
                             {{ 'label.last_changed_at'|trans }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
                         </a>
                     </th>
-                    <th class="col-3">
+                    <th class="col-2">
                         {{ 'label.last_changed_by'|trans }}
                     </th>
                 </tr>
@@ -140,14 +149,26 @@
                 {% for indication in paginator.results %}
                     <tr>
                         <td>
-                            {{ indication.id }}
-                        </td>
-                        <td>
                             <span class="badge">{{ indication.code }}</span>
                         </td>
-                        <td>
-                            {{ indication.name }}
-                        </td>
+                        {% if active_type == 'raw' %}
+                            <td>
+                                <a href="{{ path('app_data_indication_raw_assign', {id: indication.id}) }}" target="_top">
+                                    {{ indication.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if indication.target is not null %}
+                                    {{ indication.target.name }} ({{ indication.target.code }})
+                                {% else %}
+                                    <span class="badge">null</span>
+                                {% endif %}
+                            </td>
+                        {% else %}
+                            <td>
+                                {{ indication.name }}
+                            </td>
+                        {% endif %}
                         <td>
                             {{ indication.updatedAt ? indication.updatedAt|date('d.m.Y H:i') : indication.createdAt|date('d.m.Y H:i') }}
                         </td>

@@ -31,6 +31,12 @@ final class IndicationNormalizedSeedProvider implements SeedProviderInterface
         yield ['code' => '143', 'name' => 'vaECMO Abholung'];
         yield ['code' => '144', 'name' => 'eCPR Zuverlegung'];
         yield ['code' => '145', 'name' => 'eCPR Abholung'];
+        yield ['code' => '201', 'name' => 'Chirurgie Zu-Verlegung Intensiv mit Arzt'];
+        yield ['code' => '202', 'name' => 'Chirurgie Zu-Verlegung Intensiv ohne Arzt'];
+        yield ['code' => '203', 'name' => 'Chirurgie Zu-Verlegung IMC mit Arzt'];
+        yield ['code' => '204', 'name' => 'Chirurgie Zu-Verlegung IMC ohne Arzt'];
+        yield ['code' => '205', 'name' => 'Neurochirurgie Zu-Verlegung Intensiv mit Arzt'];
+        yield ['code' => '206', 'name' => 'Neurochirurgie Zu-Verlegung Intensiv ohne Arzt'];
         yield ['code' => '211', 'name' => 'Polytrauma mit SHT'];
         yield ['code' => '212', 'name' => 'Polytrauma ohne SHT'];
         yield ['code' => '213', 'name' => 'Schockraumindikation nach Unfallhergang'];
@@ -75,6 +81,10 @@ final class IndicationNormalizedSeedProvider implements SeedProviderInterface
         yield ['code' => '292', 'name' => 'Extremitätenischaemie (akut)'];
         yield ['code' => '293', 'name' => 'Aorta ascendens Dissektion (bestätigt)'];
         yield ['code' => '299', 'name' => 'Gefäßchirurgischer Notfall, sonstiger'];
+        yield ['code' => '301', 'name' => 'Innere Medizin Zu-Verlegung Intensiv mit Arzt'];
+        yield ['code' => '302', 'name' => 'Innere Medizin Zu-Verlegung Intensiv ohne Arzt'];
+        yield ['code' => '303', 'name' => 'Innere Medizin Zu-Verlegung IMC mit Arzt'];
+        yield ['code' => '304', 'name' => 'Innere Medizin Zu-Verlegung IMC ohne Arzt'];
         yield ['code' => '311', 'name' => 'Atemnot (unklar) /Atembeschwerden /ARI'];
         yield ['code' => '312', 'name' => 'Obstruktion (Asthma / COPD)'];
         yield ['code' => '313', 'name' => 'Hämoptoe / Hämoptysen'];
@@ -130,6 +140,8 @@ final class IndicationNormalizedSeedProvider implements SeedProviderInterface
         yield ['code' => '391', 'name' => 'Akuter endokrinologischer Notfall'];
         yield ['code' => '392', 'name' => 'Hyperglykämie'];
         yield ['code' => '393', 'name' => 'Hypoglykämie'];
+        yield ['code' => '401', 'name' => 'Neurologie Zu-Verlegung Intensiv mit Arzt'];
+        yield ['code' => '402', 'name' => 'Neurologie Zu-Verlegung Intensiv ohne Arzt'];
         yield ['code' => '411', 'name' => 'Anhaltender epileptischer Krampfanfall'];
         yield ['code' => '412', 'name' => 'Epileptischer Anfall (stattgehabt)'];
         yield ['code' => '413', 'name' => 'Kopf-/Gesichtsschmerz (bei SK1 NC!)'];
@@ -145,6 +157,9 @@ final class IndicationNormalizedSeedProvider implements SeedProviderInterface
         yield ['code' => '433', 'name' => 'Einweisung (nach LandesPsychKG)'];
         yield ['code' => '434', 'name' => 'Einweisung (nach LandesPsychKG)"'];
         yield ['code' => '435', 'name' => 'Akute Verwirrtheit/Delir'];
+        yield ['code' => '501', 'name' => 'Kinderheilkunde Zu-Verlegung Intensiv mit Arzt'];
+        yield ['code' => '502', 'name' => 'Kinderheilkunde Zu-Verlegung Intensiv ohne Arzt'];
+        yield ['code' => '502', 'name' => 'Zuverlegung Inkubator'];
         yield ['code' => '511', 'name' => 'Pädiatrisch - Atemnot'];
         yield ['code' => '512', 'name' => 'schwerer Husten (Pseudokrupp)'];
         yield ['code' => '513', 'name' => 'pädiatrisch Fieberkrampf'];
@@ -182,6 +197,12 @@ final class IndicationNormalizedSeedProvider implements SeedProviderInterface
         yield ['code' => '552', 'name' => 'Unterbauchschmerzen'];
         yield ['code' => '553', 'name' => 'Sexualdelikt'];
         yield ['code' => '559', 'name' => 'Gynäkologischer Notfall, sonstiger'];
+        yield ['code' => '601', 'name' => 'Transport zu definierten Leistungen'];
+        yield ['code' => '601', 'name' => 'Transport zu geplanter Dialyse'];
+        yield ['code' => '601', 'name' => 'Transport zu geplantem Herzkatheter'];
+        yield ['code' => '601', 'name' => 'Transport zu geplantem CT'];
+        yield ['code' => '601', 'name' => 'Transport zu geplantem MRT'];
+        yield ['code' => '626', 'name' => 'Strategische Verlegung (z.B. Kleeblatt)'];
         yield ['code' => '631', 'name' => 'Entlassung aus stationärer Behandlung'];
         yield ['code' => '701', 'name' => 'Haut-u. Geschlechtskrankheiten'];
         yield ['code' => '711', 'name' => 'Nieren- Harnleiterkolik'];

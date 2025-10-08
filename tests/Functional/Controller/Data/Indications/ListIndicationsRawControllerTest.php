@@ -2,13 +2,13 @@
 
 namespace App\Tests\Functional\Controller\Data\Indications;
 
-use App\Factory\IndicationNormalizedFactory;
+use App\Factory\IndicationRawFactory;
 use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class ListIndicationsControllerTest extends WebTestCase
+class ListIndicationsRawControllerTest extends WebTestCase
 {
     use ResetDatabase;
     use Factories;
@@ -18,14 +18,14 @@ class ListIndicationsControllerTest extends WebTestCase
         // Arrange
         $client = static::createClient();
         UserFactory::createOne(['username' => 'area-user']);
-        IndicationNormalizedFactory::createOne([
+        IndicationRawFactory::createOne([
             'code' => '232',
             'name' => 'Test Indication',
         ]);
-        IndicationNormalizedFactory::createMany(34, ['name' => 'Test Indication', 'code' => '232']);
+        IndicationRawFactory::createMany(34, ['name' => 'Test Indication', 'code' => '232']);
 
         // Act
-        $crawler = $client->request('GET', '/data/indication');
+        $crawler = $client->request('GET', '/data/indication?type=raw');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -48,7 +48,7 @@ class ListIndicationsControllerTest extends WebTestCase
         $nameRowText = $rows->eq(0)->filter('td')->eq(1)->text();
         self::assertSame('Test Indication', trim($nameRowText));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(3)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(4)->text();
         self::assertSame('area-user', trim($userRow));
     }
 
@@ -57,11 +57,11 @@ class ListIndicationsControllerTest extends WebTestCase
         // Arrange
         $client = static::createClient();
         UserFactory::createOne(['username' => 'area-user']);
-        IndicationNormalizedFactory::createOne(['name' => 'ABC']);
-        IndicationNormalizedFactory::createOne(['name' => 'XYZ']);
+        IndicationRawFactory::createOne(['name' => 'ABC']);
+        IndicationRawFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/data/indication?sortBy=name&orderBy=desc');
+        $crawler = $client->request('GET', '/data/indication?type=raw&sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -77,10 +77,10 @@ class ListIndicationsControllerTest extends WebTestCase
         // Arrange
         $client = static::createClient();
         UserFactory::createOne(['username' => 'area-user']);
-        IndicationNormalizedFactory::createMany(35);
+        IndicationRawFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/data/indication?page=2');
+        $crawler = $client->request('GET', '/data/indication?type=raw&page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Tests\Unit\Service\Seed;
+
+use App\Service\Seed\IndicationRawSeedProvider;
+use PHPUnit\Framework\TestCase;
+
+final class IndicationRawSeedProviderTest extends TestCase
+{
+    public function testProvideReturnsExpectedInfectionsInOrder(): void
+    {
+        $provider = new IndicationRawSeedProvider();
+        $values = \iterator_to_array($provider->provide(), false);
+
+        self::assertSame(['code' => '111', 'name' => 'primäre Todesfeststellung'], $values[0] ?? null);
+        self::assertSame(['code' => '770', 'name' => 'sonstige Notfallsituation'], $values[\count($values) - 1] ?? null);
+
+        self::assertTrue(self::containsPair($values, '323', 'Hypertonie'));
+        self::assertTrue(self::containsPair($values, '431', 'Akute Suizidalität'));
+        self::assertTrue(self::containsPair($values, '721', 'Augenverletzung mit Fremdkörper'));
+
+        /** @var list<string> $keys */
+        $keys = \array_map(
+            static fn (array $row): string => $row['code'].'|'.$row['name'],
+            $values
+        );
+
+        self::assertSame($keys, \array_values(\array_unique($keys)));
+
+        self::assertCount(199, $values);
+    }
+
+    public function testGetTypeIsInfection(): void
+    {
+        self::assertSame('indication_raw', new IndicationRawSeedProvider()->getType());
+    }
+
+    /**
+     * @param array<int, array{code:string, name:string}> $values
+     */
+    private static function containsPair(array $values, string $code, string $name): bool
+    {
+        foreach ($values as $row) {
+            if ($row['code'] === $code && $row['name'] === $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}

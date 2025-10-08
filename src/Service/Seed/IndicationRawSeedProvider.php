@@ -144,14 +144,14 @@ final class IndicationRawSeedProvider implements SeedProviderInterface
         yield ['code' => '421', 'name' => 'Apoplex/TIA/Blutung  < 6 h'];
         yield ['code' => '422', 'name' => 'Apoplex/TIA/Blutung  6-24 h'];
         yield ['code' => '423', 'name' => 'Apoplex/TIA/Blutung >24h'];
-        yield ['code' => '425', 'name' => 'Cerebraler Gefäßverschluss zur Thrombektomie '];
+        yield ['code' => '425', 'name' => 'Cerebraler Gefäßverschluss zur Thrombektomie'];
         yield ['code' => '430', 'name' => 'sonstiger psychiatrischer Notfall'];
-        yield ['code' => '431', 'name' => 'Akute Suizidalität '];
-        yield ['code' => '434', 'name' => 'Fachpsychiatrische Unterbringung '];
+        yield ['code' => '431', 'name' => 'Akute Suizidalität'];
+        yield ['code' => '434', 'name' => 'Fachpsychiatrische Unterbringung'];
         yield ['code' => '435', 'name' => 'Unterbringung nach PSychKHG'];
         yield ['code' => '436', 'name' => 'Akuter Erregungszustand '];
         yield ['code' => '437', 'name' => 'Akute Psychose'];
-        yield ['code' => '438', 'name' => 'Entzugssyndrom '];
+        yield ['code' => '438', 'name' => 'Entzugssyndrom'];
         yield ['code' => '501', 'name' => 'Kinderheilkunde Zu-Verlegung Intensiv mit Arzt'];
         yield ['code' => '502', 'name' => 'Kinderheilkunde Zu-Verlegung Intensiv ohne Arzt'];
         yield ['code' => '503', 'name' => 'Zuverlegung Inkubator'];

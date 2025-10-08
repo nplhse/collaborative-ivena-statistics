@@ -37,6 +37,14 @@
         <source>allocations.field.isVentilated</source>
         <target>Is Ventilated</target>
       </trans-unit>
+      <trans-unit id="8pZlK.0" resname="btn.cancel">
+        <source>btn.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="PgKXiv_" resname="btn.save.changes">
+        <source>btn.save.changes</source>
+        <target>Save changes</target>
+      </trans-unit>
       <trans-unit id="EiKSkqu" resname="field.age">
         <source>field.age</source>
         <target>Age</target>
@@ -97,6 +105,10 @@
         <source>flash.import.created</source>
         <target>New Import has been created successfully!</target>
       </trans-unit>
+      <trans-unit id="qCQxM_A" resname="flash.indication.assigned">
+        <source>flash.indication.assigned</source>
+        <target>Normalized indication has been assigned.</target>
+      </trans-unit>
       <trans-unit id="IlEDRed" resname="help.search_no_results">
         <source>help.search_no_results</source>
         <target>Try adjusting your search or filter to find what you're looking for.</target>
@@ -152,6 +164,14 @@
       <trans-unit id="ndwEyiW" resname="imports.field.filePath">
         <source>imports.field.filePath</source>
         <target>File path</target>
+      </trans-unit>
+      <trans-unit id="vsKohzn" resname="indication.tab.normalized">
+        <source>indication.tab.normalized</source>
+        <target>Normalized Indication</target>
+      </trans-unit>
+      <trans-unit id="8p7II8w" resname="indication.tab.raw">
+        <source>indication.tab.raw</source>
+        <target>Raw Indication</target>
       </trans-unit>
       <trans-unit id="CEVgeJ7" resname="label.address">
         <source>label.address</source>
@@ -353,6 +373,10 @@
         <source>label.no_occasion</source>
         <target>No occasion</target>
       </trans-unit>
+      <trans-unit id="OZs.ee2" resname="label.normalized">
+        <source>label.normalized</source>
+        <target>Normalized Indication</target>
+      </trans-unit>
       <trans-unit id="u3qOfXy" resname="label.occasion">
         <source>label.occasion</source>
         <target>Occasion</target>
@@ -505,6 +529,12 @@
         <source>link.specialities</source>
         <target>Specialities</target>
       </trans-unit>
+      <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
+        <source>subtitle.indication.assign</source>
+        <target>This form allows you to link a raw indication with a corresponding normalized indication from the
+            standardized list. By selecting the appropriate normalized indication, you help ensure consistent data
+            classification and make further analysis and reporting more accurate.</target>
+      </trans-unit>
       <trans-unit id="GhGeHI9" resname="title.allocation.list">
         <source>title.allocation.list</source>
         <target>Listing Allocations</target>
@@ -552,6 +582,10 @@
       <trans-unit id="tBRiow3" resname="title.import.show">
         <source>title.import.show</source>
         <target>Showing Import detail</target>
+      </trans-unit>
+      <trans-unit id="njXB7xf" resname="title.indication.assign">
+        <source>title.indication.assign</source>
+        <target>Assign Indications</target>
       </trans-unit>
       <trans-unit id="EDuCAXA" resname="title.indication.list">
         <source>title.indication.list</source>

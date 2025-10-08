@@ -38,4 +38,41 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
 
         return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
+
+    /**
+     * @return array<int, array{id: int, label: string}>
+     */
+    public function getDatalist(): array
+    {
+        $rows = $this->createQueryBuilder('i')
+            ->select('i.id, i.name, i.code')
+            ->orderBy('i.code', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(static function (array $result): array {
+            $label = $result['name'];
+            if (!empty($result['code'])) {
+                $label .= ' ('.$result['code'].')';
+            }
+
+            return ['id' => (int) $result['id'], 'label' => $label];
+        }, $rows);
+    }
+
+    public function getDatalistLabelById(int $id): ?string
+    {
+        $result = $this->createQueryBuilder('i')
+            ->select('i.name, i.code')
+            ->andWhere('i.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
+
+        if (false === $result) {
+            return null;
+        }
+
+        return $result['name'].(!empty($result['code']) ? ' ('.$result['code'].')' : '');
+    }
 }
