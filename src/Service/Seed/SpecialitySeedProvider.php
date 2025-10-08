@@ -2,6 +2,8 @@
 
 namespace App\Service\Seed;
 
+use App\Entity\Speciality;
+use App\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -10,6 +12,21 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem('app.seed_provider')]
 final class SpecialitySeedProvider implements SeedProviderInterface
 {
+    /**
+     * @return iterable<Speciality>
+     */
+    #[\Override]
+    public function build(User $user): iterable
+    {
+        foreach ($this->provide() as $name) {
+            $entity = new Speciality()
+                ->setName($name)
+                ->setCreatedBy($user);
+
+            yield $entity;
+        }
+    }
+
     /**
      * @return iterable<string>
      */
@@ -39,8 +56,14 @@ final class SpecialitySeedProvider implements SeedProviderInterface
     }
 
     /**
-     * @return non-empty-string
+     * @return list<string>
      */
+    #[\Override]
+    public function purgeTables(): array
+    {
+        return ['speciality'];
+    }
+
     #[\Override]
     public function getType(): string
     {

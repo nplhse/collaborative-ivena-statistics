@@ -2,6 +2,8 @@
 
 namespace App\Service\Seed;
 
+use App\Entity\Department;
+use App\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -10,6 +12,21 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem('app.seed_provider')]
 final class DepartmentSeedProvider implements SeedProviderInterface
 {
+    /**
+     * @return iterable<Department>
+     */
+    #[\Override]
+    public function build(User $user): iterable
+    {
+        foreach ($this->provide() as $name) {
+            $entity = new Department()
+                ->setName($name)
+                ->setCreatedBy($user);
+
+            yield $entity;
+        }
+    }
+
     /**
      * @return iterable<string>
      */
@@ -128,8 +145,14 @@ final class DepartmentSeedProvider implements SeedProviderInterface
     }
 
     /**
-     * @return non-empty-string
+     * @return list<string>
      */
+    #[\Override]
+    public function purgeTables(): array
+    {
+        return ['department'];
+    }
+
     #[\Override]
     public function getType(): string
     {

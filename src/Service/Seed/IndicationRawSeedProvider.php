@@ -2,6 +2,9 @@
 
 namespace App\Service\Seed;
 
+use App\Entity\IndicationRaw;
+use App\Entity\User;
+use App\Service\Import\Indication\IndicationKey;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -10,6 +13,23 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem('app.seed_provider')]
 final class IndicationRawSeedProvider implements SeedProviderInterface
 {
+    /**
+     * @return iterable<IndicationRaw>
+     */
+    #[\Override]
+    public function build(User $user): iterable
+    {
+        foreach ($this->provide() as $row) {
+            $entity = new IndicationRaw()
+                ->setName($row['name'])
+                ->setCode((int) $row['code'])
+                ->setHash(IndicationKey::hashFrom($row['code'], $row['name']))
+                ->setCreatedBy($user);
+
+            yield $entity;
+        }
+    }
+
     /**
      * @return \Generator<int, array{code:string, name:string}, mixed, void>
      */
@@ -215,6 +235,15 @@ final class IndicationRawSeedProvider implements SeedProviderInterface
         yield ['code' => '751', 'name' => 'Strahlentrauma'];
         yield ['code' => '761', 'name' => 'Kohlenmonoxid-Vergiftung'];
         yield ['code' => '770', 'name' => 'sonstige Notfallsituation'];
+    }
+
+    /**
+     * @return list<string>
+     */
+    #[\Override]
+    public function purgeTables(): array
+    {
+        return ['indication_raw'];
     }
 
     #[\Override]
