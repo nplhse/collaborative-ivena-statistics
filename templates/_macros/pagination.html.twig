@@ -90,7 +90,7 @@
                         <li class="page-item"><a class="page-link" href="{{ path(targetPath, {page: i}) }}">{{ i }}</a></li>
                     {% endif %}
                 {% endfor %}
-                {% if paginator.lastPage - paginator.currentPage >= 2 %}
+                {% if paginator.lastPage - paginator.currentPage > 2 %}
                     <li class="page-item">
                         <a class="page-link" href="{{ path(targetPath, {page: paginator.lastPage}) }}">... {{ paginator.lastPage }}</a>
                     </li>
