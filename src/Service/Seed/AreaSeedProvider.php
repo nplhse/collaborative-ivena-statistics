@@ -60,14 +60,14 @@ final class AreaSeedProvider implements SeedProviderInterface
         yield ['state' => 'Hessen', 'name' => 'Hersfeld-Rotenburg'];
         yield ['state' => 'Hessen', 'name' => 'Hochtaunus'];
         yield ['state' => 'Hessen', 'name' => 'Kassel'];
-        yield ['state' => 'Hessen', 'name' => 'Lahn-Dill-Kreis'];
+        yield ['state' => 'Hessen', 'name' => 'Lahn-Dill'];
         yield ['state' => 'Hessen', 'name' => 'Limburg-Weilburg'];
         yield ['state' => 'Hessen', 'name' => 'Main-Kinzig'];
         yield ['state' => 'Hessen', 'name' => 'Main-Taunus'];
         yield ['state' => 'Hessen', 'name' => 'Marburg-Biedenkopf'];
         yield ['state' => 'Hessen', 'name' => 'Odenwald'];
         yield ['state' => 'Hessen', 'name' => 'Offenbach'];
-        yield ['state' => 'Hessen', 'name' => 'Rheingau Taunus Kreis'];
+        yield ['state' => 'Hessen', 'name' => 'Rheingau Taunus'];
         yield ['state' => 'Hessen', 'name' => 'Schwalm-Eder'];
         yield ['state' => 'Hessen', 'name' => 'Vogelsberg'];
         yield ['state' => 'Hessen', 'name' => 'Waldeck-Frankenberg'];
