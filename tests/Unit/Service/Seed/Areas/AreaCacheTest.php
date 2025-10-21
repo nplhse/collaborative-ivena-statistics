@@ -5,8 +5,8 @@ namespace App\Tests\Unit\Service\Seed\Areas;
 use App\Entity\DispatchArea;
 use App\Entity\State;
 use App\Service\Seed\Areas\AreaCache;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 
@@ -16,7 +16,7 @@ final class AreaCacheTest extends TestCase
     {
         $em = $this->createMock(EntityManagerInterface::class);
         $qb = $this->createMock(QueryBuilder::class);
-        $query = $this->createMock(AbstractQuery::class);
+        $query = $this->createMock(Query::class);
 
         $em->method('createQueryBuilder')->willReturn($qb);
         $qb->method('from')->willReturnSelf();
@@ -96,7 +96,7 @@ final class AreaCacheTest extends TestCase
     {
         $em = $this->createMock(EntityManagerInterface::class);
         $qb = $this->createMock(QueryBuilder::class);
-        $query = $this->createMock(AbstractQuery::class);
+        $query = $this->createMock(Query::class);
 
         $em->method('createQueryBuilder')->willReturn($qb);
         $qb->method('from')->willReturnSelf();
