@@ -83,6 +83,13 @@ final class AreaSeedProviderTest extends TestCase
         self::assertSame('area', new AreaSeedProvider()->getType());
     }
 
+    public function testPurgeTablesReturnAreas(): void
+    {
+        $provider = new AreaSeedProvider();
+
+        self::assertSame(['dispatch_area', 'state'], $provider->purgeTables());
+    }
+
     /**
      * @param list<array{state:string, name:string}> $rows
      */

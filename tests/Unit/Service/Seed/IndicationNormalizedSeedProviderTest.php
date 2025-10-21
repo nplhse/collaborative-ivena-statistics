@@ -56,6 +56,13 @@ final class IndicationNormalizedSeedProviderTest extends TestCase
         self::assertSame('indication_normalized', new IndicationNormalizedSeedProvider()->getType());
     }
 
+    public function testPurgeTablesReturnIndicationNormalized(): void
+    {
+        $provider = new IndicationNormalizedSeedProvider();
+
+        self::assertSame(['indication_normalized'], $provider->purgeTables());
+    }
+
     /**
      * @param array<int, array{code:string, name:string}> $values
      */

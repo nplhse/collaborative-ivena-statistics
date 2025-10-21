@@ -56,6 +56,13 @@ final class IndicationRawSeedProviderTest extends TestCase
         self::assertSame('indication_raw', new IndicationRawSeedProvider()->getType());
     }
 
+    public function testPurgeTablesReturnIndicationRaw(): void
+    {
+        $provider = new IndicationRawSeedProvider();
+
+        self::assertSame(['indication_raw'], $provider->purgeTables());
+    }
+
     /**
      * @param array<int, array{code:string, name:string}> $values
      */

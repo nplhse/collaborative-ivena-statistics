@@ -47,4 +47,11 @@ final class AssignmentSeedProviderTest extends TestCase
     {
         self::assertSame('assignment', new AssignmentSeedProvider()->getType());
     }
+
+    public function testPurgeTablesReturnAssignment(): void
+    {
+        $provider = new AssignmentSeedProvider();
+
+        self::assertSame(['assignment'], $provider->purgeTables());
+    }
 }

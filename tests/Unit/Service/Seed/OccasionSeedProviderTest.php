@@ -48,4 +48,11 @@ final class OccasionSeedProviderTest extends TestCase
     {
         self::assertSame('occasion', new OccasionSeedProvider()->getType());
     }
+
+    public function testPurgeTablesReturnOccasion(): void
+    {
+        $provider = new OccasionSeedProvider();
+
+        self::assertSame(['occasion'], $provider->purgeTables());
+    }
 }

@@ -45,4 +45,11 @@ final class DepartmentSeedProviderTest extends TestCase
     {
         self::assertSame('department', new DepartmentSeedProvider()->getType());
     }
+
+    public function testPurgeTablesReturnDepartment(): void
+    {
+        $provider = new DepartmentSeedProvider();
+
+        self::assertSame(['department'], $provider->purgeTables());
+    }
 }

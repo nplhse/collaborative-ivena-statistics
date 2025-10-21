@@ -48,4 +48,11 @@ final class InfectionSeedProviderTest extends TestCase
     {
         self::assertSame('infection', new InfectionSeedProvider()->getType());
     }
+
+    public function testPurgeTablesReturnInfection(): void
+    {
+        $provider = new InfectionSeedProvider();
+
+        self::assertSame(['infection'], $provider->purgeTables());
+    }
 }

@@ -6,7 +6,8 @@ use App\Entity\DispatchArea;
 use App\Entity\State;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class AreaCache
+/** @psalm-suppress ClassMustBeFinal */
+class AreaCache
 {
     /** @var array<string,int> */
     private array $stateIdByName = [];

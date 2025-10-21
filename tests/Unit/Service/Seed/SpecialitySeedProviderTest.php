@@ -45,4 +45,11 @@ final class SpecialitySeedProviderTest extends TestCase
     {
         self::assertSame('speciality', new SpecialitySeedProvider()->getType());
     }
+
+    public function testPurgeTablesReturnSpeciality(): void
+    {
+        $provider = new SpecialitySeedProvider();
+
+        self::assertSame(['speciality'], $provider->purgeTables());
+    }
 }
