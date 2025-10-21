@@ -12,6 +12,7 @@ trait AllocationRowNormalizationTrait
         if (!array_key_exists($key, $row)) {
             return null;
         }
+
         $value = trim((string) $row[$key]);
 
         return '' === $value ? null : $value;
@@ -209,5 +210,18 @@ trait AllocationRowNormalizationTrait
         $clean = trim($value);
 
         return mb_substr($clean, 4);
+    }
+
+    protected static function normalizeDispatchArea(?string $value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        if (str_starts_with($value, 'Leitstelle ')) {
+            $value = substr($value, strlen('Leitstelle '));
+        }
+
+        return trim($value);
     }
 }
