@@ -47,6 +47,7 @@
         </PossiblyNullArgument>
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
+                <directory name="src/Command"/>
                 <directory name="src/DataFixtures"/>
                 <directory name="src/DataTransferObjects"/>
                 <directory name="src/Enum"/>
