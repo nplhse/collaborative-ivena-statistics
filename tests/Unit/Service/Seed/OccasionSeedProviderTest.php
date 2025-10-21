@@ -2,11 +2,31 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
+use App\Entity\Occasion;
+use App\Entity\User;
 use App\Service\Seed\OccasionSeedProvider;
 use PHPUnit\Framework\TestCase;
 
 final class OccasionSeedProviderTest extends TestCase
 {
+    public function testBuildCreatesFirstEntityWithExpectedNameAndCreatedBy(): void
+    {
+        $provider = new OccasionSeedProvider();
+
+        $user = new User();
+
+        /** @var array<int, object> $entities */
+        $entities = \iterator_to_array($provider->build($user), false);
+
+        self::assertNotEmpty($entities, 'build() should yield at least one entity');
+
+        $first = $entities[0];
+
+        self::assertInstanceOf(Occasion::class, $first);
+        self::assertSame('Arbeitsunfall', $first->getName());
+        self::assertSame($user, $first->getCreatedBy());
+    }
+
     public function testProvideReturnsExpectedOccasionsInOrder(): void
     {
         $provider = new OccasionSeedProvider();
@@ -27,5 +47,12 @@ final class OccasionSeedProviderTest extends TestCase
     public function testGetTypeIsOccasion(): void
     {
         self::assertSame('occasion', new OccasionSeedProvider()->getType());
+    }
+
+    public function testPurgeTablesReturnOccasion(): void
+    {
+        $provider = new OccasionSeedProvider();
+
+        self::assertSame(['occasion'], $provider->purgeTables());
     }
 }

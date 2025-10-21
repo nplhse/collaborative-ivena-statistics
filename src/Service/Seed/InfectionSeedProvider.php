@@ -2,6 +2,8 @@
 
 namespace App\Service\Seed;
 
+use App\Entity\Infection;
+use App\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -10,6 +12,21 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem('app.seed_provider')]
 final class InfectionSeedProvider implements SeedProviderInterface
 {
+    /**
+     * @return iterable<Infection>
+     */
+    #[\Override]
+    public function build(User $user): iterable
+    {
+        foreach ($this->provide() as $name) {
+            $entity = new Infection()
+                ->setName($name)
+                ->setCreatedBy($user);
+
+            yield $entity;
+        }
+    }
+
     /**
      * @return iterable<string>
      */
@@ -38,8 +55,14 @@ final class InfectionSeedProvider implements SeedProviderInterface
     }
 
     /**
-     * @return non-empty-string
+     * @return list<string>
      */
+    #[\Override]
+    public function purgeTables(): array
+    {
+        return ['infection'];
+    }
+
     #[\Override]
     public function getType(): string
     {

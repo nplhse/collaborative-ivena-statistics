@@ -2,11 +2,31 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
+use App\Entity\Infection;
+use App\Entity\User;
 use App\Service\Seed\InfectionSeedProvider;
 use PHPUnit\Framework\TestCase;
 
 final class InfectionSeedProviderTest extends TestCase
 {
+    public function testBuildCreatesFirstEntityWithExpectedNameAndCreatedBy(): void
+    {
+        $provider = new InfectionSeedProvider();
+
+        $user = new User();
+
+        /** @var array<int, object> $entities */
+        $entities = \iterator_to_array($provider->build($user), false);
+
+        self::assertNotEmpty($entities, 'build() should yield at least one entity');
+
+        $first = $entities[0];
+
+        self::assertInstanceOf(Infection::class, $first);
+        self::assertSame('3MRGN', $first->getName());
+        self::assertSame($user, $first->getCreatedBy());
+    }
+
     public function testProvideReturnsExpectedInfectionsInOrder(): void
     {
         $provider = new InfectionSeedProvider();
@@ -27,5 +47,12 @@ final class InfectionSeedProviderTest extends TestCase
     public function testGetTypeIsInfection(): void
     {
         self::assertSame('infection', new InfectionSeedProvider()->getType());
+    }
+
+    public function testPurgeTablesReturnInfection(): void
+    {
+        $provider = new InfectionSeedProvider();
+
+        self::assertSame(['infection'], $provider->purgeTables());
     }
 }

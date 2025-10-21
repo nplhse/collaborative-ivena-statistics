@@ -2,11 +2,32 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
+use App\Entity\IndicationRaw;
+use App\Entity\User;
 use App\Service\Seed\IndicationRawSeedProvider;
 use PHPUnit\Framework\TestCase;
 
 final class IndicationRawSeedProviderTest extends TestCase
 {
+    public function testBuildCreatesFirstEntityWithExpectedNameAndCreatedBy(): void
+    {
+        $provider = new IndicationRawSeedProvider();
+
+        $user = new User();
+
+        /** @var array<int, object> $entities */
+        $entities = \iterator_to_array($provider->build($user), false);
+
+        self::assertNotEmpty($entities, 'build() should yield at least one entity');
+
+        $first = $entities[0];
+
+        self::assertInstanceOf(IndicationRaw::class, $first);
+        self::assertSame(111, $first->getCode());
+        self::assertSame('primäre Todesfeststellung', $first->getName());
+        self::assertSame($user, $first->getCreatedBy());
+    }
+
     public function testProvideReturnsExpectedInfectionsInOrder(): void
     {
         $provider = new IndicationRawSeedProvider();
@@ -33,6 +54,13 @@ final class IndicationRawSeedProviderTest extends TestCase
     public function testGetTypeIsInfection(): void
     {
         self::assertSame('indication_raw', new IndicationRawSeedProvider()->getType());
+    }
+
+    public function testPurgeTablesReturnIndicationRaw(): void
+    {
+        $provider = new IndicationRawSeedProvider();
+
+        self::assertSame(['indication_raw'], $provider->purgeTables());
     }
 
     /**

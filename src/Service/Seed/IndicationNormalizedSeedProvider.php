@@ -2,6 +2,8 @@
 
 namespace App\Service\Seed;
 
+use App\Entity\IndicationNormalized;
+use App\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -10,6 +12,22 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem('app.seed_provider')]
 final class IndicationNormalizedSeedProvider implements SeedProviderInterface
 {
+    /**
+     * @return iterable<IndicationNormalized>
+     */
+    #[\Override]
+    public function build(User $user): iterable
+    {
+        foreach ($this->provide() as $row) {
+            $entity = new IndicationNormalized()
+                ->setName($row['name'])
+                ->setCode((int) $row['code'])
+                ->setCreatedBy($user);
+
+            yield $entity;
+        }
+    }
+
     /**
      * @return \Generator<int, array{code:string, name:string}, mixed, void>
      */
@@ -226,6 +244,15 @@ final class IndicationNormalizedSeedProvider implements SeedProviderInterface
         yield ['code' => '801', 'name' => 'Schmerz/Schwellung Bewegungsapparat (nicht traumatisch)'];
         yield ['code' => '802', 'name' => 'Schwellung/Abszeß sonstige Lokalisation'];
         yield ['code' => '809', 'name' => 'Allgemeinmedizin, sonstiger Notfall'];
+    }
+
+    /**
+     * @return list<string>
+     */
+    #[\Override]
+    public function purgeTables(): array
+    {
+        return ['indication_normalized'];
     }
 
     #[\Override]
