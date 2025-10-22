@@ -33,7 +33,7 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
         $dto = new AllocationRowDTO();
 
         // Direct string fields
-        $dto->dispatchArea = self::getStringOrNull($row, 'versorgungsbereich');
+        $dto->dispatchArea = self::normalizeDispatchArea($row['versorgungsbereich']);
         $dto->hospital = self::getStringOrNull($row, 'krankenhaus_kurzname');
 
         // Date fields

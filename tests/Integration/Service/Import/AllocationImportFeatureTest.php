@@ -46,7 +46,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
         // Arrange
         $user = UserFactory::createOne();
         $state = StateFactory::createOne();
-        $dispatch = DispatchAreaFactory::createOne(['name' => 'Leitstelle Test', 'state' => $state]);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
             'name' => 'Testkrankenhaus Musterstadt',
             'state' => $state,

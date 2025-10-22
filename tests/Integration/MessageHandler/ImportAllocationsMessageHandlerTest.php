@@ -46,7 +46,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         // Arrange
         $owner = UserFactory::createOne();
         $state = StateFactory::createOne();
-        $dispatch = DispatchAreaFactory::createOne(['name' => 'Leitstelle Test', 'state' => $state]);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
             'name' => 'Testkrankenhaus Musterstadt',
             'state' => $state,
