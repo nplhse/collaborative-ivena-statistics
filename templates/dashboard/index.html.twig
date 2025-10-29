@@ -1,0 +1,96 @@
+{% extends '_layout_vertical.html.twig' %}
+
+{% block title %}Hello DefaultController! - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container-xl">
+        <twig:Breadcrumbs />
+
+        <div class="col-12 mb-2">
+            <div class="row row-cards">
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                            <span class="bg-indigo text-white avatar">
+                              <twig:ux:icon name="tabler:ambulance" style="height: 1.5em;" />
+                            </span>
+                                </div>
+                                <div class="col">
+                                    <div class="fs-2">
+                                        <a href="{{ path('app_data_allocation_list') }}" class="text-body">{{ stats.allocations }} {{ 'link.allocations'|trans }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                            <span class="bg-blue text-white avatar">
+                              <twig:ux:icon name="tabler:building-hospital" style="height: 1.5em;" />
+                            </span>
+                                </div>
+                                <div class="col">
+                                    <div class="fs-2">
+                                        <a href="{{ path('app_data_hospital_list') }}" class="text-body">{{ stats.hospitals }} {{ 'link.hospitals'|trans }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                            <span class="bg-azure text-white avatar">
+                              <twig:ux:icon name="tabler:database-import" style="height: 1.5em;" />
+                            </span>
+                                </div>
+                                <div class="col">
+                                    <div class="fs-2">
+                                        <a href="{{ path('app_import_index') }}" class="text-body">{{ stats.imports }} {{ 'link.imports'|trans }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                            <span class="bg-cyan text-white avatar">
+                              <twig:ux:icon name="tabler:user" style="height: 1.5em;" />
+                            </span>
+                                </div>
+                                <div class="col">
+                                    <div class="fs-2">
+                                        {{ stats.users }} {{ 'link.users'|trans }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <h1>Hello, world! ✅</h1>
+
+            This friendly message is coming from:
+            <ul>
+                <li>Your controller at <code>/collaborative-ivena-statistics/src/Controller/DashboardController.php</code></li>
+                <li>Your template at <code>/collaborative-ivena-statistics/templates/dashboard/index.html.twig</code></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

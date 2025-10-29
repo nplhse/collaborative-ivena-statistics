@@ -513,6 +513,10 @@
         <source>link.import</source>
         <target>Import</target>
       </trans-unit>
+      <trans-unit id="4wLkxRO" resname="link.imports">
+        <source>link.imports</source>
+        <target>Imports</target>
+      </trans-unit>
       <trans-unit id="fEFqowr" resname="link.indications">
         <source>link.indications</source>
         <target>Indications</target>
@@ -528,6 +532,10 @@
       <trans-unit id="y8kuDU3" resname="link.specialities">
         <source>link.specialities</source>
         <target>Specialities</target>
+      </trans-unit>
+      <trans-unit id="wQKGxus" resname="link.users">
+        <source>link.users</source>
+        <target>Users</target>
       </trans-unit>
       <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
