@@ -74,4 +74,12 @@ final class HospitalRepository extends ServiceEntityRepository
 
         return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
+
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('h')
+            ->select('COUNT(h.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

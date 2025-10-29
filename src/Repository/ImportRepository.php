@@ -47,4 +47,12 @@ final class ImportRepository extends ServiceEntityRepository
 
         return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
+
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
