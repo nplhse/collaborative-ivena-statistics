@@ -4,6 +4,7 @@ namespace App\MessageHandler;
 
 use App\Entity\Import;
 use App\Enum\ImportStatus;
+use App\Event\ImportCompleted;
 use App\Message\ImportAllocationsMessage;
 use App\Repository\ImportRepository;
 use App\Service\Import\Adapter\SplCsvRejectWriter;
@@ -23,6 +24,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[AsMessageHandler]
 final class ImportAllocationsMessageHandler
@@ -37,6 +39,7 @@ final class ImportAllocationsMessageHandler
         private readonly AllocationPersisterInterface $persister,
         private readonly LoggerInterface $importLogger,
         private readonly Filesystem $filesystem,
+        private readonly EventDispatcherInterface $dispatcher,
 
         #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
         #[Autowire(param: 'app.rejects_base_dir')] private readonly string $rejectsDir,
@@ -74,6 +77,8 @@ final class ImportAllocationsMessageHandler
 
         try {
             $this->run($import, $reader, $writer);
+
+            $this->dispatcher->dispatch(new ImportCompleted($message->importId));
         } catch (\Throwable $e) {
             $this->importLogger->critical('import.failed', [
                 'id' => $import->getId(),
