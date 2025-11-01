@@ -9,9 +9,13 @@ use Doctrine\Migrations\AbstractMigration;
 
 final class Version20251029193244 extends AbstractMigration
 {
+    public function getDescription(): string
+    {
+        return '';
+    }
+
     public function up(Schema $schema): void
     {
-        // 1. Aggregat-Tabellen
         $this->addSql(<<<'SQL'
 CREATE TABLE agg_allocations_counts (
     scope_type     TEXT        NOT NULL,
@@ -65,7 +69,6 @@ SQL);
 
         $this->addSql('CREATE INDEX agg_hourly_by_period ON agg_allocations_hourly (period_gran, period_key);');
 
-        // 2. Hilfsfunktionen
         $this->addSql(<<<'SQL'
 CREATE OR REPLACE FUNCTION period_day(ts timestamp)
 RETURNS date LANGUAGE sql IMMUTABLE AS $$
@@ -97,7 +100,6 @@ SQL);
 
     public function down(Schema $schema): void
     {
-        // Achtung: Reihenfolge reversed
         $this->addSql('DROP FUNCTION period_year(timestamp);');
         $this->addSql('DROP FUNCTION period_quarter(timestamp);');
         $this->addSql('DROP FUNCTION period_week(timestamp);');
