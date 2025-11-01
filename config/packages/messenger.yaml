@@ -4,11 +4,17 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async:
+            async_priority_high:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
-                    use_notify: true
-                    check_delayed_interval: 60000
+                    queue_name: high
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
+            async_priority_low:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: low
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
@@ -21,12 +27,13 @@ framework:
             messenger.bus.default: []
 
         routing:
-            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
-            Symfony\Component\Notifier\Message\ChatMessage: async
-            Symfony\Component\Notifier\Message\SmsMessage: async
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: async_priority_low
+            Symfony\Component\Notifier\Message\ChatMessage: async_priority_low
+            Symfony\Component\Notifier\Message\SmsMessage: async_priority_low
 
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            App\Message\ImportAllocationsMessage: async_priority_high
+            App\Message\RecomputeScope: async_priority_low
+            App\Message\ScheduleScope: [async_priority_high, async_priority_low]
 
 when@test:
     framework:
