@@ -1,0 +1,41 @@
+{% if this.variant == 'dropdown' %}
+    <div class="dropdown">
+        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ this.currentLabel() }}
+        </button>
+        <div class="dropdown-menu">
+            {% for gran in this.options() %}
+                <a class="dropdown-item d-flex justify-content-between align-items-center {{ this.isActive(gran) ? 'active' : '' }}"
+                   href="{{ this.url(gran) }}"
+                   {% if this.isActive(gran) %}aria-current="true"{% endif %}>
+                    <span>{{ this.optionLabelFor(gran) }}</span>
+                    {% if this.isActive(gran) %}
+                        <span class="ms-2">✓</span>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+{% elseif this.variant == 'group' %}
+    <div class="btn-group" role="group" aria-label="Granularity">
+        {% for gran in this.options() %}
+            <a class="btn {{ this.isActive(gran) ? 'btn-primary' : 'btn-outline-primary' }}"
+               href="{{ this.url(gran) }}"
+               {% if this.isActive(gran) %}aria-current="true"{% endif %}>
+                {{ this.optionLabelFor(gran) }}
+            </a>
+        {% endfor %}
+    </div>
+
+{% else %}
+    <div class="btn-list">
+        {% for gran in this.options() %}
+            <a class="btn {{ this.isActive(gran) ? 'btn-outline-primary' : '' }}"
+               href="{{ this.url(gran) }}"
+               {% if this.isActive(gran) %}aria-current="true"{% endif %}>
+                {{ this.optionLabelFor(gran) }}
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}

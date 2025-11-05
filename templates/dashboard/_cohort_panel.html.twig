@@ -1,0 +1,233 @@
+{% set s = cohortPanel.sums ?? null %}
+{% set st = cohortPanel.stats ?? null %}
+{% import '_macros/metrics_macros.html.twig' as m %}
+
+{# Latest computed_at across sums/stats #}
+{% set lastComputed = null %}
+{% if s and s.computedAt %}{% set lastComputed = s.computedAt %}{% endif %}
+{% if st and st.computedAt and (lastComputed is null or st.computedAt|date('U') > lastComputed|date('U')) %}
+    {% set lastComputed = st.computedAt %}
+{% endif %}
+
+{# Cohort summary strip: only N + last computed_at #}
+{% if st %}
+    <div class="alert alert-info mb-3">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+            <span>Hospitals in cohort: <b>{{ st.n }}</b></span>
+            {% if lastComputed %}
+                <span>Last computed: <b>{{ lastComputed|date('Y-m-d H:i') }}</b></span>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+{# Top cards: reuse layout; gender shows bars only (no stats text) #}
+<div class="row row-deck row-cards mb-4">
+    <div class="col-sm-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="subheader">Total allocations</div>
+                <div class="h1 mt-2 mb-0">{{ (s ? s.total : 0)|number_format(0, ',', '.') }}</div>
+                <div class="text-muted">All allocations in {{ scope.scopeType }}</div>
+            </div>
+        </div>
+    </div>
+
+    {# Gender bars only #}
+    <div class="col-sm-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-2">Gender distribution</p>
+                <div class="progress progress-separated mb-3">
+                    <div class="progress-bar bg-primary"
+                         style="width: {{ s ? m.pct(s.genderM, s.total) : 0 }}%"
+                         aria-label="Male"></div>
+                    <div class="progress-bar bg-pink"
+                         style="width: {{ s ? m.pct(s.genderW, s.total) : 0 }}%"
+                         aria-label="Female"></div>
+                    <div class="progress-bar bg-purple"
+                         style="width: {{ s ? m.pct(s.genderD, s.total) : 0 }}%"
+                         aria-label="Diverse"></div>
+                </div>
+                <div class="row">
+                    <div class="col-auto d-flex align-items-center pe-2">
+                        <span class="legend me-2 bg-primary"></span>
+                        <span>Male</span>
+                        <span class="text-muted ms-2">
+              {{ s ? s.genderM : 0 }} ({{ s ? m.pct(s.genderM, s.total) : 0 }}%)
+            </span>
+                    </div>
+                    <div class="col-auto d-flex align-items-center px-2">
+                        <span class="legend me-2 bg-pink"></span>
+                        <span>Female</span>
+                        <span class="text-muted ms-2">
+              {{ s ? s.genderW : 0 }} ({{ s ? m.pct(s.genderW, s.total) : 0 }}%)
+            </span>
+                    </div>
+                    <div class="col-auto d-flex align-items-center px-2">
+                        <span class="legend me-2 bg-purple"></span>
+                        <span>Diverse</span>
+                        <span class="text-muted ms-2">
+              {{ s ? s.genderD : 0 }} ({{ s ? m.pct(s.genderD, s.total) : 0 }}%)
+            </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Urgency bars only #}
+    <div class="col-sm-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-2">Urgency 1 / 2 / 3</p>
+                <div class="progress progress-separated mb-3">
+                    <div class="progress-bar bg-red"
+                         style="width: {{ s ? m.pct(s.urg1, s.total) : 0 }}%"
+                         aria-label="U1"></div>
+                    <div class="progress-bar bg-yellow"
+                         style="width: {{ s ? m.pct(s.urg2, s.total) : 0 }}%"
+                         aria-label="U2"></div>
+                    <div class="progress-bar bg-green"
+                         style="width: {{ s ? m.pct(s.urg3, s.total) : 0 }}%"
+                         aria-label="U3"></div>
+                </div>
+                <div class="row">
+                    <div class="col-auto d-flex align-items-center pe-2">
+                        <span class="legend me-2 bg-red"></span>
+                        <span>U1</span>
+                        <span class="text-muted ms-2">
+              {{ s ? s.urg1 : 0 }} ({{ s ? m.pct(s.urg1, s.total) : 0 }}%)
+            </span>
+                    </div>
+                    <div class="col-auto d-flex align-items-center px-2">
+                        <span class="legend me-2 bg-yellow"></span>
+                        <span>U2</span>
+                        <span class="text-muted ms-2">
+              {{ s ? s.urg2 : 0 }} ({{ s ? m.pct(s.urg2, s.total) : 0 }}%)
+            </span>
+                    </div>
+                    <div class="col-auto d-flex align-items-center px-2">
+                        <span class="legend me-2 bg-green"></span>
+                        <span>U3</span>
+                        <span class="text-muted ms-2">
+              {{ s ? s.urg3 : 0 }} ({{ s ? m.pct(s.urg3, s.total) : 0 }}%)
+            </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Indicators table with Mean / SD / Variance #}
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table card-table table-vcenter">
+            <thead>
+            <tr>
+                <th>Indicator</th>
+                <th>Value</th>
+                <th>Share</th>
+                {% if st %}
+                    <th>Mean</th>
+                    <th>SD</th>
+                    <th>Variance (pct²)</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% set total = s ? s.total : 0 %}
+
+            <tr>
+                <td>With physician</td>
+                <td>{{ s ? s.withPhysician : 0 }}</td>
+                <td>{{ s ? m.pct(s.withPhysician, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['with_physician'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>CPR</td>
+                <td>{{ s ? s.isCpr : 0 }}</td>
+                <td>{{ s ? m.pct(s.isCpr, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['is_cpr'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Ventilated</td>
+                <td>{{ s ? s.isVentilated : 0 }}</td>
+                <td>{{ s ? m.pct(s.isVentilated, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['is_ventilated'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Shock</td>
+                <td>{{ s ? s.isShock : 0 }}</td>
+                <td>{{ s ? m.pct(s.isShock, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['is_shock'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Pregnant</td>
+                <td>{{ s ? s.isPregnant : 0 }}</td>
+                <td>{{ s ? m.pct(s.isPregnant, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['is_pregnant'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Infectious</td>
+                <td>{{ s ? s.infectious : 0 }}</td>
+                <td>{{ s ? m.pct(s.infectious, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['infectious'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Cathlab required</td>
+                <td>{{ s ? s.cathlabRequired : 0 }}</td>
+                <td>{{ s ? m.pct(s.cathlabRequired, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['cathlab_required'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Resuscitation required</td>
+                <td>{{ s ? s.resusRequired : 0 }}</td>
+                <td>{{ s ? m.pct(s.resusRequired, total) : 0 }}%</td>
+                {% if st %}
+                    {% set r = st.rates['resus_required'] ?? null %}
+                    <td>{{ m.fmt_mean(r) }}</td>
+                    <td>{{ m.fmt_sd(r) }}</td>
+                    <td>{{ m.fmt_var(r) }}</td>
+                {% endif %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+{# Reusable helpers for metrics formatting #}
+
+{% macro pct(value, total, decimals = 1) -%}
+    {%- if total > 0 -%}
+        {{ (100 * value / total)|number_format(decimals, ',', '.') }}
+    {%- else -%}
+        0
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro pct_str(value, total, decimals = 1) -%}
+    {{ _self.pct(value, total, decimals) ~ '%' }}
+{%- endmacro %}
+
+{# rate.mean as percentage #}
+{% macro fmt_mean(rate, decimals = 1) -%}
+    {%- if not rate or rate.mean is null -%}
+        –
+    {%- else -%}
+        {{ (rate.mean * 100)|number_format(decimals, ',', '.') }}%
+    {%- endif -%}
+{%- endmacro %}
+
+{# rate.sd as percentage, with ± prefix when present #}
+{% macro fmt_sd(rate, decimals = 1) -%}
+    {%- if not rate or rate.sd is null -%}
+        –
+    {%- else -%}
+        ±{{ (rate.sd * 100)|number_format(decimals, ',', '.') }}%
+    {%- endif -%}
+{%- endmacro %}
+
+{# rate.var as percentage squared (pct²). Convert by *100^2 = *10000 #}
+{% macro fmt_var(rate, decimals = 2) -%}
+    {%- if not rate or rate.var is null -%}
+        –
+    {%- else -%}
+        {{ (rate.var * 10000)|number_format(decimals, ',', '.') }}
+    {%- endif -%}
+{%- endmacro %}

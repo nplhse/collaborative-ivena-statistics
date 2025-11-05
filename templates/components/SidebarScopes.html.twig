@@ -1,0 +1,45 @@
+<div class="card">
+    <div class="list-group list-group-flush">
+        {% if this.tree is empty %}
+            <div class="list-group-item text-secondary">No scope data available.</div>
+        {% else %}
+            {% for group, items in this.tree %}
+                <div class="list-group-header px-3 pt-3 pb-1 text-muted text-uppercase small">
+                    {{ group }}
+                </div>
+
+                {% for item in items %}
+                    {% set is_active = this.isActive(item.scope) %}
+                    {% set is_enabled = item.hasData %}
+                    {% set classes = [
+                        'list-group-item',
+                        'list-group-item-action',
+                        'd-flex',
+                        'justify-content-between',
+                        'align-items-center',
+                        is_active ? 'active' : '',
+                        not is_enabled ? 'disabled' : '',
+                    ]|filter(v => v != '')|join(' ') %}
+
+                    {% if is_enabled %}
+                        <a href="{{ this.urlFor(item.scope) }}" class="{{ classes }}">
+              <span class="d-inline-flex align-items-center">
+                {{ item.label }}
+              </span>
+                            {% if item.count is defined %}
+                                <span class="badge">{{ item.count }}</span>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <div class="{{ classes }}" aria-disabled="true" tabindex="-1">
+              <span class="d-inline-flex align-items-center">
+                {{ item.label }}
+              </span>
+                            <span class="badge bg-muted">no data</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
