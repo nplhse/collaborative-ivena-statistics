@@ -1,0 +1,149 @@
+{% extends '_layout_vertical.html.twig' %}
+
+{% block title %}Dashboard - {{ year }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics' }
+        ]" />
+
+        <div class="row g-4">
+            <div class="col-12 col-md-3 col-lg-3">
+                <form method="get" action="{{ path('app_stats_dashboard_switch') }}" autocomplete="off" novalidate>
+                    <div class="subheader mb-2">Period</div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Year</label>
+                        <select name="year" class="form-select">
+                            {% set years = years is defined ? years : [2021, 2022, 2023, 2024, 2025] %}
+                            {% for y in years %}
+                                <option value="{{ y }}" {{ y == year ? 'selected' : '' }}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mt-4 d-grid">
+                        <button type="submit" class="btn btn-primary w-100">Apply</button>
+                        <a href="{{ path('app_stats_dashboard', {year: defaultYear|default(2021)}) }}"
+                           class="btn btn-link w-100 mt-2">
+                            Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            {# -------------------------------
+                       Main content: 3 KPI cards + table
+                    -------------------------------- #}
+            <div class="col-12 col-md-9 col-lg-9">
+
+                <h2 class="page-title mb-3">Overview {{ year }}</h2>
+
+                <div class="row row-deck row-cards mb-4">
+
+                    {# Total #}
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="subheader">Total allocations</div>
+                                <div class="h1 mt-2 mb-0">{{ vm.total|number_format(0, ',', '.') }}</div>
+                                <div class="text-muted">All allocations in {{ year }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Gender distribution (M / F / D / U) #}
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="mb-2">Gender distribution</p>
+                                <div class="progress progress-separated mb-3">
+                                    <div class="progress-bar bg-primary" style="width: {{ vm.malePct }}%"   aria-label="Male"></div>
+                                    <div class="progress-bar bg-pink"    style="width: {{ vm.femalePct }}%" aria-label="Female"></div>
+                                    <div class="progress-bar bg-purple"  style="width: {{ vm.diversePct }}%" aria-label="Diverse"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-auto d-flex align-items-center pe-2">
+                                        <span class="legend me-2 bg-primary"></span>
+                                        <span>Male</span>
+                                        <span class="text-muted ms-2">{{ vm.genderM }} ({{ vm.malePct }}%)</span>
+                                    </div>
+                                    <div class="col-auto d-flex align-items-center px-2">
+                                        <span class="legend me-2 bg-pink"></span>
+                                        <span>Female</span>
+                                        <span class="text-muted ms-2">{{ vm.genderW }} ({{ vm.femalePct }}%)</span>
+                                    </div>
+                                    <div class="col-auto d-flex align-items-center px-2">
+                                        <span class="legend me-2 bg-purple"></span>
+                                        <span>Diverse</span>
+                                        <span class="text-muted ms-2">{{ vm.genderD }} ({{ vm.diversePct }}%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Urgency 1/2/3 with requested colors #}
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="mb-2">Urgency 1 / 2 / 3</p>
+                                <div class="progress progress-separated mb-3">
+                                    <div class="progress-bar bg-red"    style="width: {{ vm.urg1Pct }}%" aria-label="U1"></div>
+                                    <div class="progress-bar bg-yellow" style="width: {{ vm.urg2Pct }}%" aria-label="U2"></div>
+                                    <div class="progress-bar bg-green"  style="width: {{ vm.urg3Pct }}%" aria-label="U3"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-auto d-flex align-items-center pe-2">
+                                        <span class="legend me-2 bg-red"></span>
+                                        <span>U1</span>
+                                        <span class="text-muted ms-2">{{ vm.urg1 }} ({{ vm.urg1Pct }}%)</span>
+                                    </div>
+                                    <div class="col-auto d-flex align-items-center px-2">
+                                        <span class="legend me-2 bg-yellow"></span>
+                                        <span>U2</span>
+                                        <span class="text-muted ms-2">{{ vm.urg2 }} ({{ vm.urg2Pct }}%)</span>
+                                    </div>
+                                    <div class="col-auto d-flex align-items-center px-2">
+                                        <span class="legend me-2 bg-green"></span>
+                                        <span>U3</span>
+                                        <span class="text-muted ms-2">{{ vm.urg3 }} ({{ vm.urg3Pct }}%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {# Summary table #}
+                <div class="card">
+                    <div class="card-body p-0">
+                        <table class="table card-table table-vcenter">
+                            <thead>
+                            <tr>
+                                <th>Indicator</th>
+                                <th>Value</th>
+                                <th>Share</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr><td>With physician</td><td>{{ vm.withPhysician }}</td><td>{{ vm.withPhysicianPct }}%</td></tr>
+                            <tr><td>CPR</td><td>{{ vm.isCpr }}</td><td>{{ vm.isCprPct }}%</td></tr>
+                            <tr><td>Ventilated</td><td>{{ vm.isVentilated }}</td><td>{{ vm.isVentilatedPct }}%</td></tr>
+                            <tr><td>Shock</td><td>{{ vm.isShock }}</td><td>{{ vm.isShockPct }}%</td></tr>
+                            <tr><td>Pregnant</td><td>{{ vm.isPregnant }}</td><td>{{ vm.isPregnantPct }}%</td></tr>
+                            <tr><td>Infectious</td><td>{{ vm.infectious }}</td><td>{{ vm.infectiousPct }}%</td></tr>
+                            <tr><td>Cathlab required</td><td>{{ vm.cathlabRequired }}</td><td>{{ vm.cathlabRequiredPct }}%</td></tr>
+                            <tr><td>Resuscitation required</td><td>{{ vm.resusRequired }}</td><td>{{ vm.resusRequiredPct }}%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

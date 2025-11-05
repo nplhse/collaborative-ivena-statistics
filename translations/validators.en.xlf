@@ -197,6 +197,18 @@
         <source>The host could not be resolved.</source>
         <target>The host could not be resolved.</target>
       </trans-unit>
+      <trans-unit id="jAJTV_I" resname="The image file is corrupted.">
+        <source>The image file is corrupted.</source>
+        <target>The image file is corrupted.</target>
+      </trans-unit>
+      <trans-unit id="aw1rRIE" resname="The image has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.">
+        <source>The image has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.</source>
+        <target>The image has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.</target>
+      </trans-unit>
+      <trans-unit id="KbWb1FD" resname="The image has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.">
+        <source>The image has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.</source>
+        <target>The image has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.</target>
+      </trans-unit>
       <trans-unit id="zV9L7pv" resname="The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.">
         <source>The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.</source>
         <target>The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.</target>
@@ -257,6 +269,10 @@
         <source>The size of the image could not be detected.</source>
         <target>The size of the image could not be detected.</target>
       </trans-unit>
+      <trans-unit id="7ZjICRC" resname="The size of the video could not be detected.">
+        <source>The size of the video could not be detected.</source>
+        <target>The size of the video could not be detected.</target>
+      </trans-unit>
       <trans-unit id="yShl.HD" resname="The two values should be equal.">
         <source>The two values should be equal.</source>
         <target>The two values should be equal.</target>
@@ -276,6 +292,58 @@
       <trans-unit id="u4rxsHj" resname="The values do not match.">
         <source>The values do not match.</source>
         <target>The values do not match.</target>
+      </trans-unit>
+      <trans-unit id="nzXY1iu" resname="The video contains multiple streams. Only one stream is allowed.">
+        <source>The video contains multiple streams. Only one stream is allowed.</source>
+        <target>The video contains multiple streams. Only one stream is allowed.</target>
+      </trans-unit>
+      <trans-unit id="x8fsjeI" resname="The video file is corrupted.">
+        <source>The video file is corrupted.</source>
+        <target>The video file is corrupted.</target>
+      </trans-unit>
+      <trans-unit id="Dp2k5ge" resname="The video has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.">
+        <source>The video has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.</source>
+        <target>The video has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.</target>
+      </trans-unit>
+      <trans-unit id="IDGrrj_" resname="The video has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.">
+        <source>The video has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.</source>
+        <target>The video has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.</target>
+      </trans-unit>
+      <trans-unit id="Liu7sjp" resname="The video height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.">
+        <source>The video height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.</source>
+        <target>The video height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.</target>
+      </trans-unit>
+      <trans-unit id="2FkdfHN" resname="The video height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.">
+        <source>The video height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.</source>
+        <target>The video height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.</target>
+      </trans-unit>
+      <trans-unit id="mXgOwd4" resname="The video is landscape oriented ({{ width }}x{{ height }}px). Landscape oriented videos are not allowed.">
+        <source>The video is landscape oriented ({{ width }}x{{ height }}px). Landscape oriented videos are not allowed.</source>
+        <target>The video is landscape oriented ({{ width }}x{{ height }}px). Landscape oriented videos are not allowed.</target>
+      </trans-unit>
+      <trans-unit id="VrsdBNF" resname="The video is portrait oriented ({{ width }}x{{ height }}px). Portrait oriented videos are not allowed.">
+        <source>The video is portrait oriented ({{ width }}x{{ height }}px). Portrait oriented videos are not allowed.</source>
+        <target>The video is portrait oriented ({{ width }}x{{ height }}px). Portrait oriented videos are not allowed.</target>
+      </trans-unit>
+      <trans-unit id="OT6Evve" resname="The video is square ({{ width }}x{{ height }}px). Square videos are not allowed.">
+        <source>The video is square ({{ width }}x{{ height }}px). Square videos are not allowed.</source>
+        <target>The video is square ({{ width }}x{{ height }}px). Square videos are not allowed.</target>
+      </trans-unit>
+      <trans-unit id="J1cZmuA" resname="The video ratio is too big ({{ ratio }}). Allowed maximum ratio is {{ max_ratio }}.">
+        <source>The video ratio is too big ({{ ratio }}). Allowed maximum ratio is {{ max_ratio }}.</source>
+        <target>The video ratio is too big ({{ ratio }}). Allowed maximum ratio is {{ max_ratio }}.</target>
+      </trans-unit>
+      <trans-unit id="WQTwvFh" resname="The video ratio is too small ({{ ratio }}). Minimum ratio expected is {{ min_ratio }}.">
+        <source>The video ratio is too small ({{ ratio }}). Minimum ratio expected is {{ min_ratio }}.</source>
+        <target>The video ratio is too small ({{ ratio }}). Minimum ratio expected is {{ min_ratio }}.</target>
+      </trans-unit>
+      <trans-unit id="WS2rIIU" resname="The video width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.">
+        <source>The video width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.</source>
+        <target>The video width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.</target>
+      </trans-unit>
+      <trans-unit id="Ey8lNRo" resname="The video width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.">
+        <source>The video width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.</source>
+        <target>The video width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.</target>
       </trans-unit>
       <trans-unit id="7urGdp4" resname="This Business Identifier Code (BIC) is not associated with IBAN {{ iban }}.">
         <source>This Business Identifier Code (BIC) is not associated with IBAN {{ iban }}.</source>
@@ -312,6 +380,14 @@
       <trans-unit id="aeFJJFS" resname="This file is not a valid image.">
         <source>This file is not a valid image.</source>
         <target>This file is not a valid image.</target>
+      </trans-unit>
+      <trans-unit id="ZuGpyhA" resname="This file is not a valid video.">
+        <source>This file is not a valid video.</source>
+        <target>This file is not a valid video.</target>
+      </trans-unit>
+      <trans-unit id="tPeCNvN" resname="This filename does not match the expected charset.">
+        <source>This filename does not match the expected charset.</source>
+        <target>This filename does not match the expected charset.</target>
       </trans-unit>
       <trans-unit id="tDkL4Jc" resname="This form should not contain extra fields.">
         <source>This form should not contain extra fields.</source>
@@ -592,6 +668,14 @@
       <trans-unit id="Y8YNvWG" resname="Unsupported card type or invalid card number.">
         <source>Unsupported card type or invalid card number.</source>
         <target>Unsupported card type or invalid card number.</target>
+      </trans-unit>
+      <trans-unit id="hCzL7Mv" resname="Unsupported video codec &quot;{{ codec }}&quot;.">
+        <source>Unsupported video codec "{{ codec }}".</source>
+        <target>Unsupported video codec "{{ codec }}".</target>
+      </trans-unit>
+      <trans-unit id="nTnX6nj" resname="Unsupported video container &quot;{{ container }}&quot;.">
+        <source>Unsupported video container "{{ container }}".</source>
+        <target>Unsupported video container "{{ container }}".</target>
       </trans-unit>
       <trans-unit id="Z4taMVn" resname="Using hidden overlay characters is not allowed.">
         <source>Using hidden overlay characters is not allowed.</source>

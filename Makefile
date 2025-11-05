@@ -59,6 +59,9 @@ compile: ## Execute some tasks before deployment
 	@$(CONSOLE) cache:clear
 	@$(CONSOLE) cache:warmup
 
+consume: ## Consume messages from symfony messenger
+	@$(CONSOLE) messenger:consume async_priority_high async_priority_low -vv
+
 trans: ## Extract translations from symfony
 	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc en
 

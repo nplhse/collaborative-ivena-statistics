@@ -529,6 +529,10 @@
         <source>link.specialities</source>
         <target>Specialities</target>
       </trans-unit>
+      <trans-unit id="qo4nUz4" resname="link.statistics">
+        <source>link.statistics</source>
+        <target>Statistics</target>
+      </trans-unit>
       <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
         <target>This form allows you to link a raw indication with a corresponding normalized indication from the

@@ -22,6 +22,22 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    app.lock.pdo:
+        class: PDO
+        factory: ['@doctrine.dbal.default_connection', 'getNativeConnection']
+
+    app.lock.store:
+        class: Symfony\Component\Lock\Store\PdoStore
+        arguments:
+            - '@app.lock.pdo'
+            - { useAdvisoryLocks: true }
+
+    app.lock.factory:
+        class: Symfony\Component\Lock\LockFactory
+        arguments: ['@app.lock.store']
+
+    Symfony\Component\Lock\LockFactory: '@app.lock.factory'
+
     App\Service\Import\Adapter\SplCsvRowReader: ~
     App\Service\Import\Mapping\AllocationRowMapper: ~
     App\Service\Import\Mapping\AllocationImportFactory: ~

@@ -48,7 +48,7 @@ final class IndicationRawSeedProviderTest extends TestCase
 
         self::assertSame($keys, \array_values(\array_unique($keys)));
 
-        self::assertCount(199, $values);
+        self::assertCount(200, $values);
     }
 
     public function testGetTypeIsInfection(): void
