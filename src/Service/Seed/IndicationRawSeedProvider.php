@@ -105,6 +105,7 @@ final class IndicationRawSeedProvider implements SeedProviderInterface
         yield ['code' => '320', 'name' => 'sonstiger internistischer Notfall'];
         yield ['code' => '321', 'name' => 'Anaphylaxie/Unverträglichkeitsreaktion'];
         yield ['code' => '322', 'name' => 'sonstiger respiratorischer Notfall'];
+        yield ['code' => '322', 'name' => 'Synkope/Kollaps'];
         yield ['code' => '323', 'name' => 'Hypertonie'];
         yield ['code' => '324', 'name' => 'Hypotonie'];
         yield ['code' => '324', 'name' => 'sonstige Notfallsituation'];
