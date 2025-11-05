@@ -21,7 +21,7 @@ final class ScheduleScopesHandler
      * @psalm-suppress PossiblyUnusedMethod
      */
     public function __construct(
-        #[AutowireIterator('app.stats.slice_provider')]
+        #[AutowireIterator('app.stats.scope_provider')]
         private iterable $providers,
         private MessageBusInterface $messageBus,
     ) {
