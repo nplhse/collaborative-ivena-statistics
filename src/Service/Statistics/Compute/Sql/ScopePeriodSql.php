@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Statistics\Compute\Sql;
 
 use App\Model\Scope;
+use App\Service\Statistics\Util\Period;
 
 trait ScopePeriodSql
 {
@@ -14,7 +15,7 @@ trait ScopePeriodSql
     private function buildScopeWhere(Scope $scope): array
     {
         return match ($scope->scopeType) {
-            'public' => [
+            'public', 'hospital_tier', 'hospital_size', 'hospital_location', 'hospital_cohort' => [
                 'sql' => 'TRUE',
                 'params' => [],
             ],
@@ -40,23 +41,27 @@ trait ScopePeriodSql
     private function buildPeriodExpr(Scope $scope): array
     {
         return match ($scope->granularity) {
-            'day' => [
+            Period::ALL => [
+                'sql' => 'TRUE',
+                'params' => [],
+            ],
+            Period::DAY => [
                 'sql' => 'period_day(arrival_at) = :period_key::date',
                 'params' => ['period_key' => $scope->periodKey],
             ],
-            'week' => [
+            Period::WEEK => [
                 'sql' => 'period_week(arrival_at) = :period_key::date',
                 'params' => ['period_key' => $scope->periodKey],
             ],
-            'month' => [
+            Period::MONTH => [
                 'sql' => 'period_month(arrival_at) = :period_key::date',
                 'params' => ['period_key' => $scope->periodKey],
             ],
-            'quarter' => [
+            Period::QUARTER => [
                 'sql' => 'period_quarter(arrival_at) = :period_key::date',
                 'params' => ['period_key' => $scope->periodKey],
             ],
-            'year' => [
+            Period::YEAR => [
                 'sql' => 'period_year(arrival_at) = :period_key::date',
                 'params' => ['period_key' => $scope->periodKey],
             ],

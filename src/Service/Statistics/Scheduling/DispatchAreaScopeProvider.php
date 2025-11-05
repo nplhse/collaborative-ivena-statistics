@@ -7,11 +7,12 @@ namespace App\Service\Statistics\Scheduling;
 use App\Contract\ScopeProviderInterface;
 use App\Model\Scope;
 use App\Service\Statistics\Scheduling\Sql\ProviderSql;
+use App\Service\Statistics\Util\Period;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
-#[AutoconfigureTag(name: 'app.stats.slice_provider', attributes: ['priority' => 100])]
+#[AutoconfigureTag(name: 'app.stats.scope_provider', attributes: ['priority' => 100])]
 final class DispatchAreaScopeProvider implements ScopeProviderInterface
 {
     public function __construct(private Connection $db)
@@ -28,10 +29,15 @@ final class DispatchAreaScopeProvider implements ScopeProviderInterface
             ['id' => $importId]
         );
 
-        $grans = ['year', 'quarter', 'month', 'week', 'day'];
+        $grans = Period::allGranularities();
 
         foreach ($ids as $scopeId) {
             foreach ($grans as $g) {
+                if (Period::ALL === $g) {
+                    yield new Scope('dispatch_area', (string) $scopeId, $g, Period::ALL_ANCHOR_DATE);
+                    continue;
+                }
+
                 $periodExpr = ProviderSql::periodKeySelect($g);
                 $keys = $this->db->fetchFirstColumn(
                     "SELECT DISTINCT {$periodExpr} AS k
