@@ -12,8 +12,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
+/** @psalm-suppress ClassMustBeFinal */
 #[AsMessageHandler]
-final class ScheduleScopesHandler
+class ScheduleScopesHandler
 {
     /**
      * @param iterable<ScopeProviderInterface> $providers

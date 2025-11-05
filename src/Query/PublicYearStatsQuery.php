@@ -4,7 +4,8 @@ namespace App\Query;
 
 use Doctrine\DBAL\Connection;
 
-final readonly class PublicYearStatsQuery
+/** @psalm-suppress ClassMustBeFinal */
+readonly class PublicYearStatsQuery
 {
     public function __construct(private Connection $db)
     {
