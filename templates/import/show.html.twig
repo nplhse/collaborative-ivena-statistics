@@ -176,7 +176,9 @@
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.rejectionRate'|trans }}</div>
                                     <div class="datagrid-content">
-                                        {{ (import.rowsRejected / import.rowCount * 100)|number_format(2, ',', '.') }}%
+                                        {% if import.rowCount > 0 %}
+                                            {{ (import.rowsRejected / import.rowCount * 100)|number_format(2, ',', '.') }}%
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
