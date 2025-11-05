@@ -7,6 +7,7 @@ namespace App\Service\Statistics\Compute;
 use App\Contract\CalculatorInterface;
 use App\Model\Scope;
 use App\Service\Statistics\Compute\Sql\ScopePeriodSql;
+use App\Service\Statistics\Util\Period;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
@@ -24,7 +25,11 @@ final class OverviewCountCalculator implements CalculatorInterface
     #[\Override]
     public function supports(Scope $scope): bool
     {
-        return true;
+        return \in_array(
+            $scope->scopeType,
+            ['public', 'hospital', 'dispatch_area', 'state'],
+            true
+        );
     }
 
     #[\Override]
@@ -95,6 +100,10 @@ SQL;
             ];
         }
 
+        $periodKey = Period::ALL === $scope->granularity
+            ? Period::ALL_ANCHOR_DATE
+            : $scope->periodKey;
+
         $upsert = <<<SQL
 INSERT INTO agg_allocations_counts (
     scope_type, scope_id, period_gran, period_key,
@@ -139,7 +148,7 @@ SQL;
             'scope_type' => $scope->scopeType,
             'scope_id' => $scope->scopeId,
             'period_gran' => $scope->granularity,
-            'period_key' => $scope->periodKey,
+            'period_key' => $periodKey,
         ];
 
         $this->db->executeStatement($upsert, $upParams);
