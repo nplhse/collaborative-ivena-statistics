@@ -40,13 +40,13 @@
                 <p class="mb-2">Gender distribution</p>
                 <div class="progress progress-separated mb-3">
                     <div class="progress-bar bg-primary"
-                         style="width: {{ s ? m.pct(s.genderM, s.total) : 0 }}%"
+                         style="width: {{ s ? m.pct(s.genderM, s.total, 0) : 0 }}%"
                          aria-label="Male"></div>
                     <div class="progress-bar bg-pink"
-                         style="width: {{ s ? m.pct(s.genderW, s.total) : 0 }}%"
+                         style="width: {{ s ? m.pct(s.genderW, s.total, 0) : 0 }}%"
                          aria-label="Female"></div>
                     <div class="progress-bar bg-purple"
-                         style="width: {{ s ? m.pct(s.genderD, s.total) : 0 }}%"
+                         style="width: {{ s ? m.pct(s.genderD, s.total, 0) : 0 }}%"
                          aria-label="Diverse"></div>
                 </div>
                 <div class="row">
@@ -54,22 +54,43 @@
                         <span class="legend me-2 bg-primary"></span>
                         <span>Male</span>
                         <span class="text-muted ms-2">
-              {{ s ? s.genderM : 0 }} ({{ s ? m.pct(s.genderM, s.total) : 0 }}%)
-            </span>
+                            {{ s ? s.genderM : 0 }}
+
+                            {% if st %}
+                                {% set r = st.rates['gender_m'] ?? null %}
+                                ({{ s ? m.pct(s.genderM, s.total) : 0 }}%, {{ m.fmt_sd(r) }}, σ²={{ m.fmt_var(r) }})
+                            {% else %}
+                                ({{ s ? m.pct(s.genderM, s.total) : 0 }}%)
+                            {% endif %}
+                        </span>
                     </div>
                     <div class="col-auto d-flex align-items-center px-2">
                         <span class="legend me-2 bg-pink"></span>
                         <span>Female</span>
                         <span class="text-muted ms-2">
-              {{ s ? s.genderW : 0 }} ({{ s ? m.pct(s.genderW, s.total) : 0 }}%)
-            </span>
+                            {{ s ? s.genderW : 0 }}
+
+                            {% if st %}
+                                {% set r = st.rates['gender_w'] ?? null %}
+                                ({{ s ? m.pct(s.genderW, s.total) : 0 }}%, {{ m.fmt_sd(r) }}, σ²={{ m.fmt_var(r) }})
+                            {% else %}
+                                ({{ s ? m.pct(s.genderW, s.total) : 0 }}%)
+                            {% endif %}
+                        </span>
                     </div>
                     <div class="col-auto d-flex align-items-center px-2">
                         <span class="legend me-2 bg-purple"></span>
-                        <span>Diverse</span>
+                        <span>Other</span>
                         <span class="text-muted ms-2">
-              {{ s ? s.genderD : 0 }} ({{ s ? m.pct(s.genderD, s.total) : 0 }}%)
-            </span>
+                            {{ s ? s.genderD : 0 }}
+
+                            {% if st %}
+                                {% set r = st.rates['gender_d'] ?? null %}
+                                ({{ s ? m.pct(s.genderD, s.total) : 0 }}%, {{ m.fmt_sd(r) }}, σ²={{ m.fmt_var(r) }})
+                            {% else %}
+                                ({{ s ? m.pct(s.genderD, s.total) : 0 }}%)
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -83,13 +104,13 @@
                 <p class="mb-2">Urgency 1 / 2 / 3</p>
                 <div class="progress progress-separated mb-3">
                     <div class="progress-bar bg-red"
-                         style="width: {{ s ? m.pct(s.urg1, s.total) : 0 }}%"
+                         style="width: {{ s ? m.pct(s.urg1, s.total, 0) : 0 }}%"
                          aria-label="U1"></div>
                     <div class="progress-bar bg-yellow"
-                         style="width: {{ s ? m.pct(s.urg2, s.total) : 0 }}%"
+                         style="width: {{ s ? m.pct(s.urg2, s.total, 0) : 0 }}%"
                          aria-label="U2"></div>
                     <div class="progress-bar bg-green"
-                         style="width: {{ s ? m.pct(s.urg3, s.total) : 0 }}%"
+                         style="width: {{ s ? m.pct(s.urg3, s.total, 0) : 0 }}%"
                          aria-label="U3"></div>
                 </div>
                 <div class="row">
@@ -97,22 +118,43 @@
                         <span class="legend me-2 bg-red"></span>
                         <span>U1</span>
                         <span class="text-muted ms-2">
-              {{ s ? s.urg1 : 0 }} ({{ s ? m.pct(s.urg1, s.total) : 0 }}%)
-            </span>
+                            {{ s ? s.urg1 : 0 }}
+
+                            {% if st %}
+                                {% set r = st.rates['urg_1'] ?? null %}
+                                ({{ s ? m.pct(s.urg1, s.total) : 0 }}%, {{ m.fmt_sd(r) }}, σ²={{ m.fmt_var(r) }})
+                            {% else %}
+                                ({{ s ? m.pct(s.urg1, s.total) : 0 }}%)
+                            {% endif %}
+                        </span>
                     </div>
                     <div class="col-auto d-flex align-items-center px-2">
                         <span class="legend me-2 bg-yellow"></span>
                         <span>U2</span>
                         <span class="text-muted ms-2">
-              {{ s ? s.urg2 : 0 }} ({{ s ? m.pct(s.urg2, s.total) : 0 }}%)
-            </span>
+                            {{ s ? s.urg2 : 0 }}
+
+                            {% if st %}
+                                {% set r = st.rates['urg_2'] ?? null %}
+                                ({{ s ? m.pct(s.urg2, s.total) : 0 }}%, {{ m.fmt_sd(r) }}, σ²={{ m.fmt_var(r) }})
+                            {% else %}
+                                ({{ s ? m.pct(s.urg2, s.total) : 0 }}%)
+                            {% endif %}
+                        </span>
                     </div>
                     <div class="col-auto d-flex align-items-center px-2">
                         <span class="legend me-2 bg-green"></span>
                         <span>U3</span>
                         <span class="text-muted ms-2">
-              {{ s ? s.urg3 : 0 }} ({{ s ? m.pct(s.urg3, s.total) : 0 }}%)
-            </span>
+                            {{ s ? s.urg3 : 0 }}
+
+                            {% if st %}
+                                {% set r = st.rates['urg_3'] ?? null %}
+                                ({{ s ? m.pct(s.urg3, s.total) : 0 }}%, {{ m.fmt_sd(r) }}, σ²={{ m.fmt_var(r) }})
+                            {% else %}
+                                ({{ s ? m.pct(s.urg3, s.total) : 0 }}%)
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -129,11 +171,9 @@
                 <th>Indicator</th>
                 <th>Value</th>
                 <th>Share</th>
-                {% if st %}
-                    <th>Mean</th>
-                    <th>SD</th>
-                    <th>Variance (pct²)</th>
-                {% endif %}
+                <th>Mean</th>
+                <th>SD</th>
+                <th>Variance (σ²)</th>
             </tr>
             </thead>
             <tbody>
