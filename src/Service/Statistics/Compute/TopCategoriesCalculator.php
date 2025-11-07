@@ -74,6 +74,9 @@ final class TopCategoriesCalculator implements CalculatorInterface
     {
         [$fromSql, $whereSql, $params] = $this->buildBaseFilter($scope);
 
+        $countSql = "SELECT COUNT(*)::int AS c FROM {$fromSql} WHERE {$whereSql}";
+        $total = (int) $this->db->fetchOne($countSql, $params);
+
         $limit = 10;
 
         $tops = [];
@@ -84,11 +87,13 @@ final class TopCategoriesCalculator implements CalculatorInterface
         $sql = <<<SQL
 INSERT INTO agg_allocations_top_categories (
     scope_type, scope_id, period_gran, period_key,
+    total,
     top_occasion, top_assignment, top_infection,
     top_indication, top_speciality, top_department
 )
 VALUES (
     :t, :i, :g, :k::date,
+    :total,
     :top_occasion::jsonb,
     :top_assignment::jsonb,
     :top_infection::jsonb,
@@ -98,13 +103,14 @@ VALUES (
 )
 ON CONFLICT (scope_type, scope_id, period_gran, period_key)
 DO UPDATE SET
-    top_occasion    = EXCLUDED.top_occasion,
-    top_assignment  = EXCLUDED.top_assignment,
-    top_infection   = EXCLUDED.top_infection,
-    top_indication  = EXCLUDED.top_indication,
-    top_speciality  = EXCLUDED.top_speciality,
-    top_department  = EXCLUDED.top_department,
-    computed_at     = now();
+    total          = EXCLUDED.total,
+    top_occasion   = EXCLUDED.top_occasion,
+    top_assignment = EXCLUDED.top_assignment,
+    top_infection  = EXCLUDED.top_infection,
+    top_indication = EXCLUDED.top_indication,
+    top_speciality = EXCLUDED.top_speciality,
+    top_department = EXCLUDED.top_department,
+    computed_at    = now();
 SQL;
 
         $this->db->executeStatement($sql, [
@@ -112,7 +118,7 @@ SQL;
             'i' => $scope->scopeId,
             'g' => $scope->granularity,
             'k' => $scope->periodKey,
-
+            'total' => $total,
             'top_occasion' => json_encode($tops['occasion'], JSON_THROW_ON_ERROR),
             'top_assignment' => json_encode($tops['assignment'], JSON_THROW_ON_ERROR),
             'top_infection' => json_encode($tops['infection'], JSON_THROW_ON_ERROR),
@@ -140,7 +146,6 @@ SQL;
         $table = $cfg['table'];
         $labelCol = $cfg['label'];
 
-        // NEU: t.id as id
         $sql = <<<SQL
 SELECT
     t.id AS id,
