@@ -59,15 +59,13 @@ final class AllocationIndicationResolver implements AllocationEntityResolverInte
 
             $import = $entity->getImport();
 
-            if ($import && null !== $import->getCreatedBy()) {
-                $userId = $import->getCreatedBy()?->getId();
-
-                if (null !== $userId) {
-                    /** @var \App\Entity\User $userRef */
-                    $userRef = $this->em->getReference(\App\Entity\User::class, $userId);
-                    $raw->setCreatedBy($userRef);
-                }
+            if (null === ($userId = $import?->getCreatedBy()?->getId())) {
+                return;
             }
+
+            /** @var \App\Entity\User $userRef */
+            $userRef = $this->em->getReference(\App\Entity\User::class, $userId);
+            $raw->setCreatedBy($userRef);
 
             $this->em->persist($raw);
             $this->cache->putNew($hash, $raw);
