@@ -3,14 +3,18 @@
 namespace App\Command;
 
 use App\Entity\Import;
+use App\Entity\User;
 use App\Message\ImportAllocationsMessage;
 use App\Repository\ImportRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 #[AsCommand(
     name: 'app:import:allocations',
@@ -21,6 +25,8 @@ final class RunAllocationImportCommand extends Command
     public function __construct(
         private readonly ImportRepository $importRepository,
         private readonly MessageBusInterface $bus,
+        private readonly EntityManagerInterface $em,
+        private \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage,
     ) {
         parent::__construct();
     }
@@ -29,15 +35,16 @@ final class RunAllocationImportCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('importId', InputArgument::REQUIRED, 'ID of the Import entity')
-            ->addArgument('filePath', InputArgument::REQUIRED, 'Path to the CSV file (relative to imports dir or absolute)');
+            ->addArgument('importId', InputArgument::REQUIRED, 'ID of the Import entity (required)')
+            ->addOption('userId', null, InputOption::VALUE_REQUIRED, 'User ID to set as createdBy (required)');
     }
 
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // Fetch command options
         $importId = (int) $input->getArgument('importId');
-        $filePath = $input->getArgument('filePath');
+        $userId = (int) $input->getOption('userId');
 
         $import = $this->importRepository->find($importId);
 
@@ -47,17 +54,31 @@ final class RunAllocationImportCommand extends Command
             return Command::FAILURE;
         }
 
-        // create message
-        $message = new ImportAllocationsMessage($importId);
+        $user = $this->em->getRepository(User::class)->find($userId);
 
-        // dispatch via Messenger (sync or async depending on transport config)
-        $this->bus->dispatch($message);
+        if (null === $user) {
+            $output->writeln(sprintf('<error>User #%d not found.</error>', $userId));
 
-        $output->writeln(sprintf(
-            '<info>Dispatched import job for Import #%d with file "%s"</info>',
-            $importId,
-            $filePath
-        ));
+            return Command::FAILURE;
+        }
+
+        $token = new PostAuthenticationToken($user, 'main', $user->getRoles());
+        $this->tokenStorage->setToken($token);
+
+        try {
+            // create message
+            $message = new ImportAllocationsMessage($importId);
+
+            // dispatch via Messenger (sync or async depending on transport config)
+            $this->bus->dispatch($message);
+
+            $output->writeln(sprintf(
+                '<info>Dispatched import job for Import #%d"</info>',
+                $importId,
+            ));
+        } finally {
+            $this->tokenStorage->setToken(null);
+        }
 
         return Command::SUCCESS;
     }
