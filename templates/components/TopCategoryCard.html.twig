@@ -1,0 +1,50 @@
+{# templates/components/TopCategoryCard.html.twig #}
+{% import '_macros/metrics_macros.html.twig' as m %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+    </div>
+
+    <div class="card-body p-0">
+        {% if this.hasData() %}
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                    <tr>
+                        <th style="width:48px;">#</th>
+                        <th>Category</th>
+                        <th class="text-end">Count</th>
+                        <th class="text-end">Share</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in items %}
+                        <tr>
+                            <td class="text-muted">{{ loop.index }}</td>
+                            <td>
+                                {# Falls du verlinken willst: href auf Basis der id bauen #}
+                                {% if row.id is not null %}
+                                    <a href="#" class="text-reset">{{ row.label }}</a>
+                                {% else %}
+                                    <span class="text-secondary">{{ row.label }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
+                            <td class="text-end">
+                                {{ m.pct_str(row.count, total, 1) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-database-off"></i></div>
+                <p class="empty-title">No data</p>
+                <p class="empty-subtitle text-muted">No entries available for this period.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
