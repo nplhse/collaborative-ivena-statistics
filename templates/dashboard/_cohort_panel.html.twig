@@ -22,7 +22,7 @@
 {% endif %}
 
 {# Top cards: reuse layout; gender shows bars only (no stats text) #}
-<div class="row row-deck row-cards mb-4">
+<div class="row row-deck row-cards mb-3">
     <div class="col-sm-6 col-lg-4">
         <div class="card">
             <div class="card-body">
@@ -162,8 +162,14 @@
     </div>
 </div>
 
+<twig:HourlyChart
+    :labels="hourly.labels"
+    :series="hourly.series"
+    height="280"
+/>
+
 {# Indicators table with Mean / SD / Variance #}
-<div class="card">
+<div class="card mb-3">
     <div class="card-body p-0">
         <table class="table card-table table-vcenter">
             <thead>
@@ -270,4 +276,27 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="row row-cards mb-3">
+    {% set total = topCats.total %}
+
+    {% set cards = {
+        Occasions: topCats.occasion.items,
+        Assignments: topCats.assignment.items,
+        Infections: topCats.infection.items,
+        Indications: topCats.indication.items,
+        Specialities: topCats.speciality.items,
+        Departments: topCats.department.items,
+    } %}
+
+    {% for title, items in cards %}
+        <div class="col-sm-6 col-lg-6">
+            <twig:TopCategoryCard
+                :title="title"
+                :items="items"
+                :total="total"
+            />
+        </div>
+    {% endfor %}
 </div>

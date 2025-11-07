@@ -11,6 +11,9 @@ use App\Model\Scope;
 use App\Service\Statistics\DashboardCohortStatsReader;
 use App\Service\Statistics\DashboardCohortSumsReader;
 use App\Service\Statistics\DashboardCountsReader;
+use App\Service\Statistics\HourlyChartDataLoader;
+use App\Service\Statistics\HourlyMetricPresets;
+use App\Service\Statistics\TopCategoriesReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,14 +27,28 @@ final class DashboardController extends AbstractController
         DashboardCountsReader $countsReader,
         DashboardCohortSumsReader $cohortSumsReader,
         DashboardCohortStatsReader $cohortStatsReader,
+        HourlyChartDataLoader $hourlyChartDataLoader,
+        TopCategoriesReader $topCategoriesReader,
     ): Response {
         $context = DashboardContext::fromQuery($request->query->all());
         $scope = Scope::fromDashboardContext($context);
+
+        $preset = $request->query->get('hourly', 'total');
+        $metrics = HourlyMetricPresets::metricsFor($preset);
+
+        $hourlyPayload = $hourlyChartDataLoader->buildPayload($scope, $metrics);
 
         $isCohortScope = \in_array(
             $scope->scopeType,
             ['hospital_tier', 'hospital_size', 'hospital_location', 'hospital_cohort'],
             true
+        );
+
+        $topCats = $topCategoriesReader->read(
+            $scope->scopeType,
+            $scope->scopeId,
+            $scope->granularity,
+            $scope->periodKey
         );
 
         if ($isCohortScope) {
@@ -43,6 +60,10 @@ final class DashboardController extends AbstractController
                 ],
                 'scope' => $scope,
                 'context' => $context,
+                'hourly' => $hourlyPayload,
+                'preset' => $preset,
+                'presets' => HourlyMetricPresets::all(),
+                'topCats' => $topCats,
             ];
         } else {
             $tpl = [
@@ -50,6 +71,10 @@ final class DashboardController extends AbstractController
                 'cohortPanel' => null,
                 'scope' => $scope,
                 'context' => $context,
+                'hourly' => $hourlyPayload,
+                'preset' => $preset,
+                'presets' => HourlyMetricPresets::all(),
+                'topCats' => $topCats,
             ];
         }
 
