@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-/** @psalm-suppress PossiblyUnusedProperty */
-final class CohortSumsView
+/**
+ * @psalm-suppress PossiblyUnusedProperty
+ * @psalm-suppress ClassMustBeFinal
+ */
+class CohortSumsView
 {
     public function __construct(
         public Scope $scope,

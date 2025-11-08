@@ -16,8 +16,8 @@ final class TopCategoryCard
     public array $items = [];
 
     public string $title = '';
-    public int $total = 0;          // für Prozent-Berechnung
-    public ?string $footer = null;  // optionaler Footer-Text (z.B. computedAt)
+    public int $total = 0;
+    public ?string $footer = null;
 
     public function hasData(): bool
     {

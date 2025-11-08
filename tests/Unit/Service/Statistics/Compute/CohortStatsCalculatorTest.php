@@ -139,32 +139,32 @@ final class CohortStatsCalculatorTest extends TestCase
     {
         yield 'tier' => [
             'hospital_tier',
-            'full', // scopeId
-            'h.tier = :hv',
+            'full',
+            'LOWER(h.tier) = :hv',
             ['hv' => 'full'],
         ];
         yield 'size' => [
             'hospital_size',
             'large',
-            'h.size = :hv',
+            'LOWER(h.size) = :hv',
             ['hv' => 'large'],
         ];
         yield 'location' => [
             'hospital_location',
             'urban',
-            'h.location = :hv',
+            'LOWER(h.location) = :hv',
             ['hv' => 'urban'],
         ];
         yield 'cohort basic_urban' => [
             'hospital_cohort',
             'basic_urban',
-            'h.tier = :t AND h.location = :l',
+            'LOWER(h.tier) = :t AND LOWER(h.location) = :l',
             ['t' => 'basic', 'l' => 'urban'],
         ];
         yield 'cohort Extended_Rural (case-insensitive → lower)' => [
             'hospital_cohort',
             'Extended_Rural',
-            'h.tier = :t AND h.location = :l',
+            'LOWER(h.tier) = :t AND LOWER(h.location) = :l',
             ['t' => 'extended', 'l' => 'rural'],
         ];
     }
@@ -178,7 +178,7 @@ final class CohortStatsCalculatorTest extends TestCase
         $scope = new Scope('hospital_cohort', 'invalid', Period::DAY, '2025-11-01');
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage("Invalid cohort id 'invalid'");
+        $this->expectExceptionMessage("Invalid cohort id 'invalid', expected '<tier>_<location>'");
         $calc->calculate($scope);
     }
 

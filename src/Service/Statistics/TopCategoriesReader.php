@@ -6,7 +6,8 @@ namespace App\Service\Statistics;
 
 use Doctrine\DBAL\Connection;
 
-final readonly class TopCategoriesReader
+/** @psalm-suppress ClassMustBeFinal */
+readonly class TopCategoriesReader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

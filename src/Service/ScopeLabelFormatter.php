@@ -7,7 +7,8 @@ namespace App\Service;
 use App\Model\Scope;
 use App\Service\Statistics\Util\DbScopeNameResolver;
 
-final class ScopeLabelFormatter
+/** @psalm-suppress ClassMustBeFinal */
+class ScopeLabelFormatter
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

@@ -7,7 +7,8 @@ namespace App\Service\Statistics;
 use App\Model\Scope;
 use Doctrine\DBAL\Connection;
 
-final readonly class HourlyChartDataLoader
+/** @psalm-suppress ClassMustBeFinal */
+readonly class HourlyChartDataLoader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

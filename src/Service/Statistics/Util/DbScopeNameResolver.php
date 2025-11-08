@@ -6,7 +6,8 @@ namespace App\Service\Statistics\Util;
 
 use Doctrine\DBAL\Connection;
 
-final class DbScopeNameResolver
+/** @psalm-suppress ClassMustBeFinal */
+class DbScopeNameResolver
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

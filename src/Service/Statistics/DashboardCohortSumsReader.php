@@ -8,7 +8,8 @@ use App\Model\CohortSumsView;
 use App\Model\Scope;
 use Doctrine\DBAL\Connection;
 
-final readonly class DashboardCohortSumsReader
+/** @psalm-suppress ClassMustBeFinal */
+readonly class DashboardCohortSumsReader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(private Connection $db)

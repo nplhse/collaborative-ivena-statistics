@@ -8,7 +8,8 @@ use App\Model\DashboardPanelView;
 use App\Model\Scope;
 use Doctrine\DBAL\Connection;
 
-final readonly class DashboardCountsReader
+/** @psalm-suppress ClassMustBeFinal */
+readonly class DashboardCountsReader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

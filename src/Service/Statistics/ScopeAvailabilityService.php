@@ -8,7 +8,8 @@ use App\Model\Scope;
 use App\Service\Statistics\Util\Period;
 use Doctrine\DBAL\Connection;
 
-final class ScopeAvailabilityService
+/** @psalm-suppress ClassMustBeFinal */
+class ScopeAvailabilityService
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(private Connection $db)

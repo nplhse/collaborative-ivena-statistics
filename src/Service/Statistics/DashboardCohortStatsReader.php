@@ -9,7 +9,8 @@ use App\Model\CohortStatsView;
 use App\Model\Scope;
 use Doctrine\DBAL\Connection;
 
-final readonly class DashboardCohortStatsReader
+/** @psalm-suppress ClassMustBeFinal */
+readonly class DashboardCohortStatsReader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(private Connection $db)

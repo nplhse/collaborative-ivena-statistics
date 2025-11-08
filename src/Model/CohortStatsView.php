@@ -8,8 +8,9 @@ namespace App\Model;
  * @psalm-type RatesMap = array<string, CohortRate>
  *
  * @psalm-suppress PossiblyUnusedProperty
+ * @psalm-suppress ClassMustBeFinal
  */
-final class CohortStatsView
+class CohortStatsView
 {
     /**
      * @param array<string, CohortRate> $rates

@@ -21,7 +21,7 @@ final class HourlyHistogramCalculatorTest extends TestCase
         self::assertTrue($calc->supports($scope));
     }
 
-    public function testCalculateWithAllGranularityOverwritesResultWith24Zeros(): void
+    public function testCalculateWithAllGranularityPersistsReturnedJson(): void
     {
         $importScope = new Scope('hospital', '5', Period::ALL, Period::ALL_ANCHOR_DATE);
 
@@ -39,10 +39,14 @@ final class HourlyHistogramCalculatorTest extends TestCase
                 self::callback(function (string $sql) use (&$capturedSelectSql) {
                     $capturedSelectSql = $sql;
 
-                    // Must include key fragments from HourlyHistogramCalculator:
-                    self::assertStringContainsString("EXTRACT(HOUR FROM (arrival_at AT TIME ZONE 'Europe/Berlin'))::int AS h", $sql, 'Missing hour extraction with timezone.');
+                    // Muss exakt die neue Stunde-Extraktion inkl. Alias 'hour' enthalten
+                    self::assertStringContainsString(
+                        "EXTRACT(HOUR FROM (arrival_at AT TIME ZONE 'Europe/Berlin'))::int AS hour",
+                        $sql,
+                        'Missing hour extraction with timezone and alias "hour".'
+                    );
                     self::assertStringContainsString('FROM allocation', $sql, 'Must select from allocation.');
-                    // For ALL granularity, ScopePeriodSql::buildPeriodExpr returns TRUE
+                    // Für ALL-Granularität liefert ScopePeriodSql::buildPeriodExpr → TRUE
                     self::assertStringContainsString('WHERE hospital_id = :scope_id::int', $sql, 'Missing hospital scope filter.');
                     self::assertStringContainsString('AND TRUE', $sql, 'ALL granularity should contribute TRUE in WHERE.');
 
@@ -55,8 +59,8 @@ final class HourlyHistogramCalculatorTest extends TestCase
                     return true;
                 })
             )
-            // Any non-false array should trigger the branch that overwrites with zeros:
-            ->willReturn(['hours_count' => '{1,2,3}']);
+            // Neue Implementierung: Rückgabe kann bereits als Array vorliegen → wird gejson-encoded
+            ->willReturn(['hours_count' => ['total' => range(0, 23)]]);
 
         // 2) UPSERT executeStatement
         $db->expects($this->once())
@@ -75,14 +79,17 @@ final class HourlyHistogramCalculatorTest extends TestCase
                 self::callback(function (array $params) use (&$capturedUpsertParams, $importScope) {
                     $capturedUpsertParams = $params;
 
-                    // Expect 24 zeros as a PG array literal string
-                    $expectedZeros = '{'.implode(',', array_fill(0, 24, 0)).'}';
-
                     self::assertSame($importScope->scopeType, $params['scope_type']);
                     self::assertSame($importScope->scopeId, $params['scope_id']);
                     self::assertSame($importScope->granularity, $params['period_gran']);
                     self::assertSame($importScope->periodKey, $params['period_key']);
-                    self::assertSame($expectedZeros, $params['hours_count'], 'hours_count must be 24 zeros string when select returned non-false.');
+
+                    // Erwartet wird ein JSON-String; minimal prüfen wir "total" mit 24 Einträgen
+                    self::assertIsString($params['hours_count'], 'hours_count must be a JSON string.');
+                    $decoded = json_decode($params['hours_count'], true, 512, JSON_THROW_ON_ERROR);
+                    self::assertIsArray($decoded);
+                    self::assertArrayHasKey('total', $decoded);
+                    self::assertCount(24, $decoded['total'], 'total must contain 24 entries.');
 
                     return true;
                 })
@@ -93,25 +100,25 @@ final class HourlyHistogramCalculatorTest extends TestCase
         $calc->calculate($importScope);
     }
 
-    public function testCalculateWhenSelectReturnsFalseSetsHoursCountToZero(): void
+    public function testCalculateWhenSelectReturnsFalseSetsHoursCountToZerosJson(): void
     {
         $scope = new Scope('hospital', '123', Period::DAY, '2025-11-01');
 
         $db = $this->createMock(Connection::class);
 
-        // 1) SELECT returns false → code sets ['hours_count' => 0]
+        // 1) SELECT returns false → Code baut JSON mit 24 Nullen je Metrik
         $db->expects($this->once())
             ->method('fetchAssociative')
             ->with(
                 self::callback(function (string $sql) {
-                    // Must include period filter for DAY and scope filter for hospital id
+                    // Muss Perioden- und Scope-Filter enthalten
                     self::assertStringContainsString('WHERE hospital_id = :scope_id::int', $sql);
                     self::assertStringContainsString('AND period_day(arrival_at) = :period_key::date', $sql);
 
                     return true;
                 }),
                 self::callback(function (array $params) {
-                    // For DAY, expect both scope_id and period_key
+                    // Für DAY: scope_id und period_key
                     self::assertSame(['scope_id' => '123', 'period_key' => '2025-11-01'], $params);
 
                     return true;
@@ -119,7 +126,7 @@ final class HourlyHistogramCalculatorTest extends TestCase
             )
             ->willReturn(false);
 
-        // 2) UPSERT should receive hours_count = 0
+        // 2) UPSERT: hours_count = JSON (alle Metriken → 24 Nullen)
         $db->expects($this->once())
             ->method('executeStatement')
             ->with(
@@ -129,7 +136,21 @@ final class HourlyHistogramCalculatorTest extends TestCase
                     self::assertSame('123', $params['scope_id']);
                     self::assertSame(Period::DAY, $params['period_gran']);
                     self::assertSame('2025-11-01', $params['period_key']);
-                    self::assertSame(0, $params['hours_count'], 'hours_count must be integer 0 when select returned false.');
+
+                    self::assertIsString($params['hours_count'], 'hours_count should be a JSON string when select returned false.');
+                    $data = json_decode($params['hours_count'], true, 512, JSON_THROW_ON_ERROR);
+
+                    $metrics = [
+                        'total', 'gender_m', 'gender_w', 'gender_d', 'gender_u',
+                        'urg_1', 'urg_2', 'urg_3',
+                        'cathlab_required', 'resus_required',
+                        'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant', 'with_physician', 'infectious',
+                    ];
+                    foreach ($metrics as $m) {
+                        self::assertArrayHasKey($m, $data, "Missing metric '$m' in zeros JSON.");
+                        self::assertCount(24, $data[$m], "Metric '$m' must have 24 entries.");
+                        self::assertSame(array_fill(0, 24, 0), $data[$m], "Metric '$m' must be 24 zeros.");
+                    }
 
                     return true;
                 })

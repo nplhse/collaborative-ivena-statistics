@@ -7,7 +7,8 @@ namespace App\Service;
 use App\Model\Scope;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final readonly class ScopeRoute
+/** @psalm-suppress ClassMustBeFinal */
+readonly class ScopeRoute
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
