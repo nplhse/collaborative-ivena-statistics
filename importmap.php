@@ -63,4 +63,7 @@ return [
     'chart.js' => [
         'version' => '3.9.1',
     ],
+    'apexcharts' => [
+        'version' => '5.3.6',
+    ],
 ];

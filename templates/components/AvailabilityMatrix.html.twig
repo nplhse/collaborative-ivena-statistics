@@ -1,0 +1,78 @@
+{% set d = this.data() %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Verfügbarkeit von Daten</h3>
+    </div>
+
+    <div class="card-body p-2">
+        {% if d.years is empty %}
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-calendar"></i></div>
+                <p class="empty-title">Keine Daten gefunden</p>
+                <p class="empty-subtitle text-muted">Für den ausgewählten Scope existieren keine Year/Month-Aggregate.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="text-muted">
+                    <tr>
+                        <th style="width: 90px;">Jahr</th>
+                        {% for m in d.months %}
+                            <th class="text-center" style="width: 56px;">
+                                {{- ('%02d'|format(m)) -}}
+                            </th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for y in d.years %}
+                        {% set yearKey = y ~ '-01-01' %}
+                        <tr>
+                            <th class="align-middle">
+                                <a class="badge {% if d.hasYear[yearKey] ?? false %}bg-primary-lt{% else %}bg-secondary-lt text-muted{% endif %}"
+                                   href="{{ path('app_stats_dashboard', {
+                                       scopeType: this.scopeType,
+                                       scopeId: this.scopeId,
+                                       gran: 'year',
+                                       key: yearKey,
+                                   }) }}">
+                                    {{ y }}
+                                </a>
+                            </th>
+
+                            {% for m in d.months %}
+                                {% set monthKey = y ~ '-' ~ '%02d'|format(m) ~ '-01' %}
+                                {% set has = d.hasMonth[monthKey] ?? false %}
+                                <td class="text-center p-1">
+                                    {% if has %}
+                                        <a class="btn btn-primary w-100"
+                                           href="{{ path('app_stats_dashboard', {
+                                               scopeType: this.scopeType,
+                                               scopeId: this.scopeId,
+                                               gran: 'month',
+                                               key: monthKey,
+                                           }) }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 width="24" height="24" viewBox="0 0 24 24"
+                                                 style="display:inline-block; vertical-align:middle;"
+                                            >
+                                                <path fill="currentColor" d="M12 4c4.29 0 7.863 2.429 10.665 7.154l.22.379l.045.1l.03.083l.014.055l.014.082l.011.1v.11l-.014.111a1 1 0 0 1-.026.11l-.039.108l-.036.075l-.016.03c-2.764 4.836-6.3 7.38-10.555 7.499L12 20c-4.396 0-8.037-2.549-10.868-7.504a1 1 0 0 1 0-.992C3.963 6.549 7.604 4 12 4m0 5a3 3 0 1 0 0 6a3 3 0 0 0 0-6"/>
+                                            </svg>
+                                        </a>
+                                    {% else %}
+                                        <span class="btn btn-xs w-100 disabled bg-secondary-lt">&nbsp;</span>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-muted small mt-1">
+                Tip: The annual badge opens the annual view, while points open the monthly view.
+            </div>
+        {% endif %}
+    </div>
+</div>

@@ -30,6 +30,7 @@ install: ## Setup the whole project
 
 warmup: ## Warmup the dev environment (e.g. after purge)
 	@$(SYMFONY) composer setup-env
+	@$(SYMFONY) composer setup-test-env
 	@$(CONSOLE) asset-map:compile
 	@$(CONSOLE) cache:warmup
 

@@ -102,9 +102,10 @@ SQL;
     private function buildHospitalFilter(Scope $s): array
     {
         return match ($s->scopeType) {
-            'hospital_tier' => ['h.tier = :hv', ['hv' => $s->scopeId]],
-            'hospital_size' => ['h.size = :hv', ['hv' => $s->scopeId]],
-            'hospital_location' => ['h.location = :hv', ['hv' => $s->scopeId]],
+            'hospital_tier' => ['LOWER(h.tier) = :hv', ['hv' => strtolower($s->scopeId)]],
+            'hospital_size' => ['LOWER(h.size) = :hv', ['hv' => strtolower($s->scopeId)]],
+            'hospital_location' => ['LOWER(h.location) = :hv', ['hv' => strtolower($s->scopeId)]],
+
             'hospital_cohort' => (static function (string $sid) {
                 if (!preg_match(
                     '/^(?<tier>basic|extended|full)_(?<loc>urban|mixed|rural)$/i',
@@ -117,8 +118,9 @@ SQL;
                 $tier = strtolower($m['tier']);
                 $location = strtolower($m['loc']);
 
-                return ['h.tier = :t AND h.location = :l', ['t' => $tier, 'l' => $location]];
+                return ['LOWER(h.tier) = :t AND LOWER(h.location) = :l', ['t' => $tier, 'l' => $location]];
             })($s->scopeId),
+
             default => throw new \LogicException('Unsupported scopeType '.$s->scopeType),
         };
     }

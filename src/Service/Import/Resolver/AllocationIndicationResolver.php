@@ -57,6 +57,16 @@ final class AllocationIndicationResolver implements AllocationEntityResolverInte
                 ->setHash($hash)
                 ->setCreatedAt(new \DateTimeImmutable());
 
+            $import = $entity->getImport();
+
+            if (null === ($userId = $import?->getCreatedBy()?->getId())) {
+                return;
+            }
+
+            /** @var \App\Entity\User $userRef */
+            $userRef = $this->em->getReference(\App\Entity\User::class, $userId);
+            $raw->setCreatedBy($userRef);
+
             $this->em->persist($raw);
             $this->cache->putNew($hash, $raw);
         }

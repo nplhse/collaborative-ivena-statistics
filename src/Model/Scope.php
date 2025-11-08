@@ -28,4 +28,22 @@ final class Scope
     {
         return 'hospital' === $this->scopeType;
     }
+
+    public static function fromDashboardContext(DashboardContext $context): self
+    {
+        $scopeType = $context->scopeType ?: 'public';
+        $scopeId = $context->scopeId ?: 'all';
+        $granularity = $context->granularity ?: 'year';
+        $periodKey = $context->periodKey ?: sprintf('%d-01-01', (int) date('Y'));
+
+        if ('month' === $granularity && preg_match('/^\d{4}-\d{2}/', $periodKey)) {
+            $periodKey = substr($periodKey, 0, 7).'-01';
+        }
+
+        if ('all' === $granularity) {
+            $periodKey = '2010-01-01';
+        }
+
+        return new self($scopeType, $scopeId, $granularity, $periodKey);
+    }
 }

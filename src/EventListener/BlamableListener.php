@@ -23,9 +23,9 @@ final readonly class BlamableListener
     public function prePersist(PrePersistEventArgs $args): void
     {
         $entity = $args->getObject();
-        $currentUser = $this->security->getUser();
+        $user = $this->getManagedUserOrNull($args);
 
-        if (!$currentUser instanceof UserInterface) {
+        if (!$user instanceof UserInterface) {
             return;
         }
 
@@ -37,19 +37,15 @@ final readonly class BlamableListener
             return;
         }
 
-        $user = $this->getManagedUserOrNull($args);
-
-        if ($user) {
-            $entity->setCreatedBy($user);
-        }
+        $entity->setCreatedBy($user);
     }
 
     public function preUpdate(PreUpdateEventArgs $args): void
     {
         $entity = $args->getObject();
-        $currentUser = $this->security->getUser();
+        $user = $this->getManagedUserOrNull($args);
 
-        if (!$currentUser instanceof UserInterface) {
+        if (!$user instanceof UserInterface) {
             return;
         }
 
@@ -57,11 +53,7 @@ final readonly class BlamableListener
             return;
         }
 
-        $user = $this->getManagedUserOrNull($args);
-
-        if ($user) {
-            $entity->setUpdatedBy($user);
-        }
+        $entity->setUpdatedBy($user);
     }
 
     /**
