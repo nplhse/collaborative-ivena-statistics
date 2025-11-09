@@ -6,7 +6,8 @@ namespace App\Service\Statistics\Compute\Sql;
 
 use App\Model\Scope;
 
-final class ScopeFilterBuilder
+/** @psalm-suppress ClassMustBeFinal */
+class ScopeFilterBuilder
 {
     use ScopePeriodSql;
 
