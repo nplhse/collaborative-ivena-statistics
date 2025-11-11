@@ -1,0 +1,37 @@
+<div class="card mb-3">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="text-start">Metric</th>
+                    {# time columns #}
+                    {% for col in this.columns %}
+                        <th class="text-end">{{ col.label }}</th>
+                    {% endfor %}
+                    <th class="text-end">Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in this.rows %}
+                    <tr>
+                        <td class="text-start fw-medium">{{ row.label }}</td>
+                        {% for val in row.values %}
+                            {% set isTotalCell = loop.last %}
+                            <td class="text-end {{ isTotalCell ? 'fw-semibold' : '' }}">
+                                {% if val is same as(null) %}
+                                    –
+                                {% elseif row.format == 'pct' %}
+                                    {{ val|number_format(1, ',', '.') }}%
+                                {% else %}
+                                    {{ val|number_format(0, ',', '.') }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

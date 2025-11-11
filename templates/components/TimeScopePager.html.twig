@@ -1,0 +1,47 @@
+{% set prev = prev ?? {label: '', hint: null, url: '#', disabled: true} %}
+{% set next = next ?? {label: '', hint: null, url: '#', disabled: true} %}
+
+{% if variant == 'prev-only' %}
+    <ul class="pagination">
+        <li class="page-item page-prev {{ prev.disabled ? 'disabled' : '' }}">
+            <a class="page-link" href="{{ prev.disabled ? '#' : prev.url }}" {{ prev.disabled ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M15 6l-6 6l6 6"></path></svg>
+                {% if prev.hint %}<span class="ms-1">{{ prev.hint }}</span>{% endif %}
+            </a>
+        </li>
+    </ul>
+
+{% elseif variant == 'next-only' %}
+    <ul class="pagination">
+        <li class="page-item page-next {{ next.disabled ? 'disabled' : '' }}">
+            <a class="page-link" href="{{ next.disabled ? '#' : next.url }}" {{ next.disabled ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                {% if next.hint %}<span class="me-1">{{ next.hint }}</span>{% endif %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M9 6l6 6l-6 6"></path></svg>
+            </a>
+        </li>
+    </ul>
+
+{% else %}
+    <div class="card">
+        <div class="card-body">
+            <ul class="pagination">
+                <li class="page-item page-prev {{ prev.disabled ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ prev.disabled ? '#' : prev.url }}" {{ prev.disabled ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                        <div class="page-item-subtitle">Previous</div>
+                        <div class="page-item-title">
+                            {{ prev.hint ?: '—' }}
+                        </div>
+                    </a>
+                </li>
+                <li class="page-item page-next {{ next.disabled ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ next.disabled ? '#' : next.url }}" {{ next.disabled ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                        <div class="page-item-subtitle">Next</div>
+                        <div class="page-item-title">
+                            {{ next.hint ?: '—' }}
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endif %}
