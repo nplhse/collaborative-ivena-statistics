@@ -35,6 +35,8 @@ final class TimeGrid
             ];
         }
 
+        $cols[] = ['label' => 'Total', 'periodKey' => 'TOTAL', 'isTotal' => true];
+
         return $cols;
     }
 

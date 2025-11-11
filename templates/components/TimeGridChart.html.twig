@@ -1,0 +1,77 @@
+{# TimeGridChart renders a line chart that mirrors the current table (columns/rows/mode). #}
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title m-0">
+            {% if this.mode.value == 'raw' %}Time Grid (Values){% endif %}
+            {% if this.mode.value == 'delta' %}Time Grid (Δ Deltas){% endif %}
+            {% if this.mode.value == 'compare' %}Time Grid (Compare){% endif %}
+        </h3>
+    </div>
+
+    <div class="card-body">
+        {% if this.series is empty %}
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-chart-line"></i></div>
+                <p class="empty-title">No data</p>
+                <p class="empty-subtitle text-muted">No series available for the selected preset/mode.</p>
+            </div>
+        {% else %}
+            <div id="{{ this.domId }}" class="position-relative" style="height: {{ this.height }}px"></div>
+
+            <script>
+                (function () {
+                    var _id     = {{ this.domId|json_encode|raw }};
+                    var _labels = {{ this.labels|json_encode|raw }};
+                    var _series = {{ this.series|json_encode|raw }};
+                    var _height = {{ this.height|json_encode|raw }};
+
+                    function loadApexOnce() {
+                        if (window.ApexCharts) return Promise.resolve();
+                        if (window.__apexLoading) return window.__apexLoading;
+                        window.__apexLoading = new Promise(function (resolve, reject) {
+                            var s = document.createElement('script');
+                            s.src = "https://cdn.jsdelivr.net/npm/apexcharts";
+                            s.async = true;
+                            s.onload = resolve;
+                            s.onerror = function(){ reject(new Error("apex_load_failed")); };
+                            document.head.appendChild(s);
+                        });
+                        return window.__apexLoading;
+                    }
+
+                    function render() {
+                        var el = document.getElementById(_id);
+                        if (!el || el.dataset.rendered === "1") return;
+
+                        var options = {
+                            chart: { type: "line", height: _height, parentHeightOffset: 0, fontFamily: 'inherit', toolbar: { show: false }, animations: { enabled: false } },
+                            stroke: { width: 2, curve: "straight", lineCap: "round" },
+                            dataLabels: { enabled: false },
+                            grid: { strokeDashArray: 4, padding: { top: -20, right: 0, left: -4, bottom: -4 } },
+                            xaxis: { categories: _labels, labels: { show: true }, tooltip: { enabled: false } },
+                            yaxis: { labels: { padding: 4 } },
+                            tooltip: { theme: 'dark', shared: true, intersect: false },
+                            legend: { show: true, position: 'bottom', offsetY: 12, markers: { width: 10, height: 10, radius: 100 }, itemMargin: { horizontal: 8, vertical: 8 } },
+                            series: _series
+                        };
+
+                        loadApexOnce().then(function(){
+                            var chart = new ApexCharts(el, options);
+                            chart.render();
+                            el.dataset.rendered = "1";
+                            el.__chart = chart;
+                        });
+                    }
+
+                    if (window.Turbo) {
+                        document.addEventListener('turbo:load', render, { once: true });
+                    } else if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                        render();
+                    } else {
+                        document.addEventListener('DOMContentLoaded', render, { once: true });
+                    }
+                })();
+            </script>
+        {% endif %}
+    </div>
+</div>

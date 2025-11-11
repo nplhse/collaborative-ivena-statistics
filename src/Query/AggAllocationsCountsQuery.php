@@ -69,6 +69,6 @@ final readonly class AggAllocationsCountsQuery
             $map[$pk] = $row; // array
         }
 
-        return $map; // array<string, array|null>
+        return $map;
     }
 }

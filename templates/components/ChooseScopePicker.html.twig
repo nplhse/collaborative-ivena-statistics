@@ -1,0 +1,60 @@
+<div class="card mb-2">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Primary scope</label>
+                        <select class="form-select" onchange="if(this.value){window.location.href=this.value}">
+                            {% for group in this.primaryGroups() %}
+                                <optgroup label="{{ group.label }}">
+                                    {% for opt in group.items %}
+                                        <option value="{{ opt.url }}" {% if opt.selected %}selected{% endif %}>
+                                            {{ opt.label }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if this.isCompare() %}
+                        <div class="col-md-6">
+                            <label class="form-label">Baseline scope</label>
+                            <select class="form-select" onchange="if(this.value){window.location.href=this.value}">
+                                {% for group in this.baseGroups() %}
+                                    <optgroup label="{{ group.label }}">
+                                        {% for opt in group.items %}
+                                            <option value="{{ opt.url }}" {% if opt.selected %}selected{% endif %}>
+                                                {{ opt.label }}
+                                            </option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# RIGHT: Mode switch #}
+            <div class="col-auto">
+                {% set rawUrl = this.modeUrl('raw') %}
+                {% set deltaUrl = this.modeUrl('delta') %}
+                {% set cmpUrl = this.modeUrl('compare') %}
+
+                <div class="btn-group" role="group">
+                    <a class="btn btn-outline {% if mode.value == 'raw' %}active{% endif %}"
+                       href="{{ this.modeUrl('raw') }}">Raw</a>
+
+                    <a class="btn btn-outline {% if mode.value == 'delta' %}active{% endif %}"
+                       href="{{ this.modeUrl('delta') }}">Δ Delta</a>
+
+                    <a class="btn btn-outline {% if mode.value == 'compare' %}active{% endif %}"
+                       href="{{ this.modeUrl('compare') }}">Compare</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

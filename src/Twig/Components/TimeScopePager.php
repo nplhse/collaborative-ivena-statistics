@@ -45,6 +45,7 @@ final class TimeScopePager
 
     /**
      * @param array{key:string,label:string,hint?:string}|null $raw
+     *
      * @return array{disabled:bool, url:string, label:string, hint:?string}
      */
     private function buildSide(?array $raw, int $dir): array

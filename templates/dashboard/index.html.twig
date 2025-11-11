@@ -2,6 +2,14 @@
 
 {% block title %}Dashboard - {{ scope_label(scope) }} - {{ parent() }}{% endblock %}
 
+{% block header %}
+    {% embed '_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('_includes/subnav_stats.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
 {% block page_body %}
     <div class="container-xl">
         <twig:Breadcrumbs :items="[
