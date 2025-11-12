@@ -68,15 +68,22 @@
             :primary="primary"
             :base="base"
             :mode="mode"
-            preset="{{ preset }}"
+            :preset="preset"
         />
 
-        <twig:TimeGridChart :columns="columns" :rows="rows" :mode="mode" />
+        <twig:TimeGridChart
+            :columns="columns"
+            :rows="rows"
+            :mode="mode"
+            :metrics="currentPreset"
+            :view="view"
+        />
 
         <twig:TimeGrid
             :columns="columns"
             :rows="rows"
             :mode="mode"
+            :preset="preset"
         />
 
         <twig:TimeScopePager

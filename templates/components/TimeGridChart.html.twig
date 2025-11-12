@@ -1,28 +1,42 @@
-{# TimeGridChart renders a line chart that mirrors the current table (columns/rows/mode). #}
+{% set route = app.request.attributes.get('_route') %}
+{% set baseParams = app.request.query.all %}
+{% set view = this.view %}
+{% set hasData = this.series is not empty and (this.series|first).data is not empty %}
+{% set domId = this.domId ?? ('chart-timegrid-' ~ random()) %}
+
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h3 class="card-title m-0">
-            {% if this.mode.value == 'raw' %}Time Grid (Values){% endif %}
-            {% if this.mode.value == 'delta' %}Time Grid (Δ Deltas){% endif %}
-            {% if this.mode.value == 'compare' %}Time Grid (Compare){% endif %}
+            {{ this.metrics|capitalize }} — {{ view == 'pct' ? 'Relative %' : 'Counts' }}
+            {% if this.mode.value == 'compare' %}
+                <span class="text-muted">(with baseline)</span>
+            {% endif %}
         </h3>
+
+        <div class="btn-group" role="group" aria-label="view-switch">
+            <a class="btn btn-outline {% if view != 'pct' %}active{% endif %}"
+               href="{{ path(route, baseParams|merge({view: 'int'})) }}">Counts</a>
+            <a class="btn btn-outline {% if view == 'pct' %}active{% endif %}"
+               href="{{ path(route, baseParams|merge({view: 'pct'})) }}">Relative %</a>
+        </div>
     </div>
 
     <div class="card-body">
-        {% if this.series is empty %}
+        {% if not hasData %}
             <div class="empty">
                 <div class="empty-icon"><i class="ti ti-chart-line"></i></div>
                 <p class="empty-title">No data</p>
-                <p class="empty-subtitle text-muted">No series available for the selected preset/mode.</p>
+                <p class="empty-subtitle text-muted">Nothing to plot for the current selection.</p>
             </div>
         {% else %}
-            <div id="{{ this.domId }}" class="position-relative" style="height: {{ this.height }}px"></div>
+            <div id="{{ domId }}" class="position-relative" style="height:{{ this.height }}px"></div>
 
             <script>
                 (function () {
-                    var _id     = {{ this.domId|json_encode|raw }};
+                    var _id     = {{ domId|json_encode|raw }};
                     var _labels = {{ this.labels|json_encode|raw }};
                     var _series = {{ this.series|json_encode|raw }};
+                    var _dash   = {{ this.dashArray|json_encode|raw }};
                     var _height = {{ this.height|json_encode|raw }};
 
                     function loadApexOnce() {
@@ -39,19 +53,65 @@
                         return window.__apexLoading;
                     }
 
+                    function colorFor(rawName, idx) {
+                        // Name vereinheitlichen
+                        var name = rawName
+                            .replace(' (baseline)', '')
+                            .replace('%', '')
+                            .trim();
+
+                        var map = {
+                            'Total': 'var(--tblr-primary)',
+                            'Male': 'var(--tblr-blue)',
+                            'Female': 'var(--tblr-pink)',
+                            'Diverse': 'var(--tblr-indigo)',
+                            'Urgency 1': 'var(--tblr-red)',
+                            'Urgency 2': 'var(--tblr-yellow)',
+                            'Urgency 3': 'var(--tblr-lime)',
+                            'Cathlab required': 'var(--tblr-cyan)',
+                            'Resus required': 'var(--tblr-green)'
+                        };
+
+                        var palette = [
+                            'var(--tblr-primary)','var(--tblr-green)','var(--tblr-yellow)',
+                            'var(--tblr-azure)','var(--tblr-orange)','var(--tblr-pink)',
+                            'var(--tblr-indigo)','var(--tblr-lime)','var(--tblr-cyan)'
+                        ];
+
+                        return map[name] || palette[idx % palette.length];
+                    }
+
+                    var colors = [];
+                    var pi = 0, bi = 0;
+                    for (var i = 0; i < _series.length; i++) {
+                        var isBaseline = _dash[i] && _dash[i] !== 0;
+                        var baseName = _series[i].name;
+                        if (!isBaseline) {
+                            colors.push(colorFor(baseName, pi));
+                            pi++;
+                        } else {
+                            colors.push(colorFor(baseName, bi));
+                            bi++;
+                        }
+                    }
+
                     function render() {
                         var el = document.getElementById(_id);
                         if (!el || el.dataset.rendered === "1") return;
 
                         var options = {
-                            chart: { type: "line", height: _height, parentHeightOffset: 0, fontFamily: 'inherit', toolbar: { show: false }, animations: { enabled: false } },
-                            stroke: { width: 2, curve: "straight", lineCap: "round" },
+                            chart: { type: "line", height: _height, parentHeightOffset: 0, fontFamily: 'inherit',
+                                toolbar: { show: false }, animations: { enabled: false } },
+                            stroke: { width: 2, curve: "straight", lineCap: "round", dashArray: _dash },
                             dataLabels: { enabled: false },
                             grid: { strokeDashArray: 4, padding: { top: -20, right: 0, left: -4, bottom: -4 } },
                             xaxis: { categories: _labels, labels: { show: true }, tooltip: { enabled: false } },
                             yaxis: { labels: { padding: 4 } },
                             tooltip: { theme: 'dark', shared: true, intersect: false },
-                            legend: { show: true, position: 'bottom', offsetY: 12, markers: { width: 10, height: 10, radius: 100 }, itemMargin: { horizontal: 8, vertical: 8 } },
+                            legend: { show: true, position: 'bottom', offsetY: 12,
+                                markers: { width: 10, height: 10, radius: 100 },
+                                itemMargin: { horizontal: 8, vertical: 8 } },
+                            colors: colors,
                             series: _series
                         };
 

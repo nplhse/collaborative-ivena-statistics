@@ -52,7 +52,7 @@ final class TimeGridController extends AbstractController
         }
 
         // 4) Resolve metric list from preset (simple string like "total", "gender", …)
-        $metrics = TimeGridMetricPresets::rowsFor($dto->metricsPreset ?? 'total');
+        $metrics = TimeGridMetricPresets::rowsFor($dto->metricsPreset ?? 'default');
 
         $view = strtolower((string) $request->query->get('view', 'counts'));
         $formatFilter = $view === 'pct' ? 'pct' : 'int';
@@ -73,7 +73,7 @@ final class TimeGridController extends AbstractController
             'primary' => $primary,
             'base' => $base,
             'mode' => $mode,
-            'preset' => $dto->preset ?? 'total',
+            'preset' => $dto->preset ?? 'default',
             'columns' => $data['columns'],
             'rows' => $data['rows'],
             'presets' => TimeGridMetricPresets::all(),
