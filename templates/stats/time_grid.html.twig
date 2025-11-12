@@ -38,7 +38,7 @@
                 baseId: base ? base.scopeId : null,
                 gran: primary.granularity,
                 key: primary.periodKey,
-                mode: mode.value
+                mode: mode.value,
             })|filter(v => v is not null) %}
 
             <div class="dropdown me-2">
@@ -49,7 +49,7 @@
                     {% for p in presets %}
                         {% set active = (p.value == currentPreset) %}
                         <a class="dropdown-item {% if active %}active{% endif %}"
-                           href="{{ path(app.request.attributes.get('_route'), baseParams|merge({'metrics': p.value})) }}">
+                           href="{{ path(app.request.attributes.get('_route'), baseParams|merge({metrics: p.value})) }}">
                             {{ p.label }}
                         </a>
                     {% endfor %}

@@ -17,5 +17,5 @@ final class TimeGrid
     /** @var list<array{label:string,format:'int'|'pct',cells:list<TimeGridCell>}> */
     public array $rows = [];
 
-    public TimeGridMode $mode;
+    public TimeGridMode $mode = TimeGridMode::RAW;
 }

@@ -72,7 +72,7 @@
                                             </span>
 
                                             {% if cell.deltaAbs is not null %}
-                                                {% set up   = cell.deltaAbs > 0 %}
+                                                {% set up = cell.deltaAbs > 0 %}
                                                 {% set down = cell.deltaAbs < 0 %}
                                                 {% set zero = cell.deltaAbs == 0 %}
                                                 {% set sign = cell.deltaPct is not null and cell.deltaPct > 0 ? '+' : '' %}

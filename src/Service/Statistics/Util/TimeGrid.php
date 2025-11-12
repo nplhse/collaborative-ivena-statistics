@@ -22,7 +22,7 @@ final class TimeGrid
     }
 
     /**
-     * @return array<int, array{label: string, periodKey: string}>
+     * @return list<array{label:string, periodKey:string, isTotal?:true}>
      */
     private static function forYear(int $year): array
     {
@@ -41,7 +41,7 @@ final class TimeGrid
     }
 
     /**
-     * @return array<int, array{label: string, periodKey: string, isTotal?: bool}>
+     * @return list<array{label:string, periodKey:string, isTotal?:true}>
      */
     private static function forQuarter(int $year, int $q): array
     {
@@ -56,18 +56,22 @@ final class TimeGrid
                 'periodKey' => sprintf('%04d-%02d-01', $year, $m),
             ];
         }
-        // 4th column = total over the 3 months (no DB lookup)
+
         $cols[] = ['label' => 'Total', 'periodKey' => 'TOTAL', 'isTotal' => true];
 
         return $cols;
     }
 
     /**
-     * @return array<int, array{label: string, periodKey: string}>
+     * @return list<array{label:string, periodKey:string}>
      */
     private static function forMonth(int $year, int $month): array
     {
         $dt = \DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $year, $month));
+        if (false === $dt) {
+            throw new \RuntimeException(sprintf('Invalid date given for year=%d, month=%d', $year, $month));
+        }
+
         $daysInMonth = (int) $dt->format('t');
 
         $cols = [];
@@ -83,7 +87,7 @@ final class TimeGrid
     }
 
     /**
-     * @return array<int, array{label: string, periodKey: string}>
+     * @return list<array{label:string, periodKey:string}>
      */
     private static function forWeek(\DateTimeImmutable $anchor): array
     {

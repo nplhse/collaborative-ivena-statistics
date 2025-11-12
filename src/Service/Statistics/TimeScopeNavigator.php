@@ -10,11 +10,10 @@ use App\Service\Statistics\Util\Period;
 final class TimeScopeNavigator
 {
     /**
-     * Returns:
-     * [
-     *     'prev' => ['key' => '2020-01-01', 'label' => 'Year', 'hint' => '2020'],
-     *     'next' => ['key' => '2022-01-01', 'label' => 'Year', 'hint' => '2022'],
-     * ]
+     * @return array{
+     *   prev: array{key:string, label:string, hint:string}|null,
+     *   next: array{key:string, label:string, hint:string}|null
+     * }
      */
     public function calculate(Scope $scope): array
     {
@@ -27,6 +26,9 @@ final class TimeScopeNavigator
         ];
     }
 
+    /**
+     * @return array{key:string, label:string, hint:string}|null
+     */
     private function step(string $granularity, \DateTimeImmutable $anchor, int $dir): ?array
     {
         $dir = $dir < 0 ? -1 : 1;
@@ -42,6 +44,9 @@ final class TimeScopeNavigator
         };
     }
 
+    /**
+     * @return array{key:string, label:string, hint:string}
+     */
     private function year(\DateTimeImmutable $d, int $dir): array
     {
         $target = $d->modify($dir > 0 ? '+1 year' : '-1 year');
@@ -53,6 +58,9 @@ final class TimeScopeNavigator
         ];
     }
 
+    /**
+     * @return array{key:string, label:string, hint:string}
+     */
     private function quarter(\DateTimeImmutable $d, int $dir): array
     {
         $m = (int) $d->format('n');
@@ -79,6 +87,9 @@ final class TimeScopeNavigator
         ];
     }
 
+    /**
+     * @return array{key:string, label:string, hint:string}
+     */
     private function month(\DateTimeImmutable $d, int $dir): array
     {
         $target = $d->modify($dir > 0 ? '+1 month' : '-1 month');
@@ -95,6 +106,9 @@ final class TimeScopeNavigator
         ];
     }
 
+    /**
+     * @return array{key:string, label:string, hint:string}
+     */
     private function week(\DateTimeImmutable $d, int $dir): array
     {
         $weekday = (int) $d->format('N');
@@ -108,6 +122,9 @@ final class TimeScopeNavigator
         ];
     }
 
+    /**
+     * @return array{key:string, label:string, hint:string}
+     */
     private function day(\DateTimeImmutable $d, int $dir): array
     {
         $t = $d->modify($dir > 0 ? '+1 day' : '-1 day')->setTime(0, 0);

@@ -10,6 +10,7 @@ use App\Service\Statistics\Util\Period;
 
 final readonly class TimeGridSeriesReader
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private DashboardCountsReader $counts,
     ) {

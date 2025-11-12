@@ -13,6 +13,7 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 #[AsTwigComponent(name: 'GranularitySwitch')]
 final class GranularitySwitch
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
     public Scope $scope;
 
     public string $variant = 'list';
@@ -44,7 +45,7 @@ final class GranularitySwitch
             Period::DAY,
         ];
 
-        $opts = $this->allowedOptions
+        $opts = (null !== $this->allowedOptions)
             ? array_values(array_intersect($default, $this->allowedOptions))
             : $default;
 
@@ -82,7 +83,11 @@ final class GranularitySwitch
         }
 
         $routeName = (string) $request->attributes->get('_route');
+
+        /** @var array<string, mixed> $routeParams */
         $routeParams = (array) $request->attributes->get('_route_params', []);
+
+        /** @var array<string, mixed> $queryParams */
         $queryParams = $request->query->all();
 
         // Den tatsächlich verwendeten Parameternamen pro Seite ermitteln
@@ -112,16 +117,19 @@ final class GranularitySwitch
         return $this->router->generate($routeName, $all);
     }
 
+    /**
+     * @param list<string>         $aliases
+     * @param array<string, mixed> $routeParams
+     * @param array<string, mixed> $queryParams
+     */
     private function resolveParamName(array $aliases, array $routeParams, array $queryParams): string
     {
-        // Falls einer der Aliasse bereits in Route ODER Query vorkommt, nimm diesen.
         foreach ($aliases as $name) {
             if (array_key_exists($name, $routeParams) || array_key_exists($name, $queryParams)) {
                 return $name;
             }
         }
 
-        // Sonst den ersten als Default (BC: 'gran' bzw. 'key')
         return $aliases[0];
     }
 

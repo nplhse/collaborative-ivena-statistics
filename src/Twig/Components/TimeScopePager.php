@@ -15,15 +15,26 @@ use Symfony\UX\TwigComponent\Attribute\PostMount;
 #[AsTwigComponent(name: 'TimeScopePager')]
 final class TimeScopePager
 {
+    /** @psalm-suppress PropertyNotSetInConstructor */
     public Scope $scope;
 
     public string $variant = 'full';
 
     /** @var array{disabled:bool, url:string, label:string, hint:?string} */
-    public array $prev = [];
+    public array $prev = [
+        'disabled' => true,
+        'url' => '#',
+        'label' => '',
+        'hint' => null,
+    ];
 
     /** @var array{disabled:bool, url:string, label:string, hint:?string} */
-    public array $next = [];
+    public array $next = [
+        'disabled' => true,
+        'url' => '#',
+        'label' => '',
+        'hint' => null,
+    ];
 
     public function __construct(
         private RequestStack $requestStack,
@@ -35,10 +46,8 @@ final class TimeScopePager
     #[PostMount]
     public function init(): void
     {
-        // calculate prev/next using Navigator
         $calc = $this->navigator->calculate($this->scope);
 
-        // build prev/next structures
         $this->prev = $this->buildSide($calc['prev'] ?? null, -1);
         $this->next = $this->buildSide($calc['next'] ?? null, +1);
     }
@@ -59,7 +68,6 @@ final class TimeScopePager
             ];
         }
 
-        // range limits
         $min = new \DateTimeImmutable(Period::ALL_ANCHOR_DATE);
         $max = (new \DateTimeImmutable('today'))->setTime(0, 0, 0);
 

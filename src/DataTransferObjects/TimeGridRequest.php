@@ -49,11 +49,11 @@ final class TimeGridRequest
 
         // Primary scope
         $self->primaryType = (string) $request->query->get('primaryType', $self->primaryType);
-        $self->primaryId   = (string) $request->query->get('primaryId', $self->primaryId);
+        $self->primaryId = (string) $request->query->get('primaryId', $self->primaryId);
 
         // Base scope (optional)
         $self->baseType = $request->query->get('baseType');
-        $self->baseId   = $request->query->get('baseId');
+        $self->baseId = $request->query->get('baseId');
 
         return $self;
     }

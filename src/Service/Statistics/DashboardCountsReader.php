@@ -19,6 +19,15 @@ readonly class DashboardCountsReader
 
     public function read(Scope $scope): ?DashboardPanelView
     {
+        /**
+         * @var array{
+         *   total:int|string, computed_at:string,
+         *   gender_m:int|string, gender_w:int|string, gender_d:int|string, gender_u:int|string,
+         *   urg_1:int|string, urg_2:int|string, urg_3:int|string,
+         *   cathlab_required:int|string, resus_required:int|string,
+         *   is_cpr:int|string, is_ventilated:int|string, is_shock:int|string, is_pregnant:int|string, with_physician:int|string, infectious:int|string
+         * }|false $row
+         */
         $row = $this->query->fetchOne(
             $scope->scopeType,
             $scope->scopeId,
@@ -36,6 +45,15 @@ readonly class DashboardCountsReader
      */
     public function readMany(Scope $scope, array $periodKeys): array
     {
+        /**
+         * @var array<string, array{
+         *   total:int|string, computed_at:string,
+         *   gender_m:int|string, gender_w:int|string, gender_d:int|string, gender_u:int|string,
+         *   urg_1:int|string, urg_2:int|string, urg_3:int|string,
+         *   cathlab_required:int|string, resus_required:int|string,
+         *   is_cpr:int|string, is_ventilated:int|string, is_shock:int|string, is_pregnant:int|string, with_physician:int|string, infectious:int|string
+         * }|false> $rows
+         */
         $rows = $this->query->fetchMany(
             $scope->scopeType,
             $scope->scopeId,
@@ -46,12 +64,34 @@ readonly class DashboardCountsReader
         $out = [];
         foreach ($periodKeys as $pk) {
             $tmpScope = new Scope($scope->scopeType, $scope->scopeId, $scope->granularity, $pk);
-            $out[$pk] = $this->mapRow($tmpScope, $rows[$pk] ?? null);
+            $rowForPk = $rows[$pk] ?? null;
+            $out[$pk] = $this->mapRow($tmpScope, $rowForPk ?: null);
         }
 
         return $out;
     }
 
+    /**
+     * @param array{
+     *   total:int|string,
+     *   computed_at:string,
+     *   gender_m:int|string,
+     *   gender_w:int|string,
+     *   gender_d:int|string,
+     *   gender_u:int|string,
+     *   urg_1:int|string,
+     *   urg_2:int|string,
+     *   urg_3:int|string,
+     *   cathlab_required:int|string,
+     *   resus_required:int|string,
+     *   is_cpr:int|string,
+     *   is_ventilated:int|string,
+     *   is_shock:int|string,
+     *   is_pregnant:int|string,
+     *   with_physician:int|string,
+     *   infectious:int|string
+     * }|null $row
+     */
     private function mapRow(Scope $scope, ?array $row): ?DashboardPanelView
     {
         if (!$row) {
@@ -64,7 +104,7 @@ readonly class DashboardCountsReader
         return new DashboardPanelView(
             scope: $scope,
             total: $total,
-            computedAt: new \DateTimeImmutable((string) $row['computed_at']),
+            computedAt: new \DateTimeImmutable($row['computed_at']),
 
             genderM: (int) $row['gender_m'],
             genderW: (int) $row['gender_w'],

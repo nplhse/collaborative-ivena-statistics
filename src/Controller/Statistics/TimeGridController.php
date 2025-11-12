@@ -55,7 +55,7 @@ final class TimeGridController extends AbstractController
         $metrics = TimeGridMetricPresets::rowsFor($dto->metricsPreset ?? 'default');
 
         $view = strtolower((string) $request->query->get('view', 'counts'));
-        $formatFilter = $view === 'pct' ? 'pct' : 'int';
+        $formatFilter = 'pct' === $view ? 'pct' : 'int';
 
         // 5) Mode (enum)
         $mode = $dto->mode ?? TimeGridMode::RAW;
@@ -73,11 +73,11 @@ final class TimeGridController extends AbstractController
             'primary' => $primary,
             'base' => $base,
             'mode' => $mode,
-            'preset' => $dto->preset ?? 'default',
+            'preset' => $dto->metricsPreset ?? 'default',
             'columns' => $data['columns'],
             'rows' => $data['rows'],
             'presets' => TimeGridMetricPresets::all(),
-            'currentPreset' => $dto->metricsPreset ?? 'total',
+            'currentPreset' => $dto->metricsPreset ?? 'default',
             'view' => $view,
         ]);
     }

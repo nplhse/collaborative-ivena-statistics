@@ -13,6 +13,9 @@ final readonly class AggAllocationsCountsQuery
     ) {
     }
 
+    /**
+     * @return array<string,mixed>|false
+     */
     public function fetchOne(string $scopeType, string $scopeId, string $granularity, string $periodKey): array|false
     {
         return $this->db->fetchAssociative(
@@ -32,12 +35,9 @@ final readonly class AggAllocationsCountsQuery
     }
 
     /**
-     * Returns map[periodKey] => row|false.
-     * Missing rows are present as false.
-     *
      * @param string[] $periodKeys
      *
-     * @return array<string, array|false>
+     * @return array<string, array<string, mixed>|null>
      */
     public function fetchMany(string $scopeType, string $scopeId, string $granularity, array $periodKeys): array
     {
