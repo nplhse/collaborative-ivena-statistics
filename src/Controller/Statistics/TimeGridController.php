@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Statistics;
 
 use App\DataTransferObjects\TimeGridRequest;
-use App\Enum\TimeGridMode;
 use App\Model\Scope;
 use App\Service\Statistics\TimeGridBuilder;
 use App\Service\Statistics\TimeGridMetricPresets;

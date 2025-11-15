@@ -6,22 +6,21 @@ namespace App\Tests\Unit\Service\Statistics;
 
 use App\Model\DashboardPanelView;
 use App\Model\Scope;
+use App\Query\AggAllocationsCountsQuery;
 use App\Service\Statistics\DashboardCountsReader;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class DashboardCountsReaderTest extends TestCase
 {
-    /** @var Connection&MockObject */
-    private Connection $db;
+    /** @var AggAllocationsCountsQuery&MockObject */
+    private $query;
 
     protected function setUp(): void
     {
-        // Arrange (shared): mock DBAL connection
-        /** @var Connection&MockObject $db */
-        $db = $this->createMock(Connection::class);
-        $this->db = $db;
+        /** @var AggAllocationsCountsQuery&MockObject $query */
+        $query = $this->createMock(AggAllocationsCountsQuery::class);
+        $this->query = $query;
     }
 
     public function testReadReturnsNullWhenNoRowFound(): void
@@ -29,25 +28,13 @@ final class DashboardCountsReaderTest extends TestCase
         // Arrange
         $scope = new Scope('state', 'BY', 'month', '2025-11-01');
 
-        $this->db
+        $this->query
             ->expects(self::once())
-            ->method('fetchAssociative')
-            ->with(
-                self::callback(function (string $sql): bool {
-                    // Sanity check on SQL without being brittle
-                    self::assertStringContainsString('FROM agg_allocations_counts', $sql);
-                    self::assertStringContainsString('WHERE scope_type = :t', $sql);
-                    self::assertStringContainsString('AND scope_id = :i', $sql);
-                    self::assertStringContainsString('AND period_gran = :g', $sql);
-                    self::assertStringContainsString('AND period_key = :k', $sql);
-
-                    return true;
-                }),
-                ['t' => 'state', 'i' => 'BY', 'g' => 'month', 'k' => '2025-11-01']
-            )
+            ->method('fetchOne')
+            ->with('state', 'BY', 'month', '2025-11-01')
             ->willReturn(false);
 
-        $sut = new DashboardCountsReader($this->db);
+        $sut = new DashboardCountsReader($this->query);
 
         // Act
         $result = $sut->read($scope);
@@ -82,12 +69,13 @@ final class DashboardCountsReaderTest extends TestCase
             'infectious' => 1,
         ];
 
-        $this->db
+        $this->query
             ->expects(self::once())
-            ->method('fetchAssociative')
+            ->method('fetchOne')
+            ->with('hospital', '123', 'day', '2025-11-08')
             ->willReturn($row);
 
-        $sut = new DashboardCountsReader($this->db);
+        $sut = new DashboardCountsReader($this->query);
 
         // Act
         $view = $sut->read($scope);
@@ -158,8 +146,13 @@ final class DashboardCountsReaderTest extends TestCase
             'infectious' => 0,
         ];
 
-        $this->db->method('fetchAssociative')->willReturn($row);
-        $sut = new DashboardCountsReader($this->db);
+        $this->query
+            ->expects(self::once())
+            ->method('fetchOne')
+            ->with('public', 'x', 'all', 'all')
+            ->willReturn($row);
+
+        $sut = new DashboardCountsReader($this->query);
 
         // Act
         $view = $sut->read($scope);
@@ -207,8 +200,13 @@ final class DashboardCountsReaderTest extends TestCase
             'infectious' => 0,
         ];
 
-        $this->db->method('fetchAssociative')->willReturn($row);
-        $sut = new DashboardCountsReader($this->db);
+        $this->query
+            ->expects(self::once())
+            ->method('fetchOne')
+            ->with('hospital', '123', 'day', '2025-11-08')
+            ->willReturn($row);
+
+        $sut = new DashboardCountsReader($this->query);
 
         // Act & Assert
         $this->expectException(\Exception::class);

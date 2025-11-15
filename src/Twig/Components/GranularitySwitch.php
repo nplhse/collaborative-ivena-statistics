@@ -16,6 +16,7 @@ final class GranularitySwitch
     /** @psalm-suppress PropertyNotSetInConstructor */
     public Scope $scope;
 
+    /** @psalm-suppress PossiblyUnusedProperty */
     public string $variant = 'list';
 
     public bool $showPeriod = false;

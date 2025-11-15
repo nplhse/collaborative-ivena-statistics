@@ -6,7 +6,8 @@ namespace App\Query;
 
 use Doctrine\DBAL\Connection;
 
-final readonly class AggAllocationsCountsQuery
+/** @psalm-suppress ClassMustBeFinal */
+readonly class AggAllocationsCountsQuery
 {
     public function __construct(
         private Connection $db,
