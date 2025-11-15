@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+/** @psalm-suppress PossiblyUnusedProperty */
 final readonly class TimeGridCell
 {
     /**
@@ -18,7 +19,9 @@ final readonly class TimeGridCell
 
         public int|float|null $compare = null,
 
-        /** @var array<string, mixed>|null */
+        /**
+         * @var array<string, mixed>|null
+         */
         public ?array $stats = null,
     ) {
     }

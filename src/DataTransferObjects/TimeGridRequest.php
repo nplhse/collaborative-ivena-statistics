@@ -26,34 +26,43 @@ final class TimeGridRequest
     public ?string $baseType = null;
     public ?string $baseId = null;
 
+    public string $view = 'counts';
+
     public static function fromRequest(Request $request): self
     {
         $self = new self();
 
         // Granularity
-        $gran = strtolower((string) $request->query->get('gran', $self->granularity));
+        $gran = strtolower($request->query->get('gran', $self->granularity));
         $self->granularity = in_array($gran, Period::allGranularities(), true)
             ? $gran
             : Period::YEAR;
 
         // Period key
-        $periodKey = (string) $request->query->get('key', $self->periodKey);
+        $periodKey = $request->query->get('key', $self->periodKey);
         $self->periodKey = Period::normalizePeriodKey($self->granularity, $periodKey);
 
         // Metrics preset
-        $self->metricsPreset = (string) $request->query->get('metrics', 'default');
+        $self->metricsPreset = $request->query->get('metrics', 'default');
 
         // Mode
-        $modeString = strtolower((string) $request->query->get('mode', TimeGridMode::RAW->value));
+        $modeString = strtolower($request->query->get('mode', TimeGridMode::RAW->value));
         $self->mode = TimeGridMode::tryFrom($modeString) ?? TimeGridMode::RAW;
 
+        // View
+        $viewString = strtolower($request->query->get('view', 'int'));
+        $self->view = 'pct' === $viewString ? 'pct' : 'int';
+
         // Primary scope
-        $self->primaryType = (string) $request->query->get('primaryType', $self->primaryType);
-        $self->primaryId = (string) $request->query->get('primaryId', $self->primaryId);
+        $self->primaryType = $request->query->get('primaryType', $self->primaryType);
+        $self->primaryId = $request->query->get('primaryId', $self->primaryId);
 
         // Base scope (optional)
-        $self->baseType = $request->query->get('baseType');
-        $self->baseId = $request->query->get('baseId');
+        $baseType = $request->query->get('baseType');
+        $baseId = $request->query->get('baseId');
+
+        $self->baseType = '' !== $baseType ? $baseType : null;
+        $self->baseId = '' !== $baseId ? $baseId : null;
 
         return $self;
     }
@@ -74,7 +83,7 @@ final class TimeGridRequest
             return null;
         }
 
-        if (!$this->baseType || !$this->baseId) {
+        if (null === $this->baseType || null === $this->baseId) {
             return null;
         }
 
