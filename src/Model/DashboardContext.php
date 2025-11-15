@@ -52,6 +52,8 @@ final readonly class DashboardContext
 
     /**
      * @return array<string, string|int|float|bool|null>
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function toQuery(): array
     {
