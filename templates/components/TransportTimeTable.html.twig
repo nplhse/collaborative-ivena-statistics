@@ -1,0 +1,82 @@
+{% set route = app.request.attributes.get('_route') %}
+{% set baseParams = app.request.query.all %}
+{% set view = this.view %}
+
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Transport time distribution
+            <span class="badge bg-primary-lt ms-2" title="Average age (scope)">
+                Avg: {{ this.viewModel.mean|number_format(1) }}m
+                &middot;
+                σ {{ this.viewModel.stddev|number_format(1) }}m
+                &middot;
+                σ² {{ this.viewModel.variance|number_format(1) }}
+            </span>
+        </h3>
+
+        <div class="btn-group" role="group" aria-label="view-switch">
+            <a class="btn btn-outline {% if view != 'pct' %}active{% endif %}"
+               href="{{ path(route, baseParams|merge({view: 'int'})) }}">Counts</a>
+            <a class="btn btn-outline {% if view == 'pct' %}active{% endif %}"
+               href="{{ path(route, baseParams|merge({view: 'pct'})) }}">Relative %</a>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                <tr>
+                    <th class="text-start">Metric</th>
+                    {% for bucket in this.viewModel.buckets %}
+                        <th class="text-end">{{ bucket }}</th>
+                    {% endfor %}
+                    <th class="text-end">Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in this.viewModel.rows %}
+                    <tr>
+                        <td class="text-start fw-medium">
+                            {{ row.label }}
+                        </td>
+
+                        {# per-bucket cells #}
+                        {% set totalCount = 0 %}
+                        {% set totalShare = 0 %}
+                        {% for value in row.values %}
+                            {% set totalCount = totalCount + value.count %}
+                            {% set totalShare = totalShare + value.share %}
+
+                            <td class="text-end">
+                                {% if this.view == 'pct' %}
+                                    {{ (value.share * 100)|number_format(1, '.', ',') }}%
+                                {% else %}
+                                    {{ value.count|number_format(0, '.', ',') }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+
+                        {# final total cell #}
+                        <td class="text-end fw-semibold">
+                            {% if this.view == 'pct' %}
+                                {{ (totalShare * 100)|number_format(1, '.', ',') }}%
+                            {% else %}
+                                {{ totalCount|number_format(0, '.', ',') }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card-footer text-muted small">
+        {% if this.viewModel.computedAt %}
+            Last computed at {{ this.viewModel.computedAt|date('Y-m-d H:i') }}
+        {% else %}
+            No precomputed data available for this scope yet.
+        {% endif %}
+    </div>
+</div>

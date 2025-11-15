@@ -1,0 +1,57 @@
+{% extends '_layout_vertical.html.twig' %}
+
+{% block title %}
+    Time Grid – {{ scope.scopeType }} / {{ scope.scopeId }} – {{ parent() }}
+{% endblock %}
+
+{% block header %}
+    {% embed '_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('_includes/subnav_stats.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_body %}
+    <div class="container-xl">
+
+        <twig:Breadcrumbs :items="[
+            { label: 'Statistics', path: path('app_stats_dashboard') },
+            { label: 'Transport Time' }
+        ]" />
+
+        <div class="d-flex align-items-center mb-3">
+            <h2 class="page-title me-auto">
+                {{ scope_label(scope) }}
+            </h2>
+
+            <twig:ScopePicker
+                :scope="scope"
+            />
+
+            <twig:GranularitySwitch
+                :scope="scope"
+                variant="dropdown"
+                :showPeriod="true"
+                :allowedOptions="['year', 'quarter', 'month', 'week']"
+            />
+        </div>
+
+        <twig:TransportTimeChart
+            :viewModel="viewModel"
+            :view="view"
+            height="260"
+            :preset="currentPreset"
+        />
+
+        <twig:TransportTimeTable
+            :viewModel="viewModel"
+            :view="view"
+        />
+
+        <twig:TimeScopePager
+            :scope="scope"
+            variant="full"
+        />
+    </div>
+{% endblock %}

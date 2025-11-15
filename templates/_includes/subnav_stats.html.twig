@@ -21,6 +21,14 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_stats_transport_time' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_transport_time') }}">
+                            <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:device-watch-stats" style="height: 1.5em;" />
+                                {{ 'link.stats.transport_time'|trans }}
+                            </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
