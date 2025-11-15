@@ -1,0 +1,58 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title mb-0">
+            Top Dispatch Areas (by transport count)
+        </h3>
+    </div>
+
+    <div class="card-body p-0">
+        {% if not this.hasData() %}
+            <div class="p-3">
+                <div class="empty">
+                    <div class="empty-icon"><i class="ti ti-map"></i></div>
+                    <p class="empty-title">No dispatch area data</p>
+                    <p class="empty-subtitle text-muted">
+                        There are no dispatch-area statistics for the selected scope/period.
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th class="text-start">#</th>
+                        <th class="text-start">Dispatch area</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Share</th>
+                        <th class="text-end">With physician</th>
+                        <th class="text-end">With physician %</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in this.rows %}
+                        <tr>
+                            <td class="text-start text-muted">{{ loop.index }}</td>
+                            <td class="text-start">
+                                {{ row.name }}
+                            </td>
+                            <td class="text-end">
+                                {{ row.total|number_format(0, '.', ',') }}
+                            </td>
+                            <td class="text-end">
+                                {{ (row.share * 100)|number_format(1, '.', ',') }}%
+                            </td>
+                            <td class="text-end">
+                                {{ row.withPhysician|number_format(0, '.', ',') }}
+                            </td>
+                            <td class="text-end">
+                                {{ (row.withPhysicianShare * 100)|number_format(1, '.', ',') }}%
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>

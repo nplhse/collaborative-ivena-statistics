@@ -49,6 +49,10 @@
             :view="view"
         />
 
+        {% component 'TransportTimeDispatchAreaTopList' with {
+            scope: scope
+        } %}{% endcomponent %}
+
         <twig:TimeScopePager
             :scope="scope"
             variant="full"

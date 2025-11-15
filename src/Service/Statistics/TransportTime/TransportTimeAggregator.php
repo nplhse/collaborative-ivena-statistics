@@ -76,7 +76,7 @@ final class TransportTimeAggregator
         foreach ($this->dimensionTypes as $dimType) {
             $rows = $this->reader->fetchDimensionBuckets($this->scope, $dimType);
 
-            if ($rows) {
+            if (!$rows) {
                 continue;
             }
 
