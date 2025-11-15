@@ -5,13 +5,21 @@
 
 version: 2
 updates:
+    # Enable version updates for Composer
     - package-ecosystem: "composer"
-      directory: "/" 
+      directory: "/"
       schedule:
           interval: "weekly"
 
-    - package-ecosystem: "github-actions"
-      # Workflow files stored in the default location of `.github/workflows`
+    # Enable version updates for Docker
+    - package-ecosystem: "docker"
       directory: "/"
       schedule:
+          interval: "weekly"
+
+    # Enable version updates for GitHub Actions
+    - package-ecosystem: "github-actions"
+      directory: "/"
+      schedule:
+          # Check for updates to GitHub Actions every week
           interval: "weekly"
