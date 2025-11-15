@@ -32,15 +32,15 @@ final class TopCategoriesReaderTest extends TestCase
             'top_assignment' => json_encode([['id' => 2, 'label' => 'Ambulance', 'count' => 2]]),
             'top_infection' => json_encode([['id' => null, 'label' => 'Unknown', 'count' => null]]),
             'top_indication' => json_encode([['id' => '9', 'count' => 1]]), // missing label -> "Unknown"
-            'top_speciality' => json_encode([['label' => 'Surgery']]),       // missing id/count
+            'top_speciality' => json_encode([['label' => 'Surgery']]), // missing id/count
             'top_department' => json_encode([['id' => '5', 'label' => 'ER']]),
         ];
 
-        $this->db->expects(self::once())
+        $this->db->expects($this->once())
             ->method('fetchAssociative')
             ->with(
-                self::isType('string'),
-                ['t' => 'hospital', 'i' => '123', 'g' => 'day', 'k' => '2025-11-08']
+                self::callback(static fn ($sql) => is_string($sql)),
+                self::equalTo(['t' => 'hospital', 'i' => '123', 'g' => 'day', 'k' => '2025-11-08'])
             )
             ->willReturn($row);
 

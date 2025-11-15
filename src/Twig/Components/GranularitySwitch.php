@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Twig\Components;
 
 use App\Model\Scope;
-use App\Service\ScopeRoute;
 use App\Service\Statistics\Util\Period;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent(name: 'GranularitySwitch')]
@@ -20,17 +21,23 @@ final class GranularitySwitch
 
     public bool $showPeriod = false;
 
+    /** @var list<string>|null */
+    public ?array $allowedOptions = null;
+
+    private const array GRAN_ALIASES = ['gran', 'granularity'];
+    private const array KEY_ALIASES = ['key', 'periodKey'];
+
     public function __construct(
-        private ScopeRoute $route,
+        private RequestStack $requestStack,
+        private UrlGeneratorInterface $router,
     ) {
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
+    /** @return list<string> */
     public function options(): array
     {
-        return [
+        $default = [
             Period::ALL,
             Period::YEAR,
             Period::QUARTER,
@@ -38,6 +45,16 @@ final class GranularitySwitch
             Period::WEEK,
             Period::DAY,
         ];
+
+        $opts = (null !== $this->allowedOptions)
+            ? array_values(array_intersect($default, $this->allowedOptions))
+            : $default;
+
+        if (!in_array($this->scope->granularity, $opts, true)) {
+            $opts[] = $this->scope->granularity;
+        }
+
+        return $opts;
     }
 
     public function isActive(string $gran): bool
@@ -54,28 +71,70 @@ final class GranularitySwitch
     {
         [, $label, $period] = $this->deriveKeyAndLabel($gran);
 
-        if ($this->showPeriod && null !== $period) {
-            return sprintf('%s (%s)', $label, $period);
-        }
-
-        return $label;
+        return $this->showPeriod && null !== $period ? sprintf('%s (%s)', $label, $period) : $label;
     }
 
     public function url(string $gran): string
     {
         [$key] = $this->deriveKeyAndLabel($gran);
 
-        return $this->route->toPath(
-            $this->scope->scopeType,
-            $this->scope->scopeId,
-            $gran,
-            $key
-        );
+        $request = $this->requestStack->getCurrentRequest();
+        if (null === $request) {
+            throw new \LogicException('GranularitySwitch requires an active HTTP request.');
+        }
+
+        $routeName = (string) $request->attributes->get('_route');
+
+        /** @var array<string, mixed> $routeParams */
+        $routeParams = (array) $request->attributes->get('_route_params', []);
+
+        /** @var array<string, mixed> $queryParams */
+        $queryParams = $request->query->all();
+
+        // Den tatsächlich verwendeten Parameternamen pro Seite ermitteln
+        $granParam = $this->resolveParamName(self::GRAN_ALIASES, $routeParams, $queryParams);
+        $keyParam = $this->resolveParamName(self::KEY_ALIASES, $routeParams, $queryParams);
+
+        // Alles zusammenführen (Route-Params + Query), dann gezielt überschreiben
+        $all = array_merge($routeParams, $queryParams);
+        $all[$granParam] = $gran;
+        $all[$keyParam] = $key;
+
+        // Alle *anderen* Aliasse entfernen, damit es keine Doppelung gibt
+        foreach (self::GRAN_ALIASES as $alias) {
+            if ($alias !== $granParam) {
+                unset($all[$alias]);
+            }
+        }
+        foreach (self::KEY_ALIASES as $alias) {
+            if ($alias !== $keyParam) {
+                unset($all[$alias]);
+            }
+        }
+
+        // Optional: Null-Werte entfernen, falls du jemals damit Keys explizit löschen willst
+        // $all = array_filter($all, static fn($v) => $v !== null);
+
+        return $this->router->generate($routeName, $all);
     }
 
     /**
-     * @return list{string, string, ?string}
+     * @param list<string>         $aliases
+     * @param array<string, mixed> $routeParams
+     * @param array<string, mixed> $queryParams
      */
+    private function resolveParamName(array $aliases, array $routeParams, array $queryParams): string
+    {
+        foreach ($aliases as $name) {
+            if (array_key_exists($name, $routeParams) || array_key_exists($name, $queryParams)) {
+                return $name;
+            }
+        }
+
+        return $aliases[0];
+    }
+
+    /** @return list{string, string, ?string} */
     private function deriveKeyAndLabel(string $target): array
     {
         $d = new \DateTimeImmutable($this->scope->periodKey);
@@ -105,8 +164,7 @@ final class GranularitySwitch
                     Period::YEAR => $this->startOfYear($d),
                     Period::QUARTER => $this->startOfQUARTERer($d),
                     Period::MONTH => $this->startOfMonth($d),
-                    Period::WEEK => $d,
-                    Period::DAY => $d,
+                    Period::WEEK, Period::DAY => $d,
                     Period::ALL => $this->startOfYear($d),
                     default => $d,
                 };

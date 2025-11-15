@@ -5,27 +5,33 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Twig\Components;
 
 use App\Model\Scope;
-use App\Service\ScopeRoute;
 use App\Service\Statistics\Util\Period;
 use App\Twig\Components\GranularitySwitch;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class GranularitySwitchTest extends TestCase
 {
-    /** @var ScopeRoute&MockObject */
-    private ScopeRoute $route;
+    private RequestStack $requestStack;
+
+    /** @var UrlGeneratorInterface&MockObject */
+    private UrlGeneratorInterface $router;
 
     protected function setUp(): void
     {
-        /** @var ScopeRoute&MockObject $route */
-        $route = $this->createMock(ScopeRoute::class);
-        $this->route = $route;
+        $this->requestStack = new RequestStack();
+
+        /** @var UrlGeneratorInterface&MockObject $router */
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $this->router = $router;
     }
 
     private function makeComponent(Scope $scope, bool $showPeriod = false, string $variant = 'list'): GranularitySwitch
     {
-        $cmp = new GranularitySwitch($this->route);
+        $cmp = new GranularitySwitch($this->requestStack, $this->router);
         $cmp->scope = $scope;
         $cmp->showPeriod = $showPeriod;
         $cmp->variant = $variant;
@@ -86,22 +92,30 @@ final class GranularitySwitchTest extends TestCase
     public function testUrlDerivesKeyForTargetsAndCallsRoute(): void
     {
         // Arrange
-        // Scope GRANULARITY = MONTH, periodKey = 2025-11-08
-        // Erwartetes Verhalten (Möglichkeit A):
-        //  - ALL:          key = Period::ALL_ANCHOR_DATE
-        //  - YEAR:         key = 2025-01-01 (format(Y-m-01))
-        //  - QUARTER:      key = 2025-10-01 (Q4 start) (format(Y-m-01))
-        //  - MONTH:        key = 2025-11-01
-        //  - WEEK:         anchor = startOfWeek( startOfMonth(2025-11-08) = 2025-11-01 ) = 2025-10-27
-        //  - DAY:          anchor = startOfMonth(2025-11-08) = 2025-11-01
         $scope = new Scope('state', 'BY', Period::MONTH, '2025-11-08');
         $cmp = $this->makeComponent($scope);
 
-        // we let the mock return a simple join to assert the derived key & granularity
-        $this->route
-            ->method('toPath')
-            ->willReturnCallback(function (string $t, string $i, string $g, string $k): string {
-                return sprintf('%s|%s|%s|%s', $t, $i, $g, $k);
+        $request = new Request();
+        $request->attributes->set('_route', 'dummy_route');
+        $request->attributes->set('_route_params', [
+            'type' => 'state',
+            'id' => 'BY',
+        ]);
+
+        $request->query->replace([]);
+
+        $this->requestStack->push($request);
+
+        $this->router
+            ->method('generate')
+            ->willReturnCallback(function (string $routeName, array $params): string {
+                return sprintf(
+                    '%s|%s|%s|%s',
+                    $params['type'],
+                    $params['id'],
+                    $params['gran'],
+                    $params['key'],
+                );
             });
 
         // Act
@@ -112,7 +126,6 @@ final class GranularitySwitchTest extends TestCase
         $uWeek = $cmp->url(Period::WEEK);
         $uDay = $cmp->url(Period::DAY);
 
-        // Assert (Möglichkeit A: Woche beginnt bei der Woche, die den 1. des Monats enthält)
         self::assertSame('state|BY|all|'.Period::ALL_ANCHOR_DATE, $uAll);
         self::assertSame('state|BY|year|2025-01-01', $uYear);
         self::assertSame('state|BY|quarter|2025-10-01', $uQuarter);

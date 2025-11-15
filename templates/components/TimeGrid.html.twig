@@ -1,0 +1,125 @@
+<div class="card mb-3">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="text-start">Metric</th>
+                    {% for col in this.columns|filter(c => not (c.isTotal ?? false)) %}
+                        <th class="text-end">{{ col.label }}</th>
+                    {% endfor %}
+                    <th class="text-end">Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in this.rows %}
+                    <tr>
+                        <td class="text-start fw-medium">{{ row.label }}</td>
+
+                        {# render time cells #}
+                        {% set timeColCount = this.columns|filter(c => not (c.isTotal ?? false))|length %}
+                        {% for i in 0..(timeColCount - 1) %}
+                            {% set cell = row.cells[i] ?? null %}
+                            <td class="text-end">
+                                {% if not cell or cell.value is null %}
+                                    &ndash;
+                                {% else %}
+                                    {% if row.format == 'pct' %}
+                                        {{ cell.value|number_format(1, '.', ',') }}%
+                                    {% else %}
+                                        {{ cell.value|number_format(0, '.', ',') }}
+                                    {% endif %}
+
+                                    {% if this.mode.value == 'delta' %}
+                                        {% if cell.deltaAbs is not null or cell.deltaPct is not null %}
+                                            {% set up = cell.deltaAbs is not null and cell.deltaAbs > 0 %}
+                                            {% set down = cell.deltaAbs is not null and cell.deltaAbs < 0 %}
+                                            <div class="small text-muted mt-1">
+                                                {# absolute delta #}
+                                                {% if cell.deltaAbs is not null %}
+                                                    {% set sign = cell.deltaPct > 0 ? '+' : '' %}
+                                                    {% if up %}
+                                                        <span class="badge bg-success-lt">
+                                                            +{{ cell.deltaAbs|number_format(row.format == 'pct' ? 1 : 0, '.', ',') }}{{ row.format == 'pct' ? '%' : '' }}
+                                                            {% if cell.deltaPct is not null %}
+                                                                <br />{{ sign }}{{ cell.deltaPct|number_format(1, '.', ',') }}%
+                                                            {% endif %}
+                                                        </span>
+                                                    {% elseif down %}
+                                                        <span class="badge bg-danger-lt">
+                                                            {{ cell.deltaAbs|number_format(row.format == 'pct' ? 1 : 0, '.', ',') }}{{ row.format == 'pct' ? '%' : '' }}
+                                                            <br />{{ sign }}{{ cell.deltaPct|number_format(1, '.', ',') }}%
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary-lt">
+                                                            ≡ 0{{ row.format == 'pct' ? '%' : '' }}
+                                                        </span>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if this.mode.value == 'compare' and cell.compare is not null %}
+                                        <div class="text-muted small mt-1">
+                                            {# baseline value #}
+                                            <span class="badge bg-azure-lt">
+                                                {% if row.format == 'pct' %}
+                                                    {{ cell.compare|number_format(1, ',', '.') }}%
+                                                {% else %}
+                                                    {{ cell.compare|number_format(0, ',', '.') }}
+                                                {% endif %}
+                                            </span>
+
+                                            {% if cell.deltaAbs is not null %}
+                                                {% set up = cell.deltaAbs > 0 %}
+                                                {% set down = cell.deltaAbs < 0 %}
+                                                {% set zero = cell.deltaAbs == 0 %}
+                                                {% set sign = cell.deltaPct is not null and cell.deltaPct > 0 ? '+' : '' %}
+                                                <br/>
+                                                {% if up %}
+                                                    <span class="badge bg-success-lt">
+                                                        +{{ cell.deltaAbs|number_format(row.format == 'pct' ? 1 : 0, '.', ',') }}{{ row.format == 'pct' ? '%' : '' }}
+                                                        {% if cell.deltaPct is not null %}
+                                                            <br />{{ sign }}{{ cell.deltaPct|number_format(1, '.', ',') }}%
+                                                        {% endif %}
+                                                    </span>
+                                                {% elseif down %}
+                                                    <span class="badge bg-danger-lt">
+                                                        {{ cell.deltaAbs|number_format(row.format == 'pct' ? 1 : 0, '.', ',') }}{{ row.format == 'pct' ? '%' : '' }}
+                                                        {% if cell.deltaPct is not null %}
+                                                            <br />{{ sign }}{{ cell.deltaPct|number_format(1, '.', ',') }}%
+                                                        {% endif %}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary-lt">
+                                                        ≡ 0{{ row.format == 'pct' ? '%' : '' }}
+                                                    </span>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+
+                        {# final total cell (already computed by the builder as the last cell) #}
+                        {% set totalCell = row.cells[timeColCount] ?? null %}
+                        <td class="text-end fw-semibold">
+                            {% if not totalCell or totalCell.value is null %}
+                                &ndash;
+                            {% else %}
+                                {% if row.format == 'pct' %}
+                                    {{ totalCell.value|number_format(1, '.', ',') }}%
+                                {% else %}
+                                    {{ totalCell.value|number_format(0, '.', ',') }}
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

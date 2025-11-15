@@ -533,6 +533,14 @@
         <source>link.statistics</source>
         <target>Statistics</target>
       </trans-unit>
+      <trans-unit id="xTIpefW" resname="link.stats.dashboard">
+        <source>link.stats.dashboard</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="RRCYtAu" resname="link.stats.time_grid">
+        <source>link.stats.time_grid</source>
+        <target>Time Grid</target>
+      </trans-unit>
       <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
         <target>This form allows you to link a raw indication with a corresponding normalized indication from the
