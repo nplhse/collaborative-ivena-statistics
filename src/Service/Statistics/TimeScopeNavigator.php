@@ -7,7 +7,8 @@ namespace App\Service\Statistics;
 use App\Model\Scope;
 use App\Service\Statistics\Util\Period;
 
-final class TimeScopeNavigator
+/** @psalm-suppress ClassMustBeFinal */
+class TimeScopeNavigator
 {
     /**
      * @return array{
