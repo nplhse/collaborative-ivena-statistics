@@ -218,10 +218,20 @@ trait AllocationRowNormalizationTrait
             return null;
         }
 
-        if (str_starts_with($value, 'Leitstelle ')) {
-            $value = substr($value, strlen('Leitstelle '));
+        $value = preg_replace([
+            '/^Leitstelle\s+/u',
+            '/\s*\(.+$/u',
+        ], ['', ''], $value);
+
+        if (null === $value) {
+            return null;
         }
 
-        return trim($value);
+        $value = trim($value);
+        if ('' === $value) {
+            return null;
+        }
+
+        return $value;
     }
 }
