@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Twig\Components;
 
 use App\Model\Scope;
+use App\Repository\DispatchAreaRepository;
+use App\Repository\HospitalRepository;
+use App\Repository\StateRepository;
 use App\Service\Statistics\ScopeAvailabilityService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -20,10 +23,22 @@ final class ScopePicker
      */
     public Scope $scope;
 
+    /** @var array<int,string> */
+    private array $hospitalNames = [];
+
+    /** @var array<int,string> */
+    private array $dispatchAreaNames = [];
+
+    /** @var array<int,string> */
+    private array $stateNames = [];
+
     public function __construct(
         private RequestStack $requestStack,
         private RouterInterface $router,
         private ScopeAvailabilityService $availability,
+        private HospitalRepository $hospitalRepository,
+        private DispatchAreaRepository $dispatchAreaRepository,
+        private StateRepository $stateRepository,
     ) {
     }
 
@@ -79,15 +94,24 @@ final class ScopePicker
             ];
         }
 
-        // Put "Public" group first if present
-        usort($groups, static function ($a, $b) {
-            if ('Public' === $a['label']) {
-                return -1;
-            }
-            if ('Public' === $b['label']) {
-                return 1;
+        // Sort groups by custom order: Public, State, Dispatch Area, Hospital, others
+        $order = [
+            'Public' => 1,
+            'State' => 2,
+            'Dispatch Area' => 3,
+            'Hospital' => 4,
+        ];
+
+        usort($groups, static function ($a, $b) use ($order) {
+            $rankA = $order[$a['label']] ?? 99;
+            $rankB = $order[$b['label']] ?? 99;
+
+            // Primary sort: rank
+            if ($rankA !== $rankB) {
+                return $rankA <=> $rankB;
             }
 
+            // Secondary sort: alphabetic for same rank
             return strcmp($a['label'], $b['label']);
         });
 
@@ -121,19 +145,59 @@ final class ScopePicker
 
     private function renderScopeOptionLabel(string $type, string $id): string
     {
+        // Public scope: simple fixed label
         if ('public' === $type) {
-            return 'All';
-        }
-        if ('state' === $type) {
-            return "State #$id";
-        }
-        if ('dispatch_area' === $type) {
-            return "Dispatch Area #$id";
-        }
-        if ('hospital' === $type) {
-            return "Hospital #$id";
+            return 'All scopes';
         }
 
-        return ucfirst(str_replace('_', ' ', $type)).' '.$id;
+        if ('state' === $type) {
+            $intId = (int) $id;
+
+            if (!array_key_exists($intId, $this->stateNames)) {
+                $entity = $this->stateRepository->find($intId);
+                $this->stateNames[$intId] = $entity?->getName() ?? ("State #$id");
+            }
+
+            return $this->stateNames[$intId];
+        }
+
+        // Dispatch area: resolve from repository, with small in-memory cache
+        if ('dispatch_area' === $type) {
+            $intId = (int) $id;
+
+            if (!array_key_exists($intId, $this->dispatchAreaNames)) {
+                $entity = $this->dispatchAreaRepository->find($intId);
+                $this->dispatchAreaNames[$intId] = $entity?->getName() ?? ("Dispatch Area #$id");
+            }
+
+            return $this->dispatchAreaNames[$intId];
+        }
+
+        // Hospital: resolve from repository, with small in-memory cache
+        if ('hospital' === $type) {
+            $intId = (int) $id;
+
+            if (!array_key_exists($intId, $this->hospitalNames)) {
+                $entity = $this->hospitalRepository->find($intId);
+                $this->hospitalNames[$intId] = $entity?->getName() ?? ("Hospital #$id");
+            }
+
+            return $this->hospitalNames[$intId];
+        }
+
+        if ('hospital_cohort' === $type) {
+            $parts = explode('_', $id, 2);
+
+            if (count($parts) < 2) {
+                return ucfirst($type).' '.$id;
+            }
+
+            [$tier, $location] = array_map('ucfirst', $parts);
+
+            return "Tier: $tier — Location: $location";
+        }
+
+        // Fallback for any other scope types
+        return ucfirst($type).' '.$id;
     }
 }
