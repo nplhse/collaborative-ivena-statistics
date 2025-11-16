@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataTransferObjects;
 
 use App\Model\Scope;
+use App\Service\Statistics\TransportTimeBucketPresets;
 use App\Service\Statistics\Util\Period;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,6 +22,12 @@ final class TransportTimeRequest
     public string $view = 'int';
 
     public string $preset = 'total';
+
+    public string $bucket = 'all';
+
+    public bool $withProgress = false;
+
+    public bool $withPhysician = true;
 
     public static function fromRequest(Request $request): self
     {
@@ -46,6 +53,16 @@ final class TransportTimeRequest
 
         // Metrics preset
         $self->preset = $request->query->get('preset', 'total');
+
+        // Bucket selection
+        $bucket = $request->query->get('bucket', $self->bucket);
+
+        $self->bucket = TransportTimeBucketPresets::isValid($bucket)
+            ? $bucket
+            : 'all';
+
+        $self->withProgress = $request->query->getBoolean('progress', false);
+        $self->withPhysician = $request->query->getBoolean('physician', true);
 
         return $self;
     }

@@ -1,0 +1,109 @@
+<div class="card mb-3">
+    <div class="card-header d-flex align-items-center">
+        {% if this.icon %}
+            <span class="me-2">
+                <i class="ti {{ this.icon }}"></i>
+            </span>
+        {% endif %}
+        <h3 class="card-title mb-0">
+            {{ this.title }}
+        </h3>
+    </div>
+
+    <div class="card-body p-0">
+        {% if not this.hasData() %}
+            <div class="p-3">
+                <div class="empty">
+                    <div class="empty-icon"><i class="ti ti-alert-circle"></i></div>
+                    <p class="empty-title">No data</p>
+                    <p class="empty-subtitle text-muted">
+                        There are no dimension statistics for the selected scope/period.
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th class="text-start">#</th>
+                        <th class="text-start">Name</th>
+
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Share</th>
+
+                        {% if this.withPhysician %}
+                            <th class="text-end">With physician</th>
+                        {% endif %}
+
+                        {# optional progress visualization as last column #}
+                        {% if this.withProgress %}
+                            <th class="text-end">Share visual</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in this.rows %}
+                        <tr>
+                            <td class="text-start text-muted">{{ loop.index }}</td>
+                            <td class="text-start">
+                                {{ row.name }}
+                            </td>
+
+                            <td class="text-end">
+                                {{ row.total|number_format(0, '.', ',') }}
+                            </td>
+                            <td class="text-end">
+                                {{ (row.share * 100)|number_format(1, '.', ',') }}%
+                            </td>
+
+                            {% if this.withPhysician %}
+                                {% set wpPct = (row.withPhysicianShare * 100) %}
+                                <td class="text-end">
+                                    {{ row.withPhysician|number_format(0, '.', ',') }}
+                                    &nbsp;({{ wpPct|number_format(1, '.', ',') }}%)
+                                </td>
+                            {% endif %}
+
+                            {% if this.withProgress %}
+                                    {% set overallSharePct = (row.share * 100) %}
+                                    {% set overallSharePct = overallSharePct < 0 ? 0 : (overallSharePct > 100 ? 100 : overallSharePct) %}
+
+                                    {% if this.withPhysician %}
+                                            {% set greenPct = overallSharePct * row.withPhysicianShare %}
+                                            {% set greenPct = greenPct < 0 ? 0 : greenPct %}
+                                            {% if greenPct > overallSharePct %}
+                                                    {% set greenPct = overallSharePct %}
+                                                {% endif %}
+                                            {% set basePct = overallSharePct - greenPct %}
+                                        {% else %}
+                                            {% set greenPct = 0 %}
+                                            {% set basePct = overallSharePct %}
+                                        {% endif %}
+
+                                    <td class="text-end">
+                                            <div class="progress-stacked" style="min-width: 140px;">
+                                                    {# Base segment: non-physician part of the dimension share (standard color) #}
+                                                    {% if basePct > 0 %}
+                                                            <div class="progress" style="width: {{ basePct|number_format(1, '.', '') }}%">
+                                                                    <div class="progress-bar"></div>
+                                                                </div>
+                                                        {% endif %}
+
+                                                    {# Green segment: physician share within this dimension (only if showWithPhysician) #}
+                                                    {% if greenPct > 0 %}
+                                                            <div class="progress" style="width: {{ greenPct|number_format(1, '.', '') }}%">
+                                                                    <div class="progress-bar bg-success"></div>
+                                                                </div>
+                                                        {% endif %}
+                                                </div>
+                                        </td>
+                                {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>

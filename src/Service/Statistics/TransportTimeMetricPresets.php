@@ -33,6 +33,10 @@ final class TransportTimeMetricPresets
                 ['name' => 'Ground transport', 'id' => 'transport_ground'],
                 ['name' => 'Air transport',    'id' => 'transport_air'],
             ],
+            'resources' => [
+                ['name' => 'Resus required', 'id' => 'resus_req'],
+                ['name' => 'Cathlab required', 'id' => 'cathlab_req'],
+            ],
             default => [ // 'total'
                 ['name' => 'Total',          'id' => 'total'],
                 ['name' => 'With physician', 'id' => 'with_physician'],
@@ -52,6 +56,7 @@ final class TransportTimeMetricPresets
             ['value' => 'gender',    'label' => 'Gender'],
             ['value' => 'urgency',   'label' => 'Urgency'],
             ['value' => 'transport', 'label' => 'Transport modes'],
+            ['value' => 'resources', 'label' => 'Resources'],
         ];
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Statistics;
 
 use App\DataTransferObjects\TransportTimeRequest;
+use App\Service\Statistics\TransportTimeBucketPresets;
 use App\Service\Statistics\TransportTimeReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,11 @@ final class TransportTimeController extends AbstractController
             'view' => $dto->view,
             'hasData' => $hasData,
             'currentPreset' => $dto->preset,
+            'currentBucket' => $dto->bucket,
+            'buckets' => TransportTimeBucketPresets::all(),
+            'withProgress' => $dto->withProgress,
+            'withPhysician' => $dto->withPhysician,
+            'topAnchorId' => 'transport-time-top',
         ]);
     }
 }

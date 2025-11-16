@@ -49,9 +49,84 @@
             :view="view"
         />
 
-        {% component 'TransportTimeDispatchAreaTopList' with {
-            scope: scope
+        <a id="{{ topAnchorId }}"></a>
+
+        {# direkt danach die Controls-Card #}
+        {% component 'TransportTimeControls' with {
+            buckets: buckets,
+            currentBucket: currentBucket,
+            withProgress: withProgress,
+            withPhysician: withPhysician,
+            anchorId: topAnchorId,
         } %}{% endcomponent %}
+
+        <div class="row row-cards mb-3">
+            <div class="col-sm-6 col-lg-6">
+                <twig:TransportTimeDimTopList
+                    :scope="scope"
+                    dimType="speciality"
+                    :bucket="currentBucket"
+                    title="Top Specialities"
+                    :withPhysician="withPhysician"
+                    :withProgress="withProgress"
+                />
+            </div>
+
+            <div class="col-sm-6 col-lg-6">
+                <twig:TransportTimeDimTopList
+                    :scope="scope"
+                    dimType="indication"
+                    :bucket="currentBucket"
+                    title="Top Indications"
+                    :withPhysician="withPhysician"
+                    :withProgress="withProgress"
+                />
+            </div>
+
+            <div class="col-sm-6 col-lg-6">
+                <twig:TransportTimeDimTopList
+                    :scope="scope"
+                    dimType="occasion"
+                    :bucket="currentBucket"
+                    title="Top Occasions"
+                    :withPhysician="withPhysician"
+                    :withProgress="withProgress"
+                />
+            </div>
+
+            <div class="col-sm-6 col-lg-6">
+                <twig:TransportTimeDimTopList
+                    :scope="scope"
+                    dimType="assignment"
+                    :bucket="currentBucket"
+                    title="Top Assignments"
+                    :withPhysician="withPhysician"
+                    :withProgress="withProgress"
+                />
+            </div>
+
+            <div class="col-sm-6 col-lg-6">
+                <twig:TransportTimeDimTopList
+                    :scope="scope"
+                    dimType="dispatch_area"
+                    :bucket="currentBucket"
+                    title="Top Dispatch Areas"
+                    :withPhysician="withPhysician"
+                    :withProgress="withProgress"
+                />
+            </div>
+
+            <div class="col-sm-6 col-lg-6">
+                <twig:TransportTimeDimTopList
+                    :scope="scope"
+                    dimType="state"
+                    :bucket="currentBucket"
+                    title="Top States"
+                    :withPhysician="withPhysician"
+                    :withProgress="withProgress"
+                />
+            </div>
+        </div>
 
         <twig:TimeScopePager
             :scope="scope"
