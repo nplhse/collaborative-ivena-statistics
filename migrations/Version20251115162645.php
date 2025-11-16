@@ -38,6 +38,8 @@ CREATE TABLE agg_allocations_transport_time_buckets (
 
   total              JSONB NOT NULL,
   with_physician     JSONB NOT NULL,
+  resus_req          JSONB NOT NULL,
+  cathlab_req        JSONB NOT NULL,
   gender_m           JSONB NOT NULL,
   gender_w           JSONB NOT NULL,
   gender_d           JSONB NOT NULL,
@@ -65,6 +67,8 @@ CREATE TABLE agg_allocations_transport_time_dim (
 
   n_total           INT    NOT NULL,
   n_with_physician  INT    NOT NULL,
+  n_resus_req       INT    NOT NULL,
+  n_cathlab_req     INT    NOT NULL,
   n_urg_1           INT    NOT NULL,
   n_urg_2           INT    NOT NULL,
   n_urg_3           INT    NOT NULL,

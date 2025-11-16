@@ -50,7 +50,8 @@ final class TransportTimeCalculator implements CalculatorInterface
         $this->aggregator
             ->forScope($scope)
             ->withCoreBuckets()
-            ->withDimensions(['occasion', 'assignment', 'state', 'dispatch_area'])
+            ->withDimensions(['occasion', 'assignment', 'speciality', 'indication', 'dispatch_area', 'state'])
+            ->withDimensionLimit(25)
             ->execute();
     }
 }

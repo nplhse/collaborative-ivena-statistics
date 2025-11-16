@@ -59,6 +59,8 @@ SQL;
         return <<<SQL
 COUNT(*)::int                                         AS total,
 COUNT(*) FILTER (WHERE is_with_physician)::int        AS with_physician,
+COUNT(*) FILTER (WHERE requires_resus):: int          AS resus_req,
+COUNT(*) FILTER (WHERE requires_cathlab)::int         AS cathlab_req,
 COUNT(*) FILTER (WHERE gender = 'M')::int             AS gender_m,
 COUNT(*) FILTER (WHERE gender = 'F')::int             AS gender_w,
 COUNT(*) FILTER (WHERE gender = 'X')::int             AS gender_d,
@@ -73,10 +75,12 @@ SQL;
     protected function dimColumn(string $dimType): string
     {
         return match ($dimType) {
-            'occasion' => 'occasion_id',
             'assignment' => 'assignment_id',
-            'state' => 'state_id',
             'dispatch_area' => 'dispatch_area_id',
+            'occasion' => 'occasion_id',
+            'indication' => 'indication_normalized_id',
+            'state' => 'state_id',
+            'speciality' => 'speciality_id',
             default => throw new \InvalidArgumentException(sprintf('Unknown dimension type "%s"', $dimType)),
         };
     }

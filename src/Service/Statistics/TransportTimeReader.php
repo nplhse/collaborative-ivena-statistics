@@ -29,6 +29,8 @@ final class TransportTimeReader
     private const METRIC_LABELS = [
         'total' => 'Total',
         'with_physician' => 'With physician',
+        'resus_req' => 'Resus required',
+        'cathlab_req' => 'Cathlab required',
         'gender_m' => 'Male',
         'gender_w' => 'Female',
         'gender_d' => 'Diverse',
@@ -65,6 +67,8 @@ final class TransportTimeReader
 SELECT
   total,
   with_physician,
+  resus_req,
+  cathlab_req,
   gender_m,
   gender_w,
   gender_d,

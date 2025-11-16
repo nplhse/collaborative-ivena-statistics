@@ -20,6 +20,8 @@ final class TransportTimeAggregator
     /** @var string[] */
     private array $dimensionTypes = [];
 
+    private ?int $dimensionLimit = null;
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly AggScopeRepository $aggScopeRepository,
@@ -54,6 +56,17 @@ final class TransportTimeAggregator
         return $this;
     }
 
+    public function withDimensionLimit(?int $limit): self
+    {
+        if (null === $limit || $limit <= 0) {
+            $this->dimensionLimit = null;
+        } else {
+            $this->dimensionLimit = $limit;
+        }
+
+        return $this;
+    }
+
     public function execute(): void
     {
         if (null === $this->scope || null === $this->aggScopeId) {
@@ -74,7 +87,7 @@ final class TransportTimeAggregator
         }
 
         foreach ($this->dimensionTypes as $dimType) {
-            $rows = $this->reader->fetchDimensionBuckets($this->scope, $dimType);
+            $rows = $this->reader->fetchDimensionBuckets($this->scope, $dimType, $this->dimensionLimit);
 
             if (!$rows) {
                 continue;

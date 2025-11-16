@@ -39,6 +39,8 @@ totals AS (
   SELECT
     SUM(total)             AS total,
     SUM(with_physician)    AS with_physician,
+    SUM(resus_req)         AS resus_req,
+    SUM(cathlab_req)       AS cathlab_req,
     SUM(gender_m)          AS gender_m,
     SUM(gender_w)          AS gender_w,
     SUM(gender_d)          AS gender_d,
@@ -72,6 +74,8 @@ SQL;
                 'payload' => [
                     'total' => [],
                     'with_physician' => [],
+                    'resus_req' => [],
+                    'cathlab_req' => [],
                     'gender_m' => [],
                     'gender_w' => [],
                     'gender_d' => [],
@@ -124,6 +128,8 @@ SQL;
         $payload = [
             'total' => $buildAspect('total'),
             'with_physician' => $buildAspect('with_physician'),
+            'resus_req' => $buildAspect('resus_req'),
+            'cathlab_req' => $buildAspect('cathlab_req'),
             'gender_m' => $buildAspect('gender_m'),
             'gender_w' => $buildAspect('gender_w'),
             'gender_d' => $buildAspect('gender_d'),
@@ -143,33 +149,86 @@ SQL;
     }
 
     /**
-     * @return array<int,array<string,mixed>> raw rows mit t_bucket, dim_id, counts, mean, var, stddev
+     * Fetch per-dimension, per-bucket counts for a given dimension type.
+     *
+     * If $limit is null or <= 0, all dimensions are returned.
+     * If $limit > 0, only the top-N dim_ids (by total n_total across buckets)
+     * are included.
+     *
+     * @return array<int,array<string,mixed>>
      */
-    public function fetchDimensionBuckets(Scope $scope, string $dimType): array
+    public function fetchDimensionBuckets(Scope $scope, string $dimType, ?int $limit = null): array
     {
         [$fromSql, $whereSql, $params] = $this->buildFromWhere($scope);
         $cte = $this->timedCte($fromSql, $whereSql);
         $col = $this->dimColumn($dimType);
 
+        // No limit => original behaviour, no top-N filtering
+        if (null === $limit || $limit <= 0) {
+            $sql = <<<SQL
+                    {$cte}
+                    SELECT
+                      t_bucket,
+                      {$col} AS dim_id,
+                      COUNT(*)::int                                      AS n_total,
+                      COUNT(*) FILTER (WHERE is_with_physician)::int     AS n_with_physician,
+                      COUNT(*) FILTER (WHERE requires_resus):: int       AS n_resus_req,
+                      COUNT(*) FILTER (WHERE requires_cathlab)::int      AS n_cathlab_req,
+                      COUNT(*) FILTER (WHERE urgency = 1)::int           AS n_urg_1,
+                      COUNT(*) FILTER (WHERE urgency = 2)::int           AS n_urg_2,
+                      COUNT(*) FILTER (WHERE urgency = 3)::int           AS n_urg_3,
+                      COUNT(*) FILTER (WHERE transport_type = 'G')::int  AS n_transport_ground,
+                      COUNT(*) FILTER (WHERE transport_type = 'A')::int  AS n_transport_air,
+                      AVG(transport_minutes)::float                      AS mean_minutes,
+                      VAR_SAMP(transport_minutes)::float                 AS variance_minutes,
+                      STDDEV_SAMP(transport_minutes)::float              AS stddev_minutes
+                    FROM timed
+                    WHERE {$col} IS NOT NULL
+                    GROUP BY t_bucket, {$col};
+                    SQL;
+
+            return $this->db->fetchAllAssociative($sql, $params);
+        }
+
+        // With limit => restrict to top-N dim_ids by n_total
         $sql = <<<SQL
-{$cte}
-SELECT
-  t_bucket,
-  {$col} AS dim_id,
-  COUNT(*)::int                                   AS n_total,
-  COUNT(*) FILTER (WHERE is_with_physician)::int  AS n_with_physician,
-  COUNT(*) FILTER (WHERE urgency = 1)::int        AS n_urg_1,
-  COUNT(*) FILTER (WHERE urgency = 2)::int        AS n_urg_2,
-  COUNT(*) FILTER (WHERE urgency = 3)::int        AS n_urg_3,
-  COUNT(*) FILTER (WHERE transport_type = 'G')::int AS n_transport_ground,
-  COUNT(*) FILTER (WHERE transport_type = 'A')::int AS n_transport_air,
-  AVG(transport_minutes)::float                      AS mean_minutes,
-  VAR_SAMP(transport_minutes)::float                 AS variance_minutes,
-  STDDEV_SAMP(transport_minutes)::float              AS stddev_minutes
-FROM timed
-WHERE {$col} IS NOT NULL
-GROUP BY t_bucket, {$col};
-SQL;
+        {$cte},
+        dim_totals AS (
+          SELECT
+            {$col} AS dim_id,
+            COUNT(*)::int AS n_total_dim
+          FROM timed
+          WHERE {$col} IS NOT NULL
+          GROUP BY {$col}
+        ),
+        top_dims AS (
+          SELECT dim_id
+          FROM dim_totals
+          ORDER BY n_total_dim DESC
+          LIMIT :dim_limit
+        )
+        SELECT
+          t_bucket,
+          {$col} AS dim_id,
+          COUNT(*)::int                                      AS n_total,
+          COUNT(*) FILTER (WHERE is_with_physician)::int     AS n_with_physician,
+          COUNT(*) FILTER (WHERE requires_resus):: int       AS n_resus_req,
+          COUNT(*) FILTER (WHERE requires_cathlab)::int      AS n_cathlab_req,
+          COUNT(*) FILTER (WHERE urgency = 1)::int           AS n_urg_1,
+          COUNT(*) FILTER (WHERE urgency = 2)::int           AS n_urg_2,
+          COUNT(*) FILTER (WHERE urgency = 3)::int           AS n_urg_3,
+          COUNT(*) FILTER (WHERE transport_type = 'G')::int  AS n_transport_ground,
+          COUNT(*) FILTER (WHERE transport_type = 'A')::int  AS n_transport_air,
+          AVG(transport_minutes)::float                      AS mean_minutes,
+          VAR_SAMP(transport_minutes)::float                 AS variance_minutes,
+          STDDEV_SAMP(transport_minutes)::float              AS stddev_minutes
+        FROM timed
+        JOIN top_dims td ON td.dim_id = {$col}
+        WHERE {$col} IS NOT NULL
+        GROUP BY t_bucket, {$col};
+        SQL;
+
+        $params['dim_limit'] = $limit;
 
         return $this->db->fetchAllAssociative($sql, $params);
     }
