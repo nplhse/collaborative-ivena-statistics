@@ -18,17 +18,18 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
  *     area: string,
  *     name: string,
  *     code?: string,
- *     tier: string,
+ *     tier?: string|null,
  *     size: string,
  *     beds: int,
  *     location: string,
  *     address: array{
- *         street: string,
- *         city: string,
- *         state: string,
- *         postalCode: string,
- *         country: string
- *     }
+ *          street: string,
+ *          city: string,
+ *          state: string,
+ *          postalCode: string,
+ *          country: string
+ *      },
+ *     participating: bool
  * }>
  */
 #[AsTaggedItem('app.seed_provider', priority: 100)]
@@ -70,7 +71,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 ->setName($row['name'])
                 ->setState($stateRef)
                 ->setDispatchArea($areaRef)
-                ->setTier(HospitalTier::from($row['tier']))
+                ->setTier(isset($row['tier']) ? HospitalTier::from($row['tier']) : null)
                 ->setLocation(HospitalLocation::from($row['location']))
                 ->setSize(HospitalSize::from($row['size']))
                 ->setBeds($row['beds'])
@@ -82,7 +83,8 @@ final class HospitalSeedProvider implements SeedProviderInterface
                         ->setCountry($row['address']['country'])
                         ->setState($row['address']['state'])
                 )
-                ->setOwner($user)
+                ->setParticipating($row['participating'])
+                ->setOwner(null)
                 ->setCreatedBy($user);
 
             yield $hospital;
@@ -90,22 +92,23 @@ final class HospitalSeedProvider implements SeedProviderInterface
     }
 
     /**
-     * @return iterable<array{
+     * @implements SeedProviderInterface<array{
      *     state: string,
      *     area: string,
      *     name: string,
      *     code?: string,
-     *     tier: string,
+     *     tier?: string|null,
      *     size: string,
      *     beds: int,
      *     location: string,
      *     address: array{
-     *         street: string,
-     *         city: string,
-     *         state: string,
-     *         postalCode: string,
-     *         country: string
-     *     }
+     *          street: string,
+     *          city: string,
+     *          state: string,
+     *          postalCode: string,
+     *          country: string
+     *      },
+     *     participating: bool
      * }>
      */
     #[\Override]
@@ -126,6 +129,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60389',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -142,6 +146,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34119',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -158,6 +163,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64287',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -174,6 +180,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35398',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -190,6 +197,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60431',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -206,6 +214,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => 'Darmstadt',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -222,6 +231,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63225',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -238,6 +248,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35423',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -254,6 +265,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63500',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -270,6 +282,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65197',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -286,6 +299,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34537',
                 'country' => 'Deutschland',
             ],
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -302,6 +316,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60389',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -318,6 +333,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60318',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -334,6 +350,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '61169',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -350,6 +367,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35041',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -366,6 +384,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60594',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -382,6 +401,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35216',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -398,6 +418,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34117',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -414,6 +435,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60316',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -430,6 +452,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65428',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -446,6 +469,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64625',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -462,6 +486,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65199',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -478,6 +503,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65510',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -494,6 +520,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => 'Kassel',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -510,6 +537,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '36088',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -526,6 +554,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '36039',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -542,6 +571,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '61352',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -558,6 +588,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '61250',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -574,6 +605,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '61231',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -590,6 +622,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60311',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -606,12 +639,13 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34560',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
             'area' => 'Lahn-Dill',
             'name' => 'Kaiserin-Auguste-Victoria Krankenhaus',
-            'tier' => 'Basic',
+            'tier' => null,
             'size' => 'Small',
             'beds' => 97,
             'location' => 'Rural',
@@ -622,6 +656,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35630',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -638,6 +673,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63071',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -654,6 +690,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '36251',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -670,6 +707,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64283',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -686,6 +724,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35683',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -702,6 +741,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65929',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -718,6 +758,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '36043',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -734,6 +775,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63450',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -750,6 +792,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34125',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -766,6 +809,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34613',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -782,6 +826,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35578',
                 'country' => 'Deutschland',
             ],
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -798,6 +843,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '37269',
                 'country' => 'Deutschland',
             ],
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -814,6 +860,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '37213',
                 'country' => 'Deutschland',
             ],
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -830,6 +877,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34454',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -846,6 +894,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65812',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -857,11 +906,12 @@ final class HospitalSeedProvider implements SeedProviderInterface
             'location' => 'Rural',
             'address' => [
                 'street' => 'Eichhofstraße 1',
-                'city' => 'auterbach(Hessen)',
+                'city' => 'Lauterbach(Hessen)',
                 'state' => 'Hessen',
                 'postalCode' => '36341',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -878,6 +928,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65719',
                 'country' => 'Deutschland',
             ],
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -894,6 +945,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60488',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -910,6 +962,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64521',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -926,6 +979,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64823',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -942,6 +996,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34369',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -958,6 +1013,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34466',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -974,6 +1030,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '36304',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -990,6 +1047,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64646',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1006,6 +1064,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64711',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1022,6 +1081,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35066',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1038,6 +1098,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '36199',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1054,6 +1115,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63679',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1070,6 +1132,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35781',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1086,6 +1149,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63571',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1102,6 +1166,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '36381',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1118,6 +1183,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34127',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1134,6 +1200,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63069',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1150,6 +1217,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60389',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1166,6 +1234,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60487',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1182,6 +1251,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35392',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1198,6 +1268,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65385',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1214,6 +1285,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65189',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1230,6 +1302,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '68519',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1246,6 +1319,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '68623',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1262,6 +1336,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65549',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1278,6 +1353,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63450',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1294,6 +1370,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34497',
                 'country' => 'Deutschland',
             ],
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -1310,6 +1387,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60596',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1326,6 +1404,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35392',
                 'country' => 'Deutschland',
             ],
+            'participating' => false,
         ];
         yield [
             'state' => 'Hessen',
@@ -1342,6 +1421,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35043',
                 'country' => 'Deutschland',
             ],
+            'participating' => true,
         ];
     }
 
