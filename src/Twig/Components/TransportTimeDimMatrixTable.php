@@ -35,6 +35,15 @@ final class TransportTimeDimMatrixTable
      */
     public array $rows = [];
 
+    /**
+     * @var list<array{
+     *   dimId:int,
+     *   total:int,
+     *   buckets:array<string,int>
+     * }>
+     */
+    public array $matrixRows = [];
+
     public function __construct(
         private readonly TransportTimeDimMatrixReader $reader,
         private readonly RequestStack $requestStack,
@@ -50,7 +59,11 @@ final class TransportTimeDimMatrixTable
             $this->bucketKeys = ['<10', '10-20', '20-30', '30-40', '40-50', '50-60', '>60'];
         }
 
-        $raw = $this->reader->readMatrix($this->scope, $this->dimType);
+        $raw = $this->matrixRows;
+
+        if ([] === $raw) {
+            $raw = $this->reader->readMatrix($this->scope, $this->dimType);
+        }
 
         if ([] === $raw) {
             $this->rows = [];

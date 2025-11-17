@@ -37,6 +37,15 @@ final class TransportTimeDimMatrixChart
 
     public string $domId = '';
 
+    /**
+     * @var list<array{
+     *   dimId:int,
+     *   total:int,
+     *   buckets:array<string,int>
+     * }>
+     */
+    public array $matrixRows = [];
+
     public function __construct(
         private readonly TransportTimeDimMatrixReader $reader,
         private readonly RequestStack $requestStack,
@@ -59,7 +68,11 @@ final class TransportTimeDimMatrixChart
         $this->labels = $this->bucketKeys;
         $this->nameResolver->preload($this->dimType);
 
-        $rows = $this->reader->readMatrix($this->scope, $this->dimType);
+        $rows = $this->matrixRows;
+
+        if ([] === $rows) {
+            $rows = $this->reader->readMatrix($this->scope, $this->dimType);
+        }
 
         if ([] === $rows) {
             $this->series = [];
