@@ -113,6 +113,42 @@
         <source>help.search_no_results</source>
         <target>Try adjusting your search or filter to find what you're looking for.</target>
       </trans-unit>
+      <trans-unit id="SZjOELg" resname="hospital.location.Mixed">
+        <source>hospital.location.Mixed</source>
+        <target>Mixed Location</target>
+      </trans-unit>
+      <trans-unit id="hCNpkSc" resname="hospital.location.Rural">
+        <source>hospital.location.Rural</source>
+        <target>Rural Location</target>
+      </trans-unit>
+      <trans-unit id="HrZvN0R" resname="hospital.location.Urban">
+        <source>hospital.location.Urban</source>
+        <target>Urban Location</target>
+      </trans-unit>
+      <trans-unit id="2GXLZcX" resname="hospital.size.Large">
+        <source>hospital.size.Large</source>
+        <target>Large Size</target>
+      </trans-unit>
+      <trans-unit id="b8NtI4L" resname="hospital.size.Medium">
+        <source>hospital.size.Medium</source>
+        <target>Medium Size</target>
+      </trans-unit>
+      <trans-unit id="7pO0v2a" resname="hospital.size.Small">
+        <source>hospital.size.Small</source>
+        <target>Small Size</target>
+      </trans-unit>
+      <trans-unit id="brJg_gq" resname="hospital.tier.Basic">
+        <source>hospital.tier.Basic</source>
+        <target>Basic Tier</target>
+      </trans-unit>
+      <trans-unit id="UhRsM6s" resname="hospital.tier.Extended">
+        <source>hospital.tier.Extended</source>
+        <target>Extended Tier</target>
+      </trans-unit>
+      <trans-unit id="6MDw2dh" resname="hospital.tier.Full">
+        <source>hospital.tier.Full</source>
+        <target>Full Tier</target>
+      </trans-unit>
       <trans-unit id="2_8EtuE" resname="import.action.preview_rows">
         <source>import.action.preview_rows</source>
         <target>Preview Rows</target>
@@ -181,6 +217,30 @@
         <source>label.age</source>
         <target>Age</target>
       </trans-unit>
+      <trans-unit id="3bIHt8G" resname="label.all_dispatch_areas">
+        <source>label.all_dispatch_areas</source>
+        <target>All Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="t2o1BoP" resname="label.all_locations">
+        <source>label.all_locations</source>
+        <target>All Locations</target>
+      </trans-unit>
+      <trans-unit id="OIVPERw" resname="label.all_modes">
+        <source>label.all_modes</source>
+        <target>All Modes</target>
+      </trans-unit>
+      <trans-unit id="GRL.4Ts" resname="label.all_sizes">
+        <source>label.all_sizes</source>
+        <target>All Sizes</target>
+      </trans-unit>
+      <trans-unit id="wcORf5K" resname="label.all_states">
+        <source>label.all_states</source>
+        <target>All States</target>
+      </trans-unit>
+      <trans-unit id=".58BClh" resname="label.all_tiers">
+        <source>label.all_tiers</source>
+        <target>All Tiers</target>
+      </trans-unit>
       <trans-unit id="6QPDzOS" resname="label.allocation">
         <source>label.allocation</source>
         <target>Allocation</target>
@@ -220,6 +280,22 @@
       <trans-unit id="7Oebk.l" resname="label.dispatch_area">
         <source>label.dispatch_area</source>
         <target>Dispatch Area</target>
+      </trans-unit>
+      <trans-unit id="JGx905C" resname="label.filter.results">
+        <source>label.filter.results</source>
+        <target>Filter Results</target>
+      </trans-unit>
+      <trans-unit id="RPew0g8" resname="label.filters">
+        <source>label.filters</source>
+        <target>Filters</target>
+      </trans-unit>
+      <trans-unit id="5qtkGtz" resname="label.filters.apply">
+        <source>label.filters.apply</source>
+        <target>Apply Filters</target>
+      </trans-unit>
+      <trans-unit id="xxRgaom" resname="label.filters.reset">
+        <source>label.filters.reset</source>
+        <target>Reset Filters</target>
       </trans-unit>
       <trans-unit id="cpKk2WF" resname="label.gender.female">
         <source>label.gender.female</source>
@@ -288,6 +364,18 @@
       <trans-unit id="K7xiN6v" resname="label.indication.raw">
         <source>label.indication.raw</source>
         <target>Raw Indication</target>
+      </trans-unit>
+      <trans-unit id="FAxaB50" resname="label.is_participating">
+        <source>label.is_participating</source>
+        <target>Participation</target>
+      </trans-unit>
+      <trans-unit id="H1xh.Cr" resname="label.is_participating.not">
+        <source>label.is_participating.not</source>
+        <target>Is not participating</target>
+      </trans-unit>
+      <trans-unit id="xA8v84b" resname="label.is_participating.yes">
+        <source>label.is_participating.yes</source>
+        <target>Is participating</target>
       </trans-unit>
       <trans-unit id="KrdI.1U" resname="label.last_change">
         <source>label.last_change</source>
@@ -389,6 +477,10 @@
         <source>label.pagination_results</source>
         <target>{pageSize} records</target>
       </trans-unit>
+      <trans-unit id="wwkgz5d" resname="label.participation">
+        <source>label.participation</source>
+        <target>Participation</target>
+      </trans-unit>
       <trans-unit id="dzmkSoD" resname="label.pregnant">
         <source>label.pregnant</source>
         <target>Pregnant</target>
@@ -480,6 +572,10 @@
       <trans-unit id="Ogn7GN1" resname="label.urgency.urgent">
         <source>label.urgency.urgent</source>
         <target>Urgent</target>
+      </trans-unit>
+      <trans-unit id="JU6yi9y" resname="label.without_owner">
+        <source>label.without_owner</source>
+        <target>Without owner</target>
       </trans-unit>
       <trans-unit id="ZdrXMaQ" resname="link.allocations">
         <source>link.allocations</source>

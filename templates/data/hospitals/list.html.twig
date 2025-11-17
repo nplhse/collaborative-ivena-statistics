@@ -35,6 +35,110 @@
                         {% endblock %}
                     {% endblock %}
                 </div>
+
+                <!-- Page title actions -->
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <div class="btn-group">
+                        <button
+                            class="btn"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#hospital-filters"
+                            aria-controls="hospital-filters"
+                        >
+                            {% if activeFilterCount < 1 %}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="icon"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M4 4h16l-6 8v6l-4 -2v-4z" />
+                                </svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
+                                </svg>
+                            {% endif %}
+                            <span class="ms-2">{{ 'label.filters'|trans }}</span>
+
+                            {% if activeFilterCount > 0 %}
+                                <span class="badge text-primary ms-2">
+                                    {{ activeFilterCount }}
+                                </span>
+                            {% endif %}
+                        </button>
+
+                        {% if activeFilterCount > 0 %}
+                            <a
+                                href="{{ path('app_data_hospital_list') }}"
+                                class="btn btn-icon btn-outline"
+                                title="Filter zurücksetzen"
+                                aria-label="Filter zurücksetzen"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="icon"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M18 6l-12 12" />
+                                    <path d="M6 6l12 12" />
+                                </svg>
+                            </a>
+                        {% endif %}
+                        </div>
+
+                        <form
+                            method="GET"
+                            action="{{ path('app_data_hospital_list') }}"
+                            data-controller="autosubmit"
+                            data-turbo-frame="hospital-list"
+                        >
+                            <div class="input-icon">
+                                <input
+                                    type="search"
+                                    name="search"
+                                    value="{{ app.request.query.get('search') }}"
+                                    aria-label="{{ 'label.search'|trans }}"
+                                    placeholder="{{ 'label.search'|trans }}"
+                                    class="form-control d-inline-block w-9 me-3"
+                                    data-action="autosubmit#debouncedSubmit"
+                                    autofocus
+                                >
+                                <span class="input-icon-addon">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24" height="24" viewBox="0 0 24 24"
+                                        stroke-width="2" stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <circle cx="10" cy="10" r="7" />
+                                        <line x1="21" y1="21" x2="15" y2="15" />
+                                    </svg>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -55,6 +159,7 @@
             <table class="table data-table-card">
                 <thead>
                 <tr>
+                    <th></th>
                     <th class="col-3">
                         <a class="text-muted" href="{{ path('app_data_hospital_list', {
                             ...app.request.query.all(),
@@ -124,6 +229,19 @@
                 {% for hospital in paginator.results %}
                     {% import '_macros/badges.html.twig' as badges %}
                     <tr>
+                        <td class="text-center text-muted">
+                            {% if hospital.isParticipating %}
+                                <div class="text-success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005.195v12.666c0 1.96-1.537 3.56-3.472 3.662l-.195.005H5.667a3.667 3.667 0 0 1-3.662-3.472L2 18.333V5.667c0-1.96 1.537-3.56 3.472-3.662L5.667 2zm-2.626 7.293a1 1 0 0 0-1.414 0L11 12.585l-1.293-1.292l-.094-.083a1 1 0 0 0-1.32 1.497l2 2l.094.083a1 1 0 0 0 1.32-.083l4-4l.083-.094a1 1 0 0 0-.083-1.32"/>
+                                    </svg>
+                                </div>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M19 2H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3M9.613 8.21l.094.083L12 10.585l2.293-2.292a1 1 0 0 1 1.497 1.32l-.083.094L13.415 12l2.292 2.293a1 1 0 0 1-1.32 1.497l-.094-.083L12 13.415l-2.293 2.292a1 1 0 0 1-1.497-1.32l.083-.094L10.585 12L8.293 9.707a1 1 0 0 1 1.32-1.497"/>
+                                </svg>
+                            {% endif %}
+                        </td>
                         <td>
                             <a href="{{ path('app_data_hospital_show', {id: hospital.id}) }}" target="_top">{{ hospital.name }}</a>
                         </td>
@@ -137,7 +255,9 @@
                             {{ badges.render('hospital_location', hospital.location.value) }}
                         </td>
                         <td>
-                            {{ badges.render('hospital_tier', hospital.tier.value) }}
+                            {% if hospital.tier %}
+                                {{ badges.render('hospital_tier', hospital.tier.value) }}
+                            {% endif %}
                         </td>
                         <td>
                             {{ badges.render('hospital_size', hospital.size.value, hospital.beds) }}
@@ -178,4 +298,147 @@
             </template>
         </turbo-stream>
     </turbo-frame>
+
+    <div
+        class="offcanvas offcanvas-end"
+        tabindex="-1"
+        id="hospital-filters"
+        aria-labelledby="hospital-filters-label"
+    >
+        <div class="offcanvas-header">
+            <h2 class="offcanvas-title" id="hospital-filters-label">
+                {{ 'label.filter.results'|trans }}
+            </h2>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+            ></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <form method="get" action="{{ path('app_data_hospital_list') }}">
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.tier'|trans }}</label>
+                    <select name="tier" class="form-select">
+                        <option value="">{{ 'label.all_tiers'|trans }}</option>
+                        {% for tier in tiers %}
+                            <option
+                                value="{{ tier.value }}"
+                                {{ filters.tier == tier.value ? 'selected' }}
+                            >
+                                {{ ('hospital.tier.' ~ tier.value)|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.location'|trans }}</label>
+                    <select name="location" class="form-select">
+                        <option value="">{{ 'label.all_locations'|trans }}</option>
+                        {% for location in locations %}
+                            <option
+                                value="{{ location.value }}"
+                                {{ filters.location == location.value ? 'selected' }}
+                            >
+                                {{ ('hospital.location.' ~ location.value)|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.size'|trans }}</label>
+                    <select name="size" class="form-select">
+                        <option value="">{{ 'label.all_sizes'|trans }}</option>
+                        {% for size in sizes %}
+                            <option
+                                value="{{ size.value }}"
+                                {{ filters.size == size.value ? 'selected' }}
+                            >
+                                {{ ('hospital.size.' ~ size.value)|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.dispatch_area'|trans }}</label>
+                    <select name="dispatchArea" class="form-select">
+                        <option value="">{{ 'label.all_dispatch_areas'|trans }}</option>
+                        {% for area in dispatchAreas %}
+                            <option
+                                value="{{ area.id }}"
+                                {{ filters.dispatchArea == area.id ? 'selected' }}
+                            >
+                                {{ area.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.state'|trans }}</label>
+                    <select name="state" class="form-select">
+                        <option value="">{{ 'label.all_states'|trans }}</option>
+                        {% for state in states %}
+                            <option
+                                value="{{ state.id }}"
+                                {{ filters.state == state.id ? 'selected' }}
+                            >
+                                {{ state.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.participation'|trans }}</label>
+                    <select name="participating" class="form-select">
+                        <option value="">{{ 'label.all_modes'|trans }}</option>
+                        <option
+                            value="1"
+                            {{ filters.participating == '1' ? 'selected' }}
+                        >
+                            {{ 'label.is_participating.yes'|trans }}
+                        </option>
+                        <option
+                            value="0"
+                            {{ filters.participating == '0' ? 'selected' }}
+                        >
+                            {{ 'label.is_participating.not'|trans }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.search'|trans }}</label>
+                    <input
+                        type="search"
+                        name="search"
+                        class="form-control"
+                        value="{{ filters.search }}"
+                        placeholder="{{ 'label.search_for'|trans }}"
+                    >
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        {{ 'label.filters.apply'|trans }}
+                    </button>
+
+                    {% if activeFilterCount > 0 %}
+                        <a
+                            href="{{ path('app_data_hospital_list') }}"
+                            class="btn btn-link w-100"
+                        >
+                            {{ 'label.filters.reset'|trans }}
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}

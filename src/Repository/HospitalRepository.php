@@ -7,6 +7,9 @@ use App\Entity\DispatchArea;
 use App\Entity\Hospital;
 use App\Entity\State;
 use App\Entity\User;
+use App\Enum\HospitalLocation;
+use App\Enum\HospitalSize;
+use App\Enum\HospitalTier;
 use App\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
@@ -57,12 +60,43 @@ final class HospitalRepository extends ServiceEntityRepository
         ;
 
         $field = match ($queryParametersDTO->sortBy) {
-            'lastChange' => 'sortDate',
-            'size' => 'h.beds',
-            'dispatchArea' => 'da.name',
+            'dispatchArea' => 'd.name',
             'state' => 's.name',
             default => 'h.'.$queryParametersDTO->sortBy,
         };
+
+        if (null !== $queryParametersDTO->tier && '' !== $queryParametersDTO->tier) {
+            $qb->andWhere('h.tier = :tier')
+                ->setParameter('tier', HospitalTier::from($queryParametersDTO->tier));
+        }
+
+        if (null !== $queryParametersDTO->location && '' !== $queryParametersDTO->location) {
+            $qb->andWhere('h.location = :location')
+                ->setParameter('location', HospitalLocation::from($queryParametersDTO->location));
+        }
+
+        if (null !== $queryParametersDTO->size && '' !== $queryParametersDTO->size) {
+            $qb->andWhere('h.size = :size')
+                ->setParameter('size', HospitalSize::from($queryParametersDTO->size));
+        }
+
+        if (null !== $queryParametersDTO->state) {
+            $qb->andWhere('s.id = :stateId')
+                ->setParameter('stateId', $queryParametersDTO->state);
+        }
+
+        if (null !== $queryParametersDTO->dispatchArea) {
+            $qb->andWhere('da.id = :dispatchAreaId')
+                ->setParameter('dispatchAreaId', $queryParametersDTO->dispatchArea);
+        }
+
+        if (null !== $queryParametersDTO->participating && '' !== $queryParametersDTO->participating) {
+            $qb->andWhere('h.isParticipating = :participating')
+                ->setParameter(
+                    'participating',
+                    filter_var($queryParametersDTO->participating, FILTER_VALIDATE_BOOLEAN)
+                );
+        }
 
         $qb->orderBy($field, $queryParametersDTO->orderBy);
 

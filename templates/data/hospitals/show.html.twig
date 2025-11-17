@@ -37,7 +37,7 @@
                     </div>
                     <div id="hospital-owned-by" class="list-inline-item">
                         <twig:ux:icon name="tabler:user-square" width="1em" height="1em" />
-                        {{ hospital.owner.userIdentifier }}
+                        {{ hospital.owner.userIdentifier ?? 'label.without_owner'|trans }}
                     </div>
                 </div>
             </div>
@@ -84,6 +84,19 @@
                                         <div class="mb-2">
                                             <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em"  />
                                             {{ 'label.updated_by'|trans }} <strong>{{ hospital.updatedBy }}</strong>
+                                        </div>
+                                    {% endif %}
+                                    {% if hospital.isParticipating %}
+                                        <div class="text-success mb-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24">
+                                                <path fill="currentColor" d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005.195v12.666c0 1.96-1.537 3.56-3.472 3.662l-.195.005H5.667a3.667 3.667 0 0 1-3.662-3.472L2 18.333V5.667c0-1.96 1.537-3.56 3.472-3.662L5.667 2zm-2.626 7.293a1 1 0 0 0-1.414 0L11 12.585l-1.293-1.292l-.094-.083a1 1 0 0 0-1.32 1.497l2 2l.094.083a1 1 0 0 0 1.32-.083l4-4l.083-.094a1 1 0 0 0-.083-1.32"/>
+                                            </svg>
+                                            {{ 'label.is_participating'|trans }} <strong>{{ 'label.is_participating.yes'|trans }}</strong>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-muted mb-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="currentColor" d="M19 2H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3M9.613 8.21l.094.083L12 10.585l2.293-2.292a1 1 0 0 1 1.497 1.32l-.083.094L13.415 12l2.292 2.293a1 1 0 0 1-1.32 1.497l-.094-.083L12 13.415l-2.293 2.292a1 1 0 0 1-1.497-1.32l.083-.094L10.585 12L8.293 9.707a1 1 0 0 1 1.32-1.497"/></svg>
+                                            {{ 'label.is_participating'|trans }} <strong>{{ 'label.is_participating.not'|trans }}</strong>
                                         </div>
                                     {% endif %}
                                 </div>

@@ -20,6 +20,18 @@ final readonly class HospitalQueryParametersDTO
         public string $sortBy = 'name',
 
         public ?string $search = null,
+
+        public ?string $tier = null,
+
+        public ?string $location = null,
+
+        public ?string $size = null,
+
+        public ?int $dispatchArea = null,
+
+        public ?int $state = null,
+
+        public ?string $participating = null,
     ) {
     }
 }
