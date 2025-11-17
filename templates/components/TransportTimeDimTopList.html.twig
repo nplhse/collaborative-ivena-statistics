@@ -8,6 +8,13 @@
         <h3 class="card-title mb-0">
             {{ this.title }}
         </h3>
+
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <a class="btn" href="{{ path('app_stats_transport_time_dim_matrix',
+                app.request.query.all|merge({dim: dimType})) }}">
+                View details
+            </a>
+        </div>
     </div>
 
     <div class="card-body p-0">

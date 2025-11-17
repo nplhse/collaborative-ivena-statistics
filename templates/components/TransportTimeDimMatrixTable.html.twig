@@ -1,0 +1,86 @@
+<div class="card">
+    <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h3 class="card-title mb-0">
+            {{ this.dimLabel() }} by transport time buckets
+        </h3>
+
+        <div class="btn-group" role="group" aria-label="View mode">
+            <a class="btn btn-outline {% if this.view == 'int' %}active{% endif %}"
+               href="{{ this.viewUrl('int') }}">
+                Counts
+            </a>
+            <a class="btn btn-outline {% if this.view == 'pct' %}active{% endif %}"
+               href="{{ this.viewUrl('pct') }}">
+                Share
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        {% if this.rows is empty %}
+            <div class="empty my-4">
+                <div class="empty-icon">
+                    <i class="ti ti-table"></i>
+                </div>
+                <p class="empty-title">No data</p>
+                <p class="empty-subtitle text-muted">
+                    There are no dimension rows for this scope and dimension type.
+                </p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        {% for bucket in this.bucketKeys %}
+                            <th class="text-end">{{ bucket }}</th>
+                        {% endfor %}
+                        <th class="text-end">
+                            {% if this.view == 'pct' %}
+                                Total (%)
+                            {% else %}
+                                Total
+                            {% endif %}
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in this.rows %}
+                        <tr>
+                            <td>{{ row.name }}</td>
+
+                            {% for bucket in this.bucketKeys %}
+                                {% set count = row.buckets[bucket] ?? 0 %}
+                                <td class="text-end">
+                                    {% if this.view == 'pct' %}
+                                        {% if row.total > 0 %}
+                                            {{ (100 * count / row.total)|number_format(1, '.', ',') }}%
+                                        {% else %}
+                                            &ndash;
+                                        {% endif %}
+                                    {% else %}
+                                        {{ count|number_format(0, '.', ',') }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+
+                            <td class="text-end fw-semibold">
+                                {% if this.view == 'pct' %}
+                                    {% if row.total > 0 %}
+                                        100.0%
+                                    {% else %}
+                                        &ndash;
+                                    {% endif %}
+                                {% else %}
+                                    {{ row.total|number_format(0, '.', ',') }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
