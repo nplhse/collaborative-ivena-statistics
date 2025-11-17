@@ -1,0 +1,76 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped card-table">
+                <thead>
+                <tr>
+                    <th>Typ</th>
+                    <th class="text-end">Kliniken</th>
+                    <th class="text-end">Kliniken (teilnehmend)</th>
+                    <th class="text-end">Betten (Ø / SD / Var)</th>
+                    <th class="text-end">Einsätze</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for group in groups %}
+                    <tr>
+                        <td>
+                            {# Enum-Key in Label übersetzen #}
+                            {{ (translation_prefix ~ group.groupKey)|default(group.groupLabel)|trans }}
+                        </td>
+
+                        <td class="text-end">
+                            {{ group.hospitalCount }}
+                            {% if totalHospitals > 0 %}
+                                <span class="text-muted">
+                                    ({{ (group.hospitalShare * 100)|number_format(1, ',', '.') }}%)
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            {{ group.participantHospitalCount }}
+                            {% if totalParticipantHospitals > 0 %}
+                                <span class="text-muted">
+                                    ({{ (group.participantHospitalShare * 100)|number_format(1, ',', '.') }}%)
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            {% if group.avgBeds is not null %}
+                                {{ group.avgBeds|number_format(1, ',', '.') }}
+                                <span class="text-muted">
+                                    / SD {{ group.sdBeds|number_format(1, ',', '.') }}
+                                    / Var {{ group.varBeds|number_format(1, ',', '.') }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">–</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            {{ group.allocationCount }}
+                            {% if totalAllocations > 0 %}
+                                <span class="text-muted">
+                                    ({{ (group.allocationShare * 100)|number_format(1, ',', '.') }}%)
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            Keine Daten vorhanden.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
