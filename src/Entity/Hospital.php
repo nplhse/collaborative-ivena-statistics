@@ -24,6 +24,7 @@ class Hospital
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'hospitals')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $owner = null;
 
     #[ORM\ManyToOne(inversedBy: 'hospitals')]
@@ -40,7 +41,7 @@ class Hospital
     #[ORM\Column(enumType: HospitalLocation::class)]
     private ?HospitalLocation $location = null;
 
-    #[ORM\Column(enumType: HospitalTier::class)]
+    #[ORM\Column(nullable: true, enumType: HospitalTier::class)]
     private ?HospitalTier $tier = null;
 
     #[ORM\Column(enumType: HospitalSize::class)]
@@ -48,6 +49,9 @@ class Hospital
 
     #[ORM\Column]
     private ?int $beds = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isParticipating = true;
 
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
@@ -152,7 +156,7 @@ class Hospital
         return $this->tier;
     }
 
-    public function setTier(HospitalTier $tier): static
+    public function setTier(?HospitalTier $tier): static
     {
         $this->tier = $tier;
 
@@ -179,6 +183,18 @@ class Hospital
     public function setBeds(int $beds): static
     {
         $this->beds = $beds;
+
+        return $this;
+    }
+
+    public function isParticipating(): bool
+    {
+        return $this->isParticipating;
+    }
+
+    public function setParticipating(bool $isParticipating): static
+    {
+        $this->isParticipating = $isParticipating;
 
         return $this;
     }
