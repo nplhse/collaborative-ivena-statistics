@@ -5,13 +5,8 @@ declare(strict_types=1);
 namespace App\Twig\Components;
 
 use App\Model\Scope;
-use App\Repository\AssignmentRepository;
-use App\Repository\DispatchAreaRepository;
-use App\Repository\IndicationNormalizedRepository;
-use App\Repository\OccasionRepository;
-use App\Repository\SpecialityRepository;
-use App\Repository\StateRepository;
 use App\Service\Statistics\TransportTimeDimTopReader;
+use App\Service\TransportTimeDimNameResolver;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 use Symfony\UX\TwigComponent\Attribute\PostMount;
 
@@ -76,12 +71,7 @@ final class TransportTimeDimTopList
 
     public function __construct(
         private readonly TransportTimeDimTopReader $reader,
-        private readonly AssignmentRepository $assignmentRepository,
-        private readonly DispatchAreaRepository $dispatchAreaRepository,
-        private readonly OccasionRepository $occasionRepository,
-        private readonly IndicationNormalizedRepository $indicationRepository,
-        private readonly SpecialityRepository $specialityRepository,
-        private readonly StateRepository $stateRepository,
+        private readonly TransportTimeDimNameResolver $nameResolver,
     ) {
     }
 
@@ -106,14 +96,14 @@ final class TransportTimeDimTopList
         $ids = array_values(array_unique(array_map(static fn (array $r): int => $r['dimId'], $raw)));
 
         // Resolve labels based on dimType
-        $nameById = $this->resolveNames($this->dimType, $ids);
+        $nameById = $this->nameResolver->resolve($this->dimType, $ids);
 
         $rows = [];
         foreach ($raw as $r) {
             $id = $r['dimId'];
             $rows[] = [
                 'dimId' => $id,
-                'name' => $nameById[$id] ?? $this->fallbackLabel($this->dimType, $id),
+                'name' => $nameById[$id] ?? $this->nameResolver->fallbackLabel($this->dimType, $id),
                 'total' => $r['total'],
                 'share' => $r['share'],
                 'withPhysician' => $r['withPhysician'],
@@ -127,59 +117,5 @@ final class TransportTimeDimTopList
     public function hasData(): bool
     {
         return [] !== $this->rows;
-    }
-
-    /**
-     * @param list<int> $ids
-     *
-     * @return array<int,string> map[id] => label
-     */
-    private function resolveNames(string $dimType, array $ids): array
-    {
-        if ([] === $ids) {
-            return [];
-        }
-
-        $names = [];
-
-        /** @var iterable<object> $entities */
-        $entities = [];
-
-        switch ($dimType) {
-            case 'assignment':
-                $entities = $this->assignmentRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'dispatch_area':
-                $entities = $this->dispatchAreaRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'occasion':
-                $entities = $this->occasionRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'indication':
-                $entities = $this->indicationRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'speciality':
-                $entities = $this->specialityRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'state':
-                $entities = $this->stateRepository->findBy(['id' => $ids]);
-                break;
-        }
-
-        foreach ($entities as $entity) {
-            $names[$entity->getId()] = (string) $entity->getName();
-        }
-
-        return $names;
-    }
-
-    private function fallbackLabel(string $dimType, int $id): string
-    {
-        return ucfirst(str_replace('_', ' ', $dimType)).' #'.$id;
     }
 }

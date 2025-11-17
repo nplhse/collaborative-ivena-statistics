@@ -5,13 +5,8 @@ declare(strict_types=1);
 namespace App\Twig\Components;
 
 use App\Model\Scope;
-use App\Repository\AssignmentRepository;
-use App\Repository\DispatchAreaRepository;
-use App\Repository\IndicationNormalizedRepository;
-use App\Repository\OccasionRepository;
-use App\Repository\SpecialityRepository;
-use App\Repository\StateRepository;
 use App\Service\Statistics\TransportTimeDimMatrixReader;
+use App\Service\TransportTimeDimNameResolver;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -44,12 +39,7 @@ final class TransportTimeDimMatrixTable
         private readonly TransportTimeDimMatrixReader $reader,
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
-        private readonly AssignmentRepository $assignmentRepository,
-        private readonly DispatchAreaRepository $dispatchAreaRepository,
-        private readonly OccasionRepository $occasionRepository,
-        private readonly IndicationNormalizedRepository $indicationRepository,
-        private readonly SpecialityRepository $specialityRepository,
-        private readonly StateRepository $stateRepository,
+        private readonly TransportTimeDimNameResolver $nameResolver,
     ) {
     }
 
@@ -57,15 +47,7 @@ final class TransportTimeDimMatrixTable
     public function init(): void
     {
         if ([] === $this->bucketKeys) {
-            $this->bucketKeys = [
-                '<10',
-                '10-20',
-                '20-30',
-                '30-40',
-                '40-50',
-                '50-60',
-                '>60',
-            ];
+            $this->bucketKeys = ['<10', '10-20', '20-30', '30-40', '40-50', '50-60', '>60'];
         }
 
         $raw = $this->reader->readMatrix($this->scope, $this->dimType);
@@ -81,14 +63,14 @@ final class TransportTimeDimMatrixTable
             $raw
         )));
 
-        $nameById = $this->resolveNames($this->dimType, $ids);
+        $nameById = $this->nameResolver->resolve($this->dimType, $ids);
 
         $rows = [];
         foreach ($raw as $r) {
             $id = $r['dimId'];
             $rows[] = [
                 'dimId' => $id,
-                'name' => $nameById[$id] ?? $this->fallbackLabel($this->dimType, $id),
+                'name' => $nameById[$id] ?? $this->nameResolver->fallbackLabel($this->dimType, $id),
                 'total' => $r['total'],
                 'buckets' => $r['buckets'],
             ];
@@ -126,46 +108,5 @@ final class TransportTimeDimMatrixTable
         );
 
         return $this->router->generate($route, $params);
-    }
-
-    /**
-     * @param list<int> $ids
-     *
-     * @return array<int,string> map[id] => name
-     */
-    private function resolveNames(string $dimType, array $ids): array
-    {
-        if ([] === $ids) {
-            return [];
-        }
-
-        /** @var iterable<object> $entities */
-        $entities = match ($dimType) {
-            'assignment' => $this->assignmentRepository->findBy(['id' => $ids]),
-            'dispatch_area' => $this->dispatchAreaRepository->findBy(['id' => $ids]),
-            'occasion' => $this->occasionRepository->findBy(['id' => $ids]),
-            'indication', 'indication_normalized' => $this->indicationRepository->findBy(['id' => $ids]),
-            'speciality' => $this->specialityRepository->findBy(['id' => $ids]),
-            'state' => $this->stateRepository->findBy(['id' => $ids]),
-            default => [],
-        };
-
-        /** @var array<int,string> $names */
-        $names = [];
-        foreach ($entities as $entity) {
-            if (!method_exists($entity, 'getId') || !method_exists($entity, 'getName')) {
-                continue;
-            }
-
-            $id = (int) $entity->getId();
-            $names[$id] = (string) $entity->getName();
-        }
-
-        return $names;
-    }
-
-    private function fallbackLabel(string $type, int $id): string
-    {
-        return ucfirst(str_replace('_', ' ', $type)).' #'.$id;
     }
 }

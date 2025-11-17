@@ -5,13 +5,8 @@ declare(strict_types=1);
 namespace App\Twig\Components;
 
 use App\Model\Scope;
-use App\Repository\AssignmentRepository;
-use App\Repository\DispatchAreaRepository;
-use App\Repository\IndicationNormalizedRepository;
-use App\Repository\OccasionRepository;
-use App\Repository\SpecialityRepository;
-use App\Repository\StateRepository;
 use App\Service\Statistics\TransportTimeDimMatrixReader;
+use App\Service\TransportTimeDimNameResolver;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -46,12 +41,7 @@ final class TransportTimeDimMatrixChart
         private readonly TransportTimeDimMatrixReader $reader,
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
-        private readonly AssignmentRepository $assignmentRepository,
-        private readonly DispatchAreaRepository $dispatchAreaRepository,
-        private readonly OccasionRepository $occasionRepository,
-        private readonly IndicationNormalizedRepository $indicationRepository,
-        private readonly SpecialityRepository $specialityRepository,
-        private readonly StateRepository $stateRepository,
+        private readonly TransportTimeDimNameResolver $nameResolver,
     ) {
     }
 
@@ -67,6 +57,7 @@ final class TransportTimeDimMatrixChart
         }
 
         $this->labels = $this->bucketKeys;
+        $this->nameResolver->preload($this->dimType);
 
         $rows = $this->reader->readMatrix($this->scope, $this->dimType);
 
@@ -77,8 +68,12 @@ final class TransportTimeDimMatrixChart
             return;
         }
 
-        $ids = array_values(array_unique(array_map(static fn (array $r): int => $r['dimId'], $rows)));
-        $nameById = $this->resolveNames($this->dimType, $ids);
+        $ids = array_values(array_unique(array_map(
+            static fn (array $r): int => $r['dimId'],
+            $rows
+        )));
+
+        $nameById = $this->nameResolver->resolve($this->dimType, $ids);
 
         $rows = array_slice($rows, 0, $this->limit);
 
@@ -88,7 +83,7 @@ final class TransportTimeDimMatrixChart
             $data = [];
 
             $dimId = $row['dimId'];
-            $displayName = $nameById[$dimId] ?? $this->fallbackLabel($this->dimType, $dimId);
+            $displayName = $nameById[$dimId] ?? $this->nameResolver->fallbackLabel($this->dimType, $dimId);
 
             foreach ($this->bucketKeys as $bucket) {
                 $count = $row['buckets'][$bucket] ?? 0;
@@ -170,64 +165,5 @@ final class TransportTimeDimMatrixChart
             'state' => 'State',
             default => ucfirst(str_replace('_', ' ', $this->dimType)),
         };
-    }
-
-    /**
-     * @param list<int> $ids
-     *
-     * @return array<int,string> map[id] => name
-     */
-    private function resolveNames(string $dimType, array $ids): array
-    {
-        if ([] === $ids) {
-            return [];
-        }
-
-        switch ($dimType) {
-            case 'assignment':
-                $entities = $this->assignmentRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'dispatch_area':
-                $entities = $this->dispatchAreaRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'occasion':
-                $entities = $this->occasionRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'indication':
-            case 'indication_normalized':
-                $entities = $this->indicationRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'speciality':
-                $entities = $this->specialityRepository->findBy(['id' => $ids]);
-                break;
-
-            case 'state':
-                $entities = $this->stateRepository->findBy(['id' => $ids]);
-                break;
-
-            default:
-                return [];
-        }
-
-        $names = [];
-        foreach ($entities as $entity) {
-            $id = $entity->getId();
-            if (null === $id) {
-                continue;
-            }
-
-            $names[$id] = (string) $entity->getName();
-        }
-
-        return $names;
-    }
-
-    private function fallbackLabel(string $type, int $id): string
-    {
-        return ucfirst(str_replace('_', ' ', $type)).' #'.$id;
     }
 }
