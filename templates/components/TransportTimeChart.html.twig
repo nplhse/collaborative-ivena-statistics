@@ -1,0 +1,191 @@
+{# templates/components/TransportTimeChart.html.twig #}
+
+{# current preset from query ?tt=<preset>; default = total #}
+{% set currentPreset = app.request.query.get('preset', 'total') %}
+
+{# Available presets for the dropdown (must match TransportTimeMetricPresets keys) #}
+{% set presets = [
+    {value: 'total', label: 'Total'},
+    {value: 'gender', label: 'Gender'},
+    {value: 'urgency', label: 'Urgency'},
+    {value: 'transport', label: 'Transport modes'},
+    {value: 'resources', label: 'Resources'},
+] %}
+
+<div class="card mb-3">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h3 class="card-title m-0">
+            Transport time distribution
+        </h3>
+
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            {# Preset dropdown #}
+            <div class="dropdown">
+                <button class="btn btn-outline dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                    {{ (presets|filter(p => p.value == currentPreset)|first).label ?? 'Total' }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    {% for p in presets %}
+                        {% set active = (p.value == currentPreset) %}
+                        <a class="dropdown-item {% if active %}active{% endif %}"
+                           href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({preset: p.value})) }}">
+                            {{ p.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        {% if not this.hasData() %}
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-chart-bar"></i></div>
+                <p class="empty-title">No transport data</p>
+                <p class="empty-subtitle text-muted">
+                    There are no transport-time series for the selected scope/period.
+                </p>
+            </div>
+        {% else %}
+            <div id="{{ this.domId ?: 'chart-transport' }}"
+                 class="position-relative"
+                 style="height: {{ this.height }}px"></div>
+
+            <script>
+                (function () {
+                    var _id     = {{ (this.domId ?: 'chart-transport')|json_encode|raw }};
+                    var _labels = {{ this.labels|json_encode|raw }};
+                    var _series = {{ this.series|json_encode|raw }};
+                    var _height = {{ this.height|json_encode|raw }};
+                    // Mode derived from the shared "view" prop: 'int' | 'pct'
+                    var _mode   = {{ (this.view == 'pct' ? 'share' : 'count')|json_encode|raw }};
+
+                    function loadApexOnce() {
+                        if (window.ApexCharts) return Promise.resolve();
+                        if (window.__apexLoading) return window.__apexLoading;
+                        window.__apexLoading = new Promise(function (resolve, reject) {
+                            var s = document.createElement('script');
+                            s.src = "https://cdn.jsdelivr.net/npm/apexcharts";
+                            s.async = true;
+                            s.onload = resolve;
+                            s.onerror = function(){ reject(new Error("apex_load_failed")); };
+                            document.head.appendChild(s);
+                        });
+                        return window.__apexLoading;
+                    }
+
+                    function colorFor(name, idx) {
+                        var map = {
+                            'Total':            'var(--tblr-primary)',
+                            'With physician':   'var(--tblr-teal)',
+                            'Ground transport': 'var(--tblr-azure)',
+                            'Air transport':    'var(--tblr-orange)',
+                            'Male':             'var(--tblr-blue)',
+                            'Female':           'var(--tblr-pink)',
+                            'Diverse':          'var(--tblr-indigo)',
+                            'Urgency 1':        'var(--tblr-red)',
+                            'Urgency 2':        'var(--tblr-yellow)',
+                            'Urgency 3':        'var(--tblr-lime)',
+                        };
+                        var palette = [
+                            'var(--tblr-primary)','var(--tblr-green)','var(--tblr-yellow)',
+                            'var(--tblr-azure)','var(--tblr-orange)','var(--tblr-pink)',
+                            'var(--tblr-indigo)','var(--tblr-lime)','var(--tblr-cyan)'
+                        ];
+                        return map[name] || palette[idx % palette.length];
+                    }
+
+                    function render() {
+                        var el = document.getElementById(_id);
+                        if (!el || el.dataset.rendered === "1") return;
+
+                        var isShare = (_mode === 'share');
+
+                        var options = {
+                            chart: {
+                                type: "bar",
+                                stacked: isShare,
+                                stackType: isShare ? "100%" : undefined,
+                                height: _height,
+                                parentHeightOffset: 0,
+                                fontFamily: 'inherit',
+                                toolbar: { show: false },
+                                animations: { enabled: false }
+                            },
+                            plotOptions: {
+                                bar: {
+                                    horizontal: false,
+                                    columnWidth: isShare ? "55%" : "65%",
+                                    borderRadius: 2
+                                }
+                            },
+                            dataLabels: { enabled: false },
+                            grid: {
+                                strokeDashArray: 4,
+                                padding: { top: -10, right: 0, left: -4, bottom: -4 }
+                            },
+                            xaxis: {
+                                categories: _labels,
+                                tooltip: { enabled: false }
+                            },
+                            yaxis: {
+                                labels: {
+                                    padding: 4,
+                                    formatter: function (val) {
+                                        return isShare
+                                            ? (Math.round(val * 10) / 10) + '%'
+                                            : val;
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                theme: 'dark',
+                                shared: true,
+                                intersect: false,
+                                y: {
+                                    formatter: function (val, opts) {
+                                        if (!isShare) {
+                                            return val;
+                                        }
+                                        var total = (
+                                            opts && opts.w && opts.w.globals &&
+                                            opts.w.globals.stackedSeriesTotals
+                                        )
+                                            ? (opts.w.globals.stackedSeriesTotals[opts.dataPointIndex] || 0)
+                                            : 0;
+                                        var pct = total > 0 ? (val / total) * 100 : 0;
+                                        return (Math.round(pct * 10) / 10) + '%';
+                                    }
+                                }
+                            },
+                            legend: {
+                                show: true,
+                                position: 'bottom',
+                                offsetY: 12,
+                                markers: { width: 10, height: 10, radius: 100 },
+                                itemMargin: { horizontal: 8, vertical: 8 }
+                            },
+                            colors: _series.map(function (s, i) { return colorFor(s.name, i); }),
+                            series: _series
+                        };
+
+                        loadApexOnce().then(function () {
+                            var chart = new ApexCharts(el, options);
+                            chart.render();
+                            el.dataset.rendered = "1";
+                            el.__chart = chart;
+                        });
+                    }
+
+                    if (window.Turbo) {
+                        document.addEventListener('turbo:load', render, { once: true });
+                    } else if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                        render();
+                    } else {
+                        document.addEventListener('DOMContentLoaded', render, { once: true });
+                    }
+                })();
+            </script>
+        {% endif %}
+    </div>
+</div>

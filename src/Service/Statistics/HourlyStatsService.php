@@ -7,6 +7,7 @@ namespace App\Service\Statistics;
 use App\Model\Scope;
 use Doctrine\DBAL\Connection;
 
+/** @psalm-suppress UnusedClass */
 final readonly class HourlyStatsService
 {
     /** @psalm-suppress PossiblyUnusedMethod */

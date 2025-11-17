@@ -1,0 +1,13 @@
+<div class="me-2">
+    <select class="form-select" onchange="if(this.value){window.location.href=this.value}">
+        {% for group in this.groups() %}
+            <optgroup label="{{ group.label }}">
+                {% for opt in group.items %}
+                    <option value="{{ opt.url }}" {% if opt.selected %}selected{% endif %}>
+                        {{ opt.label }}
+                    </option>
+                {% endfor %}
+            </optgroup>
+        {% endfor %}
+    </select>
+</div>

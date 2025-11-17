@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Twig\Components;
 
-use App\Enum\TimeGridMode;
 use App\Model\Scope;
 use App\Repository\DispatchAreaRepository;
 use App\Repository\HospitalRepository;
@@ -14,24 +13,15 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
-#[AsTwigComponent(name: 'ChooseScopePicker')]
-final class ChooseScopePicker
+#[AsTwigComponent(name: 'ScopePicker')]
+final class ScopePicker
 {
     /**
-     * set by template.
+     * The currently active scope, set from the template.
      *
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    public Scope $primary;
-
-    /** set by template */
-    public ?Scope $base = null;
-
-    /** set by template */
-    public TimeGridMode $mode = TimeGridMode::RAW;
-
-    /** set by template */
-    public string $preset = 'default';
+    public Scope $scope;
 
     /** @var array<int,string> */
     private array $hospitalNames = [];
@@ -53,57 +43,16 @@ final class ChooseScopePicker
     }
 
     /**
-     * Groups of available scopes for selects.
+     * Groups of available scopes for the select.
      *
      * @return array<int, array{label:string, items: list<array{type:string,id:string,label:string,selected:bool,url:string}>}>
      */
-    public function primaryGroups(): array
+    public function groups(): array
     {
-        return $this->buildGroups(forBase: false);
-    }
-
-    /**
-     * Only used when mode === COMPARE.
-     *
-     * @return array<int, array{label:string, items: list<array{type:string,id:string,label:string,selected:bool,url:string}>}>
-     */
-    public function baseGroups(): array
-    {
-        return $this->buildGroups(forBase: true);
-    }
-
-    public function isCompare(): bool
-    {
-        return TimeGridMode::COMPARE === $this->mode;
-    }
-
-    public function modeUrl(string $mode): string
-    {
-        $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
-            return '#';
-        }
-
-        $route = (string) $r->attributes->get('_route');
-
-        $params = array_merge(
-            $r->attributes->get('_route_params', []),
-            $r->query->all(),
-            ['mode' => $mode]
-        );
-
-        return $this->router->generate($route, $params);
-    }
-
-    /**
-     * @return array<int, array{label:string, items: list<array{type:string,id:string,label:string,selected:bool,url:string}>}>
-     */
-    private function buildGroups(bool $forBase): array
-    {
-        // We list scopes based on the currently selected primary (keeps it simple and fast)
+        // We reuse the same availability tree logic
         $matrix = $this->availability->getSidebarTree();
 
-        // group by scope_type
+        // Group by scope_type
         $byType = [];
         foreach ($matrix as $row) {
             $type = $row['scope_type'];
@@ -126,23 +75,16 @@ final class ChooseScopePicker
         foreach ($byType as $type => $ids) {
             sort($ids, SORT_NATURAL);
             $items = [];
-            foreach ($ids as $id) {
-                $selected = false;
 
-                if ($forBase) {
-                    if (null !== $this->base) {
-                        $selected = ($this->base->scopeType === $type && $this->base->scopeId === $id);
-                    }
-                } else {
-                    $selected = ($this->primary->scopeType === $type && $this->primary->scopeId === $id);
-                }
+            foreach ($ids as $id) {
+                $selected = ($this->scope->scopeType === $type && $this->scope->scopeId === $id);
 
                 $items[] = [
                     'type' => $type,
                     'id' => $id,
                     'label' => $this->renderScopeOptionLabel($type, $id),
                     'selected' => $selected,
-                    'url' => $this->buildUrl($type, $id, $forBase),
+                    'url' => $this->buildUrl($type, $id),
                 ];
             }
 
@@ -176,7 +118,7 @@ final class ChooseScopePicker
         return $groups;
     }
 
-    private function buildUrl(string $type, string $id, bool $forBase): string
+    private function buildUrl(string $type, string $id): string
     {
         $r = $this->requestStack->getCurrentRequest();
         if (!$r) {
@@ -185,46 +127,17 @@ final class ChooseScopePicker
 
         $route = (string) $r->attributes->get('_route');
 
-        // Start mit aktuellen Parametern
+        // Start with current route params and query params
         $params = array_merge(
             $r->attributes->get('_route_params', []),
             $r->query->all(),
-            [
-                'preset' => $this->preset,
-                'gran' => $this->primary->granularity,
-                'key' => $this->primary->periodKey,
-                'mode' => $this->mode->value,
-            ]
         );
 
-        if (false === $forBase) {
-            // PRIMARY wird gewechselt
-            $params['primaryType'] = $type;
-            $params['primaryId'] = $id;
+        // Only override the scope; keep everything else (gran, key, view, tt, ...)
+        $params['scopeType'] = $type;
+        $params['scopeId'] = $id;
 
-            // Falls wir NICHT im Compare-Modus sind:
-            if (!$this->isCompare()) {
-                unset($params['baseType'], $params['baseId']);
-            } else {
-                // Compare-Mode: Base behalten
-                if (null !== $this->base) {
-                    $params['baseType'] = $this->base->scopeType;
-                    $params['baseId'] = $this->base->scopeId;
-                }
-            }
-        } else {
-            // BASE wird gewechselt
-            if ($this->isCompare()) {
-                $params['baseType'] = $type;
-                $params['baseId'] = $id;
-            }
-
-            // Primary bleibt unverändert
-            $params['primaryType'] = $this->primary->scopeType;
-            $params['primaryId'] = $this->primary->scopeId;
-        }
-
-        // Entferne Nulls für saubere URLs
+        // Remove null values to keep URLs clean
         $params = array_filter($params, static fn ($v) => null !== $v);
 
         return $this->router->generate($route, $params);

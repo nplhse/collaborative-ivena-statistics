@@ -541,6 +541,10 @@
         <source>link.stats.time_grid</source>
         <target>Time Grid</target>
       </trans-unit>
+      <trans-unit id="BXqZdqI" resname="link.stats.transport_time">
+        <source>link.stats.transport_time</source>
+        <target>Transport Time</target>
+      </trans-unit>
       <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
         <target>This form allows you to link a raw indication with a corresponding normalized indication from the

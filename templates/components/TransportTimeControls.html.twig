@@ -1,0 +1,46 @@
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <span class="text-muted">Duration:</span>
+            <div class="dropdown">
+                <button class="btn btn-outline dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                    {{ this.bucketLabel(this.currentBucket) }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-start">
+                    {% for b in this.buckets %}
+                        {% set active = (b.value == this.currentBucket) %}
+                        <a class="dropdown-item {% if active %}active{% endif %}"
+                           href="{{ this.bucketUrl(b.value) }}">
+                            {{ b.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <label class="form-check form-switch mb-0 d-flex align-items-center">
+                <input class="form-check-input me-2 mt-0"
+                       type="checkbox"
+                       id="tt-progress-switch"
+                       {% if this.withProgress %}checked{% endif %}
+                       style="cursor: pointer"
+                       onchange="window.location.href=this.checked ? '{{ this.toggleProgressUrl()|e('js') }}' : '{{ this.toggleProgressUrl()|e('js') }}';">
+                <span class="form-check-label" for="tt-progress-switch" style="cursor: pointer">
+                    Show visualisation Graph
+                </span>
+            </label>
+
+            {# Switch: With physician column #}
+            <label class="form-check form-switch mb-0 d-flex align-items-center">
+                <input class="form-check-input me-2 mt-0"
+                       type="checkbox"
+                       id="tt-physician-switch"
+                       {% if this.withPhysician %}checked{% endif %}
+                       style="cursor: pointer"
+                       onchange="window.location.href=this.checked ? '{{ this.togglePhysicianUrl()|e('js') }}' : '{{ this.togglePhysicianUrl()|e('js') }}';">
+                <span class="form-check-label" for="tt-physician-switch" style="cursor: pointer">
+                    Show with physician column
+                </span>
+            </label>
+        </div>
+    </div>
+</div>

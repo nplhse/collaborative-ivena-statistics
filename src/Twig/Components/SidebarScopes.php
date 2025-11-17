@@ -134,7 +134,7 @@ final class SidebarScopes
             'hospital_cohort' => (static function (string $sid): string {
                 [$tier, $loc] = array_pad(explode('_', $sid, 2), 2, '');
 
-                return sprintf('Tier: %s • Location: %s', ucfirst($tier), ucfirst($loc));
+                return sprintf('Tier: %s — Location: %s', ucfirst($tier), ucfirst($loc));
             })($id),
             default => ucfirst($type).' '.$id,
         };
