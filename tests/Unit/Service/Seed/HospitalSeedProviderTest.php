@@ -18,7 +18,7 @@ final class HospitalSeedProviderTest extends TestCase
     public function testBuildCreatesFirstHospitalWithExpectedFields(): void
     {
         $areaCache = $this->createMock(AreaCache::class);
-        $areaCache->expects(self::once())->method('warmUp');
+        $areaCache->expects($this->once())->method('warmUp');
 
         $areaCache
             ->method('hasState')
@@ -52,7 +52,7 @@ final class HospitalSeedProviderTest extends TestCase
         self::assertSame(HospitalTier::BASIC, $first->getTier());
         self::assertSame(HospitalSize::MEDIUM, $first->getSize());
         self::assertSame(HospitalLocation::URBAN, $first->getLocation());
-        self::assertSame($user, $first->getOwner());
+        self::assertNull($first->getOwner());
         self::assertSame($user, $first->getCreatedBy());
         self::assertInstanceOf(State::class, $first->getState());
         self::assertInstanceOf(DispatchArea::class, $first->getDispatchArea());

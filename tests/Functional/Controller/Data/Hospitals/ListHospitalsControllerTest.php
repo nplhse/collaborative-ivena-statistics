@@ -34,21 +34,21 @@ class ListHospitalsControllerTest extends WebTestCase
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');
-        self::assertSelectorTextContains('table.table thead th:nth-child(1)', 'Name');
-        self::assertSelectorTextContains('table.table thead th:nth-child(2)', 'Dispatch Area');
+        self::assertSelectorTextContains('table.table thead th:nth-child(2)', 'Name');
+        self::assertSelectorTextContains('table.table thead th:nth-child(3)', 'Dispatch Area');
 
         // Check for table contents
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(10, $rows, 'We should see 10 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 1-10 of 10 results.');
 
-        $nameRowText = $rows->eq(0)->filter('td')->eq(0)->text();
+        $nameRowText = $rows->eq(0)->filter('td')->eq(1)->text();
         self::assertNotEmpty($nameRowText);
 
-        $stateRow = $rows->eq(0)->filter('td')->eq(2)->text();
+        $stateRow = $rows->eq(0)->filter('td')->eq(3)->text();
         self::assertSame('Hessen', trim($stateRow));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(6)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(7)->text();
         self::assertStringContainsString('area-user', trim($userRow));
     }
 
@@ -70,7 +70,7 @@ class ListHospitalsControllerTest extends WebTestCase
 
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(2, $rows, 'We should see 2 rows of results.');
-        $nameRow = $rows->eq(0)->filter('td')->eq(0)->text();
+        $nameRow = $rows->eq(0)->filter('td')->eq(1)->text();
         self::assertSame('XYZ Hospital', trim($nameRow));
     }
 
