@@ -15,7 +15,6 @@
 {% block page_body %}
     <div class="page-body">
         <div class="container-xl">
-
             <div
                 class="card"
                 data-controller="hospital-pivot"
@@ -121,6 +120,7 @@
                                     class="form-check-input"
                                     type="checkbox"
                                     data-hospital-pivot-target="hideEmpty"
+                                    checked
                                 >
                                 <span class="form-check-label">Hide empty rows/columns</span>
                             </label>
@@ -130,6 +130,21 @@
                 </div>
             </div>
 
+            <div
+                class="card mt-3"
+                data-controller="hospital-pivot-chart"
+                data-hospital-pivot-chart-rows-value='{{ cubeRows|json_encode|e('html_attr') }}'
+                data-hospital-pivot-chart-dimensions-labels-value='{{ dimensions|json_encode|e('html_attr') }}'
+                data-hospital-pivot-chart-measures-labels-value='{{ measures|json_encode|e('html_attr') }}'
+            >
+                <div class="card-body">
+                    <div
+                        id="hospital-pivot-chart"
+                        data-hospital-pivot-chart-target="chart"
+                        style="min-height: 320px;"
+                    ></div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
