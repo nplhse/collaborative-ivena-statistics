@@ -13,6 +13,18 @@ final class HospitalCubeQuery
     ) {
     }
 
+    /**
+     * @return list<array{
+     *     tier: string|null,
+     *     location: string|null,
+     *     size: string|null,
+     *     state: string|null,
+     *     dispatchArea: string|null,
+     *     isParticipating: bool,
+     *     beds: int,
+     *     allocationCount: int
+     * }>
+     */
     public function fetchCubeRows(): array
     {
         $sql = <<<SQL
