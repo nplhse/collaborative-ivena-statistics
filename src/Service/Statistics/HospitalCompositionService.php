@@ -10,18 +10,19 @@ final class HospitalCompositionService
 {
     public function __construct(
         private HospitalCompositionQuery $query,
-    ) {}
+    ) {
+    }
 
     public function compute(): HospitalCompositionStats
     {
-        $totalHospitals               = $this->query->countHospitals();
-        $totalParticipantHospitals    = $this->query->countParticipantHospitals();
-        $totalAllocations             = $this->query->countAllocations();
-        $totalParticipantAllocations  = $this->query->countParticipantAllocations();
+        $totalHospitals = $this->query->countHospitals();
+        $totalParticipantHospitals = $this->query->countParticipantHospitals();
+        $totalAllocations = $this->query->countAllocations();
+        $totalParticipantAllocations = $this->query->countParticipantAllocations();
 
-        $byTierRows      = $this->query->aggregateByTier();
-        $byLocationRows  = $this->query->aggregateByLocation();
-        $bySizeRows      = $this->query->aggregateBySize();
+        $byTierRows = $this->query->aggregateByTier();
+        $byLocationRows = $this->query->aggregateByLocation();
+        $bySizeRows = $this->query->aggregateBySize();
 
         $byTier = $this->buildGroupStats(
             $byTierRows,
@@ -60,6 +61,7 @@ final class HospitalCompositionService
 
     /**
      * @param array<int, array<string, mixed>> $rows
+     *
      * @return HospitalGroupStats[]
      */
     private function buildGroupStats(
@@ -71,9 +73,9 @@ final class HospitalCompositionService
         $groups = [];
 
         foreach ($rows as $row) {
-            $hospitalCount             = (int) $row['hospital_count'];
-            $participantHospitalCount  = (int) $row['participant_hospital_count'];
-            $allocationCount           = (int) $row['allocation_count'];
+            $hospitalCount = (int) $row['hospital_count'];
+            $participantHospitalCount = (int) $row['participant_hospital_count'];
+            $allocationCount = (int) $row['allocation_count'];
 
             $groups[] = new HospitalGroupStats(
                 groupKey: (string) $row['group_key'],
@@ -82,9 +84,9 @@ final class HospitalCompositionService
                 hospitalShare: $totalHospitals > 0 ? $hospitalCount / $totalHospitals : 0.0,
                 participantHospitalCount: $participantHospitalCount,
                 participantHospitalShare: $totalParticipantHospitals > 0 ? $participantHospitalCount / $totalParticipantHospitals : 0.0,
-                avgBeds: $row['avg_beds'] !== null ? (float) $row['avg_beds'] : null,
-                sdBeds: $row['sd_beds'] !== null ? (float) $row['sd_beds'] : null,
-                varBeds: $row['var_beds'] !== null ? (float) $row['var_beds'] : null,
+                avgBeds: null !== $row['avg_beds'] ? (float) $row['avg_beds'] : null,
+                sdBeds: null !== $row['sd_beds'] ? (float) $row['sd_beds'] : null,
+                varBeds: null !== $row['var_beds'] ? (float) $row['var_beds'] : null,
                 allocationCount: $allocationCount,
                 allocationShare: $totalAllocations > 0 ? $allocationCount / $totalAllocations : 0.0,
             );
