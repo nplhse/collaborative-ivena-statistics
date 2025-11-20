@@ -3,3 +3,8 @@
 .data-table-card tbody tr:last-child th {
     border-bottom: none !important;
 }
+
+/* Hide CSV item in the ApexCharts export menu */
+.apexcharts-menu-item.exportCSV {
+    display: none;
+}

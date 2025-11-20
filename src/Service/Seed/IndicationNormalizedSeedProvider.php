@@ -40,7 +40,7 @@ final class IndicationNormalizedSeedProvider implements SeedProviderInterface
         yield ['code' => '122', 'name' => 'Reanimation mit ROSC (Tod am EO)'];
         yield ['code' => '123', 'name' => 'Reanimation mit ROSC (Tod auf Trsp.)'];
         yield ['code' => '131', 'name' => 'Reanimation laufend /intermittierend'];
-        yield ['code' => '132', 'name' => 'Reanimatino ROSC'];
+        yield ['code' => '132', 'name' => 'Reanimation ROSC'];
         yield ['code' => '133', 'name' => 'Reanimation bei Trauma laufend/intermittierend'];
         yield ['code' => '134', 'name' => 'Reanimation Hypothermie'];
         yield ['code' => '140', 'name' => 'vvECMO Zuverlegung'];
