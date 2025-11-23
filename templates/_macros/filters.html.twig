@@ -29,11 +29,11 @@
 
     {# --- Boolean-like filters --- #}
     {% if filters.requiresResus is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.requiresResus', value: filters.requiresResus ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requires_resus', value: filters.requiresResus ? 'Yes' : 'No'}]) %}
     {% endif %}
 
     {% if filters.requiresCathlab is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.requiresCathlab', value: filters.requiresCathlab ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requires_cathlab', value: filters.requiresCathlab ? 'Yes' : 'No'}]) %}
     {% endif %}
 
     {# --- Lookup: State (id → name) --- #}
@@ -58,7 +58,7 @@
             {% endif %}
         {% endfor %}
         {% if areaName is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'label.dispatchArea', value: areaName}]) %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.dispatch_area', value: areaName}]) %}
         {% endif %}
     {% endif %}
 
