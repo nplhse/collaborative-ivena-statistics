@@ -10,7 +10,7 @@
                 <ul class="nav nav-tabs card-header-tabs">
                     {% for tab in tabs %}
                     <li class="nav-item">
-                        <a href="{{ tab.path }}" class="nav-link {% if tab.active %}active{% endif %}">{{ tab.name }}</a>
+                        <a href="{{ tab.path }}" class="nav-link {% if tab.active %}active{% endif %}" target="_top">{{ tab.name }}</a>
                     </li>
                     {% endfor %}
                 </ul>

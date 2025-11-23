@@ -83,7 +83,7 @@
 {% block page_content %}
     <turbo-frame id="infection-list" data-turbo-action="advance">
         {% if search is not empty %}
-            <twig:Alert type="info" :message="'label.search_for'|trans({term: search})" />
+            <twig:Alert type="info" :message="'label.searching_for'|trans({term: search})" />
         {% endif %}
 
         <twig:DataTable
@@ -94,45 +94,33 @@
 
             <table class="table data-table-card">
                 <thead>
-                <tr>
-                    <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_data_infection_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'id',
-                            orderBy: sortBy == 'id' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.id'|trans }} {{ pagination.sortArrow('id', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-5">
-                        <a class="text-muted" href="{{ path('app_data_infection_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'name',
-                            orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-3">
-                        <a class="text-muted" href="{{ path('app_data_infection_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'lastChange',
-                            orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.last_changed_at'|trans }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-3">
-                        {{ 'label.last_changed_by'|trans }}
-                    </th>
-                </tr>
+                    <tr>
+                        <th class="col-8">
+                            <a class="text-muted" href="{{ path('app_data_infection_list', {
+                                ...app.request.query.all(),
+                                sortBy: 'name',
+                                orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
+                            }) }}">
+                                {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
+                            </a>
+                        </th>
+                        <th class="col-2">
+                            <a class="text-muted" href="{{ path('app_data_infection_list', {
+                                ...app.request.query.all(),
+                                sortBy: 'lastChange',
+                                orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
+                            }) }}">
+                                {{ 'label.last_changed_at'|trans }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
+                            </a>
+                        </th>
+                        <th class="col-2">
+                            {{ 'label.last_changed_by'|trans }}
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
                 {% for infection in paginator.results %}
                     <tr>
-                        <td>
-                            {{ infection.id }}
-                        </td>
                         <td>
                             {{ infection.name }}
                         </td>

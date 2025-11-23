@@ -32,8 +32,8 @@ class DispatchAreaControllerTest extends WebTestCase
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');
-        self::assertSelectorTextContains('table.table thead th:nth-child(1)', 'ID');
-        self::assertSelectorTextContains('table.table thead th:nth-child(2)', 'Name');
+        self::assertSelectorTextContains('table.table thead th:nth-child(1)', 'Name');
+        self::assertSelectorTextContains('table.table thead th:nth-child(2)', 'State');
 
         // Check for table contents
         $rows = $crawler->filter('table.table tbody tr');
@@ -43,10 +43,10 @@ class DispatchAreaControllerTest extends WebTestCase
         $nameRowText = $rows->eq(0)->filter('td')->eq(0)->text();
         self::assertNotEmpty($nameRowText);
 
-        $stateRow = $rows->eq(0)->filter('td')->eq(2)->text();
+        $stateRow = $rows->eq(0)->filter('td')->eq(1)->text();
         self::assertSame('Hessen', trim($stateRow));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(4)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(3)->text();
         self::assertSame('area-user', trim($userRow));
     }
 
@@ -67,7 +67,7 @@ class DispatchAreaControllerTest extends WebTestCase
 
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(2, $rows, 'We should see 2 rows of results.');
-        $nameRow = $rows->eq(0)->filter('td')->eq(1)->text();
+        $nameRow = $rows->eq(0)->filter('td')->eq(0)->text();
         self::assertSame('XYZ', trim($nameRow));
     }
 

@@ -72,6 +72,8 @@
                                     </svg>
                                 </span>
                             </div>
+
+                            <input type="hidden" name="type" value="{{ type }}">
                         </form>
                     </div>
                 </div>
@@ -83,7 +85,7 @@
 {% block page_content %}
     <turbo-frame id="indication-list" data-turbo-action="advance">
         {% if search is not empty %}
-            <twig:Alert type="info" :message="'label.search_for'|trans({term: search})" />
+            <twig:Alert type="info" :message="'label.searching_for'|trans({term: search})" />
         {% endif %}
 
         <twig:DataTable

@@ -553,6 +553,10 @@
                 <source>label.search_for</source>
                 <target>Searching for: </target>
             </trans-unit>
+            <trans-unit id="searching_for" resname="label.searching_for">
+                <source>label.searching_for</source>
+                <target>Searching for: {term}</target>
+            </trans-unit>
             <trans-unit id="uARVlbj" resname="label.search_no_results">
                 <source>label.search_no_results</source>
                 <target>Sorry, no results found.</target>
