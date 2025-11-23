@@ -49,7 +49,6 @@
     </coverage>
 
     <extensions>
-        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
         <bootstrap class="Zenstruck\Browser\Test\BrowserExtension" />
         <bootstrap class="Zenstruck\Foundry\PHPUnit\FoundryExtension" />
     </extensions>
