@@ -17,11 +17,11 @@ export default class extends Controller {
         this.rowSelect = document.querySelector('[data-hospital-pivot-target="rowDimension"]');
         this.colSelect = document.querySelector('[data-hospital-pivot-target="columnDimension"]');
         this.measureSelect = document.querySelector('[data-hospital-pivot-target="measure"]');
-        this.participantsCheckbox = document.querySelector('[data-hospital-pivot-target="participantsOnly"]');
+        this.modeSelect = document.querySelector('[data-hospital-pivot-target="viewMode"]');
 
         this.handleChange = this.render.bind(this);
 
-        [this.rowSelect, this.colSelect, this.measureSelect, this.participantsCheckbox]
+        [this.rowSelect, this.colSelect, this.measureSelect, this.modeSelect]
             .filter(Boolean)
             .forEach(el => el.addEventListener('change', this.handleChange));
 
@@ -29,7 +29,7 @@ export default class extends Controller {
     }
 
     disconnect() {
-        [this.rowSelect, this.colSelect, this.measureSelect, this.participantsCheckbox]
+        [this.rowSelect, this.colSelect, this.measureSelect, this.modeSelect]
             .filter(Boolean)
             .forEach(el => el.removeEventListener('change', this.handleChange));
 
@@ -39,21 +39,27 @@ export default class extends Controller {
         }
     }
 
-    filteredRows() {
-        const participantsOnly = this.participantsCheckbox ? this.participantsCheckbox.checked : false;
-
-        if (!participantsOnly) {
-            return this.rowsValue;
+    getMode() {
+        return this.modeSelect ? this.modeSelect.value : 'all';
+    }
+    getRowsForMode(mode) {
+        if (mode === 'participants') {
+            return this.rowsValue.filter(r => !!r.isParticipating);
         }
 
-        return this.rowsValue.filter(r => !!r.isParticipating);
+        return this.rowsValue;
     }
 
-    buildSeries(rowDim, colDim, measure) {
-        const rows = this.filteredRows();
+    buildSeries(rowDim, colDim, measure, mode) {
+        let rows;
+        if (mode === 'participants') {
+            rows = this.rowsValue.filter(r => !!r.isParticipating);
+        } else {
+            rows = this.rowsValue;
+        }
+
         const categoriesSet = new Set();
 
-        // alle möglichen Kategorien (X-Achse)
         rows.forEach(r => {
             const key = r[rowDim] ?? '(none)';
             categoriesSet.add(key);
@@ -61,7 +67,6 @@ export default class extends Controller {
 
         const categories = Array.from(categoriesSet);
 
-        // Hilfsfunktion für Aggregation pro (row, seriesKey)
         const agg = {}; // seriesKey -> rowKey -> {sum, count}
         const getMeasureValue = (row) => {
             switch (measure) {
@@ -75,6 +80,69 @@ export default class extends Controller {
                     return 0;
             }
         };
+
+        if (mode === 'comparison') {
+            const allRows = this.rowsValue;
+            const participantsRows = this.rowsValue.filter(r => !!r.isParticipating);
+
+            const allCategoriesSet = new Set();
+            [...allRows, ...participantsRows].forEach(r => {
+                const key = r[rowDim] ?? '(none)';
+                allCategoriesSet.add(key);
+            });
+
+            const categories = Array.from(allCategoriesSet);
+
+            const aggregate = (rowsForAgg) => {
+                const agg = {}; // rowKey -> {sum, count}
+
+                rowsForAgg.forEach(r => {
+                    const rowKey = r[rowDim] ?? '(none)';
+                    if (!agg[rowKey]) {
+                        agg[rowKey] = { sum: 0, count: 0 };
+                    }
+
+                    const val = getMeasureValue(r);
+
+                    if (measure === 'hospitalCount') {
+                        agg[rowKey].sum += 1;
+                        agg[rowKey].count += 1;
+                    } else if (measure === 'avgBeds') {
+                        if (val !== null && val !== undefined) {
+                            agg[rowKey].sum += val;
+                            agg[rowKey].count += 1;
+                        }
+                    } else if (measure === 'allocationCount') {
+                        agg[rowKey].sum += val;
+                    }
+                });
+
+                return agg;
+            };
+
+            const aggAll = aggregate(allRows);
+            const aggParticipants = aggregate(participantsRows);
+
+            const toData = (aggMap) => categories.map(cat => {
+                const cell = aggMap[cat];
+                if (!cell) {
+                    return 0;
+                }
+
+                if (measure === 'avgBeds') {
+                    return cell.count > 0 ? cell.sum / cell.count : 0;
+                }
+
+                return cell.sum;
+            });
+
+            const series = [
+                { name: 'All hospitals', data: toData(aggAll) },
+                { name: 'Participating hospitals', data: toData(aggParticipants) },
+            ];
+
+            return { categories, series };
+        }
 
         rows.forEach(r => {
             const rowKey = r[rowDim] ?? '(none)';
@@ -131,15 +199,17 @@ export default class extends Controller {
             return;
         }
 
+        const mode = this.getMode();
+
         const rowDim = this.rowSelect?.value || 'tier';
         const colDim = this.colSelect?.value || '';
         const measure = this.measureSelect?.value || 'hospitalCount';
 
-        const { categories, series } = this.buildSeries(rowDim, colDim || null, measure);
+        const { categories, series } = this.buildSeries(rowDim, colDim || null, measure, mode);
 
         let maxVal = 0;
         series.forEach(s => {
-            s.data.forEach(v => {
+            (s.data || []).forEach(v => {
                 if (v > maxVal) {
                     maxVal = v;
                 }
@@ -153,7 +223,7 @@ export default class extends Controller {
         const colDimLabel = colDim ? (dimLabels[colDim] || colDim) : null;
         const measureLabel = measureLabels[measure] || measure;
 
-        const isStacked = !!colDim;
+        const isStacked = mode !== 'comparison' && !!colDim;
 
         const options = {
             chart: {
@@ -173,6 +243,7 @@ export default class extends Controller {
                     text: measureLabel,
                 },
                 decimalsInFloat: 0,
+                min: 0,
                 max: maxVal === 0 ? undefined : Math.ceil(maxVal / 50) * 50,
                 tickAmount: maxVal === 0 ? 1 : 5,
             },
