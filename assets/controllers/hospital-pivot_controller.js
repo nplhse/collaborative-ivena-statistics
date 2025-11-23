@@ -11,7 +11,7 @@ export default class extends Controller {
         'rowDimension',
         'columnDimension',
         'measure',
-        'participantsOnly',
+        'viewMode',
         'heatmap',
         'hideEmpty',
         'showPercentages',
@@ -25,8 +25,8 @@ export default class extends Controller {
         this.columnDimensionTarget.addEventListener('change', () => this.render());
         this.measureTarget.addEventListener('change', () => this.render());
 
-        if (this.hasParticipantsOnlyTarget) {
-            this.participantsOnlyTarget.addEventListener('change', () => this.render());
+        if (this.hasViewModeTarget) {
+            this.viewModeTarget.addEventListener('change', () => this.render());
         }
         if (this.hasHeatmapTarget) {
             this.heatmapTarget.addEventListener('change', () => this.render());
@@ -42,13 +42,36 @@ export default class extends Controller {
     }
 
     render() {
-        const rows = this.filteredRows();
+        const mode = this.hasViewModeTarget ? this.viewModeTarget.value : 'all';
+
         const rowDim = this.rowDimensionTarget.value;
         const colDim = this.columnDimensionTarget.value || null;
         const measure = this.measureTarget.value;
 
-        const pivot = this.buildPivot(rows, rowDim, colDim, measure);
-        this.renderTable(pivot, rowDim, colDim, measure);
+        const allRows = this.rowsValue;
+        const participantsRows = allRows.filter(r => !!r.isParticipating);
+
+        if (mode === 'participants') {
+            const pivot = this.buildPivot(participantsRows, rowDim, colDim, measure);
+
+            this.renderTable(pivot, rowDim, colDim, measure, { mode });
+            return;
+        }
+
+        if (mode === 'comparison') {
+            const pivotAll = this.buildPivot(allRows, rowDim, colDim, measure);
+            const pivotParticipants = this.buildPivot(participantsRows, rowDim, colDim, measure);
+
+            this.renderTable(pivotAll, rowDim, colDim, measure, {
+                mode,
+                comparisonPivot: pivotParticipants,
+            });
+            return;
+        }
+
+        // default: "all"
+        const pivot = this.buildPivot(allRows, rowDim, colDim, measure);
+        this.renderTable(pivot, rowDim, colDim, measure, { mode });
     }
 
     filteredRows() {
@@ -147,7 +170,8 @@ export default class extends Controller {
         return result;
     }
 
-    renderTable(pivot, rowDim, colDim, measure) {
+    renderTable(pivot, rowDim, colDim, measure, options = {}) {
+        const { mode = 'all', comparisonPivot = null } = options;
         const dimLabels = this.dimensionsLabelsValue || {};
         const measureLabels = this.measuresLabelsValue || {};
 
@@ -280,6 +304,9 @@ export default class extends Controller {
 
             cols.forEach(cKey => {
                 const v = pivot.values[rKey][cKey];
+                const vComparison = comparisonPivot
+                    ? ((comparisonPivot.values[rKey] && comparisonPivot.values[rKey][cKey]) ?? 0)
+                    : null;
 
                 let style = '';
                 if (heatmap && max > min) {
@@ -288,21 +315,47 @@ export default class extends Controller {
                     style = ` style="background-color: rgba(0, 123, 255, ${alpha});"`;
                 }
 
-                const tooltip = this.buildCellTooltip(
-                    rowDimLabel,
-                    rKey,
-                    colDimLabel,
-                    cKey === '_' ? null : cKey,
-                    measureLabel,
-                    v,
-                    grandTotal,
-                    showPercentages,
-                    measure
-                );
+                let tooltip;
+                let display;
+
+                if (comparisonPivot) {
+                    tooltip = this.buildComparisonTooltip(
+                        rowDimLabel,
+                        rKey,
+                        colDimLabel,
+                        cKey === '_' ? null : cKey,
+                        measureLabel,
+                        v,
+                        vComparison,
+                        grandTotal,
+                        showPercentages,
+                        measure
+                    );
+                    display = this.formatComparisonValue(
+                        v,
+                        vComparison,
+                        measure,
+                        grandTotal,
+                        showPercentages
+                    );
+                } else {
+                    tooltip = this.buildCellTooltip(
+                        rowDimLabel,
+                        rKey,
+                        colDimLabel,
+                        cKey === '_' ? null : cKey,
+                        measureLabel,
+                        v,
+                        grandTotal,
+                        showPercentages,
+                        measure
+                    );
+                    display = this.formatValue(v, measure, grandTotal, showPercentages);
+                }
 
                 body.push(
                     `<td class="text-end"${style} title="${this.escapeHtml(tooltip)}">` +
-                    this.escapeHtml(this.formatValue(v, measure, grandTotal, showPercentages)) +
+                    this.escapeHtml(display) +
                     '</td>'
                 );
             });
@@ -366,6 +419,17 @@ export default class extends Controller {
         return base;
     }
 
+    formatComparisonValue(vAll, vParticipants, measure, grandTotal, showPercentages) {
+        const allStr = this.formatValue(vAll, measure, grandTotal, showPercentages);
+        const partStr = this.formatValue(vParticipants, measure, grandTotal, showPercentages);
+
+        if (allStr === '–' && partStr === '–') {
+           return '–';
+        }
+
+        return `${allStr} / ${partStr}`;
+    }
+
     buildCellTooltip(rowDimLabel, rowValue, colDimLabel, colValue, measureLabel, v, grandTotal, showPercentages, measure) {
         const parts = [];
 
@@ -387,6 +451,42 @@ export default class extends Controller {
         parts.push(valuePart);
 
         return parts.join(' | ');
+    }
+
+    buildComparisonTooltip(
+        rowDimLabel,
+        rowValue,
+        colDimLabel,
+        colValue,
+        measureLabel,
+        vAll,
+        vParticipants,
+        grandTotal,
+        showPercentages,
+        measure
+    ) {
+        const parts = [];
+        parts.push(`${rowDimLabel}: ${rowValue}`);
+
+        if (colDimLabel && colValue !== null && colValue !== undefined) {
+            parts.push(`${colDimLabel}: ${colValue}`);
+        }
+
+        const formatOne = (label, value) => {
+            let txt = `${label}: ${value}`;
+
+            if (showPercentages && grandTotal > 0 && (measure === 'hospitalCount' || measure === 'allocationCount')) {
+                const pct = (value / grandTotal * 100).toFixed(1);
+                txt += ` (${pct}%)`;
+            }
+
+            return txt;
+        };
+
+        parts.push(formatOne('All hospitals', vAll));
+        parts.push(formatOne('Participating hospitals', vParticipants));
+
+        return `${measureLabel} | ` + parts.join(' | ');
     }
 
     escapeHtml(str) {

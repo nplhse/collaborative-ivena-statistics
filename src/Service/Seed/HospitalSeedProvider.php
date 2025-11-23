@@ -163,7 +163,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64287',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -333,7 +333,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60318',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -486,7 +486,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65199',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -571,7 +571,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '61352',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -588,7 +588,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '61250',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -622,7 +622,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60311',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -707,7 +707,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '64283',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -724,12 +724,12 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35683',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
             'area' => 'Frankfurt',
-            'name' => 'Klinikum Frankfurt-Höchst',
+            'name' => 'Varisano Klinikum Frankfurt-Höchst',
             'tier' => 'Full',
             'size' => 'Large',
             'beds' => 828,
@@ -741,7 +741,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65929',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -775,7 +775,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63450',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -792,12 +792,12 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34125',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
             'area' => 'Schwalm-Eder',
-            'name' => 'Klinikum Schwalmstadt',
+            'name' => 'Asklepios Klinikum Schwalmstadt',
             'tier' => 'Extended',
             'size' => 'Medium',
             'beds' => 238,
@@ -809,7 +809,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '34613',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -894,7 +894,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65812',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -1200,7 +1200,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63069',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -1217,7 +1217,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '60389',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -1285,7 +1285,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65189',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -1336,7 +1336,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '65549',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -1353,7 +1353,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '63450',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',
@@ -1404,7 +1404,7 @@ final class HospitalSeedProvider implements SeedProviderInterface
                 'postalCode' => '35392',
                 'country' => 'Deutschland',
             ],
-            'participating' => false,
+            'participating' => true,
         ];
         yield [
             'state' => 'Hessen',

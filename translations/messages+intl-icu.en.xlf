@@ -361,6 +361,10 @@
         <source>label.hospital_tier</source>
         <target>Tier</target>
       </trans-unit>
+      <trans-unit id="7GUsfM0" resname="label.hospitals.participating">
+        <source>label.hospitals.participating</source>
+        <target>Participating Hospitals</target>
+      </trans-unit>
       <trans-unit id="jGMjpWb" resname="label.id">
         <source>label.id</source>
         <target>ID</target>
@@ -657,6 +661,10 @@
         <source>link.import</source>
         <target>Import</target>
       </trans-unit>
+      <trans-unit id="4wLkxRO" resname="link.imports">
+        <source>link.imports</source>
+        <target>Imports</target>
+      </trans-unit>
       <trans-unit id="fEFqowr" resname="link.indications">
         <source>link.indications</source>
         <target>Indications</target>
@@ -692,6 +700,10 @@
       <trans-unit id="BXqZdqI" resname="link.stats.transport_time">
         <source>link.stats.transport_time</source>
         <target>Transport Time</target>
+      </trans-unit>
+      <trans-unit id="wQKGxus" resname="link.users">
+        <source>link.users</source>
+        <target>Users</target>
       </trans-unit>
       <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
