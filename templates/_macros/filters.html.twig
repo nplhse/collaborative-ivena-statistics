@@ -1,0 +1,233 @@
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications) %}
+    {% set rawFilters = [] %}
+
+    {# --- Simple string filters --- #}
+    {% if filters.urgency is not empty %}
+        {% set urgencyKey = 'allocation.urgency.' ~ filters.urgency %}
+
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.urgency',
+            value: urgencyKey|trans,
+            }]) %}
+    {% endif %}
+
+    {% if filters.size is not empty %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.size', value: filters.size}]) %}
+    {% endif %}
+
+    {% if filters.location is not empty %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.location', value: filters.location}]) %}
+    {% endif %}
+
+    {% if filters.tier is not empty %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.tier', value: filters.tier}]) %}
+    {% endif %}
+
+    {% if filters.importId is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.importId', value: filters.importId}]) %}
+    {% endif %}
+
+    {# --- Boolean-like filters --- #}
+    {% if filters.requiresResus is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requiresResus', value: filters.requiresResus ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.requiresCathlab is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requiresCathlab', value: filters.requiresCathlab ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {# --- Lookup: State (id → name) --- #}
+    {% if filters.state is not null %}
+        {% set stateName = null %}
+        {% for s in states %}
+            {% if stateName is null and s.id == filters.state %}
+                {% set stateName = s.name %}
+            {% endif %}
+        {% endfor %}
+        {% if stateName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.state', value: stateName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Dispatch Area (id → name) --- #}
+    {% if filters.dispatchArea is not null %}
+        {% set areaName = null %}
+        {% for a in dispatchAreas %}
+            {% if areaName is null and a.id == filters.dispatchArea %}
+                {% set areaName = a.name %}
+            {% endif %}
+        {% endfor %}
+        {% if areaName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.dispatchArea', value: areaName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Indication (code → name) --- #}
+    {% if filters.indication is not null %}
+        {% set indicationName = null %}
+        {% for i in indications %}
+            {% if indicationName is null and i.code == filters.indication %}
+                {% set indicationName = i.name %}
+            {% endif %}
+        {% endfor %}
+        {% if indicationName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.indication', value: indicationName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# 2. Manual alphabetical sort #}
+    {% set byKey = {} %}
+    {% for f in rawFilters %}
+        {% set byKey = byKey|merge({(f.key): f.value}) %}
+    {% endfor %}
+
+    {% set sortedKeys = byKey|keys|sort %}
+
+    {# 3. Render badges #}
+    {% if sortedKeys is not empty %}
+        <div class="d-flex flex-wrap gap-1">
+            {% for key in sortedKeys %}
+                <span class="badge bg-blue-lt">
+                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro area_filter_badges(filters, states) %}
+    {% set rawFilters = [] %}
+
+    {# --- Search term --- #}
+    {% if filters.search is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.search',
+            value: filters.search,
+        }]) %}
+    {% endif %}
+
+    {# --- Lookup: State (id → name) --- #}
+    {% if filters.state is not null %}
+        {% set stateName = null %}
+        {% for s in states %}
+            {% if stateName is null and s.id == filters.state %}
+                {% set stateName = s.name %}
+            {% endif %}
+        {% endfor %}
+        {% if stateName is not null %}
+            {% set rawFilters = rawFilters|merge([{
+                key: 'label.state',
+                value: stateName,
+            }]) %}
+        {% endif %}
+    {% endif %}
+
+    {# 2. Manual alphabetical sort (same pattern as before) #}
+    {% set byKey = {} %}
+    {% for f in rawFilters %}
+        {% set byKey = byKey|merge({(f.key): f.value}) %}
+    {% endfor %}
+
+    {% set sortedKeys = byKey|keys|sort %}
+
+    {# 3. Render badges #}
+    {% if sortedKeys is not empty %}
+        <div class="d-flex flex-wrap gap-1">
+            {% for key in sortedKeys %}
+                <span class="badge bg-blue-lt">
+                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro hospital_filter_badges(filters, states, dispatchAreas) %}
+    {% set rawFilters = [] %}
+
+    {# --- Search term --- #}
+    {% if filters.search is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.search',
+            value: filters.search,
+        }]) %}
+    {% endif %}
+
+    {# --- Simple string filters --- #}
+    {% if filters.tier is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.tier',
+            value: filters.tier,
+        }]) %}
+    {% endif %}
+
+    {% if filters.location is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.location',
+            value: filters.location,
+        }]) %}
+    {% endif %}
+
+    {% if filters.size is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.size',
+            value: filters.size,
+        }]) %}
+    {% endif %}
+
+    {# --- Lookup: Dispatch Area (id → name) --- #}
+    {% if filters.dispatchArea is not null %}
+        {% set areaName = null %}
+        {% for a in dispatchAreas %}
+            {% if areaName is null and a.id == filters.dispatchArea %}
+                {% set areaName = a.name %}
+            {% endif %}
+        {% endfor %}
+        {% if areaName is not null %}
+            {% set rawFilters = rawFilters|merge([{
+                key: 'label.dispatch_area',
+                value: areaName,
+            }]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: State (id → name) --- #}
+    {% if filters.state is not null %}
+        {% set stateName = null %}
+        {% for s in states %}
+            {% if stateName is null and s.id == filters.state %}
+                {% set stateName = s.name %}
+            {% endif %}
+        {% endfor %}
+        {% if stateName is not null %}
+            {% set rawFilters = rawFilters|merge([{
+                key: 'label.state',
+                value: stateName,
+            }]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Boolean-like filters --- #}
+    {% if filters.participating is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.participation', value: filters.participating ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {# 2. Manual alphabetical sort by label-translation-key #}
+    {% set byKey = {} %}
+    {% for f in rawFilters %}
+        {% set byKey = byKey|merge({(f.key): f.value}) %}
+    {% endfor %}
+
+    {% set sortedKeys = byKey|keys|sort %}
+
+    {# 3. Render badges #}
+    {% if sortedKeys is not empty %}
+        <div class="d-flex flex-wrap gap-1">
+            {% for key in sortedKeys %}
+                <span class="badge bg-blue-lt">
+                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}
