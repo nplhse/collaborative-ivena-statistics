@@ -29,6 +29,14 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_stats_hospital' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_hospital_pivot') }}">
+                            <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:building" style="height: 1.5em;" />
+                                {{ 'link.stats.hospitals'|trans }}
+                            </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
