@@ -80,18 +80,7 @@
                             </table>
                         </div>
 
-                        <div class="col-sm-3">
-                            <label class="form-check form-switch mt-3">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    data-hospital-pivot-target="participantsOnly"
-                                >
-                                <span class="form-check-label">Only participating hospitals</span>
-                            </label>
-                        </div>
-
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label class="form-check form-switch mt-3">
                                 <input
                                     class="form-check-input"
@@ -103,7 +92,7 @@
                             </label>
                         </div>
 
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label class="form-check form-switch mt-3">
                                 <input
                                     class="form-check-input"
@@ -114,18 +103,16 @@
                             </label>
                         </div>
 
-                        <div class="col-sm-3">
-                            <label class="form-check form-switch mt-3">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    data-hospital-pivot-target="hideEmpty"
-                                    checked
-                                >
-                                <span class="form-check-label">Hide empty rows/columns</span>
-                            </label>
+                        <div class="col-sm-4">
+                            <select
+                                class="form-select"
+                                data-hospital-pivot-target="viewMode"
+                            >
+                                <option value="all">All hospitals</option>
+                                <option value="participants">Only participating hospitals</option>
+                                <option value="comparison">Comparison (All vs Participating)</option>
+                            </select>
                         </div>
-
                     </div>
                 </div>
             </div>
