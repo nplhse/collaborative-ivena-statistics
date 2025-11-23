@@ -21,6 +21,24 @@ final readonly class AllocationQueryParametersDTO
 
         #[Assert\GreaterThan(0)]
         public ?int $importId = null,
+
+        public ?string $tier = null,
+
+        public ?string $location = null,
+
+        public ?string $size = null,
+
+        public ?string $urgency = null,
+
+        public ?int $dispatchArea = null,
+
+        public ?int $state = null,
+
+        public ?int $requiresResus = null,
+
+        public ?int $requiresCathlab = null,
+
+        public ?int $indication = null,
     ) {
     }
 }
