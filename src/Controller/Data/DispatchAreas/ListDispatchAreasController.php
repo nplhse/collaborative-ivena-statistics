@@ -4,6 +4,7 @@ namespace App\Controller\Data\DispatchAreas;
 
 use App\DataTransferObjects\AreaListQueryParametersDTO;
 use App\Repository\DispatchAreaRepository;
+use App\Repository\StateRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -14,6 +15,7 @@ final class ListDispatchAreasController extends AbstractController
 {
     public function __construct(
         private readonly DispatchAreaRepository $dispatchAreaRepository,
+        private readonly StateRepository $stateRepository,
     ) {
     }
 
@@ -28,6 +30,28 @@ final class ListDispatchAreasController extends AbstractController
             'search' => $query->search,
             'sortBy' => $query->sortBy,
             'orderBy' => $query->orderBy,
+            'filters' => $query,
+            'activeFilterCount' => $this->countActiveFilters($query),
+            'states' => $this->stateRepository->findAll(),
         ]);
+    }
+
+    private function countActiveFilters(AreaListQueryParametersDTO $queryParametersDTO): int
+    {
+        $activeFilterCount = 0;
+
+        $filterFields = [
+            'state',
+            'search',
+        ];
+
+        foreach ($filterFields as $field) {
+            $value = $queryParametersDTO->{$field} ?? null;
+            if (null !== $value && '' !== $value) {
+                ++$activeFilterCount;
+            }
+        }
+
+        return $activeFilterCount;
     }
 }

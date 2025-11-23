@@ -45,6 +45,11 @@ final class DispatchAreaRepository extends ServiceEntityRepository
             ;
         }
 
+        if (null !== $queryParametersDTO->state) {
+            $qb->andWhere('s.id = :stateId')
+                ->setParameter('stateId', $queryParametersDTO->state);
+        }
+
         return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
 }

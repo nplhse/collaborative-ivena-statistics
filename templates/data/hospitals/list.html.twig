@@ -40,68 +40,68 @@
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <div class="btn-group">
-                        <button
-                            class="btn"
-                            type="button"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#hospital-filters"
-                            aria-controls="hospital-filters"
-                        >
-                            {% if activeFilterCount < 1 %}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="icon"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="2"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M4 4h16l-6 8v6l-4 -2v-4z" />
-                                </svg>
-                            {% else %}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
-                                </svg>
-                            {% endif %}
-                            <span class="ms-2">{{ 'label.filters'|trans }}</span>
+                            <button
+                                class="btn"
+                                type="button"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#hospital-filters"
+                                aria-controls="hospital-filters"
+                            >
+                                {% if activeFilterCount < 1 %}
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="2"
+                                        stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M4 4h16l-6 8v6l-4 -2v-4z" />
+                                    </svg>
+                                {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
+                                    </svg>
+                                {% endif %}
+                                <span class="ms-2">{{ 'label.filters'|trans }}</span>
+
+                                {% if activeFilterCount > 0 %}
+                                    <span class="badge text-primary ms-2">
+                                        {{ activeFilterCount }}
+                                    </span>
+                                {% endif %}
+                            </button>
 
                             {% if activeFilterCount > 0 %}
-                                <span class="badge text-primary ms-2">
-                                    {{ activeFilterCount }}
-                                </span>
-                            {% endif %}
-                        </button>
-
-                        {% if activeFilterCount > 0 %}
-                            <a
-                                href="{{ path('app_data_hospital_list') }}"
-                                class="btn btn-icon btn-outline"
-                                title="Filter zurücksetzen"
-                                aria-label="Filter zurücksetzen"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="icon"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="2"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                <a
+                                    href="{{ path('app_data_hospital_list') }}"
+                                    class="btn btn-icon btn-outline"
+                                    title="Filter zurücksetzen"
+                                    aria-label="Filter zurücksetzen"
                                 >
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M18 6l-12 12" />
-                                    <path d="M6 6l12 12" />
-                                </svg>
-                            </a>
-                        {% endif %}
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="2"
+                                        stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M18 6l-12 12" />
+                                        <path d="M6 6l12 12" />
+                                    </svg>
+                                </a>
+                            {% endif %}
                         </div>
 
                         <form
@@ -146,8 +146,13 @@
 
 {% block page_content %}
     <turbo-frame id="hospital-list" data-turbo-action="advance">
-        {% if search is not empty %}
-            <twig:Alert type="info" :message="'label.search_for'|trans({term: search})" />
+        {% import '_macros/filters.html.twig' as activeFilters %}
+
+        {% if activeFilterCount > 0 %}
+            <div class="alert alert-info" role="alert">
+                <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
+                {{ activeFilters.hospital_filter_badges(filters, states, dispatchAreas) }}
+            </div>
         {% endif %}
 
         <twig:DataTable

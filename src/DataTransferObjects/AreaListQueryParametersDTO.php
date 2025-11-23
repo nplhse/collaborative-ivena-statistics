@@ -20,6 +20,8 @@ final readonly class AreaListQueryParametersDTO
         public string $sortBy = 'name',
 
         public ?string $search = null,
+
+        public ?int $state = null,
     ) {
     }
 }
