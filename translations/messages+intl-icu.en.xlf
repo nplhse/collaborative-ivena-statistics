@@ -1,776 +1,788 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
-    <header>
-      <tool tool-id="symfony" tool-name="Symfony"/>
-    </header>
-    <body>
-      <trans-unit id="TwkKbdo" resname="B+">
-        <source>B+</source>
-        <target>B+</target>
-      </trans-unit>
-      <trans-unit id="4A29cgX" resname="H+">
-        <source>H+</source>
-        <target>H+</target>
-      </trans-unit>
-      <trans-unit id="rZqleUO" resname="N+">
-        <source>N+</source>
-        <target>N+</target>
-      </trans-unit>
-      <trans-unit id="OypyADq" resname="R+">
-        <source>R+</source>
-        <target>R+</target>
-      </trans-unit>
-      <trans-unit id="InZUSNI" resname="S+">
-        <source>S+</source>
-        <target>S+</target>
-      </trans-unit>
-      <trans-unit id="45h1fK3" resname="allocation.urgency.1">
-        <source>allocation.urgency.1</source>
-        <target>Immediate</target>
-      </trans-unit>
-      <trans-unit id="jbrRozU" resname="allocation.urgency.2">
-        <source>allocation.urgency.2</source>
-        <target>Urgent</target>
-      </trans-unit>
-      <trans-unit id="ndIvw1v" resname="allocation.urgency.3">
-        <source>allocation.urgency.3</source>
-        <target>Delayed</target>
-      </trans-unit>
-      <trans-unit id="H1OgFhe" resname="allocations.field.isPregnant">
-        <source>allocations.field.isPregnant</source>
-        <target>Is Pregnant</target>
-      </trans-unit>
-      <trans-unit id="T4rWOlm" resname="allocations.field.isShock">
-        <source>allocations.field.isShock</source>
-        <target>Is in Shock</target>
-      </trans-unit>
-      <trans-unit id="sldZ8hU" resname="allocations.field.isVentilated">
-        <source>allocations.field.isVentilated</source>
-        <target>Is Ventilated</target>
-      </trans-unit>
-      <trans-unit id="8pZlK.0" resname="btn.cancel">
-        <source>btn.cancel</source>
-        <target>Cancel</target>
-      </trans-unit>
-      <trans-unit id="PgKXiv_" resname="btn.save.changes">
-        <source>btn.save.changes</source>
-        <target>Save changes</target>
-      </trans-unit>
-      <trans-unit id="EiKSkqu" resname="field.age">
-        <source>field.age</source>
-        <target>Age</target>
-      </trans-unit>
-      <trans-unit id="am2xMRr" resname="field.false">
-        <source>field.false</source>
-        <target>False</target>
-      </trans-unit>
-      <trans-unit id="ulUyIcP" resname="field.gender">
-        <source>field.gender</source>
-        <target>Gender</target>
-      </trans-unit>
-      <trans-unit id="G2hTjTe" resname="field.infection">
-        <source>field.infection</source>
-        <target>Is infectious?</target>
-      </trans-unit>
-      <trans-unit id="nbfKbvC" resname="field.isCPR">
-        <source>field.isCPR</source>
-        <target>Is CPR</target>
-      </trans-unit>
-      <trans-unit id="zUpvkUF" resname="field.isWithPhysician">
-        <source>field.isWithPhysician</source>
-        <target>Is with Physician</target>
-      </trans-unit>
-      <trans-unit id="dr5rc5A" resname="field.isWithPhysician.false">
-        <source>field.isWithPhysician.false</source>
-        <target>Without Physician</target>
-      </trans-unit>
-      <trans-unit id="Zjb_FKn" resname="field.isWithPhysician.true">
-        <source>field.isWithPhysician.true</source>
-        <target>With Physician</target>
-      </trans-unit>
-      <trans-unit id="uFBVePw" resname="field.requiresCathlab">
-        <source>field.requiresCathlab</source>
-        <target>Requires Cathlab</target>
-      </trans-unit>
-      <trans-unit id="AUQV8qD" resname="field.requiresResus">
-        <source>field.requiresResus</source>
-        <target>Requires Resus</target>
-      </trans-unit>
-      <trans-unit id="d833nvj" resname="field.transportType">
-        <source>field.transportType</source>
-        <target>Transport Type</target>
-      </trans-unit>
-      <trans-unit id="9rOVgrM" resname="field.transportType.unknown">
-        <source>field.transportType.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="XMMwdWV" resname="field.true">
-        <source>field.true</source>
-        <target>True</target>
-      </trans-unit>
-      <trans-unit id="GvBH7QF" resname="field.urgency">
-        <source>field.urgency</source>
-        <target>Urgency</target>
-      </trans-unit>
-      <trans-unit id="oB3P1Zq" resname="flash.import.created">
-        <source>flash.import.created</source>
-        <target>New Import has been created successfully!</target>
-      </trans-unit>
-      <trans-unit id="qCQxM_A" resname="flash.indication.assigned">
-        <source>flash.indication.assigned</source>
-        <target>Normalized indication has been assigned.</target>
-      </trans-unit>
-      <trans-unit id="IlEDRed" resname="help.search_no_results">
-        <source>help.search_no_results</source>
-        <target>Try adjusting your search or filter to find what you're looking for.</target>
-      </trans-unit>
-      <trans-unit id="SZjOELg" resname="hospital.location.Mixed">
-        <source>hospital.location.Mixed</source>
-        <target>Mixed Location</target>
-      </trans-unit>
-      <trans-unit id="hCNpkSc" resname="hospital.location.Rural">
-        <source>hospital.location.Rural</source>
-        <target>Rural Location</target>
-      </trans-unit>
-      <trans-unit id="HrZvN0R" resname="hospital.location.Urban">
-        <source>hospital.location.Urban</source>
-        <target>Urban Location</target>
-      </trans-unit>
-      <trans-unit id="2GXLZcX" resname="hospital.size.Large">
-        <source>hospital.size.Large</source>
-        <target>Large Size</target>
-      </trans-unit>
-      <trans-unit id="b8NtI4L" resname="hospital.size.Medium">
-        <source>hospital.size.Medium</source>
-        <target>Medium Size</target>
-      </trans-unit>
-      <trans-unit id="7pO0v2a" resname="hospital.size.Small">
-        <source>hospital.size.Small</source>
-        <target>Small Size</target>
-      </trans-unit>
-      <trans-unit id="brJg_gq" resname="hospital.tier.Basic">
-        <source>hospital.tier.Basic</source>
-        <target>Basic Tier</target>
-      </trans-unit>
-      <trans-unit id="UhRsM6s" resname="hospital.tier.Extended">
-        <source>hospital.tier.Extended</source>
-        <target>Extended Tier</target>
-      </trans-unit>
-      <trans-unit id="6MDw2dh" resname="hospital.tier.Full">
-        <source>hospital.tier.Full</source>
-        <target>Full Tier</target>
-      </trans-unit>
-      <trans-unit id="2_8EtuE" resname="import.action.preview_rows">
-        <source>import.action.preview_rows</source>
-        <target>Preview Rows</target>
-      </trans-unit>
-      <trans-unit id="T_sGody" resname="import.field.fileExtension">
-        <source>import.field.fileExtension</source>
-        <target>Extension</target>
-      </trans-unit>
-      <trans-unit id="XWUPA8u" resname="import.field.fileMimeType">
-        <source>import.field.fileMimeType</source>
-        <target>Mime Type</target>
-      </trans-unit>
-      <trans-unit id="WKEj59F" resname="import.field.fileSize">
-        <source>import.field.fileSize</source>
-        <target>File size</target>
-      </trans-unit>
-      <trans-unit id="_AQ_ZqM" resname="import.field.rejectionRate">
-        <source>import.field.rejectionRate</source>
-        <target>Rejection Rate</target>
-      </trans-unit>
-      <trans-unit id="YIl4XxP" resname="import.field.rowCount">
-        <source>import.field.rowCount</source>
-        <target>Row count</target>
-      </trans-unit>
-      <trans-unit id="Au8OS5f" resname="import.field.rowsPassed">
-        <source>import.field.rowsPassed</source>
-        <target>Successful rows</target>
-      </trans-unit>
-      <trans-unit id="OGahhM8" resname="import.field.rowsRejected">
-        <source>import.field.rowsRejected</source>
-        <target>Rejected rows</target>
-      </trans-unit>
-      <trans-unit id="oiSvDD9" resname="import.field.runCount">
-        <source>import.field.runCount</source>
-        <target>Run count</target>
-      </trans-unit>
-      <trans-unit id="1qEVxEZ" resname="import.field.runTime">
-        <source>import.field.runTime</source>
-        <target>Run time</target>
-      </trans-unit>
-      <trans-unit id="twzu6Ol" resname="import.field.status">
-        <source>import.field.status</source>
-        <target>Status</target>
-      </trans-unit>
-      <trans-unit id="v6YYkzw" resname="import.field.type">
-        <source>import.field.type</source>
-        <target>Type</target>
-      </trans-unit>
-      <trans-unit id="ndwEyiW" resname="imports.field.filePath">
-        <source>imports.field.filePath</source>
-        <target>File path</target>
-      </trans-unit>
-      <trans-unit id="vsKohzn" resname="indication.tab.normalized">
-        <source>indication.tab.normalized</source>
-        <target>Normalized Indication</target>
-      </trans-unit>
-      <trans-unit id="8p7II8w" resname="indication.tab.raw">
-        <source>indication.tab.raw</source>
-        <target>Raw Indication</target>
-      </trans-unit>
-      <trans-unit id="CEVgeJ7" resname="label.address">
-        <source>label.address</source>
-        <target>Address</target>
-      </trans-unit>
-      <trans-unit id="dnzVgba" resname="label.age">
-        <source>label.age</source>
-        <target>Age</target>
-      </trans-unit>
-      <trans-unit id="3bIHt8G" resname="label.all_dispatch_areas">
-        <source>label.all_dispatch_areas</source>
-        <target>All Dispatch Areas</target>
-      </trans-unit>
-      <trans-unit id="BAuAzav" resname="label.all_indications">
-        <source>label.all_indications</source>
-        <target>All indications</target>
-      </trans-unit>
-      <trans-unit id="t2o1BoP" resname="label.all_locations">
-        <source>label.all_locations</source>
-        <target>All Locations</target>
-      </trans-unit>
-      <trans-unit id="OIVPERw" resname="label.all_modes">
-        <source>label.all_modes</source>
-        <target>All Modes</target>
-      </trans-unit>
-      <trans-unit id="GRL.4Ts" resname="label.all_sizes">
-        <source>label.all_sizes</source>
-        <target>All Sizes</target>
-      </trans-unit>
-      <trans-unit id="wcORf5K" resname="label.all_states">
-        <source>label.all_states</source>
-        <target>All States</target>
-      </trans-unit>
-      <trans-unit id=".58BClh" resname="label.all_tiers">
-        <source>label.all_tiers</source>
-        <target>All Tiers</target>
-      </trans-unit>
-      <trans-unit id="b19sL_Y" resname="label.all_urgencies">
-        <source>label.all_urgencies</source>
-        <target>All urgencies</target>
-      </trans-unit>
-      <trans-unit id="6QPDzOS" resname="label.allocation">
-        <source>label.allocation</source>
-        <target>Allocation</target>
-      </trans-unit>
-      <trans-unit id="InXuxeP" resname="label.arrival_at">
-        <source>label.arrival_at</source>
-        <target>Arrival at</target>
-      </trans-unit>
-      <trans-unit id="31aVbXL" resname="label.assignment">
-        <source>label.assignment</source>
-        <target>Assignment</target>
-      </trans-unit>
-      <trans-unit id="1GXuSep" resname="label.back_to_list">
-        <source>label.back_to_list</source>
-        <target>Back to list</target>
-      </trans-unit>
-      <trans-unit id="LsBidrc" resname="label.background">
-        <source>label.background</source>
-        <target>Background</target>
-      </trans-unit>
-      <trans-unit id="qEe9Os6" resname="label.basic_info">
-        <source>label.basic_info</source>
-        <target>Basic info</target>
-      </trans-unit>
-      <trans-unit id="Aa5Q3jh" resname="label.cathlab.is_required">
-        <source>label.cathlab.is_required</source>
-        <target>Cathlab is required</target>
-      </trans-unit>
-      <trans-unit id="OQ78O9H" resname="label.cathlab.not_required">
-        <source>label.cathlab.not_required</source>
-        <target>Cathlab not required</target>
-      </trans-unit>
-      <trans-unit id="rsh4cOO" resname="label.created_at">
-        <source>label.created_at</source>
-        <target>Created at</target>
-      </trans-unit>
-      <trans-unit id="fyW6_QN" resname="label.created_by">
-        <source>label.created_by</source>
-        <target>Created by</target>
-      </trans-unit>
-      <trans-unit id="yxZ6XcL" resname="label.data.index.subtitle">
-        <source>label.data.index.subtitle</source>
-        <target>Overview of all available data records</target>
-      </trans-unit>
-      <trans-unit id="7Oebk.l" resname="label.dispatch_area">
-        <source>label.dispatch_area</source>
-        <target>Dispatch Area</target>
-      </trans-unit>
-      <trans-unit id="JGx905C" resname="label.filter.results">
-        <source>label.filter.results</source>
-        <target>Filter Results</target>
-      </trans-unit>
-      <trans-unit id="RPew0g8" resname="label.filters">
-        <source>label.filters</source>
-        <target>Filters</target>
-      </trans-unit>
-      <trans-unit id="NnR3dCM" resname="label.filters.active">
-        <source>label.filters.active</source>
-        <target>Active filters</target>
-      </trans-unit>
-      <trans-unit id="5qtkGtz" resname="label.filters.apply">
-        <source>label.filters.apply</source>
-        <target>Apply Filters</target>
-      </trans-unit>
-      <trans-unit id="xxRgaom" resname="label.filters.reset">
-        <source>label.filters.reset</source>
-        <target>Reset Filters</target>
-      </trans-unit>
-      <trans-unit id="cpKk2WF" resname="label.gender.female">
-        <source>label.gender.female</source>
-        <target>Female</target>
-      </trans-unit>
-      <trans-unit id="jEyk7sz" resname="label.gender.male">
-        <source>label.gender.male</source>
-        <target>Male</target>
-      </trans-unit>
-      <trans-unit id="0z0VQ32" resname="label.gender.other">
-        <source>label.gender.other</source>
-        <target>Other</target>
-      </trans-unit>
-      <trans-unit id="wyzinGh" resname="label.hospital">
-        <source>label.hospital</source>
-        <target>Hospital</target>
-      </trans-unit>
-      <trans-unit id="O4DzdiL" resname="label.hospital_beds">
-        <source>label.hospital_beds</source>
-        <target>Beds</target>
-      </trans-unit>
-      <trans-unit id="lylZSZS" resname="label.hospital_location">
-        <source>label.hospital_location</source>
-        <target>Location</target>
-      </trans-unit>
-      <trans-unit id="r.6slYv" resname="label.hospital_size">
-        <source>label.hospital_size</source>
-        <target>Size</target>
-      </trans-unit>
-      <trans-unit id="ja0Zumw" resname="label.hospital_tier">
-        <source>label.hospital_tier</source>
-        <target>Tier</target>
-      </trans-unit>
-      <trans-unit id="jGMjpWb" resname="label.id">
-        <source>label.id</source>
-        <target>ID</target>
-      </trans-unit>
-      <trans-unit id="2suWc6O" resname="label.import.new">
-        <source>label.import.new</source>
-        <target>Create new Import</target>
-      </trans-unit>
-      <trans-unit id="UcQSwTu" resname="label.import.section.quick_actions">
-        <source>label.import.section.quick_actions</source>
-        <target>Quick actions</target>
-      </trans-unit>
-      <trans-unit id="ssEMXJ8" resname="label.import.section.run">
-        <source>label.import.section.run</source>
-        <target>Run results</target>
-      </trans-unit>
-      <trans-unit id="_i2.tz3" resname="label.import.section.source_file">
-        <source>label.import.section.source_file</source>
-        <target>Source file</target>
-      </trans-unit>
-      <trans-unit id="UcOVbOd" resname="label.indication">
-        <source>label.indication</source>
-        <target>Indication</target>
-      </trans-unit>
-      <trans-unit id="vBKlakB" resname="label.indication.code">
-        <source>label.indication.code</source>
-        <target>Code</target>
-      </trans-unit>
-      <trans-unit id="kpEIeqH" resname="label.indication.normalized">
-        <source>label.indication.normalized</source>
-        <target>Normalized Indication</target>
-      </trans-unit>
-      <trans-unit id="K7xiN6v" resname="label.indication.raw">
-        <source>label.indication.raw</source>
-        <target>Raw Indication</target>
-      </trans-unit>
-      <trans-unit id="FAxaB50" resname="label.is_participating">
-        <source>label.is_participating</source>
-        <target>Participation</target>
-      </trans-unit>
-      <trans-unit id="H1xh.Cr" resname="label.is_participating.not">
-        <source>label.is_participating.not</source>
-        <target>Is not participating</target>
-      </trans-unit>
-      <trans-unit id="xA8v84b" resname="label.is_participating.yes">
-        <source>label.is_participating.yes</source>
-        <target>Is participating</target>
-      </trans-unit>
-      <trans-unit id="KrdI.1U" resname="label.last_change">
-        <source>label.last_change</source>
-        <target>Last change</target>
-      </trans-unit>
-      <trans-unit id="QlpT4ZW" resname="label.last_changed_at">
-        <source>label.last_changed_at</source>
-        <target>Last changed at</target>
-      </trans-unit>
-      <trans-unit id="vCMHgqm" resname="label.last_changed_by">
-        <source>label.last_changed_by</source>
-        <target>Last changed by</target>
-      </trans-unit>
-      <trans-unit id="mcp_slZ" resname="label.link.allocations">
-        <source>label.link.allocations</source>
-        <target>Emergency service deployments recorded in IVENA with their details.</target>
-      </trans-unit>
-      <trans-unit id="_jHXFXz" resname="label.link.assignments">
-        <source>label.link.assignments</source>
-        <target>Indicates who initiated the hospital selection, e.g. patient, physician, or emergency service.</target>
-      </trans-unit>
-      <trans-unit id="DY0xtzN" resname="label.link.departments">
-        <source>label.link.departments</source>
-        <target>Specialized clinical units within a medical field, e.g. Cardiology or General Surgery.</target>
-      </trans-unit>
-      <trans-unit id="lcY9EMq" resname="label.link.dispatch_areas">
-        <source>label.link.dispatch_areas</source>
-        <target>Regions covered by emergency dispatch centers</target>
-      </trans-unit>
-      <trans-unit id="EvJ25zq" resname="label.link.hospitals">
-        <source>label.link.hospitals</source>
-        <target>Facilities delivering medical care and patient services.</target>
-      </trans-unit>
-      <trans-unit id="fPY_MOE" resname="label.link.indications">
-        <source>label.link.indications</source>
-        <target>Preliminary suspected diagnosis summarizing the primary medical problem or injury at the scene.</target>
-      </trans-unit>
-      <trans-unit id="nEIq_sW" resname="label.link.infections">
-        <source>label.link.infections</source>
-        <target>Potential infectious diseases that may require isolation at the destination hospital.</target>
-      </trans-unit>
-      <trans-unit id="FMtrgMt" resname="label.link.occasions">
-        <source>label.link.occasions</source>
-        <target>Origins or contexts of an emergency case, such as public space, doctor’s office, or home environment.</target>
-      </trans-unit>
-      <trans-unit id=".Ub3pp_" resname="label.link.specialities">
-        <source>label.link.specialities</source>
-        <target>Overarching medical fields such as Internal Medicine or Surgery.</target>
-      </trans-unit>
-      <trans-unit id="QgJjQWe" resname="label.location">
-        <source>label.location</source>
-        <target>Location</target>
-      </trans-unit>
-      <trans-unit id="YgXFkLl" resname="label.locations">
-        <source>label.locations</source>
-        <target>Locations</target>
-      </trans-unit>
-      <trans-unit id="vLldAk9" resname="label.login">
-        <source>label.login</source>
-        <target>Login</target>
-      </trans-unit>
-      <trans-unit id="3hZO6SI" resname="label.logout">
-        <source>label.logout</source>
-        <target>Logout</target>
-      </trans-unit>
-      <trans-unit id="aSiMEIt" resname="label.name">
-        <source>label.name</source>
-        <target>Name</target>
-      </trans-unit>
-      <trans-unit id="C62419s" resname="label.next">
-        <source>label.next</source>
-        <target>Next</target>
-      </trans-unit>
-      <trans-unit id="2PKGSjQ" resname="label.no_indication">
-        <source>label.no_indication</source>
-        <target>No normalized indication</target>
-      </trans-unit>
-      <trans-unit id="jtXVNCd" resname="label.no_infection">
-        <source>label.no_infection</source>
-        <target>No infection</target>
-      </trans-unit>
-      <trans-unit id="55Ev2LR" resname="label.no_occasion">
-        <source>label.no_occasion</source>
-        <target>No occasion</target>
-      </trans-unit>
-      <trans-unit id="OZs.ee2" resname="label.normalized">
-        <source>label.normalized</source>
-        <target>Normalized Indication</target>
-      </trans-unit>
-      <trans-unit id="u3qOfXy" resname="label.occasion">
-        <source>label.occasion</source>
-        <target>Occasion</target>
-      </trans-unit>
-      <trans-unit id="Pak93P_" resname="label.pagination_numbers">
-        <source>label.pagination_numbers</source>
-        <target>Showing {first}-{last} of {total} results.</target>
-      </trans-unit>
-      <trans-unit id="XGA5uHp" resname="label.pagination_results">
-        <source>label.pagination_results</source>
-        <target>{pageSize} records</target>
-      </trans-unit>
-      <trans-unit id="wwkgz5d" resname="label.participation">
-        <source>label.participation</source>
-        <target>Participation</target>
-      </trans-unit>
-      <trans-unit id="dzmkSoD" resname="label.pregnant">
-        <source>label.pregnant</source>
-        <target>Pregnant</target>
-      </trans-unit>
-      <trans-unit id="qRwFlMY" resname="label.previous">
-        <source>label.previous</source>
-        <target>Previous</target>
-      </trans-unit>
-      <trans-unit id="WhXFmcQ" resname="label.properties">
-        <source>label.properties</source>
-        <target>Properties</target>
-      </trans-unit>
-      <trans-unit id="2p6VMAQ" resname="label.requires_cathlab">
-        <source>label.requires_cathlab</source>
-        <target>Requires Cathlab</target>
-      </trans-unit>
-      <trans-unit id="6gqKw0h" resname="label.requires_resus">
-        <source>label.requires_resus</source>
-        <target>Requires Resus</target>
-      </trans-unit>
-      <trans-unit id="BFHLZwL" resname="label.resus.is_required">
-        <source>label.resus.is_required</source>
-        <target>Resus is required</target>
-      </trans-unit>
-      <trans-unit id="nNAyIKq" resname="label.resus.not_required">
-        <source>label.resus.not_required</source>
-        <target>Resus not required</target>
-      </trans-unit>
-      <trans-unit id="iw9qUxb" resname="label.search">
-        <source>label.search</source>
-        <target>Search</target>
-      </trans-unit>
-      <trans-unit id="E78H_sa" resname="label.search_for">
-        <source>label.search_for</source>
-        <target>Searching for: </target>
-      </trans-unit>
-      <trans-unit id="uARVlbj" resname="label.search_no_results">
-        <source>label.search_no_results</source>
-        <target>Sorry, no results found.</target>
-      </trans-unit>
-      <trans-unit id="_gI37hZ" resname="label.signin">
-        <source>label.signin</source>
-        <target>Sign in</target>
-      </trans-unit>
-      <trans-unit id="qrQpMy4" resname="label.size">
-        <source>label.size</source>
-        <target>Size (Beds)</target>
-      </trans-unit>
-      <trans-unit id="TbPF.SF" resname="label.speciality">
-        <source>label.speciality</source>
-        <target>Speciality</target>
-      </trans-unit>
-      <trans-unit id="UpIMnT4" resname="label.state">
-        <source>label.state</source>
-        <target>State</target>
-      </trans-unit>
-      <trans-unit id="8nXIScQ" resname="label.status">
-        <source>label.status</source>
-        <target>Status</target>
-      </trans-unit>
-      <trans-unit id="MWqKCgE" resname="label.tier">
-        <source>label.tier</source>
-        <target>Tier</target>
-      </trans-unit>
-      <trans-unit id="obqbGpe" resname="label.timestamps">
-        <source>label.timestamps</source>
-        <target>Timestamps</target>
-      </trans-unit>
-      <trans-unit id="lwBygYd" resname="label.transport">
-        <source>label.transport</source>
-        <target>Mode of transport</target>
-      </trans-unit>
-      <trans-unit id="qSTAVrt" resname="label.transportType.air">
-        <source>label.transportType.air</source>
-        <target>Air</target>
-      </trans-unit>
-      <trans-unit id="8enqG3e" resname="label.transportType.ground">
-        <source>label.transportType.ground</source>
-        <target>Ground</target>
-      </trans-unit>
-      <trans-unit id="ZQcON8C" resname="label.type">
-        <source>label.type</source>
-        <target>Type</target>
-      </trans-unit>
-      <trans-unit id="qTLpU1R" resname="label.updated_at">
-        <source>label.updated_at</source>
-        <target>Updated at</target>
-      </trans-unit>
-      <trans-unit id="YCDRQcj" resname="label.updated_by">
-        <source>label.updated_by</source>
-        <target>Updated by</target>
-      </trans-unit>
-      <trans-unit id="2WVqGGv" resname="label.urgency">
-        <source>label.urgency</source>
-        <target>Urgency</target>
-      </trans-unit>
-      <trans-unit id="krNU.kK" resname="label.urgency.delayed">
-        <source>label.urgency.delayed</source>
-        <target>Delayed</target>
-      </trans-unit>
-      <trans-unit id="3kkNmIA" resname="label.urgency.immediate">
-        <source>label.urgency.immediate</source>
-        <target>Immediate</target>
-      </trans-unit>
-      <trans-unit id="Ogn7GN1" resname="label.urgency.urgent">
-        <source>label.urgency.urgent</source>
-        <target>Urgent</target>
-      </trans-unit>
-      <trans-unit id="JU6yi9y" resname="label.without_owner">
-        <source>label.without_owner</source>
-        <target>Without owner</target>
-      </trans-unit>
-      <trans-unit id="ZdrXMaQ" resname="link.allocations">
-        <source>link.allocations</source>
-        <target>Allocations</target>
-      </trans-unit>
-      <trans-unit id="DPbhibY" resname="link.assignments">
-        <source>link.assignments</source>
-        <target>Assignments</target>
-      </trans-unit>
-      <trans-unit id="kU2zrlb" resname="link.data">
-        <source>link.data</source>
-        <target>Data</target>
-      </trans-unit>
-      <trans-unit id="AWjlM2g" resname="link.departments">
-        <source>link.departments</source>
-        <target>Departments</target>
-      </trans-unit>
-      <trans-unit id="V.DoFiU" resname="link.dispatch_areas">
-        <source>link.dispatch_areas</source>
-        <target>Dispatch Areas</target>
-      </trans-unit>
-      <trans-unit id="9XmczE8" resname="link.home">
-        <source>link.home</source>
-        <target>Home</target>
-      </trans-unit>
-      <trans-unit id="xnwGILx" resname="link.hospitals">
-        <source>link.hospitals</source>
-        <target>Hospitals</target>
-      </trans-unit>
-      <trans-unit id="000N_Am" resname="link.import">
-        <source>link.import</source>
-        <target>Import</target>
-      </trans-unit>
-      <trans-unit id="fEFqowr" resname="link.indications">
-        <source>link.indications</source>
-        <target>Indications</target>
-      </trans-unit>
-      <trans-unit id="hmthOUc" resname="link.infections">
-        <source>link.infections</source>
-        <target>Infections</target>
-      </trans-unit>
-      <trans-unit id="C4XIIu3" resname="link.occasions">
-        <source>link.occasions</source>
-        <target>Occasions</target>
-      </trans-unit>
-      <trans-unit id="y8kuDU3" resname="link.specialities">
-        <source>link.specialities</source>
-        <target>Specialities</target>
-      </trans-unit>
-      <trans-unit id="qo4nUz4" resname="link.statistics">
-        <source>link.statistics</source>
-        <target>Statistics</target>
-      </trans-unit>
-      <trans-unit id="xTIpefW" resname="link.stats.dashboard">
-        <source>link.stats.dashboard</source>
-        <target>Overview</target>
-      </trans-unit>
-      <trans-unit id="cIyk7DA" resname="link.stats.hospitals">
-        <source>link.stats.hospitals</source>
-        <target>Hospitals</target>
-      </trans-unit>
-      <trans-unit id="RRCYtAu" resname="link.stats.time_grid">
-        <source>link.stats.time_grid</source>
-        <target>Time Grid</target>
-      </trans-unit>
-      <trans-unit id="BXqZdqI" resname="link.stats.transport_time">
-        <source>link.stats.transport_time</source>
-        <target>Transport Time</target>
-      </trans-unit>
-      <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
-        <source>subtitle.indication.assign</source>
-        <target>This form allows you to link a raw indication with a corresponding normalized indication from the
-            standardized list. By selecting the appropriate normalized indication, you help ensure consistent data
-            classification and make further analysis and reporting more accurate.</target>
-      </trans-unit>
-      <trans-unit id="GhGeHI9" resname="title.allocation.list">
-        <source>title.allocation.list</source>
-        <target>Listing Allocations</target>
-      </trans-unit>
-      <trans-unit id="fykBocL" resname="title.allocation.show">
-        <source>title.allocation.show</source>
-        <target>Show Allocation Detail</target>
-      </trans-unit>
-      <trans-unit id="2yVgyK_" resname="title.assignment.list">
-        <source>title.assignment.list</source>
-        <target>Listing Assignments</target>
-      </trans-unit>
-      <trans-unit id="6k49n8G" resname="title.data">
-        <source>title.data</source>
-        <target>Data</target>
-      </trans-unit>
-      <trans-unit id="psOkg8i" resname="title.data.index">
-        <source>title.data.index</source>
-        <target>Data Overview</target>
-      </trans-unit>
-      <trans-unit id="mUiiLKD" resname="title.departments.list">
-        <source>title.departments.list</source>
-        <target>Listing Departments</target>
-      </trans-unit>
-      <trans-unit id="edHHJTH" resname="title.dispatch_area.list">
-        <source>title.dispatch_area.list</source>
-        <target>Listing Dispatch Areas</target>
-      </trans-unit>
-      <trans-unit id="0bnImEj" resname="title.hospital.list">
-        <source>title.hospital.list</source>
-        <target>Listing Hospitals</target>
-      </trans-unit>
-      <trans-unit id="ipAfzN6" resname="title.hospital_show">
-        <source>title.hospital_show</source>
-        <target>Showing Hospital detail</target>
-      </trans-unit>
-      <trans-unit id="J7c0M1U" resname="title.import.index">
-        <source>title.import.index</source>
-        <target>Listing Imports</target>
-      </trans-unit>
-      <trans-unit id="u4I7D4_" resname="title.import.new">
-        <source>title.import.new</source>
-        <target>Create new Import</target>
-      </trans-unit>
-      <trans-unit id="tBRiow3" resname="title.import.show">
-        <source>title.import.show</source>
-        <target>Showing Import detail</target>
-      </trans-unit>
-      <trans-unit id="njXB7xf" resname="title.indication.assign">
-        <source>title.indication.assign</source>
-        <target>Assign Indications</target>
-      </trans-unit>
-      <trans-unit id="EDuCAXA" resname="title.indication.list">
-        <source>title.indication.list</source>
-        <target>Listing Indications</target>
-      </trans-unit>
-      <trans-unit id="wCSNNqO" resname="title.infection.list">
-        <source>title.infection.list</source>
-        <target>Listing Infections</target>
-      </trans-unit>
-      <trans-unit id="Q.Y20KD" resname="title.login">
-        <source>title.login</source>
-        <target>Login</target>
-      </trans-unit>
-      <trans-unit id="x2zBU9m" resname="title.occasion.list">
-        <source>title.occasion.list</source>
-        <target>Listing Occasions</target>
-      </trans-unit>
-      <trans-unit id="uhopb3E" resname="title.speciality.list">
-        <source>title.speciality.list</source>
-        <target>Listing Specialities</target>
-      </trans-unit>
-    </body>
-  </file>
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <header>
+            <tool tool-id="symfony" tool-name="Symfony"/>
+        </header>
+        <body>
+            <trans-unit id="TwkKbdo" resname="B+">
+                <source>B+</source>
+                <target>B+</target>
+            </trans-unit>
+            <trans-unit id="4A29cgX" resname="H+">
+                <source>H+</source>
+                <target>H+</target>
+            </trans-unit>
+            <trans-unit id="rZqleUO" resname="N+">
+                <source>N+</source>
+                <target>N+</target>
+            </trans-unit>
+            <trans-unit id="OypyADq" resname="R+">
+                <source>R+</source>
+                <target>R+</target>
+            </trans-unit>
+            <trans-unit id="InZUSNI" resname="S+">
+                <source>S+</source>
+                <target>S+</target>
+            </trans-unit>
+            <trans-unit id="45h1fK3" resname="allocation.urgency.1">
+                <source>allocation.urgency.1</source>
+                <target>Immediate</target>
+            </trans-unit>
+            <trans-unit id="jbrRozU" resname="allocation.urgency.2">
+                <source>allocation.urgency.2</source>
+                <target>Urgent</target>
+            </trans-unit>
+            <trans-unit id="ndIvw1v" resname="allocation.urgency.3">
+                <source>allocation.urgency.3</source>
+                <target>Delayed</target>
+            </trans-unit>
+            <trans-unit id="H1OgFhe" resname="allocations.field.isPregnant">
+                <source>allocations.field.isPregnant</source>
+                <target>Is Pregnant</target>
+            </trans-unit>
+            <trans-unit id="T4rWOlm" resname="allocations.field.isShock">
+                <source>allocations.field.isShock</source>
+                <target>Is in Shock</target>
+            </trans-unit>
+            <trans-unit id="sldZ8hU" resname="allocations.field.isVentilated">
+                <source>allocations.field.isVentilated</source>
+                <target>Is Ventilated</target>
+            </trans-unit>
+            <trans-unit id="8pZlK.0" resname="btn.cancel">
+                <source>btn.cancel</source>
+                <target>Cancel</target>
+            </trans-unit>
+            <trans-unit id="PgKXiv_" resname="btn.save.changes">
+                <source>btn.save.changes</source>
+                <target>Save changes</target>
+            </trans-unit>
+            <trans-unit id="EiKSkqu" resname="field.age">
+                <source>field.age</source>
+                <target>Age</target>
+            </trans-unit>
+            <trans-unit id="am2xMRr" resname="field.false">
+                <source>field.false</source>
+                <target>False</target>
+            </trans-unit>
+            <trans-unit id="ulUyIcP" resname="field.gender">
+                <source>field.gender</source>
+                <target>Gender</target>
+            </trans-unit>
+            <trans-unit id="G2hTjTe" resname="field.infection">
+                <source>field.infection</source>
+                <target>Is infectious?</target>
+            </trans-unit>
+            <trans-unit id="nbfKbvC" resname="field.isCPR">
+                <source>field.isCPR</source>
+                <target>Is CPR</target>
+            </trans-unit>
+            <trans-unit id="zUpvkUF" resname="field.isWithPhysician">
+                <source>field.isWithPhysician</source>
+                <target>Is with Physician</target>
+            </trans-unit>
+            <trans-unit id="dr5rc5A" resname="field.isWithPhysician.false">
+                <source>field.isWithPhysician.false</source>
+                <target>Without Physician</target>
+            </trans-unit>
+            <trans-unit id="Zjb_FKn" resname="field.isWithPhysician.true">
+                <source>field.isWithPhysician.true</source>
+                <target>With Physician</target>
+            </trans-unit>
+            <trans-unit id="uFBVePw" resname="field.requiresCathlab">
+                <source>field.requiresCathlab</source>
+                <target>Requires Cathlab</target>
+            </trans-unit>
+            <trans-unit id="AUQV8qD" resname="field.requiresResus">
+                <source>field.requiresResus</source>
+                <target>Requires Resus</target>
+            </trans-unit>
+            <trans-unit id="d833nvj" resname="field.transportType">
+                <source>field.transportType</source>
+                <target>Transport Type</target>
+            </trans-unit>
+            <trans-unit id="9rOVgrM" resname="field.transportType.unknown">
+                <source>field.transportType.unknown</source>
+                <target>Unknown</target>
+            </trans-unit>
+            <trans-unit id="XMMwdWV" resname="field.true">
+                <source>field.true</source>
+                <target>True</target>
+            </trans-unit>
+            <trans-unit id="GvBH7QF" resname="field.urgency">
+                <source>field.urgency</source>
+                <target>Urgency</target>
+            </trans-unit>
+            <trans-unit id="oB3P1Zq" resname="flash.import.created">
+                <source>flash.import.created</source>
+                <target>New Import has been created successfully!</target>
+            </trans-unit>
+            <trans-unit id="qCQxM_A" resname="flash.indication.assigned">
+                <source>flash.indication.assigned</source>
+                <target>Normalized indication has been assigned.</target>
+            </trans-unit>
+            <trans-unit id="IlEDRed" resname="help.search_no_results">
+                <source>help.search_no_results</source>
+                <target>Try adjusting your search or filter to find what you're looking for.</target>
+            </trans-unit>
+            <trans-unit id="SZjOELg" resname="hospital.location.Mixed">
+                <source>hospital.location.Mixed</source>
+                <target>Mixed Location</target>
+            </trans-unit>
+            <trans-unit id="hCNpkSc" resname="hospital.location.Rural">
+                <source>hospital.location.Rural</source>
+                <target>Rural Location</target>
+            </trans-unit>
+            <trans-unit id="HrZvN0R" resname="hospital.location.Urban">
+                <source>hospital.location.Urban</source>
+                <target>Urban Location</target>
+            </trans-unit>
+            <trans-unit id="2GXLZcX" resname="hospital.size.Large">
+                <source>hospital.size.Large</source>
+                <target>Large Size</target>
+            </trans-unit>
+            <trans-unit id="b8NtI4L" resname="hospital.size.Medium">
+                <source>hospital.size.Medium</source>
+                <target>Medium Size</target>
+            </trans-unit>
+            <trans-unit id="7pO0v2a" resname="hospital.size.Small">
+                <source>hospital.size.Small</source>
+                <target>Small Size</target>
+            </trans-unit>
+            <trans-unit id="brJg_gq" resname="hospital.tier.Basic">
+                <source>hospital.tier.Basic</source>
+                <target>Basic Tier</target>
+            </trans-unit>
+            <trans-unit id="UhRsM6s" resname="hospital.tier.Extended">
+                <source>hospital.tier.Extended</source>
+                <target>Extended Tier</target>
+            </trans-unit>
+            <trans-unit id="6MDw2dh" resname="hospital.tier.Full">
+                <source>hospital.tier.Full</source>
+                <target>Full Tier</target>
+            </trans-unit>
+            <trans-unit id="2_8EtuE" resname="import.action.preview_rows">
+                <source>import.action.preview_rows</source>
+                <target>Preview Rows</target>
+            </trans-unit>
+            <trans-unit id="T_sGody" resname="import.field.fileExtension">
+                <source>import.field.fileExtension</source>
+                <target>Extension</target>
+            </trans-unit>
+            <trans-unit id="XWUPA8u" resname="import.field.fileMimeType">
+                <source>import.field.fileMimeType</source>
+                <target>Mime Type</target>
+            </trans-unit>
+            <trans-unit id="WKEj59F" resname="import.field.fileSize">
+                <source>import.field.fileSize</source>
+                <target>File size</target>
+            </trans-unit>
+            <trans-unit id="_AQ_ZqM" resname="import.field.rejectionRate">
+                <source>import.field.rejectionRate</source>
+                <target>Rejection Rate</target>
+            </trans-unit>
+            <trans-unit id="YIl4XxP" resname="import.field.rowCount">
+                <source>import.field.rowCount</source>
+                <target>Row count</target>
+            </trans-unit>
+            <trans-unit id="Au8OS5f" resname="import.field.rowsPassed">
+                <source>import.field.rowsPassed</source>
+                <target>Successful rows</target>
+            </trans-unit>
+            <trans-unit id="OGahhM8" resname="import.field.rowsRejected">
+                <source>import.field.rowsRejected</source>
+                <target>Rejected rows</target>
+            </trans-unit>
+            <trans-unit id="oiSvDD9" resname="import.field.runCount">
+                <source>import.field.runCount</source>
+                <target>Run count</target>
+            </trans-unit>
+            <trans-unit id="1qEVxEZ" resname="import.field.runTime">
+                <source>import.field.runTime</source>
+                <target>Run time</target>
+            </trans-unit>
+            <trans-unit id="twzu6Ol" resname="import.field.status">
+                <source>import.field.status</source>
+                <target>Status</target>
+            </trans-unit>
+            <trans-unit id="v6YYkzw" resname="import.field.type">
+                <source>import.field.type</source>
+                <target>Type</target>
+            </trans-unit>
+            <trans-unit id="ndwEyiW" resname="imports.field.filePath">
+                <source>imports.field.filePath</source>
+                <target>File path</target>
+            </trans-unit>
+            <trans-unit id="vsKohzn" resname="indication.tab.normalized">
+                <source>indication.tab.normalized</source>
+                <target>Normalized Indication</target>
+            </trans-unit>
+            <trans-unit id="8p7II8w" resname="indication.tab.raw">
+                <source>indication.tab.raw</source>
+                <target>Raw Indication</target>
+            </trans-unit>
+            <trans-unit id="CEVgeJ7" resname="label.address">
+                <source>label.address</source>
+                <target>Address</target>
+            </trans-unit>
+            <trans-unit id="dnzVgba" resname="label.age">
+                <source>label.age</source>
+                <target>Age</target>
+            </trans-unit>
+            <trans-unit id="3bIHt8G" resname="label.all_dispatch_areas">
+                <source>label.all_dispatch_areas</source>
+                <target>All Dispatch Areas</target>
+            </trans-unit>
+            <trans-unit id="BAuAzav" resname="label.all_indications">
+                <source>label.all_indications</source>
+                <target>All indications</target>
+            </trans-unit>
+            <trans-unit id="t2o1BoP" resname="label.all_locations">
+                <source>label.all_locations</source>
+                <target>All Locations</target>
+            </trans-unit>
+            <trans-unit id="OIVPERw" resname="label.all_modes">
+                <source>label.all_modes</source>
+                <target>All Modes</target>
+            </trans-unit>
+            <trans-unit id="GRL.4Ts" resname="label.all_sizes">
+                <source>label.all_sizes</source>
+                <target>All Sizes</target>
+            </trans-unit>
+            <trans-unit id="wcORf5K" resname="label.all_states">
+                <source>label.all_states</source>
+                <target>All States</target>
+            </trans-unit>
+            <trans-unit id=".58BClh" resname="label.all_tiers">
+                <source>label.all_tiers</source>
+                <target>All Tiers</target>
+            </trans-unit>
+            <trans-unit id="b19sL_Y" resname="label.all_urgencies">
+                <source>label.all_urgencies</source>
+                <target>All urgencies</target>
+            </trans-unit>
+            <trans-unit id="6QPDzOS" resname="label.allocation">
+                <source>label.allocation</source>
+                <target>Allocation</target>
+            </trans-unit>
+            <trans-unit id="InXuxeP" resname="label.arrival_at">
+                <source>label.arrival_at</source>
+                <target>Arrival at</target>
+            </trans-unit>
+            <trans-unit id="31aVbXL" resname="label.assignment">
+                <source>label.assignment</source>
+                <target>Assignment</target>
+            </trans-unit>
+            <trans-unit id="1GXuSep" resname="label.back_to_list">
+                <source>label.back_to_list</source>
+                <target>Back to list</target>
+            </trans-unit>
+            <trans-unit id="LsBidrc" resname="label.background">
+                <source>label.background</source>
+                <target>Background</target>
+            </trans-unit>
+            <trans-unit id="qEe9Os6" resname="label.basic_info">
+                <source>label.basic_info</source>
+                <target>Basic info</target>
+            </trans-unit>
+            <trans-unit id="Aa5Q3jh" resname="label.cathlab.is_required">
+                <source>label.cathlab.is_required</source>
+                <target>Cathlab is required</target>
+            </trans-unit>
+            <trans-unit id="OQ78O9H" resname="label.cathlab.not_required">
+                <source>label.cathlab.not_required</source>
+                <target>Cathlab not required</target>
+            </trans-unit>
+            <trans-unit id="rsh4cOO" resname="label.created_at">
+                <source>label.created_at</source>
+                <target>Created at</target>
+            </trans-unit>
+            <trans-unit id="fyW6_QN" resname="label.created_by">
+                <source>label.created_by</source>
+                <target>Created by</target>
+            </trans-unit>
+            <trans-unit id="yxZ6XcL" resname="label.data.index.subtitle">
+                <source>label.data.index.subtitle</source>
+                <target>Overview of all available data records</target>
+            </trans-unit>
+            <trans-unit id="7Oebk.l" resname="label.dispatch_area">
+                <source>label.dispatch_area</source>
+                <target>Dispatch Area</target>
+            </trans-unit>
+            <trans-unit id="JGx905C" resname="label.filter.results">
+                <source>label.filter.results</source>
+                <target>Filter Results</target>
+            </trans-unit>
+            <trans-unit id="RPew0g8" resname="label.filters">
+                <source>label.filters</source>
+                <target>Filters</target>
+            </trans-unit>
+            <trans-unit id="NnR3dCM" resname="label.filters.active">
+                <source>label.filters.active</source>
+                <target>Active filters</target>
+            </trans-unit>
+            <trans-unit id="5qtkGtz" resname="label.filters.apply">
+                <source>label.filters.apply</source>
+                <target>Apply Filters</target>
+            </trans-unit>
+            <trans-unit id="xxRgaom" resname="label.filters.reset">
+                <source>label.filters.reset</source>
+                <target>Reset Filters</target>
+            </trans-unit>
+            <trans-unit id="cpKk2WF" resname="label.gender.female">
+                <source>label.gender.female</source>
+                <target>Female</target>
+            </trans-unit>
+            <trans-unit id="jEyk7sz" resname="label.gender.male">
+                <source>label.gender.male</source>
+                <target>Male</target>
+            </trans-unit>
+            <trans-unit id="0z0VQ32" resname="label.gender.other">
+                <source>label.gender.other</source>
+                <target>Other</target>
+            </trans-unit>
+            <trans-unit id="wyzinGh" resname="label.hospital">
+                <source>label.hospital</source>
+                <target>Hospital</target>
+            </trans-unit>
+            <trans-unit id="O4DzdiL" resname="label.hospital_beds">
+                <source>label.hospital_beds</source>
+                <target>Beds</target>
+            </trans-unit>
+            <trans-unit id="lylZSZS" resname="label.hospital_location">
+                <source>label.hospital_location</source>
+                <target>Location</target>
+            </trans-unit>
+            <trans-unit id="r.6slYv" resname="label.hospital_size">
+                <source>label.hospital_size</source>
+                <target>Size</target>
+            </trans-unit>
+            <trans-unit id="ja0Zumw" resname="label.hospital_tier">
+                <source>label.hospital_tier</source>
+                <target>Tier</target>
+            </trans-unit>
+            <trans-unit id="7GUsfM0" resname="label.hospitals.participating">
+                <source>label.hospitals.participating</source>
+                <target>Participating Hospitals</target>
+            </trans-unit>
+            <trans-unit id="jGMjpWb" resname="label.id">
+                <source>label.id</source>
+                <target>ID</target>
+            </trans-unit>
+            <trans-unit id="2suWc6O" resname="label.import.new">
+                <source>label.import.new</source>
+                <target>Create new Import</target>
+            </trans-unit>
+            <trans-unit id="UcQSwTu" resname="label.import.section.quick_actions">
+                <source>label.import.section.quick_actions</source>
+                <target>Quick actions</target>
+            </trans-unit>
+            <trans-unit id="ssEMXJ8" resname="label.import.section.run">
+                <source>label.import.section.run</source>
+                <target>Run results</target>
+            </trans-unit>
+            <trans-unit id="_i2.tz3" resname="label.import.section.source_file">
+                <source>label.import.section.source_file</source>
+                <target>Source file</target>
+            </trans-unit>
+            <trans-unit id="UcOVbOd" resname="label.indication">
+                <source>label.indication</source>
+                <target>Indication</target>
+            </trans-unit>
+            <trans-unit id="vBKlakB" resname="label.indication.code">
+                <source>label.indication.code</source>
+                <target>Code</target>
+            </trans-unit>
+            <trans-unit id="kpEIeqH" resname="label.indication.normalized">
+                <source>label.indication.normalized</source>
+                <target>Normalized Indication</target>
+            </trans-unit>
+            <trans-unit id="K7xiN6v" resname="label.indication.raw">
+                <source>label.indication.raw</source>
+                <target>Raw Indication</target>
+            </trans-unit>
+            <trans-unit id="FAxaB50" resname="label.is_participating">
+                <source>label.is_participating</source>
+                <target>Participation</target>
+            </trans-unit>
+            <trans-unit id="H1xh.Cr" resname="label.is_participating.not">
+                <source>label.is_participating.not</source>
+                <target>Is not participating</target>
+            </trans-unit>
+            <trans-unit id="xA8v84b" resname="label.is_participating.yes">
+                <source>label.is_participating.yes</source>
+                <target>Is participating</target>
+            </trans-unit>
+            <trans-unit id="KrdI.1U" resname="label.last_change">
+                <source>label.last_change</source>
+                <target>Last change</target>
+            </trans-unit>
+            <trans-unit id="QlpT4ZW" resname="label.last_changed_at">
+                <source>label.last_changed_at</source>
+                <target>Last changed at</target>
+            </trans-unit>
+            <trans-unit id="vCMHgqm" resname="label.last_changed_by">
+                <source>label.last_changed_by</source>
+                <target>Last changed by</target>
+            </trans-unit>
+            <trans-unit id="mcp_slZ" resname="label.link.allocations">
+                <source>label.link.allocations</source>
+                <target>Emergency service deployments recorded in IVENA with their details.</target>
+            </trans-unit>
+            <trans-unit id="_jHXFXz" resname="label.link.assignments">
+                <source>label.link.assignments</source>
+                <target>Indicates who initiated the hospital selection, e.g. patient, physician, or emergency service.</target>
+            </trans-unit>
+            <trans-unit id="DY0xtzN" resname="label.link.departments">
+                <source>label.link.departments</source>
+                <target>Specialized clinical units within a medical field, e.g. Cardiology or General Surgery.</target>
+            </trans-unit>
+            <trans-unit id="lcY9EMq" resname="label.link.dispatch_areas">
+                <source>label.link.dispatch_areas</source>
+                <target>Regions covered by emergency dispatch centers</target>
+            </trans-unit>
+            <trans-unit id="EvJ25zq" resname="label.link.hospitals">
+                <source>label.link.hospitals</source>
+                <target>Facilities delivering medical care and patient services.</target>
+            </trans-unit>
+            <trans-unit id="fPY_MOE" resname="label.link.indications">
+                <source>label.link.indications</source>
+                <target>Preliminary suspected diagnosis summarizing the primary medical problem or injury at the scene.</target>
+            </trans-unit>
+            <trans-unit id="nEIq_sW" resname="label.link.infections">
+                <source>label.link.infections</source>
+                <target>Potential infectious diseases that may require isolation at the destination hospital.</target>
+            </trans-unit>
+            <trans-unit id="FMtrgMt" resname="label.link.occasions">
+                <source>label.link.occasions</source>
+                <target>Origins or contexts of an emergency case, such as public space, doctor’s office, or home environment.</target>
+            </trans-unit>
+            <trans-unit id=".Ub3pp_" resname="label.link.specialities">
+                <source>label.link.specialities</source>
+                <target>Overarching medical fields such as Internal Medicine or Surgery.</target>
+            </trans-unit>
+            <trans-unit id="QgJjQWe" resname="label.location">
+                <source>label.location</source>
+                <target>Location</target>
+            </trans-unit>
+            <trans-unit id="YgXFkLl" resname="label.locations">
+                <source>label.locations</source>
+                <target>Locations</target>
+            </trans-unit>
+            <trans-unit id="vLldAk9" resname="label.login">
+                <source>label.login</source>
+                <target>Login</target>
+            </trans-unit>
+            <trans-unit id="3hZO6SI" resname="label.logout">
+                <source>label.logout</source>
+                <target>Logout</target>
+            </trans-unit>
+            <trans-unit id="aSiMEIt" resname="label.name">
+                <source>label.name</source>
+                <target>Name</target>
+            </trans-unit>
+            <trans-unit id="C62419s" resname="label.next">
+                <source>label.next</source>
+                <target>Next</target>
+            </trans-unit>
+            <trans-unit id="2PKGSjQ" resname="label.no_indication">
+                <source>label.no_indication</source>
+                <target>No normalized indication</target>
+            </trans-unit>
+            <trans-unit id="jtXVNCd" resname="label.no_infection">
+                <source>label.no_infection</source>
+                <target>No infection</target>
+            </trans-unit>
+            <trans-unit id="55Ev2LR" resname="label.no_occasion">
+                <source>label.no_occasion</source>
+                <target>No occasion</target>
+            </trans-unit>
+            <trans-unit id="OZs.ee2" resname="label.normalized">
+                <source>label.normalized</source>
+                <target>Normalized Indication</target>
+            </trans-unit>
+            <trans-unit id="u3qOfXy" resname="label.occasion">
+                <source>label.occasion</source>
+                <target>Occasion</target>
+            </trans-unit>
+            <trans-unit id="Pak93P_" resname="label.pagination_numbers">
+                <source>label.pagination_numbers</source>
+                <target>Showing {first}-{last} of {total} results.</target>
+            </trans-unit>
+            <trans-unit id="XGA5uHp" resname="label.pagination_results">
+                <source>label.pagination_results</source>
+                <target>{pageSize} records</target>
+            </trans-unit>
+            <trans-unit id="wwkgz5d" resname="label.participation">
+                <source>label.participation</source>
+                <target>Participation</target>
+            </trans-unit>
+            <trans-unit id="dzmkSoD" resname="label.pregnant">
+                <source>label.pregnant</source>
+                <target>Pregnant</target>
+            </trans-unit>
+            <trans-unit id="qRwFlMY" resname="label.previous">
+                <source>label.previous</source>
+                <target>Previous</target>
+            </trans-unit>
+            <trans-unit id="WhXFmcQ" resname="label.properties">
+                <source>label.properties</source>
+                <target>Properties</target>
+            </trans-unit>
+            <trans-unit id="2p6VMAQ" resname="label.requires_cathlab">
+                <source>label.requires_cathlab</source>
+                <target>Requires Cathlab</target>
+            </trans-unit>
+            <trans-unit id="6gqKw0h" resname="label.requires_resus">
+                <source>label.requires_resus</source>
+                <target>Requires Resus</target>
+            </trans-unit>
+            <trans-unit id="BFHLZwL" resname="label.resus.is_required">
+                <source>label.resus.is_required</source>
+                <target>Resus is required</target>
+            </trans-unit>
+            <trans-unit id="nNAyIKq" resname="label.resus.not_required">
+                <source>label.resus.not_required</source>
+                <target>Resus not required</target>
+            </trans-unit>
+            <trans-unit id="iw9qUxb" resname="label.search">
+                <source>label.search</source>
+                <target>Search</target>
+            </trans-unit>
+            <trans-unit id="E78H_sa" resname="label.search_for">
+                <source>label.search_for</source>
+                <target>Searching for: </target>
+            </trans-unit>
+            <trans-unit id="uARVlbj" resname="label.search_no_results">
+                <source>label.search_no_results</source>
+                <target>Sorry, no results found.</target>
+            </trans-unit>
+            <trans-unit id="_gI37hZ" resname="label.signin">
+                <source>label.signin</source>
+                <target>Sign in</target>
+            </trans-unit>
+            <trans-unit id="qrQpMy4" resname="label.size">
+                <source>label.size</source>
+                <target>Size (Beds)</target>
+            </trans-unit>
+            <trans-unit id="TbPF.SF" resname="label.speciality">
+                <source>label.speciality</source>
+                <target>Speciality</target>
+            </trans-unit>
+            <trans-unit id="UpIMnT4" resname="label.state">
+                <source>label.state</source>
+                <target>State</target>
+            </trans-unit>
+            <trans-unit id="8nXIScQ" resname="label.status">
+                <source>label.status</source>
+                <target>Status</target>
+            </trans-unit>
+            <trans-unit id="MWqKCgE" resname="label.tier">
+                <source>label.tier</source>
+                <target>Tier</target>
+            </trans-unit>
+            <trans-unit id="obqbGpe" resname="label.timestamps">
+                <source>label.timestamps</source>
+                <target>Timestamps</target>
+            </trans-unit>
+            <trans-unit id="lwBygYd" resname="label.transport">
+                <source>label.transport</source>
+                <target>Mode of transport</target>
+            </trans-unit>
+            <trans-unit id="qSTAVrt" resname="label.transportType.air">
+                <source>label.transportType.air</source>
+                <target>Air</target>
+            </trans-unit>
+            <trans-unit id="8enqG3e" resname="label.transportType.ground">
+                <source>label.transportType.ground</source>
+                <target>Ground</target>
+            </trans-unit>
+            <trans-unit id="ZQcON8C" resname="label.type">
+                <source>label.type</source>
+                <target>Type</target>
+            </trans-unit>
+            <trans-unit id="qTLpU1R" resname="label.updated_at">
+                <source>label.updated_at</source>
+                <target>Updated at</target>
+            </trans-unit>
+            <trans-unit id="YCDRQcj" resname="label.updated_by">
+                <source>label.updated_by</source>
+                <target>Updated by</target>
+            </trans-unit>
+            <trans-unit id="2WVqGGv" resname="label.urgency">
+                <source>label.urgency</source>
+                <target>Urgency</target>
+            </trans-unit>
+            <trans-unit id="krNU.kK" resname="label.urgency.delayed">
+                <source>label.urgency.delayed</source>
+                <target>Delayed</target>
+            </trans-unit>
+            <trans-unit id="3kkNmIA" resname="label.urgency.immediate">
+                <source>label.urgency.immediate</source>
+                <target>Immediate</target>
+            </trans-unit>
+            <trans-unit id="Ogn7GN1" resname="label.urgency.urgent">
+                <source>label.urgency.urgent</source>
+                <target>Urgent</target>
+            </trans-unit>
+            <trans-unit id="JU6yi9y" resname="label.without_owner">
+                <source>label.without_owner</source>
+                <target>Without owner</target>
+            </trans-unit>
+            <trans-unit id="ZdrXMaQ" resname="link.allocations">
+                <source>link.allocations</source>
+                <target>Allocations</target>
+            </trans-unit>
+            <trans-unit id="DPbhibY" resname="link.assignments">
+                <source>link.assignments</source>
+                <target>Assignments</target>
+            </trans-unit>
+            <trans-unit id="kU2zrlb" resname="link.data">
+                <source>link.data</source>
+                <target>Data</target>
+            </trans-unit>
+            <trans-unit id="AWjlM2g" resname="link.departments">
+                <source>link.departments</source>
+                <target>Departments</target>
+            </trans-unit>
+            <trans-unit id="V.DoFiU" resname="link.dispatch_areas">
+                <source>link.dispatch_areas</source>
+                <target>Dispatch Areas</target>
+            </trans-unit>
+            <trans-unit id="9XmczE8" resname="link.home">
+                <source>link.home</source>
+                <target>Home</target>
+            </trans-unit>
+            <trans-unit id="xnwGILx" resname="link.hospitals">
+                <source>link.hospitals</source>
+                <target>Hospitals</target>
+            </trans-unit>
+            <trans-unit id="000N_Am" resname="link.import">
+                <source>link.import</source>
+                <target>Import</target>
+            </trans-unit>
+            <trans-unit id="4wLkxRO" resname="link.imports">
+                <source>link.imports</source>
+                <target>Imports</target>
+            </trans-unit>
+            <trans-unit id="fEFqowr" resname="link.indications">
+                <source>link.indications</source>
+                <target>Indications</target>
+            </trans-unit>
+            <trans-unit id="hmthOUc" resname="link.infections">
+                <source>link.infections</source>
+                <target>Infections</target>
+            </trans-unit>
+            <trans-unit id="C4XIIu3" resname="link.occasions">
+                <source>link.occasions</source>
+                <target>Occasions</target>
+            </trans-unit>
+            <trans-unit id="y8kuDU3" resname="link.specialities">
+                <source>link.specialities</source>
+                <target>Specialities</target>
+            </trans-unit>
+            <trans-unit id="qo4nUz4" resname="link.statistics">
+                <source>link.statistics</source>
+                <target>Statistics</target>
+            </trans-unit>
+            <trans-unit id="xTIpefW" resname="link.stats.dashboard">
+                <source>link.stats.dashboard</source>
+                <target>Overview</target>
+            </trans-unit>
+            <trans-unit id="cIyk7DA" resname="link.stats.hospitals">
+                <source>link.stats.hospitals</source>
+                <target>Hospitals</target>
+            </trans-unit>
+            <trans-unit id="RRCYtAu" resname="link.stats.time_grid">
+                <source>link.stats.time_grid</source>
+                <target>Time Grid</target>
+            </trans-unit>
+            <trans-unit id="BXqZdqI" resname="link.stats.transport_time">
+                <source>link.stats.transport_time</source>
+                <target>Transport Time</target>
+            </trans-unit>
+            <trans-unit id="wQKGxus" resname="link.users">
+                <source>link.users</source>
+                <target>Users</target>
+            </trans-unit>
+            <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
+                <source>subtitle.indication.assign</source>
+                <target>This form allows you to link a raw indication with a corresponding normalized indication from the
+                    standardized list. By selecting the appropriate normalized indication, you help ensure consistent data
+                    classification and make further analysis and reporting more accurate.</target>
+            </trans-unit>
+            <trans-unit id="GhGeHI9" resname="title.allocation.list">
+                <source>title.allocation.list</source>
+                <target>Listing Allocations</target>
+            </trans-unit>
+            <trans-unit id="fykBocL" resname="title.allocation.show">
+                <source>title.allocation.show</source>
+                <target>Show Allocation Detail</target>
+            </trans-unit>
+            <trans-unit id="2yVgyK_" resname="title.assignment.list">
+                <source>title.assignment.list</source>
+                <target>Listing Assignments</target>
+            </trans-unit>
+            <trans-unit id="6k49n8G" resname="title.data">
+                <source>title.data</source>
+                <target>Data</target>
+            </trans-unit>
+            <trans-unit id="psOkg8i" resname="title.data.index">
+                <source>title.data.index</source>
+                <target>Data Overview</target>
+            </trans-unit>
+            <trans-unit id="mUiiLKD" resname="title.departments.list">
+                <source>title.departments.list</source>
+                <target>Listing Departments</target>
+            </trans-unit>
+            <trans-unit id="edHHJTH" resname="title.dispatch_area.list">
+                <source>title.dispatch_area.list</source>
+                <target>Listing Dispatch Areas</target>
+            </trans-unit>
+            <trans-unit id="0bnImEj" resname="title.hospital.list">
+                <source>title.hospital.list</source>
+                <target>Listing Hospitals</target>
+            </trans-unit>
+            <trans-unit id="ipAfzN6" resname="title.hospital_show">
+                <source>title.hospital_show</source>
+                <target>Showing Hospital detail</target>
+            </trans-unit>
+            <trans-unit id="J7c0M1U" resname="title.import.index">
+                <source>title.import.index</source>
+                <target>Listing Imports</target>
+            </trans-unit>
+            <trans-unit id="u4I7D4_" resname="title.import.new">
+                <source>title.import.new</source>
+                <target>Create new Import</target>
+            </trans-unit>
+            <trans-unit id="tBRiow3" resname="title.import.show">
+                <source>title.import.show</source>
+                <target>Showing Import detail</target>
+            </trans-unit>
+            <trans-unit id="njXB7xf" resname="title.indication.assign">
+                <source>title.indication.assign</source>
+                <target>Assign Indications</target>
+            </trans-unit>
+            <trans-unit id="EDuCAXA" resname="title.indication.list">
+                <source>title.indication.list</source>
+                <target>Listing Indications</target>
+            </trans-unit>
+            <trans-unit id="wCSNNqO" resname="title.infection.list">
+                <source>title.infection.list</source>
+                <target>Listing Infections</target>
+            </trans-unit>
+            <trans-unit id="Q.Y20KD" resname="title.login">
+                <source>title.login</source>
+                <target>Login</target>
+            </trans-unit>
+            <trans-unit id="x2zBU9m" resname="title.occasion.list">
+                <source>title.occasion.list</source>
+                <target>Listing Occasions</target>
+            </trans-unit>
+            <trans-unit id="uhopb3E" resname="title.speciality.list">
+                <source>title.speciality.list</source>
+                <target>Listing Specialities</target>
+            </trans-unit>
+        </body>
+    </file>
 </xliff>

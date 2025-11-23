@@ -47,4 +47,56 @@ final class ImportRepository extends ServiceEntityRepository
 
         return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
+
+    /**
+     * @return array<int, array{year: int, month: int, count: int}>
+     */
+    public function countByMonthLast12Months(): array
+    {
+        $from = (new \DateTimeImmutable('first day of this month'))
+            ->modify('-11 months')
+            ->setTime(0, 0, 0);
+
+        $qb = $this->createQueryBuilder('i')
+            ->where('i.createdAt >= :from')
+            ->setParameter('from', $from)
+            ->orderBy('i.createdAt', 'ASC');
+
+        /** @var Import[] $rows */
+        $rows = $qb->getQuery()->getResult();
+
+        $buckets = [];
+
+        foreach ($rows as $import) {
+            $createdAt = $import->getCreatedAt();
+            if (!$createdAt) {
+                continue;
+            }
+
+            $key = $createdAt->format('Y-m');
+
+            if (!isset($buckets[$key])) {
+                $buckets[$key] = 0;
+            }
+
+            ++$buckets[$key];
+        }
+
+        $result = [];
+        foreach ($buckets as $key => $count) {
+            [$year, $month] = explode('-', $key);
+
+            $result[] = [
+                'year' => (int) $year,
+                'month' => (int) $month,
+                'count' => (int) $count,
+            ];
+        }
+
+        usort($result, static function (array $a, array $b): int {
+            return [$a['year'], $a['month']] <=> [$b['year'], $b['month']];
+        });
+
+        return $result;
+    }
 }
