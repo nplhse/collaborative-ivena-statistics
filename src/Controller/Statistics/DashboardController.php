@@ -92,6 +92,6 @@ final class DashboardController extends AbstractController
             ];
         }
 
-        return $this->render('dashboard/index.html.twig', $tpl);
+        return $this->render('stats/dashboard/index.html.twig', $tpl);
     }
 }

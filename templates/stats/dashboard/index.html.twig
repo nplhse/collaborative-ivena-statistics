@@ -49,7 +49,7 @@
                             </a>
                         </div>
                     {% else %}
-                        {{ include('dashboard/_panel.html.twig', {panel: panel}) }}
+                        {{ include('stats/dashboard/_panel.html.twig', {panel: panel}) }}
                     {% endif %}
                 {% endif %}
 
@@ -62,7 +62,7 @@
                             </a>
                         </div>
                     {% else %}
-                        {{ include('dashboard/_cohort_panel.html.twig', {cohortPanel: cohortPanel}) }}
+                        {{ include('stats/dashboard/_cohort_panel.html.twig', {cohortPanel: cohortPanel}) }}
                     {% endif %}
                 {% endif %}
 
