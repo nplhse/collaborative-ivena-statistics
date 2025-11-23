@@ -25,6 +25,18 @@
         <source>S+</source>
         <target>S+</target>
       </trans-unit>
+      <trans-unit id="45h1fK3" resname="allocation.urgency.1">
+        <source>allocation.urgency.1</source>
+        <target>Immediate</target>
+      </trans-unit>
+      <trans-unit id="jbrRozU" resname="allocation.urgency.2">
+        <source>allocation.urgency.2</source>
+        <target>Urgent</target>
+      </trans-unit>
+      <trans-unit id="ndIvw1v" resname="allocation.urgency.3">
+        <source>allocation.urgency.3</source>
+        <target>Delayed</target>
+      </trans-unit>
       <trans-unit id="H1OgFhe" resname="allocations.field.isPregnant">
         <source>allocations.field.isPregnant</source>
         <target>Is Pregnant</target>
@@ -221,6 +233,10 @@
         <source>label.all_dispatch_areas</source>
         <target>All Dispatch Areas</target>
       </trans-unit>
+      <trans-unit id="BAuAzav" resname="label.all_indications">
+        <source>label.all_indications</source>
+        <target>All indications</target>
+      </trans-unit>
       <trans-unit id="t2o1BoP" resname="label.all_locations">
         <source>label.all_locations</source>
         <target>All Locations</target>
@@ -240,6 +256,10 @@
       <trans-unit id=".58BClh" resname="label.all_tiers">
         <source>label.all_tiers</source>
         <target>All Tiers</target>
+      </trans-unit>
+      <trans-unit id="b19sL_Y" resname="label.all_urgencies">
+        <source>label.all_urgencies</source>
+        <target>All urgencies</target>
       </trans-unit>
       <trans-unit id="6QPDzOS" resname="label.allocation">
         <source>label.allocation</source>
@@ -265,6 +285,14 @@
         <source>label.basic_info</source>
         <target>Basic info</target>
       </trans-unit>
+      <trans-unit id="Aa5Q3jh" resname="label.cathlab.is_required">
+        <source>label.cathlab.is_required</source>
+        <target>Cathlab is required</target>
+      </trans-unit>
+      <trans-unit id="OQ78O9H" resname="label.cathlab.not_required">
+        <source>label.cathlab.not_required</source>
+        <target>Cathlab not required</target>
+      </trans-unit>
       <trans-unit id="rsh4cOO" resname="label.created_at">
         <source>label.created_at</source>
         <target>Created at</target>
@@ -288,6 +316,10 @@
       <trans-unit id="RPew0g8" resname="label.filters">
         <source>label.filters</source>
         <target>Filters</target>
+      </trans-unit>
+      <trans-unit id="NnR3dCM" resname="label.filters.active">
+        <source>label.filters.active</source>
+        <target>Active filters</target>
       </trans-unit>
       <trans-unit id="5qtkGtz" resname="label.filters.apply">
         <source>label.filters.apply</source>
@@ -493,13 +525,29 @@
         <source>label.properties</source>
         <target>Properties</target>
       </trans-unit>
+      <trans-unit id="2p6VMAQ" resname="label.requires_cathlab">
+        <source>label.requires_cathlab</source>
+        <target>Requires Cathlab</target>
+      </trans-unit>
+      <trans-unit id="6gqKw0h" resname="label.requires_resus">
+        <source>label.requires_resus</source>
+        <target>Requires Resus</target>
+      </trans-unit>
+      <trans-unit id="BFHLZwL" resname="label.resus.is_required">
+        <source>label.resus.is_required</source>
+        <target>Resus is required</target>
+      </trans-unit>
+      <trans-unit id="nNAyIKq" resname="label.resus.not_required">
+        <source>label.resus.not_required</source>
+        <target>Resus not required</target>
+      </trans-unit>
       <trans-unit id="iw9qUxb" resname="label.search">
         <source>label.search</source>
-        <target>Search...</target>
+        <target>Search</target>
       </trans-unit>
       <trans-unit id="E78H_sa" resname="label.search_for">
         <source>label.search_for</source>
-        <target>Searching for: {term}</target>
+        <target>Searching for: </target>
       </trans-unit>
       <trans-unit id="uARVlbj" resname="label.search_no_results">
         <source>label.search_no_results</source>

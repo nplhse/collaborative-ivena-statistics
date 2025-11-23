@@ -37,6 +37,75 @@
                         {% endblock %}
                     {% endblock %}
                 </div>
+                <!-- Page title actions -->
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <div class="btn-group">
+                            <button
+                                class="btn"
+                                type="button"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#allocation-filters"
+                                aria-controls="allocation-filters"
+                            >
+                                {% if activeFilterCount < 1 %}
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="2"
+                                        stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M4 4h16l-6 8v6l-4 -2v-4z" />
+                                    </svg>
+                                {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
+                                    </svg>
+                                {% endif %}
+                                <span class="ms-2">{{ 'label.filters'|trans }}</span>
+
+                                {% if activeFilterCount > 0 %}
+                                    <span class="badge text-primary ms-2">
+                                        {{ activeFilterCount }}
+                                    </span>
+                                {% endif %}
+                            </button>
+
+                            {% if activeFilterCount > 0 %}
+                                <a
+                                    href="{{ path('app_data_allocation_list') }}"
+                                    class="btn btn-icon btn-outline"
+                                    title="Filter zurücksetzen"
+                                    aria-label="Filter zurücksetzen"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="2"
+                                        stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M18 6l-12 12" />
+                                        <path d="M6 6l12 12" />
+                                    </svg>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -44,6 +113,15 @@
 
 {% block page_content %}
     <turbo-frame id="allocation-list" data-turbo-action="advance">
+        {% import '_macros/filters.html.twig' as activeFilters %}
+
+        {% if activeFilterCount > 0 %}
+            <div class="alert alert-info" role="alert">
+                <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
+                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications) }}
+            </div>
+        {% endif %}
+
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
@@ -189,4 +267,187 @@
             </template>
         </turbo-stream>
     </turbo-frame>
+
+    <div
+        class="offcanvas offcanvas-end"
+        tabindex="-1"
+        id="allocation-filters"
+        aria-labelledby="allocation-filters-label"
+    >
+        <div class="offcanvas-header">
+            <h2 class="offcanvas-title" id="allocation-filters-label">
+                {{ 'label.filter.results'|trans }}
+            </h2>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+            ></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <form method="get" action="{{ path('app_data_allocation_list') }}">
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.tier'|trans }}</label>
+                    <select name="tier" class="form-select">
+                        <option value="">{{ 'label.all_tiers'|trans }}</option>
+                        {% for tier in tiers %}
+                            <option
+                                value="{{ tier.value }}"
+                                {{ filters.tier == tier.value ? 'selected' }}
+                            >
+                                {{ ('hospital.tier.' ~ tier.value)|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.location'|trans }}</label>
+                    <select name="location" class="form-select">
+                        <option value="">{{ 'label.all_locations'|trans }}</option>
+                        {% for location in locations %}
+                            <option
+                                value="{{ location.value }}"
+                                {{ filters.location == location.value ? 'selected' }}
+                            >
+                                {{ ('hospital.location.' ~ location.value)|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.size'|trans }}</label>
+                    <select name="size" class="form-select">
+                        <option value="">{{ 'label.all_sizes'|trans }}</option>
+                        {% for size in sizes %}
+                            <option
+                                value="{{ size.value }}"
+                                {{ filters.size == size.value ? 'selected' }}
+                            >
+                                {{ ('hospital.size.' ~ size.value)|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.urgency'|trans }}</label>
+                    <select name="urgency" class="form-select">
+                        <option value="">{{ 'label.all_urgencies'|trans }}</option>
+                        {% for urgency in urgencies %}
+                            <option
+                                value="{{ urgency.value }}"
+                                {{ filters.urgency == urgency.value ? 'selected' }}
+                            >
+                                {{ ('allocation.urgency.' ~ urgency.value)|trans }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.indication.normalized'|trans }}</label>
+                    <select name="indication" class="form-select">
+                        <option value="">{{ 'label.all_indications'|trans }}</option>
+                        {% for indication in indications %}
+                            {% if indication.code > 0 %}
+                            <option
+                                value="{{ indication.code }}"
+                                {{ filters.location == indication.code ? 'selected' }}
+                            >
+                                {{ indication.name }}
+                            </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.requires_resus'|trans }}</label>
+                    <select name="requiresResus" class="form-select">
+                        <option value="">{{ 'label.all_modes'|trans }}</option>
+                        <option
+                            value="1"
+                            {{ filters.requiresResus == '1' ? 'selected' }}
+                        >
+                            {{ 'label.resus.is_required'|trans }}
+                        </option>
+                        <option
+                            value="0"
+                            {{ filters.requiresResus == '0' ? 'selected' }}
+                        >
+                            {{ 'label.resus.not_required'|trans }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.requires_cathlab'|trans }}</label>
+                    <select name="requiresCathlab" class="form-select">
+                        <option value="">{{ 'label.all_modes'|trans }}</option>
+                        <option
+                            value="1"
+                            {{ filters.requiresCathlab == '1' ? 'selected' }}
+                        >
+                            {{ 'label.cathlab.is_required'|trans }}
+                        </option>
+                        <option
+                            value="0"
+                            {{ filters.requiresCathlab == '0' ? 'selected' }}
+                        >
+                            {{ 'label.cathlab.not_required'|trans }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.dispatch_area'|trans }}</label>
+                    <select name="dispatchArea" class="form-select">
+                        <option value="">{{ 'label.all_dispatch_areas'|trans }}</option>
+                        {% for area in dispatchAreas %}
+                            <option
+                                value="{{ area.id }}"
+                                {{ filters.dispatchArea == area.id ? 'selected' }}
+                            >
+                                {{ area.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.state'|trans }}</label>
+                    <select name="state" class="form-select">
+                        <option value="">{{ 'label.all_states'|trans }}</option>
+                        {% for state in states %}
+                            <option
+                                value="{{ state.id }}"
+                                {{ filters.state == state.id ? 'selected' }}
+                            >
+                                {{ state.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        {{ 'label.filters.apply'|trans }}
+                    </button>
+
+                    {% if activeFilterCount > 0 %}
+                        <a
+                            href="{{ path('app_data_allocation_list') }}"
+                            class="btn btn-link w-100"
+                        >
+                            {{ 'label.filters.reset'|trans }}
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
