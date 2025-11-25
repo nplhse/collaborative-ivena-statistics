@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Command;
 
-use App\Command\ProcessImportCommand;
-use App\Message\ScheduleScope;
-use App\MessageHandler\ScheduleScopesHandler;
+use App\Statistics\Application\Message\ScheduleScope;
+use App\Statistics\Application\MessageHandler\ScheduleScopesHandler;
+use App\Statistics\UI\Console\Command\ProcessImportCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\Envelope;

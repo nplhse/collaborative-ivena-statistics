@@ -31,6 +31,7 @@
             <errorLevel type="suppress">
                 <file name="src/Shared/Infrastructure/Pagination/Paginator.php" />
                 <directory name="src/*/Application/Contracts/" />
+                <directory name="src/*/Application/DTO/" />
                 <directory name="src/*/Application/Exception/" />
                 <directory name="src/*/Domain/Entity/" />
                 <directory name="src/*/Domain/Enum/" />
@@ -40,24 +41,17 @@
                 <directory name="src/*/UI/Http/Controller" />
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
-                <directory name="src/Command"/>
                 <directory name="src/DataFixtures"/>
-                <directory name="src/DataTransferObjects"/>
-                <directory name="src/Enum"/>
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Indication/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
-                <directory name="src/Query" />
-                <directory name="src/Repository" />
-                <directory name="src/Service/Seed/Areas/" />
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>
             <errorLevel type="suppress">
                 <directory name="src/*/Application/DTO/" />
                 <directory name="src/*/UI/Http/DTO/" />
-                <directory name="src/DataTransferObjects" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
             </errorLevel>
         </PossiblyUnusedProperty>
@@ -68,24 +62,19 @@
                 <directory name="src/*/UI/Twig/Components" />
                 <directory name="src/*/UI/Http/Controller" />
                 <directory name="src/*/UI/Console/Command" />
-                <directory name="src/Command" />
-                <directory name="src/Controller" />
                 <directory name="src/DataFixtures" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
                 <directory name="src/Import/Infrastructure/Repository/" />
-                <directory name="src/MessageHandler"/>
-                <directory name="src/Twig/Components/"/>
-                <directory name="src/Service/Seed"/>
+                <directory name="src/Seed/Infrastructure/Provider/" />
             </errorLevel>
         </UnusedClass>
         <UnusedParam>
             <errorLevel type="suppress">
                 <directory name="src/*/Infrastructure/EventSubscriber/" />
                 <directory name="src/*/Infrastructure/Repository/" />
-                <directory name="src/DataTransferObjects" />
-                <directory name="src/Repository" />
+                <directory name="src/*/UI/Console/Command/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
             </errorLevel>
         </UnusedParam>
