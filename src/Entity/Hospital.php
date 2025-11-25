@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Entity\Traits\Blamable;
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
 use App\Repository\HospitalRepository;
+use App\Shared\Domain\Traits\Blamable;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: HospitalRepository::class)]

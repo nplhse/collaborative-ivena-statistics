@@ -3,9 +3,9 @@
 namespace App\Command;
 
 use App\Entity\Import;
-use App\Entity\User;
 use App\Message\ImportAllocationsMessage;
 use App\Repository\ImportRepository;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

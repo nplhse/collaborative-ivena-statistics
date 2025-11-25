@@ -3,8 +3,8 @@
 namespace App\Tests\Unit\Service\Seed;
 
 use App\Entity\IndicationNormalized;
-use App\Entity\User;
 use App\Service\Seed\IndicationNormalizedSeedProvider;
+use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class IndicationNormalizedSeedProviderTest extends TestCase

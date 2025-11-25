@@ -1,5 +1,4 @@
-{# templates/data/import/show.html.twig #}
-{% extends '_layout_vertical.html.twig' %}
+{% extends '@Shared/_layout_vertical.html.twig' %}
 
 {% block title %}{{ 'title.import.show'|trans }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
 

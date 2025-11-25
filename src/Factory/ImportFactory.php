@@ -5,6 +5,7 @@ namespace App\Factory;
 use App\Entity\Import;
 use App\Enum\ImportStatus;
 use App\Enum\ImportType;
+use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

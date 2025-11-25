@@ -9,7 +9,7 @@ use App\Factory\AddressFactory;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
 

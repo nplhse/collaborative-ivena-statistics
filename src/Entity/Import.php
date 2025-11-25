@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Entity\Traits\Blamable;
 use App\Enum\ImportStatus;
 use App\Enum\ImportType;
 use App\Repository\ImportRepository;
+use App\Shared\Domain\Traits\Blamable;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ImportRepository::class)]

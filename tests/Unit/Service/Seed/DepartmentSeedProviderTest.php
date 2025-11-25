@@ -3,8 +3,8 @@
 namespace App\Tests\Unit\Service\Seed;
 
 use App\Entity\Department;
-use App\Entity\User;
 use App\Service\Seed\DepartmentSeedProvider;
+use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class DepartmentSeedProviderTest extends TestCase

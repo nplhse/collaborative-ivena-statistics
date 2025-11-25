@@ -5,12 +5,12 @@ namespace App\Tests\Unit\Service\Seed;
 use App\Entity\DispatchArea;
 use App\Entity\Hospital;
 use App\Entity\State;
-use App\Entity\User;
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
 use App\Service\Seed\Areas\AreaCache;
 use App\Service\Seed\HospitalSeedProvider;
+use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class HospitalSeedProviderTest extends TestCase

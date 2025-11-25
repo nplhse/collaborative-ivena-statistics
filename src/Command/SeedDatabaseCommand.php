@@ -4,8 +4,8 @@
 
 namespace App\Command;
 
-use App\Entity\User;
 use App\Service\Seed\SeedProviderInterface;
+use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;

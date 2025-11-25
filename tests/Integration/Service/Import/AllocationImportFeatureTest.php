@@ -18,13 +18,13 @@ use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
 use App\Service\Import\Adapter\DoctrineAllocationPersister;
 use App\Service\Import\AllocationImporter;
 use App\Service\Import\Mapping\AllocationImportFactory;
 use App\Service\Import\Mapping\AllocationRowMapper;
 use App\Tests\Doubles\Service\Import\Adapter\InMemoryRejectWriter;
 use App\Tests\Doubles\Service\Import\Adapter\InMemoryRowReader;
+use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -66,7 +66,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
         InfectionFactory::createOne(['name' => 'Noro']);
         InfectionFactory::createOne(['name' => 'V.a. COVID']);
 
-        $userRef = $this->em->getReference(\App\Entity\User::class, $user->getId());
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $user->getId());
         $hospitalRef = $this->em->getReference(\App\Entity\Hospital::class, $hospital->getId());
 
         IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);

@@ -6,6 +6,7 @@ use App\Entity\Hospital;
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
+use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

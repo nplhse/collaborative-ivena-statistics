@@ -4,12 +4,11 @@ namespace App\Service\Seed;
 
 use App\Entity\Address;
 use App\Entity\Hospital;
-use App\Entity\State;
-use App\Entity\User;
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
 use App\Service\Seed\Areas\AreaCache;
+use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**

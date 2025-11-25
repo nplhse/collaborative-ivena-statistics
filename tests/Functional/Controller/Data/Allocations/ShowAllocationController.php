@@ -14,7 +14,7 @@ use App\Factory\IndicationNormalizedFactory;
 use App\Factory\IndicationRawFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
 

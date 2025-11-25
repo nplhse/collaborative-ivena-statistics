@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Entity\Traits\Blamable;
 use App\Repository\IndicationNormalizedRepository;
+use App\Shared\Domain\Traits\Blamable;
+use App\User\Domain\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

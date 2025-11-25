@@ -63,8 +63,8 @@ final class AllocationIndicationResolver implements AllocationEntityResolverInte
                 return;
             }
 
-            /** @var \App\Entity\User $userRef */
-            $userRef = $this->em->getReference(\App\Entity\User::class, $userId);
+            /** @var \App\User\Domain\Entity\User $userRef */
+            $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $userId);
             $raw->setCreatedBy($userRef);
 
             $this->em->persist($raw);

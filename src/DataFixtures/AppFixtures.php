@@ -15,7 +15,7 @@ use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
+use App\User\Domain\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;

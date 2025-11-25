@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\Speciality;
 use App\Faker\Provider\MedicalSpecialities;
+use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

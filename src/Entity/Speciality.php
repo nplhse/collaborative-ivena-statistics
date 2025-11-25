@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Entity\Traits\Blamable;
 use App\Repository\SpecialityRepository;
+use App\Shared\Domain\Traits\Blamable;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SpecialityRepository::class)]

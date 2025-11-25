@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Import;
 
 use App\Entity\Import;
-use App\Entity\User;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Browser\Test\HasBrowser;

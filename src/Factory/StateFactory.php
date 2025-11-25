@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\State;
+use App\User\Domain\Factory\UserFactory;
 use Faker\Provider\de_DE\Address;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 

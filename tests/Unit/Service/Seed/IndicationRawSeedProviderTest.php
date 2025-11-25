@@ -3,8 +3,8 @@
 namespace App\Tests\Unit\Service\Seed;
 
 use App\Entity\IndicationRaw;
-use App\Entity\User;
 use App\Service\Seed\IndicationRawSeedProvider;
+use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class IndicationRawSeedProviderTest extends TestCase

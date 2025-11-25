@@ -1,13 +1,13 @@
-{% extends '_layout_vertical.html.twig' %}
+{% extends '@Shared/_layout_vertical.html.twig' %}
 
 {% block title %}{{ 'title.hospital_show'|trans }}: {{ hospital.name }} - {{ 'title.data'|trans }} - {{ parent() }}{% endblock %}
 
 {% import '_macros/badges.html.twig' as badges %}
 
 {% block header %}
-    {% embed '_embeds/header.html.twig' %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include('_includes/subnav_data.html.twig') }}
+            {{ include('@Shared/_includes/subnav_data.html.twig') }}
         {% endblock %}
     {% endembed %}
 {% endblock %}

@@ -4,8 +4,8 @@ namespace App\Form;
 
 use App\Entity\Hospital;
 use App\Entity\Import;
-use App\Entity\User;
 use App\Repository\HospitalRepository;
+use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

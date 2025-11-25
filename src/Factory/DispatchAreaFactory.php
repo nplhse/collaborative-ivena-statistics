@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\DispatchArea;
 use App\Faker\Provider\Area;
+use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

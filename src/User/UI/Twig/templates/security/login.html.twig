@@ -1,0 +1,31 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.login'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card
+            size="md"
+        >
+            <h2 class="text-center mb-4">{{ 'title.login'|trans }}</h2>
+
+            <form method="post">
+                {% if error %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+
+                {{ form_row(form.username) }}
+
+                {{ form_row(form.password) }}
+
+                {{ form_row(form._remember_me) }}
+
+                <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}" />
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">{{ 'label.signin'|trans }}</button>
+                </div>
+            </form>
+        </twig:Card>
+    </div>
+{% endblock %}

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller\Import;
 
-use App\Entity\User;
 use App\Enum\ImportStatus;
 use App\Enum\ImportType;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\ImportFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Zenstruck\Browser\Test\HasBrowser;

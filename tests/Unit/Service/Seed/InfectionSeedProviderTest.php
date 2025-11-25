@@ -3,8 +3,8 @@
 namespace App\Tests\Unit\Service\Seed;
 
 use App\Entity\Infection;
-use App\Entity\User;
 use App\Service\Seed\InfectionSeedProvider;
+use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class InfectionSeedProviderTest extends TestCase

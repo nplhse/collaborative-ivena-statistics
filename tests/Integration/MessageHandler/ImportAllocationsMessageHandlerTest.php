@@ -17,11 +17,11 @@ use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
 use App\MessageHandler\ImportAllocationsMessageHandler;
 use App\Repository\ImportRepository;
 use App\Tests\Doubles\Service\Import\Adapter\InMemoryRejectWriter;
 use App\Tests\Doubles\Service\Import\Adapter\InMemoryRowReader;
+use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -85,7 +85,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
             ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '16.02.2025', '12:00', '16.02.2025', '13:01', 'W', '0', '', '', '', 'B-', '', 'N-', 'Boden', '16.02.2025', '12:00', '123001', 'Innere Medizin', 'Kardiologie', 'Ja', 'Häuslicher Einsatz', 'Patient', 'V.a. COVID', '123 Test Indication'],
         ];
 
-        $userRef = $this->em->getReference(\App\Entity\User::class, $owner->getId());
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
         $hospitalRef = $this->em->getReference(\App\Entity\Hospital::class, $hospital->getId());
 
         $import = new Import()

@@ -4,7 +4,7 @@ namespace App\Service\Seed;
 
 use App\Entity\DispatchArea;
 use App\Entity\State;
-use App\Entity\User;
+use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**

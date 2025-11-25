@@ -1,11 +1,11 @@
-{% extends '_layout_vertical.html.twig' %}
+{% extends '@Shared/_layout_vertical.html.twig' %}
 
 {% block title %}{{ 'title.hospital.list'|trans }} - {{ parent() }}{% endblock %}
 
 {% block header %}
-    {% embed '_embeds/header.html.twig' %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include(('_includes/subnav_data.html.twig')) }}
+            {{ include(('@Shared/_includes/subnav_data.html.twig')) }}
         {% endblock %}
     {% endembed %}
 {% endblock %}

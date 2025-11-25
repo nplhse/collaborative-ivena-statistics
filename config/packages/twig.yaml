@@ -2,6 +2,10 @@ twig:
     file_name_pattern: '*.twig'
     form_themes: [ 'bootstrap_5_layout.html.twig' ]
 
+    paths:
+        '%kernel.project_dir%/src/User/UI/Twig/templates': User
+        '%kernel.project_dir%/src/Shared/UI/Twig/templates': Shared
+
 when@test:
     twig:
         strict_variables: true

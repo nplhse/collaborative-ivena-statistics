@@ -9,8 +9,8 @@ use App\Entity\Hospital;
 use App\Factory\DispatchAreaFactory;
 use App\Factory\HospitalFactory;
 use App\Factory\StateFactory;
-use App\Factory\UserFactory;
 use App\Repository\HospitalRepository;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class HospitalRepositoryQueryTest extends KernelTestCase

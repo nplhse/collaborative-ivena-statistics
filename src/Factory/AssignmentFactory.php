@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Assignment;
+use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

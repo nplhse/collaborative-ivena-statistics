@@ -4,8 +4,8 @@ namespace App\Tests\Unit\Service\Seed;
 
 use App\Entity\DispatchArea;
 use App\Entity\State;
-use App\Entity\User;
 use App\Service\Seed\AreaSeedProvider;
+use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class AreaSeedProviderTest extends TestCase
