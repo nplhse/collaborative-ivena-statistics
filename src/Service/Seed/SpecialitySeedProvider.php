@@ -2,7 +2,7 @@
 
 namespace App\Service\Seed;
 
-use App\Entity\Speciality;
+use App\Allocation\Domain\Entity\Speciality;
 use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\Occasion;
+use App\Allocation\Domain\Entity\Occasion;
 use App\Service\Seed\OccasionSeedProvider;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;

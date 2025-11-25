@@ -68,7 +68,7 @@
                     <div class="col-12 mb-3">
                         <twig:Card title="{{ 'label.hospital'|trans }}">
                             <h3 class="card-title mb-1 fs-3">
-                                <a href="{{ path('app_data_hospital_show', {id: import.hospital.id}) }}">{{ import.hospital.name }}</a>
+                                <a href="{{ path('app_explore_hospital_show', {id: import.hospital.id}) }}">{{ import.hospital.name }}</a>
                             </h3>
 
                             <div class="text-muted small mb-3 d-flex align-items-center gap-2">
@@ -220,7 +220,7 @@
                         <div class="col-12">
                             <twig:Card title="{{ 'label.import.section.quick_actions'|trans }}">
                                 <div class="btn-list">
-                                    <a class="btn btn-outline-primary" href="{{ path('app_data_allocation_list', {importId: import.id}) }}">
+                                    <a class="btn btn-outline-primary" href="{{ path('app_explore_allocation_list', {importId: import.id}) }}">
                                         <twig:ux:icon name="tabler:table" class="w-3 h-3" /> {{ 'import.action.preview_rows'|trans }}
                                     </a>
                                 </div>

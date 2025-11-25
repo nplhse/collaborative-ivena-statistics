@@ -2,8 +2,8 @@
 
 namespace App\Import\Infrastructure\Indication;
 
-use App\Entity\IndicationNormalized;
-use App\Entity\IndicationRaw;
+use App\Allocation\Domain\Entity\IndicationNormalized;
+use App\Allocation\Domain\Entity\IndicationRaw;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class IndicationCache

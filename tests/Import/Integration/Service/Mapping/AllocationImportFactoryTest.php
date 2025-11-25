@@ -2,21 +2,21 @@
 
 namespace App\Tests\Import\Integration\Service\Mapping;
 
-use App\Enum\AllocationGender;
-use App\Enum\AllocationTransportType;
-use App\Factory\AssignmentFactory;
-use App\Factory\DispatchAreaFactory;
-use App\Factory\HospitalFactory;
-use App\Factory\ImportFactory;
-use App\Factory\IndicationRawFactory;
-use App\Factory\InfectionFactory;
-use App\Factory\OccasionFactory;
-use App\Factory\StateFactory;
+use App\Allocation\Domain\Enum\AllocationGender;
+use App\Allocation\Domain\Enum\AllocationTransportType;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\Exception\InvalidDateException;
 use App\Import\Application\Exception\InvalidEnumException;
 use App\Import\Application\Exception\ReferenceNotFoundException;
 use App\Import\Domain\Entity\Import;
+use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Mapping\AllocationImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;

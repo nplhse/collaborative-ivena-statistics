@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Entity;
 
-use App\Entity\Allocation;
+use App\Allocation\Domain\Entity\Allocation;
 use PHPUnit\Framework\TestCase;
 
 final class AllocationGuardsTest extends TestCase

@@ -2,14 +2,14 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
-use App\Entity\Department;
-use App\Entity\Speciality;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Infrastructure\Repository\DepartmentRepository;
+use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\Exception\ReferenceNotFoundException;
-use App\Repository\DepartmentRepository;
-use App\Repository\SpecialityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

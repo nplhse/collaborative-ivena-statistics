@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Allocation\UI\Http\DTO;
+
+use Symfony\Component\Validator\Constraints as Assert;
+
+final readonly class IndicationQueryParametersDTO
+{
+    public function __construct(
+        #[Assert\GreaterThan(0)]
+        public int $page = 1,
+
+        #[Assert\Range(min: 1, max: 100)]
+        public int $limit = 25,
+
+        #[Assert\Choice(choices: ['asc', 'desc'])]
+        public string $orderBy = 'asc',
+
+        #[Assert\Choice(choices: ['id', 'name', 'code', 'lastChange'])]
+        public string $sortBy = 'code',
+
+        public ?string $search = null,
+
+        #[Assert\Choice(choices: ['normalized', 'raw'])]
+        public string $type = 'normalized',
+    ) {
+    }
+}

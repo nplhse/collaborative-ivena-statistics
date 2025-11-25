@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
+use App\Allocation\Infrastructure\Repository\AllocationRepository;
+use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
-use App\Repository\AllocationRepository;
-use App\Repository\HospitalRepository;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;

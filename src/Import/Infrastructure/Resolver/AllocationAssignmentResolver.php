@@ -2,12 +2,12 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
-use App\Entity\Assignment;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Assignment;
+use App\Allocation\Infrastructure\Repository\AssignmentRepository;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\Exception\ReferenceNotFoundException;
-use App\Repository\AssignmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

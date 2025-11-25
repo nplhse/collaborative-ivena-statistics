@@ -2,14 +2,14 @@
 
 namespace App\Tests\Import\Integration\Service\Resolver;
 
-use App\Entity\Allocation;
-use App\Entity\IndicationNormalized;
-use App\Entity\IndicationRaw;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\IndicationNormalized;
+use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Infrastructure\Indication\IndicationCache;
 use App\Import\Infrastructure\Indication\IndicationKey;
 use App\Import\Infrastructure\Resolver\AllocationIndicationResolver;
-use App\Repository\IndicationRawRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

@@ -2,9 +2,9 @@
 
 namespace App\Import\UI\Form;
 
-use App\Entity\Hospital;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Domain\Entity\Import;
-use App\Repository\HospitalRepository;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\SecurityBundle\Security;

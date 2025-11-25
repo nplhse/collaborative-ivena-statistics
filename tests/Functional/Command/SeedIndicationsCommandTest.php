@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Command;
 
+use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Command\SeedIndicationsCommand;
-use App\Entity\IndicationRaw;
-use App\Factory\IndicationNormalizedFactory;
-use App\Factory\IndicationRawFactory;
 use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Factory\UserFactory;
 use PHPUnit\Framework\Attributes\CoversClass;

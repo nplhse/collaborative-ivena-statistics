@@ -2,7 +2,7 @@
 
 namespace App\Import\UI\Http\Controller;
 
-use App\DataTransferObjects\ListImportQueryParametersDTO;
+use App\Allocation\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;

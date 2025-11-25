@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\Speciality;
+use App\Allocation\Domain\Entity\Speciality;
 use App\Service\Seed\SpecialitySeedProvider;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;

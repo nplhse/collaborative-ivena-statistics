@@ -2,7 +2,7 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
+use App\Allocation\Domain\Entity\Allocation;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\Exception\InvalidDateException;

@@ -5,16 +5,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Integration\Service;
 
-use App\Entity\Allocation;
-use App\Factory\AssignmentFactory;
-use App\Factory\DepartmentFactory;
-use App\Factory\DispatchAreaFactory;
-use App\Factory\HospitalFactory;
-use App\Factory\IndicationRawFactory;
-use App\Factory\InfectionFactory;
-use App\Factory\OccasionFactory;
-use App\Factory\SpecialityFactory;
-use App\Factory\StateFactory;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Service\AllocationImporter;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
@@ -22,8 +22,8 @@ use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Adapter\DoctrineAllocationPersister;
 use App\Import\Infrastructure\Mapping\AllocationImportFactory;
 use App\Import\Infrastructure\Mapping\AllocationRowMapper;
-use App\Tests\Doubles\Service\Import\Adapter\InMemoryRejectWriter;
-use App\Tests\Doubles\Service\Import\Adapter\InMemoryRowReader;
+use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
+use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\NullLogger;
@@ -67,7 +67,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
         InfectionFactory::createOne(['name' => 'V.a. COVID']);
 
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $user->getId());
-        $hospitalRef = $this->em->getReference(\App\Entity\Hospital::class, $hospital->getId());
+        $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
 
         IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
 

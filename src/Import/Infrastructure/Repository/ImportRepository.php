@@ -2,8 +2,8 @@
 
 namespace App\Import\Infrastructure\Repository;
 
-use App\DataTransferObjects\ListImportQueryParametersDTO;
-use App\Entity\Hospital;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;

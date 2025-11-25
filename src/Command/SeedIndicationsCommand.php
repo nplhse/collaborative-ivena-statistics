@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Entity\IndicationNormalized;
-use App\Entity\IndicationRaw;
+use App\Allocation\Domain\Entity\IndicationNormalized;
+use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
+use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Import\Infrastructure\Indication\IndicationKey;
-use App\Repository\IndicationNormalizedRepository;
-use App\Repository\IndicationRawRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

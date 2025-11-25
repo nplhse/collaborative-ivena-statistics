@@ -2,11 +2,11 @@
 
 namespace App\Service\Seed;
 
-use App\Entity\Address;
-use App\Entity\Hospital;
-use App\Enum\HospitalLocation;
-use App\Enum\HospitalSize;
-use App\Enum\HospitalTier;
+use App\Allocation\Domain\Entity\Address;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Service\Seed\Areas\AreaCache;
 use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Controller;
 
-use App\Factory\DispatchAreaFactory;
-use App\Factory\HospitalFactory;
-use App\Factory\ImportFactory;
-use App\Factory\StateFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
+use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -122,7 +122,7 @@ final class ListImportControllerTest extends WebTestCase
     /**
      * @return array{
      *      0: User&\Zenstruck\Foundry\Persistence\Proxy<User>,
-     *      1: \App\Entity\Hospital&\Zenstruck\Foundry\Persistence\Proxy<\App\Entity\Hospital>,
+     *      1: \App\Allocation\Domain\Entity\Hospital&\Zenstruck\Foundry\Persistence\Proxy<\App\Allocation\Domain\Entity\Hospital>,
      *      2: User&\Zenstruck\Foundry\Persistence\Proxy<User>
      *  }
      */

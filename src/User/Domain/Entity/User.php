@@ -2,7 +2,7 @@
 
 namespace App\User\Domain\Entity;
 
-use App\Entity\Hospital;
+use App\Allocation\Domain\Entity\Hospital;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

@@ -2,7 +2,7 @@
 
 namespace App\Import\Application\Contracts;
 
-use App\Entity\Allocation;
+use App\Allocation\Domain\Entity\Allocation;
 use App\Import\Application\DTO\AllocationRowDTO;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 

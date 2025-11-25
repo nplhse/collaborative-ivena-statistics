@@ -2,7 +2,7 @@
 
 namespace App\Import\UI\Http\Controller;
 
-use App\Entity\Hospital;
+use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;

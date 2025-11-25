@@ -2,7 +2,7 @@
 
 namespace App\Import\Domain\Entity;
 
-use App\Entity\Hospital;
+use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;

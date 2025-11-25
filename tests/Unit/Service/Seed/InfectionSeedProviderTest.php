@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\Infection;
+use App\Allocation\Domain\Entity\Infection;
 use App\Service\Seed\InfectionSeedProvider;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;

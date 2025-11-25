@@ -2,11 +2,11 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
-use App\Entity\Infection;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Infection;
+use App\Allocation\Infrastructure\Repository\InfectionRepository;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
-use App\Repository\InfectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

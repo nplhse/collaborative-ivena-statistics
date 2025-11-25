@@ -14,7 +14,7 @@ final class EncodingDetectorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixtures = \dirname(__DIR__, 5).'/tests/Fixtures/csv';
+        $this->fixtures = \dirname(__DIR__, 5).'/tests/Import/Fixtures/csv';
     }
 
     #[DataProvider('cases')]

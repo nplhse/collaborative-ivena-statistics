@@ -2,10 +2,10 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
-use App\Enum\AllocationGender;
-use App\Enum\AllocationTransportType;
-use App\Enum\AllocationUrgency;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Enum\AllocationGender;
+use App\Allocation\Domain\Enum\AllocationTransportType;
+use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\Exception\InvalidEnumException;

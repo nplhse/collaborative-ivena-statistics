@@ -2,8 +2,8 @@
 
 namespace App\Service\Seed\Areas;
 
-use App\Entity\DispatchArea;
-use App\Entity\State;
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\State;
 use Doctrine\ORM\EntityManagerInterface;
 
 /** @psalm-suppress ClassMustBeFinal */

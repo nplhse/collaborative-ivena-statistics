@@ -147,7 +147,7 @@
                             {{ macros.import_status(import.status.value) }}
                         </td>
                         <td>
-                            <a href="{{ path('app_data_hospital_show', {id: import.hospital.id}) }}" target="_top">{{ import.hospital }}</a>
+                            <a href="{{ path('app_explore_hospital_show', {id: import.hospital.id}) }}" target="_top">{{ import.hospital }}</a>
                         </td>
                         <td>
                             {{ import.updatedAt ? import.updatedAt|date('d.m.Y H:i') : import.createdAt|date('d.m.Y H:i') }}

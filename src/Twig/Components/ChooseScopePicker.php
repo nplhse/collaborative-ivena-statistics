@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Twig\Components;
 
+use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
+use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Enum\TimeGridMode;
 use App\Model\Scope;
-use App\Repository\DispatchAreaRepository;
-use App\Repository\HospitalRepository;
-use App\Repository\StateRepository;
 use App\Service\Statistics\ScopeAvailabilityService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;

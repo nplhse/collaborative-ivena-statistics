@@ -16,7 +16,7 @@ final class SplCsvStreamFactoryWithDetectorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturesDir = \dirname(__DIR__, 5).'/tests/Fixtures/csv';
+        $this->fixturesDir = \dirname(__DIR__, 5).'/tests/Import/Fixtures/csv';
     }
 
     #[DataProvider('provideFixtures')]

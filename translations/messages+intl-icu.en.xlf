@@ -301,8 +301,8 @@
                 <source>label.created_by</source>
                 <target>Created by</target>
             </trans-unit>
-            <trans-unit id="yxZ6XcL" resname="label.data.index.subtitle">
-                <source>label.data.index.subtitle</source>
+            <trans-unit id="yxZ6XcL" resname="label.explore.index.subtitle">
+                <source>label.explore.index.subtitle</source>
                 <target>Overview of all available data records</target>
             </trans-unit>
             <trans-unit id="7Oebk.l" resname="label.dispatch_area">
@@ -641,9 +641,9 @@
                 <source>link.assignments</source>
                 <target>Assignments</target>
             </trans-unit>
-            <trans-unit id="kU2zrlb" resname="link.data">
-                <source>link.data</source>
-                <target>Data</target>
+            <trans-unit id="kU2zrlb" resname="link.explore">
+                <source>link.explore</source>
+                <target>Explore</target>
             </trans-unit>
             <trans-unit id="AWjlM2g" resname="link.departments">
                 <source>link.departments</source>
@@ -727,13 +727,13 @@
                 <source>title.assignment.list</source>
                 <target>Listing Assignments</target>
             </trans-unit>
-            <trans-unit id="6k49n8G" resname="title.data">
-                <source>title.data</source>
-                <target>Data</target>
+            <trans-unit id="6k49n8G" resname="title.explore">
+                <source>title.explore</source>
+                <target>Explore</target>
             </trans-unit>
-            <trans-unit id="psOkg8i" resname="title.data.index">
-                <source>title.data.index</source>
-                <target>Data Overview</target>
+            <trans-unit id="psOkg8i" resname="title.explore.index">
+                <source>title.explore.index</source>
+                <target>Explore Data</target>
             </trans-unit>
             <trans-unit id="mUiiLKD" resname="title.departments.list">
                 <source>title.departments.list</source>

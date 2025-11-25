@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\Department;
+use App\Allocation\Domain\Entity\Department;
 use App\Service\Seed\DepartmentSeedProvider;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;

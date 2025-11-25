@@ -2,7 +2,7 @@
 
 namespace App\Tests\Import\Unit\Service\Adapter;
 
-use App\Tests\Doubles\Service\Import\Adapter\InMemoryRejectWriter;
+use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
 use PHPUnit\Framework\TestCase;
 
 final class InMemoryRejectWriterTest extends TestCase

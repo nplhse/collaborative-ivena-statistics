@@ -2,8 +2,8 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\DispatchArea;
-use App\Entity\State;
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\State;
 use App\Service\Seed\AreaSeedProvider;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;

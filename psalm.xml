@@ -24,7 +24,6 @@
     <issueHandlers>
         <ClassMustBeFinal>
             <errorLevel type="suppress">
-                <directory name="src/Entity"/>
                 <directory name="src/*/Domain/Entity"/>
             </errorLevel>
         </ClassMustBeFinal>
@@ -35,16 +34,16 @@
                 <directory name="src/*/Application/Exception/" />
                 <directory name="src/*/Domain/Entity/" />
                 <directory name="src/*/Domain/Enum/" />
+                <directory name="src/*/Infrastructure/Repository/" />
+                <directory name="src/*/Infrastructure/Query/" />
                 <directory name="src/*/UI/Console/Command/" />
                 <directory name="src/*/UI/Http/Controller" />
+                <directory name="src/*/UI/Http/DTO/" />
+                <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/Command"/>
                 <directory name="src/DataFixtures"/>
                 <directory name="src/DataTransferObjects"/>
                 <directory name="src/Enum"/>
-                <directory name="src/Entity"/>
-                <directory name="src/Factory"/>
-                <directory name="src/Form"/>
-                <directory name="src/Faker/Provider"/>
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Indication/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
@@ -57,6 +56,7 @@
         <PossiblyUnusedProperty>
             <errorLevel type="suppress">
                 <directory name="src/*/Application/DTO/" />
+                <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/DataTransferObjects" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
             </errorLevel>
@@ -64,13 +64,13 @@
         <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="src/*/Application/MessageHandler/" />
+                <directory name="src/*/Infrastructure/EventSubscriber/" />
                 <directory name="src/*/UI/Twig/Components" />
                 <directory name="src/*/UI/Http/Controller" />
                 <directory name="src/*/UI/Console/Command" />
                 <directory name="src/Command" />
                 <directory name="src/Controller" />
                 <directory name="src/DataFixtures" />
-                <directory name="src/EventSubscriber" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
@@ -82,11 +82,11 @@
         </UnusedClass>
         <UnusedParam>
             <errorLevel type="suppress">
+                <directory name="src/*/Infrastructure/EventSubscriber/" />
+                <directory name="src/*/Infrastructure/Repository/" />
                 <directory name="src/DataTransferObjects" />
-                <directory name="src/EventSubscriber" />
                 <directory name="src/Repository" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
-                <directory name="src/Import/Infrastructure/Repository/" />
             </errorLevel>
         </UnusedParam>
         <UnusedProperty>

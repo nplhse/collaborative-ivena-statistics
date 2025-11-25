@@ -5,22 +5,22 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Integration\MessageHandler;
 
-use App\Factory\AssignmentFactory;
-use App\Factory\DepartmentFactory;
-use App\Factory\DispatchAreaFactory;
-use App\Factory\HospitalFactory;
-use App\Factory\IndicationRawFactory;
-use App\Factory\InfectionFactory;
-use App\Factory\OccasionFactory;
-use App\Factory\SpecialityFactory;
-use App\Factory\StateFactory;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
-use App\Tests\Doubles\Service\Import\Adapter\InMemoryRejectWriter;
-use App\Tests\Doubles\Service\Import\Adapter\InMemoryRowReader;
+use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
+use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -86,7 +86,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         ];
 
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
-        $hospitalRef = $this->em->getReference(\App\Entity\Hospital::class, $hospital->getId());
+        $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
 
         $import = new Import()
             ->setName('Handler IT (in-memory)')

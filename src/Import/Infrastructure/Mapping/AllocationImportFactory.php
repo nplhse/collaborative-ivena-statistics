@@ -2,8 +2,8 @@
 
 namespace App\Import\Infrastructure\Mapping;
 
-use App\Entity\Allocation;
-use App\Entity\Hospital;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Domain\Entity\Import;

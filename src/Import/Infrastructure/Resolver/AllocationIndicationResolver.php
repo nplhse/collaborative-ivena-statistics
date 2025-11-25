@@ -2,13 +2,13 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
-use App\Entity\IndicationRaw;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Infrastructure\Indication\IndicationCache;
 use App\Import\Infrastructure\Indication\IndicationKey;
-use App\Repository\IndicationRawRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

@@ -2,12 +2,12 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\DispatchArea;
-use App\Entity\Hospital;
-use App\Entity\State;
-use App\Enum\HospitalLocation;
-use App\Enum\HospitalSize;
-use App\Enum\HospitalTier;
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\State;
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Service\Seed\Areas\AreaCache;
 use App\Service\Seed\HospitalSeedProvider;
 use App\User\Domain\Entity\User;

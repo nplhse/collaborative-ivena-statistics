@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\IndicationNormalized;
+use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Service\Seed\IndicationNormalizedSeedProvider;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;

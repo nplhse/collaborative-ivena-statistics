@@ -2,13 +2,13 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
-use App\Entity\DispatchArea;
-use App\Entity\State;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\State;
+use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\Exception\ReferenceNotFoundException;
-use App\Repository\DispatchAreaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

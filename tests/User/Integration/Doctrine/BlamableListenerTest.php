@@ -2,7 +2,7 @@
 
 namespace App\Tests\User\Integration\Doctrine;
 
-use App\Entity\State;
+use App\Allocation\Domain\Entity\State;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;

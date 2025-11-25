@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Controller;
 
-use App\Factory\DispatchAreaFactory;
-use App\Factory\HospitalFactory;
-use App\Factory\StateFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;

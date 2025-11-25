@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Repository\AssignmentRepository;
-use App\Repository\DispatchAreaRepository;
-use App\Repository\IndicationNormalizedRepository;
-use App\Repository\OccasionRepository;
-use App\Repository\SpecialityRepository;
-use App\Repository\StateRepository;
+use App\Allocation\Infrastructure\Repository\AssignmentRepository;
+use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
+use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
+use App\Allocation\Infrastructure\Repository\OccasionRepository;
+use App\Allocation\Infrastructure\Repository\SpecialityRepository;
+use App\Allocation\Infrastructure\Repository\StateRepository;
 
 final class TransportTimeDimNameResolver
 {

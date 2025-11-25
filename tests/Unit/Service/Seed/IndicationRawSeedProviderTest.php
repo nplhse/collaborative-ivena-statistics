@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service\Seed;
 
-use App\Entity\IndicationRaw;
+use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Service\Seed\IndicationRawSeedProvider;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;

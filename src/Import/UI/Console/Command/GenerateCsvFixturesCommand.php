@@ -34,7 +34,7 @@ final class GenerateCsvFixturesCommand extends Command
             return Command::FAILURE;
         }
 
-        $dir = $this->kernel->getProjectDir().'/tests/Fixtures/csv';
+        $dir = $this->kernel->getProjectDir().'/tests/Import/Fixtures/csv';
         $this->fs->mkdir($dir);
 
         $csv = <<<CSV

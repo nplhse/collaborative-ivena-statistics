@@ -2,11 +2,11 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Entity\Allocation;
-use App\Entity\Occasion;
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Occasion;
+use App\Allocation\Infrastructure\Repository\OccasionRepository;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
-use App\Repository\OccasionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

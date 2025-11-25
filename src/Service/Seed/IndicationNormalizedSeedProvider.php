@@ -2,7 +2,7 @@
 
 namespace App\Service\Seed;
 
-use App\Entity\IndicationNormalized;
+use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
