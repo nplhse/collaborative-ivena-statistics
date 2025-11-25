@@ -2,20 +2,20 @@
 
 namespace App\DataFixtures;
 
-use App\Enum\ImportStatus;
-use App\Factory\AllocationFactory;
-use App\Factory\AssignmentFactory;
-use App\Factory\DepartmentFactory;
-use App\Factory\DispatchAreaFactory;
-use App\Factory\HospitalFactory;
-use App\Factory\ImportFactory;
-use App\Factory\IndicationNormalizedFactory;
-use App\Factory\IndicationRawFactory;
-use App\Factory\InfectionFactory;
-use App\Factory\OccasionFactory;
-use App\Factory\SpecialityFactory;
-use App\Factory\StateFactory;
-use App\Factory\UserFactory;
+use App\Allocation\Infrastructure\Factory\AllocationFactory;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Infrastructure\Factory\ImportFactory;
+use App\User\Domain\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;

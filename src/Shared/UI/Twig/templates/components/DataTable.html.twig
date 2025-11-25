@@ -1,0 +1,28 @@
+<div{{ attributes }}>
+    <div class="card">
+        {% if title %}
+            <div class="card-header">
+                <h3 class="card-title">{{ title }}</h3>
+            </div>
+        {% endif %}
+        {% if tabs %}
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    {% for tab in tabs %}
+                    <li class="nav-item">
+                        <a href="{{ tab.path }}" class="nav-link {% if tab.active %}active{% endif %}" target="_top">{{ tab.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="card-body p-0">
+            {% block content %}{% endblock %}
+        </div>
+
+        {% if paginator is not null %}
+            {{ include('@Shared/_includes/card_pagination_footer.html.twig') }}
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,56 @@
+{% set route = app.request.attributes.get('_route') %}
+
+{% block header %}
+    <header class="navbar navbar-expand-md d-print-none">
+        <div class="container-xl">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            {% block navbar_logo %}
+                <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+                    <a class="text-black" href="{{ path('app_default') }}">
+                        Collaborative IVENA statistics
+                    </a>
+                </h1>
+            {% endblock %}
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
+                    <ul class="navbar-nav">
+                        {% block navbar_links %}
+                            <li class="nav-item {{ route starts with 'app_explore' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ path('app_explore_index') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:compass" style="height: 1.5em;" />
+                                        {{ 'link.explore'|trans }}
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item {{ route starts with 'app_stats' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ path('app_stats_dashboard') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:graph" style="height: 1.5em;" />
+                                        {{ 'link.statistics'|trans }}
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item {{ route starts with 'app_import' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ path('app_import_index') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:database-import" style="height: 1.5em;" />
+                                        {{ 'link.import'|trans }}
+                                    </span>
+                                </a>
+                            </li>
+                        {% endblock %}
+                    </ul>
+                </div>
+            </div>
+            {% block navbar_user %}
+                {{ include('@Shared/_includes/navbar_user.html.twig') }}
+            {% endblock %}
+        </div>
+    </header>
+{% endblock %}
+
+{% block header_after %}
+{% endblock %}

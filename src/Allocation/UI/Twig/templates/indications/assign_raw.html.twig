@@ -1,0 +1,80 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.indication.assign_raw'|trans }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('@Shared/_includes/subnav_explore.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'title.indication.list', path: path('app_explore_indication_list') },
+                { label: 'title.indication.assign_raw' }
+            ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    {% block page_intro %}
+                        <h2 class="page-title">
+                            {% block page_title %}{{ 'title.indication.assign_raw'|trans }}{% endblock %}
+                        </h2>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ form_start(form) }}
+    {% set listId = form.target.vars.id ~ '-datalist' %}
+    {% set hiddenSelector = '#' ~ form.target.vars.id %}
+
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">{{ 'title.indication.assign'|trans }}</h3>
+            <p class="card-subtitle">{{ 'subtitle.indication.assign'|trans }}</p>
+
+            {{ form_row(form.code) }}
+            {{ form_row(form.name) }}
+
+            {{ form_row(form.target_label, {
+                attr: form.target_label.vars.attr|merge({
+                    list: listId,
+                    value: initial_label ?? '',
+                    'data-datalist-chooser-list-id-value': listId,
+                    'data-datalist-chooser-hidden-selector-value': hiddenSelector,
+                }),
+            }) }}
+
+            <datalist id="{{ listId }}">
+                {% for row in datalist %}
+                    <option value="{{ row.label }}" data-id="{{ row.id }}"></option>
+                {% endfor %}
+            </datalist>
+
+            {# das gemappte Hidden-Feld (ID) #}
+            {{ form_widget(form.target) }}
+        </div>
+        <div class="card-footer">
+            <div class="row align-items-center">
+                <div class="col">
+                    <a href="{{ path('app_explore_indication_list', {type: 'raw'}) }}" class="btn btn-link">{{ 'btn.cancel'|trans }}</a>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary">{{ 'btn.save.changes'|trans }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

@@ -13,87 +13,74 @@
     </projectFiles>
     <fileExtensions>
         <extension name=".php"/>
-        <extension name=".twig" checker="/vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/>
     </fileExtensions>
     <plugins>
         <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
         <pluginClass class="Psalm\MockeryPlugin\Plugin"/>
-    <pluginClass class="Zenstruck\Foundry\Psalm\FoundryPlugin"/></plugins>
+        <pluginClass class="Zenstruck\Foundry\Psalm\FoundryPlugin"/>
+    </plugins>
     <issueHandlers>
         <ClassMustBeFinal>
             <errorLevel type="suppress">
-                <directory name="src/Entity"/>
+                <directory name="src/*/Domain/Entity"/>
             </errorLevel>
         </ClassMustBeFinal>
-        <LessSpecificReturnStatement>
-            <errorLevel type="suppress">
-                <directory name="src/Entity"/>
-                <directory name="src/Factory"/>
-            </errorLevel>
-        </LessSpecificReturnStatement>
-        <MoreSpecificReturnType>
-            <errorLevel type="suppress">
-                <directory name="src/Entity"/>
-                <directory name="src/Factory"/>
-            </errorLevel>
-        </MoreSpecificReturnType>
-        <PossiblyNullArgument>
-            <errorLevel type="suppress">
-                <directory name="src/Entity"/>
-                <directory name="src/Factory"/>
-            </errorLevel>
-        </PossiblyNullArgument>
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
-                <directory name="src/Command"/>
+                <file name="src/Shared/Infrastructure/Pagination/Paginator.php" />
+                <directory name="src/*/Application/Contracts/" />
+                <directory name="src/*/Application/DTO/" />
+                <directory name="src/*/Application/Exception/" />
+                <directory name="src/*/Domain/Entity/" />
+                <directory name="src/*/Domain/Enum/" />
+                <directory name="src/*/Infrastructure/Repository/" />
+                <directory name="src/*/Infrastructure/Query/" />
+                <directory name="src/*/UI/Console/Command/" />
+                <directory name="src/*/UI/Http/Controller" />
+                <directory name="src/*/UI/Http/DTO/" />
+                <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/DataFixtures"/>
-                <directory name="src/DataTransferObjects"/>
-                <directory name="src/Enum"/>
-                <directory name="src/Entity"/>
-                <directory name="src/Factory"/>
-                <directory name="src/Form"/>
-                <directory name="src/Faker/Provider"/>
-                <directory name="src/Pagination"/>
-                <directory name="src/Query"/>
-                <directory name="src/Repository"/>
-                <directory name="src/Service/Import"/>
-                <directory name="src/Service/Seed/Areas/"/>
+                <directory name="src/Import/Infrastructure/Adapter/" />
+                <directory name="src/Import/Infrastructure/Indication/" />
+                <directory name="src/Import/Infrastructure/Mapping/" />
+                <directory name="src/Import/Infrastructure/Resolver/" />
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>
             <errorLevel type="suppress">
-                <directory name="src/DataTransferObjects"/>
-                <directory name="src/Service/Import"/>
+                <directory name="src/*/Application/DTO/" />
+                <directory name="src/*/UI/Http/DTO/" />
+                <directory name="src/Import/Infrastructure/Adapter/" />
             </errorLevel>
         </PossiblyUnusedProperty>
         <UnusedClass>
             <errorLevel type="suppress">
-                <directory name="src/Command"/>
-                <directory name="src/Controller"/>
-                <directory name="src/DataFixtures"/>
-                <directory name="src/EventListener"/>
-                <directory name="src/EventSubscriber"/>
-                <directory name="src/MessageHandler"/>
-                <directory name="src/Security"/>
-                <directory name="src/Twig/Components/"/>
-                <directory name="src/Service/Import/Adapter"/>
-                <directory name="src/Service/Import/Mapping"/>
-                <directory name="src/Service/Import/Resolver"/>
-                <directory name="src/Service/Seed"/>
+                <directory name="src/*/Application/MessageHandler/" />
+                <directory name="src/*/Infrastructure/EventSubscriber/" />
+                <directory name="src/*/UI/Twig/Components" />
+                <directory name="src/*/UI/Http/Controller" />
+                <directory name="src/*/UI/Console/Command" />
+                <directory name="src/DataFixtures" />
+                <directory name="src/Import/Infrastructure/Adapter/" />
+                <directory name="src/Import/Infrastructure/Mapping/" />
+                <directory name="src/Import/Infrastructure/Resolver/" />
+                <directory name="src/Import/Infrastructure/Repository/" />
+                <directory name="src/Seed/Infrastructure/Provider/" />
             </errorLevel>
         </UnusedClass>
         <UnusedParam>
             <errorLevel type="suppress">
-                <directory name="src/DataTransferObjects"/>
-                <directory name="src/EventSubscriber"/>
-                <directory name="src/Repository"/>
+                <directory name="src/*/Infrastructure/EventSubscriber/" />
+                <directory name="src/*/Infrastructure/Repository/" />
+                <directory name="src/*/UI/Console/Command/" />
+                <directory name="src/Import/Infrastructure/Adapter/" />
             </errorLevel>
         </UnusedParam>
         <UnusedProperty>
             <errorLevel type="suppress">
-                <directory name="src/Service/Import/Adapter"/>
+                <directory name="src/Import/Infrastructure/Adapter/" />
             </errorLevel>
         </UnusedProperty>
     </issueHandlers>
