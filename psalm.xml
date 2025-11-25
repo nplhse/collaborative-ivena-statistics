@@ -13,14 +13,14 @@
     </projectFiles>
     <fileExtensions>
         <extension name=".php"/>
-        <extension name=".twig" checker="/vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/>
     </fileExtensions>
     <plugins>
         <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
         <pluginClass class="Psalm\MockeryPlugin\Plugin"/>
-    <pluginClass class="Zenstruck\Foundry\Psalm\FoundryPlugin"/></plugins>
+        <pluginClass class="Zenstruck\Foundry\Psalm\FoundryPlugin"/>
+    </plugins>
     <issueHandlers>
         <ClassMustBeFinal>
             <errorLevel type="suppress">
