@@ -4,6 +4,7 @@ twig:
 
     paths:
         '%kernel.project_dir%/src/Allocation/UI/Twig/templates': Allocation
+        '%kernel.project_dir%/src/Content/UI/Twig/templates': Content
         '%kernel.project_dir%/src/Import/UI/Twig/templates': Import
         '%kernel.project_dir%/src/User/UI/Twig/templates': User
         '%kernel.project_dir%/src/Shared/UI/Twig/templates': Shared

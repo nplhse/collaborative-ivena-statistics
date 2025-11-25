@@ -33,7 +33,7 @@ final class DefaultController extends AbstractController
 
         $charts = $this->buildDashboardCharts();
 
-        return $this->render('default/index.html.twig', [
+        return $this->render('@Content/index.html.twig', [
             'userCount' => $userCount,
             'hospitalCount' => $hospitalCount,
             'participatingHospitalCount' => $participatingHospitalCount,
