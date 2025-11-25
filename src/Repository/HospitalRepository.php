@@ -9,7 +9,7 @@ use App\Entity\State;
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
-use App\Pagination\Paginator;
+use App\Shared\Infrastructure\Pagination\Paginator;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;

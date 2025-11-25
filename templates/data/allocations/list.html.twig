@@ -113,7 +113,7 @@
 
 {% block page_content %}
     <turbo-frame id="allocation-list" data-turbo-action="advance">
-        {% import '_macros/filters.html.twig' as activeFilters %}
+        {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
             <div class="alert alert-info" role="alert">
@@ -126,7 +126,7 @@
             :paginator="paginator"
             :paginationRoute="pagination_route"
         >
-            {% import '_macros/pagination.html.twig' as pagination %}
+            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
 
             <table class="table data-table-card">
                 <thead>
@@ -194,7 +194,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% import '_macros/badges.html.twig' as badges %}
+                            {% import '@Shared/_macros/badges.html.twig' as badges %}
 
                             {{ badges.render('allocation_urgency', allocation.urgency.value) }}
                         </td>

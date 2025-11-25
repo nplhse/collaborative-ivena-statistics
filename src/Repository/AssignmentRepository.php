@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\DataTransferObjects\AssignmentQueryParametersDTO;
 use App\Entity\Assignment;
-use App\Pagination\Paginator;
+use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

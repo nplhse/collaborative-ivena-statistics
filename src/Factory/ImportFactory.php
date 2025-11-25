@@ -2,9 +2,9 @@
 
 namespace App\Factory;
 
-use App\Entity\Import;
-use App\Enum\ImportStatus;
-use App\Enum\ImportType;
+use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 

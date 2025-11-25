@@ -6,9 +6,9 @@ namespace App\Command;
 
 use App\Entity\IndicationNormalized;
 use App\Entity\IndicationRaw;
+use App\Import\Infrastructure\Indication\IndicationKey;
 use App\Repository\IndicationNormalizedRepository;
 use App\Repository\IndicationRawRepository;
-use App\Service\Import\Indication\IndicationKey;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

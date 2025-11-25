@@ -40,15 +40,12 @@ services:
 
     Symfony\Component\Lock\LockFactory: '@app.lock.factory'
 
-    App\Service\Import\Adapter\SplCsvRowReader: ~
-    App\Service\Import\Mapping\AllocationRowMapper: ~
-    App\Service\Import\Mapping\AllocationImportFactory: ~
-    App\Service\Import\Adapter\DoctrineAllocationPersister:
+    App\Import\Infrastructure\Adapter\SplCsvRowReader: ~
+    App\Import\Infrastructure\Mapping\AllocationRowMapper: ~
+    App\Import\Infrastructure\Mapping\AllocationImportFactory: ~
+    App\Import\Infrastructure\Adapter\DoctrineAllocationPersister:
         arguments:
             $batchSize: 250
-    App\Service\Import\AllocationImporter:
+    App\Import\Application\Service\AllocationImporter:
         arguments:
             $logger: '@monolog.logger.import'
-    # App\Service\Import\Adapter\CsvRejectWriter:
-    #    arguments:
-    #        $baseDir: '%kernel.project_dir%/var/import/rejects'

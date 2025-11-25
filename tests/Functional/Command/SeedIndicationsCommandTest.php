@@ -8,7 +8,7 @@ use App\Command\SeedIndicationsCommand;
 use App\Entity\IndicationRaw;
 use App\Factory\IndicationNormalizedFactory;
 use App\Factory\IndicationRawFactory;
-use App\Service\Import\Indication\IndicationKey;
+use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Factory\UserFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

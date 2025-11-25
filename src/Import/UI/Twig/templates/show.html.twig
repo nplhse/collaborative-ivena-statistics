@@ -1,0 +1,235 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.import.show'|trans }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
+
+{% import '@Shared/_macros/badges.html.twig' as badges %}
+
+{% block page_header %}
+        <div class="container-xl">
+            <twig:Breadcrumbs
+                :items="[
+                    { label: 'title.import.index', path: path('app_import_index') },
+                    { label: 'title.import.show' }
+                ]"
+            />
+
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span class="avatar avatar-lg rounded">
+                        {% if import.fileMimeType == 'text/csv' %}
+                            <twig:ux:icon name="tabler:file-type-csv" class="w-5 h-5" />
+                        {% else %}
+                            <twig:ux:icon name="tabler:file" class="w-5 h-5" />
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="col">
+                    <h1 id="import-id" class="fw-bold">#{{ import.id }} · {{ import.name }}</h1>
+                    <div class="list-inline list-inline-dots text-muted">
+                        <div class="list-inline-item">
+                            <twig:ux:icon name="tabler:building-hospital" class="w-3 h-3" />
+                            {{ import.hospital.name }}
+                            {% if import.hospital.dispatchArea or import.hospital.state %}
+                                · {{ import.hospital.dispatchArea }}, {{ import.hospital.state }}
+                            {% endif %}
+                        </div>
+                        <div class="list-inline-item">
+                            <twig:ux:icon name="tabler:tag" class="w-3 h-3" />
+                            {% autoescape false %}
+                                {{ badges.render('import_type', import.type.value) }}
+                            {% endautoescape %}
+                        </div>
+                        <div class="list-inline-item">
+                            {% autoescape false %}
+                                {{ badges.render('import_status', import.status.value) }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto ms-auto">
+                    <div class="btn-list">
+                        <span class="d-none d-sm-inline">
+                            <a class="btn btn-outline-secondary" href="{{ path('app_import_index') }}">
+                                <twig:ux:icon name="tabler:chevron-left" class="w-3 h-3" />
+                                {{ 'label.back_to_list'|trans }}
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row g-3">
+                <div class="col">
+                    <div class="col-12 mb-3">
+                        <twig:Card title="{{ 'label.hospital'|trans }}">
+                            <h3 class="card-title mb-1 fs-3">
+                                <a href="{{ path('app_data_hospital_show', {id: import.hospital.id}) }}">{{ import.hospital.name }}</a>
+                            </h3>
+
+                            <div class="text-muted small mb-3 d-flex align-items-center gap-2">
+                                <twig:ux:icon name="tabler:building" class="w-3 h-3" />
+                                <span>
+                                    {{ import.hospital.dispatchArea }} · {{ import.hospital.state }}
+                                </span>
+                            </div>
+                        </twig:Card>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <twig:Card title="{{ 'label.import.section.source_file'|trans }}">
+                            {% set readableSize = (import.fileSize >= 1048576)
+                                ? ((import.fileSize / 1048576.0)|number_format(2, ',', '.')) ~ ' MB'
+                                : ((import.fileSize / 1024.0)|number_format(0, ',', '.')) ~ ' KB'
+                            %}
+                            <div class="datagrid">
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">
+                                        <twig:ux:icon name="tabler:file" class="w-3 h-3 me-1" />
+                                        {{ 'imports.field.filePath'|trans }}
+                                    </div>
+                                    <div class="datagrid-content">
+                                        <code class="text-break">{{ import.filePath|split('/')|last }}</code>
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.fileExtension'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.fileExtension|upper }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.fileMimeType'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.fileMimeType }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.fileSize'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ readableSize }}
+                                        <span class="text-muted">({{ import.fileSize|number_format(0, ',', '.') }} B)</span>
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowCount'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowCount|number_format(0, ',', '.') }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.type'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        <span class="status status-blue">{{ import.type.value }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </twig:Card>
+                    </div>
+
+                    <div class="col-12">
+                        <twig:Card
+                            title="{{ 'label.import.section.run'|trans }}"
+                        >
+                            {% import '@Shared/_macros/status.html.twig' as macros %}
+                            {% set isMs = import.runTime is not null and import.runTime > 1000 %}
+                            {% set runTimeHuman = isMs
+                                ? ((import.runTime / 1000.0)|number_format(2, ',', '.')) ~ ' s'
+                                : (import.runTime ?? 0) ~ ' ms'
+                            %}
+                            <div class="datagrid">
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.status'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ macros.import_status(import.status.value) }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.runCount'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.runCount }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.runTime'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ runTimeHuman }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowsPassed'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowsPassed }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowsRejected'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowsRejected }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rejectionRate'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {% if import.rowCount > 0 %}
+                                            {{ (import.rowsRejected / import.rowCount * 100)|number_format(2, ',', '.') }}%
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </twig:Card>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="row row-cards">
+                        <div class="col-12">
+                            <twig:Card title="{{ 'label.basic_info'|trans }}">
+                                <div id="import-created-at" class="mb-2">
+                                    <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
+                                    {{ 'label.created_at'|trans }} <strong>{{ import.createdAt|date('d.m.Y H:i') }}</strong>
+                                </div>
+                                {% if import.updatedAt is not null %}
+                                    <div id="import-updated-at" class="mb-2">
+                                        <twig:ux:icon name="tabler:clock-edit" class="w-3 h-3" />
+                                        {{ 'label.updated_at'|trans }}
+                                        <strong>
+                                            {{ import.updatedAt ? import.updatedAt|date('d.m.Y H:i') : '—' }}
+                                        </strong>
+                                    </div>
+                                {% endif %}
+                                <div id="import-created-by" class="mb-2">
+                                    <twig:ux:icon name="tabler:user-plus" class="w-3 h-3" />
+                                    {{ 'label.created_by'|trans }}
+                                    <strong>{{ import.createdBy ?? '—' }}</strong>
+                                </div>
+                                {% if import.updatedAt is not null %}
+                                    <div id="import-updated-by">
+                                        <twig:ux:icon name="tabler:user-edit" class="w-3 h-3" />
+                                        {{ 'label.updated_by'|trans }}
+                                        <strong>{{ import.updatedBy ?? '—' }}</strong>
+                                    </div>
+                                {% endif %}
+                            </twig:Card>
+                        </div>
+
+                        <div class="col-12">
+                            <twig:Card title="{{ 'label.import.section.quick_actions'|trans }}">
+                                <div class="btn-list">
+                                    <a class="btn btn-outline-primary" href="{{ path('app_data_allocation_list', {importId: import.id}) }}">
+                                        <twig:ux:icon name="tabler:table" class="w-3 h-3" /> {{ 'import.action.preview_rows'|trans }}
+                                    </a>
+                                </div>
+                            </twig:Card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

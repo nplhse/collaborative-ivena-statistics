@@ -2,7 +2,7 @@
 
 namespace App\Tests\Doubles\Service\Import\Adapter;
 
-use App\Service\Import\Contracts\RowReaderInterface;
+use App\Import\Application\Contracts\RowReaderInterface;
 
 final class InMemoryRowReader implements RowReaderInterface
 {

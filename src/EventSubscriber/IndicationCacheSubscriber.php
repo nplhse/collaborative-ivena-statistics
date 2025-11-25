@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use App\Service\Import\Indication\IndicationCache;
+use App\Import\Infrastructure\Indication\IndicationCache;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnClearEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;

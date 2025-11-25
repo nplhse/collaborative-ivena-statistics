@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\DataTransferObjects\InfectionQueryParametersDTO;
 use App\Entity\Infection;
-use App\Pagination\Paginator;
+use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

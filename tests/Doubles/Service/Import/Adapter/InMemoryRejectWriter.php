@@ -2,7 +2,7 @@
 
 namespace App\Tests\Doubles\Service\Import\Adapter;
 
-use App\Service\Import\Contracts\RejectWriterInterface;
+use App\Import\Application\Contracts\RejectWriterInterface;
 
 final class InMemoryRejectWriter implements RejectWriterInterface
 {

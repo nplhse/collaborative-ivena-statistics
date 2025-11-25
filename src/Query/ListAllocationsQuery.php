@@ -14,7 +14,7 @@ use App\Enum\AllocationUrgency;
 use App\Enum\HospitalLocation;
 use App\Enum\HospitalSize;
 use App\Enum\HospitalTier;
-use App\Pagination\Paginator;
+use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ListAllocationsQuery

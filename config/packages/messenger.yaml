@@ -31,7 +31,7 @@ framework:
             Symfony\Component\Notifier\Message\ChatMessage: async_priority_low
             Symfony\Component\Notifier\Message\SmsMessage: async_priority_low
 
-            App\Message\ImportAllocationsMessage: async_priority_high
+            App\Import\Application\Message\ImportAllocationsMessage: async_priority_high
             App\Message\RecomputeScope: async_priority_low
             App\Message\ScheduleScope: [async_priority_high, async_priority_low]
 
@@ -41,4 +41,4 @@ when@test:
             transports:
                 sync: 'sync://'
             routing:
-                App\Message\ImportAllocationsMessage: sync
+                App\Import\Application\Message\ImportAllocationsMessage: sync

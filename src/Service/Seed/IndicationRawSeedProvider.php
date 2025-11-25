@@ -3,7 +3,7 @@
 namespace App\Service\Seed;
 
 use App\Entity\IndicationRaw;
-use App\Service\Import\Indication\IndicationKey;
+use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 

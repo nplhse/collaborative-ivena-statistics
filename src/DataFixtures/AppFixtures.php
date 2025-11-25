@@ -2,7 +2,6 @@
 
 namespace App\DataFixtures;
 
-use App\Enum\ImportStatus;
 use App\Factory\AllocationFactory;
 use App\Factory\AssignmentFactory;
 use App\Factory\DepartmentFactory;
@@ -15,6 +14,7 @@ use App\Factory\InfectionFactory;
 use App\Factory\OccasionFactory;
 use App\Factory\SpecialityFactory;
 use App\Factory\StateFactory;
+use App\Import\Domain\Enum\ImportStatus;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;

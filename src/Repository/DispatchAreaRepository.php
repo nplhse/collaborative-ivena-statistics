@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\DataTransferObjects\AreaListQueryParametersDTO;
 use App\Entity\DispatchArea;
 use App\Entity\State;
-use App\Pagination\Paginator;
+use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;

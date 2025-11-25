@@ -147,7 +147,7 @@
 
 {% block page_content %}
     <turbo-frame id="area-list" data-turbo-action="advance">
-        {% import '_macros/filters.html.twig' as activeFilters %}
+        {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
             <div class="alert alert-info" role="alert">
@@ -160,7 +160,7 @@
             :paginator="paginator"
             :paginationRoute="pagination_route"
         >
-            {% import '_macros/pagination.html.twig' as pagination %}
+            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
 
             <table class="table data-table-card">
                 <thead>

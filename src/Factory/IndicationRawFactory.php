@@ -3,7 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\IndicationRaw;
-use App\Service\Import\Indication\IndicationKey;
+use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
