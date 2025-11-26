@@ -37,9 +37,23 @@ export default class extends Controller {
         const labels = data.labels || [];
         const cumulative = data.cumulativeCounts || [];
 
+        const minVal = Math.min(...cumulative);
         const maxVal = cumulative.length
             ? Math.max(...cumulative)
             : 0;
+
+        let yMin;
+        let yMax;
+
+        if (minVal === maxVal) {
+            yMin = minVal * 0.99;
+            yMax = maxVal * 1.01;
+        } else {
+            const range = maxVal - minVal;
+            // 10 % Puffer nach unten und oben
+            yMin = minVal - range * 0.5;
+            yMax = maxVal + range * 0.25;
+        }
 
         const options = {
             chart: {
@@ -65,8 +79,8 @@ export default class extends Controller {
                 axisTicks: { show: false },
             },
             yaxis: {
-                min: 0,
-                max: maxVal === 0 ? undefined : Math.ceil(maxVal * 1.1),
+                min: yMin,
+                max: yMax,
                 show: false
             },
             stroke: {
