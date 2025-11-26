@@ -31,7 +31,7 @@
                         {% block page_subtitle %}
                             {% block result_count %}
                                 <div id="result-count" class="text-body-secondary mt-1">
-                                    {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}) }}
+                                    {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber|number_format(0, ',', '.'), last: paginator.lastResultNumber|number_format(0, ',', '.'), total: paginator.numResults|number_format(0, ',', '.')}) }}
                                 </div>
                             {% endblock %}
                         {% endblock %}

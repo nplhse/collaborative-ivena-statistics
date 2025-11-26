@@ -34,7 +34,7 @@
                         </div>
                         <div class="col">
                             <div class="font-weight-medium">
-                                {{ allocationCount }} {{ 'link.allocations'|trans }}
+                                {{ allocationCount|number_format(0, ',', '.') }} {{ 'link.allocations'|trans }}
                             </div>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                         </div>
                         <div class="col">
                             <div class="font-weight-medium">
-                                {{ importCount }} {{ 'link.imports'|trans }}
+                                {{ importCount|number_format(0, ',', '.') }} {{ 'link.imports'|trans }}
                             </div>
                         </div>
                     </div>
