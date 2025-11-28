@@ -234,4 +234,78 @@ trait AllocationRowNormalizationTrait
 
         return $value;
     }
+
+    private static function normalizeAssessmentAirway(?string $value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
+        $normalized = mb_strtolower(trim($value));
+
+        return match ($normalized) {
+            'frei' => 'free',
+            'gefährdet', 'gefaehrdet' => 'risk',
+            'intubiert' => 'intubated',
+            'krit. atemweg', 'kritischer atemweg', 'krit atemweg' => 'critical',
+            default => $value,
+        };
+    }
+
+    private static function normalizeAssessmentBreathing(?string $value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
+        $normalized = mb_strtolower(trim($value));
+
+        return match ($normalized) {
+            'spontan' => 'spontaneous',
+            'resp. insuff.', 'resp insuff.', 'resp. insuff', 'resp insuff', 'respiratorische insuffizienz' => 'insufficient',
+            'cpap' => 'cpap',
+            'niv' => 'niv',
+            'invasiv' => 'invasive',
+            default => $value,
+        };
+    }
+
+    private static function normalizeAssessmentCirculation(?string $value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
+        $normalized = mb_strtolower(trim($value));
+
+        return match ($normalized) {
+            'stabil' => 'stable',
+            'stabil unter med.', 'stabil u. med.', 'stabil unter med' => 'medication',
+            'instabil' => 'unstable',
+            'laufende rea', 'rea laufend' => 'cpr',
+            default => $value,
+        };
+    }
+
+    private static function normalizeAssessmentDisability(?string $value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
+        $normalized = mb_strtolower(trim($value));
+
+        return match ($normalized) {
+            'wach' => 'awake',
+            'gcs < 15', 'gcs<15' => 'gcs_below_15',
+            'gcs < 9', 'gcs<9' => 'gcs_below_9',
+            'sediert' => 'sedated',
+            'narkotisiert' => 'anesthetized',
+            default => $value,
+        };
+    }
 }

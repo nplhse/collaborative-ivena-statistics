@@ -101,6 +101,9 @@ class Allocation
     #[ORM\ManyToOne]
     private ?IndicationNormalized $indicationNormalized = null;
 
+    #[ORM\OneToOne(Assessment::class, cascade: ['persist', 'remove'])]
+    private ?Assessment $assessment = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -412,5 +415,15 @@ class Allocation
         $this->indicationNormalized = $indicationNormalized;
 
         return $this;
+    }
+
+    public function getAssessment(): ?Assessment
+    {
+        return $this->assessment;
+    }
+
+    public function setAssessment(?Assessment $assessment): void
+    {
+        $this->assessment = $assessment;
     }
 }
