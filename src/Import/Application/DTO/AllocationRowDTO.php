@@ -96,4 +96,12 @@ final class AllocationRowDTO
 
     #[Assert\NotBlank]
     public ?string $indication = null;
+
+    public ?string $assessmentAirway = null;
+
+    public ?string $assessmentBreathing = null;
+
+    public ?string $assessmentCirculation = null;
+
+    public ?string $assessmentDisability = null;
 }

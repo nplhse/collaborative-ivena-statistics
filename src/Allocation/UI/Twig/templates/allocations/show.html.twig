@@ -178,6 +178,40 @@
                     </div>
                 </twig:Card>
             </div>
+            {% if allocation.assessment %}
+                <div class="col-12 mb-3">
+                    <twig:Card
+                        title="{{ 'label.assessment'|trans }}"
+                    >
+                        <div class="datagrid">
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'field.assessment.airway'|trans }}</div>
+                                <div class="datagrid-content">
+                                    {{ allocation.assessment.airway.label|trans }}
+                                </div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'field.assessment.breathing'|trans }}</div>
+                                <div class="datagrid-content">
+                                    {{ allocation.assessment.breathing.label|trans }}
+                                </div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'field.assessment.circulation'|trans }}</div>
+                                <div class="datagrid-content">
+                                    {{ allocation.assessment.circulation.label|trans }}
+                                </div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'field.assessment.disability'|trans }}</div>
+                                <div class="datagrid-content">
+                                    {{ allocation.assessment.disability.label|trans }}
+                                </div>
+                            </div>
+                        </div>
+                    </twig:Card>
+                </div>
+            {% endif %}
             <div class="col-12">
                 <twig:Card
                     title="{{ 'label.hospital'|trans }}"

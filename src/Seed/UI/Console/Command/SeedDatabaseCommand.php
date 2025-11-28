@@ -25,13 +25,10 @@ final class SeedDatabaseCommand extends Command
     private iterable $providers;
 
     /**
-     * @param list<SeedProviderInterface> $providers
+     * @param iterable<SeedProviderInterface<mixed>> $providers
      */
     public function __construct(
         private readonly EntityManagerInterface $em,
-        /**
-         * @var iterable<SeedProviderInterface<mixed>>
-         */
         #[AutowireIterator(tag: 'app.seed_provider')]
         iterable $providers,
     ) {
