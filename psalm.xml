@@ -42,6 +42,7 @@
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/DataFixtures"/>
+                <directory name="src/Import/Application/Factory" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Indication/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
