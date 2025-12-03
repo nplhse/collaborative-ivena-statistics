@@ -49,3 +49,9 @@ services:
     App\Import\Application\Service\AllocationImporter:
         arguments:
             $logger: '@monolog.logger.import'
+
+    App\Import\Infrastructure\Adapter\SplCsvRejectWriter:
+        arguments:
+            $rejectsBaseDir: '%app.rejects_base_dir%'
+        tags:
+            - { name: 'import.reject_writer' }

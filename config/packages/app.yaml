@@ -1,4 +1,9 @@
 app:
     title: 'Collaborative IVENA statistics'
     short_title: 'COIS'
+
     default_locale: 'en'
+
+    import:
+        reject_writer: 'csv'
+        csv_reject_dir: 'var/import_rejects'
