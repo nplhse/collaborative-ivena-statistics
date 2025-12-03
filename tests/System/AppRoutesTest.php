@@ -46,7 +46,7 @@ class AppRoutesTest extends WebTestCase
         yield 'app_login' => ['/login'];
     }
 
-    public function getSecureUrls(): ?\Generator
+    public static function getSecureUrls(): ?\Generator
     {
         yield 'app_admin_dashboard' => ['/admin/'];
     }
