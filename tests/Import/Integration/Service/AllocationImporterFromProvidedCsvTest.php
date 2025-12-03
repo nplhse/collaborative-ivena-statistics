@@ -52,7 +52,6 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
     private string $rejectDir = 'var/tests/rejects';
 
     private string $fixturePath;
-    private string $rejectPath;
 
     private ValidatorInterface $validator;
     private AllocationRowMapper $mapper;
@@ -68,11 +67,12 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         self::bootKernel();
 
         $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
-        $this->fixturePath = $projectDir.'/tests/Import/Fixtures/'.$this->fixtureFile;
-        $this->rejectPath = $projectDir.'/'.$this->rejectDir.'/rejects_it_'.date('Ymd_His').'.csv';
 
-        @mkdir(\dirname($this->rejectPath), 0775, true);
+        $this->fixturePath = $projectDir.'/tests/Import/Fixtures/'.$this->fixtureFile;
         self::assertFileExists($this->fixturePath, 'Fixture CSV missing at '.$this->fixturePath);
+
+        $rejectBaseDir = $projectDir.'/'.$this->rejectDir;
+        @mkdir($rejectBaseDir, 0775, true);
 
         $this->validator = self::getContainer()->get(ValidatorInterface::class);
         $this->mapper = self::getContainer()->get(AllocationRowMapper::class);
@@ -134,12 +134,14 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         );
 
         $rejectWriter = new SplCsvRejectWriter(
-            absolutePath: $this->rejectPath,
             filesystem: $this->fs,
+            rejectsBaseDir: $this->rejectDir,
             delimiter: ';',
             enclosure: "\0",
             escape: '\\'
         );
+
+        $rejectWriter->start($this->import);
 
         $importer = new AllocationImporter(
             validator: $this->validator,
@@ -165,8 +167,12 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         $repo = self::getContainer()->get(AllocationRepository::class);
         self::assertSame(4, $repo->count([]), 'Expected 4 persisted allocations');
 
-        self::assertFileExists($this->rejectPath, 'Reject file not written');
-        $lines = file($this->rejectPath, FILE_IGNORE_NEW_LINES);
+        $rejectPath = $rejectWriter->getPath();
+        self::assertIsString($rejectPath);
+        self::assertNotSame('', $rejectPath);
+        self::assertFileExists($rejectPath, 'Reject file not written');
+
+        $lines = file($rejectPath, FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
         self::assertCount(2, $lines, 'Reject CSV should contain header + exactly 1 rejected row');
 
