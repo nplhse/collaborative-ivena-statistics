@@ -369,6 +369,10 @@
         <source>label.back_to_list</source>
         <target>Back to list</target>
       </trans-unit>
+      <trans-unit id="ejRSahY" resname="label.backend">
+        <source>label.backend</source>
+        <target>Backend</target>
+      </trans-unit>
       <trans-unit id="LsBidrc" resname="label.background">
         <source>label.background</source>
         <target>Background</target>
@@ -821,7 +825,7 @@
       </trans-unit>
       <trans-unit id="6k49n8G" resname="title.data">
         <source>title.data</source>
-        <target>__title.data</target>
+        <target>Data</target>
       </trans-unit>
       <trans-unit id="mUiiLKD" resname="title.departments.list">
         <source>title.departments.list</source>
@@ -865,7 +869,7 @@
       </trans-unit>
       <trans-unit id="aHx7rGR" resname="title.indication.assign_raw">
         <source>title.indication.assign_raw</source>
-        <target>__title.indication.assign_raw</target>
+        <target>Assign raw indication</target>
       </trans-unit>
       <trans-unit id="EDuCAXA" resname="title.indication.list">
         <source>title.indication.list</source>

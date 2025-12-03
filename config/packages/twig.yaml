@@ -1,14 +1,25 @@
 twig:
     file_name_pattern: '*.twig'
-    form_themes: [ 'bootstrap_5_layout.html.twig' ]
+
+    date:
+        format: 'd.m.Y'
+        interval_format: '%%d days'
+        timezone: 'Europe/Berlin'
+
+    globals:
+        'app_title': '%app.title%'
+        'app_short_title': '%app.short_title%'
 
     paths:
+        '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin
         '%kernel.project_dir%/src/Allocation/UI/Twig/templates': Allocation
         '%kernel.project_dir%/src/Content/UI/Twig/templates': Content
         '%kernel.project_dir%/src/Import/UI/Twig/templates': Import
         '%kernel.project_dir%/src/User/UI/Twig/templates': User
         '%kernel.project_dir%/src/Shared/UI/Twig/templates': Shared
         '%kernel.project_dir%/src/Statistics/UI/Twig/templates': Statistics
+
+    form_themes: [ 'bootstrap_5_layout.html.twig' ]
 
 when@test:
     twig:
