@@ -30,6 +30,18 @@ final class AppConfiguration implements ConfigurationInterface
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()
+                ->arrayNode('import')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->enumNode('reject_writer')
+                            ->values(['csv', 'db'])
+                            ->defaultValue('csv')
+                        ->end()
+                        ->scalarNode('csv_reject_dir')
+                            ->defaultValue('var/import_rejects')
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 

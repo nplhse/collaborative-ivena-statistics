@@ -19,5 +19,10 @@ final class AppExtension extends Extension
         $container->setParameter('app.title', $config['title']);
         $container->setParameter('app.short_title', $config['short_title']);
         $container->setParameter('app.default.locale', $config['default_locale']);
+
+        // Import settings
+        $importConfig = $config['import'];
+        $container->setParameter('app.import.reject_writer', $importConfig['reject_writer']);
+        $container->setParameter('app.import.csv_reject_dir', $importConfig['csv_reject_dir']);
     }
 }
