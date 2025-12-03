@@ -3,6 +3,7 @@
 namespace App\Tests\Import\Doubles\Service\Adapter;
 
 use App\Import\Application\Contracts\RejectWriterInterface;
+use App\Import\Domain\Entity\Import;
 
 final class InMemoryRejectWriter implements RejectWriterInterface
 {
@@ -10,6 +11,17 @@ final class InMemoryRejectWriter implements RejectWriterInterface
     private array $records = [];
 
     private int $count = 0;
+
+    #[\Override]
+    public function getType(): string
+    {
+        return 'in_memory';
+    }
+
+    #[\Override]
+    public function start(Import $import): void
+    {
+    }
 
     #[\Override]
     public function write(array $row, array $messages, ?int $line = null): void
