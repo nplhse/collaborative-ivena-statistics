@@ -17,6 +17,18 @@ class AppRoutesTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    #[DataProvider('getSecureUrls')]
+    public function testSecureUrlsAreRestricted(string $url): void
+    {
+        $client = static::createClient();
+        $client->request('GET', $url);
+
+        self::assertResponseRedirects(
+            '/login',
+            Response::HTTP_FOUND
+        );
+    }
+
     public function testLogoutUrlRedirects(): void
     {
         $client = static::createClient();
@@ -32,5 +44,10 @@ class AppRoutesTest extends WebTestCase
     {
         yield 'app_default' => ['/'];
         yield 'app_login' => ['/login'];
+    }
+
+    public function getSecureUrls(): ?\Generator
+    {
+        yield 'app_admin_dashboard' => ['/admin/'];
     }
 }

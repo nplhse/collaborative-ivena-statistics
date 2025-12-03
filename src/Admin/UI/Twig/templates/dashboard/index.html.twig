@@ -1,17 +1,15 @@
-{% extends '@Shared/_layout_sidebar.html.twig' %}
+{% extends '@Admin/base.html.twig' %}
 
-{% block title %}{{ 'title.dashboard'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.dashboard'|trans({}, 'admin') }} - {{ parent() }}{% endblock %}
 
 {% block header_title %}
     <h2 class="page-title">
-        {{ 'title.dashboard'|trans }}
+        {{ 'title.dashboard'|trans({}, 'admin') }}
     </h2>
 {% endblock %}
 
 {% block header_breadcrumb %}
-    <li class="breadcrumb-item active"><a href="{{ path('app_admin_dashboard') }}">{{ 'label.backend'|trans }}</a></li>
-{% endblock %}
-
-{% block sidebar_menu %}
-    {{ include('@Admin/_includes/_sidebar.html.twig') }}
+    <li class="breadcrumb-item active">
+        <a href="{{ path('app_admin_dashboard') }}">{{ 'link.backend'|trans({}, 'admin') }}</a>
+    </li>
 {% endblock %}

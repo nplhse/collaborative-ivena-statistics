@@ -1,0 +1,4 @@
+app:
+    title: 'Collaborative IVENA statistics'
+    short_title: 'COIS'
+    default_locale: 'en'

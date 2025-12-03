@@ -55,6 +55,11 @@
                 <directory name="src/Import/Infrastructure/Adapter/" />
             </errorLevel>
         </PossiblyUnusedProperty>
+        <UndefinedInterfaceMethod>
+            <errorLevel type="suppress">
+                <file name="src/Shared/Infrastructure/DependencyInjection/AppConfiguration.php" />
+            </errorLevel>
+        </UndefinedInterfaceMethod>
         <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="src/*/Application/MessageHandler/" />
