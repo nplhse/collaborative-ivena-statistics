@@ -311,6 +311,17 @@ class Import
             ->setRunTime($runtimeMs);
     }
 
+    public function markAsPartial(int $total, int $ok, int $rejected, int $runtimeMs): void
+    {
+        $this
+            ->setStatus(ImportStatus::PARTIAL)
+            ->setRowCount($total)
+            ->setRowsPassed($ok)
+            ->setRowsRejected($rejected)
+            ->incrementRunCount()
+            ->setRunTime($runtimeMs);
+    }
+
     public function markAsFailed(int $runtimeMs): void
     {
         $this

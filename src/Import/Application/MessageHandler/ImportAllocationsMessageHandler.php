@@ -12,6 +12,7 @@ use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -106,12 +107,7 @@ final readonly class ImportAllocationsMessageHandler
 
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
 
-            $fresh->markAsCompleted(
-                total: $summary->total,
-                ok: $summary->ok,
-                rejected: $summary->rejected,
-                runtimeMs: $runtimeMs,
-            );
+            ImportEvaluation::apply($fresh, $summary, $runtimeMs);
 
             $this->em->flush();
 
