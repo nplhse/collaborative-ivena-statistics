@@ -55,3 +55,6 @@ services:
             $rejectsBaseDir: '%app.rejects_base_dir%'
         tags:
             - { name: 'import.reject_writer' }
+    App\Import\Infrastructure\Adapter\DoctrineRejectWriter:
+        tags:
+            - { name: 'import.reject_writer' }

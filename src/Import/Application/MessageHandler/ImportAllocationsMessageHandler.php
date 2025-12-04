@@ -13,6 +13,7 @@ use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Service\ImportEvaluation;
+use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -33,6 +34,7 @@ final readonly class ImportAllocationsMessageHandler
         private RejectWriterFactory $rejectWriterFactory,
         private LoggerInterface $importLogger,
         private EventDispatcherInterface $dispatcher,
+        private ImportRejectRepository $importRejectRepository,
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
     ) {
@@ -140,6 +142,15 @@ final readonly class ImportAllocationsMessageHandler
 
     private function cleanupPreviousRun(Import $import): void
     {
+        $deleted = $this->importRejectRepository->deleteByImport($import);
+
+        if ($deleted > 0) {
+            $this->importLogger->info('import.rejects.cleared', [
+                'import_id' => $import->getId(),
+                'deleted' => $deleted,
+            ]);
+        }
+
         $rejectPath = $import->getRejectFilePath();
         if (null !== $rejectPath) {
             $absPath = $this->resolvePath($rejectPath);
