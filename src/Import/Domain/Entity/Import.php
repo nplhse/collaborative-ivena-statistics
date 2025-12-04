@@ -284,7 +284,7 @@ class Import
         return $this;
     }
 
-    public function resetForReimport(): self
+    public function resetForReimport(): void
     {
         $this
             ->setStatus(ImportStatus::PENDING)
@@ -293,18 +293,16 @@ class Import
             ->setRowsRejected(0)
             ->setRejectFilePath(null)
             ->setRunTime(0);
-
-        return $this;
     }
 
-    public function markAsRunning(): self
+    public function markAsRunning(): void
     {
-        return $this->setStatus(ImportStatus::RUNNING);
+        $this->setStatus(ImportStatus::RUNNING);
     }
 
-    public function markAsCompleted(int $total, int $ok, int $rejected, int $runtimeMs): self
+    public function markAsCompleted(int $total, int $ok, int $rejected, int $runtimeMs): void
     {
-        return $this
+        $this
             ->setStatus(ImportStatus::COMPLETED)
             ->setRowCount($total)
             ->setRowsPassed($ok)
@@ -313,9 +311,9 @@ class Import
             ->setRunTime($runtimeMs);
     }
 
-    public function markAsFailed(int $runtimeMs): self
+    public function markAsFailed(int $runtimeMs): void
     {
-        return $this
+        $this
             ->setStatus(ImportStatus::FAILED)
             ->incrementRunCount()
             ->setRunTime($runtimeMs);

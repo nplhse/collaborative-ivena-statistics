@@ -122,8 +122,12 @@ final readonly class ImportAllocationsMessageHandler
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
 
             $import->markAsFailed($runtimeMs);
-
             $this->em->flush();
+
+            $this->importLogger->error('import.failed.precondition', [
+                'id' => $import->getId(),
+                'reason' => $e->getMessage(),
+            ]);
 
             throw $e;
         }
@@ -143,7 +147,7 @@ final readonly class ImportAllocationsMessageHandler
     private function cleanupPreviousRun(Import $import): void
     {
         $rejectPath = $import->getRejectFilePath();
-        if ($rejectPath) {
+        if (null !== $rejectPath) {
             $absPath = $this->resolvePath($rejectPath);
 
             if (\is_file($absPath)) {
