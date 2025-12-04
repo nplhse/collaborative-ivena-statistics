@@ -4,6 +4,7 @@ namespace App\Import\Application\MessageHandler;
 
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
+use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
@@ -11,6 +12,8 @@ use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Service\ImportEvaluation;
+use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -20,19 +23,20 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[AsMessageHandler]
-final class ImportAllocationsMessageHandler
+final readonly class ImportAllocationsMessageHandler
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly ImportRepository $importRepository,
-        private readonly EntityManagerInterface $em,
-        private readonly AllocationImporterFactory $importFactory,
-        private readonly RowReaderFactory $rowReaderFactory,
-        private readonly RejectWriterFactory $rejectWriterFactory,
-        private readonly LoggerInterface $importLogger,
-        private readonly EventDispatcherInterface $dispatcher,
+        private ImportRepository $importRepository,
+        private EntityManagerInterface $em,
+        private AllocationImporterFactory $importFactory,
+        private RowReaderFactory $rowReaderFactory,
+        private RejectWriterFactory $rejectWriterFactory,
+        private LoggerInterface $importLogger,
+        private EventDispatcherInterface $dispatcher,
+        private ImportRejectRepository $importRejectRepository,
         #[Autowire('%kernel.project_dir%')]
-        private readonly string $projectDir,
+        private string $projectDir,
     ) {
     }
 
@@ -59,7 +63,11 @@ final class ImportAllocationsMessageHandler
             return;
         }
 
-        $import->setStatus(ImportStatus::RUNNING);
+        if ($import->hasRunBefore()) {
+            $this->cleanupPreviousRun($import);
+        }
+
+        $import->markAsRunning();
         $this->em->flush();
 
         $reader = $this->rowReaderFactory->createFromCsvFile($filePath);
@@ -79,10 +87,7 @@ final class ImportAllocationsMessageHandler
         }
     }
 
-    /**
-     * @return array{total:int,ok:int,rejected:int}
-     */
-    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): array
+    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
     {
         $started = \microtime(true);
 
@@ -97,29 +102,28 @@ final class ImportAllocationsMessageHandler
             }
 
             $absRejectPath = $writer->getPath();
-            if (($summary['rejected'] ?? 0) > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
+            if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
                 $rel = Path::makeRelative($absRejectPath, $this->projectDir);
                 $fresh->setRejectFilePath(\str_replace('\\', '/', $rel));
             }
 
-            $fresh
-                ->setStatus(ImportStatus::COMPLETED)
-                ->setRowCount($summary['total'] ?? 0)
-                ->setRowsPassed($summary['ok'] ?? 0)
-                ->setRowsRejected($summary['rejected'] ?? 0)
-                ->setRunCount(($fresh->getRunCount() ?? 0) + 1)
-                ->setRunTime((int) \round((\microtime(true) - $started) * 1000.0));
+            $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
+
+            ImportEvaluation::apply($fresh, $summary, $runtimeMs);
 
             $this->em->flush();
 
             return $summary;
         } catch (\Throwable $e) {
-            $import
-                ->setStatus(ImportStatus::FAILED)
-                ->setRunCount(($import->getRunCount() ?? 0) + 1)
-                ->setRunTime((int) \round((\microtime(true) - $started) * 1000.0));
+            $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
 
+            $import->markAsFailed($runtimeMs);
             $this->em->flush();
+
+            $this->importLogger->error('import.failed.precondition', [
+                'id' => $import->getId(),
+                'reason' => $e->getMessage(),
+            ]);
 
             throw $e;
         }
@@ -134,6 +138,33 @@ final class ImportAllocationsMessageHandler
             'id' => $import->getId(),
             'reason' => $reason,
         ]);
+    }
+
+    private function cleanupPreviousRun(Import $import): void
+    {
+        $deleted = $this->importRejectRepository->deleteByImport($import);
+
+        if ($deleted > 0) {
+            $this->importLogger->info('import.rejects.cleared', [
+                'import_id' => $import->getId(),
+                'deleted' => $deleted,
+            ]);
+        }
+
+        $rejectPath = $import->getRejectFilePath();
+        if (null !== $rejectPath) {
+            $absPath = $this->resolvePath($rejectPath);
+
+            if (\is_file($absPath)) {
+                @\unlink($absPath);
+                $this->importLogger->info('import.reject_file.deleted', [
+                    'import_id' => $import->getId(),
+                    'path' => $absPath,
+                ]);
+            }
+        }
+
+        $import->resetForReimport();
     }
 
     private function resolvePath(string $stored): string

@@ -2,12 +2,10 @@
 
 namespace App\Import\Application\Contracts;
 
+use App\Import\Application\DTO\ImportSummary;
 use App\Import\Domain\Entity\Import;
 
 interface AllocationImporterInterface
 {
-    /**
-     * @return array{total:int,ok:int,rejected:int}
-     */
-    public function import(Import $import): array;
+    public function import(Import $import): ImportSummary;
 }

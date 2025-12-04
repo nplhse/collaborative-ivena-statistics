@@ -5,5 +5,5 @@ app:
     default_locale: 'en'
 
     import:
-        reject_writer: 'csv'
+        reject_writer: 'db'
         csv_reject_dir: 'var/import_rejects'
