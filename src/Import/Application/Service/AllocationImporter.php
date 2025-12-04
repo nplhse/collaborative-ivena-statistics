@@ -7,6 +7,7 @@ use App\Import\Application\Contracts\AllocationPersisterInterface;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
 use App\Import\Application\Contracts\RowToDtoMapperInterface;
+use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Exception\ImportException;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Mapping\AllocationImportFactory;
@@ -26,11 +27,8 @@ final class AllocationImporter implements AllocationImporterInterface
     ) {
     }
 
-    /**
-     * @return array{total:int,ok:int,rejected:int}
-     */
     #[\Override]
-    public function import(Import $import): array
+    public function import(Import $import): ImportSummary
     {
         $this->factory->warm();
 
@@ -83,7 +81,7 @@ final class AllocationImporter implements AllocationImporterInterface
 
             $this->logger->info('import.summary', ['total' => $total, 'ok' => $ok, 'rejected' => $rejected]);
 
-            return ['total' => $total, 'ok' => $ok, 'rejected' => $rejected];
+            return new ImportSummary($total, $ok, $rejected);
         } catch (\Throwable $e) {
             $this->logger->critical('import.abort.unexpected', [
                 'exception' => $e::class,

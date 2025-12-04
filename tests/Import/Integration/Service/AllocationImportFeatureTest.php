@@ -15,6 +15,7 @@ use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Service\AllocationImporter;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
@@ -123,10 +124,13 @@ final class AllocationImportFeatureTest extends KernelTestCase
         );
 
         // Act
-        $result = $importer->import($import);
+        $summary = $importer->import($import);
+        $expected = new ImportSummary(total: 3, ok: 2, rejected: 1);
 
         // Assert
-        self::assertSame(['total' => 3, 'ok' => 2, 'rejected' => 1], $result);
+        self::assertSame($expected->total, $summary->total);
+        self::assertSame($expected->ok, $summary->ok);
+        self::assertSame($expected->rejected, $summary->rejected);
         self::assertSame(1, $rejectWriter->getCount());
 
         $countOk = $this->countAllocationsForImportId((int) $import->getId());

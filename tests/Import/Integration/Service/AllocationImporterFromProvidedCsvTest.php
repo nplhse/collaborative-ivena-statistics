@@ -159,9 +159,9 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         $summary = $importer->import($this->import);
 
         // Assert summary
-        self::assertSame(5, $summary['total'] ?? null);
-        self::assertSame(4, $summary['ok'] ?? null);
-        self::assertSame(1, $summary['rejected'] ?? null);
+        self::assertSame(5, $summary->total ?? null);
+        self::assertSame(4, $summary->ok ?? null);
+        self::assertSame(1, $summary->rejected ?? null);
 
         /** @var AllocationRepository $repo */
         $repo = self::getContainer()->get(AllocationRepository::class);

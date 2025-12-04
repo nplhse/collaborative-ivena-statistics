@@ -4,6 +4,7 @@ namespace App\Import\Application\MessageHandler;
 
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
+use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
@@ -83,10 +84,7 @@ final readonly class ImportAllocationsMessageHandler
         }
     }
 
-    /**
-     * @return array{total:int,ok:int,rejected:int}
-     */
-    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): array
+    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
     {
         $started = \microtime(true);
 
@@ -101,7 +99,7 @@ final readonly class ImportAllocationsMessageHandler
             }
 
             $absRejectPath = $writer->getPath();
-            if (($summary['rejected'] ?? 0) > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
+            if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
                 $rel = Path::makeRelative($absRejectPath, $this->projectDir);
                 $fresh->setRejectFilePath(\str_replace('\\', '/', $rel));
             }
@@ -109,9 +107,9 @@ final readonly class ImportAllocationsMessageHandler
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
 
             $fresh->markAsCompleted(
-                total: $summary['total'] ?? 0,
-                ok: $summary['ok'] ?? 0,
-                rejected: $summary['rejected'] ?? 0,
+                total: $summary->total,
+                ok: $summary->ok,
+                rejected: $summary->rejected,
                 runtimeMs: $runtimeMs,
             );
 
