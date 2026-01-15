@@ -1,0 +1,195 @@
+{% extends '@Admin/base.html.twig' %}
+
+{% block title %}
+    {{ 'title.import_reject.show'|trans({}, 'admin') }} #{{ reject.id }} - {{ parent() }}
+{% endblock %}
+
+{% block header_title %}
+    <div class="d-flex align-items-center gap-2">
+        <h2 class="page-title mb-0">
+            {{ 'title.import_reject.show'|trans({}, 'admin') }}
+            <span class="text-body-secondary">#{{ reject.id }}</span>
+        </h2>
+    </div>
+{% endblock %}
+
+{% block header_breadcrumb %}
+    <li class="breadcrumb-item">
+        <a href="{{ path('app_admin_dashboard') }}">{{ 'link.backend'|trans({}, 'admin') }}</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="{{ path('app_admin_import_reject_list') }}">{{ 'title.import_reject.list'|trans({}, 'admin') }}</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a href="{{ path('app_admin_import_reject_show', {id: reject.id}) }}">#{{ reject.id }}</a>
+    </li>
+{% endblock %}
+
+{% block header_actions %}
+    <div class="btn-list">
+        <a href="{{ path('app_admin_import_reject_list', app.request.query.all()) }}" class="btn">
+            <twig:ux:icon name="tabler:arrow-left" class="w-3 h-3" />
+            <span class="ms-2">{{ 'label.back_to_list'|trans({}, 'admin') }}</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row row-cards">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'label.metadata'|trans({}, 'admin') }}</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-body-secondary">{{ 'label.created_at'|trans({}, 'admin') }}</dt>
+                        <dd class="col-7">{{ reject.createdAt|date('d.m.Y H:i') }}</dd>
+
+                        <dt class="col-5 text-body-secondary">{{ 'label.line'|trans({}, 'admin') }}</dt>
+                        <dd class="col-7">
+                            {{ reject.lineNumber ?? '—' }}
+                        </dd>
+
+                        <dt class="col-5 text-body-secondary">{{ 'label.import'|trans({}, 'admin') }}</dt>
+                        <dd class="col-7">
+                            {% if reject.import %}
+                                <div class="fw-semibold">{{ reject.import.name }}</div>
+                                <div class="text-body-secondary">#{{ reject.import.id }}</div>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-5 text-body-secondary">{{ 'label.hospital'|trans({}, 'admin') }}</dt>
+                        <dd class="col-7">
+                            {% if reject.import and reject.import.hospital %}
+                                <div class="fw-semibold">{{ reject.import.hospital.name }}</div>
+                                <div class="text-body-secondary">#{{ reject.import.hospital.id }}</div>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'label.messages'|trans({}, 'admin') }}</h3>
+                </div>
+                <div class="card-body">
+                    {% set msgs = reject.messages ?? [] %}
+                    {% if msgs|length > 0 %}
+                        <ul class="list-unstyled mb-0">
+                            {% for m in msgs %}
+                                <li class="mb-1">
+                                    <twig:ux:icon name="tabler:alert-circle" class="w-3 h-3 text-danger me-1" />
+                                    {{ m }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-body-secondary">
+                            {{ 'label.no_messages'|trans({}, 'admin') }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cards mt-3">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'label.row_fields'|trans({}, 'admin') }}</h3>
+                </div>
+                <div class="card-body">
+                    {% set row = reject.row ?? {} %}
+
+                    {% if row is iterable and row|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-vcenter">
+                                <tbody>
+                                {% for key, value in row %}
+                                    <tr>
+                                        <td class="text-body-secondary" style="width: 35%;">
+                                            {{ key }}
+                                        </td>
+                                        <td>
+                                            {% if value is same as(null) %}
+                                                <span class="text-body-secondary">null</span>
+                                            {% elseif value is iterable %}
+                                                <pre class="bg-body-tertiary p-2 rounded mb-0"
+                                                     style="max-height: 200px; overflow:auto;"><code>
+{{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) }}
+</code></pre>
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-body-secondary">
+                            {{ 'label.no_data'|trans({}, 'admin') }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'label.row_json'|trans({}, 'admin') }}</h3>
+
+                    <div class="card-actions">
+                        <button
+                            class="btn btn-sm"
+                            type="button"
+                            id="copy-json-btn"
+                        >
+                            <twig:ux:icon name="tabler:copy" class="w-3 h-3" />
+                            <span class="ms-1">{{ 'label.copy'|trans({}, 'admin') }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                <pre id="row-json"
+                     class="m-0 p-3"
+                     style="max-height: 65vh; overflow:auto; font-size: 0.85rem;">
+<code>{{ row_json }}</code>
+                </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const btn = document.getElementById('copy-json-btn');
+            const pre = document.getElementById('row-json');
+            if (!btn || !pre || !navigator.clipboard) return;
+
+            btn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(pre.innerText);
+                    btn.blur();
+                    btn.classList.add('btn-success');
+                    setTimeout(() => btn.classList.remove('btn-success'), 800);
+                } catch (e) {
+                    // Fallback: do nothing (optional: show toast if you have one)
+                }
+            });
+        })();
+    </script>
+{% endblock %}

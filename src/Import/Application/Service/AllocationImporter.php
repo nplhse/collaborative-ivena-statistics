@@ -35,9 +35,11 @@ final class AllocationImporter implements AllocationImporterInterface
         $total = $ok = $rejected = 0;
 
         try {
+            $lineNo = 1;
+
             foreach ($this->reader->rowsAssoc() as $i => $row) {
                 ++$total;
-                $lineNo = $i;
+                $lineNo++;
 
                 try {
                     $dto = $this->mapper->mapAssoc($row);
