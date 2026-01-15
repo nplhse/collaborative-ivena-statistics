@@ -115,7 +115,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         self::assertNotNull($fresh);
 
         // Assert
-        self::assertSame(ImportStatus::COMPLETED, $fresh->getStatus());
+        self::assertSame(ImportStatus::PARTIAL, $fresh->getStatus());
         self::assertSame(3, $fresh->getRowCount());
         self::assertSame(2, $fresh->getRowsPassed());
         self::assertSame(1, $fresh->getRowsRejected());

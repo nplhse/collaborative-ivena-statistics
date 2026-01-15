@@ -5,9 +5,117 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
+      <trans-unit id="frI4G1g" resname="help.import_reject.filter_import_id">
+        <source>help.import_reject.filter_import_id</source>
+        <target>Filter Rejects by Import Id</target>
+      </trans-unit>
+      <trans-unit id="T8dQbsk" resname="help.search_import_rejects">
+        <source>help.search_import_rejects</source>
+        <target>Search...</target>
+      </trans-unit>
+      <trans-unit id="IlEDRed" resname="help.search_no_results">
+        <source>help.search_no_results</source>
+        <target>No results</target>
+      </trans-unit>
+      <trans-unit id="kbyA0UD" resname="label.all_hospitals">
+        <source>label.all_hospitals</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="1GXuSep" resname="label.back_to_list">
+        <source>label.back_to_list</source>
+        <target>Back to list</target>
+      </trans-unit>
+      <trans-unit id="r67iNDf" resname="label.copy">
+        <source>label.copy</source>
+        <target>Copy</target>
+      </trans-unit>
+      <trans-unit id="rsh4cOO" resname="label.created_at">
+        <source>label.created_at</source>
+        <target>Created at</target>
+      </trans-unit>
       <trans-unit id="id1d4o4" resname="label.dashboard">
         <source>label.dashboard</source>
         <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="JGx905C" resname="label.filter.results">
+        <source>label.filter.results</source>
+        <target>Results</target>
+      </trans-unit>
+      <trans-unit id="RPew0g8" resname="label.filters">
+        <source>label.filters</source>
+        <target>Filters</target>
+      </trans-unit>
+      <trans-unit id="NnR3dCM" resname="label.filters.active">
+        <source>label.filters.active</source>
+        <target>Active filters</target>
+      </trans-unit>
+      <trans-unit id="5qtkGtz" resname="label.filters.apply">
+        <source>label.filters.apply</source>
+        <target>Apply filters</target>
+      </trans-unit>
+      <trans-unit id="xxRgaom" resname="label.filters.reset">
+        <source>label.filters.reset</source>
+        <target>Reset filters</target>
+      </trans-unit>
+      <trans-unit id="wyzinGh" resname="label.hospital">
+        <source>label.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="5iCaIxJ" resname="label.import">
+        <source>label.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="GO4Pumy" resname="label.import_id">
+        <source>label.import_id</source>
+        <target>Import Id</target>
+      </trans-unit>
+      <trans-unit id="ewkwj1j" resname="label.import_rejects">
+        <source>label.import_rejects</source>
+        <target>Import Rejects</target>
+      </trans-unit>
+      <trans-unit id="PVqxUes" resname="label.line">
+        <source>label.line</source>
+        <target>Line</target>
+      </trans-unit>
+      <trans-unit id="kWSI57v" resname="label.messages">
+        <source>label.messages</source>
+        <target>Messages</target>
+      </trans-unit>
+      <trans-unit id="1NWs0ih" resname="label.metadata">
+        <source>label.metadata</source>
+        <target>Metadata</target>
+      </trans-unit>
+      <trans-unit id="vlru9s9" resname="label.no_data">
+        <source>label.no_data</source>
+        <target>No data</target>
+      </trans-unit>
+      <trans-unit id="vwvDlgd" resname="label.no_messages">
+        <source>label.no_messages</source>
+        <target>No messages</target>
+      </trans-unit>
+      <trans-unit id="Pak93P_" resname="label.pagination_numbers">
+        <source>label.pagination_numbers</source>
+        <target>Showing {first}-{last} of {total} results.</target>
+      </trans-unit>
+      <trans-unit id="s2hW2D8" resname="label.row_fields">
+        <source>label.row_fields</source>
+        <target>Fields</target>
+      </trans-unit>
+      <trans-unit id="4Gyv.ze" resname="label.row_json">
+        <source>label.row_json</source>
+        <target>JSON-Data</target>
+      </trans-unit>
+      <trans-unit id="iw9qUxb" resname="label.search">
+        <source>label.search</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="uARVlbj" resname="label.search_no_results">
+        <source>label.search_no_results</source>
+        <target>No results found</target>
+      </trans-unit>
+      <trans-unit id="IUrg75n" resname="label.view">
+        <source>label.view</source>
+        <target>View Details</target>
       </trans-unit>
       <trans-unit id="WXOC9W_" resname="link.back_to_frontend">
         <source>link.back_to_frontend</source>
@@ -17,9 +125,25 @@
         <source>link.backend</source>
         <target>Backend</target>
       </trans-unit>
+      <trans-unit id="HUN_BXz" resname="placeholder.import_id">
+        <source>placeholder.import_id</source>
+        <target>Import Id</target>
+      </trans-unit>
+      <trans-unit id="sN.KiAY" resname="placeholder.search_import_rejects">
+        <source>placeholder.search_import_rejects</source>
+        <target>Search...</target>
+      </trans-unit>
       <trans-unit id="YE7XVBb" resname="title.dashboard">
         <source>title.dashboard</source>
         <target>Admin Dashboard</target>
+      </trans-unit>
+      <trans-unit id="DpRvyMB" resname="title.import_reject.list">
+        <source>title.import_reject.list</source>
+        <target>List rejected Imports</target>
+      </trans-unit>
+      <trans-unit id="zB0qi2q" resname="title.import_reject.show">
+        <source>title.import_reject.show</source>
+        <target>Show rejected Imports</target>
       </trans-unit>
     </body>
   </file>

@@ -1,0 +1,327 @@
+{% extends '@Admin/base.html.twig' %}
+
+{% block title %}{{ 'title.import_reject.list'|trans({}, 'admin') }} - {{ parent() }}{% endblock %}
+
+{% block header_title %}
+    <h2 class="page-title">
+        {{ 'title.import_reject.list'|trans({}, 'admin') }}
+    </h2>
+{% endblock %}
+
+{% block header_breadcrumb %}
+    <li class="breadcrumb-item">
+        <a href="{{ path('app_admin_dashboard') }}">{{ 'link.backend'|trans({}, 'admin') }}</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <a href="{{ path('app_admin_import_reject_list') }}">{{ 'title.import_reject.list'|trans({}, 'admin') }}</a>
+    </li>
+{% endblock %}
+
+{% block header_actions %}
+    <div class="btn-list">
+        <div class="btn-group">
+            <button
+                class="btn"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#import-reject-filters"
+                aria-controls="import-reject-filters"
+            >
+                {% if activeFilterCount < 1 %}
+                    <twig:ux:icon name="tabler:filter" class="w-3 h-3" />
+                {% else %}
+                    <twig:ux:icon name="tabler:filter-filled" class="w-3 h-3" />
+                {% endif %}
+                <span class="ms-2">{{ 'label.filters'|trans({}, 'admin') }}</span>
+
+                {% if activeFilterCount > 0 %}
+                    <span class="badge text-primary ms-2">
+                        {{ activeFilterCount }}
+                    </span>
+                {% endif %}
+            </button>
+
+            {% if activeFilterCount > 0 %}
+                <a
+                    href="{{ path('app_admin_import_reject_list') }}"
+                    class="btn btn-icon btn-outline"
+                    title="{{ 'label.filters.reset'|trans({}, 'admin') }}"
+                    aria-label="{{ 'label.filters.reset'|trans({}, 'admin') }}"
+                >
+                    <twig:ux:icon name="tabler:x" class="w-3 h-3" />
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="text-body-secondary mb-3">
+        {{ 'label.pagination_numbers'|trans({
+            first: paginator.firstResultNumber|number_format(0, ',', '.'),
+            last: paginator.lastResultNumber|number_format(0, ',', '.'),
+            total: paginator.numResults|number_format(0, ',', '.'),
+        }, 'admin') }}
+    </div>
+
+    {% if activeFilterCount > 0 %}
+        <div class="alert alert-info" role="alert">
+            <strong class="text-info">{{ 'label.filters.active'|trans({}, 'admin') }}:</strong>
+
+            {% if filters.hospitalId %}
+                <span class="badge bg-azure text-azure-fg ms-1">
+                    {{ 'label.hospital'|trans({}, 'admin') }}: {{ filters.hospitalId }}
+                </span>
+            {% endif %}
+
+            {% if filters.importId %}
+                <span class="badge bg-indigo text-indigo-fg ms-1">
+                    {{ 'label.import'|trans({}, 'admin') }}: {{ filters.importId }}
+                </span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <twig:DataTable
+        :paginator="paginator"
+        :paginationRoute="pagination_route"
+    >
+        {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+
+        <table class="table data-table-card">
+            <thead>
+            <tr>
+                <th class="col-2">
+                    <a class="text-muted" href="{{ path(pagination_route, {
+                        ...app.request.query.all(),
+                        sortBy: 'createdAt',
+                        orderBy: sortBy == 'createdAt' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.created_at'|trans({}, 'admin') }}
+                        {{ pagination.sortArrow('createdAt', sortBy, orderBy) }}
+                    </a>
+                </th>
+
+                <th class="col-3">
+                    <a class="text-muted" href="{{ path(pagination_route, {
+                        ...app.request.query.all(),
+                        sortBy: 'hospital',
+                        orderBy: sortBy == 'hospital' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.hospital'|trans({}, 'admin') }}
+                        {{ pagination.sortArrow('hospital', sortBy, orderBy) }}
+                    </a>
+                </th>
+
+                <th class="col-3">
+                    <a class="text-muted" href="{{ path(pagination_route, {
+                        ...app.request.query.all(),
+                        sortBy: 'importId',
+                        orderBy: sortBy == 'importId' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.import'|trans({}, 'admin') }}
+                        {{ pagination.sortArrow('importId', sortBy, orderBy) }}
+                    </a>
+                </th>
+
+                <th class="col-1">
+                    <a class="text-muted" href="{{ path(pagination_route, {
+                        ...app.request.query.all(),
+                        sortBy: 'lineNumber',
+                        orderBy: sortBy == 'lineNumber' and orderBy == 'asc' ? 'desc' : 'asc',
+                    }) }}">
+                        {{ 'label.line'|trans({}, 'admin') }}
+                        {{ pagination.sortArrow('lineNumber', sortBy, orderBy) }}
+                    </a>
+                </th>
+
+                <th class="col-3">
+                    {{ 'label.messages'|trans({}, 'admin') }}
+                </th>
+
+                <th class="col-1"></th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for reject in paginator.results %}
+                <tr>
+                    <td class="text-nowrap">
+                        <twig:ux:icon name="tabler:clock" class="w-3 h-3" />
+                        {{ reject.createdAt|date('d.m.Y H:i') }}
+                    </td>
+
+                    <td>
+                        {{ reject.hospital_name ?? reject.hospital ?? reject.hospital_id }}
+                    </td>
+
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="fw-semibold">{{ reject.import_name ?? reject.import ?? ('#' ~ reject.import_id) }}</span>
+                            <span class="text-body-secondary">#{{ reject.import_id }}</span>
+                        </div>
+                    </td>
+
+                    <td class="text-nowrap">
+                        {% if reject.lineNumber is not null %}
+                            {{ reject.lineNumber }}
+                        {% else %}
+                            <span class="text-body-primary">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% set msgs = reject.messages ?? [] %}
+
+                        {% if msgs|length > 0 %}
+                            {% set categories = [] %}
+                            {% for m in msgs %}
+                                {% set raw = m|trim %}
+                                {% if ':' in raw %}
+                                    {% set key = raw|split(':')[0]|trim %}
+                                {% elseif '|' in raw %}
+                                    {% set key = raw|split('|')[0]|trim %}
+                                {% else %}
+                                    {% set key = raw|split(' ')[0]|trim %}
+                                {% endif %}
+
+                                {% if key and (key not in categories) %}
+                                    {% set categories = categories|merge([key]) %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% set shown = 0 %}
+                            {% for key in categories %}
+                                {% if shown < 3 %}
+                                    <span class="badge me-1">{{ key }}</span>
+                                    {% set shown = shown + 1 %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if categories|length > 3 %}
+                                <span class="badge bg-yellow-lt text-yellow-fg">+{{ categories|length - 3 }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-body-secondary">{{ 'label.no_messages'|trans({}, 'admin') }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end">
+                        <div class="btn-actions">
+                            <a
+                                href="{{ path('app_admin_import_reject_show', {id: reject.id}) }}"
+                                class="btn btn-action"
+                                title="{{ 'label.view'|trans({}, 'admin') }}"
+                            >
+                                <twig:ux:icon name="tabler:eye" class="w-3 h-3" />
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty">
+                            <div class="empty-icon">
+                                <twig:ux:icon name="tabler:mood-sad" class="w-3 h-3" />
+                            </div>
+                            <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'admin') }}</p>
+                            <p class="empty-subtitle text-secondary">
+                                {{ 'help.search_no_results'|trans({}, 'admin') }}
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </twig:DataTable>
+
+    <div
+        class="offcanvas offcanvas-end"
+        tabindex="-1"
+        id="import-reject-filters"
+        aria-labelledby="import-reject-filters-label"
+    >
+        <div class="offcanvas-header">
+            <h2 class="offcanvas-title" id="import-reject-filters-label">
+                {{ 'label.filter.results'|trans({}, 'admin') }}
+            </h2>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+            ></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <form method="get" action="{{ path(pagination_route) }}">
+                <div class="mb-3">
+                    <label class="form-label">
+                        {{ 'label.search'|trans({}, 'admin') }}
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="search"
+                        value="{{ filters.search ?? '' }}"
+                        placeholder="{{ 'placeholder.search_import_rejects'|trans({}, 'admin') }}"
+                    />
+
+                    <div class="form-hint">
+                        {{ 'help.search_import_rejects'|trans({}, 'admin') }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.hospital'|trans({}, 'admin') }}</label>
+                    <select name="hospitalId" class="form-select">
+                        <option value="">{{ 'label.all_hospitals'|trans({}, 'admin') }}</option>
+                        {% for hospital in hospitals %}
+                            <option
+                                value="{{ hospital.id }}"
+                                {{ filters.hospitalId == hospital.id ? 'selected' }}
+                            >
+                                {{ hospital.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.import_id'|trans({}, 'admin') }}</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        name="importId"
+                        min="1"
+                        value="{{ filters.importId ?? '' }}"
+                        placeholder="{{ 'placeholder.import_id'|trans({}, 'admin') }}"
+                    />
+                    <div class="form-hint">
+                        {{ 'help.import_reject.filter_import_id'|trans({}, 'admin') }}
+                    </div>
+                </div>
+
+                <input type="hidden" name="sortBy" value="{{ sortBy }}">
+                <input type="hidden" name="orderBy" value="{{ orderBy }}">
+                <input type="hidden" name="limit" value="{{ filters.limit }}">
+                <input type="hidden" name="page" value="1">
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        {{ 'label.filters.apply'|trans({}, 'admin') }}
+                    </button>
+
+                    {% if activeFilterCount > 0 %}
+                        <a href="{{ path(pagination_route) }}" class="btn btn-link w-100">
+                            {{ 'label.filters.reset'|trans({}, 'admin') }}
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -5,7 +5,7 @@
         <li class="nav-item {{ route starts with 'app_admin_dashboard' ? 'active' : '' }}">
             <a class="nav-link" href="{{ path('app_admin_dashboard') }}" >
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dashboard" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dashboard" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M12 13m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
                         <path d="M13.45 11.55l2.05 -2.05" />
@@ -14,6 +14,18 @@
                 </span>
                 <span class="nav-link-title">
                     {{ 'label.dashboard'|trans({}, 'admin') }}
+                </span>
+            </a>
+        </li>
+        <li class="nav-item {{ route starts with 'app_admin_import_reject' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('app_admin_import_reject_list') }}" >
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0-18 0m9-4v4m0 4h.01"/>
+                    </svg>
+                </span>
+                <span class="nav-link-title">
+                    {{ 'label.import_rejects'|trans({}, 'admin') }}
                 </span>
             </a>
         </li>

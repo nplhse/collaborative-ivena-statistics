@@ -272,6 +272,64 @@ class Import
         return $this;
     }
 
+    public function hasRunBefore(): bool
+    {
+        return ($this->getRunCount() ?? 0) > 0;
+    }
+
+    public function incrementRunCount(): self
+    {
+        $this->setRunCount(($this->getRunCount() ?? 0) + 1);
+
+        return $this;
+    }
+
+    public function resetForReimport(): void
+    {
+        $this
+            ->setStatus(ImportStatus::PENDING)
+            ->setRowCount(0)
+            ->setRowsPassed(0)
+            ->setRowsRejected(0)
+            ->setRejectFilePath(null)
+            ->setRunTime(0);
+    }
+
+    public function markAsRunning(): void
+    {
+        $this->setStatus(ImportStatus::RUNNING);
+    }
+
+    public function markAsCompleted(int $total, int $ok, int $rejected, int $runtimeMs): void
+    {
+        $this
+            ->setStatus(ImportStatus::COMPLETED)
+            ->setRowCount($total)
+            ->setRowsPassed($ok)
+            ->setRowsRejected($rejected)
+            ->incrementRunCount()
+            ->setRunTime($runtimeMs);
+    }
+
+    public function markAsPartial(int $total, int $ok, int $rejected, int $runtimeMs): void
+    {
+        $this
+            ->setStatus(ImportStatus::PARTIAL)
+            ->setRowCount($total)
+            ->setRowsPassed($ok)
+            ->setRowsRejected($rejected)
+            ->incrementRunCount()
+            ->setRunTime($runtimeMs);
+    }
+
+    public function markAsFailed(int $runtimeMs): void
+    {
+        $this
+            ->setStatus(ImportStatus::FAILED)
+            ->incrementRunCount()
+            ->setRunTime($runtimeMs);
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
