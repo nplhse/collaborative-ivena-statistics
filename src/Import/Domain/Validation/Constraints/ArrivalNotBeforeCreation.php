@@ -7,32 +7,31 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class ArrivalNotBeforeCreation extends Constraint
 {
-    public string $createdAtField = 'createdAt';
+    public string $createdAtField;
 
-    public string $arrivalAtField = 'arrivalAt';
+    public string $arrivalAtField;
 
-    public string $format = 'd.m.Y H:i';
+    public string $format;
 
-    public string $message = 'Arrival time must be on/after created time.';
+    public string $message;
 
     /**
-     * @param array<string, mixed>|null $options
-     * @param array<int, string>|null   $groups
+     * @param array<int, string>|null $groups
      */
     public function __construct(
-        ?array $options = null,
+        string $createdAtField = 'createdAt',
+        string $arrivalAtField = 'arrivalAt',
+        string $format = 'd.m.Y H:i',
+        string $message = 'Arrival time must be on/after created time.',
         ?array $groups = null,
         mixed $payload = null,
-        ?string $createdAtField = null,
-        ?string $arrivalAtField = null,
-        ?string $format = null,
-        ?string $message = null,
     ) {
-        parent::__construct($options ?? [], $groups, $payload);
-        $this->createdAtField = $createdAtField ?? $this->createdAtField;
-        $this->arrivalAtField = $arrivalAtField ?? $this->arrivalAtField;
-        $this->format = $format ?? $this->format;
-        $this->message = $message ?? $this->message;
+        $this->createdAtField = $createdAtField;
+        $this->arrivalAtField = $arrivalAtField;
+        $this->format = $format;
+        $this->message = $message;
+        
+        parent::__construct(groups: $groups, payload: $payload);
     }
 
     #[\Override]
