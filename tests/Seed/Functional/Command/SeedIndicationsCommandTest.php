@@ -22,10 +22,15 @@ final class SeedIndicationsCommandTest extends KernelTestCase
     use ResetDatabase;
     use Factories;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        self::bootKernel();
+    }
+
     private function runCommand(): CommandTester
     {
-        self::bootKernel();
-
         /** @var SeedIndicationsCommand $cmd */
         $cmd = static::getContainer()->get(SeedIndicationsCommand::class);
 

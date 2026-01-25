@@ -8,11 +8,16 @@ use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class SeedDatabaseCommandTest extends TestCase
+final class SeedDatabaseCommandTest extends KernelTestCase
 {
+    use Factories;
+    use ResetDatabase;
+
     public function testPurgeAndSeedSuccess(): void
     {
         $connection = $this->createMock(Connection::class);

@@ -22,7 +22,6 @@ final class AllocationAssessmentResolver implements AllocationEntityResolverInte
     #[\Override]
     public function warm(): void
     {
-        return;
     }
 
     #[\Override]
