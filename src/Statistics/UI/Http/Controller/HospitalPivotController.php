@@ -5,7 +5,7 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Infrastructure\Query\HospitalCubeQuery;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/statistics/hospitals/pivot', name: 'app_stats_hospital_pivot')]
 final class HospitalPivotController extends AbstractController
