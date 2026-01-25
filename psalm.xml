@@ -71,6 +71,11 @@
                 <directory name="src/Seed/Infrastructure/Provider/" />
             </errorLevel>
         </UnusedClass>
+        <UnusedMethodCall>
+            <errorLevel type="suppress">
+                <file name="src/Shared/Infrastructure/DependencyInjection/AppConfiguration.php" />
+            </errorLevel>
+        </UnusedMethodCall>
         <UnusedParam>
             <errorLevel type="suppress">
                 <directory name="src/*/Infrastructure/EventSubscriber/" />
