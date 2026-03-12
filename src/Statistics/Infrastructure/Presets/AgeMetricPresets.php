@@ -25,9 +25,9 @@ final class AgeMetricPresets
                 ['name' => 'Diverse', 'col' => 'gender_d'],
             ],
             'urgency' => [
-                ['name' => 'Urgency 1', 'col' => 'urg_1'],
-                ['name' => 'Urgency 2', 'col' => 'urg_2'],
-                ['name' => 'Urgency 3', 'col' => 'urg_3'],
+                ['name' => 'Emergency Care', 'col' => 'urg_1'],
+                ['name' => 'Inpatient Care', 'col' => 'urg_2'],
+                ['name' => 'Outpatient Care', 'col' => 'urg_3'],
             ],
             'clinical' => [
                 ['name' => 'Ventilated',     'col' => 'is_ventilated'],
@@ -57,7 +57,7 @@ final class AgeMetricPresets
         return [
             ['value' => 'total',    'label' => 'Total'],
             ['value' => 'gender',   'label' => 'Gender'],
-            ['value' => 'urgency',  'label' => 'Urgency'],
+            ['value' => 'urgency',  'label' => 'Care Setting'],
             ['value' => 'clinical', 'label' => 'Clinical'],
             ['value' => 'resources', 'label' => 'Resources'],
         ];

@@ -25,9 +25,9 @@ final class TransportTimeMetricPresets
                 ['name' => 'Diverse', 'id' => 'gender_d'],
             ],
             'urgency' => [
-                ['name' => 'Urgency 1', 'id' => 'urg_1'],
-                ['name' => 'Urgency 2', 'id' => 'urg_2'],
-                ['name' => 'Urgency 3', 'id' => 'urg_3'],
+                ['name' => 'Emergency Care', 'id' => 'urg_1'],
+                ['name' => 'Inpatient Care', 'id' => 'urg_2'],
+                ['name' => 'Outpatient Care', 'id' => 'urg_3'],
             ],
             'transport' => [
                 ['name' => 'Ground transport', 'id' => 'transport_ground'],
@@ -54,7 +54,7 @@ final class TransportTimeMetricPresets
         return [
             ['value' => 'total',     'label' => 'Total'],
             ['value' => 'gender',    'label' => 'Gender'],
-            ['value' => 'urgency',   'label' => 'Urgency'],
+            ['value' => 'urgency',   'label' => 'Care Setting'],
             ['value' => 'transport', 'label' => 'Transport modes'],
             ['value' => 'resources', 'label' => 'Resources'],
         ];

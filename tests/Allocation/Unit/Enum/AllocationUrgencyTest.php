@@ -20,15 +20,14 @@ final class AllocationUrgencyTest extends TestCase
 
     public function testGetValuesReturnsAllValuesInOrder(): void
     {
-        $expected = [1, 2, 3];
-        self::assertSame($expected, AllocationUrgency::getValues());
+        self::assertSame([1, 2, 3], AllocationUrgency::getValues());
     }
 
     public function testFromAndTryFrom(): void
     {
-        self::assertSame(AllocationUrgency::IMMEDIATE, AllocationUrgency::from(1));
-        self::assertSame(AllocationUrgency::URGENT, AllocationUrgency::from(2));
-        self::assertSame(AllocationUrgency::DELAYED, AllocationUrgency::from(3));
+        self::assertSame(AllocationUrgency::EMERGENCY, AllocationUrgency::from(1));
+        self::assertSame(AllocationUrgency::INPATIENT, AllocationUrgency::from(2));
+        self::assertSame(AllocationUrgency::OUTPATIENT, AllocationUrgency::from(3));
 
         self::assertNull(AllocationUrgency::tryFrom(0));
         self::assertNull(AllocationUrgency::tryFrom(4));
@@ -36,10 +35,12 @@ final class AllocationUrgencyTest extends TestCase
 
     public function testLabelsAreUniqueAndWellFormed(): void
     {
-        $labels = array_map(static fn (AllocationUrgency $c) => $c->label(), AllocationUrgency::cases());
+        $labels = array_map(static fn (AllocationUrgency $case) => $case->label(), AllocationUrgency::cases());
+
         self::assertSame($labels, array_values(array_unique($labels)));
+
         foreach ($labels as $label) {
-            self::assertMatchesRegularExpression('/^label\.urgency\.(immediate|urgent|delayed)$/', $label);
+            self::assertMatchesRegularExpression('/^label\.urgency\.(emergency|inpatient|outpatient)$/', $label);
         }
     }
 
@@ -49,9 +50,9 @@ final class AllocationUrgencyTest extends TestCase
     public static function caseProvider(): array
     {
         return [
-            'Immediate' => ['case' => AllocationUrgency::IMMEDIATE, 'value' => 1, 'label' => 'label.urgency.immediate'],
-            'Urgent' => ['case' => AllocationUrgency::URGENT, 'value' => 2, 'label' => 'label.urgency.urgent'],
-            'Delayed' => ['case' => AllocationUrgency::DELAYED, 'value' => 3, 'label' => 'label.urgency.delayed'],
+            'Emergency care' => ['case' => AllocationUrgency::EMERGENCY, 'value' => 1, 'label' => 'label.urgency.emergency'],
+            'Inpatient care' => ['case' => AllocationUrgency::INPATIENT, 'value' => 2, 'label' => 'label.urgency.inpatient'],
+            'Outpatient care' => ['case' => AllocationUrgency::OUTPATIENT, 'value' => 3, 'label' => 'label.urgency.outpatient'],
         ];
     }
 }

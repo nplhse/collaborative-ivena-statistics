@@ -14,7 +14,7 @@ final class TimeGridMetricPresetsTest extends TestCase
         $expected = [
             ['value' => 'default',   'label' => 'Default'],
             ['value' => 'gender',    'label' => 'Gender'],
-            ['value' => 'urgency',   'label' => 'Urgency'],
+            ['value' => 'urgency',   'label' => 'Care Setting'],
             ['value' => 'clinical',  'label' => 'Clinical'],
             ['value' => 'resources', 'label' => 'Resources'],
             ['value' => 'all',       'label' => 'Everything'],
@@ -69,12 +69,12 @@ final class TimeGridMetricPresetsTest extends TestCase
 
         $expected = [
             ['label' => 'Total',        'key' => 'total',     'format' => 'int'],
-            ['label' => 'Urgency 1',    'key' => 'urg1',      'format' => 'int'],
-            ['label' => 'Urgency 1 %',  'key' => 'pctUrg1',   'format' => 'pct'],
-            ['label' => 'Urgency 2',    'key' => 'urg2',      'format' => 'int'],
-            ['label' => 'Urgency 2 %',  'key' => 'pctUrg2',   'format' => 'pct'],
-            ['label' => 'Urgency 3',    'key' => 'urg3',      'format' => 'int'],
-            ['label' => 'Urgency 3 %',  'key' => 'pctUrg3',   'format' => 'pct'],
+            ['label' => 'Emergency Care',    'key' => 'urg1',      'format' => 'int'],
+            ['label' => 'Emergency Care %',  'key' => 'pctUrg1',   'format' => 'pct'],
+            ['label' => 'Inpatient Care',    'key' => 'urg2',      'format' => 'int'],
+            ['label' => 'Inpatient Care %',  'key' => 'pctUrg2',   'format' => 'pct'],
+            ['label' => 'Outpatient Care',    'key' => 'urg3',      'format' => 'int'],
+            ['label' => 'Outpatient Care %',  'key' => 'pctUrg3',   'format' => 'pct'],
         ];
 
         self::assertSame($expected, $rows);
@@ -127,9 +127,9 @@ final class TimeGridMetricPresetsTest extends TestCase
             ['label' => 'Male',               'key' => 'genderM',        'format' => 'int'],
             ['label' => 'Female',             'key' => 'genderW',        'format' => 'int'],
             ['label' => 'Diverse',            'key' => 'genderD',        'format' => 'int'],
-            ['label' => 'Urgency 1',          'key' => 'urg1',           'format' => 'int'],
-            ['label' => 'Urgency 2',          'key' => 'urg2',           'format' => 'int'],
-            ['label' => 'Urgency 3',          'key' => 'urg3',           'format' => 'int'],
+            ['label' => 'Emergency Care',          'key' => 'urg1',           'format' => 'int'],
+            ['label' => 'Inpatient Care',          'key' => 'urg2',           'format' => 'int'],
+            ['label' => 'Outpatient Care',          'key' => 'urg3',           'format' => 'int'],
             ['label' => 'Cathlab required',   'key' => 'cathlabRequired', 'format' => 'int'],
             ['label' => 'Resus required',     'key' => 'resusRequired',  'format' => 'int'],
             ['label' => 'Ventilated',         'key' => 'isVentilated',   'format' => 'int'],
