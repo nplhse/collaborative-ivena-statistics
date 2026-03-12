@@ -27,15 +27,15 @@
       </trans-unit>
       <trans-unit id="45h1fK3" resname="allocation.urgency.1">
         <source>allocation.urgency.1</source>
-        <target>Immediate</target>
+        <target>Emergency Care</target>
       </trans-unit>
       <trans-unit id="jbrRozU" resname="allocation.urgency.2">
         <source>allocation.urgency.2</source>
-        <target>Urgent</target>
+        <target>Inpatient Care</target>
       </trans-unit>
       <trans-unit id="ndIvw1v" resname="allocation.urgency.3">
         <source>allocation.urgency.3</source>
-        <target>Delayed</target>
+        <target>Outpatient Care</target>
       </trans-unit>
       <trans-unit id="H1OgFhe" resname="allocations.field.isPregnant">
         <source>allocations.field.isPregnant</source>
@@ -713,17 +713,17 @@
         <source>label.urgency</source>
         <target>Urgency</target>
       </trans-unit>
-      <trans-unit id="krNU.kK" resname="label.urgency.delayed">
-        <source>label.urgency.delayed</source>
-        <target>Delayed</target>
+      <trans-unit id="krNU.kK" resname="label.urgency.outpatient">
+        <source>label.urgency.outpatient</source>
+        <target>Outpatient Care</target>
       </trans-unit>
-      <trans-unit id="3kkNmIA" resname="label.urgency.immediate">
-        <source>label.urgency.immediate</source>
-        <target>Immediate</target>
+      <trans-unit id="3kkNmIA" resname="label.urgency.emergency">
+        <source>label.urgency.emergency</source>
+        <target>Emergency Care</target>
       </trans-unit>
-      <trans-unit id="Ogn7GN1" resname="label.urgency.urgent">
-        <source>label.urgency.urgent</source>
-        <target>Urgent</target>
+      <trans-unit id="Ogn7GN1" resname="label.urgency.inpatient">
+        <source>label.urgency.inpatient</source>
+        <target>Inpatient Care</target>
       </trans-unit>
       <trans-unit id="JU6yi9y" resname="label.without_owner">
         <source>label.without_owner</source>

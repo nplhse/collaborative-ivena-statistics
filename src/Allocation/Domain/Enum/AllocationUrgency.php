@@ -4,16 +4,16 @@ namespace App\Allocation\Domain\Enum;
 
 enum AllocationUrgency: int
 {
-    case IMMEDIATE = 1;
-    case URGENT = 2;
-    case DELAYED = 3;
+    case EMERGENCY = 1;
+    case INPATIENT = 2;
+    case OUTPATIENT = 3;
 
     public function getType(): int
     {
         return match ($this) {
-            self::IMMEDIATE => self::IMMEDIATE->value,
-            self::URGENT => self::URGENT->value,
-            self::DELAYED => self::DELAYED->value,
+            self::EMERGENCY => self::EMERGENCY->value,
+            self::INPATIENT => self::INPATIENT->value,
+            self::OUTPATIENT => self::OUTPATIENT->value,
         };
     }
 
@@ -23,18 +23,18 @@ enum AllocationUrgency: int
     public static function getValues(): array
     {
         return [
-            self::IMMEDIATE->value,
-            self::URGENT->value,
-            self::DELAYED->value,
+            self::EMERGENCY->value,
+            self::INPATIENT->value,
+            self::OUTPATIENT->value,
         ];
     }
 
     public function label(): string
     {
         return match ($this) {
-            self::IMMEDIATE => 'label.urgency.immediate',
-            self::URGENT => 'label.urgency.urgent',
-            self::DELAYED => 'label.urgency.delayed',
+            self::EMERGENCY => 'label.urgency.emergency',
+            self::INPATIENT => 'label.urgency.inpatient',
+            self::OUTPATIENT => 'label.urgency.outpatient',
         };
     }
 }

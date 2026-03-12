@@ -43,9 +43,9 @@ final class AgeMetricPresetsTest extends TestCase
         $metrics = AgeMetricPresets::metricsFor('urgency');
 
         self::assertSame([
-            ['name' => 'Urgency 1', 'col' => 'urg_1'],
-            ['name' => 'Urgency 2', 'col' => 'urg_2'],
-            ['name' => 'Urgency 3', 'col' => 'urg_3'],
+            ['name' => 'Emergency Care', 'col' => 'urg_1'],
+            ['name' => 'Inpatient Care', 'col' => 'urg_2'],
+            ['name' => 'Outpatient Care', 'col' => 'urg_3'],
         ], $metrics);
     }
 
@@ -80,7 +80,7 @@ final class AgeMetricPresetsTest extends TestCase
         self::assertSame([
             ['value' => 'total',     'label' => 'Total'],
             ['value' => 'gender',    'label' => 'Gender'],
-            ['value' => 'urgency',   'label' => 'Urgency'],
+            ['value' => 'urgency',   'label' => 'Care Setting'],
             ['value' => 'clinical',  'label' => 'Clinical'],
             ['value' => 'resources', 'label' => 'Resources'],
         ], $all);

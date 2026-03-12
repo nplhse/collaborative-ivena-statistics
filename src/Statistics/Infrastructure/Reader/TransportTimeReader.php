@@ -34,9 +34,9 @@ final class TransportTimeReader
         'gender_m' => 'Male',
         'gender_w' => 'Female',
         'gender_d' => 'Diverse',
-        'urg_1' => 'Urgency 1',
-        'urg_2' => 'Urgency 2',
-        'urg_3' => 'Urgency 3',
+        'urg_1' => 'Emergency Care',
+        'urg_2' => 'Inpatient Care',
+        'urg_3' => 'Outpatient Care',
         'transport_ground' => 'Ground transport',
         'transport_air' => 'Air transport',
     ];

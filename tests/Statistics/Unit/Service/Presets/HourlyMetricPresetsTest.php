@@ -46,7 +46,7 @@ final class HourlyMetricPresetsTest extends TestCase
             [
                 ['value' => 'total',    'label' => 'Total'],
                 ['value' => 'gender',   'label' => 'Gender'],
-                ['value' => 'urgency',  'label' => 'Urgency'],
+                ['value' => 'urgency',  'label' => 'Care Setting'],
                 ['value' => 'clinical', 'label' => 'Clinical'],
                 ['value' => 'resources', 'label' => 'Resources'],
             ],
