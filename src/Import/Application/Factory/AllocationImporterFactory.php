@@ -5,18 +5,16 @@ namespace App\Import\Application\Factory;
 use App\Import\Application\Contracts\AllocationPersisterInterface;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
-use App\Import\Application\Contracts\RowToDtoMapperInterface;
+use App\Import\Application\Contracts\RowTypeDetectorInterface;
 use App\Import\Application\Service\AllocationImporter;
-use App\Import\Infrastructure\Mapping\AllocationImportFactory;
+use App\Import\Application\Service\AllocationRowProcessorRegistry;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final readonly class AllocationImporterFactory
 {
     public function __construct(
-        private ValidatorInterface $validator,
-        private RowToDtoMapperInterface $mapper,
-        private AllocationImportFactory $factory,
+        private RowTypeDetectorInterface $rowTypeDetector,
+        private AllocationRowProcessorRegistry $processorRegistry,
         private AllocationPersisterInterface $persister,
         private LoggerInterface $importLogger,
     ) {
@@ -27,10 +25,9 @@ final readonly class AllocationImporterFactory
         RejectWriterInterface $rejectWriter,
     ): AllocationImporter {
         return new AllocationImporter(
-            validator: $this->validator,
             reader: $reader,
-            mapper: $this->mapper,
-            factory: $this->factory,
+            rowTypeDetector: $this->rowTypeDetector,
+            processorRegistry: $this->processorRegistry,
             persister: $this->persister,
             rejectWriter: $rejectWriter,
             logger: $this->importLogger,

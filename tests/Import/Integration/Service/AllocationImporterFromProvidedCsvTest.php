@@ -14,24 +14,20 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
-use App\Import\Application\Service\AllocationImporter;
+use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
-use App\Import\Infrastructure\Adapter\DoctrineAllocationPersister;
 use App\Import\Infrastructure\Adapter\SplCsvRejectWriter;
 use App\Import\Infrastructure\Adapter\SplCsvRowReader;
 use App\Import\Infrastructure\Adapter\SplCsvStreamFactory;
 use App\Import\Infrastructure\Charset\EncodingDetector;
 use App\Import\Infrastructure\Factory\ImportFactory;
-use App\Import\Infrastructure\Mapping\AllocationImportFactory;
-use App\Import\Infrastructure\Mapping\AllocationRowMapper;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 /**
@@ -53,10 +49,7 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
 
     private string $fixturePath;
 
-    private ValidatorInterface $validator;
-    private AllocationRowMapper $mapper;
-    private AllocationImportFactory $factory;
-    private DoctrineAllocationPersister $persister;
+    private AllocationImporterFactory $importerFactory;
     private LoggerInterface $logger;
     private Filesystem $fs;
 
@@ -74,9 +67,7 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         $rejectBaseDir = $projectDir.'/'.$this->rejectDir;
         @mkdir($rejectBaseDir, 0775, true);
 
-        $this->validator = self::getContainer()->get(ValidatorInterface::class);
-        $this->mapper = self::getContainer()->get(AllocationRowMapper::class);
-        $this->persister = self::getContainer()->get(DoctrineAllocationPersister::class);
+        $this->importerFactory = self::getContainer()->get(AllocationImporterFactory::class);
         $this->logger = self::getContainer()->get(LoggerInterface::class);
         $this->fs = self::getContainer()->get(Filesystem::class);
 
@@ -116,8 +107,6 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         /** @var Import $managedImport */
         $managedImport = $em->getRepository(Import::class)->find($importFA->getId());
         $this->import = $managedImport;
-
-        $this->factory = self::getContainer()->get(AllocationImportFactory::class);
     }
 
     public function testImporterRunsOnSampleAndPersists4RowsWrites1Reject(): void
@@ -143,17 +132,7 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
 
         $rejectWriter->start($this->import);
 
-        $importer = new AllocationImporter(
-            validator: $this->validator,
-            reader: $reader,
-            mapper: $this->mapper,
-            factory: $this->factory,
-            persister: $this->persister,
-            rejectWriter: $rejectWriter,
-            logger: $this->logger
-        );
-
-        $this->factory->warm();
+        $importer = $this->importerFactory->create($reader, $rejectWriter);
 
         // Act
         $summary = $importer->import($this->import);
