@@ -16,20 +16,15 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\DTO\ImportSummary;
-use App\Import\Application\Service\AllocationImporter;
+use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
-use App\Import\Infrastructure\Adapter\DoctrineAllocationPersister;
-use App\Import\Infrastructure\Mapping\AllocationImportFactory;
-use App\Import\Infrastructure\Mapping\AllocationRowMapper;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class AllocationImportFeatureTest extends KernelTestCase
 {
@@ -108,20 +103,8 @@ final class AllocationImportFeatureTest extends KernelTestCase
         $this->em->flush();
 
         // Services
-        $validator = static::getContainer()->get(ValidatorInterface::class);
-        $mapper = static::getContainer()->get(AllocationRowMapper::class);
-        $factory = static::getContainer()->get(AllocationImportFactory::class);
-        $persister = static::getContainer()->get(DoctrineAllocationPersister::class);
-
-        $importer = new AllocationImporter(
-            validator: $validator,
-            reader: $reader,
-            mapper: $mapper,
-            factory: $factory,
-            persister: $persister,
-            rejectWriter: $rejectWriter,
-            logger: new NullLogger()
-        );
+        $importerFactory = static::getContainer()->get(AllocationImporterFactory::class);
+        $importer = $importerFactory->create($reader, $rejectWriter);
 
         // Act
         $summary = $importer->import($import);

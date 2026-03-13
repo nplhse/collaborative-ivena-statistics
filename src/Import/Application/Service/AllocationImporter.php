@@ -6,21 +6,18 @@ use App\Import\Application\Contracts\AllocationImporterInterface;
 use App\Import\Application\Contracts\AllocationPersisterInterface;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
-use App\Import\Application\Contracts\RowToDtoMapperInterface;
+use App\Import\Application\Contracts\RowTypeDetectorInterface;
 use App\Import\Application\DTO\ImportSummary;
-use App\Import\Application\Exception\ImportException;
+use App\Import\Application\Exception\RowRejectException;
 use App\Import\Domain\Entity\Import;
-use App\Import\Infrastructure\Mapping\AllocationImportFactory;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class AllocationImporter implements AllocationImporterInterface
 {
     public function __construct(
-        private readonly ValidatorInterface $validator,
         private readonly RowReaderInterface $reader,
-        private readonly RowToDtoMapperInterface $mapper,
-        private readonly AllocationImportFactory $factory,
+        private readonly RowTypeDetectorInterface $rowTypeDetector,
+        private readonly AllocationRowProcessorRegistry $processorRegistry,
         private readonly AllocationPersisterInterface $persister,
         private readonly RejectWriterInterface $rejectWriter,
         private readonly LoggerInterface $logger,
@@ -30,7 +27,7 @@ final class AllocationImporter implements AllocationImporterInterface
     #[\Override]
     public function import(Import $import): ImportSummary
     {
-        $this->factory->warm();
+        $this->processorRegistry->warmAll();
 
         $total = $ok = $rejected = 0;
 
@@ -42,21 +39,13 @@ final class AllocationImporter implements AllocationImporterInterface
                 ++$lineNo;
 
                 try {
-                    $dto = $this->mapper->mapAssoc($row);
-
-                    $violations = $this->validator->validate($dto);
-
-                    if (\count($violations) > 0) {
-                        $messages = [];
-
-                        foreach ($violations as $v) {
-                            $messages[] = sprintf('%s: %s', $v->getPropertyPath(), $v->getMessage());
-                        }
-
+                    $type = $this->rowTypeDetector->detect($row);
+                    if (null === $type) {
+                        $messages = ['Unable to detect a supported row type.'];
                         $this->rejectWriter->write($row, $messages, $lineNo);
                         ++$rejected;
 
-                        $this->logger->warning('reject.validation', [
+                        $this->logger->warning('reject.row_type_unknown', [
                             'line' => $lineNo,
                             'messages' => $messages,
                         ]);
@@ -64,15 +53,17 @@ final class AllocationImporter implements AllocationImporterInterface
                         continue;
                     }
 
-                    $entity = $this->factory->fromDto($dto, $import);
-                    $this->persister->persist($entity);
+                    $processor = $this->processorRegistry->get($type);
+                    $processor->process($row, $import, $lineNo);
                     ++$ok;
-                } catch (ImportException $e) {
-                    $this->rejectWriter->write($row, [$e->summarize()], $lineNo);
+                } catch (RowRejectException $e) {
+                    $messages = $e->messages();
+                    $this->rejectWriter->write($row, $messages, $lineNo);
                     ++$rejected;
 
-                    $this->logger->error('reject.import_exception', array_merge([
+                    $this->logger->warning('reject.row_rejected', array_merge([
                         'line' => $lineNo,
+                        'messages' => $messages,
                     ], $e->context()));
 
                     continue;
