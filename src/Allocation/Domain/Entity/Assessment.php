@@ -100,4 +100,15 @@ class Assessment
             && null !== $this->circulation
             && null !== $this->disability;
     }
+
+    public function __toString(): string
+    {
+        return sprintf(
+            'A: %s B: %s C: %s D: %s',
+            $this->getAirway()?->value ?? '-',
+            $this->getBreathing()?->value ?? '-',
+            $this->getCirculation()?->value ?? '-',
+            $this->getDisability()?->value ?? '-',
+        );
+    }
 }
