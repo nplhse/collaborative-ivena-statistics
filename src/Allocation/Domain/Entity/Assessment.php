@@ -105,10 +105,10 @@ class Assessment
     {
         return sprintf(
             'A: %s B: %s C: %s D: %s',
-            $this->getAirway()?->value ?? '-',
-            $this->getBreathing()?->value ?? '-',
-            $this->getCirculation()?->value ?? '-',
-            $this->getDisability()?->value ?? '-',
+            $this->getAirway()->value ?? '-',
+            $this->getBreathing()->value ?? '-',
+            $this->getCirculation()->value ?? '-',
+            $this->getDisability()->value ?? '-',
         );
     }
 }
