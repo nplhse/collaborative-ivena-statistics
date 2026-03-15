@@ -13,8 +13,7 @@ preferably with the symfony binary in your development environment.
 ## Install from GitHub
 1. Launch a **terminal** or **console** and navigate to the webroot folder.
    Clone [this repository from GitHub](https://github.com/nplhse/collaborative-ivena-statistics) to
-   a folder in the webroot of your server, e.g. 
-   `~/webroot/collaborative-ivena-statistics`.
+   a folder in the webroot of your server, e.g. `~/webroot/collaborative-ivena-statistics`.
 
     ```
     $ cd ~/webroot
@@ -33,7 +32,7 @@ preferably with the symfony binary in your development environment.
 > [!NOTE]
 > Please note that with this instruction you'll get a ready to use development
   application that is populated with some reasonable default data. Due to the 
-  very early development state there is no way to install an empty application.
+  very early development state, there is no way to install an empty application.
 
 # Contributing
 Any contribution to this project is appreciated, whether it is related to
