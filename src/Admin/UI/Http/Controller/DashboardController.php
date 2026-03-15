@@ -15,6 +15,7 @@ use App\Admin\UI\Http\Controller\IndicationNormalized\IndicationNormalizedCrudCo
 use App\Admin\UI\Http\Controller\IndicationRaw\IndicationRawCrudController;
 use App\Admin\UI\Http\Controller\Infection\InfectionCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
+use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
 use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
@@ -69,6 +70,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(IndicationRawCrudController::class, 'Indication Raw', 'fas fa-list');
         yield MenuItem::linkTo(InfectionCrudController::class, 'Infections', 'fas fa-list');
         yield MenuItem::linkTo(OccasionCrudController::class, 'Occasions', 'fas fa-list');
+        yield MenuItem::linkTo(SecondaryTransportCrudController::class, 'Secondary Transports', 'fas fa-list');
         yield MenuItem::linkTo(SpecialityCrudController::class, 'Specialities', 'fas fa-list');
         yield MenuItem::linkTo(StateCrudController::class, 'States', 'fas fa-list');
     }
