@@ -95,6 +95,10 @@ class Allocation
     private ?Infection $infection = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?SecondaryTransport $secondaryTransport = null;
+
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?IndicationRaw $indicationRaw = null;
 
@@ -389,6 +393,18 @@ class Allocation
     public function setInfection(?Infection $infection): static
     {
         $this->infection = $infection;
+
+        return $this;
+    }
+
+    public function getSecondaryTransport(): ?SecondaryTransport
+    {
+        return $this->secondaryTransport;
+    }
+
+    public function setSecondaryTransport(?SecondaryTransport $secondaryTransport): static
+    {
+        $this->secondaryTransport = $secondaryTransport;
 
         return $this;
     }
