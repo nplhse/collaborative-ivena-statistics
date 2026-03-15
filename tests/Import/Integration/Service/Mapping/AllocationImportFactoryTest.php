@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\Exception\InvalidDateException;
@@ -45,6 +46,7 @@ final class AllocationImportFactoryTest extends KernelTestCase
 
         AssignmentFactory::createOne(['name' => 'Patient']);
         OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
         InfectionFactory::createOne(['name' => '3MRGN']);
         IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123]);
 
@@ -76,6 +78,7 @@ final class AllocationImportFactoryTest extends KernelTestCase
         $dto->urgency = 1;
         $dto->assignment = 'Patient';
         $dto->occasion = 'Sonstiger Einsatz';
+        $dto->secondaryTransport = 'Kapazitätsengpass';
         $dto->infection = '3MRGN';
         $dto->indication = 'Test Indication';
         $dto->indicationCode = 123;
@@ -110,6 +113,8 @@ final class AllocationImportFactoryTest extends KernelTestCase
         self::assertSame(AllocationTransportType::tryFrom('G'), $allocation->getTransportType());
 
         self::assertSame('Test Indication', $allocation->getIndicationRaw()->getName());
+        self::assertNotNull($allocation->getSecondaryTransport());
+        self::assertSame('Kapazitätsengpass', $allocation->getSecondaryTransport()->getName());
     }
 
     public function testUnknownDispatchAreaThrows(): void

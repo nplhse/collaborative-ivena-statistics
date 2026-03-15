@@ -13,6 +13,7 @@ use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\Occasion;
+use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\AllocationGender;
@@ -26,6 +27,7 @@ use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
@@ -63,6 +65,7 @@ final class AllocationOrmTest extends KernelTestCase
 
         $assignment = AssignmentFactory::createOne(['name' => 'Test Assignment']);
         $occasion = OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $secondaryTransport = SecondaryTransportFactory::createOne(['name' => 'Test Secondary Transport']);
         $infection = InfectionFactory::createOne(['name' => 'Test Infection']);
         $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test IndicationRaw']);
         $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'Test IndicationNormalized']);
@@ -75,6 +78,7 @@ final class AllocationOrmTest extends KernelTestCase
         $department = $this->em->getRepository(Department::class)->find($department->getId());
         $assignment = $this->em->getRepository(Assignment::class)->find($assignment->getId());
         $occasion = $this->em->getRepository(Occasion::class)->find($occasion->getId());
+        $secondaryTransport = $this->em->getRepository(SecondaryTransport::class)->find($secondaryTransport->getId());
         $infection = $this->em->getRepository(Infection::class)->find($infection->getId());
         $indicationRaw = $this->em->getRepository(IndicationRaw::class)->find($indicationRaw->getId());
         $indicationNormalized = $this->em->getRepository(IndicationNormalized::class)->find($indicationNormalized->getId());
@@ -105,6 +109,7 @@ final class AllocationOrmTest extends KernelTestCase
             ->setDepartmentWasClosed(false)
             ->setAssignment($assignment)
             ->setOccasion($occasion)
+            ->setSecondaryTransport($secondaryTransport)
             ->setInfection($infection)
             ->setIndicationRaw($indicationRaw)
             ->setIndicationNormalized($indicationNormalized)
@@ -151,6 +156,7 @@ final class AllocationOrmTest extends KernelTestCase
         // Other relations
         self::assertSame('Test Assignment', $object->getAssignment()->getName());
         self::assertSame('Test Occasion', $object->getOccasion()->getName());
+        self::assertSame('Test Secondary Transport', $object->getSecondaryTransport()?->getName());
         self::assertSame('Test Infection', $object->getInfection()->getName());
         self::assertSame('Test IndicationRaw', $object->getIndicationRaw()->getName());
         self::assertSame('Test IndicationNormalized', $object->getIndicationNormalized()->getName());
@@ -227,6 +233,7 @@ final class AllocationOrmTest extends KernelTestCase
 
         self::assertNull($object->getTransportType());
         self::assertNull($object->getInfection());
+        self::assertNull($object->getSecondaryTransport());
         self::assertNull($object->getIndicationNormalized());
     }
 }

@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
@@ -92,6 +93,8 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         OccasionFactory::createOne(['name' => 'Häuslicher Einsatz']);
         OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
         OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+
+        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
 
         InfectionFactory::createOne(['name' => 'Noro']);
         InfectionFactory::createOne(['name' => 'V.a. COVID']);
