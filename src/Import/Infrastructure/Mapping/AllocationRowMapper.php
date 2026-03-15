@@ -72,6 +72,7 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
         // Other relations
         $dto->assignment = self::getStringOrNull($row, 'grund');
         $dto->occasion = self::getStringOrNull($row, 'anlass');
+        $dto->secondaryTransport = self::getStringOrNull($row, 'sekundaeranlass');
 
         // Infections
         $infection = self::getStringOrNull($row, 'ansteckungsfaehig');

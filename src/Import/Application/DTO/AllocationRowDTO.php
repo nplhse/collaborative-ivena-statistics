@@ -87,6 +87,8 @@ final class AllocationRowDTO
 
     public ?string $occasion = null;
 
+    public ?string $secondaryTransport = null;
+
     public ?string $infection = null;
 
     #[Assert\NotNull]
