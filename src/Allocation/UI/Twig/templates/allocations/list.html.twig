@@ -118,7 +118,7 @@
         {% if activeFilterCount > 0 %}
             <div class="alert alert-info" role="alert">
                 <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
-                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications) }}
+                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports) }}
             </div>
         {% endif %}
 
@@ -356,11 +356,26 @@
                             {% if indication.code > 0 %}
                             <option
                                 value="{{ indication.code }}"
-                                {{ filters.location == indication.code ? 'selected' }}
+                                {{ filters.indication == indication.code ? 'selected' }}
                             >
                                 {{ indication.name }}
                             </option>
                         {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'label.secondary_transport'|trans }}</label>
+                    <select name="secondaryTransport" class="form-select">
+                        <option value="">{{ 'label.all_secondary_transports'|trans }}</option>
+                        {% for st in secondaryTransports %}
+                            <option
+                                value="{{ st.id }}"
+                                {{ filters.secondaryTransport == st.id ? 'selected' }}
+                            >
+                                {{ st.name }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>

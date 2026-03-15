@@ -39,6 +39,8 @@ final readonly class AllocationQueryParametersDTO
         public ?int $requiresCathlab = null,
 
         public ?int $indication = null,
+
+        public ?int $secondaryTransport = null,
     ) {
     }
 }
