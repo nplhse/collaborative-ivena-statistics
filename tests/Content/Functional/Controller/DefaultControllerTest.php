@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -37,6 +38,7 @@ final class DefaultControllerTest extends WebTestCase
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
         AssignmentFactory::createOne(['name' => 'Test Assignment']);
         OccasionFactory::createOne(['name' => 'Test Occasion']);
+        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
         InfectionFactory::createOne(['name' => 'Test Infection']);
         IndicationRawFactory::createOne(['name' => 'Test Indication']);
         IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);

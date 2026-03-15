@@ -44,6 +44,7 @@ final class AllocationRowDTOTest extends TestCase
         $dto->departmentWasClosed = false;
         $dto->assignment = 'Patient';
         $dto->occasion = 'aus Arztpraxis';
+        $dto->secondaryTransport = null;
         $dto->infection = '4MRGN';
         $dto->indicationCode = 123;
         $dto->indication = 'TestIndication';

@@ -173,6 +173,23 @@
             </a>
         </div>
 
+        <!-- Card: Secondary Transports -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_explore_secondary_transport_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:transfer" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.secondary_transports'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.secondary_transports'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         <!-- Card: Specialities -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ path('app_explore_speciality_list') }}">

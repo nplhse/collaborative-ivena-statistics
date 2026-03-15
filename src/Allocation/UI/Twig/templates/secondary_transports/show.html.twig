@@ -1,0 +1,76 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.secondary_transport.show'|trans }}: {{ secondaryTransport.name }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.explore', path: path('app_explore_index') },
+                    { label: 'title.secondary_transport.list', path: path('app_explore_secondary_transport_list') },
+                    { label: secondaryTransport.name }
+                ]"
+        />
+
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:transfer" width="36px" height="36px" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 id="secondary-transport-name" class="fw-bold">{{ secondaryTransport.name }}</h1>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <a class="btn btn-outline-secondary" href="{{ path('app_explore_secondary_transport_list') }}">
+                        <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                        {{ 'label.back_to_list'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl">
+        <div class="row g-3">
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-title">
+                            {{ 'label.basic_info'|trans }}
+                        </div>
+                        <div class="mb-2">
+                            <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                            {{ 'label.created_at'|trans }} <strong>{{ secondaryTransport.createdAt|date('d.m.Y H:i') }}</strong>
+                        </div>
+                        <div class="mb-2">
+                            <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
+                            {{ 'label.created_by'|trans }} <strong>{{ secondaryTransport.createdBy }}</strong>
+                        </div>
+                        {% if secondaryTransport.updatedBy and secondaryTransport.updatedAt %}
+                            <div class="mt-1 mb-2">
+                                <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                                {{ 'label.updated_at'|trans }} <strong>{{ secondaryTransport.updatedAt|date('d.m.Y H:i') }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
+                                {{ 'label.updated_by'|trans }} <strong>{{ secondaryTransport.updatedBy }}</strong>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

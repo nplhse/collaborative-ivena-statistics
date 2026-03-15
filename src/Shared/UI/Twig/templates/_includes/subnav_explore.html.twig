@@ -61,6 +61,13 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_explore_secondary_transport' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_explore_secondary_transport_list') }}">
+                            <span class="nav-link-title">
+                                {{ 'link.secondary_transports'|trans }}
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ route starts with 'app_explore_speciality' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_explore_speciality_list') }}">
                             <span class="nav-link-title">

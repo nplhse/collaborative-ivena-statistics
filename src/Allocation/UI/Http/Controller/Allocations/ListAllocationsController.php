@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
+use App\Allocation\Infrastructure\Repository\SecondaryTransportRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +25,7 @@ final class ListAllocationsController extends AbstractController
         private readonly DispatchAreaRepository $dispatchAreaRepository,
         private readonly StateRepository $stateRepository,
         private readonly IndicationNormalizedRepository $normalizedRepository,
+        private readonly SecondaryTransportRepository $secondaryTransportRepository,
     ) {
     }
 
@@ -46,6 +48,7 @@ final class ListAllocationsController extends AbstractController
             'states' => $this->stateRepository->findAll(),
             'dispatchAreas' => $this->dispatchAreaRepository->findAll(),
             'indications' => $this->normalizedRepository->findAll(),
+            'secondaryTransports' => $this->secondaryTransportRepository->findBy([], ['name' => 'ASC']),
         ]);
     }
 
@@ -59,6 +62,7 @@ final class ListAllocationsController extends AbstractController
             'size',
             'urgency',
             'indication',
+            'secondaryTransport',
             'dispatchArea',
             'state',
             'requiresResus',

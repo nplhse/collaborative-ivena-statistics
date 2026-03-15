@@ -1,4 +1,4 @@
-{% macro allocation_filter_badges(filters, states, dispatchAreas, indications) %}
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports) %}
     {% set rawFilters = [] %}
 
     {# --- Simple string filters --- #}
@@ -72,6 +72,19 @@
         {% endfor %}
         {% if indicationName is not null %}
             {% set rawFilters = rawFilters|merge([{key: 'label.indication', value: indicationName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Secondary Transport (id → name) --- #}
+    {% if filters.secondaryTransport is not null and secondaryTransports is defined %}
+        {% set secondaryTransportName = null %}
+        {% for st in secondaryTransports %}
+            {% if secondaryTransportName is null and st.id == filters.secondaryTransport %}
+                {% set secondaryTransportName = st.name %}
+            {% endif %}
+        {% endfor %}
+        {% if secondaryTransportName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.secondary_transport', value: secondaryTransportName}]) %}
         {% endif %}
     {% endif %}
 

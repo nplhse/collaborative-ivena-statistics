@@ -107,6 +107,14 @@
                                 <strong>{{ 'label.no_occasion'|trans }}</strong>
                             {% endif %}
                         </div>
+                        <div class="col-6 mt-2">
+                            {{ 'label.secondary_transport'|trans }}:
+                            {% if allocation.secondaryTransport is not null %}
+                                <strong>{{ allocation.secondaryTransport }}</strong>
+                            {% else %}
+                                <strong>{{ 'label.no_secondary_transport'|trans }}</strong>
+                            {% endif %}
+                        </div>
                     </div>
                 </twig:Card>
             </div>

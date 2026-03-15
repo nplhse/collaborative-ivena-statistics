@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
+use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\HospitalLocation;
@@ -55,6 +56,12 @@ final class ListAllocationsQuery
                 'i',
                 \Doctrine\ORM\Query\Expr\Join::WITH,
                 'a.infection = i.id'
+            )
+            ->leftJoin(
+                SecondaryTransport::class,
+                'st',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'a.secondaryTransport = st.id'
             )
             ->leftJoin(
                 IndicationRaw::class,
@@ -129,6 +136,11 @@ final class ListAllocationsQuery
         if (null !== $queryParametersDTO->indication) {
             $qb->andWhere('inor.code = :indication')
                 ->setParameter('indication', $queryParametersDTO->indication);
+        }
+
+        if (null !== $queryParametersDTO->secondaryTransport) {
+            $qb->andWhere('st.id = :secondaryTransportId')
+                ->setParameter('secondaryTransportId', $queryParametersDTO->secondaryTransport);
         }
 
         $qb->orderBy($field, $queryParametersDTO->orderBy);

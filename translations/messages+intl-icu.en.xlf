@@ -253,6 +253,10 @@
         <source>label.all_indications</source>
         <target>All indications</target>
       </trans-unit>
+      <trans-unit id="allSecTr" resname="label.all_secondary_transports">
+        <source>label.all_secondary_transports</source>
+        <target>All secondary transports</target>
+      </trans-unit>
       <trans-unit id="t2o1BoP" resname="label.all_locations">
         <source>label.all_locations</source>
         <target>All Locations</target>
@@ -553,6 +557,10 @@
         <source>label.link.occasions</source>
         <target>Origins or contexts of an emergency case, such as public space, doctor’s office, or home environment.</target>
       </trans-unit>
+      <trans-unit id="linkSecTr" resname="label.link.secondary_transports">
+        <source>label.link.secondary_transports</source>
+        <target>Secondary transport types for inter-hospital or follow-up transfers.</target>
+      </trans-unit>
       <trans-unit id=".Ub3pp_" resname="label.link.specialities">
         <source>label.link.specialities</source>
         <target>Overarching medical fields such as Internal Medicine or Surgery.</target>
@@ -593,6 +601,10 @@
         <source>label.no_occasion</source>
         <target>No occasion</target>
       </trans-unit>
+      <trans-unit id="nOsecTr" resname="label.no_secondary_transport">
+        <source>label.no_secondary_transport</source>
+        <target>No secondary transport</target>
+      </trans-unit>
       <trans-unit id="OZs.ee2" resname="label.normalized">
         <source>label.normalized</source>
         <target>Normalized Indication</target>
@@ -600,6 +612,10 @@
       <trans-unit id="u3qOfXy" resname="label.occasion">
         <source>label.occasion</source>
         <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="sEcTr1" resname="label.secondary_transport">
+        <source>label.secondary_transport</source>
+        <target>Secondary transport</target>
       </trans-unit>
       <trans-unit id="Pak93P_" resname="label.pagination_numbers">
         <source>label.pagination_numbers</source>
@@ -777,6 +793,10 @@
         <source>link.occasions</source>
         <target>Occasions</target>
       </trans-unit>
+      <trans-unit id="linkST" resname="link.secondary_transports">
+        <source>link.secondary_transports</source>
+        <target>Secondary Transports</target>
+      </trans-unit>
       <trans-unit id="y8kuDU3" resname="link.specialities">
         <source>link.specialities</source>
         <target>Specialities</target>
@@ -886,6 +906,14 @@
       <trans-unit id="x2zBU9m" resname="title.occasion.list">
         <source>title.occasion.list</source>
         <target>Listing Occasions</target>
+      </trans-unit>
+      <trans-unit id="titSecL" resname="title.secondary_transport.list">
+        <source>title.secondary_transport.list</source>
+        <target>Listing Secondary Transports</target>
+      </trans-unit>
+      <trans-unit id="titSecS" resname="title.secondary_transport.show">
+        <source>title.secondary_transport.show</source>
+        <target>Secondary Transport</target>
       </trans-unit>
       <trans-unit id="uhopb3E" resname="title.speciality.list">
         <source>title.speciality.list</source>
