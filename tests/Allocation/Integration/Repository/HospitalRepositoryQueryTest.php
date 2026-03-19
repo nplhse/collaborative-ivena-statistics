@@ -27,7 +27,10 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
 
     public function testAdminSeesAllHospitals(): void
     {
-        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
+        $admin = UserFactory::createOne([
+            'roles' => ['ROLE_ADMIN'],
+            'username' => 'admin-'.bin2hex(random_bytes(6)),
+        ]);
 
         StateFactory::createOne();
         DispatchAreaFactory::createOne();
@@ -42,8 +45,8 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
 
     public function testRegularUsersSeeOnlyOwnedHospitals(): void
     {
-        $owner = UserFactory::createOne();
-        $other = UserFactory::createOne();
+        $owner = UserFactory::createOne(['username' => 'owner-'.bin2hex(random_bytes(6))]);
+        $other = UserFactory::createOne(['username' => 'other-'.bin2hex(random_bytes(6))]);
 
         StateFactory::createOne();
         DispatchAreaFactory::createOne();

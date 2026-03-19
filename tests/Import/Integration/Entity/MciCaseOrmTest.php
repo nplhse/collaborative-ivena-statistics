@@ -45,7 +45,7 @@ final class MciCaseOrmTest extends KernelTestCase
 
     public function testPersistAndHydrateRoundtrip(): void
     {
-        UserFactory::createOne();
+        UserFactory::createOne(['username' => 'mci-case-orm-roundtrip-'.bin2hex(random_bytes(6))]);
 
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $area = DispatchAreaFactory::createOne(['name' => 'Alpha Area', 'state' => $state]);

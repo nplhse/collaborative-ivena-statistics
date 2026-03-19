@@ -49,7 +49,7 @@ final class AllocationOrmTest extends KernelTestCase
 
     public function testPersistAndHydrateRoundtrip(): void
     {
-        UserFactory::createOne();
+        UserFactory::createOne(['username' => 'allocation-orm-roundtrip-'.bin2hex(random_bytes(6))]);
 
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $area = DispatchAreaFactory::createOne(['name' => 'Alpha Area', 'state' => $state]);
@@ -164,7 +164,7 @@ final class AllocationOrmTest extends KernelTestCase
 
     public function testTransportTypeAndInfectionCanBeNull(): void
     {
-        UserFactory::createOne();
+        UserFactory::createOne(['username' => 'allocation-orm-nullable-'.bin2hex(random_bytes(6))]);
 
         $state = StateFactory::createOne();
         $area = DispatchAreaFactory::createOne(['state' => $state]);

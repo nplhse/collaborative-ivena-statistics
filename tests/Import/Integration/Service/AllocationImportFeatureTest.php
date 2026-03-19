@@ -41,7 +41,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
     public function testFullImportPipelinePersistsEntitiesAndWritesRejects(): void
     {
         // Arrange
-        $user = UserFactory::createOne();
+        $user = UserFactory::createOne(['username' => 'allocation-import-user-'.bin2hex(random_bytes(6))]);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([

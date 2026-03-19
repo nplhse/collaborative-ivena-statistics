@@ -44,7 +44,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
     public function testHandlerRunsImportUpdatesImportEntityAndTracksRejectsInMemory(): void
     {
         // Arrange
-        $owner = UserFactory::createOne();
+        $owner = UserFactory::createOne(['username' => 'import-handler-owner-'.bin2hex(random_bytes(6))]);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([

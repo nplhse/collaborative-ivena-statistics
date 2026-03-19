@@ -21,7 +21,7 @@ final class BlamableListenerTest extends KernelTestCase
 
     public function testPrePersistSetsCreatedByToCurrentUser(): void
     {
-        $user = UserFactory::createOne();
+        $user = UserFactory::createOne(['username' => 'blamable-created-by-'.bin2hex(random_bytes(6))]);
         $this->loginAs($user);
 
         $state = new State();
@@ -36,7 +36,7 @@ final class BlamableListenerTest extends KernelTestCase
 
     public function testPreUpdateSetsUpdatedByOnUpdate(): void
     {
-        $user = UserFactory::createOne();
+        $user = UserFactory::createOne(['username' => 'blamable-updated-by-'.bin2hex(random_bytes(6))]);
         $this->loginAs($user);
 
         $state = new State();
@@ -52,8 +52,8 @@ final class BlamableListenerTest extends KernelTestCase
 
     public function testPrePersistDoesNotOverrideExistingCreatedBy(): void
     {
-        $user = UserFactory::createOne();
-        $presetUser = UserFactory::createOne();
+        $user = UserFactory::createOne(['username' => 'blamable-acting-user-'.bin2hex(random_bytes(6))]);
+        $presetUser = UserFactory::createOne(['username' => 'blamable-preset-user-'.bin2hex(random_bytes(6))]);
         $this->loginAs($user);
 
         $presetUser = $this->em->getRepository(User::class)->find($presetUser->getId());
