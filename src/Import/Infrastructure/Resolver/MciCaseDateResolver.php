@@ -2,12 +2,12 @@
 
 namespace App\Import\Infrastructure\Resolver;
 
-use App\Allocation\Domain\Entity\Allocation;
-use App\Import\Application\Contracts\AllocationEntityResolverInterface;
-use App\Import\Application\DTO\AllocationRowDTO;
+use App\Allocation\Domain\Entity\MciCase;
+use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
+use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\DateParsingStrategy;
 
-final class AllocationDateResolver implements AllocationEntityResolverInterface
+final class MciCaseDateResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
         private readonly DateParsingStrategy $strategy,
@@ -20,13 +20,13 @@ final class AllocationDateResolver implements AllocationEntityResolverInterface
     }
 
     #[\Override]
-    public function supports(Allocation $entity, AllocationRowDTO $dto): bool
+    public function supports(MciCase $entity, MciCaseRowDTO $dto): bool
     {
         return true;
     }
 
     #[\Override]
-    public function apply(Allocation $entity, AllocationRowDTO $dto): void
+    public function apply(MciCase $entity, MciCaseRowDTO $dto): void
     {
         $this->strategy->apply($entity, $dto);
     }

@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem('import.reject_writer')]
 final class DoctrineRejectWriter implements RejectWriterInterface
 {
-    private ?Import $import = null;
+    private ?int $importId = null;
     private int $count = 0;
 
     public function __construct(
@@ -30,14 +30,19 @@ final class DoctrineRejectWriter implements RejectWriterInterface
     #[\Override]
     public function start(Import $import): void
     {
-        $this->import = $import;
+        $importId = $import->getId();
+        if (null === $importId) {
+            throw new \LogicException('Import has no id assigned yet.');
+        }
+
+        $this->importId = $importId;
         $this->count = 0;
     }
 
     #[\Override]
     public function write(array $row, array $messages, ?int $line = null): void
     {
-        if (null === $this->import) {
+        if (null === $this->importId) {
             throw new \LogicException('Reject writer not started. Call start() before write().');
         }
 
@@ -47,7 +52,9 @@ final class DoctrineRejectWriter implements RejectWriterInterface
         }
 
         $reject = new ImportReject();
-        $reject->setImport($this->import);
+        /** @var Import $managedImport */
+        $managedImport = $this->em->getReference(Import::class, $this->importId);
+        $reject->setImport($managedImport);
         $reject->setLineNumber($line);
         $reject->setMessages($messages);
         $reject->setRow($normRow);

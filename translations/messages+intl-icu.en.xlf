@@ -181,6 +181,10 @@
         <source>import.action.preview_rows</source>
         <target>Preview Rows</target>
       </trans-unit>
+      <trans-unit id="mciPreview" resname="import.action.preview_mci_cases">
+        <source>import.action.preview_mci_cases</source>
+        <target>Preview MCI Cases</target>
+      </trans-unit>
       <trans-unit id="T_sGody" resname="import.field.fileExtension">
         <source>import.field.fileExtension</source>
         <target>Extension</target>
@@ -529,6 +533,14 @@
         <source>label.link.allocations</source>
         <target>Emergency service deployments recorded in IVENA with their details.</target>
       </trans-unit>
+      <trans-unit id="labelLinkMciCases" resname="label.link.mci_cases">
+        <source>label.link.mci_cases</source>
+        <target>Mass casualty incidents recorded in IVENA with their associated operational and medical details.</target>
+      </trans-unit>
+      <trans-unit id="linkMciCases" resname="link.mci_cases">
+        <source>link.mci_cases</source>
+        <target>MCI Cases</target>
+      </trans-unit>
       <trans-unit id="_jHXFXz" resname="label.link.assignments">
         <source>label.link.assignments</source>
         <target>Indicates who initiated the hospital selection, e.g. patient, physician, or emergency service.</target>
@@ -838,6 +850,14 @@
       <trans-unit id="fykBocL" resname="title.allocation.show">
         <source>title.allocation.show</source>
         <target>Show Allocation Detail</target>
+      </trans-unit>
+      <trans-unit id="mciTitleList" resname="title.mci_case.list">
+        <source>title.mci_case.list</source>
+        <target>Listing MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="mciTitleShow" resname="title.mci_case.show">
+        <source>title.mci_case.show</source>
+        <target>Show MCI Case Detail</target>
       </trans-unit>
       <trans-unit id="2yVgyK_" resname="title.assignment.list">
         <source>title.assignment.list</source>

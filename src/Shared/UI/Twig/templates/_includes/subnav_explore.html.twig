@@ -54,6 +54,13 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_explore_mci_case' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_explore_mci_case_list') }}">
+                            <span class="nav-link-title">
+                                {{ 'link.mci_cases'|trans }}
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ route starts with 'app_explore_occasion' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_explore_occasion_list') }}">
                             <span class="nav-link-title">

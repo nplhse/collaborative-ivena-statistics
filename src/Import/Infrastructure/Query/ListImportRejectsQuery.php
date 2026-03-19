@@ -12,6 +12,7 @@ use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 
+/** @psalm-suppress UnusedClass */
 final readonly class ListImportRejectsQuery
 {
     public function __construct(

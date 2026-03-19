@@ -156,6 +156,23 @@
             </a>
         </div>
 
+        <!-- Card: MCI Cases -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_explore_mci_case_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <!-- Icon -->
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:ambulance" width="4em" height="4em" />
+                    </div>
+                    <!-- Text -->
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.mci_cases'|trans }}</div>
+                        <small class="text-muted">{{ 'label.link.mci_cases'|trans }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         <!-- Card: Occasions -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ path('app_explore_occasion_list') }}">

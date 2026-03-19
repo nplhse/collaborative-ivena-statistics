@@ -220,7 +220,9 @@ trait AllocationRowNormalizationTrait
 
         $value = preg_replace([
             '/^Leitstelle\s+/u',
+            '/^Kreis\s+/u',
             '/\s*\(.+$/u',
+            '/\s*-\s*Kreis$/u',
         ], ['', ''], $value);
 
         if (null === $value) {
