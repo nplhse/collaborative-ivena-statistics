@@ -223,6 +223,9 @@
                                     <a class="btn btn-outline-primary" href="{{ path('app_explore_allocation_list', {importId: import.id}) }}">
                                         <twig:ux:icon name="tabler:table" class="w-3 h-3" /> {{ 'import.action.preview_rows'|trans }}
                                     </a>
+                                <a class="btn btn-outline-secondary" href="{{ path('app_explore_mci_case_list', {importId: import.id}) }}">
+                                    <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" /> {{ 'import.action.preview_mci_cases'|trans }}
+                                </a>
                                 </div>
                             </twig:Card>
                         </div>

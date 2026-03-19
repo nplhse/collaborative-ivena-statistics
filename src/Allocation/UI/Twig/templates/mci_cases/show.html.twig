@@ -1,0 +1,298 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.mci_case.show'|trans }}: {{ mciCase.mciTitle ?? ('#' ~ mciCase.id) }} - {{ 'title.data'|trans }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'link.mci_cases'|trans, path: path('app_explore_mci_case_list') },
+                { label: 'title.mci_case.show'|trans }
+            ]"
+        />
+
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:ambulance" class="w-5 h-5" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 class="fw-bold">{{ mciCase.mciTitle ?? 'MCI' }} </h1>
+                <div class="list-inline list-inline-dots text-muted">
+                    <div class="list-inline-item">
+                        <twig:ux:icon name="tabler:map" class="w-3 h-3" />
+                        {{ mciCase.dispatchArea }}, {{ mciCase.state }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <span class="d-none d-sm-inline">
+                        <a class="btn btn-outline-secondary" href="{{ path('app_explore_mci_case_list') }}">
+                            <twig:ux:icon name="tabler:chevron-left" class="w-3 h-3" />
+                            {{ 'label.back_to_list'|trans }}
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row g-3">
+        <div class="col">
+            <div class="col-12 mb-3">
+                <twig:Card title="{{ 'label.speciality'|trans }}">
+                    <div class="department-line">
+                        <div class="d-flex align-items-center">
+                            <span class="fw-bold me-1">{{ mciCase.department ?? '—' }}</span>
+                            <span class="text-muted">({{ mciCase.speciality ?? '—' }})</span>
+
+                            {% if mciCase.departmentWasClosed is same as true %}
+                                <span class="badge bg-red-lt text-red ms-2 d-inline-flex align-items-center" title="Department was closed">
+                                    <twig:ux:icon name="tabler:alert-square-rounded" class="w-3 h-3" /> closed
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </twig:Card>
+            </div>
+
+            <div class="col-12 mb-3">
+                <twig:Card title="{{ 'label.indication'|trans }}">
+                    <div class="mci-case-indication row">
+                        <p class="mb-2">
+                            {{ 'label.indication.raw'|trans }}:
+                            {% if mciCase.indicationRaw is not null %}
+                                <strong>{{ mciCase.indicationRaw.name }}</strong>
+                                <span class="badge">{{ mciCase.indicationRaw.code }}</span>
+                            {% else %}
+                                <strong>{{ 'label.no_indication'|trans }}</strong>
+                            {% endif %}
+                        </p>
+
+                        <p class="mb-0">
+                            {{ 'label.indication.normalized'|trans }}:
+                            {% if mciCase.indicationNormalized is not null %}
+                                <strong>{{ mciCase.indicationNormalized.name }}</strong>
+                                <span class="badge">{{ mciCase.indicationNormalized.code }}</span>
+                            {% else %}
+                                <strong>{{ 'label.no_indication'|trans }}</strong>
+                            {% endif %}
+                        </p>
+                    </div>
+                </twig:Card>
+            </div>
+
+            <div class="col-12 mb-3">
+                <twig:Card title="{{ 'label.properties'|trans }}">
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'field.requiresResus'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if mciCase.requiresResus is null %}
+                                    <strong>—</strong>
+                                {% elseif mciCase.requiresResus %}
+                                    <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'field.requiresCathlab'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if mciCase.requiresCathlab is null %}
+                                    <strong>—</strong>
+                                {% elseif mciCase.requiresCathlab %}
+                                    <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'field.isCPR'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if mciCase.isCPR is null %}
+                                    <strong>—</strong>
+                                {% elseif mciCase.isCPR %}
+                                    <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'allocations.field.isVentilated'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if mciCase.isVentilated is null %}
+                                    <strong>—</strong>
+                                {% elseif mciCase.isVentilated %}
+                                    <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'allocations.field.isShock'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if mciCase.isShock is null %}
+                                    <strong>—</strong>
+                                {% elseif mciCase.isShock %}
+                                    <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'allocations.field.isPregnant'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if mciCase.isPregnant is null %}
+                                    <strong>—</strong>
+                                {% elseif mciCase.isPregnant %}
+                                    <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'field.isWithPhysician'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if mciCase.isWithPhysician is null %}
+                                    <strong>—</strong>
+                                {% elseif mciCase.isWithPhysician %}
+                                    <span class="status status-green">{{ 'field.isWithPhysician.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.isWithPhysician.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </twig:Card>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="row row-cards">
+                <div class="col-12">
+                    <twig:Card title="{{ 'label.basic_info'|trans }}">
+                        {% import '@Shared/_macros/badges.html.twig' as badges %}
+
+                        <div id="mci-case-mci-title" class="mb-2">
+                            <twig:ux:icon name="tabler:tag" class="w-3 h-3" />
+                            MCI-ID: <strong>{{ mciCase.mciId }}</strong>
+                        </div>
+
+                        <div id="mci-case-created-at" class="mb-2">
+                            <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
+                            {{ 'label.created_at'|trans }} <strong>{{ mciCase.createdAt|date('d.m.Y H:i') }}</strong>
+                        </div>
+
+                        <div id="mci-case-arrival-at" class="mb-2">
+                            <twig:ux:icon name="tabler:clock-check" class="w-3 h-3" />
+                            {{ 'label.arrival_at'|trans }} <strong>{{ mciCase.arrivalAt|date('d.m.Y H:i') }}</strong>
+                        </div>
+
+                        <div id="mci-case-age" class="mb-2">
+                            <twig:ux:icon name="tabler:user" class="w-3 h-3" />
+                            {{ 'field.age'|trans }} <strong>{{ mciCase.age ?? '—' }}</strong>
+                        </div>
+
+                        <div id="mci-case-gender" class="mb-2">
+                            {{ 'field.gender'|trans }}
+                            <strong>
+                                {% if mciCase.gender is not null %}
+                                    {% if mciCase.gender.value == 'M' %}
+                                        <twig:ux:icon name="tabler:gender-male" class="w-3 h-3" />
+                                    {% elseif mciCase.gender.value == 'F' %}
+                                        <twig:ux:icon name="tabler:gender-female" class="w-3 h-3" />
+                                    {% else %}
+                                        <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
+                                    {% endif %}
+                                {% else %}
+                                    <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
+                                {% endif %}
+
+                                {% if mciCase.gender is not null %}
+                                    {{ mciCase.gender.label|trans }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div id="mci-case-urgency" class="mb-2">
+                            <twig:ux:icon name="tabler:traffic-lights" class="w-3 h-3" />
+                            {{ 'field.urgency'|trans }}
+                            {% if mciCase.urgency is not null %}
+                                {{ badges.render('allocation_urgency', mciCase.urgency.value) }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+
+                        <div id="mci-case-infection">
+                            <twig:ux:icon name="tabler:biohazard" class="w-3 h-3" />
+                            {{ 'field.infection'|trans }}
+                            {% if mciCase.infection is not null %}
+                                <span class="badge bg-orange text-orange-fg">{{ mciCase.infection.name }}</span>
+                            {% else %}
+                                <strong>{{ 'label.no_infection'|trans }}</strong>
+                            {% endif %}
+                        </div>
+                    </twig:Card>
+                </div>
+
+                <div class="col-12">
+                    <twig:Card title="{{ 'label.transport'|trans }}">
+                        <div class="datagrid">
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'field.transportType'|trans }}</div>
+                                <div class="datagrid-content">
+                                    {% if mciCase.transportType is null %}
+                                        —
+                                    {% elseif mciCase.transportType.value == 'G' %}
+                                        <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" />
+                                        <strong>{{ mciCase.transportType.label()|trans }}</strong>
+                                    {% elseif mciCase.transportType.value == 'A' %}
+                                        <twig:ux:icon name="tabler:helicopter" class="w-3 h-3" />
+                                        <strong>{{ mciCase.transportType.label()|trans }}</strong>
+                                    {% else %}
+                                        {{ 'field.transportType.unknown'|trans }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'field.isWithPhysician'|trans }}</div>
+                                <div class="datagrid-content">
+                                    {% if mciCase.isWithPhysician is null %}
+                                        —
+                                    {% elseif mciCase.isWithPhysician %}
+                                        <strong>{{ 'field.isWithPhysician.true'|trans }}</strong>
+                                    {% else %}
+                                        <strong>{{ 'field.isWithPhysician.false'|trans }}</strong>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </twig:Card>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

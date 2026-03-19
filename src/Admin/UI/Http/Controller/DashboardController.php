@@ -14,6 +14,7 @@ use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
 use App\Admin\UI\Http\Controller\IndicationNormalized\IndicationNormalizedCrudController;
 use App\Admin\UI\Http\Controller\IndicationRaw\IndicationRawCrudController;
 use App\Admin\UI\Http\Controller\Infection\InfectionCrudController;
+use App\Admin\UI\Http\Controller\MciCase\MciCaseCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
 use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
 use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
@@ -62,6 +63,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(ImportRejectCrudController::class, 'Import Rejects', 'fas fa-triangle-exclamation');
         yield MenuItem::section('Data');
         yield MenuItem::linkTo(AllocationCrudController::class, 'Allocations', 'fas fa-list');
+        yield MenuItem::linkTo(MciCaseCrudController::class, 'MCI Cases', 'fas fa-list');
         yield MenuItem::linkTo(AssignmentCrudController::class, 'Assignments', 'fas fa-list');
         yield MenuItem::linkTo(DepartmentCrudController::class, 'Departments', 'fas fa-list');
         yield MenuItem::linkTo(DispatchAreaCrudController::class, 'Dispatch Areas', 'fas fa-list');
