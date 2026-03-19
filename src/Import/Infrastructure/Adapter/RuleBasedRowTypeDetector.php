@@ -13,6 +13,18 @@ final class RuleBasedRowTypeDetector implements RowTypeDetectorInterface
     #[\Override]
     public function detect(array $row): ?AllocationRowType
     {
+        $mciSignals = [
+            'manv',
+            'manv_id',
+        ];
+
+        foreach ($mciSignals as $field) {
+            $value = $row[$field] ?? null;
+            if (null !== $value && '' !== \trim($value)) {
+                return AllocationRowType::MCI_CASE;
+            }
+        }
+
         $allocationSignals = [
             'datum_erstellungsdatum',
             'uhrzeit_erstellungsdatum',

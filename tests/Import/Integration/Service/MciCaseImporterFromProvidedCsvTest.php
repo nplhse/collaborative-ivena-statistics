@@ -1,0 +1,152 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Import\Integration\Service;
+
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Allocation\Infrastructure\Repository\MciCaseRepository;
+use App\Import\Application\Factory\AllocationImporterFactory;
+use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Infrastructure\Adapter\SplCsvRejectWriter;
+use App\Import\Infrastructure\Adapter\SplCsvRowReader;
+use App\Import\Infrastructure\Adapter\SplCsvStreamFactory;
+use App\Import\Infrastructure\Charset\EncodingDetector;
+use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Import\Infrastructure\Indication\IndicationKey;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Filesystem\Filesystem;
+use Zenstruck\Foundry\Test\ResetDatabase;
+
+final class MciCaseImporterFromProvidedCsvTest extends KernelTestCase
+{
+    use ResetDatabase;
+
+    private string $fixtureFile = 'mci_case_import_sample.csv';
+    private string $rejectDir = 'var/tests/rejects';
+
+    private string $fixturePath;
+
+    private AllocationImporterFactory $importerFactory;
+    private LoggerInterface $logger;
+    private Filesystem $fs;
+
+    private Import $import;
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+
+        $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
+        $this->fixturePath = $projectDir.'/tests/Import/Fixtures/'.$this->fixtureFile;
+        self::assertFileExists($this->fixturePath, 'Fixture CSV missing at '.$this->fixturePath);
+
+        $rejectBaseDir = $projectDir.'/'.$this->rejectDir;
+        @mkdir($rejectBaseDir, 0775, true);
+
+        $this->importerFactory = self::getContainer()->get(AllocationImporterFactory::class);
+        $this->logger = self::getContainer()->get(LoggerInterface::class);
+        $this->fs = self::getContainer()->get(Filesystem::class);
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+
+        $user = UserFactory::createOne();
+        $em->getRepository(User::class)->find($user->getId());
+
+        $state = StateFactory::createOne(['name' => 'Test State']);
+        $area = DispatchAreaFactory::createOne(['name' => 'Test Area', 'state' => $state]);
+        $hospital = HospitalFactory::createOne(['name' => 'Test Hospital', 'state' => $state, 'dispatchArea' => $area]);
+
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+
+        OccasionFactory::createOne(['name' => 'Häuslicher Einsatz']);
+        OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+
+        InfectionFactory::createOne(['name' => 'Noro']);
+        InfectionFactory::createOne(['name' => 'Keine']);
+        InfectionFactory::createOne(['name' => 'V.a. COVID']);
+
+        IndicationRawFactory::createOne([
+            'name' => 'Test Indication',
+            'code' => 123,
+            'hash' => IndicationKey::hashFrom('123', 'Test Indication'),
+        ]);
+
+        $importFA = ImportFactory::createOne([
+            'name' => 'Test Import',
+            'hospital' => $hospital,
+            'status' => ImportStatus::PENDING,
+        ]);
+
+        /** @var Import $managedImport */
+        $managedImport = $em->getRepository(Import::class)->find($importFA->getId());
+        $this->import = $managedImport;
+    }
+
+    public function testImporterRunsOnSampleAndPersists4RowsWrites1Reject(): void
+    {
+        $reader = new SplCsvRowReader(
+            new \SplFileObject($this->fixturePath, 'r'),
+            new EncodingDetector(),
+            new SplCsvStreamFactory($this->logger),
+            encodingHint: 'UTF-8',
+            delimiter: ';',
+            enclosure: '"',
+            escape: '\\',
+        );
+
+        $rejectWriter = new SplCsvRejectWriter(
+            filesystem: $this->fs,
+            rejectsBaseDir: $this->rejectDir,
+            delimiter: ';',
+            enclosure: "\0",
+            escape: '\\'
+        );
+
+        $rejectWriter->start($this->import);
+
+        $importer = $this->importerFactory->create($reader, $rejectWriter);
+
+        // Act
+        $summary = $importer->import($this->import);
+
+        // Assert summary
+        self::assertSame(5, $summary->total ?? null);
+        self::assertSame(4, $summary->ok ?? null);
+        self::assertSame(1, $summary->rejected ?? null);
+
+        /** @var MciCaseRepository $repo */
+        $repo = self::getContainer()->get(MciCaseRepository::class);
+        self::assertSame(4, $repo->count([]), 'Expected 4 persisted mci_cases');
+
+        $rejectPath = $rejectWriter->getPath();
+        self::assertIsString($rejectPath);
+        self::assertNotSame('', $rejectPath);
+        self::assertFileExists($rejectPath, 'Reject file not written');
+
+        $lines = file($rejectPath, FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(2, $lines, 'Reject CSV should contain header + exactly 1 rejected row');
+
+        $mci = $repo->findOneBy([], ['id' => 'ASC']);
+        self::assertNotNull($mci);
+        self::assertSame('2025-01-07 10:19', $mci->getCreatedAt()->format('Y-m-d H:i'));
+        self::assertSame('2025-01-07 13:14', $mci->getArrivalAt()->format('Y-m-d H:i'));
+    }
+}

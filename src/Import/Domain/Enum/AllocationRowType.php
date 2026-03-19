@@ -7,4 +7,5 @@ namespace App\Import\Domain\Enum;
 enum AllocationRowType: string
 {
     case ALLOCATION = 'allocation';
+    case MCI_CASE = 'mci_case';
 }
