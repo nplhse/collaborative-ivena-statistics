@@ -10,6 +10,7 @@ use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Infrastructure\Indication\IndicationCache;
 use App\Import\Infrastructure\Indication\IndicationKey;
 use App\Import\Infrastructure\Resolver\AllocationIndicationResolver;
+use App\Import\Infrastructure\Resolver\Strategy\IndicationCreationStrategy;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -57,11 +58,8 @@ final class AllocationIndicationResolverTest extends TestCase
 
         $cache = new IndicationCache();
 
-        $resolver = new AllocationIndicationResolver(
-            repo: $repo,
-            em: $em,
-            cache: $cache,
-        );
+        $strategy = new IndicationCreationStrategy($repo, $cache, $em);
+        $resolver = new AllocationIndicationResolver($strategy);
 
         $resolver->warm();
 
