@@ -1,0 +1,18 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.reset_password'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-4">{{ 'title.check_email'|trans }}</h2>
+            <p>
+                {{ 'text.reset_password.check_email_intro'|trans }}
+                {{ 'text.reset_password.expires_in'|trans }} {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+            </p>
+            <p>
+                {{ 'text.reset_password.no_email'|trans }} <a href="{{ path('app_forgot_password_request') }}">{{ 'label.try_again'|trans }}</a>.
+            </p>
+        </twig:Card>
+    </div>
+{% endblock %}

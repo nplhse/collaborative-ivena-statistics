@@ -27,6 +27,7 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public const string LOGIN_ROUTE = 'app_login';
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly FormFactoryInterface $formFactory,

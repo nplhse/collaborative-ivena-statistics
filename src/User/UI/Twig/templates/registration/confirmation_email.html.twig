@@ -1,0 +1,5 @@
+<p>Hello {{ app.user ? app.user.userIdentifier : 'there' }},</p>
+<p>Please verify your email address by clicking the link below:</p>
+<p><a href="{{ signedUrl }}">Verify email address</a></p>
+<p>This link expires {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.</p>
+<p>If you did not create this account, you can ignore this message.</p>

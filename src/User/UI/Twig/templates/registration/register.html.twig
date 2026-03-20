@@ -1,0 +1,23 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.register'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-4">{{ 'title.register'|trans }}</h2>
+            {{ form_start(registrationForm) }}
+                {{ form_row(registrationForm.username) }}
+                {{ form_row(registrationForm.email) }}
+                {{ form_row(registrationForm.plainPassword) }}
+                <div class="form-footer">
+                    <button class="btn btn-primary w-100" type="submit">{{ 'label.register'|trans }}</button>
+                </div>
+            {{ form_end(registrationForm) }}
+            <div class="text-center text-secondary mt-3">
+                {{ 'label.already_have_account'|trans }}
+                <a href="{{ path('app_login') }}">{{ 'label.login'|trans }}</a>
+            </div>
+        </twig:Card>
+    </div>
+{% endblock %}

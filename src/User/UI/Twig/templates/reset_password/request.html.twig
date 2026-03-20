@@ -1,0 +1,17 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.reset_password'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-4">{{ 'title.reset_password'|trans }}</h2>
+            {{ form_start(requestForm) }}
+                {{ form_row(requestForm.email) }}
+                <div class="form-footer">
+                    <button class="btn btn-primary w-100">{{ 'label.send_reset_email'|trans }}</button>
+                </div>
+            {{ form_end(requestForm) }}
+        </twig:Card>
+    </div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.set_new_password'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-4">{{ 'title.set_new_password'|trans }}</h2>
+            {{ form_start(resetForm) }}
+                {{ form_row(resetForm.plainPassword.first) }}
+                {{ form_row(resetForm.plainPassword.second) }}
+                <div class="form-footer">
+                    <button class="btn btn-primary w-100">{{ 'label.save_new_password'|trans }}</button>
+                </div>
+            {{ form_end(resetForm) }}
+        </twig:Card>
+    </div>
+{% endblock %}
