@@ -27,7 +27,7 @@ final class RegistrationControllerTest extends WebTestCase
             ->click('Register')
             ->assertSuccessful()
             ->assertSeeIn('#user_name', $username)
-            ->assertSee('You are now signed in. Please verify your email address to unlock all account features.')
+            ->assertSee('Registration successful. Please verify your email address.')
         ;
     }
 }
