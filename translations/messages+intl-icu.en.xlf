@@ -939,6 +939,206 @@
         <source>title.speciality.list</source>
         <target>Listing Specialities</target>
       </trans-unit>
+      <trans-unit id="titleRegister" resname="title.register">
+        <source>title.register</source>
+        <target>Register</target>
+      </trans-unit>
+      <trans-unit id="titleResetPassword" resname="title.reset_password">
+        <source>title.reset_password</source>
+        <target>Reset password</target>
+      </trans-unit>
+      <trans-unit id="titleCheckEmail" resname="title.check_email">
+        <source>title.check_email</source>
+        <target>Check your email</target>
+      </trans-unit>
+      <trans-unit id="titleSetNewPassword" resname="title.set_new_password">
+        <source>title.set_new_password</source>
+        <target>Set a new password</target>
+      </trans-unit>
+      <trans-unit id="titleSettings" resname="title.settings">
+        <source>title.settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="titleSettingsAccount" resname="title.settings.account">
+        <source>title.settings.account</source>
+        <target>Account Settings</target>
+      </trans-unit>
+      <trans-unit id="titleSettingsChangeEmail" resname="title.settings.change_email">
+        <source>title.settings.change_email</source>
+        <target>Change email</target>
+      </trans-unit>
+      <trans-unit id="titleSettingsChangeEmailBreadcrumb" resname="title.settings.change_email_breadcrumb">
+        <source>title.settings.change_email_breadcrumb</source>
+        <target>Settings / Change email</target>
+      </trans-unit>
+      <trans-unit id="titleSettingsChangePassword" resname="title.settings.change_password">
+        <source>title.settings.change_password</source>
+        <target>Change password</target>
+      </trans-unit>
+      <trans-unit id="titleSettingsChangePasswordBreadcrumb" resname="title.settings.change_password_breadcrumb">
+        <source>title.settings.change_password_breadcrumb</source>
+        <target>Settings / Change password</target>
+      </trans-unit>
+      <trans-unit id="labelRegister" resname="label.register">
+        <source>label.register</source>
+        <target>Register</target>
+      </trans-unit>
+      <trans-unit id="labelForgotPassword" resname="label.forgot_password">
+        <source>label.forgot_password</source>
+        <target>Forgot password?</target>
+      </trans-unit>
+      <trans-unit id="labelAlreadyHaveAccount" resname="label.already_have_account">
+        <source>label.already_have_account</source>
+        <target>Already have an account?</target>
+      </trans-unit>
+      <trans-unit id="labelSendResetEmail" resname="label.send_reset_email">
+        <source>label.send_reset_email</source>
+        <target>Send reset email</target>
+      </trans-unit>
+      <trans-unit id="labelTryAgain" resname="label.try_again">
+        <source>label.try_again</source>
+        <target>Try again</target>
+      </trans-unit>
+      <trans-unit id="labelSaveNewPassword" resname="label.save_new_password">
+        <source>label.save_new_password</source>
+        <target>Save new password</target>
+      </trans-unit>
+      <trans-unit id="labelBack" resname="label.back">
+        <source>label.back</source>
+        <target>Back</target>
+      </trans-unit>
+      <trans-unit id="labelUsername" resname="label.username">
+        <source>label.username</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="labelEmail" resname="label.email">
+        <source>label.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="labelEmailAddress" resname="label.email_address">
+        <source>label.email_address</source>
+        <target>Email address</target>
+      </trans-unit>
+      <trans-unit id="labelPassword" resname="label.password">
+        <source>label.password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="labelVerified" resname="label.verified">
+        <source>label.verified</source>
+        <target>verified</target>
+      </trans-unit>
+      <trans-unit id="labelNotVerified" resname="label.not_verified">
+        <source>label.not_verified</source>
+        <target>not verified</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsMyAccount" resname="label.settings.my_account">
+        <source>label.settings.my_account</source>
+        <target>My Account</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsProfileDetails" resname="label.settings.profile_details">
+        <source>label.settings.profile_details</source>
+        <target>Profile Details</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsChangeEmail" resname="label.settings.change_email">
+        <source>label.settings.change_email</source>
+        <target>Change email</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsSaveEmail" resname="label.settings.save_email">
+        <source>label.settings.save_email</source>
+        <target>Save email</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsSavePassword" resname="label.settings.save_password">
+        <source>label.settings.save_password</source>
+        <target>Save password</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsSetNewPassword" resname="label.settings.set_new_password">
+        <source>label.settings.set_new_password</source>
+        <target>Set new password</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsVerificationStatus" resname="label.settings.verification_status">
+        <source>label.settings.verification_status</source>
+        <target>Verification status:</target>
+      </trans-unit>
+      <trans-unit id="labelSettingsResendVerification" resname="label.settings.resend_verification">
+        <source>label.settings.resend_verification</source>
+        <target>Resend verification email</target>
+      </trans-unit>
+      <trans-unit id="textSettingsIntro" resname="text.settings.account_intro">
+        <source>text.settings.account_intro</source>
+        <target>Manage your account profile, email, and password.</target>
+      </trans-unit>
+      <trans-unit id="textResetIntro" resname="text.reset_password.check_email_intro">
+        <source>text.reset_password.check_email_intro</source>
+        <target>If your account exists and your email is verified, a password reset link was sent.</target>
+      </trans-unit>
+      <trans-unit id="textResetExpiresIn" resname="text.reset_password.expires_in">
+        <source>text.reset_password.expires_in</source>
+        <target>The link expires in</target>
+      </trans-unit>
+      <trans-unit id="textResetNoEmail" resname="text.reset_password.no_email">
+        <source>text.reset_password.no_email</source>
+        <target>Didn't receive an email?</target>
+      </trans-unit>
+      <trans-unit id="helpSettingsUsernameFixed" resname="help.settings.username_fixed">
+        <source>help.settings.username_fixed</source>
+        <target>Username is fixed and cannot be changed.</target>
+      </trans-unit>
+      <trans-unit id="flashInvalidCsrf" resname="flash.security.invalid_csrf">
+        <source>flash.security.invalid_csrf</source>
+        <target>Invalid CSRF token.</target>
+      </trans-unit>
+      <trans-unit id="flashRegSuccess" resname="flash.registration.success_verify_required">
+        <source>flash.registration.success_verify_required</source>
+        <target>Registration successful. Please verify your email address.</target>
+      </trans-unit>
+      <trans-unit id="flashRegLoggedInHint" resname="flash.registration.logged_in_verify_hint">
+        <source>flash.registration.logged_in_verify_hint</source>
+        <target>You are now signed in. Please verify your email address to unlock all account features.</target>
+      </trans-unit>
+      <trans-unit id="flashRegMissingId" resname="flash.registration.verify.missing_id">
+        <source>flash.registration.verify.missing_id</source>
+        <target>Missing verification id.</target>
+      </trans-unit>
+      <trans-unit id="flashRegUserNotFound" resname="flash.registration.verify.user_not_found">
+        <source>flash.registration.verify.user_not_found</source>
+        <target>User not found.</target>
+      </trans-unit>
+      <trans-unit id="flashRegVerified" resname="flash.registration.verify.success">
+        <source>flash.registration.verify.success</source>
+        <target>Your email address has been verified.</target>
+      </trans-unit>
+      <trans-unit id="flashResetValidationFailed" resname="flash.reset_password.validation_failed">
+        <source>flash.reset_password.validation_failed</source>
+        <target>There was a problem validating your reset request.</target>
+      </trans-unit>
+      <trans-unit id="flashResetChanged" resname="flash.reset_password.changed">
+        <source>flash.reset_password.changed</source>
+        <target>Your password has been changed.</target>
+      </trans-unit>
+      <trans-unit id="flashSettingsEmailAlreadyVerified" resname="flash.settings.email.already_verified">
+        <source>flash.settings.email.already_verified</source>
+        <target>Your email is already verified.</target>
+      </trans-unit>
+      <trans-unit id="flashSettingsEmailRateLimited" resname="flash.settings.email.resend_rate_limited">
+        <source>flash.settings.email.resend_rate_limited</source>
+        <target>Please wait before requesting another verification email.</target>
+      </trans-unit>
+      <trans-unit id="flashSettingsEmailResent" resname="flash.settings.email.verification_resent">
+        <source>flash.settings.email.verification_resent</source>
+        <target>Verification email sent.</target>
+      </trans-unit>
+      <trans-unit id="flashSettingsEmailUpdated" resname="flash.settings.email.updated_verify_required">
+        <source>flash.settings.email.updated_verify_required</source>
+        <target>Email address updated. Please verify your new email.</target>
+      </trans-unit>
+      <trans-unit id="flashSettingsPwdInvalid" resname="flash.settings.password.current_invalid">
+        <source>flash.settings.password.current_invalid</source>
+        <target>Current password is invalid.</target>
+      </trans-unit>
+      <trans-unit id="flashSettingsPwdUpdated" resname="flash.settings.password.updated">
+        <source>flash.settings.password.updated</source>
+        <target>Password updated.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
