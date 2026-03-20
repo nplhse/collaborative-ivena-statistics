@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -38,7 +39,7 @@ final class UserCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('User')
             ->setEntityLabelInPlural('Users')
-            ->setSearchFields(['id', 'username'])
+            ->setSearchFields(['id', 'username', 'email'])
             ->setDefaultSort(['username' => 'ASC']);
     }
 
@@ -56,6 +57,8 @@ final class UserCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnDetail();
         yield TextField::new('username');
+        yield TextField::new('email');
+        yield BooleanField::new('isVerified');
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => 'ROLE_ADMIN',

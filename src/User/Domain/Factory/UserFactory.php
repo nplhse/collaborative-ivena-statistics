@@ -31,6 +31,8 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         return [
+            'email' => self::faker()->safeEmail(),
+            'isVerified' => true,
             'password' => 'password',
             'roles' => ['ROLE_USER'],
             'username' => self::faker()->userName(),
