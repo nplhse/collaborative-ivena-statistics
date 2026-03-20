@@ -7,6 +7,7 @@ parameters:
     app.imports_max_size: '15M'
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
+    app.mailer_from: 'no-reply@localhost'
 
 services:
     # default configuration for services in *this* file
@@ -49,6 +50,14 @@ services:
     App\Import\Application\Service\AllocationImporter:
         arguments:
             $logger: '@monolog.logger.import'
+
+    App\User\Infrastructure\Security\EmailVerifier:
+        arguments:
+            $mailerFrom: '%app.mailer_from%'
+
+    App\User\UI\Http\Controller\ResetPasswordController:
+        arguments:
+            $mailerFrom: '%app.mailer_from%'
 
     App\Import\Infrastructure\Adapter\SplCsvRejectWriter:
         arguments:
