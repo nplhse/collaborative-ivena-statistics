@@ -24,6 +24,8 @@ use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterfac
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
+use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -130,6 +132,139 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertFalse($this->toBool($row['is_cpr']));
         self::assertTrue($this->toBool($row['is_ventilated']));
         self::assertFalse($this->toBool($row['is_with_physician']));
+
+        $repo = self::getContainer()->get(AllocationStatsProjectionRepository::class);
+        $projection = $repo->find($allocationId);
+        self::assertInstanceOf(AllocationStatsProjection::class, $projection);
+
+        self::assertSame($allocationId, $projection->getId());
+        self::assertSame($importId, $projection->getImportId());
+        self::assertSame($hospital->getId(), $projection->getHospitalId());
+        self::assertSame($state->getId(), $projection->getStateId());
+        self::assertSame($dispatchArea->getId(), $projection->getDispatchAreaId());
+        self::assertSame($allocation->getSpeciality()->getId(), $projection->getSpecialityId());
+        self::assertSame($allocation->getDepartment()->getId(), $projection->getDepartmentId());
+        self::assertNull($projection->getOccasionId());
+        self::assertSame($allocation->getAssignment()->getId(), $projection->getAssignmentId());
+        self::assertNull($projection->getInfectionId());
+        self::assertSame($indicationNormalized->getId(), $projection->getIndicationNormalizedId());
+
+        self::assertEquals($createdAt, $projection->getCreatedAt());
+        self::assertEquals($arrivalAt, $projection->getArrivalAt());
+        self::assertSame(2025, $projection->getCreatedYear());
+        self::assertSame(2, $projection->getCreatedQuarter());
+        self::assertSame(6, $projection->getCreatedMonth());
+        self::assertSame((int) $createdAt->format('W'), $projection->getCreatedWeek());
+        self::assertSame(15, $projection->getCreatedDay());
+        self::assertSame((int) $createdAt->format('N'), $projection->getCreatedWeekday());
+        self::assertSame(10, $projection->getCreatedHour());
+        self::assertSame(90, $projection->getTransportTimeMinutes());
+
+        self::assertSame(42, $projection->getAge());
+        self::assertSame(AllocationStatsGenderProjectionCode::Male->value, $projection->getGenderCode());
+        self::assertSame(AllocationStatsUrgencyProjectionCode::Emergency->value, $projection->getUrgencyCode());
+        self::assertSame(AllocationStatsTransportTypeProjectionCode::Ground->value, $projection->getTransportTypeCode());
+
+        self::assertTrue($projection->isRequiresResus());
+        self::assertFalse($projection->isRequiresCathlab());
+        self::assertFalse($projection->isCpr());
+        self::assertTrue($projection->isVentilated());
+        self::assertFalse($projection->isWithPhysician());
+    }
+
+    public function testRebuildTwiceKeepsStableRowCountPerImport(): void
+    {
+        self::bootKernel();
+
+        $d = $this->seedReferenceGraph();
+
+        $base = [
+            'import' => $d['import'],
+            'hospital' => $d['hospital'],
+            'state' => $d['state'],
+            'dispatchArea' => $d['dispatchArea'],
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'transportType' => AllocationTransportType::AIR,
+            'age' => 55,
+            'requiresResus' => false,
+            'requiresCathlab' => true,
+            'isCPR' => false,
+            'isVentilated' => false,
+            'isWithPhysician' => true,
+            'occasion' => null,
+            'infection' => null,
+            'indicationNormalized' => $d['indicationNormalized'],
+            'createdAt' => new \DateTimeImmutable('2025-03-01 08:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-03-01 08:45:00'),
+        ];
+
+        AllocationFactory::createOne($base);
+        AllocationFactory::createOne(array_merge($base, [
+            'createdAt' => new \DateTimeImmutable('2025-03-02 09:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-03-02 10:00:00'),
+            'age' => 60,
+        ]));
+
+        $importId = $d['import']->getId();
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+
+        $rebuilder->rebuildForImport($importId);
+        $rebuilder->rebuildForImport($importId);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $count = (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = :i',
+            ['i' => $importId]
+        );
+
+        self::assertSame(2, $count);
+    }
+
+    /**
+     * @return array{
+     *     user: object,
+     *     state: object,
+     *     dispatchArea: object,
+     *     hospital: object,
+     *     import: object,
+     *     indicationNormalized: object
+     * }
+     */
+    private function seedReferenceGraph(): array
+    {
+        $user = UserFactory::createOne(['username' => 'stats-proj-seed-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'StatsProjSeedState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'StatsProjSeedDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'StatsProjSeedHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+        ]);
+        $import = ImportFactory::createOne([
+            'name' => 'StatsProjSeedImport',
+            'hospital' => $hospital,
+            'createdBy' => $user,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'StatsProjSeedSpec']);
+        DepartmentFactory::createOne(['name' => 'StatsProjSeedDept']);
+        AssignmentFactory::createOne(['name' => 'StatsProjSeedAssign']);
+        OccasionFactory::createOne(['name' => 'StatsProjSeedOcc']);
+        SecondaryTransportFactory::createOne(['name' => 'StatsProjSeedSec']);
+        InfectionFactory::createOne(['name' => 'StatsProjSeedInf']);
+        IndicationRawFactory::createOne(['name' => 'StatsProjSeedRaw', 'code' => 912_346]);
+        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'StatsProjSeedNorm']);
+
+        return [
+            'user' => $user,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'hospital' => $hospital,
+            'import' => $import,
+            'indicationNormalized' => $indicationNormalized,
+        ];
     }
 
     private function toBool(mixed $value): bool
