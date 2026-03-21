@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Infrastructure\EventSubscriber;
 
 use App\Import\Application\Event\ImportCompleted;
+use App\Statistics\Application\Message\RebuildAllocationStatsProjection;
 use App\Statistics\Application\Message\ScheduleScope;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -26,6 +27,7 @@ final readonly class ImportCompletedSubscriber implements EventSubscriberInterfa
 
     public function onImportCompleted(ImportCompleted $event): void
     {
+        $this->messageBus->dispatch(new RebuildAllocationStatsProjection($event->importId));
         $this->messageBus->dispatch(new ScheduleScope($event->importId));
     }
 }
