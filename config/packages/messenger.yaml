@@ -34,6 +34,7 @@ framework:
             App\Import\Application\Message\ImportAllocationsMessage: async_priority_high
             App\Statistics\Application\Message\RecomputeScope: async_priority_low
             App\Statistics\Application\Message\ScheduleScope: [async_priority_high, async_priority_low]
+            App\Statistics\Application\Message\RebuildAllocationStatsProjection: async_priority_low
 
 when@test:
     framework:
@@ -42,3 +43,4 @@ when@test:
                 sync: 'sync://'
             routing:
                 App\Import\Application\Message\ImportAllocationsMessage: sync
+                App\Statistics\Application\Message\RebuildAllocationStatsProjection: sync
