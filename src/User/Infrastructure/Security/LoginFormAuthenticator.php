@@ -2,6 +2,7 @@
 
 namespace App\User\Infrastructure\Security;
 
+use App\User\Domain\Entity\User;
 use App\User\UI\Form\LoginType;
 use App\User\UI\Http\DTO\LoginTypeDTO;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -55,6 +56,11 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     #[\Override]
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): Response
     {
+        $user = $token->getUser();
+        if ($user instanceof User && $user->isCredentialsExpired()) {
+            return new RedirectResponse($this->urlGenerator->generate('app_force_change_password'));
+        }
+
         $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
 
         if (null !== $targetPath) {

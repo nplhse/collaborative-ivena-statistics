@@ -33,6 +33,7 @@ final class UserFactory extends PersistentProxyObjectFactory
         $suffix = bin2hex(random_bytes(8));
 
         return [
+            'credentialsExpired' => false,
             'email' => sprintf('user-%s@example.test', $suffix),
             'isVerified' => true,
             'password' => 'password',

@@ -4,6 +4,7 @@ namespace App\User\UI\Http\Controller;
 
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
+use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\SettingsEmailType;
 use App\User\UI\Form\SettingsPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -68,6 +69,7 @@ final class SettingsController extends AbstractController
     public function email(Request $request, EntityManagerInterface $entityManager, EmailVerifier $emailVerifier): Response
     {
         $user = $this->requireUser();
+
         $form = $this->createForm(SettingsEmailType::class, [
             'email' => $user->getEmail(),
         ]);
@@ -102,6 +104,7 @@ final class SettingsController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
     ): Response {
         $user = $this->requireUser();
+
         $form = $this->createForm(SettingsPasswordType::class);
         $form->handleRequest($request);
 
@@ -119,6 +122,7 @@ final class SettingsController extends AbstractController
             }
 
             $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            $user->setCredentialsExpired(false);
             $entityManager->flush();
 
             $this->addFlash('success', 'flash.settings.password.updated');
@@ -127,6 +131,37 @@ final class SettingsController extends AbstractController
         }
 
         return $this->render('@User/settings/password.html.twig', [
+            'passwordForm' => $form,
+        ]);
+    }
+
+    #[Route('/force-password-change', name: 'app_force_change_password')]
+    public function forceChangePassword(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher,
+    ): Response {
+        $user = $this->requireUser();
+
+        $form = $this->createForm(ForceChangePasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            if (!\is_string($plainPassword) || '' === $plainPassword) {
+                throw new \LogicException('Forced password form did not provide a new password.');
+            }
+
+            $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            $user->setCredentialsExpired(false);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'flash.settings.password.updated');
+
+            return $this->redirectToRoute('app_default');
+        }
+
+        return $this->render('@User/settings/force_password_change.html.twig', [
             'passwordForm' => $form,
         ]);
     }

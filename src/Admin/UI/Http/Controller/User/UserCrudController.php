@@ -59,6 +59,7 @@ final class UserCrudController extends AbstractCrudController
         yield TextField::new('username');
         yield TextField::new('email');
         yield BooleanField::new('isVerified');
+        yield BooleanField::new('credentialsExpired');
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => 'ROLE_ADMIN',
@@ -75,6 +76,15 @@ final class UserCrudController extends AbstractCrudController
             ->setHelp('On edit leave empty to keep the current password.')
             ->setFormTypeOption('empty_data', '')
             ->onlyOnForms();
+    }
+
+    #[\Override]
+    public function createEntity(string $entityFqcn): User
+    {
+        $user = new User();
+        $user->setCredentialsExpired(true);
+
+        return $user;
     }
 
     #[\Override]
@@ -106,8 +116,23 @@ final class UserCrudController extends AbstractCrudController
             $originalData = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
             $originalPassword = $originalData['password'] ?? null;
 
+            if (!\is_string($originalPassword) || '' === $originalPassword) {
+                $userId = $entityInstance->getId();
+                if (null !== $userId) {
+                    $storedPassword = $entityManager->getConnection()->fetchOne(
+                        'SELECT password FROM "user" WHERE id = :id',
+                        ['id' => $userId]
+                    );
+                    if (\is_string($storedPassword) && '' !== $storedPassword) {
+                        $originalPassword = $storedPassword;
+                    }
+                }
+            }
+
             if (\is_string($originalPassword) && '' !== $originalPassword) {
                 $entityInstance->setPassword($originalPassword);
+            } else {
+                throw new \LogicException('Could not preserve existing password while updating user.');
             }
         } else {
             $entityInstance->setPassword($this->passwordHasher->hashPassword($entityInstance, $plainPassword));

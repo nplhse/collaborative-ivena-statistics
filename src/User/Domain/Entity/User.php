@@ -47,6 +47,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(options: ['default' => false])]
     private bool $isVerified = false;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $credentialsExpired = false;
+
     /**
      * @var Collection<int, Hospital>
      */
@@ -152,6 +155,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function isCredentialsExpired(): bool
+    {
+        return $this->credentialsExpired;
+    }
+
+    public function setCredentialsExpired(bool $credentialsExpired): static
+    {
+        $this->credentialsExpired = $credentialsExpired;
 
         return $this;
     }

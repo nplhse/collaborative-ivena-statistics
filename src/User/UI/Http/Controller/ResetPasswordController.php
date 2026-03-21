@@ -104,6 +104,7 @@ final class ResetPasswordController extends AbstractController
             }
 
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+            $user->setCredentialsExpired(false);
             $this->entityManager->flush();
 
             $this->cleanSessionAfterReset();
