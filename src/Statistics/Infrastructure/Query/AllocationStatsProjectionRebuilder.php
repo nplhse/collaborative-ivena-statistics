@@ -241,14 +241,12 @@ SQL,
         if (\is_string($value)) {
             $v = strtolower(trim($value, " \t\n\r\0\x0B"));
 
-            $parsed = match ($v) {
+            return match ($v) {
                 '', 'null' => null,
                 '1', 't', 'true', 'yes', 'on' => true,
                 '0', 'f', 'false', 'no', 'off' => false,
                 default => filter_var($v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
             };
-
-            return $parsed;
         }
 
         return (bool) $value;

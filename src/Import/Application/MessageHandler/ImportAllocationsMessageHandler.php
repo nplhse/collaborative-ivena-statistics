@@ -87,6 +87,7 @@ final readonly class ImportAllocationsMessageHandler
         }
     }
 
+    /** @psalm-suppress PossiblyUnusedReturnValue */
     public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
     {
         $started = \microtime(true);

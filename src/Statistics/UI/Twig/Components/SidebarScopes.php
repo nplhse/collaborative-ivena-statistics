@@ -83,7 +83,7 @@ final class SidebarScopes
 
         foreach ($grouped as &$items) {
             /* @var list<array{label:string}> $items */
-            usort($items, static fn (array $x, array $y): int => strcmp((string) $x['label'], (string) $y['label']));
+            usort($items, static fn (array $x, array $y): int => strcmp($x['label'], $y['label']));
         }
         unset($items);
 

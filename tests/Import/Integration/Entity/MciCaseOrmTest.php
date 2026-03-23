@@ -103,9 +103,9 @@ final class MciCaseOrmTest extends KernelTestCase
             ->setDepartment($department)
             ->setDepartmentWasClosed(null)
             ->setOccasion($occasion)
-            ->setInfection(null)
+            ->setInfection($infection)
             ->setIndicationRaw($indicationRaw)
-            ->setIndicationNormalized(null)
+            ->setIndicationNormalized($indicationNormalized)
         ;
 
         $this->em->persist($mciCase);
@@ -146,9 +146,9 @@ final class MciCaseOrmTest extends KernelTestCase
         self::assertSame('Department', $object->getDepartment()?->getName());
         self::assertNull($object->isDepartmentWasClosed());
         self::assertSame('Test Occasion', $object->getOccasion()?->getName());
-        self::assertNull($object->getInfection());
+        self::assertSame('Test Infection', $object->getInfection()?->getName());
         self::assertSame('Test IndicationRaw', $object->getIndicationRaw()?->getName());
-        self::assertNull($object->getIndicationNormalized());
+        self::assertSame('Test IndicationNormalized', $object->getIndicationNormalized()?->getName());
 
         // Required relations
         self::assertSame('St. Test Hospital', $object->getHospital()?->getName());

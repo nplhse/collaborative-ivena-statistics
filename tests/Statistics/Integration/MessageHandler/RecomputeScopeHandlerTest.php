@@ -20,14 +20,12 @@ final class RecomputeScopeHandlerTest extends TestCase
         string $gran = 'day',
         string $key = '2025-11-01',
     ): RecomputeScope {
-        $msg = new RecomputeScope(
+        return new RecomputeScope(
             scopeType: $type,
             scopeId: $id,
             granularity: $gran,
             periodKey: $key,
         );
-
-        return $msg;
     }
 
     public function testInvokesOnlySupportingCalculatorsAndReleasesLock(): void

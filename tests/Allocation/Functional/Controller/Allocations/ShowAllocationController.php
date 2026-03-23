@@ -27,8 +27,8 @@ final class ShowAllocationController extends WebTestCase
         // Arrange
         $client = self::createClient();
 
-        $owner = UserFactory::createOne(['username' => 'owner-user']);
-        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        UserFactory::createOne(['username' => 'owner-user']);
+        UserFactory::createOne(['username' => 'area-user']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
         $address = AddressFactory::new([
@@ -38,13 +38,13 @@ final class ShowAllocationController extends WebTestCase
             'country' => 'DE',
         ])->create();
 
-        $department = DepartmentFactory::createOne(['name' => 'Test Department']);
-        $speciality = SpecialityFactory::createOne(['name' => 'Test Speciality']);
+        DepartmentFactory::createOne(['name' => 'Test Department']);
+        SpecialityFactory::createOne(['name' => 'Test Speciality']);
 
-        $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test Indication']);
-        $indicationNormal = IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
+        IndicationRawFactory::createOne(['name' => 'Test Indication']);
+        IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
 
-        $hospital = HospitalFactory::createOne([
+        HospitalFactory::createOne([
             'name' => 'St. Test Hospital',
             'beds' => 321,
             'address' => $address,

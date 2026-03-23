@@ -96,8 +96,7 @@ final readonly class TimeGridBuilder
                     value: $valNum,
                     deltaAbs: $deltaAbs,
                     deltaPct: $deltaPct,
-                    compare: $compare,
-                    stats: null
+                    compare: $compare
                 );
             }
 
@@ -200,8 +199,7 @@ final readonly class TimeGridBuilder
             value: $primaryTotal,
             deltaAbs: $deltaAbs,
             deltaPct: $deltaPct,
-            compare: $compareTotal,
-            stats: null
+            compare: $compareTotal
         );
     }
 }

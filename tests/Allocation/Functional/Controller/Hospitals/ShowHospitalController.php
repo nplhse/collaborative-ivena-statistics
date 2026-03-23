@@ -48,7 +48,7 @@ final class ShowHospitalController extends WebTestCase
         ]);
 
         // Act
-        $crawler = $client->request('GET', '/explore/hospital/'.$hospital->getId());
+        $client->request('GET', '/explore/hospital/'.$hospital->getId());
 
         // Assert
         self::assertResponseIsSuccessful();

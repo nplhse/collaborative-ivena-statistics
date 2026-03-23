@@ -109,7 +109,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $this->em->flush();
 
         // Act
-        $summary = $this->handler->run($import, $reader, $rejectWriter);
+        $this->handler->run($import, $reader, $rejectWriter);
 
         $fresh = $this->imports->find($import->getId());
         self::assertNotNull($fresh);

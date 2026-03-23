@@ -21,7 +21,7 @@ final class AssessmentFactory extends PersistentObjectFactory
     }
 
     #[\Override]
-    protected function defaults(): array|callable
+    protected function defaults(): array
     {
         return [
             'airway' => self::faker()->randomElement(AssessmentAirway::cases()),

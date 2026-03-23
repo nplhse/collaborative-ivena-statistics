@@ -90,7 +90,7 @@ final class ImportRepository extends ServiceEntityRepository
             $result[] = [
                 'year' => (int) $year,
                 'month' => (int) $month,
-                'count' => (int) $count,
+                'count' => $count,
             ];
         }
 
