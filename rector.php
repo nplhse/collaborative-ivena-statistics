@@ -17,6 +17,10 @@ return RectorConfig::configure()
         codeQuality: true,
         typeDeclarations: true,
     )
+    ->withSets([
+        Rector\Symfony\Set\SymfonySetList::SYMFONY_CODE_QUALITY,
+    ]
+    )
     ->withSkip([
         Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
         Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
