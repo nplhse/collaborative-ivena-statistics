@@ -15,9 +15,11 @@ return RectorConfig::configure()
     ->withPreparedSets(
         deadCode: true,
         codeQuality: true,
+        typeDeclarations: true,
     )
-    ->withTypeCoverageLevel(0)
     ->withSkip([
         Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
         Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
+        Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath],
+        Rector\TypeDeclaration\Rector\ClassMethod\AddParamTypeDeclarationRector::class => [$entityPath],
     ]);
