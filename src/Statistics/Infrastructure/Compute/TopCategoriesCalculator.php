@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.calculator', attributes: ['priority' => 40])]
-final class TopCategoriesCalculator implements CalculatorInterface
+final readonly class TopCategoriesCalculator implements CalculatorInterface
 {
     use ScopePeriodSql;
 
@@ -59,7 +59,7 @@ final class TopCategoriesCalculator implements CalculatorInterface
     ];
 
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 

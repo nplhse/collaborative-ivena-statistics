@@ -41,7 +41,8 @@ final class ProcessImportCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $importOpt = $input->getOption('import-id');
 
-        if (null === $importOpt || !ctype_digit($importOpt)) {
+        /** @psalm-suppress RedundantCast */
+        if (null === $importOpt || !ctype_digit((string) $importOpt)) {
             $io->error('--import is required and must be a numeric id');
 
             return Command::FAILURE;

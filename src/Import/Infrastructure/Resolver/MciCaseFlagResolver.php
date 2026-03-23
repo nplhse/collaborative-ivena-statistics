@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\FlagMappingStrategy;
 
-final class MciCaseFlagResolver implements MciCaseEntityResolverInterface
+final readonly class MciCaseFlagResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
-        private readonly FlagMappingStrategy $strategy,
+        private FlagMappingStrategy $strategy,
     ) {
     }
 

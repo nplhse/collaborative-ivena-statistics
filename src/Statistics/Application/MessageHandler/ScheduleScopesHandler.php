@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /** @psalm-suppress ClassMustBeFinal */
 #[AsMessageHandler]
-class ScheduleScopesHandler
+readonly class ScheduleScopesHandler
 {
     /**
      * @param iterable<ScopeProviderInterface> $providers

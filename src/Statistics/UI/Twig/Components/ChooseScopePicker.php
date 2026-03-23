@@ -18,8 +18,6 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 final class ChooseScopePicker
 {
     /**
-     * set by template.
-     *
      * @psalm-suppress PropertyNotSetInConstructor
      */
     public Scope $primary;
@@ -43,12 +41,12 @@ final class ChooseScopePicker
     private array $stateNames = [];
 
     public function __construct(
-        private RequestStack $requestStack,
-        private RouterInterface $router,
-        private ScopeAvailabilityService $availability,
-        private HospitalRepository $hospitalRepository,
-        private DispatchAreaRepository $dispatchAreaRepository,
-        private StateRepository $stateRepository,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly ScopeAvailabilityService $availability,
+        private readonly HospitalRepository $hospitalRepository,
+        private readonly DispatchAreaRepository $dispatchAreaRepository,
+        private readonly StateRepository $stateRepository,
     ) {
     }
 
@@ -279,7 +277,7 @@ final class ChooseScopePicker
                 return ucfirst($type).' '.$id;
             }
 
-            [$tier, $location] = array_map('ucfirst', $parts);
+            [$tier, $location] = array_map(ucfirst(...), $parts);
 
             return "Tier: $tier — Location: $location";
         }

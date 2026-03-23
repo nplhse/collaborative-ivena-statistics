@@ -10,12 +10,12 @@ use App\Import\Infrastructure\Indication\IndicationCache;
 use App\Import\Infrastructure\Indication\IndicationKey;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class IndicationCreationStrategy
+final readonly class IndicationCreationStrategy
 {
     public function __construct(
-        private readonly IndicationRawRepository $indicationRawRepository,
-        private readonly IndicationCache $indicationCache,
-        private readonly EntityManagerInterface $em,
+        private IndicationRawRepository $indicationRawRepository,
+        private IndicationCache $indicationCache,
+        private EntityManagerInterface $em,
     ) {
     }
 

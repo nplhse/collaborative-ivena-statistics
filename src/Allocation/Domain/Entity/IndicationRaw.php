@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: IndicationRawRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class IndicationRaw
+class IndicationRaw implements \Stringable
 {
     use Blamable;
 
@@ -112,6 +112,7 @@ class IndicationRaw
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';

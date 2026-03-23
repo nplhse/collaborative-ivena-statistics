@@ -13,12 +13,12 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.calculator', attributes: ['priority' => 100])]
-final class OverviewCountCalculator implements CalculatorInterface
+final readonly class OverviewCountCalculator implements CalculatorInterface
 {
     use ScopePeriodSql;
 
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 

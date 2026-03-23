@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.scope_provider', attributes: ['priority' => 200])]
-final class HospitalScopeProvider implements ScopeProviderInterface
+final readonly class HospitalScopeProvider implements ScopeProviderInterface
 {
     public function __construct(private Connection $db)
     {

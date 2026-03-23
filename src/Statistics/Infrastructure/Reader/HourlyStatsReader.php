@@ -69,7 +69,7 @@ final readonly class HourlyStatsReader
                 foreach ($decoded as $key => $vals) {
                     if (is_array($vals) && 24 === count($vals)) {
                         /** @var list<int> $asList */
-                        $asList = array_values(array_map('intval', $vals));
+                        $asList = array_values(array_map(intval(...), $vals));
 
                         $series[(string) $key] = $asList;
                     }

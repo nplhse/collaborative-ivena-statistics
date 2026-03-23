@@ -12,14 +12,14 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-final class EmailVerifier
+final readonly class EmailVerifier
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly VerifyEmailHelperInterface $verifyEmailHelper,
-        private readonly MailerInterface $mailer,
-        private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly string $mailerFrom,
+        private VerifyEmailHelperInterface $verifyEmailHelper,
+        private MailerInterface $mailer,
+        private UrlGeneratorInterface $urlGenerator,
+        private string $mailerFrom,
     ) {
     }
 
@@ -37,7 +37,7 @@ final class EmailVerifier
             ['id' => (string) $user->getId()]
         );
 
-        $this->mailer->send((new TemplatedEmail())
+        $this->mailer->send(new TemplatedEmail()
             ->from(new Address($this->mailerFrom, 'Collaborative IVENA statistics'))
             ->to($email)
             ->subject('Bitte E-Mail-Adresse bestaetigen')

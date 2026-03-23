@@ -25,7 +25,7 @@ use App\Import\Infrastructure\Charset\EncodingDetector;
  * or rowsAssoc() to iterate over associative rows keyed by normalized headers.
  *
  * This allows robust and predictable mapping from CSV files to DTOs and Entities,
- * independent of original header formatting or character set.
+ * independent of the original header formatting or character set.
  */
 final class SplCsvRowReader implements RowReaderInterface
 {
@@ -35,7 +35,7 @@ final class SplCsvRowReader implements RowReaderInterface
     /** @var array<int,string>|null */
     private ?array $rawHeaderRow = null;
 
-    private \SplFileObject $file;
+    private readonly \SplFileObject $file;
 
     public function __construct(
         \SplFileObject $file,
@@ -60,7 +60,7 @@ final class SplCsvRowReader implements RowReaderInterface
             throw new \RuntimeException('CSV appears to be empty or header row could not be read.');
         }
 
-        $normalized = \array_map([$this, 'normalizeHeader'], $this->rawHeaderRow);
+        $normalized = \array_map($this->normalizeHeader(...), $this->rawHeaderRow);
         $this->headerRow = $this->makeUniqueHeaders($normalized);
     }
 
@@ -75,7 +75,7 @@ final class SplCsvRowReader implements RowReaderInterface
     {
         while (!$this->file->eof()) {
             /** @var array<int,string|null>|false $row */
-            $row = $this->file->fgetcsv();
+            $row = $this->file->fgetcsv(escape: '\\');
             if (false === $row || $row === [null]) {
                 continue;
             }
@@ -89,14 +89,7 @@ final class SplCsvRowReader implements RowReaderInterface
                 $cell = $this->nfc($cell);
                 $utf8[] = \trim($cell);
             }
-
-            $allEmpty = true;
-            foreach ($utf8 as $cell) {
-                if ('' !== $cell) {
-                    $allEmpty = false;
-                    break;
-                }
-            }
+            $allEmpty = array_all($utf8, fn ($cell) => !('' !== $cell));
             if ($allEmpty) {
                 continue;
             }
@@ -127,7 +120,7 @@ final class SplCsvRowReader implements RowReaderInterface
     /** @return array<int,string>|null */
     private function readUtf8Row(): ?array
     {
-        $row = $this->file->fgetcsv();
+        $row = $this->file->fgetcsv(escape: '\\');
         if (false === $row || $row === [null]) {
             return null;
         }

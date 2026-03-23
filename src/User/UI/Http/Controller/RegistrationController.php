@@ -41,7 +41,7 @@ final class RegistrationController extends AbstractController
                 throw new \LogicException('Registration form did not provide a password.');
             }
 
-            $user = (new User())
+            $user = new User()
                 ->setUsername($data['username'])
                 ->setEmail($data['email'])
                 ->setIsVerified(false);

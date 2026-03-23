@@ -8,12 +8,12 @@ use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Repository\AggScopeRepository;
 use Doctrine\DBAL\Connection;
 
-final class TransportTimeDimTopReader
+final readonly class TransportTimeDimTopReader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly Connection $db,
-        private readonly AggScopeRepository $aggScopeRepository,
+        private Connection $db,
+        private AggScopeRepository $aggScopeRepository,
     ) {
     }
 

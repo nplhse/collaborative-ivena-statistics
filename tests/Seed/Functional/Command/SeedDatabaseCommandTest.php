@@ -27,11 +27,9 @@ final class SeedDatabaseCommandTest extends KernelTestCase
 
         $connection->expects($this->once())
             ->method('executeStatement')
-            ->with(self::callback(function (string $sql): bool {
-                return str_starts_with($sql, 'TRUNCATE')
-                    && str_contains($sql, 'RESTART IDENTITY')
-                    && str_contains($sql, 'CASCADE');
-            }));
+            ->with(self::callback(fn (string $sql): bool => str_starts_with($sql, 'TRUNCATE')
+                && str_contains($sql, 'RESTART IDENTITY')
+                && str_contains($sql, 'CASCADE')));
 
         $repo = $this->createMock(EntityRepository::class);
         $repo->method('find')->willReturn(new User());
@@ -102,7 +100,7 @@ final class SeedDatabaseCommandTest extends KernelTestCase
      */
     private function makeProvider(array $purgeTables, int $builtEntityCount): SeedProviderInterface
     {
-        return new class($purgeTables, $builtEntityCount) implements SeedProviderInterface {
+        return new readonly class($purgeTables, $builtEntityCount) implements SeedProviderInterface {
             /**
              * @param list<string> $purgeTables
              */

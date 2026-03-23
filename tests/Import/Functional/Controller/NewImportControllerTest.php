@@ -75,7 +75,7 @@ final class NewImportControllerTest extends WebTestCase
 
                 self::assertNotEmpty($import->getFileMimeType());
                 self::assertTrue(
-                    str_contains($import->getFileMimeType(), 'csv') || 'application/octet-stream' === $import->getFileMimeType()
+                    str_contains((string) $import->getFileMimeType(), 'csv') || 'application/octet-stream' === $import->getFileMimeType()
                 );
                 self::assertGreaterThan(0, $import->getFileSize());
                 self::assertNotSame('', (string) $import->getFileChecksum());

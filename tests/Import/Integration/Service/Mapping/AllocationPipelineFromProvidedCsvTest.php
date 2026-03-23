@@ -223,12 +223,7 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     private function containsField(array $violations, string $field): bool
     {
         $needle = strtolower($field);
-        foreach ($violations as $msg) {
-            if (str_contains(strtolower($msg), $needle)) {
-                return true;
-            }
-        }
 
-        return false;
+        return array_any($violations, fn ($msg) => str_contains(strtolower((string) $msg), $needle));
     }
 }

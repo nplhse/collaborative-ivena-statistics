@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OccasionRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class Occasion
+class Occasion implements \Stringable
 {
     use Blamable;
 
@@ -88,6 +88,7 @@ class Occasion
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';

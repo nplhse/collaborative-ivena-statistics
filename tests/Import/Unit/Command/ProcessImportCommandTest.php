@@ -47,9 +47,7 @@ final class ProcessImportCommandTest extends TestCase
 
                 return true;
             }))
-            ->willReturnCallback(function ($msg) {
-                return new Envelope($msg);
-            });
+            ->willReturnCallback(fn ($msg) => new Envelope($msg));
 
         $command = new ProcessImportCommand($bus, $handler);
         $tester = new CommandTester($command);
@@ -75,7 +73,6 @@ final class ProcessImportCommandTest extends TestCase
                 // Validate the payload that will be handled synchronously
                 $ref = new \ReflectionClass($msg);
                 $prop = $ref->getProperty('importId');
-                $prop->setAccessible(true);
                 self::assertSame(7, $prop->getValue($msg));
 
                 return true;

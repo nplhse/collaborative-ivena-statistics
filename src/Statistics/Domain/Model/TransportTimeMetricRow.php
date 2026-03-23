@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Domain\Model;
 
-final class TransportTimeMetricRow
+final readonly class TransportTimeMetricRow
 {
     /**
      * @param array<int,array{bucket:string,count:int,share:float}> $values

@@ -82,7 +82,7 @@ final class ResetPasswordController extends AbstractController
 
         try {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
-        } catch (ResetPasswordExceptionInterface $exception) {
+        } catch (ResetPasswordExceptionInterface) {
             $this->addFlash('danger', 'flash.reset_password.validation_failed');
 
             return $this->redirectToRoute('app_forgot_password_request');
@@ -131,7 +131,7 @@ final class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_check_email');
         }
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from(new Address($this->mailerFrom, 'Collaborative IVENA statistics'))
             ->to((string) $user->getEmail())
             ->subject('Your password reset request')

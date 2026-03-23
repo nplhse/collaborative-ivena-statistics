@@ -86,7 +86,6 @@ final class AllocationIndicationResolverTest extends TestCase
         do {
             if ($ref->hasProperty('id')) {
                 $prop = $ref->getProperty('id');
-                $prop->setAccessible(true);
                 $prop->setValue($entity, $id);
 
                 return;

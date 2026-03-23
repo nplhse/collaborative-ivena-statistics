@@ -89,7 +89,7 @@ final class TransportTimeDimNameResolver
             $this->preload($dimType);
         }
 
-        $ids = array_values(array_unique(array_map('intval', $ids)));
+        $ids = array_values(array_unique(array_map(intval(...), $ids)));
         $all = $this->namesByDimType[$dimType] ?? [];
 
         return array_intersect_key($all, array_flip($ids));

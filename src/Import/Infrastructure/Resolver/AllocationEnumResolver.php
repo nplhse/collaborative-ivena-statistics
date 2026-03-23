@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\EnumMappingStrategy;
 
-final class AllocationEnumResolver implements AllocationEntityResolverInterface
+final readonly class AllocationEnumResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly EnumMappingStrategy $strategy,
+        private EnumMappingStrategy $strategy,
     ) {
     }
 

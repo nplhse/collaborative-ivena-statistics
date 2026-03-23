@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\InfectionReferenceStrategy;
 
-final class MciCaseInfectionResolver implements MciCaseEntityResolverInterface
+final readonly class MciCaseInfectionResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
-        private readonly InfectionReferenceStrategy $strategy,
+        private InfectionReferenceStrategy $strategy,
     ) {
     }
 

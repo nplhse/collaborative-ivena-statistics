@@ -9,10 +9,10 @@ use App\Import\Infrastructure\Resolver\Strategy\OccasionReferenceStrategy;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem('allocation.import_resolver')]
-final class AllocationOccasionResolver implements AllocationEntityResolverInterface
+final readonly class AllocationOccasionResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly OccasionReferenceStrategy $strategy,
+        private OccasionReferenceStrategy $strategy,
     ) {
     }
 

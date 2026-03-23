@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\OccasionReferenceStrategy;
 
-final class MciCaseOccasionResolver implements MciCaseEntityResolverInterface
+final readonly class MciCaseOccasionResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
-        private readonly OccasionReferenceStrategy $strategy,
+        private OccasionReferenceStrategy $strategy,
     ) {
     }
 

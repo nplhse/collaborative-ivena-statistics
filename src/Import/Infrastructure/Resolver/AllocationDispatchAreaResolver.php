@@ -9,10 +9,10 @@ use App\Import\Infrastructure\Resolver\Strategy\DispatchAreaStateReferenceStrate
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem('allocation.import_resolver')]
-final class AllocationDispatchAreaResolver implements AllocationEntityResolverInterface
+final readonly class AllocationDispatchAreaResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly DispatchAreaStateReferenceStrategy $strategy,
+        private DispatchAreaStateReferenceStrategy $strategy,
     ) {
     }
 

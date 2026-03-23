@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\DateParsingStrategy;
 
-final class MciCaseDateResolver implements MciCaseEntityResolverInterface
+final readonly class MciCaseDateResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
-        private readonly DateParsingStrategy $strategy,
+        private DateParsingStrategy $strategy,
     ) {
     }
 

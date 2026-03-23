@@ -12,15 +12,15 @@ use App\Import\Application\Exception\RowRejectException;
 use App\Import\Domain\Entity\Import;
 use Psr\Log\LoggerInterface;
 
-final class AllocationImporter implements AllocationImporterInterface
+final readonly class AllocationImporter implements AllocationImporterInterface
 {
     public function __construct(
-        private readonly RowReaderInterface $reader,
-        private readonly RowTypeDetectorInterface $rowTypeDetector,
-        private readonly AllocationRowProcessorRegistry $processorRegistry,
-        private readonly AllocationPersisterInterface $persister,
-        private readonly RejectWriterInterface $rejectWriter,
-        private readonly LoggerInterface $logger,
+        private RowReaderInterface $reader,
+        private RowTypeDetectorInterface $rowTypeDetector,
+        private AllocationRowProcessorRegistry $processorRegistry,
+        private AllocationPersisterInterface $persister,
+        private RejectWriterInterface $rejectWriter,
+        private LoggerInterface $logger,
     ) {
     }
 

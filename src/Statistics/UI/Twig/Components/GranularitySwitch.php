@@ -28,8 +28,8 @@ final class GranularitySwitch
     private const array KEY_ALIASES = ['key', 'periodKey'];
 
     public function __construct(
-        private RequestStack $requestStack,
-        private UrlGeneratorInterface $router,
+        private readonly RequestStack $requestStack,
+        private readonly UrlGeneratorInterface $router,
     ) {
     }
 

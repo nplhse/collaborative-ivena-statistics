@@ -17,7 +17,7 @@ final class IndicationRawAssignType extends AbstractType
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private IndicationNormalizedRepository $indicationNormalizedRepository,
+        private readonly IndicationNormalizedRepository $indicationNormalizedRepository,
     ) {
     }
 

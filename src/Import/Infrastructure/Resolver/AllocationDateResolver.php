@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\DateParsingStrategy;
 
-final class AllocationDateResolver implements AllocationEntityResolverInterface
+final readonly class AllocationDateResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly DateParsingStrategy $strategy,
+        private DateParsingStrategy $strategy,
     ) {
     }
 

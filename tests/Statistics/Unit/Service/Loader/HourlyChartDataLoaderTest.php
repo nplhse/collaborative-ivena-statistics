@@ -41,7 +41,7 @@ final class HourlyChartDataLoaderTest extends TestCase
         $out = $sut->buildPayload($scope, ['total', 'gender_m', 'cathlab', 'resus']);
 
         // Assert
-        self::assertSame(range(0, 23), array_map('intval', $out['labels'])); // "00".."23" -> ints 0..23
+        self::assertSame(range(0, 23), array_map(intval(...), $out['labels'])); // "00".."23" -> ints 0..23
         $names = array_column($out['series'], 'name');
         self::assertSame(['Total', 'Male', 'Cathlab required', 'Resus required'], $names);
 

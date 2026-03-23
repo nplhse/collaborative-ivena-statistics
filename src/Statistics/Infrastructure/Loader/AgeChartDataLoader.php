@@ -7,14 +7,14 @@ namespace App\Statistics\Infrastructure\Loader;
 use App\Statistics\Domain\Model\Scope;
 use Doctrine\DBAL\Connection;
 
-final class AgeChartDataLoader
+final readonly class AgeChartDataLoader
 {
     /** Fixed bucket order used by the calculator and chart alike */
     private const array ORDER = ['<18', '18-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-99'];
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 

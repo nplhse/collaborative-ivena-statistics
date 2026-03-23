@@ -68,12 +68,6 @@ final class IndicationNormalizedSeedProviderTest extends TestCase
      */
     private static function containsPair(array $values, string $code, string $name): bool
     {
-        foreach ($values as $row) {
-            if ($row['code'] === $code && $row['name'] === $name) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($values, fn ($row) => $row['code'] === $code && $row['name'] === $name);
     }
 }

@@ -9,7 +9,7 @@ use App\Statistics\Infrastructure\Util\Period;
 use Doctrine\DBAL\Connection;
 
 /** @psalm-suppress ClassMustBeFinal */
-class ScopeAvailabilityService
+readonly class ScopeAvailabilityService
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(private Connection $db)

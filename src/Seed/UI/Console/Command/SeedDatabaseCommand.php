@@ -20,19 +20,13 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 final class SeedDatabaseCommand extends Command
 {
     /**
-     * @var iterable<SeedProviderInterface<mixed>>
-     */
-    private iterable $providers;
-
-    /**
      * @param iterable<SeedProviderInterface<mixed>> $providers
      */
     public function __construct(
         private readonly EntityManagerInterface $em,
         #[AutowireIterator(tag: 'app.seed_provider')]
-        iterable $providers,
+        private readonly iterable $providers,
     ) {
-        $this->providers = $providers;
         parent::__construct();
     }
 
@@ -52,7 +46,8 @@ final class SeedDatabaseCommand extends Command
         $userId = $input->getOption('user-id');
         $purge = $input->getOption('purge');
 
-        if (null === $userId || '' === $userId || !ctype_digit($userId)) {
+        /** @psalm-suppress RedundantCast */
+        if (null === $userId || '' === $userId || !ctype_digit((string) $userId)) {
             $output->writeln('<error>--user-id is required and must be a positive integer.</error>');
 
             return Command::INVALID;

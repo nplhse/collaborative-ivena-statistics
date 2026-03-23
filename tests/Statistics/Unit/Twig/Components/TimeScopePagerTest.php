@@ -111,9 +111,9 @@ final class TimeScopePagerTest extends TestCase
 
         $this->router
             ->method('generate')
-            ->willReturnCallback(function (string $route, array $params): string {
-                return sprintf('URL:%s', $params['key']);
-            });
+            ->willReturnCallback(
+                fn (string $route, array $params): string => sprintf('URL:%s', $params['key'])
+            );
 
         $cmp = $this->makeComponent($scope);
 

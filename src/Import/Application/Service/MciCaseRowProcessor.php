@@ -13,13 +13,13 @@ use App\Import\Infrastructure\Mapping\MciCaseImportFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /** @psalm-suppress UnusedClass */
-final class MciCaseRowProcessor implements AllocationRowProcessorInterface
+final readonly class MciCaseRowProcessor implements AllocationRowProcessorInterface
 {
     public function __construct(
-        private readonly ValidatorInterface $validator,
-        private readonly MciCaseRowToDtoMapperInterface $mapper,
-        private readonly MciCaseImportFactory $factory,
-        private readonly AllocationPersisterInterface $persister,
+        private ValidatorInterface $validator,
+        private MciCaseRowToDtoMapperInterface $mapper,
+        private MciCaseImportFactory $factory,
+        private AllocationPersisterInterface $persister,
     ) {
     }
 

@@ -17,8 +17,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class AssignIndicationRawController extends AbstractController
 {
     public function __construct(
-        private IndicationNormalizedRepository $repository,
-        private TranslatorInterface $translator,
+        private readonly IndicationNormalizedRepository $repository,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 

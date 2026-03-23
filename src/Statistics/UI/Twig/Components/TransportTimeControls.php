@@ -23,8 +23,8 @@ final class TransportTimeControls
     public string $anchorId = 'transport-time-top';
 
     public function __construct(
-        private RequestStack $requestStack,
-        private RouterInterface $router,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
     ) {
     }
 

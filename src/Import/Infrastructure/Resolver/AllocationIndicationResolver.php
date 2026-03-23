@@ -9,10 +9,10 @@ use App\Import\Infrastructure\Resolver\Strategy\IndicationCreationStrategy;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem('allocation.import_resolver')]
-final class AllocationIndicationResolver implements AllocationEntityResolverInterface
+final readonly class AllocationIndicationResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly IndicationCreationStrategy $strategy,
+        private IndicationCreationStrategy $strategy,
     ) {
     }
 

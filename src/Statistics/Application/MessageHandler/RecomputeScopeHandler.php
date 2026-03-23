@@ -12,7 +12,7 @@ use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final class RecomputeScopeHandler
+final readonly class RecomputeScopeHandler
 {
     /** @param iterable<CalculatorInterface> $calculators */
     public function __construct(

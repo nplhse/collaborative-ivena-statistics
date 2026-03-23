@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\DispatchAreaStateReferenceStrategy;
 
-final class MciCaseDispatchAreaResolver implements MciCaseEntityResolverInterface
+final readonly class MciCaseDispatchAreaResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
-        private readonly DispatchAreaStateReferenceStrategy $strategy,
+        private DispatchAreaStateReferenceStrategy $strategy,
     ) {
     }
 

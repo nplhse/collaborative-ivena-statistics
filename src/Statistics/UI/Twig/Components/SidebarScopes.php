@@ -20,9 +20,9 @@ final class SidebarScopes
     public ?Scope $current = null;
 
     public function __construct(
-        private ScopeRoute $route,
-        private ScopeAvailabilityService $availability,
-        private DbScopeNameResolver $resolver,
+        private readonly ScopeRoute $route,
+        private readonly ScopeAvailabilityService $availability,
+        private readonly DbScopeNameResolver $resolver,
     ) {
     }
 
@@ -83,9 +83,7 @@ final class SidebarScopes
 
         foreach ($grouped as &$items) {
             /* @var list<array{label:string}> $items */
-            usort($items, static function (array $x, array $y): int {
-                return strcmp($x['label'], $y['label']);
-            });
+            usort($items, static fn (array $x, array $y): int => strcmp((string) $x['label'], (string) $y['label']));
         }
         unset($items);
 

@@ -12,7 +12,7 @@ use Twig\TwigFunction;
 final class ScopeLabelExtension extends AbstractExtension
 {
     public function __construct(
-        private ScopeLabelFormatter $formatter,
+        private readonly ScopeLabelFormatter $formatter,
     ) {
     }
 

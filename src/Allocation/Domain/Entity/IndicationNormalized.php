@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: IndicationNormalizedRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class IndicationNormalized
+class IndicationNormalized implements \Stringable
 {
     use Blamable;
 
@@ -127,6 +127,7 @@ class IndicationNormalized
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';

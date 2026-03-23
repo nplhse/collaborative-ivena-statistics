@@ -12,13 +12,13 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.calculator', attributes: ['priority' => 95])]
-final class AgeCohortShareCalculator implements CalculatorInterface
+final readonly class AgeCohortShareCalculator implements CalculatorInterface
 {
     private const array ORDER = ['<18', '18-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-99'];
 
     public function __construct(
-        private readonly Connection $db,
-        private readonly ScopeFilterBuilder $filter,
+        private Connection $db,
+        private ScopeFilterBuilder $filter,
     ) {
     }
 

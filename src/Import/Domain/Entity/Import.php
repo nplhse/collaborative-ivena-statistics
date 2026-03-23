@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ImportRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class Import
+class Import implements \Stringable
 {
     use Blamable;
 
@@ -360,6 +360,7 @@ class Import
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';

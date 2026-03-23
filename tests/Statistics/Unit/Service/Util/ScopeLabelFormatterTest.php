@@ -180,7 +180,7 @@ final class ScopeLabelFormatterTest extends TestCase
         yield 'quarter_q1' => ['quarter', '2025-02-10', 'Q1 2025'];
         yield 'quarter_q2' => ['quarter', '2025-05-01', 'Q2 2025'];
         yield 'month' => ['month', '2025-11-08', 'November 2025'];
-        yield 'week' => ['week', '2025-11-08', sprintf('Week %s 2025', (new \DateTimeImmutable('2025-11-08'))->format('W'))];
+        yield 'week' => ['week', '2025-11-08', sprintf('Week %s 2025', new \DateTimeImmutable('2025-11-08')->format('W'))];
         yield 'day' => ['day', '2025-11-08', 'Nov 8, 2025'];
         yield 'fallback_unknown' => ['hour', '2025-11-08 13:00:00', 'Hour'];
     }

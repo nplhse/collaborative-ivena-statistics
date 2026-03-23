@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StateRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class State
+class State implements \Stringable
 {
     use Blamable;
 
@@ -164,6 +164,7 @@ class State
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';

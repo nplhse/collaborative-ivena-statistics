@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.calculator', attributes: ['priority' => 20])]
-final class CohortSumsCalculator implements CalculatorInterface
+final readonly class CohortSumsCalculator implements CalculatorInterface
 {
     public function __construct(
         private Connection $db,

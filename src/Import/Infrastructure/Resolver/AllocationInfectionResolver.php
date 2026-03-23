@@ -9,10 +9,10 @@ use App\Import\Infrastructure\Resolver\Strategy\InfectionReferenceStrategy;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem('allocation.import_resolver')]
-final class AllocationInfectionResolver implements AllocationEntityResolverInterface
+final readonly class AllocationInfectionResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly InfectionReferenceStrategy $strategy,
+        private InfectionReferenceStrategy $strategy,
     ) {
     }
 

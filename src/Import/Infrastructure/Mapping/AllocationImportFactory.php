@@ -21,15 +21,15 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
  *
  * Call warm() once before the import loop to populate lookup caches.
  */
-final class AllocationImportFactory
+final readonly class AllocationImportFactory
 {
     /**
      * @param iterable<AllocationEntityResolverInterface> $resolvers
      */
     public function __construct(
-        private readonly EntityManagerInterface $em,
+        private EntityManagerInterface $em,
         #[AutowireIterator(tag: 'allocation.import_resolver')]
-        private readonly iterable $resolvers,
+        private iterable $resolvers,
     ) {
     }
 

@@ -4,26 +4,18 @@ namespace App\Tests\Import\Doubles\Service\Adapter;
 
 use App\Import\Application\Contracts\RowReaderInterface;
 
-final class InMemoryRowReader implements RowReaderInterface
+final readonly class InMemoryRowReader implements RowReaderInterface
 {
     /** @var list<string>|null */
     private ?array $headerRow;
 
-    /** @var list<string>|null */
-    private ?array $rawHeaderRow;
-
-    /** @var list<list<string>> */
-    private array $numericRows;
-
     /**
-     * @param list<string>|null  $header
+     * @param list<string>|null  $rawHeaderRow
      * @param list<list<string>> $numericRows
      */
-    public function __construct(?array $header = null, array $numericRows = [])
+    public function __construct(private ?array $rawHeaderRow = null, private array $numericRows = [])
     {
-        $this->rawHeaderRow = $header;
-        $this->headerRow = null === $header ? null : \array_map([$this, 'normalizeHeader'], $header);
-        $this->numericRows = $numericRows;
+        $this->headerRow = null === $this->rawHeaderRow ? null : \array_map($this->normalizeHeader(...), $this->rawHeaderRow);
     }
 
     /**

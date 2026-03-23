@@ -10,7 +10,7 @@ use App\Allocation\Infrastructure\Repository\AssessmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AssessmentRepository::class)]
-class Assessment
+class Assessment implements \Stringable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -101,6 +101,7 @@ class Assessment
             && null !== $this->disability;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return sprintf(

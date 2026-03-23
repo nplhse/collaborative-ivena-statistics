@@ -57,11 +57,10 @@ final class CohortScopeProviderTest extends TestCase
         $db->expects($this->atLeast(1))
             ->method('fetchFirstColumn')
             ->with(
-                self::callback(function (string $sql) {
+                self::callback(
                     // first call OR subsequent period key calls
-                    return str_contains($sql, 'SELECT DISTINCT hospital_id')
-                        || str_contains($sql, 'SELECT DISTINCT');
-                }),
+                    fn (string $sql) => str_contains($sql, 'SELECT DISTINCT hospital_id')
+                        || str_contains($sql, 'SELECT DISTINCT')),
                 self::anything()
             )
             ->willReturnOnConsecutiveCalls(

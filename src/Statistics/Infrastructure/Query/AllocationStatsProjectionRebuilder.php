@@ -12,16 +12,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use Psr\Log\LoggerInterface;
 
-/**
- * Fills allocation_stats_projection via DBAL (no ORM writes).
- */
-final class AllocationStatsProjectionRebuilder implements AllocationStatsProjectionRebuildInterface
+/** @psalm-suppress UnusedClass */
+final readonly class AllocationStatsProjectionRebuilder implements AllocationStatsProjectionRebuildInterface
 {
     private const int BATCH_SIZE = 250;
 
     public function __construct(
-        private readonly Connection $connection,
-        private readonly LoggerInterface $logger,
+        private Connection $connection,
+        private LoggerInterface $logger,
     ) {
     }
 

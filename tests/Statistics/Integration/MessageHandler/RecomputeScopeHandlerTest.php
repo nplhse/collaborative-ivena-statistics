@@ -49,12 +49,10 @@ final class RecomputeScopeHandlerTest extends TestCase
         $calcA = $this->createMock(CalculatorInterface::class);
         $calcA->expects($this->once())
             ->method('supports')
-            ->with(self::callback(function (Scope $s) use ($message) {
-                return $s->scopeType === $message->scopeType
-                    && $s->scopeId === $message->scopeId
-                    && $s->granularity === $message->granularity
-                    && $s->periodKey === $message->periodKey;
-            }))
+            ->with(self::callback(fn (Scope $s) => $s->scopeType === $message->scopeType
+                && $s->scopeId === $message->scopeId
+                && $s->granularity === $message->granularity
+                && $s->periodKey === $message->periodKey))
             ->willReturn(true);
         $calcA->expects($this->once())->method('calculate')->with(self::isInstanceOf(Scope::class));
 

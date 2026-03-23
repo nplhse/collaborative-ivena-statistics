@@ -89,7 +89,7 @@ final class MciCaseRepository extends ServiceEntityRepository
 
         $qb->orderBy($field, $queryParametersDTO->orderBy);
 
-        return (new Paginator($qb))->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
 
     /**
@@ -97,7 +97,7 @@ final class MciCaseRepository extends ServiceEntityRepository
      */
     public function countByMonthLast12Months(): array
     {
-        $from = (new \DateTimeImmutable('first day of this month'))
+        $from = new \DateTimeImmutable('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
@@ -137,9 +137,7 @@ final class MciCaseRepository extends ServiceEntityRepository
             ];
         }
 
-        usort($result, static function (array $a, array $b): int {
-            return [$a['year'], $a['month']] <=> [$b['year'], $b['month']];
-        });
+        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
 
         return $result;
     }

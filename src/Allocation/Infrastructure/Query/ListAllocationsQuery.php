@@ -18,10 +18,10 @@ use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class ListAllocationsQuery
+final readonly class ListAllocationsQuery
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -145,6 +145,6 @@ final class ListAllocationsQuery
 
         $qb->orderBy($field, $queryParametersDTO->orderBy);
 
-        return (new Paginator($qb))->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
 }

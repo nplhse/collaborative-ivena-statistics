@@ -124,7 +124,7 @@ final class TransportTimeDimMatrixChart
         }
 
         foreach ($this->series as $s) {
-            $sum = array_sum(array_map('floatval', $s['data'] ?? []));
+            $sum = array_sum(array_map(floatval(...), $s['data'] ?? []));
             if ($sum > 0.0) {
                 return true;
             }

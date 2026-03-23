@@ -18,6 +18,7 @@ final class TimeScopePager
     /** @psalm-suppress PropertyNotSetInConstructor */
     public Scope $scope;
 
+    /** @psalm-suppress PossiblyUnusedProperty */
     public string $variant = 'full';
 
     /** @var array{disabled:bool, url:string, label:string, hint:?string} */
@@ -37,9 +38,9 @@ final class TimeScopePager
     ];
 
     public function __construct(
-        private RequestStack $requestStack,
-        private RouterInterface $router,
-        private TimeScopeNavigator $navigator,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly TimeScopeNavigator $navigator,
     ) {
     }
 
@@ -69,7 +70,7 @@ final class TimeScopePager
         }
 
         $min = new \DateTimeImmutable(Period::ALL_ANCHOR_DATE);
-        $max = (new \DateTimeImmutable('today'))->setTime(0, 0, 0);
+        $max = new \DateTimeImmutable('today')->setTime(0, 0, 0);
 
         $candidate = new \DateTimeImmutable($raw['key']);
 

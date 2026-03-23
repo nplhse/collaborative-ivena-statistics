@@ -17,15 +17,15 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
  * - Hospital/Import are taken from the Import (single-hospital import).
  * - Other fields are resolved via resolver chain (O(1) lookup maps).
  */
-final class MciCaseImportFactory
+final readonly class MciCaseImportFactory
 {
     /**
      * @param iterable<MciCaseEntityResolverInterface> $resolvers
      */
     public function __construct(
-        private readonly EntityManagerInterface $em,
+        private EntityManagerInterface $em,
         #[AutowireIterator(tag: 'mci_case.import_resolver')]
-        private readonly iterable $resolvers,
+        private iterable $resolvers,
     ) {
     }
 
