@@ -7,6 +7,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -25,7 +26,7 @@ class ListHospitalsControllerTest extends WebTestCase
         HospitalFactory::createMany(10);
 
         // Act
-        $crawler = $client->request('GET', '/explore/hospital');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -63,7 +64,7 @@ class ListHospitalsControllerTest extends WebTestCase
         HospitalFactory::createOne(['name' => 'XYZ Hospital']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/hospital?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -84,7 +85,7 @@ class ListHospitalsControllerTest extends WebTestCase
         HospitalFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/hospital?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

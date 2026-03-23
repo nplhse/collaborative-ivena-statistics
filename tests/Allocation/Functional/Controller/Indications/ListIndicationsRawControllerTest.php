@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\Indications;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -25,7 +26,7 @@ class ListIndicationsRawControllerTest extends WebTestCase
         IndicationRawFactory::createMany(34, ['name' => 'Test Indication', 'code' => '232']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/indication?type=raw');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication?type=raw');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -61,7 +62,7 @@ class ListIndicationsRawControllerTest extends WebTestCase
         IndicationRawFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/indication?type=raw&sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication?type=raw&sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -80,7 +81,7 @@ class ListIndicationsRawControllerTest extends WebTestCase
         IndicationRawFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/indication?type=raw&page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication?type=raw&page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

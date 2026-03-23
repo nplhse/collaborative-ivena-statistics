@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\Infections;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -22,7 +23,7 @@ class ListInfectionsControllerTest extends WebTestCase
         InfectionFactory::createMany(34, ['name' => 'Test Infection']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/infection');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/infection');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -55,7 +56,7 @@ class ListInfectionsControllerTest extends WebTestCase
         InfectionFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/infection?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/infection?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -74,7 +75,7 @@ class ListInfectionsControllerTest extends WebTestCase
         InfectionFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/infection?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/infection?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

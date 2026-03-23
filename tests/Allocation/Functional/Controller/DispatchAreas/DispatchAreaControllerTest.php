@@ -6,6 +6,7 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -23,7 +24,7 @@ class DispatchAreaControllerTest extends WebTestCase
         DispatchAreaFactory::createMany(50);
 
         // Act
-        $crawler = $client->request('GET', '/explore/dispatch_area');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/dispatch_area');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -60,7 +61,7 @@ class DispatchAreaControllerTest extends WebTestCase
         DispatchAreaFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/dispatch_area?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/dispatch_area?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -80,7 +81,7 @@ class DispatchAreaControllerTest extends WebTestCase
         DispatchAreaFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/dispatch_area?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/dispatch_area?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

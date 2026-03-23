@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 
 final class ShowAllocationController extends WebTestCase
@@ -63,7 +64,7 @@ final class ShowAllocationController extends WebTestCase
         ]);
 
         // Act
-        $client->request('GET', '/explore/allocation/'.$allocation->getId());
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getId());
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -86,7 +87,7 @@ final class ShowAllocationController extends WebTestCase
     public function testShow404ForUnknownHospital(): void
     {
         $client = self::createClient();
-        $client->request('GET', '/explore/hospital/999999');
+        $client->request(Request::METHOD_GET, '/explore/hospital/999999');
         self::assertResponseStatusCodeSame(404);
     }
 }

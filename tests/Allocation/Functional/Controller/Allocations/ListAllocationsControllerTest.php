@@ -17,6 +17,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -45,7 +46,7 @@ class ListAllocationsControllerTest extends WebTestCase
         AllocationFactory::createMany(25);
 
         // Act
-        $crawler = $client->request('GET', '/explore/allocation');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -87,7 +88,7 @@ class ListAllocationsControllerTest extends WebTestCase
         AllocationFactory::createMany(30);
 
         // Act
-        $crawler = $client->request('GET', '/explore/allocation?page=2&limit=25');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?page=2&limit=25');
 
         // Assert
         self::assertResponseIsSuccessful();

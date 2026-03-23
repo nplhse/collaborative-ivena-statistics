@@ -18,20 +18,25 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/settings')]
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class SettingsController extends AbstractController
 {
-    #[Route('', name: 'app_settings_index')]
+    public function __construct(
+        private readonly EmailVerifier $emailVerifier,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserPasswordHasherInterface $passwordHasher,
+    ) {
+    }
+
+    #[Route('/settings', name: 'app_settings_index')]
     public function index(): Response
     {
         return $this->render('@User/settings/index.html.twig');
     }
 
-    #[Route('/email/resend-verification', name: 'app_settings_resend_verification', methods: ['POST'])]
+    #[Route('/settings/email/resend-verification', name: 'app_settings_resend_verification', methods: ['POST'])]
     public function resendVerification(
         Request $request,
-        EmailVerifier $emailVerifier,
         #[Autowire(service: 'limiter.verify_email_resend')] RateLimiterFactory $verifyEmailResendLimiter,
     ): RedirectResponse {
         $user = $this->requireUser();
@@ -60,14 +65,14 @@ final class SettingsController extends AbstractController
             return $this->redirectToRoute('app_settings_index');
         }
 
-        $emailVerifier->sendEmailConfirmation('app_verify_email', $user);
+        $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
         $this->addFlash('success', 'flash.settings.email.verification_resent');
 
         return $this->redirectToRoute('app_settings_index');
     }
 
-    #[Route('/email', name: 'app_settings_email')]
-    public function email(Request $request, EntityManagerInterface $entityManager, EmailVerifier $emailVerifier): Response
+    #[Route('/settings/email', name: 'app_settings_email')]
+    public function email(Request $request): Response
     {
         $user = $this->requireUser();
 
@@ -84,8 +89,8 @@ final class SettingsController extends AbstractController
             if ($newEmail !== $user->getEmail()) {
                 $user->setEmail($newEmail);
                 $user->setIsVerified(false);
-                $entityManager->flush();
-                $emailVerifier->sendEmailConfirmation('app_verify_email', $user);
+                $this->entityManager->flush();
+                $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
             }
 
             $this->addFlash('success', 'flash.settings.email.updated_verify_required');
@@ -98,11 +103,9 @@ final class SettingsController extends AbstractController
         ]);
     }
 
-    #[Route('/password', name: 'app_settings_password')]
+    #[Route('/settings/password', name: 'app_settings_password')]
     public function password(
         Request $request,
-        EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher,
     ): Response {
         $user = $this->requireUser();
 
@@ -111,7 +114,7 @@ final class SettingsController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $currentPassword = $form->get('currentPassword')->getData();
-            if (!\is_string($currentPassword) || !$passwordHasher->isPasswordValid($user, $currentPassword)) {
+            if (!\is_string($currentPassword) || !$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
                 $this->addFlash('danger', 'flash.settings.password.current_invalid');
 
                 return $this->redirectToRoute('app_settings_password');
@@ -122,9 +125,9 @@ final class SettingsController extends AbstractController
                 throw new \LogicException('Password form did not provide a new password.');
             }
 
-            $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
             $user->setCredentialsExpired(false);
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'flash.settings.password.updated');
 
@@ -136,11 +139,9 @@ final class SettingsController extends AbstractController
         ]);
     }
 
-    #[Route('/force-password-change', name: 'app_force_change_password')]
+    #[Route('/settings/force-password-change', name: 'app_force_change_password')]
     public function forceChangePassword(
         Request $request,
-        EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher,
     ): Response {
         $user = $this->requireUser();
 
@@ -153,9 +154,9 @@ final class SettingsController extends AbstractController
                 throw new \LogicException('Forced password form did not provide a new password.');
             }
 
-            $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
             $user->setCredentialsExpired(false);
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'flash.settings.password.updated');
 

@@ -13,17 +13,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/explore/indication/raw/assign')]
 final class AssignIndicationRawController extends AbstractController
 {
     public function __construct(
         private readonly IndicationNormalizedRepository $repository,
         private readonly TranslatorInterface $translator,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 
-    #[Route('/{id}', name: 'app_explore_indication_raw_assign', methods: ['GET', 'POST'])]
-    public function edit(IndicationRaw $raw, Request $request, EntityManagerInterface $em): Response
+    #[Route('/explore/indication/raw/assign/{id}', name: 'app_explore_indication_raw_assign', methods: ['GET', 'POST'])]
+    public function edit(IndicationRaw $raw, Request $request): Response
     {
         $form = $this->createForm(IndicationRawAssignType::class, $raw);
         $form->handleRequest($request);
@@ -44,7 +44,7 @@ final class AssignIndicationRawController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $this->em->flush();
             $this->addFlash('success', $this->translator->trans('flash.indication.assigned'));
 
             return $this->redirectToRoute('app_explore_indication_list', ['type' => 'raw']);

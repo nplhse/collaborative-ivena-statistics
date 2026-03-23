@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\Specialities;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -22,7 +23,7 @@ class SpecialityControllerTest extends WebTestCase
         SpecialityFactory::createMany(34, ['name' => 'Innere Medizin']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/speciality');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/speciality');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -55,7 +56,7 @@ class SpecialityControllerTest extends WebTestCase
         SpecialityFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/speciality?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/speciality?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -74,7 +75,7 @@ class SpecialityControllerTest extends WebTestCase
         SpecialityFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/speciality?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/speciality?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

@@ -21,15 +21,19 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class DashboardController extends AbstractController
 {
+    public function __construct(
+        private readonly DashboardCountsReader $countsReader,
+        private readonly DashboardCohortSumsReader $cohortSumsReader,
+        private readonly DashboardCohortStatsReader $cohortStatsReader,
+        private readonly HourlyChartDataLoader $hourlyChartDataLoader,
+        private readonly TopCategoriesReader $topCategoriesReader,
+        private readonly AgeChartDataLoader $ageChartDataLoader,
+    ) {
+    }
+
     #[Route('/statistics/', name: 'app_stats_dashboard', methods: ['GET'])]
     public function index(
         Request $request,
-        DashboardCountsReader $countsReader,
-        DashboardCohortSumsReader $cohortSumsReader,
-        DashboardCohortStatsReader $cohortStatsReader,
-        HourlyChartDataLoader $hourlyChartDataLoader,
-        TopCategoriesReader $topCategoriesReader,
-        AgeChartDataLoader $ageChartDataLoader,
     ): Response {
         $context = DashboardContext::fromQuery($request->query->all());
         $scope = Scope::fromDashboardContext($context);
@@ -37,12 +41,12 @@ final class DashboardController extends AbstractController
         $preset = $request->query->get('hourly', 'total');
         $metrics = HourlyMetricPresets::metricsFor($preset);
 
-        $hourlyPayload = $hourlyChartDataLoader->buildPayload($scope, $metrics);
+        $hourlyPayload = $this->hourlyChartDataLoader->buildPayload($scope, $metrics);
 
         $agePreset = $request->query->get('age', 'total');
         $ageMetrics = AgeMetricPresets::metricsFor($agePreset);
         $ageMode = $request->query->get('age_mode', 'count');
-        $agePayload = $ageChartDataLoader->buildPayload($scope, $ageMetrics);
+        $agePayload = $this->ageChartDataLoader->buildPayload($scope, $ageMetrics);
 
         $isCohortScope = \in_array(
             $scope->scopeType,
@@ -50,7 +54,7 @@ final class DashboardController extends AbstractController
             true
         );
 
-        $topCats = $topCategoriesReader->read(
+        $topCats = $this->topCategoriesReader->read(
             $scope->scopeType,
             $scope->scopeId,
             $scope->granularity,
@@ -61,8 +65,8 @@ final class DashboardController extends AbstractController
             $tpl = [
                 'panel' => null,
                 'cohortPanel' => [
-                    'sums' => $cohortSumsReader->read($scope),
-                    'stats' => $cohortStatsReader->read($scope),
+                    'sums' => $this->cohortSumsReader->read($scope),
+                    'stats' => $this->cohortStatsReader->read($scope),
                 ],
                 'scope' => $scope,
                 'context' => $context,
@@ -77,7 +81,7 @@ final class DashboardController extends AbstractController
             ];
         } else {
             $tpl = [
-                'panel' => $countsReader->read($scope),
+                'panel' => $this->countsReader->read($scope),
                 'cohortPanel' => null,
                 'scope' => $scope,
                 'context' => $context,

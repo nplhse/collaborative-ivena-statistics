@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\Indications;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -25,7 +26,7 @@ class ListIndicationsControllerTest extends WebTestCase
         IndicationNormalizedFactory::createMany(34, ['name' => 'Test Indication', 'code' => '232']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/indication');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -61,7 +62,7 @@ class ListIndicationsControllerTest extends WebTestCase
         IndicationNormalizedFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/indication?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -80,7 +81,7 @@ class ListIndicationsControllerTest extends WebTestCase
         IndicationNormalizedFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/indication?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

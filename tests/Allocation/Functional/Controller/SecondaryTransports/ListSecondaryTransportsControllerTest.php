@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\SecondaryTransports;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -20,7 +21,7 @@ class ListSecondaryTransportsControllerTest extends WebTestCase
         SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
         SecondaryTransportFactory::createMany(34, ['name' => 'Test Secondary Transport']);
 
-        $crawler = $client->request('GET', '/explore/secondary_transport');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/secondary_transport');
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('Secondary Transports');
@@ -43,7 +44,7 @@ class ListSecondaryTransportsControllerTest extends WebTestCase
         SecondaryTransportFactory::createOne(['name' => 'ABC']);
         SecondaryTransportFactory::createOne(['name' => 'XYZ']);
 
-        $crawler = $client->request('GET', '/explore/secondary_transport?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/secondary_transport?sortBy=name&orderBy=desc');
 
         self::assertResponseIsSuccessful();
         $rows = $crawler->filter('table.table tbody tr');
@@ -58,7 +59,7 @@ class ListSecondaryTransportsControllerTest extends WebTestCase
         UserFactory::createOne(['username' => 'area-user']);
         SecondaryTransportFactory::createMany(35);
 
-        $crawler = $client->request('GET', '/explore/secondary_transport?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/secondary_transport?page=2');
 
         self::assertResponseIsSuccessful();
         $rows = $crawler->filter('table.table tbody tr');

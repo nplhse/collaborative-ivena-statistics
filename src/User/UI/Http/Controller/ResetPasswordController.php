@@ -20,7 +20,6 @@ use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-#[Route('/reset-password')]
 final class ResetPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
@@ -34,7 +33,7 @@ final class ResetPasswordController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'app_forgot_password_request')]
+    #[Route('/reset-password', name: 'app_forgot_password_request')]
     public function request(Request $request): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
@@ -53,7 +52,7 @@ final class ResetPasswordController extends AbstractController
         ]);
     }
 
-    #[Route('/check-email', name: 'app_check_email')]
+    #[Route('/reset-password/check-email', name: 'app_check_email')]
     public function checkEmail(): Response
     {
         $resetToken = $this->getTokenObjectFromSession();
@@ -67,7 +66,7 @@ final class ResetPasswordController extends AbstractController
         ]);
     }
 
-    #[Route('/reset/{token}', name: 'app_reset_password')]
+    #[Route('/reset-password/reset/{token}', name: 'app_reset_password')]
     public function reset(Request $request, ?string $token = null): Response
     {
         if (null !== $token) {

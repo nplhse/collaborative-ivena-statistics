@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 
 final class ShowHospitalController extends WebTestCase
@@ -48,7 +49,7 @@ final class ShowHospitalController extends WebTestCase
         ]);
 
         // Act
-        $client->request('GET', '/explore/hospital/'.$hospital->getId());
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -68,7 +69,7 @@ final class ShowHospitalController extends WebTestCase
     public function testShow404ForUnknownHospital(): void
     {
         $client = self::createClient();
-        $client->request('GET', '/explore/hospital/999999');
+        $client->request(Request::METHOD_GET, '/explore/hospital/999999');
         self::assertResponseStatusCodeSame(404);
     }
 }

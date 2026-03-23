@@ -16,10 +16,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class TimeGridController extends AbstractController
 {
+    public function __construct(
+        private readonly TimeGridBuilder $builder,
+    ) {
+    }
+
     #[Route('/statistics/timegrid', name: 'app_stats_timegrid')]
     public function __invoke(
         Request $request,
-        TimeGridBuilder $builder,
     ): Response {
         $dto = TimeGridRequest::fromRequest($request);
 
@@ -47,7 +51,7 @@ final class TimeGridController extends AbstractController
             $base = null;
         }
 
-        $data = $builder->build(
+        $data = $this->builder->build(
             primary: $primary,
             metrics: TimeGridMetricPresets::rowsFor($dto->metricsPreset),
             mode: $dto->mode,

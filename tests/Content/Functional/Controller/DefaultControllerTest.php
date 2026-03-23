@@ -17,6 +17,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -44,7 +45,7 @@ final class DefaultControllerTest extends WebTestCase
         IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
         AllocationFactory::createMany(25);
 
-        $client->request('GET', '/');
+        $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Hello, world!');
