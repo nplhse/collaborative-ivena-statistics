@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Twig\Components;
 
-use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
-use App\Allocation\Infrastructure\Repository\StateRepository;
+use App\Allocation\Application\Contract\DispatchAreaLookupInterface;
+use App\Allocation\Application\Contract\HospitalLookupInterface;
+use App\Allocation\Application\Contract\StateLookupInterface;
 use App\Statistics\Domain\Enum\TimeGridMode;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Availability\ScopeAvailabilityService;
@@ -45,9 +45,9 @@ final class ChooseScopePicker
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
         private readonly ScopeAvailabilityService $availability,
-        private readonly HospitalRepository $hospitalRepository,
-        private readonly DispatchAreaRepository $dispatchAreaRepository,
-        private readonly StateRepository $stateRepository,
+        private readonly HospitalLookupInterface $hospitalRepository,
+        private readonly DispatchAreaLookupInterface $dispatchAreaRepository,
+        private readonly StateLookupInterface $stateRepository,
     ) {
     }
 
@@ -238,7 +238,7 @@ final class ChooseScopePicker
             $intId = (int) $id;
 
             if (!array_key_exists($intId, $this->stateNames)) {
-                $entity = $this->stateRepository->find($intId);
+                $entity = $this->stateRepository->findById($intId);
                 $this->stateNames[$intId] = $entity?->getName() ?? ("State #$id");
             }
 
@@ -250,7 +250,7 @@ final class ChooseScopePicker
             $intId = (int) $id;
 
             if (!array_key_exists($intId, $this->dispatchAreaNames)) {
-                $entity = $this->dispatchAreaRepository->find($intId);
+                $entity = $this->dispatchAreaRepository->findById($intId);
                 $this->dispatchAreaNames[$intId] = $entity?->getName() ?? ("Dispatch Area #$id");
             }
 
@@ -262,7 +262,7 @@ final class ChooseScopePicker
             $intId = (int) $id;
 
             if (!array_key_exists($intId, $this->hospitalNames)) {
-                $entity = $this->hospitalRepository->find($intId);
+                $entity = $this->hospitalRepository->findById($intId);
                 $this->hospitalNames[$intId] = $entity?->getName() ?? ("Hospital #$id");
             }
 

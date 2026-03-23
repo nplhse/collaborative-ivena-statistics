@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Allocation\Infrastructure\Repository;
 
+use App\Allocation\Application\Contract\DispatchAreaLookupInterface;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\UI\Http\DTO\AreaListQueryParametersDTO;
@@ -13,11 +16,18 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<DispatchArea>
  */
-final class DispatchAreaRepository extends ServiceEntityRepository
+final class DispatchAreaRepository extends ServiceEntityRepository implements DispatchAreaLookupInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, DispatchArea::class);
+    }
+
+    public function findById(int $id): ?DispatchArea
+    {
+        $entity = $this->find($id);
+
+        return $entity instanceof DispatchArea ? $entity : null;
     }
 
     public function getAreaListPaginator(AreaListQueryParametersDTO $queryParametersDTO): Paginator

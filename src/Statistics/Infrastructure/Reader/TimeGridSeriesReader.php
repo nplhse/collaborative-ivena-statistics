@@ -8,7 +8,7 @@ use App\Statistics\Domain\Model\DashboardPanelView;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Util\Period;
 
-final readonly class TimeGridSeriesReader
+final readonly class TimeGridSeriesReader implements TimeGridSeriesReaderInterface
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
@@ -21,6 +21,7 @@ final readonly class TimeGridSeriesReader
      *
      * @return array<string, DashboardPanelView|null> map[periodKey] => view|null
      */
+    #[\Override]
     public function loadSeries(Scope $scope, array $columns): array
     {
         $keys = [];

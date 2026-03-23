@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Allocation\Infrastructure\Repository;
 
+use App\Allocation\Application\Contract\HospitalLookupInterface;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\State;
@@ -19,11 +22,18 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Hospital>
  */
-final class HospitalRepository extends ServiceEntityRepository
+final class HospitalRepository extends ServiceEntityRepository implements HospitalLookupInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Hospital::class);
+    }
+
+    public function findById(int $id): ?Hospital
+    {
+        $entity = $this->find($id);
+
+        return $entity instanceof Hospital ? $entity : null;
     }
 
     public function getQueryBuilderForAccessibleHospitals(User $user): QueryBuilder
