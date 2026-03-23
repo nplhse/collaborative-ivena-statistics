@@ -36,6 +36,9 @@ final class SplCsvRowReader implements RowReaderInterface
     private ?array $rawHeaderRow = null;
 
     private readonly \SplFileObject $file;
+    private readonly string $delimiter;
+    private readonly string $enclosure;
+    private readonly string $escape;
 
     public function __construct(
         \SplFileObject $file,
@@ -54,6 +57,9 @@ final class SplCsvRowReader implements RowReaderInterface
         $sourceEncoding = $this->detector->detectFromPath($path, $this->encodingHint);
 
         $this->file = $this->streamFactory->openUtf8($path, $sourceEncoding, $delimiter, $enclosure, $escape);
+        $this->delimiter = $delimiter;
+        $this->enclosure = $enclosure;
+        $this->escape = $escape;
 
         $this->rawHeaderRow = $this->readUtf8Row();
         if (null === $this->rawHeaderRow) {
@@ -74,8 +80,7 @@ final class SplCsvRowReader implements RowReaderInterface
     public function rows(): iterable
     {
         while (!$this->file->eof()) {
-            /** @var array<int,string|null>|false $row */
-            $row = $this->file->fgetcsv(escape: '\\');
+            $row = $this->readCsvRow();
             if (false === $row || $row === [null]) {
                 continue;
             }
@@ -120,7 +125,7 @@ final class SplCsvRowReader implements RowReaderInterface
     /** @return array<int,string>|null */
     private function readUtf8Row(): ?array
     {
-        $row = $this->file->fgetcsv(escape: '\\');
+        $row = $this->readCsvRow();
         if (false === $row || $row === [null]) {
             return null;
         }
@@ -136,6 +141,20 @@ final class SplCsvRowReader implements RowReaderInterface
         }
 
         return $out;
+    }
+
+    /**
+     * Always pass all CSV controls explicitly to avoid default fallback behavior.
+     *
+     * @return array<int,string|null>|false
+     */
+    private function readCsvRow(): array|false
+    {
+        return $this->file->fgetcsv(
+            separator: $this->delimiter,
+            enclosure: $this->enclosure,
+            escape: $this->escape,
+        );
     }
 
     private function nfc(string $value): string
