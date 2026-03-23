@@ -32,7 +32,7 @@ final class SeedIndicationsCommandTest extends KernelTestCase
     private function runCommand(): CommandTester
     {
         /** @var SeedIndicationsCommand $cmd */
-        $cmd = static::getContainer()->get(SeedIndicationsCommand::class);
+        $cmd = self::getContainer()->get(SeedIndicationsCommand::class);
 
         $tester = new CommandTester($cmd);
         $tester->execute([]);
@@ -83,7 +83,7 @@ final class SeedIndicationsCommandTest extends KernelTestCase
     {
         $user = UserFactory::createOne();
 
-        IndicationNormalizedFactory::createMany(2, function (int $i) use ($user) {
+        IndicationNormalizedFactory::createMany(2, function (int $i) use ($user): array {
             $names = ['Asthma', 'COPD'];
             $name = $names[$i % count($names)];
 

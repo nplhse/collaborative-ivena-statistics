@@ -67,9 +67,7 @@ final class SidebarScopesTest extends TestCase
         // route will return a simple deterministic URL; we only check it is used
         $this->route
             ->method('toPath')
-            ->willReturnCallback(function (string $t, string $i, string $g, string $k): string {
-                return sprintf('/%s/%s/%s/%s', $t, $i, $g, $k);
-            });
+            ->willReturnCallback(fn (string $t, string $i, string $g, string $k): string => sprintf('/%s/%s/%s/%s', $t, $i, $g, $k));
 
         $cmp = new SidebarScopes($this->route, $this->availability, $this->resolver);
 

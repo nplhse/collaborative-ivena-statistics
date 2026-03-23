@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Domain\Enum\TimeGridMode;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Availability\ScopeAvailabilityService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -18,8 +19,6 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 final class ChooseScopePicker
 {
     /**
-     * set by template.
-     *
      * @psalm-suppress PropertyNotSetInConstructor
      */
     public Scope $primary;
@@ -43,12 +42,12 @@ final class ChooseScopePicker
     private array $stateNames = [];
 
     public function __construct(
-        private RequestStack $requestStack,
-        private RouterInterface $router,
-        private ScopeAvailabilityService $availability,
-        private HospitalRepository $hospitalRepository,
-        private DispatchAreaRepository $dispatchAreaRepository,
-        private StateRepository $stateRepository,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly ScopeAvailabilityService $availability,
+        private readonly HospitalRepository $hospitalRepository,
+        private readonly DispatchAreaRepository $dispatchAreaRepository,
+        private readonly StateRepository $stateRepository,
     ) {
     }
 
@@ -80,7 +79,7 @@ final class ChooseScopePicker
     public function modeUrl(string $mode): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 
@@ -130,7 +129,7 @@ final class ChooseScopePicker
                 $selected = false;
 
                 if ($forBase) {
-                    if (null !== $this->base) {
+                    if ($this->base instanceof Scope) {
                         $selected = ($this->base->scopeType === $type && $this->base->scopeId === $id);
                     }
                 } else {
@@ -160,7 +159,7 @@ final class ChooseScopePicker
             'Hospital' => 4,
         ];
 
-        usort($groups, static function ($a, $b) use ($order) {
+        usort($groups, static function (array $a, array $b) use ($order): int {
             $rankA = $order[$a['label']] ?? 99;
             $rankB = $order[$b['label']] ?? 99;
 
@@ -179,7 +178,7 @@ final class ChooseScopePicker
     private function buildUrl(string $type, string $id, bool $forBase): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 
@@ -205,12 +204,10 @@ final class ChooseScopePicker
             // Falls wir NICHT im Compare-Modus sind:
             if (!$this->isCompare()) {
                 unset($params['baseType'], $params['baseId']);
-            } else {
+            } elseif ($this->base instanceof Scope) {
                 // Compare-Mode: Base behalten
-                if (null !== $this->base) {
-                    $params['baseType'] = $this->base->scopeType;
-                    $params['baseId'] = $this->base->scopeId;
-                }
+                $params['baseType'] = $this->base->scopeType;
+                $params['baseId'] = $this->base->scopeId;
             }
         } else {
             // BASE wird gewechselt
@@ -225,7 +222,7 @@ final class ChooseScopePicker
         }
 
         // Entferne Nulls für saubere URLs
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params);
     }
@@ -279,7 +276,7 @@ final class ChooseScopePicker
                 return ucfirst($type).' '.$id;
             }
 
-            [$tier, $location] = array_map('ucfirst', $parts);
+            [$tier, $location] = array_map(ucfirst(...), $parts);
 
             return "Tier: $tier — Location: $location";
         }

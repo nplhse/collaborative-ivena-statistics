@@ -9,6 +9,7 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Availability\ScopeAvailabilityService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -33,12 +34,12 @@ final class ScopePicker
     private array $stateNames = [];
 
     public function __construct(
-        private RequestStack $requestStack,
-        private RouterInterface $router,
-        private ScopeAvailabilityService $availability,
-        private HospitalRepository $hospitalRepository,
-        private DispatchAreaRepository $dispatchAreaRepository,
-        private StateRepository $stateRepository,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly ScopeAvailabilityService $availability,
+        private readonly HospitalRepository $hospitalRepository,
+        private readonly DispatchAreaRepository $dispatchAreaRepository,
+        private readonly StateRepository $stateRepository,
     ) {
     }
 
@@ -102,7 +103,7 @@ final class ScopePicker
             'Hospital' => 4,
         ];
 
-        usort($groups, static function ($a, $b) use ($order) {
+        usort($groups, static function (array $a, array $b) use ($order): int {
             $rankA = $order[$a['label']] ?? 99;
             $rankB = $order[$b['label']] ?? 99;
 
@@ -121,7 +122,7 @@ final class ScopePicker
     private function buildUrl(string $type, string $id): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 
@@ -138,7 +139,7 @@ final class ScopePicker
         $params['scopeId'] = $id;
 
         // Remove null values to keep URLs clean
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params);
     }
@@ -192,7 +193,7 @@ final class ScopePicker
                 return ucfirst($type).' '.$id;
             }
 
-            [$tier, $location] = array_map('ucfirst', $parts);
+            [$tier, $location] = array_map(ucfirst(...), $parts);
 
             return "Tier: $tier — Location: $location";
         }

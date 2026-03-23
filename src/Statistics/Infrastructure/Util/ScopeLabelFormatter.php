@@ -8,7 +8,7 @@ use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Resolver\DbScopeNameResolver;
 
 /** @psalm-suppress ClassMustBeFinal */
-class ScopeLabelFormatter
+readonly class ScopeLabelFormatter
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

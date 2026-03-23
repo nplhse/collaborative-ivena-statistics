@@ -33,7 +33,7 @@ final class SplCsvStreamFactoryWithDetectorTest extends TestCase
         $factory = new SplCsvStreamFactory($logger);
         $f = $factory->openUtf8($path, $sourceEncoding, ';', '"', '\\');
 
-        $header = $f->fgetcsv();
+        $header = $f->fgetcsv(separator: ';', enclosure: '"', escape: '\\');
         self::assertSame(
             ['Straße', 'Straße', 'KHS-Versorgungsgebiet/Bezirk?', 'Ärztlich-Begleitet'],
             $header,

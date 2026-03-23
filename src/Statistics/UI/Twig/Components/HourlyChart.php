@@ -31,7 +31,7 @@ final class HourlyChart
 
     public function hasData(): bool
     {
-        if (empty($this->series)) {
+        if ([] === $this->series) {
             return false;
         }
 

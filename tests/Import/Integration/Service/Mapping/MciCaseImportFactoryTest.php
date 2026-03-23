@@ -49,8 +49,8 @@ final class MciCaseImportFactoryTest extends KernelTestCase
 
         $this->import = ImportFactory::createOne(['name' => 'Test Import', 'hospital' => $hospital]);
 
-        $speciality = SpecialityFactory::createOne(['name' => 'Test Speciality']);
-        $department = DepartmentFactory::createOne(['name' => 'Test Department']);
+        SpecialityFactory::createOne(['name' => 'Test Speciality']);
+        DepartmentFactory::createOne(['name' => 'Test Department']);
 
         OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
         InfectionFactory::createOne(['name' => '3MRGN']);

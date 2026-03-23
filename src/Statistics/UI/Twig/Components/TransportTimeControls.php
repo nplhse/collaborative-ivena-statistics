@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Twig\Components;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -23,8 +24,8 @@ final class TransportTimeControls
     public string $anchorId = 'transport-time-top';
 
     public function __construct(
-        private RequestStack $requestStack,
-        private RouterInterface $router,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -42,7 +43,7 @@ final class TransportTimeControls
     public function bucketUrl(string $value): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#'.$this->anchorId;
         }
 
@@ -54,8 +55,7 @@ final class TransportTimeControls
             ['bucket' => $value]
         );
 
-        // saubere Nulls weg
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params).'#'.$this->anchorId;
     }
@@ -63,7 +63,7 @@ final class TransportTimeControls
     public function toggleProgressUrl(): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#'.$this->anchorId;
         }
 
@@ -76,7 +76,7 @@ final class TransportTimeControls
             ['progress' => $current ? 0 : 1]
         );
 
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params).'#'.$this->anchorId;
     }
@@ -84,7 +84,7 @@ final class TransportTimeControls
     public function togglePhysicianUrl(): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#'.$this->anchorId;
         }
 
@@ -97,7 +97,7 @@ final class TransportTimeControls
             ['physician' => $current ? 0 : 1]
         );
 
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params).'#'.$this->anchorId;
     }

@@ -7,11 +7,11 @@ namespace App\Statistics\Infrastructure\Reader;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Query\TransportTimeDimMatrixQuery;
 
-final class TransportTimeDimMatrixReader
+final readonly class TransportTimeDimMatrixReader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly TransportTimeDimMatrixQuery $query,
+        private TransportTimeDimMatrixQuery $query,
     ) {
     }
 

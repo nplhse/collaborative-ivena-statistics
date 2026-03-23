@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DispatchAreaRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class DispatchArea
+class DispatchArea implements \Stringable
 {
     use Blamable;
 
@@ -103,11 +103,9 @@ class DispatchArea
 
     public function removeHospital(Hospital $hospital): static
     {
-        if ($this->hospitals->removeElement($hospital)) {
-            // set the owning side to null (unless already changed)
-            if ($hospital->getDispatchArea() === $this) {
-                $hospital->setDispatchArea(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->hospitals->removeElement($hospital) && $hospital->getDispatchArea() === $this) {
+            $hospital->setDispatchArea(null);
         }
 
         return $this;
@@ -143,6 +141,7 @@ class DispatchArea
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';

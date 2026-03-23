@@ -51,10 +51,6 @@ readonly class FileChecksumCalculator
         }
 
         // Windows: drive letter + colon
-        if (\preg_match('#^[A-Za-z]:[\\\\/]#', $path)) {
-            return true;
-        }
-
-        return false;
+        return (bool) \preg_match('#^[A-Za-z]:[\\\\/]#', $path);
     }
 }

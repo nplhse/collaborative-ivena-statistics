@@ -7,6 +7,7 @@ namespace App\Tests\Import\Unit\Service\DTO;
 use App\Import\Application\DTO\AllocationRowDTO;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -78,7 +79,7 @@ final class AllocationRowDTOTest extends TestCase
 
         self::assertGreaterThanOrEqual(9, count($violations));
 
-        $props = array_map(static fn ($v) => $v->getPropertyPath(), iterator_to_array($violations));
+        $props = array_map(static fn (ConstraintViolationInterface $v): string => $v->getPropertyPath(), iterator_to_array($violations));
 
         self::assertContains('dispatchArea', $props);
         self::assertContains('hospital', $props);
@@ -183,7 +184,7 @@ final class AllocationRowDTOTest extends TestCase
         if ($isValid) {
             self::assertCount(0, $violations);
         } else {
-            self::assertContains('transportType', array_map(static fn ($v) => $v->getPropertyPath(), iterator_to_array($violations)), (string) $violations
+            self::assertContains('transportType', array_map(static fn (ConstraintViolationInterface $v): string => $v->getPropertyPath(), iterator_to_array($violations)), (string) $violations
             );
         }
     }

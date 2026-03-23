@@ -7,6 +7,7 @@ namespace App\Statistics\UI\Twig\Components;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Reader\TransportTimeDimMatrixReader;
 use App\Statistics\Infrastructure\Resolver\TransportTimeDimNameResolver;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -108,7 +109,7 @@ final class TransportTimeDimMatrixTable
     public function viewUrl(string $view): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (null === $r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 

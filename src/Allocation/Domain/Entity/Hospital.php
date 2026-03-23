@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: HospitalRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class Hospital
+class Hospital implements \Stringable
 {
     use Blamable;
 
@@ -230,6 +230,7 @@ class Hospital
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';

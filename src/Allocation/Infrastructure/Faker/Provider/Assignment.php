@@ -19,6 +19,6 @@ final class Assignment extends Base
 
     public function assignment(): string
     {
-        return static::randomElement(static::$assignments);
+        return self::randomElement(self::$assignments);
     }
 }

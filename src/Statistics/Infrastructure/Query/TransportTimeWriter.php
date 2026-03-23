@@ -6,10 +6,10 @@ namespace App\Statistics\Infrastructure\Query;
 
 use Doctrine\DBAL\Connection;
 
-final class TransportTimeWriter
+final readonly class TransportTimeWriter
 {
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 

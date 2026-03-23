@@ -14,19 +14,19 @@ use Doctrine\DBAL\Connection;
  * Reads precomputed transport time bucket statistics for a given scope
  * and maps them into simple typed read models.
  */
-final class TransportTimeReader
+final readonly class TransportTimeReader
 {
     /**
      * Transport time bucket keys in a fixed display order.
      */
-    private const BUCKETS = ['<10', '10-20', '20-30', '30-40', '40-50', '50-60', '>60'];
+    private const array BUCKETS = ['<10', '10-20', '20-30', '30-40', '40-50', '50-60', '>60'];
 
     /**
      * Mapping of metric keys to human-readable labels.
      *
      * @var array<string,string>
      */
-    private const METRIC_LABELS = [
+    private const array METRIC_LABELS = [
         'total' => 'Total',
         'with_physician' => 'With physician',
         'resus_req' => 'Resus required',
@@ -43,8 +43,8 @@ final class TransportTimeReader
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly Connection $db,
-        private readonly AggScopeRepository $aggScopeRepository,
+        private Connection $db,
+        private AggScopeRepository $aggScopeRepository,
     ) {
     }
 
@@ -181,8 +181,8 @@ SQL;
         $values = [];
         foreach (self::BUCKETS as $bucketKey) {
             $item = $byKey[$bucketKey] ?? null;
-            $count = isset($item['n']) ? $item['n'] : 0;
-            $share = isset($item['share']) ? $item['share'] : 0.0;
+            $count = $item['n'] ?? 0;
+            $share = $item['share'] ?? 0.0;
 
             $values[] = [
                 'bucket' => $bucketKey,

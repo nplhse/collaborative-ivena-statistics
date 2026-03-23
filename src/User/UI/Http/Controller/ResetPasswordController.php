@@ -17,9 +17,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-#[Route('/reset-password')]
 final class ResetPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
@@ -33,7 +33,7 @@ final class ResetPasswordController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'app_forgot_password_request')]
+    #[Route('/reset-password', name: 'app_forgot_password_request')]
     public function request(Request $request): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
@@ -52,12 +52,12 @@ final class ResetPasswordController extends AbstractController
         ]);
     }
 
-    #[Route('/check-email', name: 'app_check_email')]
+    #[Route('/reset-password/check-email', name: 'app_check_email')]
     public function checkEmail(): Response
     {
         $resetToken = $this->getTokenObjectFromSession();
 
-        if (null === $resetToken) {
+        if (!$resetToken instanceof ResetPasswordToken) {
             $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
         }
 
@@ -66,7 +66,7 @@ final class ResetPasswordController extends AbstractController
         ]);
     }
 
-    #[Route('/reset/{token}', name: 'app_reset_password')]
+    #[Route('/reset-password/reset/{token}', name: 'app_reset_password')]
     public function reset(Request $request, ?string $token = null): Response
     {
         if (null !== $token) {
@@ -82,7 +82,7 @@ final class ResetPasswordController extends AbstractController
 
         try {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
-        } catch (ResetPasswordExceptionInterface $exception) {
+        } catch (ResetPasswordExceptionInterface) {
             $this->addFlash('danger', 'flash.reset_password.validation_failed');
 
             return $this->redirectToRoute('app_forgot_password_request');
@@ -131,7 +131,7 @@ final class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_check_email');
         }
 
-        $email = (new TemplatedEmail())
+        $email = new TemplatedEmail()
             ->from(new Address($this->mailerFrom, 'Collaborative IVENA statistics'))
             ->to((string) $user->getEmail())
             ->subject('Your password reset request')

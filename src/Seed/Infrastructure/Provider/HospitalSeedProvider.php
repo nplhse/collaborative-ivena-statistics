@@ -33,7 +33,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
  * }>
  */
 #[AsTaggedItem('app.seed_provider', priority: 100)]
-final class HospitalSeedProvider implements SeedProviderInterface
+final readonly class HospitalSeedProvider implements SeedProviderInterface
 {
     public function __construct(
         private AreaCache $areaCache,

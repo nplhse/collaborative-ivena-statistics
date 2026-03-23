@@ -67,7 +67,7 @@ final class SplCsvRejectWriter implements RejectWriterInterface
     #[\Override]
     public function write(array $row, array $messages, ?int $line = null): void
     {
-        if (null === $this->file) {
+        if (!$this->file instanceof \SplFileObject) {
             throw new \LogicException('Reject writer not started. Call start() before write().');
         }
 

@@ -33,7 +33,7 @@ final class InMemoryRejectWriterTest extends TestCase
         // Arrange
         $writer = new InMemoryRejectWriter();
         $writer->write(['x' => 'foo', 'y' => 'bar'], ['bad', 'wrong'], 10);
-        $writer->write(['z' => 'baz'], ['oops'], null);
+        $writer->write(['z' => 'baz'], ['oops']);
 
         // Act
         $csv = $writer->toCsv(';');

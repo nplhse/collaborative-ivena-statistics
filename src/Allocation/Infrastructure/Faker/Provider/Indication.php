@@ -65,7 +65,7 @@ final class Indication extends Base
      */
     public function indication(): array
     {
-        return static::randomElement(static::$indication);
+        return self::randomElement(self::$indication);
     }
 
     public function indicationCode(): string

@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\Occasions;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -22,7 +23,7 @@ class ListOccasionsControllerTest extends WebTestCase
         OccasionFactory::createMany(34, ['name' => 'Test Occasion']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/occasion');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/occasion');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -55,7 +56,7 @@ class ListOccasionsControllerTest extends WebTestCase
         OccasionFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/occasion?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/occasion?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -74,7 +75,7 @@ class ListOccasionsControllerTest extends WebTestCase
         OccasionFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/occasion?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/occasion?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

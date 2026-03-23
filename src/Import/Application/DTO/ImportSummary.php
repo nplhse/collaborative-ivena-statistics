@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Import\Application\DTO;
 
-final class ImportSummary
+final readonly class ImportSummary
 {
     public function __construct(
-        public readonly int $total,
-        public readonly int $ok,
-        public readonly int $rejected,
+        public int $total,
+        public int $ok,
+        public int $rejected,
     ) {
     }
 

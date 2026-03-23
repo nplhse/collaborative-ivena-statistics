@@ -26,7 +26,7 @@ final class GenerateCsvFixturesCommandTest extends KernelTestCase
         $tester = new CommandTester($command);
 
         $exitCode = $tester->execute([]);
-        $output = $tester->getDisplay();
+        $tester->getDisplay();
 
         self::assertSame(0, $exitCode, 'Command should exit successfully');
 

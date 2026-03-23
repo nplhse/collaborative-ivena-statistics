@@ -48,7 +48,7 @@ final class AgeChart
 
         foreach ($this->series as $s) {
             $data = $s['data'] ?? null;
-            if (is_array($data) && [] !== $data && array_sum(array_map('floatval', $data)) > 0.0) {
+            if (is_array($data) && [] !== $data && array_sum(array_map(floatval(...), $data)) > 0.0) {
                 return true;
             }
         }

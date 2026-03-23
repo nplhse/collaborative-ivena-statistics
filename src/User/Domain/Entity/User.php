@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, \Stringable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -195,11 +195,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /** @psalm-suppress PossiblyUnusedMethod */
     public function removeHospital(Hospital $hospital): static
     {
-        if ($this->hospitals->removeElement($hospital)) {
-            // set the owning side to null (unless already changed)
-            if ($hospital->getOwner() === $this) {
-                $hospital->setOwner(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->hospitals->removeElement($hospital) && $hospital->getOwner() === $this) {
+            $hospital->setOwner(null);
         }
 
         return $this;
@@ -217,6 +215,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $data;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->getUserIdentifier();

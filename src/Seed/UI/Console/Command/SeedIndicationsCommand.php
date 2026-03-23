@@ -23,7 +23,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class SeedIndicationsCommand extends Command
 {
-    private const BATCH_SIZE = 50;
+    private const int BATCH_SIZE = 50;
 
     public function __construct(
         private readonly EntityManagerInterface $em,

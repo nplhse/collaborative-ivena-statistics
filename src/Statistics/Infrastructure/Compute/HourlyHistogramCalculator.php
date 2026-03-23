@@ -12,12 +12,12 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.calculator', attributes: ['priority' => 50])]
-final class HourlyHistogramCalculator implements CalculatorInterface
+final readonly class HourlyHistogramCalculator implements CalculatorInterface
 {
     use ScopePeriodSql;
 
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 

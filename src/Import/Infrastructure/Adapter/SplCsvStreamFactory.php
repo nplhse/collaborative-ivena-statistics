@@ -52,13 +52,13 @@ final readonly class SplCsvStreamFactory
         return $f;
     }
 
-    private function stripBomAtStreamStart(\SplFileObject $fileile): void
+    private function stripBomAtStreamStart(\SplFileObject $file): void
     {
-        $fileile->rewind();
-        $prefix = $fileile->fread(3);
+        $file->rewind();
+        $prefix = $file->fread(3);
 
         if ("\xEF\xBB\xBF" !== $prefix) {
-            $fileile->rewind();
+            $file->rewind();
         }
     }
 }

@@ -74,7 +74,7 @@ final class OverviewCountCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('fetchAssociative')
             ->with(
-                self::callback(function (string $sql) use (&$selectSqlCaptured) {
+                self::callback(function (string $sql) use (&$selectSqlCaptured): true {
                     $selectSqlCaptured = $sql;
                     self::assertStringContainsString('FROM allocation', $sql);
                     self::assertStringContainsString('WHERE state_id = :scope_id::int', $sql);
@@ -82,7 +82,7 @@ final class OverviewCountCalculatorTest extends TestCase
 
                     return true;
                 }),
-                self::callback(function (array $params) use (&$selectParamsCaptured) {
+                self::callback(function (array $params) use (&$selectParamsCaptured): true {
                     $selectParamsCaptured = $params;
 
                     // Allow int/string mismatch and flexible order
@@ -104,7 +104,7 @@ final class OverviewCountCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('executeStatement')
             ->with(
-                self::callback(function (string $sql) use (&$upsertSqlCaptured) {
+                self::callback(function (string $sql) use (&$upsertSqlCaptured): true {
                     $upsertSqlCaptured = $sql;
                     self::assertStringContainsString('INSERT INTO agg_allocations_counts', $sql);
                     self::assertStringContainsString('ON CONFLICT (scope_type, scope_id, period_gran, period_key)', $sql);
@@ -114,7 +114,7 @@ final class OverviewCountCalculatorTest extends TestCase
 
                     return true;
                 }),
-                self::callback(function (array $params) use (&$upsertParamsCaptured, $dbResultRow, $scope) {
+                self::callback(function (array $params) use (&$upsertParamsCaptured, $dbResultRow, $scope): true {
                     $upsertParamsCaptured = $params;
 
                     self::assertSame($scope->scopeType, $params['scope_type']);
@@ -151,7 +151,7 @@ final class OverviewCountCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('fetchAssociative')
             ->with(
-                self::callback(function (string $sql) {
+                self::callback(function (string $sql): true {
                     // For public scope, ScopePeriodSql returns 'TRUE' for scope filter.
                     self::assertStringContainsString('WHERE TRUE', $sql);
                     // For ALL, period expr is also 'TRUE'
@@ -159,7 +159,7 @@ final class OverviewCountCalculatorTest extends TestCase
 
                     return true;
                 }),
-                self::callback(function (array $params) {
+                self::callback(function (array $params): true {
                     // No params expected for public + ALL
                     self::assertSame([], $params);
 
@@ -172,7 +172,7 @@ final class OverviewCountCalculatorTest extends TestCase
             ->method('executeStatement')
             ->with(
                 self::anything(),
-                self::callback(function (array $params) {
+                self::callback(function (array $params): true {
                     // period_key must be the anchor date
                     self::assertSame(Period::ALL_ANCHOR_DATE, $params['period_key']);
 

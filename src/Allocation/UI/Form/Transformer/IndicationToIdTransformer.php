@@ -9,7 +9,7 @@ use Symfony\Component\Form\DataTransformerInterface;
 /**
  * @implements DataTransformerInterface<IndicationNormalized, string>
  */
-final class IndicationToIdTransformer implements DataTransformerInterface
+final readonly class IndicationToIdTransformer implements DataTransformerInterface
 {
     public function __construct(
         private IndicationNormalizedRepository $repository,

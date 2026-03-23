@@ -13,10 +13,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class TransportTimeDimMatrixController extends AbstractController
 {
+    public function __construct(
+        private readonly TransportTimeDimMatrixReader $reader,
+    ) {
+    }
+
     #[Route('/statistics/transport-time/matrix', name: 'app_stats_transport_time_dim_matrix')]
     public function __invoke(
         Request $request,
-        TransportTimeDimMatrixReader $reader,
     ): Response {
         // Normalize request into a Scope, re-using your existing DTO
         $dto = TransportTimeRequest::fromRequest($request);
@@ -26,7 +30,7 @@ final class TransportTimeDimMatrixController extends AbstractController
         $dimType = $request->query->get('dim', 'occasion');
 
         // Read matrix data from the reader
-        $rows = $reader->readMatrix($scope, $dimType);
+        $rows = $this->reader->readMatrix($scope, $dimType);
 
         // Fixed bucket order – ideally aus einer Konstanten wie AbstractTransportTimeBase::BUCKET_KEYS
         $bucketKeys = [

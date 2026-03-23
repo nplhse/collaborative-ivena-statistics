@@ -10,7 +10,7 @@ use App\Allocation\Infrastructure\Repository\AssessmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AssessmentRepository::class)]
-class Assessment
+class Assessment implements \Stringable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -94,13 +94,10 @@ class Assessment
 
     public function isValid(): bool
     {
-        return
-            null !== $this->airway
-            && null !== $this->breathing
-            && null !== $this->circulation
-            && null !== $this->disability;
+        return !in_array(null, [$this->airway, $this->breathing, $this->circulation, $this->disability], true);
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return sprintf(

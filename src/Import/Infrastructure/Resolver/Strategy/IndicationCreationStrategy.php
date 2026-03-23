@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Resolver\Strategy;
 
+use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Import\Infrastructure\Indication\IndicationCache;
 use App\Import\Infrastructure\Indication\IndicationKey;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class IndicationCreationStrategy
+final readonly class IndicationCreationStrategy
 {
     public function __construct(
-        private readonly IndicationRawRepository $indicationRawRepository,
-        private readonly IndicationCache $indicationCache,
-        private readonly EntityManagerInterface $em,
+        private IndicationRawRepository $indicationRawRepository,
+        private IndicationCache $indicationCache,
+        private EntityManagerInterface $em,
     ) {
     }
 
@@ -71,7 +72,7 @@ final class IndicationCreationStrategy
         }
 
         $normalizedRefOrNull = $this->indicationCache->getNormalizedRefOrNull($this->em, $hash);
-        if (null !== $normalizedRefOrNull) {
+        if ($normalizedRefOrNull instanceof IndicationNormalized) {
             $entity->setIndicationNormalized($normalizedRefOrNull);
         }
     }

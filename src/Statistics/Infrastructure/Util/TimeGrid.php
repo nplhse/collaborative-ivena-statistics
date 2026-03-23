@@ -78,7 +78,7 @@ final class TimeGrid
         for ($d = 1; $d <= $daysInMonth; ++$d) {
             $date = sprintf('%04d-%02d-%02d', $year, $month, $d);
             $cols[] = [
-                'label' => (new \DateTimeImmutable($date))->format('d.m.'),
+                'label' => new \DateTimeImmutable($date)->format('d.m.'),
                 'periodKey' => $date,
             ];
         }

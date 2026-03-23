@@ -31,7 +31,7 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
+        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
         $this->fixturePath = $projectDir.'/tests/Import/Fixtures/'.$this->fixtureFile;
 
         self::assertFileExists($this->fixturePath, 'Fixture CSV missing at '.$this->fixturePath);
@@ -223,12 +223,7 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     private function containsField(array $violations, string $field): bool
     {
         $needle = strtolower($field);
-        foreach ($violations as $msg) {
-            if (str_contains(strtolower($msg), $needle)) {
-                return true;
-            }
-        }
 
-        return false;
+        return array_any($violations, fn ($msg): bool => str_contains(strtolower((string) $msg), $needle));
     }
 }

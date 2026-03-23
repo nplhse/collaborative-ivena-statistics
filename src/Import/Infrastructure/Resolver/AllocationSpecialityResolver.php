@@ -9,10 +9,10 @@ use App\Import\Infrastructure\Resolver\Strategy\SpecialityDepartmentReferenceStr
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem('allocation.import_resolver')]
-final class AllocationSpecialityResolver implements AllocationEntityResolverInterface
+final readonly class AllocationSpecialityResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly SpecialityDepartmentReferenceStrategy $strategy,
+        private SpecialityDepartmentReferenceStrategy $strategy,
     ) {
     }
 

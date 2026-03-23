@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\FlagMappingStrategy;
 
-final class AllocationFlagResolver implements AllocationEntityResolverInterface
+final readonly class AllocationFlagResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly FlagMappingStrategy $strategy,
+        private FlagMappingStrategy $strategy,
     ) {
     }
 

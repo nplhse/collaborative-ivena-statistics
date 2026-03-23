@@ -36,6 +36,6 @@ final class Area extends Base
 
     public static function dispatchArea(): string
     {
-        return static::randomElement(static::$dispatchAreas);
+        return self::randomElement(self::$dispatchAreas);
     }
 }

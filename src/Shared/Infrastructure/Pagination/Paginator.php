@@ -26,7 +26,7 @@ final class Paginator
      *
      * See https://symfony.com/doc/current/best_practices.html#use-constants-to-define-options-that-rarely-change
      */
-    final public const PAGE_SIZE = 10;
+    final public const int PAGE_SIZE = 10;
 
     /** @psalm-suppress PropertyNotSetInConstructor */
     private int $currentPage;

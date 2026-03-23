@@ -8,25 +8,31 @@ use App\User\Infrastructure\Security\LoginFormAuthenticator;
 use App\User\UI\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 final class RegistrationController extends AbstractController
 {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly EmailVerifier $emailVerifier,
+        private readonly UserAuthenticatorInterface $userAuthenticator,
+        private readonly LoginFormAuthenticator $loginFormAuthenticator,
+    ) {
+    }
+
     #[Route('/register', name: 'app_register')]
     public function register(
         Request $request,
-        EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher,
-        EmailVerifier $emailVerifier,
-        UserAuthenticatorInterface $userAuthenticator,
-        LoginFormAuthenticator $loginFormAuthenticator,
     ): Response {
-        if ($this->getUser()) {
+        if ($this->getUser() instanceof UserInterface) {
             return $this->redirectToRoute('app_default');
         }
 
@@ -41,20 +47,20 @@ final class RegistrationController extends AbstractController
                 throw new \LogicException('Registration form did not provide a password.');
             }
 
-            $user = (new User())
+            $user = new User()
                 ->setUsername($data['username'])
                 ->setEmail($data['email'])
                 ->setIsVerified(false);
 
-            $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
 
-            $emailVerifier->sendEmailConfirmation('app_verify_email', $user);
+            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
             $this->addFlash('success', 'flash.registration.success_verify_required');
 
-            $authenticatedResponse = $userAuthenticator->authenticateUser($user, $loginFormAuthenticator, $request);
+            $authenticatedResponse = $this->userAuthenticator->authenticateUser($user, $this->loginFormAuthenticator, $request);
 
             return $authenticatedResponse ?? $this->redirectToRoute('app_default');
         }
@@ -67,21 +73,19 @@ final class RegistrationController extends AbstractController
     #[Route('/verify/email', name: 'app_verify_email')]
     public function verifyUserEmail(
         Request $request,
-        EntityManagerInterface $entityManager,
-        EmailVerifier $emailVerifier,
-    ): Response {
+    ): RedirectResponse {
         $id = $request->query->get('id');
         if (!\is_string($id) || '' === $id) {
             throw $this->createNotFoundException('flash.registration.verify.missing_id');
         }
 
-        $user = $entityManager->getRepository(User::class)->find($id);
+        $user = $this->entityManager->getRepository(User::class)->find($id);
         if (!$user instanceof User) {
             throw $this->createNotFoundException('flash.registration.verify.user_not_found');
         }
 
         try {
-            $emailVerifier->handleEmailConfirmation($request, $user);
+            $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('danger', $exception->getReason());
 
@@ -89,7 +93,7 @@ final class RegistrationController extends AbstractController
         }
 
         $user->setIsVerified(true);
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         $this->addFlash('success', 'flash.registration.verify.success');
 

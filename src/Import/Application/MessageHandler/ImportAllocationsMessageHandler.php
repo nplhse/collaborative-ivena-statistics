@@ -43,7 +43,7 @@ final readonly class ImportAllocationsMessageHandler
     public function __invoke(ImportAllocationsMessage $message): void
     {
         $import = $this->importRepository->findOneBy(['id' => $message->importId]);
-        if (!$import) {
+        if (!$import instanceof Import) {
             $this->importLogger->error('import.not_found', ['id' => $message->importId]);
 
             return;
@@ -87,6 +87,7 @@ final readonly class ImportAllocationsMessageHandler
         }
     }
 
+    /** @psalm-suppress PossiblyUnusedReturnValue */
     public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
     {
         $started = \microtime(true);
@@ -97,7 +98,7 @@ final readonly class ImportAllocationsMessageHandler
 
             $this->em->clear();
             $fresh = $this->importRepository->find($import->getId());
-            if (!$fresh) {
+            if (!$fresh instanceof Import) {
                 throw new \RuntimeException('Import not found after refresh');
             }
 
@@ -188,10 +189,6 @@ final readonly class ImportAllocationsMessageHandler
         }
 
         // Windows: drive letter + colon
-        if (\preg_match('#^[A-Za-z]:[\\\\/]#', $path)) {
-            return true;
-        }
-
-        return false;
+        return (bool) \preg_match('#^[A-Za-z]:[\\\\/]#', $path);
     }
 }

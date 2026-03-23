@@ -12,16 +12,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use Psr\Log\LoggerInterface;
 
-/**
- * Fills allocation_stats_projection via DBAL (no ORM writes).
- */
-final class AllocationStatsProjectionRebuilder implements AllocationStatsProjectionRebuildInterface
+/** @psalm-suppress UnusedClass */
+final readonly class AllocationStatsProjectionRebuilder implements AllocationStatsProjectionRebuildInterface
 {
     private const int BATCH_SIZE = 250;
 
     public function __construct(
-        private readonly Connection $connection,
-        private readonly LoggerInterface $logger,
+        private Connection $connection,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -167,7 +165,7 @@ SQL,
         $createdAt = $this->parseDateTimeImmutable($row['created_at'] ?? null);
         $arrivalAt = $this->parseDateTimeImmutable($row['arrival_at'] ?? null);
 
-        if (null === $createdAt || null === $arrivalAt) {
+        if (!$createdAt instanceof \DateTimeImmutable || !$arrivalAt instanceof \DateTimeImmutable) {
             throw new \InvalidArgumentException('allocation row missing created_at or arrival_at');
         }
 
@@ -178,7 +176,7 @@ SQL,
         $quarter = (int) ceil($month / 3);
 
         $urgency = AllocationStatsUrgencyProjectionCode::tryFromDbValue($row['urgency'] ?? null);
-        if (null === $urgency) {
+        if (!$urgency instanceof AllocationStatsUrgencyProjectionCode) {
             throw new \InvalidArgumentException('allocation row has invalid urgency: '.var_export($row['urgency'] ?? null, true));
         }
 
@@ -243,14 +241,12 @@ SQL,
         if (\is_string($value)) {
             $v = strtolower(trim($value, " \t\n\r\0\x0B"));
 
-            $parsed = match ($v) {
+            return match ($v) {
                 '', 'null' => null,
                 '1', 't', 'true', 'yes', 'on' => true,
                 '0', 'f', 'false', 'no', 'off' => false,
                 default => filter_var($v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
             };
-
-            return $parsed;
         }
 
         return (bool) $value;

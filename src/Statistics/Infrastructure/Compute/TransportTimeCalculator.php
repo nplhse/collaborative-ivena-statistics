@@ -11,10 +11,10 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.calculator', attributes: ['priority' => 60])]
-final class TransportTimeCalculator implements CalculatorInterface
+final readonly class TransportTimeCalculator implements CalculatorInterface
 {
     public function __construct(
-        private readonly TransportTimeAggregator $aggregator,
+        private TransportTimeAggregator $aggregator,
     ) {
     }
 

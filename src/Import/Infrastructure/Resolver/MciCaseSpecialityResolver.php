@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\SpecialityDepartmentReferenceStrategy;
 
-final class MciCaseSpecialityResolver implements MciCaseEntityResolverInterface
+final readonly class MciCaseSpecialityResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
-        private readonly SpecialityDepartmentReferenceStrategy $strategy,
+        private SpecialityDepartmentReferenceStrategy $strategy,
     ) {
     }
 

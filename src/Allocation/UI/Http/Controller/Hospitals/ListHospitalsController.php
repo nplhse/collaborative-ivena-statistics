@@ -18,9 +18,9 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ListHospitalsController extends AbstractController
 {
     public function __construct(
-        private HospitalRepository $hospitalRepository,
-        private DispatchAreaRepository $dispatchAreaRepository,
-        private StateRepository $stateRepository,
+        private readonly HospitalRepository $hospitalRepository,
+        private readonly DispatchAreaRepository $dispatchAreaRepository,
+        private readonly StateRepository $stateRepository,
     ) {
     }
 

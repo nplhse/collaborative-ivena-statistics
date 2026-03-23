@@ -14,17 +14,21 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class TransportTimeController extends AbstractController
 {
+    public function __construct(
+        private readonly TransportTimeReader $reader,
+    ) {
+    }
+
     #[Route('/statistics/transport-time', name: 'app_stats_transport_time')]
     public function __invoke(
         Request $request,
-        TransportTimeReader $reader,
     ): Response {
         $dto = TransportTimeRequest::fromRequest($request);
         $scope = $dto->toScope();
 
-        $viewModel = $reader->read($scope);
+        $viewModel = $this->reader->read($scope);
 
-        $hasData = null !== $viewModel->getComputedAt();
+        $hasData = $viewModel->getComputedAt() instanceof \DateTimeImmutable;
 
         return $this->render('@Statistics/transport_time.html.twig', [
             'requestDto' => $dto,

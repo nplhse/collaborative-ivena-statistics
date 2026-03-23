@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /** @psalm-suppress UnusedClass */
 #[AutoconfigureTag(name: 'app.stats.calculator', attributes: ['priority' => 40])]
-final class TopCategoriesCalculator implements CalculatorInterface
+final readonly class TopCategoriesCalculator implements CalculatorInterface
 {
     use ScopePeriodSql;
 
@@ -59,7 +59,7 @@ final class TopCategoriesCalculator implements CalculatorInterface
     ];
 
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 
@@ -80,7 +80,7 @@ final class TopCategoriesCalculator implements CalculatorInterface
         $limit = 10;
 
         $tops = [];
-        foreach (self::CAT_MAP as $key => $_cfg) {
+        foreach (array_keys(self::CAT_MAP) as $key) {
             $tops[$key] = $this->topForCategory($key, $limit, $fromSql, $whereSql, $params);
         }
 
@@ -164,7 +164,7 @@ SQL;
         $rows = $this->db->fetchAllAssociative($sql, $bind);
 
         return array_map(
-            static fn (array $r) => [
+            static fn (array $r): array => [
                 'id' => null !== $r['id'] ? (int) $r['id'] : null,
                 'label' => (string) $r['label'],
                 'count' => (int) $r['count'],

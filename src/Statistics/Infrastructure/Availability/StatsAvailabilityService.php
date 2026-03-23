@@ -6,11 +6,11 @@ namespace App\Statistics\Infrastructure\Availability;
 
 use Doctrine\DBAL\Connection;
 
-final class StatsAvailabilityService
+final readonly class StatsAvailabilityService
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 
@@ -68,7 +68,7 @@ final class StatsAvailabilityService
         sort($years, \SORT_NUMERIC);
 
         return [
-            'years' => array_map('intval', $years),
+            'years' => array_map(intval(...), $years),
             'months' => range(1, 12),
             'hasYear' => $hasYear,
             'hasMonth' => $hasMonth,

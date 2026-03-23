@@ -12,10 +12,10 @@ use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use Psr\Log\LoggerInterface;
 
-final class AllocationAssessmentResolver implements AllocationEntityResolverInterface
+final readonly class AllocationAssessmentResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
-        private readonly LoggerInterface $logger,
+        private LoggerInterface $logger,
     ) {
     }
 

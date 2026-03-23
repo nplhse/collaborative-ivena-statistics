@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\Departments;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -22,7 +23,7 @@ class DepartmentControllerTest extends WebTestCase
         DepartmentFactory::createMany(34, ['name' => 'Department']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/department');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/department');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -55,7 +56,7 @@ class DepartmentControllerTest extends WebTestCase
         DepartmentFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/department?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/department?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -74,7 +75,7 @@ class DepartmentControllerTest extends WebTestCase
         DepartmentFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/department?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/department?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

@@ -6,10 +6,10 @@ namespace App\Statistics\Infrastructure\Query;
 
 use Doctrine\DBAL\Connection;
 
-final class HospitalCubeQuery
+final readonly class HospitalCubeQuery
 {
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 
@@ -47,7 +47,7 @@ final class HospitalCubeQuery
 
         $rows = $this->db->fetchAllAssociative($sql);
 
-        return array_map(static fn (array $row) => [
+        return array_map(static fn (array $row): array => [
             'tier' => $row['tier'],
             'location' => $row['location'],
             'size' => $row['size'],

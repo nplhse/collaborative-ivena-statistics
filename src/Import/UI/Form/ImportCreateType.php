@@ -6,6 +6,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -50,7 +51,7 @@ final class ImportCreateType extends AbstractType
                 'class' => Hospital::class,
                 'choice_label' => 'name',
                 'placeholder' => 'label.import.selectHospital',
-                'query_builder' => fn () => $this->hospitalRepository->getQueryBuilderForAccessibleHospitals($user),
+                'query_builder' => fn (): QueryBuilder => $this->hospitalRepository->getQueryBuilderForAccessibleHospitals($user),
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('file', FileType::class, [

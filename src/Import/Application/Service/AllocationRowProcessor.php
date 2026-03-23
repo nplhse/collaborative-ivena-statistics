@@ -13,13 +13,13 @@ use App\Import\Infrastructure\Mapping\AllocationImportFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /** @psalm-suppress UnusedClass */
-final class AllocationRowProcessor implements AllocationRowProcessorInterface
+final readonly class AllocationRowProcessor implements AllocationRowProcessorInterface
 {
     public function __construct(
-        private readonly ValidatorInterface $validator,
-        private readonly RowToDtoMapperInterface $mapper,
-        private readonly AllocationImportFactory $factory,
-        private readonly AllocationPersisterInterface $persister,
+        private ValidatorInterface $validator,
+        private RowToDtoMapperInterface $mapper,
+        private AllocationImportFactory $factory,
+        private AllocationPersisterInterface $persister,
     ) {
     }
 

@@ -16,7 +16,7 @@ final class BlamableListenerTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->em = static::getContainer()->get(EntityManagerInterface::class);
+        $this->em = self::getContainer()->get(EntityManagerInterface::class);
     }
 
     public function testPrePersistSetsCreatedByToCurrentUser(): void
@@ -71,7 +71,7 @@ final class BlamableListenerTest extends KernelTestCase
     {
         $user = $this->em->getRepository(User::class)->find($user->getId());
 
-        $tokenStorage = static::getContainer()->get('security.token_storage');
+        $tokenStorage = self::getContainer()->get('security.token_storage');
         $tokenStorage->setToken(new UsernamePasswordToken($user, 'main', $user->getRoles()));
     }
 }

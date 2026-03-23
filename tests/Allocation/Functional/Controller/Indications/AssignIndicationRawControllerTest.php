@@ -6,6 +6,7 @@ use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -17,7 +18,7 @@ final class AssignIndicationRawControllerTest extends WebTestCase
     public function testAssignLinksRawWithNormalized(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = self::createClient();
 
         $normalized = IndicationNormalizedFactory::createOne([
             'code' => '123',
@@ -30,7 +31,7 @@ final class AssignIndicationRawControllerTest extends WebTestCase
         ]);
 
         // Act& Assert
-        $crawler = $client->request('GET', sprintf('/explore/indication/raw/assign/%d', $raw->getId()));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%d', $raw->getId()));
         self::assertResponseIsSuccessful();
 
         $form = $crawler->filter('form')->form();

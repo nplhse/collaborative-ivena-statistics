@@ -12,19 +12,19 @@ use Twig\TwigFunction;
 final class ScopeLabelExtension extends AbstractExtension
 {
     public function __construct(
-        private ScopeLabelFormatter $formatter,
+        private readonly ScopeLabelFormatter $formatter,
     ) {
     }
 
     #[\Override]
     public function getFilters(): array
     {
-        return [new TwigFilter('scope_label', fn (Scope $s) => $this->formatter->format($s))];
+        return [new TwigFilter('scope_label', fn (Scope $s): string => $this->formatter->format($s))];
     }
 
     #[\Override]
     public function getFunctions(): array
     {
-        return [new TwigFunction('scope_label', fn (Scope $s) => $this->formatter->format($s))];
+        return [new TwigFunction('scope_label', fn (Scope $s): string => $this->formatter->format($s))];
     }
 }

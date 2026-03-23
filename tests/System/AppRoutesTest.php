@@ -4,6 +4,7 @@ namespace App\Tests\System;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AppRoutesTest extends WebTestCase
@@ -12,7 +13,7 @@ class AppRoutesTest extends WebTestCase
     public function testPublicUrlsAreReachable(string $url): void
     {
         $client = static::createClient();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         self::assertResponseIsSuccessful();
     }
@@ -21,7 +22,7 @@ class AppRoutesTest extends WebTestCase
     public function testSecureUrlsAreRestricted(string $url): void
     {
         $client = static::createClient();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         self::assertResponseRedirects(
             '/login',
@@ -32,7 +33,7 @@ class AppRoutesTest extends WebTestCase
     public function testLogoutUrlRedirects(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/logout');
+        $client->request(Request::METHOD_GET, '/logout');
 
         self::assertResponseRedirects(
             '/',
@@ -40,7 +41,7 @@ class AppRoutesTest extends WebTestCase
         );
     }
 
-    public static function getPublicUrls(): ?\Generator
+    public static function getPublicUrls(): \Generator
     {
         yield 'app_default' => ['/'];
         yield 'app_login' => ['/login'];
@@ -49,7 +50,7 @@ class AppRoutesTest extends WebTestCase
         yield 'app_check_email' => ['/reset-password/check-email'];
     }
 
-    public static function getSecureUrls(): ?\Generator
+    public static function getSecureUrls(): \Generator
     {
         yield 'app_admin_dashboard' => ['/admin/'];
         yield 'app_settings_index' => ['/settings'];

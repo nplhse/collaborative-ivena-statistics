@@ -7,10 +7,10 @@ use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Infrastructure\Resolver\Strategy\EnumMappingStrategy;
 
-final class MciCaseEnumResolver implements MciCaseEntityResolverInterface
+final readonly class MciCaseEnumResolver implements MciCaseEntityResolverInterface
 {
     public function __construct(
-        private readonly EnumMappingStrategy $strategy,
+        private EnumMappingStrategy $strategy,
     ) {
     }
 

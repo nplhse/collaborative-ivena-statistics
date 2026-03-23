@@ -20,14 +20,12 @@ final class RecomputeScopeHandlerTest extends TestCase
         string $gran = 'day',
         string $key = '2025-11-01',
     ): RecomputeScope {
-        $msg = new RecomputeScope(
+        return new RecomputeScope(
             scopeType: $type,
             scopeId: $id,
             granularity: $gran,
             periodKey: $key,
         );
-
-        return $msg;
     }
 
     public function testInvokesOnlySupportingCalculatorsAndReleasesLock(): void
@@ -42,19 +40,17 @@ final class RecomputeScopeHandlerTest extends TestCase
         $lockFactory = $this->createMock(LockFactory::class);
         $lockFactory->expects($this->once())
             ->method('createLock')
-            ->with(self::callback(fn ($key) => is_string($key) && '' !== $key)) // don’t assert exact value of lockKey()
+            ->with(self::callback(fn ($key): bool => is_string($key) && '' !== $key)) // don’t assert exact value of lockKey()
             ->willReturn($lock);
 
         // Calculator A supports and should be called once with the composed Scope
         $calcA = $this->createMock(CalculatorInterface::class);
         $calcA->expects($this->once())
             ->method('supports')
-            ->with(self::callback(function (Scope $s) use ($message) {
-                return $s->scopeType === $message->scopeType
-                    && $s->scopeId === $message->scopeId
-                    && $s->granularity === $message->granularity
-                    && $s->periodKey === $message->periodKey;
-            }))
+            ->with(self::callback(fn (Scope $s): bool => $s->scopeType === $message->scopeType
+                && $s->scopeId === $message->scopeId
+                && $s->granularity === $message->granularity
+                && $s->periodKey === $message->periodKey))
             ->willReturn(true);
         $calcA->expects($this->once())->method('calculate')->with(self::isInstanceOf(Scope::class));
 

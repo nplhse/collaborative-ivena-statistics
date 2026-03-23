@@ -152,25 +152,23 @@ final class ListImportControllerTest extends WebTestCase
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         if ($count > 0) {
-            ImportFactory::createMany($count, function (int $i) use ($hospital, $createdBy) {
-                return [
-                    'name' => \sprintf('Import %02d', $i + 1),
-                    'hospital' => $hospital,
-                    'type' => ImportType::ALLOCATION,
-                    'status' => ImportStatus::PENDING,
-                    'filePath' => \sprintf('/tmp/import_%02d.csv', $i + 1),
-                    'fileExtension' => 'csv',
-                    'fileMimeType' => 'text/csv',
-                    'fileSize' => 100 + $i,
-                    'fileChecksum' => \substr(\sha1((string) $i), 0, 12),
-                    'rowCount' => 5,
-                    'rowsPassed' => 4,
-                    'rowsRejected' => 1,
-                    'runCount' => 0,
-                    'runTime' => 0,
-                    'createdBy' => $createdBy,
-                ];
-            });
+            ImportFactory::createMany($count, fn (int $i): array => [
+                'name' => \sprintf('Import %02d', $i + 1),
+                'hospital' => $hospital,
+                'type' => ImportType::ALLOCATION,
+                'status' => ImportStatus::PENDING,
+                'filePath' => \sprintf('/tmp/import_%02d.csv', $i + 1),
+                'fileExtension' => 'csv',
+                'fileMimeType' => 'text/csv',
+                'fileSize' => 100 + $i,
+                'fileChecksum' => \substr(\sha1((string) $i), 0, 12),
+                'rowCount' => 5,
+                'rowsPassed' => 4,
+                'rowsRejected' => 1,
+                'runCount' => 0,
+                'runTime' => 0,
+                'createdBy' => $createdBy,
+            ]);
         }
 
         return [$owner];

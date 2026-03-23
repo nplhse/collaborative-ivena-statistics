@@ -7,14 +7,14 @@ namespace App\Statistics\Infrastructure\Loader;
 use App\Statistics\Domain\Model\Scope;
 use Doctrine\DBAL\Connection;
 
-final class AgeChartDataLoader
+final readonly class AgeChartDataLoader
 {
     /** Fixed bucket order used by the calculator and chart alike */
     private const array ORDER = ['<18', '18-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-99'];
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 
@@ -117,13 +117,12 @@ SQL,
                         $share = ($b['share'] ?? 0.0);
                         $data[] = $share;
                     }
-                } else { // 'count'
-                    if (null === $b) {
-                        $data[] = 0;
-                    } else {
-                        $n = ($b['n'] ?? 0);
-                        $data[] = $n;
-                    }
+                } elseif (null === $b) {
+                    // 'count'
+                    $data[] = 0;
+                } else {
+                    $n = ($b['n'] ?? 0);
+                    $data[] = $n;
                 }
             }
 

@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: IndicationNormalizedRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
-class IndicationNormalized
+class IndicationNormalized implements \Stringable
 {
     use Blamable;
 
@@ -127,6 +127,7 @@ class IndicationNormalized
         $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->name ?? 'No name';
@@ -152,11 +153,9 @@ class IndicationNormalized
 
     public function removeChild(IndicationRaw $child): static
     {
-        if ($this->children->removeElement($child)) {
-            // set the owning side to null (unless already changed)
-            if ($child->getTarget() === $this) {
-                $child->setTarget(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->children->removeElement($child) && $child->getTarget() === $this) {
+            $child->setTarget(null);
         }
 
         return $this;

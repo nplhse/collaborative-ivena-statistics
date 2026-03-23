@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\Assignments;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -22,7 +23,7 @@ class ListAssignmentsControllerTest extends WebTestCase
         AssignmentFactory::createMany(34, ['name' => 'Test Assignment']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/assignment');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/assignment');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -55,7 +56,7 @@ class ListAssignmentsControllerTest extends WebTestCase
         AssignmentFactory::createOne(['name' => 'XYZ']);
 
         // Act
-        $crawler = $client->request('GET', '/explore/assignment?sortBy=name&orderBy=desc');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/assignment?sortBy=name&orderBy=desc');
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -74,7 +75,7 @@ class ListAssignmentsControllerTest extends WebTestCase
         AssignmentFactory::createMany(35);
 
         // Act
-        $crawler = $client->request('GET', '/explore/assignment?page=2');
+        $crawler = $client->request(Request::METHOD_GET, '/explore/assignment?page=2');
 
         // Assert
         self::assertResponseIsSuccessful();

@@ -43,7 +43,7 @@ final class ScheduleScopesHandlerTest extends TestCase
         $dispatched = []; // capture calls (message, stamps)
         $bus->expects($this->exactly(3))
             ->method('dispatch')
-            ->willReturnCallback(function (object $msg, array $stamps = []) use (&$dispatched) {
+            ->willReturnCallback(function (object $msg, array $stamps = []) use (&$dispatched): Envelope {
                 $dispatched[] = [$msg, $stamps];
 
                 return new Envelope($msg, $stamps); // <- return a real Envelope
@@ -95,7 +95,7 @@ final class ScheduleScopesHandlerTest extends TestCase
         $calls = [];
         $bus->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturnCallback(function (object $message, array $stamps = []) use (&$calls) {
+            ->willReturnCallback(function (object $message, array $stamps = []) use (&$calls): Envelope {
                 $calls[] = [$message, $stamps];
 
                 return new Envelope($message, $stamps);
@@ -111,7 +111,6 @@ final class ScheduleScopesHandlerTest extends TestCase
         [$firstMsg, $firstStamps] = $calls[0];
         $ref = new \ReflectionClass($firstMsg);
         $p = $ref->getProperty('scopeType');
-        $p->setAccessible(true);
         self::assertSame('hospital', $p->getValue($firstMsg));
         self::assertCount(1, $firstStamps);
         self::assertInstanceOf(
@@ -122,8 +121,7 @@ final class ScheduleScopesHandlerTest extends TestCase
 
         // 2) dispatch_area → no stamps
         [$secondMsg, $secondStamps] = $calls[1];
-        $p = (new \ReflectionClass($secondMsg))->getProperty('scopeType');
-        $p->setAccessible(true);
+        $p = new \ReflectionClass($secondMsg)->getProperty('scopeType');
         self::assertSame('dispatch_area', $p->getValue($secondMsg));
         self::assertSame([], $secondStamps);
     }

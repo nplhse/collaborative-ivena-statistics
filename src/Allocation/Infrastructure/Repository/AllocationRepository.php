@@ -21,7 +21,7 @@ final class AllocationRepository extends ServiceEntityRepository
      */
     public function countByMonthLast12Months(): array
     {
-        $from = (new \DateTimeImmutable('first day of this month'))
+        $from = new \DateTimeImmutable('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
@@ -57,13 +57,11 @@ final class AllocationRepository extends ServiceEntityRepository
             $result[] = [
                 'year' => (int) $year,
                 'month' => (int) $month,
-                'count' => (int) $count,
+                'count' => $count,
             ];
         }
 
-        usort($result, static function (array $a, array $b): int {
-            return [$a['year'], $a['month']] <=> [$b['year'], $b['month']];
-        });
+        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
 
         return $result;
     }

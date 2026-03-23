@@ -7,10 +7,10 @@ namespace App\Statistics\Infrastructure\Repository;
 use App\Statistics\Domain\Model\Scope;
 use Doctrine\DBAL\Connection;
 
-final class AggScopeRepository
+final readonly class AggScopeRepository
 {
     public function __construct(
-        private readonly Connection $db,
+        private Connection $db,
     ) {
     }
 

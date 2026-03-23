@@ -36,7 +36,7 @@ final class HourlyHistogramCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('fetchAssociative')
             ->with(
-                self::callback(function (string $sql) use (&$capturedSelectSql) {
+                self::callback(function (string $sql) use (&$capturedSelectSql): true {
                     $capturedSelectSql = $sql;
 
                     // Muss exakt die neue Stunde-Extraktion inkl. Alias 'hour' enthalten
@@ -52,7 +52,7 @@ final class HourlyHistogramCalculatorTest extends TestCase
 
                     return true;
                 }),
-                self::callback(function (array $params) use (&$capturedSelectParams) {
+                self::callback(function (array $params) use (&$capturedSelectParams): true {
                     $capturedSelectParams = $params;
                     self::assertSame(['scope_id' => '5'], $params, 'Expected only scope_id param for ALL granularity.');
 
@@ -66,7 +66,7 @@ final class HourlyHistogramCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('executeStatement')
             ->with(
-                self::callback(function (string $sql) use (&$capturedUpsertSql) {
+                self::callback(function (string $sql) use (&$capturedUpsertSql): true {
                     $capturedUpsertSql = $sql;
 
                     self::assertStringContainsString('INSERT INTO agg_allocations_hourly', $sql);
@@ -76,7 +76,7 @@ final class HourlyHistogramCalculatorTest extends TestCase
 
                     return true;
                 }),
-                self::callback(function (array $params) use (&$capturedUpsertParams, $importScope) {
+                self::callback(function (array $params) use (&$capturedUpsertParams, $importScope): true {
                     $capturedUpsertParams = $params;
 
                     self::assertSame($importScope->scopeType, $params['scope_type']);
@@ -110,14 +110,14 @@ final class HourlyHistogramCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('fetchAssociative')
             ->with(
-                self::callback(function (string $sql) {
+                self::callback(function (string $sql): true {
                     // Muss Perioden- und Scope-Filter enthalten
                     self::assertStringContainsString('WHERE hospital_id = :scope_id::int', $sql);
                     self::assertStringContainsString('AND period_day(arrival_at) = :period_key::date', $sql);
 
                     return true;
                 }),
-                self::callback(function (array $params) {
+                self::callback(function (array $params): true {
                     // Für DAY: scope_id und period_key
                     self::assertSame(['scope_id' => '123', 'period_key' => '2025-11-01'], $params);
 
@@ -131,7 +131,7 @@ final class HourlyHistogramCalculatorTest extends TestCase
             ->method('executeStatement')
             ->with(
                 self::anything(),
-                self::callback(function (array $params) {
+                self::callback(function (array $params): true {
                     self::assertSame('hospital', $params['scope_type']);
                     self::assertSame('123', $params['scope_id']);
                     self::assertSame(Period::DAY, $params['period_gran']);

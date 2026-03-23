@@ -108,15 +108,13 @@ final class GranularitySwitchTest extends TestCase
 
         $this->router
             ->method('generate')
-            ->willReturnCallback(function (string $routeName, array $params): string {
-                return sprintf(
-                    '%s|%s|%s|%s',
-                    $params['type'],
-                    $params['id'],
-                    $params['gran'],
-                    $params['key'],
-                );
-            });
+            ->willReturnCallback(fn (string $routeName, array $params): string => sprintf(
+                '%s|%s|%s|%s',
+                $params['type'],
+                $params['id'],
+                $params['gran'],
+                $params['key'],
+            ));
 
         // Act
         $uAll = $cmp->url(Period::ALL);

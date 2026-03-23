@@ -7,6 +7,7 @@ namespace App\Statistics\UI\Twig\Components;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Reader\TransportTimeDimMatrixReader;
 use App\Statistics\Infrastructure\Resolver\TransportTimeDimNameResolver;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -124,7 +125,7 @@ final class TransportTimeDimMatrixChart
         }
 
         foreach ($this->series as $s) {
-            $sum = array_sum(array_map('floatval', $s['data'] ?? []));
+            $sum = array_sum(array_map(floatval(...), $s['data'] ?? []));
             if ($sum > 0.0) {
                 return true;
             }
@@ -136,7 +137,7 @@ final class TransportTimeDimMatrixChart
     public function viewUrl(string $view): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 
@@ -154,7 +155,7 @@ final class TransportTimeDimMatrixChart
     public function limitUrl(int $limit): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 

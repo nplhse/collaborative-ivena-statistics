@@ -21,7 +21,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $container = static::getContainer();
+        $container = self::getContainer();
         $this->repo = $container->get(HospitalRepository::class);
     }
 
@@ -59,7 +59,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         /** @var Hospital[] $result */
         $result = $qb->getQuery()->getResult();
 
-        $ids = array_map(static fn (Hospital $h) => $h->getId(), $result);
+        $ids = array_map(static fn (Hospital $h): ?int => $h->getId(), $result);
         self::assertContains($owned1->getId(), $ids);
         self::assertContains($owned2->getId(), $ids);
         self::assertNotContains($foreign->getId(), $ids);

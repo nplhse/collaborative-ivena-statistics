@@ -3,6 +3,7 @@
 namespace App\Tests\Allocation\Functional\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 
 class DataControllerTest extends WebTestCase
 {
@@ -12,7 +13,7 @@ class DataControllerTest extends WebTestCase
         $client = static::createClient();
 
         // Act
-        $client->request('GET', '/explore');
+        $client->request(Request::METHOD_GET, '/explore');
 
         // Assert
         self::assertResponseIsSuccessful();

@@ -50,11 +50,7 @@ readonly class HourlyChartDataLoader
 
         if (false !== $row && array_key_exists('hours_count', $row)) {
             $raw = $row['hours_count'];
-            if (is_string($raw)) {
-                $decoded = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
-            } else {
-                $decoded = $raw;
-            }
+            $decoded = is_string($raw) ? json_decode($raw, true, 512, \JSON_THROW_ON_ERROR) : $raw;
             if (is_array($decoded)) {
                 /** @var array<string, mixed> $decoded */
                 $obj = $decoded;

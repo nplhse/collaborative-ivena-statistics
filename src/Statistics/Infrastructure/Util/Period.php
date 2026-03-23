@@ -4,14 +4,14 @@ namespace App\Statistics\Infrastructure\Util;
 
 final class Period
 {
-    public const ALL = 'all';
-    public const YEAR = 'year';
-    public const QUARTER = 'quarter';
-    public const MONTH = 'month';
-    public const WEEK = 'week';
-    public const DAY = 'day';
+    public const string ALL = 'all';
+    public const string YEAR = 'year';
+    public const string QUARTER = 'quarter';
+    public const string MONTH = 'month';
+    public const string WEEK = 'week';
+    public const string DAY = 'day';
 
-    public const ALL_ANCHOR_DATE = '2010-01-01';
+    public const string ALL_ANCHOR_DATE = '2010-01-01';
 
     /**
      * @return string[]

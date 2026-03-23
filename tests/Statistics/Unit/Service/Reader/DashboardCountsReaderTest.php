@@ -13,8 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DashboardCountsReaderTest extends TestCase
 {
-    /** @var AggAllocationsCountsQuery&MockObject */
-    private $query;
+    private AggAllocationsCountsQuery&MockObject $query;
 
     protected function setUp(): void
     {

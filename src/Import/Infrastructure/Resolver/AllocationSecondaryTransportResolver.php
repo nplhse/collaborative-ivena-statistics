@@ -32,7 +32,7 @@ final class AllocationSecondaryTransportResolver implements AllocationEntityReso
                 throw new \DomainException(sprintf('SecondaryTransport "%s" is invalid: id is null.', (string) $secondaryTransport->getName()));
             }
 
-            $key = self::key((string) $secondaryTransport->getName());
+            $key = $this->key((string) $secondaryTransport->getName());
 
             $this->secondaryTransportIdByKey[$key] = $id;
         }
@@ -52,7 +52,7 @@ final class AllocationSecondaryTransportResolver implements AllocationEntityReso
             return;
         }
 
-        $key = self::key($raw);
+        $key = $this->key($raw);
 
         $secondaryTransportId = $this->secondaryTransportIdByKey[$key] ?? null;
         if (null === $secondaryTransportId) {
@@ -64,7 +64,7 @@ final class AllocationSecondaryTransportResolver implements AllocationEntityReso
         $entity->setSecondaryTransport($ref);
     }
 
-    private static function key(string $name): string
+    private function key(string $name): string
     {
         $s = \mb_strtolower(\trim($name), 'UTF-8');
         $normalized = \preg_replace('/\s+/', ' ', $s);

@@ -148,7 +148,7 @@ final class DispatchAreaScopeProviderTest extends TestCase
 
         $tuples = array_map(
             /** @return array{0:string,1:string,2:string,3:string} */
-            fn (Scope $s) => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
+            fn (Scope $s): array => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
             $listForFirstArea
         );
 

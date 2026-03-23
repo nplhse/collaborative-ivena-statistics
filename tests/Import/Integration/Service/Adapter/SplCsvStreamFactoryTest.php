@@ -29,7 +29,7 @@ final class SplCsvStreamFactoryTest extends TestCase
 
         $file = $factory->openUtf8($path, $sourceEncoding, ';', '"', '\\');
 
-        $header = $file->fgetcsv();
+        $header = $file->fgetcsv(separator: ';', enclosure: '"', escape: '\\');
         self::assertSame(
             ['Straße', 'Straße', 'KHS-Versorgungsgebiet/Bezirk?', 'Ärztlich-Begleitet'],
             $header,

@@ -72,6 +72,6 @@ final readonly class ListImportRejectsQuery
                 ->setParameter('search', '%'.mb_strtolower(trim($query->search)).'%');
         }
 
-        return (new Paginator($qb))->paginate($query->page, $query->limit);
+        return new Paginator($qb)->paginate($query->page, $query->limit);
     }
 }

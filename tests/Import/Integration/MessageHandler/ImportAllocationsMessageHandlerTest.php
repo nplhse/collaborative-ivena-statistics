@@ -34,7 +34,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $c = static::getContainer();
+        $c = self::getContainer();
 
         $this->em = $c->get(EntityManagerInterface::class);
         $this->imports = $c->get(ImportRepository::class);
@@ -109,7 +109,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $this->em->flush();
 
         // Act
-        $summary = $this->handler->run($import, $reader, $rejectWriter);
+        $this->handler->run($import, $reader, $rejectWriter);
 
         $fresh = $this->imports->find($import->getId());
         self::assertNotNull($fresh);

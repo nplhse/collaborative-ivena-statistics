@@ -27,12 +27,6 @@ final class TransportTimeBucketPresets
             return true;
         }
 
-        foreach (self::all() as $p) {
-            if ($p['value'] === $bucket) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(self::all(), fn ($p): bool => $p['value'] === $bucket);
     }
 }

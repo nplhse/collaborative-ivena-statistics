@@ -5,6 +5,7 @@ namespace App\Tests\Allocation\Functional\Controller\SecondaryTransports;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -21,7 +22,7 @@ class ShowSecondaryTransportControllerTest extends WebTestCase
         $id = $st->getId();
         self::assertNotNull($id);
 
-        $client->request('GET', '/explore/secondary_transport/'.$id);
+        $client->request(Request::METHOD_GET, '/explore/secondary_transport/'.$id);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#secondary-transport-name', 'Kapazitätsengpass');

@@ -67,14 +67,12 @@ final class TimeGridChart
                 if (!$isTotalRow) {
                     continue;
                 }
-            } else {
-                if ($isTotalRow || !$isWantedFormat) {
-                    continue;
-                }
+            } elseif ($isTotalRow || !$isWantedFormat) {
+                continue;
             }
 
             $primaryData = [];
-            foreach ($this->labels as $i => $_) {
+            foreach (array_keys($this->labels) as $i) {
                 $cell = $row['cells'][$i] ?? null;
                 $v = ($cell instanceof \App\Statistics\Domain\Model\TimeGridCell)
                     ? $cell->value
@@ -85,7 +83,7 @@ final class TimeGridChart
 
             if (TimeGridMode::COMPARE === $this->mode) {
                 $baselineData = [];
-                foreach ($this->labels as $i => $_) {
+                foreach (array_keys($this->labels) as $i) {
                     $cell = $row['cells'][$i] ?? null;
                     $c = ($cell instanceof \App\Statistics\Domain\Model\TimeGridCell)
                         ? $cell->compare

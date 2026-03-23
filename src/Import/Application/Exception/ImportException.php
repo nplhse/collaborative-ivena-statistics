@@ -61,6 +61,6 @@ class ImportException extends \RuntimeException
             'value' => $this->value,
             'exception' => static::class,
             'message' => $this->getMessage(),
-        ], static fn ($v) => null !== $v && '' !== $v);
+        ], static fn (?string $v): bool => null !== $v && '' !== $v);
     }
 }

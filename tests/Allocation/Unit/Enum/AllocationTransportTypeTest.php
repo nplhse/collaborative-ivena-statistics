@@ -35,7 +35,7 @@ final class AllocationTransportTypeTest extends TestCase
 
     public function testLabelsAreUniqueAndWellFormed(): void
     {
-        $labels = array_map(static fn (AllocationTransportType $c) => $c->label(), AllocationTransportType::cases());
+        $labels = array_map(static fn (AllocationTransportType $c): string => $c->label(), AllocationTransportType::cases());
         self::assertSame($labels, array_values(array_unique($labels)));
         foreach ($labels as $label) {
             self::assertMatchesRegularExpression('/^label\.transportType\.(ground|air)$/', $label);

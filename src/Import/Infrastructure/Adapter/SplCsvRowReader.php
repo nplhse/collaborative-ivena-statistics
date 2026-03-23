@@ -25,7 +25,7 @@ use App\Import\Infrastructure\Charset\EncodingDetector;
  * or rowsAssoc() to iterate over associative rows keyed by normalized headers.
  *
  * This allows robust and predictable mapping from CSV files to DTOs and Entities,
- * independent of original header formatting or character set.
+ * independent of the original header formatting or character set.
  */
 final class SplCsvRowReader implements RowReaderInterface
 {
@@ -35,7 +35,10 @@ final class SplCsvRowReader implements RowReaderInterface
     /** @var array<int,string>|null */
     private ?array $rawHeaderRow = null;
 
-    private \SplFileObject $file;
+    private readonly \SplFileObject $file;
+    private readonly string $delimiter;
+    private readonly string $enclosure;
+    private readonly string $escape;
 
     public function __construct(
         \SplFileObject $file,
@@ -54,13 +57,16 @@ final class SplCsvRowReader implements RowReaderInterface
         $sourceEncoding = $this->detector->detectFromPath($path, $this->encodingHint);
 
         $this->file = $this->streamFactory->openUtf8($path, $sourceEncoding, $delimiter, $enclosure, $escape);
+        $this->delimiter = $delimiter;
+        $this->enclosure = $enclosure;
+        $this->escape = $escape;
 
         $this->rawHeaderRow = $this->readUtf8Row();
         if (null === $this->rawHeaderRow) {
             throw new \RuntimeException('CSV appears to be empty or header row could not be read.');
         }
 
-        $normalized = \array_map([$this, 'normalizeHeader'], $this->rawHeaderRow);
+        $normalized = \array_map($this->normalizeHeader(...), $this->rawHeaderRow);
         $this->headerRow = $this->makeUniqueHeaders($normalized);
     }
 
@@ -74,8 +80,7 @@ final class SplCsvRowReader implements RowReaderInterface
     public function rows(): iterable
     {
         while (!$this->file->eof()) {
-            /** @var array<int,string|null>|false $row */
-            $row = $this->file->fgetcsv();
+            $row = $this->readCsvRow();
             if (false === $row || $row === [null]) {
                 continue;
             }
@@ -89,14 +94,7 @@ final class SplCsvRowReader implements RowReaderInterface
                 $cell = $this->nfc($cell);
                 $utf8[] = \trim($cell);
             }
-
-            $allEmpty = true;
-            foreach ($utf8 as $cell) {
-                if ('' !== $cell) {
-                    $allEmpty = false;
-                    break;
-                }
-            }
+            $allEmpty = array_all($utf8, fn ($cell): bool => '' === $cell);
             if ($allEmpty) {
                 continue;
             }
@@ -127,7 +125,7 @@ final class SplCsvRowReader implements RowReaderInterface
     /** @return array<int,string>|null */
     private function readUtf8Row(): ?array
     {
-        $row = $this->file->fgetcsv();
+        $row = $this->readCsvRow();
         if (false === $row || $row === [null]) {
             return null;
         }
@@ -143,6 +141,20 @@ final class SplCsvRowReader implements RowReaderInterface
         }
 
         return $out;
+    }
+
+    /**
+     * Always pass all CSV controls explicitly to avoid default fallback behavior.
+     *
+     * @return array<int,string|null>|false
+     */
+    private function readCsvRow(): array|false
+    {
+        return $this->file->fgetcsv(
+            separator: $this->delimiter,
+            enclosure: $this->enclosure,
+            escape: $this->escape,
+        );
     }
 
     private function nfc(string $value): string

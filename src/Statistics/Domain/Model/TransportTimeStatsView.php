@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Domain\Model;
 
-final class TransportTimeStatsView
+final readonly class TransportTimeStatsView
 {
     /**
      * @param string[]                 $buckets
