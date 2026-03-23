@@ -55,8 +55,7 @@ final class TransportTimeControls
             ['bucket' => $value]
         );
 
-        // saubere Nulls weg
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params).'#'.$this->anchorId;
     }
@@ -77,7 +76,7 @@ final class TransportTimeControls
             ['progress' => $current ? 0 : 1]
         );
 
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params).'#'.$this->anchorId;
     }
@@ -98,7 +97,7 @@ final class TransportTimeControls
             ['physician' => $current ? 0 : 1]
         );
 
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params).'#'.$this->anchorId;
     }

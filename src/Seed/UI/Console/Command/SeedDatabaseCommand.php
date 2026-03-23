@@ -97,7 +97,7 @@ final class SeedDatabaseCommand extends Command
             return;
         }
 
-        $quotedTables = array_map(fn (string $t) => $this->quoteTableName($conn, $t), array_keys($tables));
+        $quotedTables = array_map(fn (string $t): string => $this->quoteTableName($conn, $t), array_keys($tables));
 
         $sql = sprintf('TRUNCATE %s RESTART IDENTITY CASCADE;', implode(', ', $quotedTables));
         $output->writeln('<info>Purged tables:</info> '.implode(', ', array_keys($tables)));

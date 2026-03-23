@@ -47,7 +47,7 @@ final readonly class HospitalCubeQuery
 
         $rows = $this->db->fetchAllAssociative($sql);
 
-        return array_map(static fn (array $row) => [
+        return array_map(static fn (array $row): array => [
             'tier' => $row['tier'],
             'location' => $row['location'],
             'size' => $row['size'],

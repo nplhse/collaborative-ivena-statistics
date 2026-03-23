@@ -152,7 +152,7 @@ final class ListImportControllerTest extends WebTestCase
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         if ($count > 0) {
-            ImportFactory::createMany($count, fn (int $i) => [
+            ImportFactory::createMany($count, fn (int $i): array => [
                 'name' => \sprintf('Import %02d', $i + 1),
                 'hospital' => $hospital,
                 'type' => ImportType::ALLOCATION,

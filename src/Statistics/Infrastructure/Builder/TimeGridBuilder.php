@@ -35,7 +35,7 @@ final readonly class TimeGridBuilder
     ): array {
         $anchor = Period::anchor($primary->granularity, $primary->periodKey);
         $allCols = TimeGrid::columns($primary->granularity, $anchor);
-        $timeCols = array_values(array_filter($allCols, static fn (array $c) => !($c['isTotal'] ?? false)));
+        $timeCols = array_values(array_filter($allCols, static fn (array $c): bool => !($c['isTotal'] ?? false)));
         $columns = [...$timeCols, ['label' => 'Total', 'periodKey' => 'TOTAL', 'isTotal' => true]];
 
         $primarySeries = $this->seriesReader->loadSeries($primary, $columns);

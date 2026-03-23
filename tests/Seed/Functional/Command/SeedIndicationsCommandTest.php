@@ -83,7 +83,7 @@ final class SeedIndicationsCommandTest extends KernelTestCase
     {
         $user = UserFactory::createOne();
 
-        IndicationNormalizedFactory::createMany(2, function (int $i) use ($user) {
+        IndicationNormalizedFactory::createMany(2, function (int $i) use ($user): array {
             $names = ['Asthma', 'COPD'];
             $name = $names[$i % count($names)];
 

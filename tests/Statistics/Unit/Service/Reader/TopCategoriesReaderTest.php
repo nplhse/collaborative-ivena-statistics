@@ -39,7 +39,7 @@ final class TopCategoriesReaderTest extends TestCase
         $this->db->expects($this->once())
             ->method('fetchAssociative')
             ->with(
-                self::callback(static fn ($sql) => is_string($sql)),
+                self::callback(static fn ($sql): bool => is_string($sql)),
                 self::equalTo(['t' => 'hospital', 'i' => '123', 'g' => 'day', 'k' => '2025-11-08'])
             )
             ->willReturn($row);

@@ -110,7 +110,7 @@ final class HospitalSeedProviderTest extends TestCase
         self::assertSame('Agaplesion Bethanien Krankenhaus', $rows[0]['name'] ?? null);
         self::assertSame('Universitätsklinikum Gießen und Marburg, Standort Marburg', $rows[\count($rows) - 1]['name'] ?? null);
 
-        $allNames = array_map(static fn ($r) => $r['name'] ?? null, $rows);
+        $allNames = array_map(static fn (array $r): mixed => $r['name'] ?? null, $rows);
         self::assertContains('Klinikum Kassel', $allNames);
         self::assertContains('St. Josefs-Hospital Wiesbaden', $allNames);
 

@@ -40,7 +40,7 @@ class AppRoutesTest extends WebTestCase
         );
     }
 
-    public static function getPublicUrls(): ?\Generator
+    public static function getPublicUrls(): \Generator
     {
         yield 'app_default' => ['/'];
         yield 'app_login' => ['/login'];
@@ -49,7 +49,7 @@ class AppRoutesTest extends WebTestCase
         yield 'app_check_email' => ['/reset-password/check-email'];
     }
 
-    public static function getSecureUrls(): ?\Generator
+    public static function getSecureUrls(): \Generator
     {
         yield 'app_admin_dashboard' => ['/admin/'];
         yield 'app_settings_index' => ['/settings'];

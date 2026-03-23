@@ -40,14 +40,14 @@ final class ProcessImportCommandTest extends TestCase
         $dispatched = [];
         $bus->expects(self::once())
             ->method('dispatch')
-            ->with(self::callback(function ($msg) use (&$dispatched) {
+            ->with(self::callback(function ($msg) use (&$dispatched): true {
                 // Capture and minimally validate the message
                 self::assertInstanceOf(ScheduleScope::class, $msg);
                 $dispatched[] = $msg;
 
                 return true;
             }))
-            ->willReturnCallback(fn ($msg) => new Envelope($msg));
+            ->willReturnCallback(fn ($msg): Envelope => new Envelope($msg));
 
         $command = new ProcessImportCommand($bus, $handler);
         $tester = new CommandTester($command);
@@ -69,7 +69,7 @@ final class ProcessImportCommandTest extends TestCase
 
         $handler->expects(self::once())
             ->method('__invoke')
-            ->with(self::callback(function (ScheduleScope $msg) {
+            ->with(self::callback(function (ScheduleScope $msg): true {
                 // Validate the payload that will be handled synchronously
                 $ref = new \ReflectionClass($msg);
                 $prop = $ref->getProperty('importId');

@@ -8,6 +8,7 @@ use App\User\Infrastructure\Security\LoginFormAuthenticator;
 use App\User\UI\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -70,7 +71,7 @@ final class RegistrationController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         EmailVerifier $emailVerifier,
-    ): Response {
+    ): RedirectResponse {
         $id = $request->query->get('id');
         if (!\is_string($id) || '' === $id) {
             throw $this->createNotFoundException('flash.registration.verify.missing_id');

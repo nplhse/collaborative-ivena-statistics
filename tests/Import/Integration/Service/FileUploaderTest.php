@@ -3,6 +3,7 @@
 namespace App\Tests\Import\Integration\Service;
 
 use App\Import\Application\Service\FileUploader;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -16,8 +17,8 @@ final class FileUploaderTest extends TestCase
     private string $projectDir;
     private string $baseDir;
     private Filesystem $filesystem;
-    /** @var \PHPUnit\Framework\MockObject\MockObject&LoggerInterface */
-    private LoggerInterface $logger;
+    /** @var MockObject&LoggerInterface */
+    private MockObject $logger;
 
     protected function setUp(): void
     {

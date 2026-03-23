@@ -10,6 +10,7 @@ use App\User\UI\Form\SettingsPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -32,7 +33,7 @@ final class SettingsController extends AbstractController
         Request $request,
         EmailVerifier $emailVerifier,
         #[Autowire(service: 'limiter.verify_email_resend')] RateLimiterFactory $verifyEmailResendLimiter,
-    ): Response {
+    ): RedirectResponse {
         $user = $this->requireUser();
 
         if (!$this->isCsrfTokenValid('resend_verification_email', (string) $request->request->get('_csrf_token'))) {

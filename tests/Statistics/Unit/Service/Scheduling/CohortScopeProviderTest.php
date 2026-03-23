@@ -59,7 +59,7 @@ final class CohortScopeProviderTest extends TestCase
             ->with(
                 self::callback(
                     // first call OR subsequent period key calls
-                    fn (string $sql) => str_contains($sql, 'SELECT DISTINCT hospital_id')
+                    fn (string $sql): bool => str_contains($sql, 'SELECT DISTINCT hospital_id')
                         || str_contains($sql, 'SELECT DISTINCT')),
                 self::anything()
             )
@@ -103,7 +103,7 @@ final class CohortScopeProviderTest extends TestCase
         ];
 
         $tuples = array_map(
-            fn (Scope $s) => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
+            fn (Scope $s): array => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
             $scopes
         );
         self::assertSame($expected, $tuples, 'Unexpected scopes yielded for cohort classification.');
@@ -138,7 +138,7 @@ final class CohortScopeProviderTest extends TestCase
             ['hospital_tier', 'extended', Period::ALL, '2010-01-01'],
         ];
         $tuples = array_map(
-            fn (Scope $s) => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
+            fn (Scope $s): array => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
             $scopes
         );
         self::assertSame($expected, $tuples);
@@ -171,7 +171,7 @@ final class CohortScopeProviderTest extends TestCase
             ['hospital_size', 'medium', Period::ALL, '2010-01-01'],
         ];
         $tuples = array_map(
-            fn (Scope $s) => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
+            fn (Scope $s): array => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
             $scopes
         );
         self::assertSame($expected, $tuples);
@@ -204,7 +204,7 @@ final class CohortScopeProviderTest extends TestCase
             ['hospital_location', 'rural', Period::ALL, '2010-01-01'],
         ];
         $tuples = array_map(
-            fn (Scope $s) => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
+            fn (Scope $s): array => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
             $scopes
         );
         self::assertSame($expected, $tuples);

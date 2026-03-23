@@ -132,7 +132,7 @@ final class AgeCohortShareCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('fetchAllAssociative')
             ->with(
-                $this->callback(fn ($sql) => is_string($sql) && str_contains($sql, 'WITH cohortized')),
+                $this->callback(fn ($sql): bool => is_string($sql) && str_contains($sql, 'WITH cohortized')),
                 $this->callback('is_array')
             )
             ->willReturn($rows);
@@ -141,7 +141,7 @@ final class AgeCohortShareCalculatorTest extends TestCase
         $db->expects($this->once())
             ->method('executeStatement')
             ->with(
-                $this->callback(fn ($sql) => is_string($sql)
+                $this->callback(fn ($sql): bool => is_string($sql)
                     && str_contains($sql, 'INSERT INTO agg_allocations_age_buckets')
                 ),
                 $this->callback(function (array $params) use ($expectCohortStats): bool {
@@ -183,7 +183,7 @@ final class AgeCohortShareCalculatorTest extends TestCase
                     // 18–29 bucket: n=4, share=0.4 (allow float/int JSON ambiguity)
                     $row1829 = array_values(array_filter(
                         $total,
-                        static fn ($x) => isset($x['key']) && '18-29' === $x['key']
+                        static fn (array $x): bool => isset($x['key']) && '18-29' === $x['key']
                     ))[0] ?? null;
 
                     $this->assertNotNull($row1829);

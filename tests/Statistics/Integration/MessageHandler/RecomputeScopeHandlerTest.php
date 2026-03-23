@@ -40,14 +40,14 @@ final class RecomputeScopeHandlerTest extends TestCase
         $lockFactory = $this->createMock(LockFactory::class);
         $lockFactory->expects($this->once())
             ->method('createLock')
-            ->with(self::callback(fn ($key) => is_string($key) && '' !== $key)) // don’t assert exact value of lockKey()
+            ->with(self::callback(fn ($key): bool => is_string($key) && '' !== $key)) // don’t assert exact value of lockKey()
             ->willReturn($lock);
 
         // Calculator A supports and should be called once with the composed Scope
         $calcA = $this->createMock(CalculatorInterface::class);
         $calcA->expects($this->once())
             ->method('supports')
-            ->with(self::callback(fn (Scope $s) => $s->scopeType === $message->scopeType
+            ->with(self::callback(fn (Scope $s): bool => $s->scopeType === $message->scopeType
                 && $s->scopeId === $message->scopeId
                 && $s->granularity === $message->granularity
                 && $s->periodKey === $message->periodKey))

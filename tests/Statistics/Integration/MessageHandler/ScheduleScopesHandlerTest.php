@@ -43,7 +43,7 @@ final class ScheduleScopesHandlerTest extends TestCase
         $dispatched = []; // capture calls (message, stamps)
         $bus->expects($this->exactly(3))
             ->method('dispatch')
-            ->willReturnCallback(function (object $msg, array $stamps = []) use (&$dispatched) {
+            ->willReturnCallback(function (object $msg, array $stamps = []) use (&$dispatched): Envelope {
                 $dispatched[] = [$msg, $stamps];
 
                 return new Envelope($msg, $stamps); // <- return a real Envelope
@@ -95,7 +95,7 @@ final class ScheduleScopesHandlerTest extends TestCase
         $calls = [];
         $bus->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturnCallback(function (object $message, array $stamps = []) use (&$calls) {
+            ->willReturnCallback(function (object $message, array $stamps = []) use (&$calls): Envelope {
                 $calls[] = [$message, $stamps];
 
                 return new Envelope($message, $stamps);

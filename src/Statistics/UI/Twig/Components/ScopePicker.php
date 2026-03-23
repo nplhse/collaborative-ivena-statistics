@@ -103,7 +103,7 @@ final class ScopePicker
             'Hospital' => 4,
         ];
 
-        usort($groups, static function ($a, $b) use ($order) {
+        usort($groups, static function (array $a, array $b) use ($order): int {
             $rankA = $order[$a['label']] ?? 99;
             $rankB = $order[$b['label']] ?? 99;
 
@@ -139,7 +139,7 @@ final class ScopePicker
         $params['scopeId'] = $id;
 
         // Remove null values to keep URLs clean
-        $params = array_filter($params, static fn ($v) => null !== $v);
+        $params = array_filter($params, static fn ($v): bool => null !== $v);
 
         return $this->router->generate($route, $params);
     }

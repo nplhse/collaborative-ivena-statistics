@@ -164,7 +164,7 @@ SQL;
         $rows = $this->db->fetchAllAssociative($sql, $bind);
 
         return array_map(
-            static fn (array $r) => [
+            static fn (array $r): array => [
                 'id' => null !== $r['id'] ? (int) $r['id'] : null,
                 'label' => (string) $r['label'],
                 'count' => (int) $r['count'],

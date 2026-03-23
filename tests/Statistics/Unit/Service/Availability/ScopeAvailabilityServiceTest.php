@@ -143,7 +143,7 @@ final class ScopeAvailabilityServiceTest extends TestCase
         $this->db
             ->expects(self::exactly(2))
             ->method('fetchAllAssociative')
-            ->willReturnCallback(function (string $sql) use ($rowsCounts, $rowsCohorts) {
+            ->willReturnCallback(function (string $sql) use ($rowsCounts, $rowsCohorts): array {
                 if (str_contains($sql, 'agg_allocations_counts')) {
                     return $rowsCounts;
                 }
@@ -160,7 +160,7 @@ final class ScopeAvailabilityServiceTest extends TestCase
 
         // Assert
         // order is not guaranteed; check contents as a set
-        $byKey = static fn (array $row) => $row['scope_type'].'|'.$row['scope_id'];
+        $byKey = static fn (array $row): string => $row['scope_type'].'|'.$row['scope_id'];
         $indexed = [];
         foreach ($tree as $r) {
             $indexed[$byKey($r)] = $r['count'];

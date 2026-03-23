@@ -224,6 +224,6 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
     {
         $needle = strtolower($field);
 
-        return array_any($violations, fn ($msg) => str_contains(strtolower((string) $msg), $needle));
+        return array_any($violations, fn ($msg): bool => str_contains(strtolower((string) $msg), $needle));
     }
 }

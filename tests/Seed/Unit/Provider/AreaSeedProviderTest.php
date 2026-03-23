@@ -95,6 +95,6 @@ final class AreaSeedProviderTest extends TestCase
      */
     private function containsPair(array $rows, string $state, string $name): bool
     {
-        return array_any($rows, fn ($r) => $r['state'] === $state && $r['name'] === $name);
+        return array_any($rows, fn ($r): bool => $r['state'] === $state && $r['name'] === $name);
     }
 }

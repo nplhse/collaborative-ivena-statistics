@@ -77,7 +77,7 @@ final class PublicScopeProviderTest extends TestCase
         ];
 
         $actualTuples = array_map(
-            fn (Scope $s) => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
+            fn (Scope $s): array => [$s->scopeType, $s->scopeId, $s->granularity, $s->periodKey],
             $scopes
         );
 

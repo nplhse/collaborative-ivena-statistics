@@ -46,7 +46,7 @@ final class AllocationIndicationResolverTest extends TestCase
         $em->expects($this->never())->method('persist');
         $em->expects($this->any())
             ->method('getReference')
-            ->willReturnCallback(function (string $class, int $id) use ($rawId, $normId, $rawRef, $normRef) {
+            ->willReturnCallback(function (string $class, int $id) use ($rawId, $normId, $rawRef, $normRef): IndicationRaw|\App\Allocation\Domain\Entity\IndicationNormalized {
                 if (IndicationRaw::class === $class && $id === $rawId) {
                     return $rawRef;
                 }

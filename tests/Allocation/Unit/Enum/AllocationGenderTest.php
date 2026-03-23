@@ -35,7 +35,7 @@ final class AllocationGenderTest extends TestCase
 
     public function testLabelsAreUniqueAndWellFormed(): void
     {
-        $labels = array_map(static fn (AllocationGender $c) => $c->label(), AllocationGender::cases());
+        $labels = array_map(static fn (AllocationGender $c): string => $c->label(), AllocationGender::cases());
         self::assertSame($labels, array_values(array_unique($labels)));
         foreach ($labels as $label) {
             self::assertMatchesRegularExpression('/^label\.gender\.(male|female|other)$/', $label);

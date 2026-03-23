@@ -16,14 +16,11 @@ use Symfony\Component\Routing\RouterInterface;
 
 final class TimeScopePagerTest extends TestCase
 {
-    /** @var RequestStack&MockObject */
-    private $requestStack;
+    private RequestStack&MockObject $requestStack;
 
-    /** @var RouterInterface&MockObject */
-    private $router;
+    private RouterInterface&MockObject $router;
 
-    /** @var TimeScopeNavigator&MockObject */
-    private $navigator;
+    private TimeScopeNavigator&MockObject $navigator;
 
     protected function setUp(): void
     {

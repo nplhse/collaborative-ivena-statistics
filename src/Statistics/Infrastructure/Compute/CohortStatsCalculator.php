@@ -101,7 +101,7 @@ SQL;
             'hospital_size' => ['LOWER(h.size) = :hv', ['hv' => strtolower($s->scopeId)]],
             'hospital_location' => ['LOWER(h.location) = :hv', ['hv' => strtolower($s->scopeId)]],
 
-            'hospital_cohort' => (static function (string $sid) {
+            'hospital_cohort' => (static function (string $sid): array {
                 if (!preg_match(
                     '/^(?<tier>basic|extended|full)_(?<loc>urban|mixed|rural)$/i',
                     $sid,

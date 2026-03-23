@@ -35,7 +35,7 @@ final class AllocationUrgencyTest extends TestCase
 
     public function testLabelsAreUniqueAndWellFormed(): void
     {
-        $labels = array_map(static fn (AllocationUrgency $case) => $case->label(), AllocationUrgency::cases());
+        $labels = array_map(static fn (AllocationUrgency $case): string => $case->label(), AllocationUrgency::cases());
 
         self::assertSame($labels, array_values(array_unique($labels)));
 
