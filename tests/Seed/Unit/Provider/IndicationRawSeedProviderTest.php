@@ -36,9 +36,9 @@ final class IndicationRawSeedProviderTest extends TestCase
         self::assertSame(['code' => '111', 'name' => 'primäre Todesfeststellung'], $values[0] ?? null);
         self::assertSame(['code' => '770', 'name' => 'sonstige Notfallsituation'], $values[\count($values) - 1] ?? null);
 
-        self::assertTrue(self::containsPair($values, '323', 'Hypertonie'));
-        self::assertTrue(self::containsPair($values, '431', 'Akute Suizidalität'));
-        self::assertTrue(self::containsPair($values, '721', 'Augenverletzung mit Fremdkörper'));
+        self::assertTrue($this->containsPair($values, '323', 'Hypertonie'));
+        self::assertTrue($this->containsPair($values, '431', 'Akute Suizidalität'));
+        self::assertTrue($this->containsPair($values, '721', 'Augenverletzung mit Fremdkörper'));
 
         /** @var list<string> $keys */
         $keys = \array_map(
@@ -66,7 +66,7 @@ final class IndicationRawSeedProviderTest extends TestCase
     /**
      * @param array<int, array{code:string, name:string}> $values
      */
-    private static function containsPair(array $values, string $code, string $name): bool
+    private function containsPair(array $values, string $code, string $name): bool
     {
         return array_any($values, fn ($row) => $row['code'] === $code && $row['name'] === $name);
     }

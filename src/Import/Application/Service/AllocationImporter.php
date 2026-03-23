@@ -10,6 +10,7 @@ use App\Import\Application\Contracts\RowTypeDetectorInterface;
 use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Exception\RowRejectException;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\AllocationRowType;
 use Psr\Log\LoggerInterface;
 
 final readonly class AllocationImporter implements AllocationImporterInterface
@@ -40,7 +41,7 @@ final readonly class AllocationImporter implements AllocationImporterInterface
 
                 try {
                     $type = $this->rowTypeDetector->detect($row);
-                    if (null === $type) {
+                    if (!$type instanceof AllocationRowType) {
                         $messages = ['Unable to detect a supported row type.'];
                         $this->rejectWriter->write($row, $messages, $lineNo);
                         ++$rejected;

@@ -30,7 +30,7 @@ class ResetPasswordRequest implements ResetPasswordRequestInterface
     #[\Override]
     public function getUser(): User
     {
-        if (null === $this->user) {
+        if (!$this->user instanceof User) {
             throw new \LogicException('Reset password request has no user.');
         }
 

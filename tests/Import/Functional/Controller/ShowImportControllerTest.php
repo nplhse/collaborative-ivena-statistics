@@ -73,7 +73,7 @@ final class ShowImportControllerTest extends WebTestCase
         $target = 'dummy/path';
 
         /** @var EntityManagerInterface $em */
-        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
 
         /** @var User $freshOwner */
         $freshOwner = $em->getRepository(User::class)->find($owner->getId());

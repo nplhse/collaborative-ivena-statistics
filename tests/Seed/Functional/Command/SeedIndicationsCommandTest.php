@@ -32,7 +32,7 @@ final class SeedIndicationsCommandTest extends KernelTestCase
     private function runCommand(): CommandTester
     {
         /** @var SeedIndicationsCommand $cmd */
-        $cmd = static::getContainer()->get(SeedIndicationsCommand::class);
+        $cmd = self::getContainer()->get(SeedIndicationsCommand::class);
 
         $tester = new CommandTester($cmd);
         $tester->execute([]);

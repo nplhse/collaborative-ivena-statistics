@@ -117,13 +117,12 @@ SQL,
                         $share = ($b['share'] ?? 0.0);
                         $data[] = $share;
                     }
-                } else { // 'count'
-                    if (null === $b) {
-                        $data[] = 0;
-                    } else {
-                        $n = ($b['n'] ?? 0);
-                        $data[] = $n;
-                    }
+                } elseif (null === $b) {
+                    // 'count'
+                    $data[] = 0;
+                } else {
+                    $n = ($b['n'] ?? 0);
+                    $data[] = $n;
                 }
             }
 

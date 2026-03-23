@@ -19,7 +19,7 @@ final class AgeCohortShareCalculatorTest extends TestCase
      *
      * @return list<array{t:string,payload:string}>
      */
-    private static function baseRows(): array
+    private function baseRows(): array
     {
         return [
             [
@@ -126,7 +126,7 @@ final class AgeCohortShareCalculatorTest extends TestCase
         $filter->method('buildBaseFilter')
             ->willReturn(['allocation a', 'TRUE', ['k' => 'v']]);
 
-        $rows = self::baseRows();
+        $rows = $this->baseRows();
 
         // SELECT expectation (avoid deprecated isType(), use callbacks)
         $db->expects($this->once())

@@ -21,7 +21,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $container = static::getContainer();
+        $container = self::getContainer();
         $this->repo = $container->get(HospitalRepository::class);
     }
 

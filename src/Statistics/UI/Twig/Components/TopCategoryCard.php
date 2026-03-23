@@ -21,6 +21,6 @@ final class TopCategoryCard
 
     public function hasData(): bool
     {
-        return !empty($this->items);
+        return [] !== $this->items;
     }
 }

@@ -33,7 +33,7 @@ final class AllocationAssignmentResolver implements AllocationEntityResolverInte
                 throw new \DomainException(sprintf('Assignment "%s" is invalid: id is null.', (string) $assignment->getName()));
             }
 
-            $key = self::key((string) $assignment->getName());
+            $key = $this->key((string) $assignment->getName());
 
             $this->assignmentIdByKey[$key] = $assignmentId;
         }
@@ -48,7 +48,7 @@ final class AllocationAssignmentResolver implements AllocationEntityResolverInte
     #[\Override]
     public function apply(Allocation $entity, AllocationRowDTO $dto): void
     {
-        $key = self::key((string) $dto->assignment);
+        $key = $this->key((string) $dto->assignment);
 
         $assignmentId = $this->assignmentIdByKey[$key] ?? null;
         if (null === $assignmentId) {
@@ -60,7 +60,7 @@ final class AllocationAssignmentResolver implements AllocationEntityResolverInte
         $entity->setAssignment($assignmentRef);
     }
 
-    private static function key(string $name): string
+    private function key(string $name): string
     {
         $s = \mb_strtolower(\trim($name), 'UTF-8');
         $normalized = \preg_replace('/\s+/', ' ', $s);

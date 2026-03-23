@@ -73,6 +73,6 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
             return null;
         }
 
-        return $result['name'].(!empty($result['code']) ? ' ('.$result['code'].')' : '');
+        return $result['name'].(empty($result['code']) ? '' : ' ('.$result['code'].')');
     }
 }

@@ -58,18 +58,14 @@ final class TransportTimeAggregator
 
     public function withDimensionLimit(?int $limit): self
     {
-        if (null === $limit || $limit <= 0) {
-            $this->dimensionLimit = null;
-        } else {
-            $this->dimensionLimit = $limit;
-        }
+        $this->dimensionLimit = null === $limit || $limit <= 0 ? null : $limit;
 
         return $this;
     }
 
     public function execute(): void
     {
-        if (null === $this->scope || null === $this->aggScopeId) {
+        if (!$this->scope instanceof Scope || null === $this->aggScopeId) {
             throw new \LogicException('Call forScope() before execute().');
         }
 
@@ -89,7 +85,7 @@ final class TransportTimeAggregator
         foreach ($this->dimensionTypes as $dimType) {
             $rows = $this->reader->fetchDimensionBuckets($this->scope, $dimType, $this->dimensionLimit);
 
-            if (!$rows) {
+            if ([] === $rows) {
                 continue;
             }
 

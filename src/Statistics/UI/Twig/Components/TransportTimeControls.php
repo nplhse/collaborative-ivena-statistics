@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Twig\Components;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -42,7 +43,7 @@ final class TransportTimeControls
     public function bucketUrl(string $value): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#'.$this->anchorId;
         }
 
@@ -63,7 +64,7 @@ final class TransportTimeControls
     public function toggleProgressUrl(): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#'.$this->anchorId;
         }
 
@@ -84,7 +85,7 @@ final class TransportTimeControls
     public function togglePhysicianUrl(): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#'.$this->anchorId;
         }
 

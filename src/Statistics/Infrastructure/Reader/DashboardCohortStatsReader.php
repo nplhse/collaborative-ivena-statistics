@@ -42,9 +42,9 @@ readonly class DashboardCohortStatsReader
         $rates = [];
         foreach ($ratesRaw as $metric => $triplet) {
             $rates[$metric] = new CohortRate(
-                mean: self::numOrNull($triplet['mean']),
-                sd: self::numOrNull($triplet['sd']),
-                var: self::numOrNull($triplet['var']),
+                mean: $this->numOrNull($triplet['mean']),
+                sd: $this->numOrNull($triplet['sd']),
+                var: $this->numOrNull($triplet['var']),
             );
         }
 
@@ -57,7 +57,7 @@ readonly class DashboardCohortStatsReader
         );
     }
 
-    private static function numOrNull(mixed $v): ?float
+    private function numOrNull(mixed $v): ?float
     {
         if (null === $v) {
             return null;

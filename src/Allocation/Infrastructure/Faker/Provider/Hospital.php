@@ -57,22 +57,22 @@ final class Hospital extends Base
 
     public function hospitalName(): string
     {
-        return static::randomElement(static::$hospitalName);
+        return self::randomElement(self::$hospitalName);
     }
 
     public function hospitalPrefix(): string
     {
-        return static::randomElement(static::$hospitalPrefix);
+        return self::randomElement(self::$hospitalPrefix);
     }
 
     public function hospitalSuffix(): string
     {
-        return static::randomElement(static::$hospitalSuffix);
+        return self::randomElement(self::$hospitalSuffix);
     }
 
     public function hospital(): string
     {
-        $format = static::randomElement(static::$formats);
+        $format = self::randomElement(self::$formats);
 
         return $this->generator->parse($format);
     }

@@ -20,7 +20,7 @@ final class ShowHospitalController extends WebTestCase
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = self::createClient();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -67,7 +67,7 @@ final class ShowHospitalController extends WebTestCase
 
     public function testShow404ForUnknownHospital(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/explore/hospital/999999');
         self::assertResponseStatusCodeSame(404);
     }

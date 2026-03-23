@@ -67,7 +67,7 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSee('New Import has been created successfully!')
             ->use(function (): void {
                 /** @var EntityManagerInterface $em */
-                $em = static::getContainer()->get(EntityManagerInterface::class);
+                $em = self::getContainer()->get(EntityManagerInterface::class);
 
                 /** @var Import|null $import */
                 $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Test Allocations']);
@@ -103,7 +103,7 @@ final class NewImportControllerTest extends WebTestCase
         ]);
 
         /** @var EntityManagerInterface $em */
-        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
         /** @var User $freshOwner */
         $freshOwner = $em->getRepository(User::class)->find($owner->getId());
         self::assertNotNull($freshOwner);

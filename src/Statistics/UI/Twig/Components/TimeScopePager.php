@@ -7,6 +7,7 @@ namespace App\Statistics\UI\Twig\Components;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Navigator\TimeScopeNavigator;
 use App\Statistics\Infrastructure\Util\Period;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -91,7 +92,7 @@ final class TimeScopePager
     private function buildUrl(string $periodKey): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 

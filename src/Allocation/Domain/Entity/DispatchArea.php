@@ -103,11 +103,9 @@ class DispatchArea implements \Stringable
 
     public function removeHospital(Hospital $hospital): static
     {
-        if ($this->hospitals->removeElement($hospital)) {
-            // set the owning side to null (unless already changed)
-            if ($hospital->getDispatchArea() === $this) {
-                $hospital->setDispatchArea(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->hospitals->removeElement($hospital) && $hospital->getDispatchArea() === $this) {
+            $hospital->setDispatchArea(null);
         }
 
         return $this;

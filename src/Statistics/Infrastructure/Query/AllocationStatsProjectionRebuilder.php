@@ -165,7 +165,7 @@ SQL,
         $createdAt = $this->parseDateTimeImmutable($row['created_at'] ?? null);
         $arrivalAt = $this->parseDateTimeImmutable($row['arrival_at'] ?? null);
 
-        if (null === $createdAt || null === $arrivalAt) {
+        if (!$createdAt instanceof \DateTimeImmutable || !$arrivalAt instanceof \DateTimeImmutable) {
             throw new \InvalidArgumentException('allocation row missing created_at or arrival_at');
         }
 
@@ -176,7 +176,7 @@ SQL,
         $quarter = (int) ceil($month / 3);
 
         $urgency = AllocationStatsUrgencyProjectionCode::tryFromDbValue($row['urgency'] ?? null);
-        if (null === $urgency) {
+        if (!$urgency instanceof AllocationStatsUrgencyProjectionCode) {
             throw new \InvalidArgumentException('allocation row has invalid urgency: '.var_export($row['urgency'] ?? null, true));
         }
 

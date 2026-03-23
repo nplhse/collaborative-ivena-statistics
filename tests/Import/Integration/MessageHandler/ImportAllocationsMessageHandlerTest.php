@@ -34,7 +34,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $c = static::getContainer();
+        $c = self::getContainer();
 
         $this->em = $c->get(EntityManagerInterface::class);
         $this->imports = $c->get(ImportRepository::class);

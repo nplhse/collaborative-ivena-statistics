@@ -6,6 +6,7 @@ namespace App\Statistics\UI\Twig\Components;
 
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Util\Period;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -79,7 +80,7 @@ final class GranularitySwitch
         [$key] = $this->deriveKeyAndLabel($gran);
 
         $request = $this->requestStack->getCurrentRequest();
-        if (null === $request) {
+        if (!$request instanceof Request) {
             throw new \LogicException('GranularitySwitch requires an active HTTP request.');
         }
 

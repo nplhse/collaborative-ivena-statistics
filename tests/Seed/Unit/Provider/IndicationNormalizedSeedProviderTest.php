@@ -36,9 +36,9 @@ final class IndicationNormalizedSeedProviderTest extends TestCase
         self::assertSame(['code' => '000', 'name' => 'Kein Patient vorhanden'], $values[0] ?? null);
         self::assertSame(['code' => '809', 'name' => 'Allgemeinmedizin, sonstiger Notfall'], $values[\count($values) - 1] ?? null);
 
-        self::assertTrue(self::containsPair($values, '271', 'Extremitäten offen'));
-        self::assertTrue(self::containsPair($values, '393', 'Hypoglykämie'));
-        self::assertTrue(self::containsPair($values, '715', 'Katheterwechsel (transurethral)'));
+        self::assertTrue($this->containsPair($values, '271', 'Extremitäten offen'));
+        self::assertTrue($this->containsPair($values, '393', 'Hypoglykämie'));
+        self::assertTrue($this->containsPair($values, '715', 'Katheterwechsel (transurethral)'));
 
         /** @var list<string> $keys */
         $keys = \array_map(
@@ -66,7 +66,7 @@ final class IndicationNormalizedSeedProviderTest extends TestCase
     /**
      * @param array<int, array{code:string, name:string}> $values
      */
-    private static function containsPair(array $values, string $code, string $name): bool
+    private function containsPair(array $values, string $code, string $name): bool
     {
         return array_any($values, fn ($row) => $row['code'] === $code && $row['name'] === $name);
     }

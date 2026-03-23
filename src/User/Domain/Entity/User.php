@@ -195,11 +195,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     /** @psalm-suppress PossiblyUnusedMethod */
     public function removeHospital(Hospital $hospital): static
     {
-        if ($this->hospitals->removeElement($hospital)) {
-            // set the owning side to null (unless already changed)
-            if ($hospital->getOwner() === $this) {
-                $hospital->setOwner(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->hospitals->removeElement($hospital) && $hospital->getOwner() === $this) {
+            $hospital->setOwner(null);
         }
 
         return $this;

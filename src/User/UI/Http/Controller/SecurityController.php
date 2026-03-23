@@ -7,6 +7,7 @@ use App\User\UI\Http\DTO\LoginTypeDTO;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 /** @psalm-suppress UnusedClass */
@@ -16,7 +17,7 @@ final class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         $user = $this->getUser();
-        if (null !== $user) {
+        if ($user instanceof UserInterface) {
             return $this->redirectToRoute('app_default');
         }
 

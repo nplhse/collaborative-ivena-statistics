@@ -94,11 +94,9 @@ class State implements \Stringable
 
     public function removeDispatchArea(DispatchArea $dispatchArea): static
     {
-        if ($this->dispatchAreas->removeElement($dispatchArea)) {
-            // set the owning side to null (unless already changed)
-            if ($dispatchArea->getState() === $this) {
-                $dispatchArea->setState(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->dispatchAreas->removeElement($dispatchArea) && $dispatchArea->getState() === $this) {
+            $dispatchArea->setState(null);
         }
 
         return $this;
@@ -124,11 +122,9 @@ class State implements \Stringable
 
     public function removeHospital(Hospital $hospital): static
     {
-        if ($this->hospitals->removeElement($hospital)) {
-            // set the owning side to null (unless already changed)
-            if ($hospital->getState() === $this) {
-                $hospital->setState(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->hospitals->removeElement($hospital) && $hospital->getState() === $this) {
+            $hospital->setState(null);
         }
 
         return $this;

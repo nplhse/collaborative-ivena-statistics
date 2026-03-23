@@ -105,14 +105,14 @@ final class MedicalSpecialities extends Base
 
     public function medicalDepartment(): string
     {
-        return static::randomElement(static::$departments);
+        return self::randomElement(self::$departments);
     }
 
     public function medicalSpecialty(): string
     {
-        $allSpecialties = array_merge(...array_values(static::$specialties));
+        $allSpecialties = array_merge(...array_values(self::$specialties));
 
-        return static::randomElement($allSpecialties);
+        return self::randomElement($allSpecialties);
     }
 
     /**
@@ -120,8 +120,8 @@ final class MedicalSpecialities extends Base
      */
     public function medicalDepartmentWithSpecialty(): array
     {
-        $department = static::randomElement(array_keys(static::$specialties));
-        $specialty = static::randomElement(static::$specialties[$department]);
+        $department = self::randomElement(array_keys(self::$specialties));
+        $specialty = self::randomElement(self::$specialties[$department]);
 
         return [
             'department' => $department,

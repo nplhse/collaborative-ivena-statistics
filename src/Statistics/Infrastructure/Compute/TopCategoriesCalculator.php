@@ -80,7 +80,7 @@ final readonly class TopCategoriesCalculator implements CalculatorInterface
         $limit = 10;
 
         $tops = [];
-        foreach (self::CAT_MAP as $key => $_cfg) {
+        foreach (array_keys(self::CAT_MAP) as $key) {
             $tops[$key] = $this->topForCategory($key, $limit, $fromSql, $whereSql, $params);
         }
 

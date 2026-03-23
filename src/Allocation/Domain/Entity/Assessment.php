@@ -94,11 +94,7 @@ class Assessment implements \Stringable
 
     public function isValid(): bool
     {
-        return
-            null !== $this->airway
-            && null !== $this->breathing
-            && null !== $this->circulation
-            && null !== $this->disability;
+        return !in_array(null, [$this->airway, $this->breathing, $this->circulation, $this->disability], true);
     }
 
     #[\Override]

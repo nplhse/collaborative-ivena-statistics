@@ -9,6 +9,7 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Infrastructure\Availability\ScopeAvailabilityService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -121,7 +122,7 @@ final class ScopePicker
     private function buildUrl(string $type, string $id): string
     {
         $r = $this->requestStack->getCurrentRequest();
-        if (!$r) {
+        if (!$r instanceof Request) {
             return '#';
         }
 

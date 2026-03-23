@@ -27,7 +27,7 @@ final class DefaultControllerTest extends WebTestCase
 
     public function testHelloWorldIsDisplayed(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
 
         UserFactory::createOne(['username' => 'area-user']);
         StateFactory::createOne(['name' => 'Hessen']);

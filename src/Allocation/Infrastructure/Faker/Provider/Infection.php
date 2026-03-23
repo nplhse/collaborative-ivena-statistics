@@ -21,6 +21,6 @@ final class Infection extends Base
 
     public function infection(): string
     {
-        return static::randomElement(static::$infections);
+        return self::randomElement(self::$infections);
     }
 }

@@ -22,6 +22,6 @@ final class Occasion extends Base
 
     public function occasion(): string
     {
-        return static::randomElement(static::$occasions);
+        return self::randomElement(self::$occasions);
     }
 }

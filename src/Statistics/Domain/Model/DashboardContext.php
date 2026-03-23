@@ -12,10 +12,10 @@ final readonly class DashboardContext
         public string $granularity,
         public string $periodKey,
     ) {
-        self::assertValid($scopeType, $granularity);
+        $this->assertValid($scopeType, $granularity);
     }
 
-    private static function assertValid(string $scopeType, string $granularity): void
+    private function assertValid(string $scopeType, string $granularity): void
     {
         $validScopes = [
             'public', 'state', 'dispatch_area', 'hospital',

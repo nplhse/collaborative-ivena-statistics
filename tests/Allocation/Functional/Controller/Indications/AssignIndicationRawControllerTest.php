@@ -17,7 +17,7 @@ final class AssignIndicationRawControllerTest extends WebTestCase
     public function testAssignLinksRawWithNormalized(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = self::createClient();
 
         $normalized = IndicationNormalizedFactory::createOne([
             'code' => '123',

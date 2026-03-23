@@ -39,12 +39,12 @@ final class AllocationIndicationResolverTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
 
         $rawRef = new IndicationRaw();
-        self::setId($rawRef, $rawId);
+        $this->setId($rawRef, $rawId);
         $normRef = new IndicationNormalized();
-        self::setId($normRef, $normId);
+        $this->setId($normRef, $normId);
 
-        $em->expects(self::never())->method('persist');
-        $em->expects(self::any())
+        $em->expects($this->never())->method('persist');
+        $em->expects($this->any())
             ->method('getReference')
             ->willReturnCallback(function (string $class, int $id) use ($rawId, $normId, $rawRef, $normRef) {
                 if (IndicationRaw::class === $class && $id === $rawId) {
@@ -79,7 +79,7 @@ final class AllocationIndicationResolverTest extends TestCase
         self::assertTrue($cache->has($hash), 'Cache should know hash.');
     }
 
-    private static function setId(object $entity, int $id): void
+    private function setId(object $entity, int $id): void
     {
         $ref = new \ReflectionObject($entity);
 

@@ -153,11 +153,9 @@ class IndicationNormalized implements \Stringable
 
     public function removeChild(IndicationRaw $child): static
     {
-        if ($this->children->removeElement($child)) {
-            // set the owning side to null (unless already changed)
-            if ($child->getTarget() === $this) {
-                $child->setTarget(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->children->removeElement($child) && $child->getTarget() === $this) {
+            $child->setTarget(null);
         }
 
         return $this;

@@ -35,7 +35,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $this->em = static::getContainer()->get(EntityManagerInterface::class);
+        $this->em = self::getContainer()->get(EntityManagerInterface::class);
     }
 
     public function testFullImportPipelinePersistsEntitiesAndWritesRejects(): void
@@ -106,7 +106,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
         $this->em->flush();
 
         // Services
-        $importerFactory = static::getContainer()->get(AllocationImporterFactory::class);
+        $importerFactory = self::getContainer()->get(AllocationImporterFactory::class);
         $importer = $importerFactory->create($reader, $rejectWriter);
 
         // Act

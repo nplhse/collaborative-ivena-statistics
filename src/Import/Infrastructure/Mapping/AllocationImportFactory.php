@@ -71,7 +71,7 @@ final readonly class AllocationImportFactory
     {
         $hospital = $import->getHospital();
 
-        if (null === $hospital) {
+        if (!$hospital instanceof Hospital) {
             throw new \LogicException('Import has no hospital assigned');
         }
 

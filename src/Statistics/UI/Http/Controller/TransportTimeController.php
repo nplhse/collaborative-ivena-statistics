@@ -24,7 +24,7 @@ final class TransportTimeController extends AbstractController
 
         $viewModel = $reader->read($scope);
 
-        $hasData = null !== $viewModel->getComputedAt();
+        $hasData = $viewModel->getComputedAt() instanceof \DateTimeImmutable;
 
         return $this->render('@Statistics/transport_time.html.twig', [
             'requestDto' => $dto,

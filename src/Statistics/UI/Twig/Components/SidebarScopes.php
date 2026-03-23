@@ -97,7 +97,7 @@ final class SidebarScopes
 
     public function isActive(Scope $s): bool
     {
-        return null !== $this->current
+        return $this->current instanceof Scope
             && $this->current->scopeType === $s->scopeType
             && $this->current->scopeId === $s->scopeId;
     }
