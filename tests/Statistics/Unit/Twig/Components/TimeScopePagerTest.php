@@ -16,46 +16,38 @@ use Symfony\Component\Routing\RouterInterface;
 
 final class TimeScopePagerTest extends TestCase
 {
-    private RequestStack&MockObject $requestStack;
+    /**
+     * @param TimeScopeNavigator&MockObject $navigator
+     */
+    private function makePager(
+        Scope $scope,
+        TimeScopeNavigator $navigator,
+        ?RequestStack $requestStack = null,
+        ?RouterInterface $router = null,
+    ): TimeScopePager {
+        $pager = new TimeScopePager(
+            $requestStack ?? $this->createStub(RequestStack::class),
+            $router ?? $this->createStub(RouterInterface::class),
+            $navigator,
+        );
+        $pager->scope = $scope;
 
-    private RouterInterface&MockObject $router;
-
-    private TimeScopeNavigator&MockObject $navigator;
-
-    protected function setUp(): void
-    {
-        /** @var RequestStack&MockObject $requestStack */
-        $requestStack = $this->createMock(RequestStack::class);
-        $this->requestStack = $requestStack;
-
-        /** @var RouterInterface&MockObject $router */
-        $router = $this->createMock(RouterInterface::class);
-        $this->router = $router;
-
-        /** @var TimeScopeNavigator&MockObject $navigator */
-        $navigator = $this->createMock(TimeScopeNavigator::class);
-        $this->navigator = $navigator;
-    }
-
-    private function makeComponent(Scope $scope): TimeScopePager
-    {
-        $cmp = new TimeScopePager($this->requestStack, $this->router, $this->navigator);
-        $cmp->scope = $scope;
-
-        return $cmp;
+        return $pager;
     }
 
     public function testInitDisablesPrevAndNextWhenNavigatorReturnsNoSides(): void
     {
         $scope = new Scope('state', 'BY', Period::MONTH, '2025-11-08');
 
-        $this->navigator
+        /** @var TimeScopeNavigator&MockObject $navigator */
+        $navigator = $this->createMock(TimeScopeNavigator::class);
+        $navigator
             ->expects($this->once())
             ->method('calculate')
             ->with($scope)
             ->willReturn([]);
 
-        $cmp = $this->makeComponent($scope);
+        $cmp = $this->makePager($scope, $navigator);
 
         $cmp->init();
 
@@ -80,7 +72,9 @@ final class TimeScopePagerTest extends TestCase
         $oneYearAgo = $today->modify('-1 year');
         $prevKey = $oneYearAgo->format('Y-m-d');
 
-        $this->navigator
+        /** @var TimeScopeNavigator&MockObject $navigator */
+        $navigator = $this->createMock(TimeScopeNavigator::class);
+        $navigator
             ->expects($this->once())
             ->method('calculate')
             ->with($scope)
@@ -102,27 +96,23 @@ final class TimeScopePagerTest extends TestCase
         $request->attributes->set('_route_params', ['type' => 'state', 'id' => 'BY']);
         $request->query->replace(['foo' => 'bar']);
 
-        $this->requestStack
-            ->method('getCurrentRequest')
-            ->willReturn($request);
+        $requestStack = $this->createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($request);
 
-        $this->router
-            ->method('generate')
-            ->willReturnCallback(
-                fn (string $route, array $params): string => sprintf('URL:%s', $params['key'])
-            );
+        $router = $this->createStub(RouterInterface::class);
+        $router->method('generate')->willReturnCallback(
+            fn (string $route, array $params): string => sprintf('URL:%s', $params['key'])
+        );
 
-        $cmp = $this->makeComponent($scope);
+        $cmp = $this->makePager($scope, $navigator, $requestStack, $router);
 
         $cmp->init();
 
-        // Prev
         self::assertFalse($cmp->prev['disabled']);
         self::assertSame('Prev label', $cmp->prev['label']);
         self::assertSame('Prev hint', $cmp->prev['hint']);
         self::assertSame('URL:'.$prevKey, $cmp->prev['url']);
 
-        // Next
         self::assertFalse($cmp->next['disabled']);
         self::assertSame('Next label', $cmp->next['label']);
         self::assertSame('Next hint', $cmp->next['hint']);
@@ -136,7 +126,9 @@ final class TimeScopePagerTest extends TestCase
         $tooEarly = '2000-01-01';
         $tooLate = '2999-01-01';
 
-        $this->navigator
+        /** @var TimeScopeNavigator&MockObject $navigator */
+        $navigator = $this->createMock(TimeScopeNavigator::class);
+        $navigator
             ->expects($this->once())
             ->method('calculate')
             ->with($scope)
@@ -151,15 +143,14 @@ final class TimeScopePagerTest extends TestCase
                 ],
             ]);
 
-        $this->router
-            ->expects($this->never())
-            ->method('generate');
+        /** @var RouterInterface&MockObject $router */
+        $router = $this->createMock(RouterInterface::class);
+        $router->expects($this->never())->method('generate');
 
-        $this->requestStack
-            ->method('getCurrentRequest')
-            ->willReturn(null);
+        $requestStack = $this->createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn(null);
 
-        $cmp = $this->makeComponent($scope);
+        $cmp = $this->makePager($scope, $navigator, $requestStack, $router);
 
         $cmp->init();
 
@@ -176,7 +167,9 @@ final class TimeScopePagerTest extends TestCase
     {
         $scope = new Scope('state', 'BY', Period::MONTH, '2025-11-08');
 
-        $this->navigator
+        /** @var TimeScopeNavigator&MockObject $navigator */
+        $navigator = $this->createMock(TimeScopeNavigator::class);
+        $navigator
             ->expects($this->once())
             ->method('calculate')
             ->with($scope)
@@ -187,15 +180,14 @@ final class TimeScopePagerTest extends TestCase
                 ],
             ]);
 
-        $this->requestStack
-            ->method('getCurrentRequest')
-            ->willReturn(null);
+        $requestStack = $this->createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn(null);
 
-        $this->router
-            ->expects($this->never())
-            ->method('generate');
+        /** @var RouterInterface&MockObject $router */
+        $router = $this->createMock(RouterInterface::class);
+        $router->expects($this->never())->method('generate');
 
-        $cmp = $this->makeComponent($scope);
+        $cmp = $this->makePager($scope, $navigator, $requestStack, $router);
 
         $cmp->init();
 
@@ -207,7 +199,9 @@ final class TimeScopePagerTest extends TestCase
     {
         $scope = new Scope('state', 'BY', Period::WEEK, '2025-11-08');
 
-        $this->navigator
+        /** @var TimeScopeNavigator&MockObject $navigator */
+        $navigator = $this->createMock(TimeScopeNavigator::class);
+        $navigator
             ->expects($this->once())
             ->method('calculate')
             ->with($scope)
@@ -222,11 +216,12 @@ final class TimeScopePagerTest extends TestCase
         $request->attributes->set('_route', 'stats_timegrid');
         $request->attributes->set('_route_params', ['type' => 'state', 'id' => 'BY']);
 
-        $this->requestStack
-            ->method('getCurrentRequest')
-            ->willReturn($request);
+        $requestStack = $this->createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($request);
 
-        $this->router
+        /** @var RouterInterface&MockObject $router */
+        $router = $this->createMock(RouterInterface::class);
+        $router
             ->expects($this->once())
             ->method('generate')
             ->with(
@@ -243,7 +238,7 @@ final class TimeScopePagerTest extends TestCase
             )
             ->willReturn('/dummy/url');
 
-        $cmp = $this->makeComponent($scope);
+        $cmp = $this->makePager($scope, $navigator, $requestStack, $router);
 
         $cmp->init();
 

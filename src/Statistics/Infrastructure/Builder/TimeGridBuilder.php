@@ -7,7 +7,7 @@ namespace App\Statistics\Infrastructure\Builder;
 use App\Statistics\Domain\Enum\TimeGridMode;
 use App\Statistics\Domain\Model\Scope;
 use App\Statistics\Domain\Model\TimeGridCell;
-use App\Statistics\Infrastructure\Reader\TimeGridSeriesReader;
+use App\Statistics\Infrastructure\Reader\TimeGridSeriesReaderInterface;
 use App\Statistics\Infrastructure\Util\Period;
 use App\Statistics\Infrastructure\Util\TimeGrid;
 
@@ -15,7 +15,7 @@ final readonly class TimeGridBuilder
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private TimeGridSeriesReader $seriesReader,
+        private TimeGridSeriesReaderInterface $seriesReader,
     ) {
     }
 
