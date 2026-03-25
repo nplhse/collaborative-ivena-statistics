@@ -76,7 +76,7 @@ ci: rector fix-php fix-twig static-analysis
 static-analysis: phpstan psalm ## Run the static analysis
 
 fix-php: ## Fix files with php-cs-fixer
-	@$(PHP_CS_FIXER) fix --allow-risky=yes
+	@$(PHP_CS_FIXER) fix
 
 fix-twig: ## Fix files with twig-cs-fixer
 	@$(TWIG_CS_FIXER) --fix
