@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\IndicationRaw;

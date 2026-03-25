@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Allocation\UI\Form;
 
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;

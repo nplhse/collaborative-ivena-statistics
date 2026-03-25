@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Seed\UI\Console\Command;
 
 use App\Seed\Application\Contracts\SeedProviderInterface;

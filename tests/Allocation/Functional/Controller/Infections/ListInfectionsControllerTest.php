@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Allocation\Functional\Controller\Infections;
 
 use App\Allocation\Infrastructure\Factory\InfectionFactory;

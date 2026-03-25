@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Import\Doubles\Service\Adapter;
 
 use App\Import\Application\Contracts\RejectWriterInterface;

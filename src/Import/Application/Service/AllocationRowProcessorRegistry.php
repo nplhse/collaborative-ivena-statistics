@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Import\Application\Service;
 
 use App\Import\Application\Contracts\AllocationRowProcessorInterface;

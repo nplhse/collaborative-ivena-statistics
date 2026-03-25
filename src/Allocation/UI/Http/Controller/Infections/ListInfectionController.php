@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Allocation\UI\Http\Controller\Infections;
 
 use App\Allocation\Infrastructure\Repository\InfectionRepository;

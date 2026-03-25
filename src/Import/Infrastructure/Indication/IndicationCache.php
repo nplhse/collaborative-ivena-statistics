@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Import\Infrastructure\Indication;
 
 use App\Allocation\Domain\Entity\IndicationNormalized;

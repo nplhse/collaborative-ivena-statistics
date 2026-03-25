@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Seed\Infrastructure\Provider;
 
 use App\Allocation\Domain\Entity\IndicationRaw;

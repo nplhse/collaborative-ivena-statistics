@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Content\Functional\Controller;
 
 use App\Allocation\Infrastructure\Factory\AllocationFactory;

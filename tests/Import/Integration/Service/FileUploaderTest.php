@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Import\Integration\Service;
 
 use App\Import\Application\Service\FileUploader;

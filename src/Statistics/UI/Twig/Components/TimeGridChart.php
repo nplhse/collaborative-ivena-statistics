@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Statistics\UI\Twig\Components;
 
 use App\Statistics\Domain\Enum\TimeGridMode;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Allocation\UI\Http\Controller\Allocations;
 
 use App\Allocation\Domain\Entity\Allocation;
