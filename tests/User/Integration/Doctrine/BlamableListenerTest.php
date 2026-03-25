@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\User\Integration\Doctrine;
 
 use App\Allocation\Domain\Entity\State;

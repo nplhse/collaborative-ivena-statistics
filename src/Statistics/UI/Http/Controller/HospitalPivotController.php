@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Infrastructure\Query\HospitalCubeQuery;

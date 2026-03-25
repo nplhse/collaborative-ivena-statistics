@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Allocation\Functional\Controller\DispatchAreas;
 
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;

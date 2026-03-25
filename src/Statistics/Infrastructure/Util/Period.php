@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Statistics\Infrastructure\Util;
 
 final class Period

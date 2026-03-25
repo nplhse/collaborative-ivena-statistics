@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     errorLevel="3"
+    cacheDirectory="var/cache/psalm"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -69,6 +70,7 @@
                 <directory name="src/Import/Infrastructure/Resolver/" />
                 <directory name="src/Import/Infrastructure/Repository/" />
                 <directory name="src/Seed/Infrastructure/Provider/" />
+                <file name="src/Statistics/Infrastructure/Reader/TimeGridSeriesReader.php" />
             </errorLevel>
         </UnusedClass>
         <UnusedMethodCall>

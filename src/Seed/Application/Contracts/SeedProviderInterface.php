@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Seed\Application\Contracts;
 
 use App\User\Domain\Entity\User;

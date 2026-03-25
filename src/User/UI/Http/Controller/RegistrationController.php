@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\User\UI\Http\Controller;
 
 use App\User\Domain\Entity\User;

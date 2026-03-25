@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Seed\Unit\Areas;
 
 use App\Allocation\Domain\Entity\DispatchArea;

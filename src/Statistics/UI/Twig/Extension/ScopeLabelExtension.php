@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Statistics\UI\Twig\Extension;
 
 use App\Statistics\Domain\Model\Scope;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Import\Infrastructure\Adapter;
 
 use App\Import\Application\Contracts\RowReaderInterface;

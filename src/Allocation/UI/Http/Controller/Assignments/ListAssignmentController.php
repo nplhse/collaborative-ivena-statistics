@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Allocation\UI\Http\Controller\Assignments;
 
 use App\Allocation\Infrastructure\Repository\AssignmentRepository;

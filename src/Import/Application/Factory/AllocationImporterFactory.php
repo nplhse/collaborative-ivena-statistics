@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Import\Application\Factory;
 
 use App\Import\Application\Contracts\AllocationPersisterInterface;

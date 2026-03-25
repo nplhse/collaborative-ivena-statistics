@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Seed\Unit\Provider;
 
 use App\Allocation\Domain\Entity\SecondaryTransport;

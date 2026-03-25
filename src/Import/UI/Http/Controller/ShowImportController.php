@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Import\UI\Http\Controller;
 
 use App\Import\Domain\Entity\Import;
