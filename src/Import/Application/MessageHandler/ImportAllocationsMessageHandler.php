@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\Application\MessageHandler;
 
+use App\Import\Application\Audit\ImportRunSuppressedAuditClasses;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
 use App\Import\Application\DTO\ImportSummary;
@@ -17,6 +18,7 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
+use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -37,6 +39,7 @@ final readonly class ImportAllocationsMessageHandler
         private LoggerInterface $importLogger,
         private EventDispatcherInterface $dispatcher,
         private ImportRejectRepository $importRejectRepository,
+        private AuditContext $auditContext,
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
     ) {
@@ -65,27 +68,32 @@ final readonly class ImportAllocationsMessageHandler
             return;
         }
 
-        if ($import->hasRunBefore()) {
-            $this->cleanupPreviousRun($import);
-        }
-
-        $import->markAsRunning();
-        $this->em->flush();
-
-        $reader = $this->rowReaderFactory->createFromCsvFile($filePath);
-        $writer = $this->rejectWriterFactory->create();
-        $writer->start($import);
-
+        $this->auditContext->pushSuppressedEntityAudit(ImportRunSuppressedAuditClasses::fqcnList());
         try {
-            $this->run($import, $reader, $writer);
+            if ($import->hasRunBefore()) {
+                $this->cleanupPreviousRun($import);
+            }
 
-            $this->dispatcher->dispatch(new ImportCompleted($message->importId));
-        } catch (\Throwable $e) {
-            $this->importLogger->critical('import.failed', [
-                'id' => $import->getId(),
-                'ex' => $e::class,
-                'msg' => $e->getMessage(),
-            ]);
+            $import->markAsRunning();
+            $this->flushWithImportIntent('import.run.started', $import);
+
+            $reader = $this->rowReaderFactory->createFromCsvFile($filePath);
+            $writer = $this->rejectWriterFactory->create();
+            $writer->start($import);
+
+            try {
+                $this->run($import, $reader, $writer);
+
+                $this->dispatcher->dispatch(new ImportCompleted($message->importId));
+            } catch (\Throwable $e) {
+                $this->importLogger->critical('import.failed', [
+                    'id' => $import->getId(),
+                    'ex' => $e::class,
+                    'msg' => $e->getMessage(),
+                ]);
+            }
+        } finally {
+            $this->auditContext->popSuppressedEntityAudit();
         }
     }
 
@@ -114,14 +122,14 @@ final readonly class ImportAllocationsMessageHandler
 
             ImportEvaluation::apply($fresh, $summary, $runtimeMs);
 
-            $this->em->flush();
+            $this->flushWithImportIntent('import.run.finished', $fresh);
 
             return $summary;
         } catch (\Throwable $e) {
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
 
             $import->markAsFailed($runtimeMs);
-            $this->em->flush();
+            $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $e->getMessage()]);
 
             $this->importLogger->error('import.failed.precondition', [
                 'id' => $import->getId(),
@@ -135,12 +143,24 @@ final readonly class ImportAllocationsMessageHandler
     private function markFailed(Import $import, string $reason): void
     {
         $import->setStatus(ImportStatus::FAILED);
-        $this->em->flush();
+        $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $reason]);
 
         $this->importLogger->error('import.failed.precondition', [
             'id' => $import->getId(),
             'reason' => $reason,
         ]);
+    }
+
+    /** @param array<string, mixed> $metadata */
+    private function flushWithImportIntent(string $intent, Import $import, array $metadata = []): void
+    {
+        $meta = array_merge(['import_id' => $import->getId()], $metadata);
+        $this->auditContext->beginIntent($intent, $meta);
+        try {
+            $this->em->flush();
+        } finally {
+            $this->auditContext->endIntent();
+        }
     }
 
     private function cleanupPreviousRun(Import $import): void
@@ -185,12 +205,10 @@ final readonly class ImportAllocationsMessageHandler
             return false;
         }
 
-        // Unix: starts with /
         if (DIRECTORY_SEPARATOR === $path[0]) {
             return true;
         }
 
-        // Windows: drive letter + colon
         return (bool) \preg_match('#^[A-Za-z]:[\\\\/]#', $path);
     }
 }
