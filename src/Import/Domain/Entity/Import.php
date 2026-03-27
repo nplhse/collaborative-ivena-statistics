@@ -9,9 +9,11 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Domain\Traits\Blamable;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
+#[Audit\Audited]
 #[ORM\Entity(repositoryClass: ImportRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
 class Import implements \Stringable

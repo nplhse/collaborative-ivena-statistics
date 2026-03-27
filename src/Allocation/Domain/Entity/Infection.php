@@ -6,9 +6,11 @@ namespace App\Allocation\Domain\Entity;
 
 use App\Allocation\Infrastructure\Repository\InfectionRepository;
 use App\Shared\Domain\Traits\Blamable;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
+#[Audit\Audited]
 #[ORM\Entity(repositoryClass: InfectionRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
 class Infection implements \Stringable
