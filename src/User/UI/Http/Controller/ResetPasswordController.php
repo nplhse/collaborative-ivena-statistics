@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\UI\Form\ResetPasswordFormType;
 use App\User\UI\Form\ResetPasswordRequestFormType;
@@ -32,6 +33,7 @@ final class ResetPasswordController extends AbstractController
         private readonly MailerInterface $mailer,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly string $mailerFrom,
+        private readonly AuditContext $auditContext,
     ) {
     }
 
@@ -107,7 +109,12 @@ final class ResetPasswordController extends AbstractController
 
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
             $user->setCredentialsExpired(false);
-            $this->entityManager->flush();
+            $this->auditContext->beginIntent('user.password_reset_completed', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
 
             $this->cleanSessionAfterReset();
             $this->addFlash('success', 'flash.reset_password.changed');

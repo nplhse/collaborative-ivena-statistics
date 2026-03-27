@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\ForceChangePasswordType;
@@ -27,6 +28,7 @@ final class SettingsController extends AbstractController
         private readonly EmailVerifier $emailVerifier,
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly AuditContext $auditContext,
     ) {
     }
 
@@ -91,7 +93,12 @@ final class SettingsController extends AbstractController
             if ($newEmail !== $user->getEmail()) {
                 $user->setEmail($newEmail);
                 $user->setIsVerified(false);
-                $this->entityManager->flush();
+                $this->auditContext->beginIntent('user.settings.email_changed', []);
+                try {
+                    $this->entityManager->flush();
+                } finally {
+                    $this->auditContext->endIntent();
+                }
                 $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
             }
 
@@ -129,7 +136,12 @@ final class SettingsController extends AbstractController
 
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
             $user->setCredentialsExpired(false);
-            $this->entityManager->flush();
+            $this->auditContext->beginIntent('user.settings.password_changed', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
 
             $this->addFlash('success', 'flash.settings.password.updated');
 
@@ -158,7 +170,12 @@ final class SettingsController extends AbstractController
 
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
             $user->setCredentialsExpired(false);
-            $this->entityManager->flush();
+            $this->auditContext->beginIntent('user.settings.forced_password_changed', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
 
             $this->addFlash('success', 'flash.settings.password.updated');
 

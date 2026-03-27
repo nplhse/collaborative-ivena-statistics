@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\Infrastructure\Security\LoginFormAuthenticator;
@@ -27,6 +28,7 @@ final class RegistrationController extends AbstractController
         private readonly EmailVerifier $emailVerifier,
         private readonly UserAuthenticatorInterface $userAuthenticator,
         private readonly LoginFormAuthenticator $loginFormAuthenticator,
+        private readonly AuditContext $auditContext,
     ) {
     }
 
@@ -57,7 +59,12 @@ final class RegistrationController extends AbstractController
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
 
             $this->entityManager->persist($user);
-            $this->entityManager->flush();
+            $this->auditContext->beginIntent('user.registered', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
 
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
             $this->addFlash('success', 'flash.registration.success_verify_required');
@@ -95,7 +102,12 @@ final class RegistrationController extends AbstractController
         }
 
         $user->setIsVerified(true);
-        $this->entityManager->flush();
+        $this->auditContext->beginIntent('user.email_verified', []);
+        try {
+            $this->entityManager->flush();
+        } finally {
+            $this->auditContext->endIntent();
+        }
 
         $this->addFlash('success', 'flash.registration.verify.success');
 
