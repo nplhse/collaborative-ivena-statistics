@@ -6,6 +6,7 @@ namespace App\Admin\UI\Http\Controller;
 
 use App\Admin\UI\Http\Controller\Allocation\AllocationCrudController;
 use App\Admin\UI\Http\Controller\Assignment\AssignmentCrudController;
+use App\Admin\UI\Http\Controller\Audit\AuditLogCrudController;
 use App\Admin\UI\Http\Controller\Department\DepartmentCrudController;
 use App\Admin\UI\Http\Controller\DispatchArea\DispatchAreaCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
@@ -75,5 +76,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(SecondaryTransportCrudController::class, 'Secondary Transports', 'fas fa-list');
         yield MenuItem::linkTo(SpecialityCrudController::class, 'Specialities', 'fas fa-list');
         yield MenuItem::linkTo(StateCrudController::class, 'States', 'fas fa-list');
+        yield MenuItem::section('System');
+        yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');
     }
 }
