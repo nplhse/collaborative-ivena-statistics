@@ -1,0 +1,45 @@
+<div class="card mb-3">
+    <div class="card-body">
+        {% if not this.view.hasData %}
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-chart-bar"></i></div>
+                <p class="empty-title">{{ 'statistics.distribution.empty'|trans }}</p>
+            </div>
+        {% else %}
+            <div
+                data-controller="distribution-panel"
+                data-distribution-panel-options-value="{{ this.chartOptionsJson|e('html_attr') }}"
+                data-distribution-panel-y-axis-percent-value="{{ this.chartUsesPercentYAxis ? 'true' : 'false' }}"
+            >
+                <div class="position-relative mb-4" style="min-height: 320px" data-distribution-panel-target="chart"></div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped text-nowrap">
+                    <thead>
+                    <tr>
+                        <th>{{ 'statistics.distribution.table.category'|trans }}</th>
+                        {% if this.view.grouped %}
+                            <th>{{ 'statistics.distribution.table.group'|trans }}</th>
+                        {% endif %}
+                        <th class="text-end">{{ 'statistics.distribution.table.count'|trans }}</th>
+                        <th class="text-end">{{ 'statistics.distribution.table.percent'|trans }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in this.view.tableRows %}
+                        <tr>
+                            <td>{{ row.primaryLabel }}</td>
+                            {% if this.view.grouped %}
+                                <td>{{ row.groupLabel }}</td>
+                            {% endif %}
+                            <td class="text-end">{{ row.count }}</td>
+                            <td class="text-end">{{ row.percent }}%</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
