@@ -29,9 +29,7 @@ final class AuditFieldRulesTest extends TestCase
     {
         self::assertFalse($this->rules->isClassAudited(NonAuditedDummy::class));
 
-        /** @var class-string $nonexistentFqcn */
-        $nonexistentFqcn = 'NonExistingClass';
-        self::assertFalse($this->rules->isClassAudited($nonexistentFqcn));
+        self::assertFalse($this->rules->isClassAudited('NonExistingClass'));
     }
 
     public function testShouldSkipAutomaticMetadataFields(): void

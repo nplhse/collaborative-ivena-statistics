@@ -15,7 +15,7 @@ final class AuditFieldRules
     private const array AUTOMATIC_METADATA_FIELDS = ['createdAt', 'updatedAt', 'createdBy', 'updatedBy'];
 
     /**
-     * @param class-string $class
+     * @param string $class candidate FQCN; non-existent classes yield false without reflection
      */
     public function isClassAudited(string $class): bool
     {
