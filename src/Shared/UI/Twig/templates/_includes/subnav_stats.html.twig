@@ -33,6 +33,13 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_stats_distribution' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_distribution') }}">
+                            <span class="nav-link-title">
+                                {{ 'link.stats.distribution'|trans }}
+                            </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
