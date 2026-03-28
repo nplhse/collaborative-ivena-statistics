@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\User;
 
+use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -24,6 +25,7 @@ final class UserCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly AuditContext $auditContext,
     ) {
     }
 
@@ -94,14 +96,19 @@ final class UserCrudController extends AbstractCrudController
             return;
         }
 
-        $plainPassword = $entityInstance->getPassword();
-        if (null === $plainPassword || '' === $plainPassword) {
-            throw new \LogicException('Password must not be empty when creating a user.');
+        $this->auditContext->beginIntent('user.admin.created', ['source' => 'easyadmin']);
+        try {
+            $plainPassword = $entityInstance->getPassword();
+            if (null === $plainPassword || '' === $plainPassword) {
+                throw new \LogicException('Password must not be empty when creating a user.');
+            }
+
+            $entityInstance->setPassword($this->passwordHasher->hashPassword($entityInstance, $plainPassword));
+
+            parent::persistEntity($entityManager, $entityInstance);
+        } finally {
+            $this->auditContext->endIntent();
         }
-
-        $entityInstance->setPassword($this->passwordHasher->hashPassword($entityInstance, $plainPassword));
-
-        parent::persistEntity($entityManager, $entityInstance);
     }
 
     #[\Override]
@@ -111,33 +118,38 @@ final class UserCrudController extends AbstractCrudController
             return;
         }
 
-        $plainPassword = $entityInstance->getPassword() ?? '';
-        if ('' === $plainPassword) {
-            $originalData = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
-            $originalPassword = $originalData['password'] ?? null;
+        $this->auditContext->beginIntent('user.admin.updated', ['source' => 'easyadmin']);
+        try {
+            $plainPassword = $entityInstance->getPassword() ?? '';
+            if ('' === $plainPassword) {
+                $originalData = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
+                $originalPassword = $originalData['password'] ?? null;
 
-            if (!\is_string($originalPassword) || '' === $originalPassword) {
-                $userId = $entityInstance->getId();
-                if (null !== $userId) {
-                    $storedPassword = $entityManager->getConnection()->fetchOne(
-                        'SELECT password FROM "user" WHERE id = :id',
-                        ['id' => $userId]
-                    );
-                    if (\is_string($storedPassword) && '' !== $storedPassword) {
-                        $originalPassword = $storedPassword;
+                if (!\is_string($originalPassword) || '' === $originalPassword) {
+                    $userId = $entityInstance->getId();
+                    if (null !== $userId) {
+                        $storedPassword = $entityManager->getConnection()->fetchOne(
+                            'SELECT password FROM "user" WHERE id = :id',
+                            ['id' => $userId]
+                        );
+                        if (\is_string($storedPassword) && '' !== $storedPassword) {
+                            $originalPassword = $storedPassword;
+                        }
                     }
                 }
-            }
 
-            if (\is_string($originalPassword) && '' !== $originalPassword) {
-                $entityInstance->setPassword($originalPassword);
+                if (\is_string($originalPassword) && '' !== $originalPassword) {
+                    $entityInstance->setPassword($originalPassword);
+                } else {
+                    throw new \LogicException('Could not preserve existing password while updating user.');
+                }
             } else {
-                throw new \LogicException('Could not preserve existing password while updating user.');
+                $entityInstance->setPassword($this->passwordHasher->hashPassword($entityInstance, $plainPassword));
             }
-        } else {
-            $entityInstance->setPassword($this->passwordHasher->hashPassword($entityInstance, $plainPassword));
-        }
 
-        parent::updateEntity($entityManager, $entityInstance);
+            parent::updateEntity($entityManager, $entityInstance);
+        } finally {
+            $this->auditContext->endIntent();
+        }
     }
 }

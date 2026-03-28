@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\Domain\Entity;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,6 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @psalm-suppress ClassMustBeFinal */
+#[Audit\Audited]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
@@ -44,6 +46,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Audit\AuditSensitive]
     private ?string $password = null;
 
     #[ORM\Column(options: ['default' => false])]

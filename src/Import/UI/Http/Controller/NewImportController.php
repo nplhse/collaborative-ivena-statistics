@@ -12,6 +12,7 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Form\ImportCreateType;
+use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -28,6 +29,7 @@ final class NewImportController extends AbstractController
         private readonly MessageBusInterface $bus,
         private readonly FileChecksumCalculator $checksumCalculator,
         private readonly FileUploader $fileUploader,
+        private readonly AuditContext $auditContext,
     ) {
     }
 
@@ -78,7 +80,12 @@ final class NewImportController extends AbstractController
         $import->setFileChecksum($checksum);
 
         $this->em->persist($import);
-        $this->em->flush();
+        $this->auditContext->beginIntent('import.created', []);
+        try {
+            $this->em->flush();
+        } finally {
+            $this->auditContext->endIntent();
+        }
 
         $importId = $import->getId();
 

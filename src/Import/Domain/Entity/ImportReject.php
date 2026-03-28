@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Import\Domain\Entity;
 
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\ORM\Mapping as ORM;
 
+#[Audit\Audited]
 #[ORM\Entity(repositoryClass: ImportRejectRepository::class)]
 class ImportReject
 {

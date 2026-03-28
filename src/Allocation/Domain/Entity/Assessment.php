@@ -9,8 +9,10 @@ use App\Allocation\Domain\Enum\AssessmentBreathing;
 use App\Allocation\Domain\Enum\AssessmentCirculation;
 use App\Allocation\Domain\Enum\AssessmentDisability;
 use App\Allocation\Infrastructure\Repository\AssessmentRepository;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\ORM\Mapping as ORM;
 
+#[Audit\Audited]
 #[ORM\Entity(repositoryClass: AssessmentRepository::class)]
 class Assessment implements \Stringable
 {

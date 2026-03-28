@@ -8,6 +8,8 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Shared\Infrastructure\Audit\AuditContext;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -25,10 +27,37 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
  */
 final class HospitalCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private readonly AuditContext $auditContext,
+    ) {
+    }
+
     #[\Override]
     public static function getEntityFqcn(): string
     {
         return Hospital::class;
+    }
+
+    #[\Override]
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->auditContext->beginIntent('hospital.admin.created', ['source' => 'easyadmin']);
+        try {
+            parent::persistEntity($entityManager, $entityInstance);
+        } finally {
+            $this->auditContext->endIntent();
+        }
+    }
+
+    #[\Override]
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->auditContext->beginIntent('hospital.admin.updated', ['source' => 'easyadmin']);
+        try {
+            parent::updateEntity($entityManager, $entityInstance);
+        } finally {
+            $this->auditContext->endIntent();
+        }
     }
 
     #[\Override]
