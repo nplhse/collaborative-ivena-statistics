@@ -76,6 +76,6 @@ jobs:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
 
             - name: Upload coverage reports to Codecov
-              uses: codecov/codecov-action@v5
+              uses: codecov/codecov-action@v6
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
