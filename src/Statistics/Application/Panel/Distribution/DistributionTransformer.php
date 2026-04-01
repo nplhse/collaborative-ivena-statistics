@@ -4,181 +4,126 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Panel\Distribution;
 
-use App\Statistics\Domain\Model\DistributionPanelView;
+use App\Statistics\Application\Mapping\ValueMapper;
 
-/**
- * Pivots SQL aggregate rows into chart/table structures; percentages are derived from counts only.
- */
 final class DistributionTransformer
 {
     /**
-     * @param list<array{pk: int, gk: int|null, value: int}> $rows
+     * @param list<array{dimension_key: int, group_key: int|null, value: int}> $rows
+     *
+     * @return array{
+     *     labels: list<string>,
+     *     series: list<array{name: string, values: list<int>, percentages: list<float>}>,
+     *     table: list<array{dimensionLabel: string, groupLabel: string|null, value: int, percent: float, isTotal: bool}>
+     * }
      */
-    public function transform(
-        array $rows,
-        CodeLabelMapperInterface $primaryMapper,
-        ?CodeLabelMapperInterface $groupMapper,
-        bool $grouped,
-        string $simpleSeriesName,
-    ): DistributionPanelView {
-        if (!$grouped || !$groupMapper instanceof CodeLabelMapperInterface) {
-            return $this->transformSimple($rows, $primaryMapper, $simpleSeriesName);
-        }
-
-        return $this->transformGrouped($rows, $primaryMapper, $groupMapper);
-    }
-
-    /**
-     * @param list<array{pk: int, gk: int|null, value: int}> $rows
-     */
-    private function transformSimple(
-        array $rows,
-        CodeLabelMapperInterface $primaryMapper,
-        string $simpleSeriesName,
-    ): DistributionPanelView {
-        $byPk = [];
+    public function transform(array $rows, ValueMapper $dimensionMapper, ?ValueMapper $groupMapper): array
+    {
+        $dimensionValues = [];
+        $groupValues = [];
+        $matrix = [];
         foreach ($rows as $r) {
-            $pk = $r['pk'];
-            $byPk[$pk] = ($byPk[$pk] ?? 0) + $r['value'];
+            $dimension = $r['dimension_key'];
+            $group = $r['group_key'] ?? 0;
+            $dimensionValues[$dimension] = true;
+            $groupValues[$group] = true;
+            $matrix[$group] ??= [];
+            $matrix[$group][$dimension] = (int) (($matrix[$group][$dimension] ?? 0) + $r['value']);
         }
 
-        $pks = array_keys($byPk);
-        sort($pks, SORT_NUMERIC);
+        $dimensionKeys = array_keys($dimensionValues);
+        sort($dimensionKeys, SORT_NUMERIC);
+
+        $groupKeys = array_keys($groupValues);
+        sort($groupKeys, SORT_NUMERIC);
 
         $labels = [];
-        $values = [];
-        foreach ($pks as $pk) {
-            $labels[] = $primaryMapper->label($pk);
-            $values[] = $byPk[$pk];
-        }
-
-        $total = array_sum($values);
-        $totalFloat = (float) $total;
-        $percentages = array_map(
-            static fn (int $v): float => $totalFloat > 0.0 ? round((float) $v / $totalFloat * 100.0, 2) : 0.0,
-            $values
-        );
-
-        $tableRows = [];
-        foreach (array_keys($pks) as $i) {
-            $tableRows[] = [
-                'primaryLabel' => $labels[$i],
-                'groupLabel' => null,
-                'count' => $values[$i],
-                'percent' => $percentages[$i],
-            ];
-        }
-
-        return new DistributionPanelView(
-            $labels,
-            [
-                [
-                    'name' => $simpleSeriesName,
-                    'values' => $values,
-                    'percentages' => $percentages,
-                ],
-            ],
-            $tableRows,
-            false,
-        );
-    }
-
-    /**
-     * @param list<array{pk: int, gk: int|null, value: int}> $rows
-     */
-    private function transformGrouped(
-        array $rows,
-        CodeLabelMapperInterface $primaryMapper,
-        CodeLabelMapperInterface $groupMapper,
-    ): DistributionPanelView {
-        $matrix = [];
-        $pkSet = [];
-        $gkNormSet = [];
-
-        foreach ($rows as $r) {
-            $pk = $r['pk'];
-            $gk = $r['gk'];
-            $gkNorm = $this->normalizeGroupKey($gk);
-            $pkSet[$pk] = true;
-            $gkNormSet[$gkNorm] = true;
-            $matrix[$gkNorm] ??= [];
-            $matrix[$gkNorm][$pk] = ($matrix[$gkNorm][$pk] ?? 0) + $r['value'];
-        }
-
-        $pks = array_keys($pkSet);
-        sort($pks, SORT_NUMERIC);
-
-        $gkNorms = array_keys($gkNormSet);
-        usort($gkNorms, static function (string $a, string $b): int {
-            if ($a === $b) {
-                return 0;
-            }
-            if ('__null__' === $a) {
-                return 1;
-            }
-            if ('__null__' === $b) {
-                return -1;
-            }
-
-            return (int) substr($a, 1) <=> (int) substr($b, 1);
-        });
-
-        $labels = array_map($primaryMapper->label(...), $pks);
-
-        $rowTotals = [];
-        foreach ($pks as $i => $pk) {
+        $dimensionTotals = [];
+        foreach ($dimensionKeys as $dimensionKey) {
+            $labels[] = $dimensionMapper->label($dimensionKey);
             $sum = 0;
-            foreach ($gkNorms as $gkNorm) {
-                $sum += (int) ($matrix[$gkNorm][$pk] ?? 0);
+            foreach ($groupKeys as $groupKey) {
+                $sum += $matrix[$groupKey][$dimensionKey] ?? 0;
             }
-            $rowTotals[$i] = $sum;
+            $dimensionTotals[$dimensionKey] = $sum;
         }
 
+        $overallTotal = array_sum($dimensionTotals);
+        $overallTotalFloat = (float) $overallTotal;
         $series = [];
-        foreach ($gkNorms as $gkNorm) {
+        foreach ($groupKeys as $groupKey) {
             $values = [];
             $percentages = [];
-            foreach ($pks as $i => $pk) {
-                $v = (int) ($matrix[$gkNorm][$pk] ?? 0);
+            foreach ($dimensionKeys as $dimensionKey) {
+                $v = $matrix[$groupKey][$dimensionKey] ?? 0;
                 $values[] = $v;
-                $rt = $rowTotals[$i];
-                $rtFloat = (float) $rt;
-                $percentages[] = $rtFloat > 0.0 ? round((float) $v / $rtFloat * 100.0, 2) : 0.0;
+                if ($groupMapper instanceof ValueMapper) {
+                    $total = (float) $dimensionTotals[$dimensionKey];
+                    $percentages[] = $total > 0.0 ? round(((float) $v / $total) * 100.0, 2) : 0.0;
+                    continue;
+                }
+
+                $percentages[] = $overallTotalFloat > 0.0 ? round(((float) $v / $overallTotalFloat) * 100.0, 2) : 0.0;
             }
+
             $series[] = [
-                'name' => $groupMapper->label($this->denormalizeGroupKey($gkNorm)),
+                'name' => $groupMapper instanceof ValueMapper ? $groupMapper->label($groupKey) : 'Gesamt',
                 'values' => $values,
                 'percentages' => $percentages,
             ];
         }
 
-        $tableRows = [];
-        foreach ($rows as $r) {
-            $pk = $r['pk'];
-            $gk = $r['gk'];
-            $v = $r['value'];
-            $pkIndex = array_search($pk, $pks, true);
-            $rt = false !== $pkIndex ? $rowTotals[$pkIndex] : 0;
-            $rtFloat = (float) $rt;
-            $pct = $rtFloat > 0.0 ? round((float) $v / $rtFloat * 100.0, 2) : 0.0;
-            $tableRows[] = [
-                'primaryLabel' => $primaryMapper->label($pk),
-                'groupLabel' => $groupMapper->label($gk),
-                'count' => $v,
-                'percent' => $pct,
-            ];
+        return [
+            'labels' => $labels,
+            'series' => $series,
+            'table' => $this->buildTable($dimensionKeys, $groupKeys, $matrix, $dimensionTotals, $dimensionMapper, $groupMapper),
+        ];
+    }
+
+    /**
+     * @param list<int>                   $dimensionKeys
+     * @param list<int>                   $groupKeys
+     * @param array<int, array<int, int>> $matrix
+     * @param array<int, int>             $dimensionTotals
+     *
+     * @return list<array{dimensionLabel: string, groupLabel: string|null, value: int, percent: float, isTotal: bool}>
+     */
+    private function buildTable(
+        array $dimensionKeys,
+        array $groupKeys,
+        array $matrix,
+        array $dimensionTotals,
+        ValueMapper $dimensionMapper,
+        ?ValueMapper $groupMapper,
+    ): array {
+        $rows = [];
+        foreach ($dimensionKeys as $dimensionKey) {
+            foreach ($groupKeys as $groupKey) {
+                $value = $matrix[$groupKey][$dimensionKey] ?? 0;
+                $grouped = $groupMapper instanceof ValueMapper;
+                $total = $grouped ? (float) $dimensionTotals[$dimensionKey] : (float) array_sum($dimensionTotals);
+                $groupLabel = null;
+                if ($groupMapper instanceof ValueMapper) {
+                    $groupLabel = $groupMapper->label($groupKey);
+                }
+                $rows[] = [
+                    'dimensionLabel' => $dimensionMapper->label($dimensionKey),
+                    'groupLabel' => $groupLabel,
+                    'value' => $value,
+                    'percent' => $total > 0.0 ? round(((float) $value / $total) * 100.0, 2) : 0.0,
+                    'isTotal' => false,
+                ];
+            }
         }
 
-        return new DistributionPanelView($labels, $series, $tableRows, true);
-    }
+        $rows[] = [
+            'dimensionLabel' => 'Total',
+            'groupLabel' => null,
+            'value' => array_sum($dimensionTotals),
+            'percent' => 100.0,
+            'isTotal' => true,
+        ];
 
-    private function normalizeGroupKey(?int $gk): string
-    {
-        return null === $gk ? '__null__' : 'k'.$gk;
-    }
-
-    private function denormalizeGroupKey(string $gkNorm): ?int
-    {
-        return '__null__' === $gkNorm ? null : (int) substr($gkNorm, 1);
+        return $rows;
     }
 }

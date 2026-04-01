@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Panel\Distribution;
 
-use App\Statistics\Application\Panel\Distribution\CodeLabelMapperInterface;
+use App\Statistics\Application\Mapping\ValueMapper;
 use App\Statistics\Application\Panel\Distribution\DistributionTransformer;
 use PHPUnit\Framework\TestCase;
 
@@ -18,23 +18,24 @@ final class DistributionTransformerTest extends TestCase
         ]);
         $transformer = new DistributionTransformer();
 
-        $view = $transformer->transform(
+        $result = $transformer->transform(
             [
-                ['pk' => 1, 'gk' => null, 'value' => 25],
-                ['pk' => 2, 'gk' => null, 'value' => 75],
+                ['dimension_key' => 1, 'group_key' => null, 'value' => 25],
+                ['dimension_key' => 2, 'group_key' => null, 'value' => 75],
             ],
             $primary,
             null,
-            false,
-            'Count',
         );
 
-        self::assertSame(['A', 'B'], $view->labels);
-        self::assertCount(1, $view->series);
-        self::assertSame('Count', $view->series[0]['name']);
-        self::assertSame([25, 75], $view->series[0]['values']);
-        self::assertSame([25.0, 75.0], $view->series[0]['percentages']);
-        self::assertFalse($view->grouped);
+        self::assertSame(['A', 'B'], $result['labels']);
+        self::assertCount(1, $result['series']);
+        self::assertSame('Gesamt', $result['series'][0]['name']);
+        self::assertSame([25, 75], $result['series'][0]['values']);
+        self::assertSame([25.0, 75.0], $result['series'][0]['percentages']);
+        self::assertCount(3, $result['table']);
+        self::assertSame('Total', $result['table'][2]['dimensionLabel']);
+        self::assertTrue($result['table'][2]['isTotal']);
+        self::assertSame(100, $result['table'][2]['value']);
     }
 
     public function testGroupedPercentagesArePerPrimaryCategory(): void
@@ -43,25 +44,22 @@ final class DistributionTransformerTest extends TestCase
         $group = $this->createMapper([10 => 'G10', 20 => 'G20']);
         $transformer = new DistributionTransformer();
 
-        $view = $transformer->transform(
+        $result = $transformer->transform(
             [
-                ['pk' => 1, 'gk' => 10, 'value' => 10],
-                ['pk' => 1, 'gk' => 20, 'value' => 30],
-                ['pk' => 2, 'gk' => 10, 'value' => 50],
-                ['pk' => 2, 'gk' => 20, 'value' => 50],
+                ['dimension_key' => 1, 'group_key' => 10, 'value' => 10],
+                ['dimension_key' => 1, 'group_key' => 20, 'value' => 30],
+                ['dimension_key' => 2, 'group_key' => 10, 'value' => 50],
+                ['dimension_key' => 2, 'group_key' => 20, 'value' => 50],
             ],
             $primary,
             $group,
-            true,
-            'ignored',
         );
 
-        self::assertTrue($view->grouped);
-        self::assertSame(['U1', 'U2'], $view->labels);
-        self::assertCount(2, $view->series);
+        self::assertSame(['U1', 'U2'], $result['labels']);
+        self::assertCount(2, $result['series']);
 
         $byName = [];
-        foreach ($view->series as $s) {
+        foreach ($result['series'] as $s) {
             $byName[$s['name']] = $s;
         }
 
@@ -69,14 +67,16 @@ final class DistributionTransformerTest extends TestCase
         self::assertSame([30, 50], $byName['G20']['values']);
         self::assertSame([25.0, 50.0], $byName['G10']['percentages']);
         self::assertSame([75.0, 50.0], $byName['G20']['percentages']);
+        self::assertCount(5, $result['table']);
+        self::assertTrue($result['table'][4]['isTotal']);
     }
 
     /**
      * @param array<int, string> $map
      */
-    private function createMapper(array $map): CodeLabelMapperInterface
+    private function createMapper(array $map): ValueMapper
     {
-        return new readonly class($map) implements CodeLabelMapperInterface {
+        return new readonly class($map) implements ValueMapper {
             /**
              * @param array<int, string> $map
              */

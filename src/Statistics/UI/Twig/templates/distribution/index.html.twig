@@ -20,48 +20,9 @@
         <div class="row mb-3">
             <div class="col">
                 <h2 class="page-title">{{ 'statistics.distribution.title'|trans }}</h2>
-                <p class="text-muted mb-0">
-                    {{ 'statistics.distribution.scope_all'|trans({'%count%': projectionRowCount}) }}
-                </p>
             </div>
         </div>
 
-        <div class="card mb-3">
-            <div class="card-body py-2">
-                <form method="get" action="{{ path('app_stats_distribution') }}" class="row g-2 align-items-end flex-wrap">
-                    <div class="col-auto">
-                        <label class="form-label">{{ 'statistics.distribution.primary'|trans }}</label>
-                        <select name="primary" class="form-select">
-                            {% for dim in primaryDimensions %}
-                                <option value="{{ dim }}" {{ dim == primary ? 'selected' }}>{{ ('statistics.distribution.dim.' ~ dim)|trans }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label">{{ 'statistics.distribution.group'|trans }}</label>
-                        <select name="group" class="form-select">
-                            <option value="">{{ 'statistics.distribution.group_none'|trans }}</option>
-                            {% for dim in groupDimensions %}
-                                <option value="{{ dim }}" {{ dim == group ? 'selected' }}>{{ ('statistics.distribution.dim.' ~ dim)|trans }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% if group %}
-                        <div class="col-auto">
-                            <label class="form-label">{{ 'statistics.distribution.chart_mode'|trans }}</label>
-                            <select name="chart" class="form-select">
-                                <option value="absolute" {{ chartMode == 'absolute' ? 'selected' }}>{{ 'statistics.distribution.chart_mode.absolute'|trans }}</option>
-                                <option value="percent" {{ chartMode == 'percent' ? 'selected' }}>{{ 'statistics.distribution.chart_mode.percent'|trans }}</option>
-                            </select>
-                        </div>
-                    {% endif %}
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary">{{ 'statistics.distribution.apply'|trans }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <twig:DistributionPanel :view="panelView" :chartOptions="chartOptions" :chartUsesPercentYAxis="chartUsesPercentYAxis" />
+        <twig:DistributionPanel />
     </div>
 {% endblock %}

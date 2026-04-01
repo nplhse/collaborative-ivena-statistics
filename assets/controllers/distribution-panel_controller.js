@@ -3,19 +3,44 @@ import ApexCharts from 'apexcharts';
 
 export default class extends Controller {
     static values = {
-        options: Object,
+        options: String,
         yAxisPercent: { type: Boolean, default: false },
     };
 
     static targets = ['chart'];
 
-    connect() {
+    initialize() {
         this.chart = null;
-        if (!this.hasChartTarget || !this.optionsValue || typeof this.optionsValue !== 'object') {
+    }
+
+    connect() {
+        this.renderChart();
+    }
+
+    optionsValueChanged() {
+        this.renderChart();
+    }
+
+    yAxisPercentValueChanged() {
+        this.renderChart();
+    }
+
+    chartTargetConnected() {
+        this.renderChart();
+    }
+
+    renderChart() {
+        if (!this.hasChartTarget || !this.optionsValue || typeof this.optionsValue !== 'string') {
             return;
         }
 
-        const options = JSON.parse(JSON.stringify(this.optionsValue));
+        let options;
+        try {
+            options = JSON.parse(this.optionsValue);
+        } catch (error) {
+            console.error('distribution-panel options parse failed', error);
+            return;
+        }
 
         if (this.yAxisPercentValue) {
             const y = options.yaxis || {};
@@ -32,8 +57,18 @@ export default class extends Controller {
             };
         }
 
-        this.chart = new ApexCharts(this.chartTarget, options);
-        this.chart.render();
+        try {
+            if (this.chart) {
+                this.chart.destroy();
+                this.chart = null;
+            }
+
+            this.chart = new ApexCharts(this.chartTarget, options);
+            this.chart.render();
+        } catch (error) {
+            // Keep visible signal in console for intermittent chart update issues.
+            console.error('distribution-panel render failed', error);
+        }
     }
 
     disconnect() {

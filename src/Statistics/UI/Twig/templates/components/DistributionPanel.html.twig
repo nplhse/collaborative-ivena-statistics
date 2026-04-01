@@ -1,45 +1,99 @@
-<div class="card mb-3">
-    <div class="card-body">
-        {% if not this.view.hasData %}
-            <div class="empty">
-                <div class="empty-icon"><i class="ti ti-chart-bar"></i></div>
-                <p class="empty-title">{{ 'statistics.distribution.empty'|trans }}</p>
+<div{{ attributes }}>
+    <div class="row">
+        <div class="col-12 col-lg-3 mb-3">
+            <div class="card">
+                <div class="list-group list-group-flush">
+                    {% for panel in this.availablePanels %}
+                        {% set active = panel.key == this.panelKey %}
+                        <a
+                            class="list-group-item list-group-item-action {{ active ? 'active' : '' }}"
+                            href="{{ path('app_stats_distribution', {panel: panel.key, view: this.viewMode, grouped_by: this.groupedBy, f: {date_range: this.datePreset}}) }}"
+                        >
+                            {{ panel.label|trans }}
+                        </a>
+                    {% endfor %}
+                </div>
             </div>
-        {% else %}
-            <div
-                data-controller="distribution-panel"
-                data-distribution-panel-options-value="{{ this.chartOptionsJson|e('html_attr') }}"
-                data-distribution-panel-y-axis-percent-value="{{ this.chartUsesPercentYAxis ? 'true' : 'false' }}"
-            >
-                <div class="position-relative mb-4" style="min-height: 320px" data-distribution-panel-target="chart"></div>
+        </div>
+        <div class="col-12 col-lg-9">
+            <div class="card mb-3" data-controller="analytics-url-state">
+                <div class="card-body py-2">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-auto">
+                            <label class="form-label">{{ 'statistics.distribution.filter.date_range'|trans }}</label>
+                            <select
+                                class="form-select"
+                                data-model="datePreset"
+                                data-action="change->analytics-url-state#sync"
+                                name="f[date_range]"
+                            >
+                                <option value="all_cases" {{ this.datePreset == 'all_cases' ? 'selected' : '' }}>{{ 'statistics.distribution.filter.date_range.all_cases'|trans }}</option>
+                                <option value="last_12_months" {{ this.datePreset == 'last_12_months' ? 'selected' : '' }}>{{ 'statistics.distribution.filter.date_range.last_12_months'|trans }}</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-label">{{ 'statistics.distribution.group'|trans }}</label>
+                            <select class="form-select" data-model="groupedBy" data-action="change->analytics-url-state#sync" name="grouped_by">
+                                <option value="none" {{ this.groupedBy == 'none' ? 'selected' : '' }}>{{ 'statistics.distribution.group_none'|trans }}</option>
+                                <option value="tier" {{ this.groupedBy == 'tier' ? 'selected' : '' }}>{{ 'statistics.distribution.group.tier'|trans }}</option>
+                                <option value="location" {{ this.groupedBy == 'location' ? 'selected' : '' }}>{{ 'statistics.distribution.group.location'|trans }}</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-label">{{ 'statistics.distribution.chart_mode'|trans }}</label>
+                            <select class="form-select" data-model="viewMode" data-action="change->analytics-url-state#sync" name="view">
+                                {% for mode in this.allowedViewModes %}
+                                    <option value="{{ mode }}" {{ this.viewMode == mode ? 'selected' : '' }}>
+                                        {{ ('statistics.distribution.chart_mode.' ~ mode)|trans }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table table-striped text-nowrap">
-                    <thead>
-                    <tr>
-                        <th>{{ 'statistics.distribution.table.category'|trans }}</th>
-                        {% if this.view.grouped %}
-                            <th>{{ 'statistics.distribution.table.group'|trans }}</th>
-                        {% endif %}
-                        <th class="text-end">{{ 'statistics.distribution.table.count'|trans }}</th>
-                        <th class="text-end">{{ 'statistics.distribution.table.percent'|trans }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for row in this.view.tableRows %}
-                        <tr>
-                            <td>{{ row.primaryLabel }}</td>
-                            {% if this.view.grouped %}
-                                <td>{{ row.groupLabel }}</td>
-                            {% endif %}
-                            <td class="text-end">{{ row.count }}</td>
-                            <td class="text-end">{{ row.percent }}%</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            {% set rendered = this.renderedData %}
+            {% set chart = rendered.chart %}
+            {% set tableRows = rendered.table %}
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div
+                        data-controller="distribution-panel"
+                        data-distribution-panel-options-value="{{ chart|json_encode|e('html_attr') }}"
+                        data-distribution-panel-y-axis-percent-value="{{ this.viewMode in ['percent', 'percent_of_total'] ? 'true' : 'false' }}"
+                    >
+                        <div class="position-relative mb-4" style="min-height: 320px" data-distribution-panel-target="chart" data-live-ignore></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table table-striped text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>{{ 'statistics.distribution.table.category'|trans }}</th>
+                                {% if this.groupedBy != 'none' %}
+                                    <th>{{ 'statistics.distribution.table.group'|trans }}</th>
+                                {% endif %}
+                                <th class="text-end">{{ 'statistics.distribution.table.count'|trans }}</th>
+                                <th class="text-end">{{ 'statistics.distribution.table.percent'|trans }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in tableRows %}
+                                <tr class="{{ row.isTotal ? 'fw-bold table-active' : '' }}">
+                                    <td>{{ row.isTotal ? 'statistics.distribution.table.total'|trans : row.dimensionLabel }}</td>
+                                    {% if this.groupedBy != 'none' %}
+                                        <td>{{ row.groupLabel }}</td>
+                                    {% endif %}
+                                    <td class="text-end">{{ row.value }}</td>
+                                    <td class="text-end">{{ row.percent }}%</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        {% endif %}
+        </div>
     </div>
 </div>
