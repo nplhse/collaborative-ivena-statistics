@@ -19,14 +19,30 @@ final class QueryStateResolverTest extends TestCase
 
         $request = new Request([
             'f' => [
-                'date_range' => 'last_12_months',
+                'date_range' => [
+                    'from' => '2025-01-01',
+                    'to' => '2025-01-31',
+                ],
             ],
-            'view' => 'percent',
+            'view' => 'percent_of_total',
         ]);
 
         $state = $resolver->resolveFilters($request->query, $panel);
 
-        self::assertSame('all_cases', $state->get('date_range'));
-        self::assertSame('percent', $resolver->resolveViewMode($request->query, $panel, true));
+        self::assertSame(
+            ['from' => '2025-01-01', 'to' => '2025-01-31'],
+            $state->get('date_range')
+        );
+        self::assertSame('percent_of_total', $resolver->resolveViewMode($request->query, $panel, true));
+    }
+
+    public function testResolveViewModeFallsBackForInvalidMode(): void
+    {
+        $resolver = new QueryStateResolver(new FilterRegistry());
+        $panel = new PanelFactory()->createDistributionPanel('urgency');
+        $request = new Request(['view' => 'invalid']);
+
+        self::assertSame('stacked', $resolver->resolveViewMode($request->query, $panel, true));
+        self::assertSame('grouped', $resolver->resolveViewMode($request->query, $panel, false));
     }
 }
