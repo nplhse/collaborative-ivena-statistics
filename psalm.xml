@@ -48,6 +48,7 @@
                 <directory name="src/Import/Infrastructure/Indication/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
+                <directory name="src/Statistics/" />
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>
@@ -55,6 +56,7 @@
                 <directory name="src/*/Application/DTO/" />
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
+                <directory name="src/Statistics/" />
             </errorLevel>
         </PossiblyUnusedProperty>
         <UnusedClass>
@@ -70,6 +72,7 @@
                 <directory name="src/Import/Infrastructure/Resolver/" />
                 <directory name="src/Import/Infrastructure/Repository/" />
                 <directory name="src/Seed/Infrastructure/Provider/" />
+                <directory name="src/Statistics/" />
                 <file name="src/Statistics/Infrastructure/Reader/TimeGridSeriesReader.php" />
             </errorLevel>
         </UnusedClass>

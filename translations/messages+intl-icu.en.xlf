@@ -933,6 +933,42 @@
         <source>statistics.distribution.chart_mode.percent</source>
         <target>Percent (100% stacked)</target>
       </trans-unit>
+      <trans-unit id="d1strPr" resname="statistics.distribution.chart_mode.grouped">
+        <source>statistics.distribution.chart_mode.grouped</source>
+        <target>Grouped bars</target>
+      </trans-unit>
+      <trans-unit id="d1strPs" resname="statistics.distribution.chart_mode.stacked">
+        <source>statistics.distribution.chart_mode.stacked</source>
+        <target>Stacked bars</target>
+      </trans-unit>
+      <trans-unit id="d1strPt" resname="statistics.distribution.chart_mode.percent_of_total">
+        <source>statistics.distribution.chart_mode.percent_of_total</source>
+        <target>Percent of total</target>
+      </trans-unit>
+      <trans-unit id="d1strPu" resname="statistics.distribution.filter.date_range">
+        <source>statistics.distribution.filter.date_range</source>
+        <target>Date range</target>
+      </trans-unit>
+      <trans-unit id="d1strPv" resname="statistics.distribution.filter.date_range.all_cases">
+        <source>statistics.distribution.filter.date_range.all_cases</source>
+        <target>All cases</target>
+      </trans-unit>
+      <trans-unit id="d1strPw" resname="statistics.distribution.filter.date_range.last_12_months">
+        <source>statistics.distribution.filter.date_range.last_12_months</source>
+        <target>Last 12 months</target>
+      </trans-unit>
+      <trans-unit id="d1strPx" resname="statistics.distribution.group.tier">
+        <source>statistics.distribution.group.tier</source>
+        <target>Hospital tier</target>
+      </trans-unit>
+      <trans-unit id="d1strPy" resname="statistics.distribution.group.location">
+        <source>statistics.distribution.group.location</source>
+        <target>Hospital location</target>
+      </trans-unit>
+      <trans-unit id="d1strPz" resname="statistics.distribution.table.total">
+        <source>statistics.distribution.table.total</source>
+        <target>Total</target>
+      </trans-unit>
       <trans-unit id="d1strPj" resname="statistics.distribution.no_imports">
         <source>statistics.distribution.no_imports</source>
         <target>No imports found.</target>
