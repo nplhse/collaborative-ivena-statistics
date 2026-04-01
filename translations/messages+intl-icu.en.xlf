@@ -833,6 +833,150 @@
         <source>link.stats.transport_time</source>
         <target>Transport Time</target>
       </trans-unit>
+      <trans-unit id="d1strP0" resname="link.stats.distribution">
+        <source>link.stats.distribution</source>
+        <target>Distribution</target>
+      </trans-unit>
+      <trans-unit id="d1strP1" resname="statistics.distribution.title">
+        <source>statistics.distribution.title</source>
+        <target>Distributions</target>
+      </trans-unit>
+      <trans-unit id="d1strPl" resname="statistics.distribution.scope_all">
+        <source>statistics.distribution.scope_all</source>
+        <target>Aggregated across the full allocation stats projection: %count% rows total.</target>
+      </trans-unit>
+      <trans-unit id="d1strP2" resname="statistics.distribution.import">
+        <source>statistics.distribution.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="d1strP3" resname="statistics.distribution.primary">
+        <source>statistics.distribution.primary</source>
+        <target>Primary category</target>
+      </trans-unit>
+      <trans-unit id="d1strP4" resname="statistics.distribution.group">
+        <source>statistics.distribution.group</source>
+        <target>Group by</target>
+      </trans-unit>
+      <trans-unit id="d1strP5" resname="statistics.distribution.group_none">
+        <source>statistics.distribution.group_none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="d1strP6" resname="statistics.distribution.table.category">
+        <source>statistics.distribution.table.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="d1strP7" resname="statistics.distribution.table.group">
+        <source>statistics.distribution.table.group</source>
+        <target>Group</target>
+      </trans-unit>
+      <trans-unit id="d1strP8" resname="statistics.distribution.table.count">
+        <source>statistics.distribution.table.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="d1strP9" resname="statistics.distribution.table.percent">
+        <source>statistics.distribution.table.percent</source>
+        <target>Percent</target>
+      </trans-unit>
+      <trans-unit id="d1strPa" resname="statistics.distribution.empty">
+        <source>statistics.distribution.empty</source>
+        <target>The projection has no rows yet. Import data and rebuild the allocation stats projection to see charts here.</target>
+      </trans-unit>
+      <trans-unit id="d1strPb" resname="statistics.distribution.count_series">
+        <source>statistics.distribution.count_series</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="d1strPc" resname="statistics.distribution.unknown_code">
+        <source>statistics.distribution.unknown_code</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strPd" resname="statistics.distribution.tier_not_set">
+        <source>statistics.distribution.tier_not_set</source>
+        <target>Tier not set</target>
+      </trans-unit>
+      <trans-unit id="d1strPe" resname="statistics.distribution.apply">
+        <source>statistics.distribution.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="d1strPf" resname="statistics.distribution.pick_intro">
+        <source>statistics.distribution.pick_intro</source>
+        <target>Select an import to view allocation distributions from the projection.</target>
+      </trans-unit>
+      <trans-unit id="d1strPg" resname="statistics.distribution.dim.urgency">
+        <source>statistics.distribution.dim.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="d1strPh" resname="statistics.distribution.dim.gender">
+        <source>statistics.distribution.dim.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="d1strPi" resname="statistics.distribution.dim.hospital_tier">
+        <source>statistics.distribution.dim.hospital_tier</source>
+        <target>Hospital tier</target>
+      </trans-unit>
+      <trans-unit id="d1strPp" resname="statistics.distribution.dim.hospital_location">
+        <source>statistics.distribution.dim.hospital_location</source>
+        <target>Hospital location</target>
+      </trans-unit>
+      <trans-unit id="d1strPq" resname="statistics.distribution.location_not_set">
+        <source>statistics.distribution.location_not_set</source>
+        <target>Location not set</target>
+      </trans-unit>
+      <trans-unit id="d1strPm" resname="statistics.distribution.chart_mode">
+        <source>statistics.distribution.chart_mode</source>
+        <target>Chart</target>
+      </trans-unit>
+      <trans-unit id="d1strPn" resname="statistics.distribution.chart_mode.absolute">
+        <source>statistics.distribution.chart_mode.absolute</source>
+        <target>Counts (grouped bars)</target>
+      </trans-unit>
+      <trans-unit id="d1strPo" resname="statistics.distribution.chart_mode.percent">
+        <source>statistics.distribution.chart_mode.percent</source>
+        <target>Percent (100% stacked)</target>
+      </trans-unit>
+      <trans-unit id="d1strPr" resname="statistics.distribution.chart_mode.grouped">
+        <source>statistics.distribution.chart_mode.grouped</source>
+        <target>Grouped bars</target>
+      </trans-unit>
+      <trans-unit id="d1strPs" resname="statistics.distribution.chart_mode.stacked">
+        <source>statistics.distribution.chart_mode.stacked</source>
+        <target>Stacked bars</target>
+      </trans-unit>
+      <trans-unit id="d1strPt" resname="statistics.distribution.chart_mode.percent_of_total">
+        <source>statistics.distribution.chart_mode.percent_of_total</source>
+        <target>Percent of total</target>
+      </trans-unit>
+      <trans-unit id="d1strPu" resname="statistics.distribution.filter.date_range">
+        <source>statistics.distribution.filter.date_range</source>
+        <target>Date range</target>
+      </trans-unit>
+      <trans-unit id="d1strPv" resname="statistics.distribution.filter.date_range.all_cases">
+        <source>statistics.distribution.filter.date_range.all_cases</source>
+        <target>All cases</target>
+      </trans-unit>
+      <trans-unit id="d1strPw" resname="statistics.distribution.filter.date_range.last_12_months">
+        <source>statistics.distribution.filter.date_range.last_12_months</source>
+        <target>Last 12 months</target>
+      </trans-unit>
+      <trans-unit id="d1strPx" resname="statistics.distribution.group.tier">
+        <source>statistics.distribution.group.tier</source>
+        <target>Hospital tier</target>
+      </trans-unit>
+      <trans-unit id="d1strPy" resname="statistics.distribution.group.location">
+        <source>statistics.distribution.group.location</source>
+        <target>Hospital location</target>
+      </trans-unit>
+      <trans-unit id="d1strPz" resname="statistics.distribution.table.total">
+        <source>statistics.distribution.table.total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="d1strPj" resname="statistics.distribution.no_imports">
+        <source>statistics.distribution.no_imports</source>
+        <target>No imports found.</target>
+      </trans-unit>
+      <trans-unit id="d1strPk" resname="statistics.distribution.import_name">
+        <source>statistics.distribution.import_name</source>
+        <target>Name</target>
+      </trans-unit>
       <trans-unit id="wQKGxus" resname="link.users">
         <source>link.users</source>
         <target>Users</target>

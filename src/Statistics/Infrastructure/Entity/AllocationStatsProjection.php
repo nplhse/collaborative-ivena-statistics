@@ -94,6 +94,12 @@ class AllocationStatsProjection
     #[ORM\Column(type: 'smallint', nullable: true)]
     private ?int $transportTypeCode = null;
 
+    #[ORM\Column(type: 'smallint', nullable: true)]
+    private ?int $hospitalTierCode = null;
+
+    #[ORM\Column(type: 'smallint', nullable: true)]
+    private ?int $hospitalLocationCode = null;
+
     #[ORM\Column(nullable: true)]
     private ?bool $requiresResus = null;
 
@@ -232,6 +238,16 @@ class AllocationStatsProjection
     public function getTransportTypeCode(): ?int
     {
         return $this->transportTypeCode;
+    }
+
+    public function getHospitalTierCode(): ?int
+    {
+        return $this->hospitalTierCode;
+    }
+
+    public function getHospitalLocationCode(): ?int
+    {
+        return $this->hospitalLocationCode;
     }
 
     public function isRequiresResus(): ?bool

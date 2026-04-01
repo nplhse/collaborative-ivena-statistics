@@ -1,0 +1,28 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'statistics.distribution.title'|trans }} — {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_body %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'link.stats.distribution', path: path('app_stats_distribution') }
+        ]" />
+
+        <div class="row mb-3">
+            <div class="col">
+                <h2 class="page-title">{{ 'statistics.distribution.title'|trans }}</h2>
+            </div>
+        </div>
+
+        <twig:DistributionPanel />
+    </div>
+{% endblock %}

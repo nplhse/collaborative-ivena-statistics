@@ -7,6 +7,8 @@ namespace App\Tests\Statistics\Integration\Query;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
@@ -22,6 +24,8 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
@@ -48,6 +52,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
             'name' => 'StatsProjHospital',
             'state' => $state,
             'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
         ]);
         $import = ImportFactory::createOne([
             'name' => 'StatsProjImport',
@@ -126,6 +132,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertSame(AllocationStatsGenderProjectionCode::Male->value, (int) $row['gender_code']);
         self::assertSame(AllocationStatsUrgencyProjectionCode::Emergency->value, (int) $row['urgency_code']);
         self::assertSame(AllocationStatsTransportTypeProjectionCode::Ground->value, (int) $row['transport_type_code']);
+        self::assertSame(AllocationStatsHospitalTierProjectionCode::Full->value, (int) $row['hospital_tier_code']);
+        self::assertSame(AllocationStatsHospitalLocationProjectionCode::Urban->value, (int) $row['hospital_location_code']);
 
         self::assertTrue($this->toBool($row['requires_resus']));
         self::assertFalse($this->toBool($row['requires_cathlab']));
@@ -164,6 +172,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertSame(AllocationStatsGenderProjectionCode::Male->value, $projection->getGenderCode());
         self::assertSame(AllocationStatsUrgencyProjectionCode::Emergency->value, $projection->getUrgencyCode());
         self::assertSame(AllocationStatsTransportTypeProjectionCode::Ground->value, $projection->getTransportTypeCode());
+        self::assertSame(AllocationStatsHospitalTierProjectionCode::Full->value, $projection->getHospitalTierCode());
+        self::assertSame(AllocationStatsHospitalLocationProjectionCode::Urban->value, $projection->getHospitalLocationCode());
 
         self::assertTrue($projection->isRequiresResus());
         self::assertFalse($projection->isRequiresCathlab());

@@ -6,6 +6,8 @@ namespace App\Statistics\Infrastructure\Query;
 
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use Doctrine\DBAL\Connection;
@@ -63,8 +65,11 @@ SELECT
   a.requires_cathlab,
   a.is_cpr,
   a.is_ventilated,
-  a.is_with_physician
+  a.is_with_physician,
+  h.tier AS hospital_tier,
+  h.location AS hospital_location
 FROM allocation a
+INNER JOIN hospital h ON h.id = a.hospital_id
 WHERE a.import_id = :importId
 ORDER BY a.id ASC
 SQL,
@@ -110,7 +115,7 @@ SQL,
             'created_year', 'created_quarter', 'created_month', 'created_week',
             'created_day', 'created_weekday', 'created_hour',
             'transport_time_minutes',
-            'age', 'gender_code', 'urgency_code', 'transport_type_code',
+            'age', 'gender_code', 'urgency_code', 'transport_type_code', 'hospital_tier_code', 'hospital_location_code',
             'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_with_physician',
         ];
 
@@ -212,6 +217,8 @@ SQL,
             'transport_type_code' => AllocationStatsTransportTypeProjectionCode::tryFromDbLetter(
                 isset($row['transport_type']) && \is_string($row['transport_type']) ? $row['transport_type'] : null
             )?->value,
+            'hospital_tier_code' => AllocationStatsHospitalTierProjectionCode::tryFromTierDbValue($row['hospital_tier'] ?? null)?->value,
+            'hospital_location_code' => AllocationStatsHospitalLocationProjectionCode::tryFromLocationDbValue($row['hospital_location'] ?? null)?->value,
             'requires_resus' => $this->nullableBool($row['requires_resus'] ?? null),
             'requires_cathlab' => $this->nullableBool($row['requires_cathlab'] ?? null),
             'is_cpr' => $this->nullableBool($row['is_cpr'] ?? null),

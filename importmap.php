@@ -66,4 +66,7 @@ return [
     'apexcharts' => [
         'version' => '5.3.6',
     ],
+    '@symfony/ux-live-component' => [
+        'path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js',
+    ],
 ];
