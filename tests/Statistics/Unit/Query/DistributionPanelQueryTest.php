@@ -6,7 +6,7 @@ namespace App\Tests\Statistics\Unit\Query;
 
 use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Filter\FilterState;
-use App\Statistics\Application\Panel\PanelFactory;
+use App\Statistics\Application\Panel\Distribution\DistributionPanelPresets;
 use App\Statistics\Infrastructure\Query\DistributionPanelQuery;
 use App\Statistics\Infrastructure\Query\SqlFilterBuilder;
 use Doctrine\DBAL\Connection;
@@ -18,8 +18,12 @@ final class DistributionPanelQueryTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = new PanelFactory()->createDistributionPanel('urgency');
-        $state = new FilterState(['date_range' => ['from' => '2025-01-01', 'to' => '2025-01-31']]);
+        $panel = DistributionPanelPresets::urgency();
+        $state = new FilterState([
+            'date_range' => ['from' => '2025-01-01', 'to' => '2025-01-31'],
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
 
         $connection->expects(self::once())
             ->method('fetchAllAssociative')
@@ -52,8 +56,12 @@ final class DistributionPanelQueryTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = new PanelFactory()->createDistributionPanel('urgency');
-        $state = new FilterState(['date_range' => 'all_cases']);
+        $panel = DistributionPanelPresets::urgency();
+        $state = new FilterState([
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
 
         $connection->expects(self::once())
             ->method('fetchAllAssociative')
@@ -66,5 +74,32 @@ final class DistributionPanelQueryTest extends TestCase
         $out = $query->fetchDistribution($panel, $state);
 
         self::assertSame([['dimension_key' => 1, 'group_key' => null, 'value' => 3]], $out);
+    }
+
+    public function testFetchAgeCohortUsesCaseExpression(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
+        $panel = DistributionPanelPresets::ageCohort();
+        $state = new FilterState([
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
+
+        $connection->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->with(
+                self::logicalAnd(
+                    self::stringContains('WHEN age IS NULL THEN -1'),
+                    self::stringContains('GROUP BY (CASE')
+                ),
+                [],
+                []
+            )
+            ->willReturn([]);
+
+        $query = new DistributionPanelQuery($connection, $sqlFilterBuilder);
+        $query->fetchDistribution($panel, $state);
     }
 }
