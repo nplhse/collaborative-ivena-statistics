@@ -29,18 +29,20 @@ final readonly class SqlFilterBuilder
             $value = $filterState->get($filterKey);
 
             if ('date_range' === $definition->type) {
+                $column = $definition->field;
+
                 if (\is_string($value) && 'all_cases' === $value) {
                     continue;
                 }
 
                 if (\is_string($value) && 'last_12_months' === $value) {
-                    $parts[] = 'created_at >= :date_from_default';
+                    $parts[] = $column.' >= :date_from_default';
                     $params['date_from_default'] = new \DateTimeImmutable('-12 months')->format('Y-m-d 00:00:00');
                     continue;
                 }
 
                 if (\is_array($value) && isset($value['from'], $value['to'])) {
-                    $parts[] = 'created_at >= :date_from AND created_at <= :date_to';
+                    $parts[] = $column.' >= :date_from AND '.$column.' <= :date_to';
                     $params['date_from'] = $value['from'].' 00:00:00';
                     $params['date_to'] = $value['to'].' 23:59:59';
                 }
