@@ -1,54 +1,115 @@
 <div{{ attributes }}>
+    <ul class="nav nav-tabs mb-3">
+        {% for item in this.distributionSectionNav %}
+            <li class="nav-item">
+                <a
+                    class="nav-link {{ item.active ? 'active' : '' }}"
+                    href="{{ path(item.route, item.hrefParams) }}"
+                >
+                    {{ item.label|trans }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
     <div class="row">
-        <div class="col-12 col-lg-3 mb-3">
-            <div class="card">
-                <div class="list-group list-group-flush">
-                    {% for panel in this.availablePanels %}
-                        {% set active = panel.key == this.panelKey %}
-                        <a
-                            class="list-group-item list-group-item-action {{ active ? 'active' : '' }}"
-                            href="{{ path('app_stats_distribution', {panel: panel.key, view: this.viewMode, grouped_by: this.groupedBy, f: {date_range: this.datePreset}}) }}"
-                        >
-                            {{ panel.label|trans }}
-                        </a>
-                    {% endfor %}
+        {% if this.availablePanels|length > 1 %}
+            <div class="col-12 col-lg-3 mb-3">
+                <div class="card">
+                    <div class="list-group list-group-flush">
+                        {% for panel in this.availablePanels %}
+                            {% set active = panel.key == this.panelKey %}
+                            <a
+                                class="list-group-item list-group-item-action {{ active ? 'active' : '' }}"
+                                href="{{ path(this.pageRouteName, this.urlState|merge({panel: panel.key})) }}"
+                            >
+                                {{ panel.label|trans }}
+                            </a>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-lg-9">
+        {% endif %}
+        <div class="{{ this.availablePanels|length > 1 ? 'col-12 col-lg-9' : 'col-12' }}">
             <div class="card mb-3" data-controller="analytics-url-state">
                 <div class="card-body py-2">
                     <div class="row g-2 align-items-end">
-                        <div class="col-auto">
-                            <label class="form-label">{{ 'statistics.distribution.filter.date_range'|trans }}</label>
-                            <select
-                                class="form-select"
-                                data-model="datePreset"
-                                data-action="change->analytics-url-state#sync"
-                                name="f[date_range]"
-                            >
-                                <option value="all_cases" {{ this.datePreset == 'all_cases' ? 'selected' : '' }}>{{ 'statistics.distribution.filter.date_range.all_cases'|trans }}</option>
-                                <option value="last_12_months" {{ this.datePreset == 'last_12_months' ? 'selected' : '' }}>{{ 'statistics.distribution.filter.date_range.last_12_months'|trans }}</option>
-                            </select>
-                        </div>
-                        <div class="col-auto">
-                            <label class="form-label">{{ 'statistics.distribution.group'|trans }}</label>
-                            <select class="form-select" data-model="groupedBy" data-action="change->analytics-url-state#sync" name="grouped_by">
-                                <option value="none" {{ this.groupedBy == 'none' ? 'selected' : '' }}>{{ 'statistics.distribution.group_none'|trans }}</option>
-                                <option value="tier" {{ this.groupedBy == 'tier' ? 'selected' : '' }}>{{ 'statistics.distribution.group.tier'|trans }}</option>
-                                <option value="location" {{ this.groupedBy == 'location' ? 'selected' : '' }}>{{ 'statistics.distribution.group.location'|trans }}</option>
-                            </select>
-                        </div>
-                        <div class="col-auto">
-                            <label class="form-label">{{ 'statistics.distribution.chart_mode'|trans }}</label>
-                            <select class="form-select" data-model="viewMode" data-action="change->analytics-url-state#sync" name="view">
-                                {% for mode in this.allowedViewModes %}
-                                    <option value="{{ mode }}" {{ this.viewMode == mode ? 'selected' : '' }}>
-                                        {{ ('statistics.distribution.chart_mode.' ~ mode)|trans }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                        {% for filter in this.activePanelFilters %}
+                            {% if filter.type == 'date_range' %}
+                                <div class="col-auto">
+                                    <label class="form-label">{{ 'statistics.distribution.filter.date_range'|trans }}</label>
+                                    <select
+                                        class="form-select"
+                                        data-model="filterValues.date_range"
+                                        data-action="change->analytics-url-state#sync"
+                                        name="f[date_range]"
+                                    >
+                                        <option value="all_cases" {{ this.dateRangePreset == 'all_cases' ? 'selected' : '' }}>{{ 'statistics.distribution.filter.date_range.all_cases'|trans }}</option>
+                                        <option value="last_12_months" {{ this.dateRangePreset == 'last_12_months' ? 'selected' : '' }}>{{ 'statistics.distribution.filter.date_range.last_12_months'|trans }}</option>
+                                    </select>
+                                </div>
+                            {% elseif filter.type == 'select' and filter.key == 'hospital_tier' %}
+                                <div class="col-auto">
+                                    <label class="form-label">{{ 'statistics.distribution.filter.hospital_tier'|trans }}</label>
+                                    <select
+                                        class="form-select"
+                                        multiple
+                                        size="3"
+                                        data-model="filterValues.hospital_tier"
+                                        data-action="change->analytics-url-state#sync"
+                                        name="f[hospital_tier][]"
+                                    >
+                                        {% for opt in this.hospitalTierFilterOptions %}
+                                            <option
+                                                value="{{ opt.value }}"
+                                                {{ opt.value in this.hospitalTierSelection ? 'selected' : '' }}
+                                            >{{ opt.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% elseif filter.type == 'select' and filter.key == 'hospital_location' %}
+                                <div class="col-auto">
+                                    <label class="form-label">{{ 'statistics.distribution.filter.hospital_location'|trans }}</label>
+                                    <select
+                                        class="form-select"
+                                        multiple
+                                        size="3"
+                                        data-model="filterValues.hospital_location"
+                                        data-action="change->analytics-url-state#sync"
+                                        name="f[hospital_location][]"
+                                    >
+                                        {% for opt in this.hospitalLocationFilterOptions %}
+                                            <option
+                                                value="{{ opt.value }}"
+                                                {{ opt.value in this.hospitalLocationSelection ? 'selected' : '' }}
+                                            >{{ opt.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if this.showGroupingControl %}
+                            <div class="col-auto">
+                                <label class="form-label">{{ 'statistics.distribution.group'|trans }}</label>
+                                <select class="form-select" data-model="groupedBy" data-action="change->analytics-url-state#sync" name="grouped_by">
+                                    <option value="none" {{ this.groupedBy == 'none' ? 'selected' : '' }}>{{ 'statistics.distribution.group_none'|trans }}</option>
+                                    <option value="tier" {{ this.groupedBy == 'tier' ? 'selected' : '' }}>{{ 'statistics.distribution.group.tier'|trans }}</option>
+                                    <option value="location" {{ this.groupedBy == 'location' ? 'selected' : '' }}>{{ 'statistics.distribution.group.location'|trans }}</option>
+                                </select>
+                            </div>
+                        {% endif %}
+                        {% if this.showViewModeToggle %}
+                            <div class="col-auto">
+                                <label class="form-label">{{ 'statistics.distribution.chart_mode'|trans }}</label>
+                                <select class="form-select" data-model="viewMode" data-action="change->analytics-url-state#sync" name="view">
+                                    {% for mode in this.allowedViewModes %}
+                                        <option value="{{ mode }}" {{ this.viewMode == mode ? 'selected' : '' }}>
+                                            {{ ('statistics.distribution.chart_mode.' ~ mode)|trans }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

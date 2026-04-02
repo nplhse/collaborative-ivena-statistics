@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Live;
 
+use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Filter\FilterState;
+use App\Statistics\Application\Mapping\AgeCohortValueMapper;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\Application\Mapping\GenderValueMapper;
 use App\Statistics\Application\Mapping\HospitalLocationValueMapper;
 use App\Statistics\Application\Mapping\HospitalTypeValueMapper;
 use App\Statistics\Application\Mapping\TriageValueMapper;
 use App\Statistics\Application\Mapping\ValueMapper;
+use App\Statistics\Application\Panel\Distribution\DimensionKind;
+use App\Statistics\Application\Panel\Distribution\DistributionPageConfig;
+use App\Statistics\Application\Panel\Distribution\DistributionPageConfigFactory;
 use App\Statistics\Application\Panel\Distribution\DistributionTransformer;
 use App\Statistics\Application\Panel\Distribution\Renderer;
 use App\Statistics\Application\Panel\PanelDefinition;
-use App\Statistics\Application\Panel\PanelFactory;
 use App\Statistics\Application\State\QueryStateResolver;
 use App\Statistics\Infrastructure\Query\DistributionPanelQuery;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -26,11 +32,15 @@ final class DistributionPanelComponent
 {
     use DefaultActionTrait;
 
+    #[LiveProp(writable: false)]
+    public string $distributionPageId = DistributionPageConfigFactory::PAGE_URGENCY;
+
     #[LiveProp(writable: true)]
     public string $viewMode = 'absolute';
 
+    /** @var array<string, mixed> */
     #[LiveProp(writable: true)]
-    public string $datePreset = 'all_cases';
+    public array $filterValues = [];
 
     #[LiveProp(writable: true)]
     public string $panelKey = 'urgency';
@@ -39,7 +49,7 @@ final class DistributionPanelComponent
     public string $groupedBy = 'none';
 
     public function __construct(
-        private readonly PanelFactory $panelFactory,
+        private readonly DistributionPageConfigFactory $pageConfigFactory,
         private readonly QueryStateResolver $queryStateResolver,
         private readonly DistributionPanelQuery $distributionPanelQuery,
         private readonly DistributionTransformer $transformer,
@@ -48,6 +58,8 @@ final class DistributionPanelComponent
         private readonly GenderValueMapper $genderValueMapper,
         private readonly HospitalTypeValueMapper $hospitalTypeMapper,
         private readonly HospitalLocationValueMapper $hospitalLocationValueMapper,
+        private readonly AgeCohortValueMapper $ageCohortValueMapper,
+        private readonly FilterRegistry $filterRegistry,
         private readonly RequestStack $requestStack,
     ) {
     }
@@ -59,13 +71,24 @@ final class DistributionPanelComponent
             return;
         }
 
-        $this->panelKey = $request->query->getString('panel', 'urgency');
+        $pageConfig = $this->pageConfig();
+        $defaultPanel = $pageConfig->defaultPanel();
+        $this->panelKey = $request->query->getString('panel', $defaultPanel->key);
+        if (!$pageConfig->getPanel($this->panelKey) instanceof PanelDefinition) {
+            $this->panelKey = $defaultPanel->key;
+        }
+
+        $panel = $pageConfig->getPanel($this->panelKey) ?? $defaultPanel;
         $this->groupedBy = $request->query->getString('grouped_by', 'none');
-        $panel = $this->panelFactory->createDistributionPanel($this->panelKey);
+        if (!($panel->controls['allow_group_by'] ?? true)) {
+            $this->groupedBy = 'none';
+        }
 
         $filterState = $this->queryStateResolver->resolveFilters($request->query, $panel);
-        $this->datePreset = (string) ($filterState->get('date_range') ?? 'all_cases');
-        $this->viewMode = $this->queryStateResolver->resolveViewMode($request->query, $panel, 'percent' === $this->viewMode);
+        $this->filterValues = $this->mergeFilterDefaults($panel, $filterState->values);
+
+        $showPercent = true === ($panel->options['show_percent'] ?? false);
+        $this->viewMode = $this->queryStateResolver->resolveViewMode($request->query, $panel, $showPercent);
         $this->viewMode = $this->normalizeViewMode($this->viewMode);
     }
 
@@ -77,10 +100,9 @@ final class DistributionPanelComponent
      */
     public function getRenderedData(): array
     {
-        $panel = $this->panelFactory->createDistributionPanel($this->panelKey);
-        $filterState = new FilterState([
-            'date_range' => $this->datePreset,
-        ]);
+        $pageConfig = $this->pageConfig();
+        $panel = $pageConfig->getPanel($this->panelKey) ?? $pageConfig->defaultPanel();
+        $filterState = new FilterState($this->effectiveFilterValues($panel));
 
         $groupByField = match ($this->groupedBy) {
             'tier' => 'hospital_tier_code',
@@ -105,9 +127,8 @@ final class DistributionPanelComponent
      */
     public function getUrlState(): array
     {
-        $state = $this->queryStateResolver->serializeToQuery([
-            'date_range' => $this->datePreset,
-        ], $this->viewMode);
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+        $state = $this->queryStateResolver->serializeToQuery($this->effectiveFilterValues($panel), $this->viewMode);
 
         $state['panel'] = $this->panelKey;
         $state['grouped_by'] = $this->groupedBy;
@@ -117,12 +138,46 @@ final class DistributionPanelComponent
     }
 
     /**
+     * Query-Parameter beim Wechsel der Distributions-Sektion (ohne panel, Zielseite setzt Default).
+     *
+     * @return array<string, mixed>
+     */
+    public function getCrossSectionQueryParams(): array
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+
+        return [
+            'view' => $this->normalizeViewMode($this->viewMode),
+            'grouped_by' => $this->groupedBy,
+            'f' => $this->effectiveFilterValues($panel),
+        ];
+    }
+
+    public function getPageRouteName(): string
+    {
+        return $this->pageConfig()->routeName;
+    }
+
+    public function pageConfig(): DistributionPageConfig
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request instanceof \Symfony\Component\HttpFoundation\Request) {
+            $fromRequest = $request->attributes->get(DistributionPageConfig::REQUEST_ATTRIBUTE);
+            if ($fromRequest instanceof DistributionPageConfig) {
+                return $fromRequest;
+            }
+        }
+
+        return $this->pageConfigFactory->forPageId($this->distributionPageId);
+    }
+
+    /**
      * @return list<array{key: string, label: string}>
      */
     public function getAvailablePanels(): array
     {
         $items = [];
-        foreach ($this->panelFactory->listDistributionPanels() as $panel) {
+        foreach ($this->pageConfig()->panels as $panel) {
             $items[] = [
                 'key' => $panel->key,
                 'label' => $panel->dimensionLabel,
@@ -144,8 +199,129 @@ final class DistributionPanelComponent
         return ['grouped', 'stacked', 'percent'];
     }
 
+    /**
+     * @return list<array{key: string, type: string}>
+     */
+    public function getActivePanelFilters(): array
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+        $out = [];
+        foreach ($panel->filters as $key) {
+            $out[] = [
+                'key' => $key,
+                'type' => $this->filterRegistry->get($key)->type,
+            ];
+        }
+
+        return $out;
+    }
+
+    public function getDateRangePreset(): string
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+        $v = $this->effectiveFilterValues($panel)['date_range'] ?? 'all_cases';
+
+        return \is_string($v) ? $v : 'all_cases';
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getHospitalTierSelection(): array
+    {
+        return $this->intListFromFilterKey('hospital_tier');
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getHospitalLocationSelection(): array
+    {
+        return $this->intListFromFilterKey('hospital_location');
+    }
+
+    public function showGroupingControl(): bool
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+
+        return true === ($panel->controls['allow_group_by'] ?? true);
+    }
+
+    public function showViewModeToggle(): bool
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+
+        return true === ($panel->controls['allow_view_mode_toggle'] ?? false);
+    }
+
+    /**
+     * @return list<array{value: int, label: string}>
+     */
+    public function getHospitalTierFilterOptions(): array
+    {
+        $choices = [];
+        foreach (AllocationStatsHospitalTierProjectionCode::cases() as $case) {
+            $choices[] = [
+                'value' => $case->value,
+                'label' => $this->hospitalTypeMapper->label($case->value),
+            ];
+        }
+
+        return $choices;
+    }
+
+    /**
+     * @return list<array{value: int, label: string}>
+     */
+    public function getHospitalLocationFilterOptions(): array
+    {
+        $choices = [];
+        foreach (AllocationStatsHospitalLocationProjectionCode::cases() as $case) {
+            $choices[] = [
+                'value' => $case->value,
+                'label' => $this->hospitalLocationValueMapper->label($case->value),
+            ];
+        }
+
+        return $choices;
+    }
+
+    /**
+     * @return list<array{route: string, label: string, active: bool, hrefParams: array<string, mixed>}>
+     */
+    public function getDistributionSectionNav(): array
+    {
+        $current = $this->distributionPageId;
+        $hrefBase = $this->getCrossSectionQueryParams();
+
+        return [
+            [
+                'route' => 'app_stats_distribution_urgency',
+                'label' => 'statistics.distribution.section.urgency',
+                'active' => DistributionPageConfigFactory::PAGE_URGENCY === $current,
+                'hrefParams' => $hrefBase,
+            ],
+            [
+                'route' => 'app_stats_distribution_gender',
+                'label' => 'statistics.distribution.section.gender',
+                'active' => DistributionPageConfigFactory::PAGE_GENDER === $current,
+                'hrefParams' => $hrefBase,
+            ],
+            [
+                'route' => 'app_stats_distribution_age',
+                'label' => 'statistics.distribution.section.age',
+                'active' => DistributionPageConfigFactory::PAGE_AGE_COHORT === $current,
+                'hrefParams' => $hrefBase,
+            ],
+        ];
+    }
+
     private function dimensionMapperFor(PanelDefinition $panel): ValueMapper
     {
+        if (DimensionKind::AgeCohort === $panel->dimensionKind) {
+            return $this->ageCohortValueMapper;
+        }
+
         return match ($panel->key) {
             'gender' => $this->genderValueMapper,
             default => $this->triageMapper,
@@ -169,5 +345,50 @@ final class DistributionPanelComponent
         }
 
         return $allowed[0];
+    }
+
+    /**
+     * @param array<string, mixed> $fromRequest
+     *
+     * @return array<string, mixed>
+     */
+    private function mergeFilterDefaults(PanelDefinition $panel, array $fromRequest): array
+    {
+        $defaults = [];
+        foreach ($panel->filters as $fk) {
+            $def = $this->filterRegistry->get($fk);
+            $defaults[$fk] = $panel->filterDefaults[$fk] ?? $def->defaultValue;
+        }
+
+        return array_replace($defaults, $fromRequest);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function effectiveFilterValues(PanelDefinition $panel): array
+    {
+        return $this->mergeFilterDefaults($panel, $this->filterValues);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function intListFromFilterKey(string $key): array
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+        $v = $this->effectiveFilterValues($panel)[$key] ?? [];
+        if (!\is_array($v)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($v as $x) {
+            if (is_numeric($x)) {
+                $out[] = (int) $x;
+            }
+        }
+
+        return $out;
     }
 }
