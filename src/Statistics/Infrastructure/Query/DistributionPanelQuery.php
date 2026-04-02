@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query;
 
 use App\Statistics\Application\Filter\FilterState;
+use App\Statistics\Application\Panel\Distribution\AgeCohortBucketExpression;
+use App\Statistics\Application\Panel\Distribution\DimensionKind;
 use App\Statistics\Application\Panel\PanelDefinition;
 use Doctrine\DBAL\Connection;
 
@@ -24,18 +26,22 @@ final readonly class DistributionPanelQuery
         FilterState $filterState,
         ?string $groupByField = null,
     ): array {
-        $dimensionField = $panel->dimensionField;
         if (!\is_string($groupByField) || '' === $groupByField) {
             $groupByField = null;
         }
 
+        $dimensionSelect = match ($panel->dimensionKind) {
+            DimensionKind::AgeCohort => '('.AgeCohortBucketExpression::sql('age').')',
+            DimensionKind::Column => $panel->dimensionField,
+        };
+
         $filter = $this->sqlFilterBuilder->buildWhere($filterState, $panel);
-        $sql = 'SELECT '.$dimensionField.' AS dimension_key, '
+        $sql = 'SELECT '.$dimensionSelect.' AS dimension_key, '
             .($groupByField ?? 'NULL').' AS group_key, COUNT(*) AS value '
             .'FROM allocation_stats_projection'
             .$filter['where']
-            .' GROUP BY '.$dimensionField.(null === $groupByField ? '' : ', '.$groupByField)
-            .' ORDER BY '.$dimensionField.(null === $groupByField ? '' : ', '.$groupByField);
+            .' GROUP BY '.$dimensionSelect.(null === $groupByField ? '' : ', '.$groupByField)
+            .' ORDER BY '.$dimensionSelect.(null === $groupByField ? '' : ', '.$groupByField);
 
         /** @var list<array{dimension_key: mixed, group_key: mixed, value: mixed}> $rows */
         $rows = $this->connection->fetchAllAssociative($sql, $filter['params'], $filter['types']);
