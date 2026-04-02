@@ -22,11 +22,14 @@ final readonly class QueryStateResolver
     public function resolveFilters(InputBag $query, PanelDefinition $panel): FilterState
     {
         $resolved = [];
+        /** @var array<string, mixed> $f */
+        $f = $query->all('f');
 
         foreach ($panel->filters as $filterKey) {
             $definition = $this->filterRegistry->get($filterKey);
-            $rawValue = $query->all('f')[$filterKey] ?? null;
-            $resolved[$filterKey] = $this->normalizeFilterValue($definition->type, $rawValue, $definition->defaultValue);
+            $rawValue = $f[$filterKey] ?? null;
+            $default = $panel->filterDefaults[$filterKey] ?? $definition->defaultValue;
+            $resolved[$filterKey] = $this->normalizeFilterValue($definition->type, $rawValue, $default);
         }
 
         return new FilterState($resolved);
@@ -67,17 +70,25 @@ final readonly class QueryStateResolver
     private function normalizeFilterValue(string $type, mixed $value, mixed $defaultValue): mixed
     {
         if ('date_range' === $type) {
-            if (!\is_array($value) || !isset($value['from'], $value['to'])) {
-                return $defaultValue;
+            if (\is_string($value) && \in_array($value, ['all_cases', 'last_12_months'], true)) {
+                return $value;
             }
 
-            return [
-                'from' => (string) $value['from'],
-                'to' => (string) $value['to'],
-            ];
+            if (\is_array($value) && isset($value['from'], $value['to'])) {
+                return [
+                    'from' => (string) $value['from'],
+                    'to' => (string) $value['to'],
+                ];
+            }
+
+            return $defaultValue;
         }
 
         if ('select' === $type) {
+            if (\is_string($value) || is_numeric($value)) {
+                $value = [$value];
+            }
+
             if (!\is_array($value)) {
                 return $defaultValue;
             }
