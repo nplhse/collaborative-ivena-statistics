@@ -42,7 +42,18 @@ export default class extends Controller {
             return;
         }
 
-        if (this.yAxisPercentValue) {
+        const series = options.series;
+        if (!series || !Array.isArray(series) || series.length === 0) {
+            if (this.chart) {
+                this.chart.destroy();
+                this.chart = null;
+            }
+            return;
+        }
+
+        const isPercentY =
+            this.yAxisPercentValue && options.chart && options.chart.type === 'bar';
+        if (isPercentY) {
             const y = options.yaxis || {};
             options.yaxis = {
                 ...y,
@@ -66,7 +77,6 @@ export default class extends Controller {
             this.chart = new ApexCharts(this.chartTarget, options);
             this.chart.render();
         } catch (error) {
-            // Keep visible signal in console for intermittent chart update issues.
             console.error('distribution-panel render failed', error);
         }
     }
