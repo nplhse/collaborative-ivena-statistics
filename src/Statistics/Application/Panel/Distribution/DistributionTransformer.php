@@ -9,12 +9,15 @@ use App\Statistics\Application\Mapping\ValueMapper;
 final class DistributionTransformer
 {
     /**
-     * @param list<array{dimension_key: int, group_key: int|null, value: int}> $rows
+     * @param list<array{dimension_key: int, group_key: int|null, value: int, distinct_hospitals?: int}> $rows
      *
      * @return array{
      *     labels: list<string>,
      *     series: list<array{name: string, values: list<int>, percentages: list<float>}>,
-     *     table: list<array{dimensionLabel: string, groupLabel: string|null, value: int, percent: float, isTotal: bool}>
+     *     table: list<array{dimensionLabel: string, groupLabel: string|null, value: int, percent: float, isTotal: bool}>,
+     *     dimensionKeys: list<int>,
+     *     groupKeys: list<int>,
+     *     hospitalDistinctMatrix: array<int, array<int, int>>
      * }
      */
     public function transform(array $rows, ValueMapper $dimensionMapper, ?ValueMapper $groupMapper): array
@@ -22,6 +25,7 @@ final class DistributionTransformer
         $dimensionValues = [];
         $groupValues = [];
         $matrix = [];
+        $hospitalDistinct = [];
         foreach ($rows as $r) {
             $dimension = $r['dimension_key'];
             $group = $r['group_key'] ?? 0;
@@ -29,6 +33,10 @@ final class DistributionTransformer
             $groupValues[$group] = true;
             $matrix[$group] ??= [];
             $matrix[$group][$dimension] = (int) (($matrix[$group][$dimension] ?? 0) + $r['value']);
+            $distinct = $r['distinct_hospitals'] ?? 0;
+            $hospitalDistinct[$group] ??= [];
+            // One row per (dimension, group) from SQL; duplicates would break COUNT DISTINCT — last row wins.
+            $hospitalDistinct[$group][$dimension] = $distinct;
         }
 
         $dimensionKeys = array_keys($dimensionValues);
@@ -77,6 +85,9 @@ final class DistributionTransformer
             'labels' => $labels,
             'series' => $series,
             'table' => $this->buildTable($dimensionKeys, $groupKeys, $matrix, $dimensionTotals, $dimensionMapper, $groupMapper),
+            'dimensionKeys' => $dimensionKeys,
+            'groupKeys' => $groupKeys,
+            'hospitalDistinctMatrix' => $hospitalDistinct,
         ];
     }
 
