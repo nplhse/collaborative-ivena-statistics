@@ -29,7 +29,11 @@ final class AgeCohortDistributionController extends AbstractController
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     route_name: string,
+     *     section_key: string,
+     *     panels: list<array<string, mixed>>,
+     * }
      */
     private function pageOptions(): array
     {
@@ -47,7 +51,12 @@ final class AgeCohortDistributionController extends AbstractController
                     'group_by_label' => 'statistics.distribution.dim.hospital_tier',
                     'filters' => ['date_range', 'hospital_tier', 'hospital_location'],
                     'options' => ['default_view' => 'absolute', 'show_percent' => false],
-                    'controls' => ['allow_view_mode_toggle' => true, 'allow_group_by' => true],
+                    'controls' => [
+                        'allow_view_mode_toggle' => true,
+                        'allow_group_by' => true,
+                        'allow_bar_basis_average' => true,
+                    ],
+                    'average_metric' => 'age',
                     'filter_defaults' => [
                         'date_range' => 'all_cases',
                         'hospital_tier' => [],
