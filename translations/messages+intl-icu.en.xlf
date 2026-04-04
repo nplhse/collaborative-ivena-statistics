@@ -929,6 +929,218 @@
         <source>statistics.distribution.section.age</source>
         <target>Age cohorts</target>
       </trans-unit>
+      <trans-unit id="d1strSecAs" resname="statistics.distribution.section.assignment">
+        <source>statistics.distribution.section.assignment</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="d1strSecOc" resname="statistics.distribution.section.occasion">
+        <source>statistics.distribution.section.occasion</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="d1strSecTm" resname="statistics.distribution.section.time">
+        <source>statistics.distribution.section.time</source>
+        <target>Weekday &amp; hour</target>
+      </trans-unit>
+      <trans-unit id="d1strSecTt" resname="statistics.distribution.section.transport_time">
+        <source>statistics.distribution.section.transport_time</source>
+        <target>Transport time</target>
+      </trans-unit>
+      <trans-unit id="d1strSecRs" resname="statistics.distribution.section.resources">
+        <source>statistics.distribution.section.resources</source>
+        <target>Resources</target>
+      </trans-unit>
+      <trans-unit id="d1strSecTr" resname="statistics.distribution.section.traits">
+        <source>statistics.distribution.section.traits</source>
+        <target>Clinical traits</target>
+      </trans-unit>
+      <trans-unit id="d1strDimAs" resname="statistics.distribution.dim.assignment">
+        <source>statistics.distribution.dim.assignment</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="d1strDimOc" resname="statistics.distribution.dim.occasion">
+        <source>statistics.distribution.dim.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="d1strDimWd" resname="statistics.distribution.dim.weekday">
+        <source>statistics.distribution.dim.weekday</source>
+        <target>Weekday</target>
+      </trans-unit>
+      <trans-unit id="d1strDimHr" resname="statistics.distribution.dim.hour">
+        <source>statistics.distribution.dim.hour</source>
+        <target>Hour of day</target>
+      </trans-unit>
+      <trans-unit id="d1strDimTtb" resname="statistics.distribution.dim.transport_time_bucket">
+        <source>statistics.distribution.dim.transport_time_bucket</source>
+        <target>Transport time (bucket)</target>
+      </trans-unit>
+      <trans-unit id="d1strDimRr" resname="statistics.distribution.dim.requires_resus">
+        <source>statistics.distribution.dim.requires_resus</source>
+        <target>Resuscitation room required</target>
+      </trans-unit>
+      <trans-unit id="d1strDimRc" resname="statistics.distribution.dim.requires_cathlab">
+        <source>statistics.distribution.dim.requires_cathlab</source>
+        <target>Cath lab required</target>
+      </trans-unit>
+      <trans-unit id="d1strDimCp" resname="statistics.distribution.dim.is_cpr">
+        <source>statistics.distribution.dim.is_cpr</source>
+        <target>CPR</target>
+      </trans-unit>
+      <trans-unit id="d1strDimVe" resname="statistics.distribution.dim.is_ventilated">
+        <source>statistics.distribution.dim.is_ventilated</source>
+        <target>Ventilated</target>
+      </trans-unit>
+      <trans-unit id="d1strDimPh" resname="statistics.distribution.dim.is_with_physician">
+        <source>statistics.distribution.dim.is_with_physician</source>
+        <target>With physician</target>
+      </trans-unit>
+      <trans-unit id="d1strTtB0" resname="statistics.distribution.transport_time_bucket.under_10">
+        <source>statistics.distribution.transport_time_bucket.under_10</source>
+        <target>Under 10 min</target>
+      </trans-unit>
+      <trans-unit id="d1strTtB1" resname="statistics.distribution.transport_time_bucket.10_20">
+        <source>statistics.distribution.transport_time_bucket.10_20</source>
+        <target>10–20 min</target>
+      </trans-unit>
+      <trans-unit id="d1strTtB2" resname="statistics.distribution.transport_time_bucket.20_30">
+        <source>statistics.distribution.transport_time_bucket.20_30</source>
+        <target>20–30 min</target>
+      </trans-unit>
+      <trans-unit id="d1strTtB3" resname="statistics.distribution.transport_time_bucket.30_40">
+        <source>statistics.distribution.transport_time_bucket.30_40</source>
+        <target>30–40 min</target>
+      </trans-unit>
+      <trans-unit id="d1strTtB4" resname="statistics.distribution.transport_time_bucket.40_50">
+        <source>statistics.distribution.transport_time_bucket.40_50</source>
+        <target>40–50 min</target>
+      </trans-unit>
+      <trans-unit id="d1strTtB5" resname="statistics.distribution.transport_time_bucket.50_60">
+        <source>statistics.distribution.transport_time_bucket.50_60</source>
+        <target>50–60 min</target>
+      </trans-unit>
+      <trans-unit id="d1strTtB6" resname="statistics.distribution.transport_time_bucket.over_60">
+        <source>statistics.distribution.transport_time_bucket.over_60</source>
+        <target>Over 60 min</target>
+      </trans-unit>
+      <trans-unit id="d1strTtBU" resname="statistics.distribution.transport_time_bucket.unknown">
+        <source>statistics.distribution.transport_time_bucket.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strTriRU" resname="statistics.distribution.tri.requires_resus.unknown">
+        <source>statistics.distribution.tri.requires_resus.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strTriRN" resname="statistics.distribution.tri.requires_resus.no">
+        <source>statistics.distribution.tri.requires_resus.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="d1strTriRY" resname="statistics.distribution.tri.requires_resus.yes">
+        <source>statistics.distribution.tri.requires_resus.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="d1strTriCU" resname="statistics.distribution.tri.requires_cathlab.unknown">
+        <source>statistics.distribution.tri.requires_cathlab.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strTriCN" resname="statistics.distribution.tri.requires_cathlab.no">
+        <source>statistics.distribution.tri.requires_cathlab.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="d1strTriCY" resname="statistics.distribution.tri.requires_cathlab.yes">
+        <source>statistics.distribution.tri.requires_cathlab.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="d1strTriCpU" resname="statistics.distribution.tri.is_cpr.unknown">
+        <source>statistics.distribution.tri.is_cpr.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strTriCpN" resname="statistics.distribution.tri.is_cpr.no">
+        <source>statistics.distribution.tri.is_cpr.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="d1strTriCpY" resname="statistics.distribution.tri.is_cpr.yes">
+        <source>statistics.distribution.tri.is_cpr.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="d1strTriVeU" resname="statistics.distribution.tri.is_ventilated.unknown">
+        <source>statistics.distribution.tri.is_ventilated.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strTriVeN" resname="statistics.distribution.tri.is_ventilated.no">
+        <source>statistics.distribution.tri.is_ventilated.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="d1strTriVeY" resname="statistics.distribution.tri.is_ventilated.yes">
+        <source>statistics.distribution.tri.is_ventilated.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="d1strTriPhU" resname="statistics.distribution.tri.is_with_physician.unknown">
+        <source>statistics.distribution.tri.is_with_physician.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strTriPhN" resname="statistics.distribution.tri.is_with_physician.no">
+        <source>statistics.distribution.tri.is_with_physician.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="d1strTriPhY" resname="statistics.distribution.tri.is_with_physician.yes">
+        <source>statistics.distribution.tri.is_with_physician.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="d1strWdUk" resname="statistics.distribution.weekday.unknown">
+        <source>statistics.distribution.weekday.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strWdN1" resname="statistics.distribution.weekday.n1">
+        <source>statistics.distribution.weekday.n1</source>
+        <target>Monday</target>
+      </trans-unit>
+      <trans-unit id="d1strWdN2" resname="statistics.distribution.weekday.n2">
+        <source>statistics.distribution.weekday.n2</source>
+        <target>Tuesday</target>
+      </trans-unit>
+      <trans-unit id="d1strWdN3" resname="statistics.distribution.weekday.n3">
+        <source>statistics.distribution.weekday.n3</source>
+        <target>Wednesday</target>
+      </trans-unit>
+      <trans-unit id="d1strWdN4" resname="statistics.distribution.weekday.n4">
+        <source>statistics.distribution.weekday.n4</source>
+        <target>Thursday</target>
+      </trans-unit>
+      <trans-unit id="d1strWdN5" resname="statistics.distribution.weekday.n5">
+        <source>statistics.distribution.weekday.n5</source>
+        <target>Friday</target>
+      </trans-unit>
+      <trans-unit id="d1strWdN6" resname="statistics.distribution.weekday.n6">
+        <source>statistics.distribution.weekday.n6</source>
+        <target>Saturday</target>
+      </trans-unit>
+      <trans-unit id="d1strWdN7" resname="statistics.distribution.weekday.n7">
+        <source>statistics.distribution.weekday.n7</source>
+        <target>Sunday</target>
+      </trans-unit>
+      <trans-unit id="d1strHrUk" resname="statistics.distribution.hour.unknown">
+        <source>statistics.distribution.hour.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strHrSl" resname="statistics.distribution.hour.slot">
+        <source>statistics.distribution.hour.slot</source>
+        <target>{hour}:00</target>
+      </trans-unit>
+      <trans-unit id="d1strOccNone" resname="statistics.distribution.occasion.none">
+        <source>statistics.distribution.occasion.none</source>
+        <target>No occasion</target>
+      </trans-unit>
+      <trans-unit id="d1strOccInv" resname="statistics.distribution.occasion.invalid_id">
+        <source>statistics.distribution.occasion.invalid_id</source>
+        <target>Unknown occasion</target>
+      </trans-unit>
+      <trans-unit id="d1strAsInv" resname="statistics.distribution.assignment.invalid_id">
+        <source>statistics.distribution.assignment.invalid_id</source>
+        <target>Unknown assignment</target>
+      </trans-unit>
+      <trans-unit id="d1strEntMiss" resname="statistics.distribution.entity_name_missing">
+        <source>statistics.distribution.entity_name_missing</source>
+        <target>ID {id}</target>
+      </trans-unit>
       <trans-unit id="d1strAgeU" resname="statistics.distribution.age.unknown">
         <source>statistics.distribution.age.unknown</source>
         <target>Unknown</target>
