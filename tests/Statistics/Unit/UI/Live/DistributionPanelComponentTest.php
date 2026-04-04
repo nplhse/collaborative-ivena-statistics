@@ -10,6 +10,7 @@ use App\Statistics\Application\Mapping\GenderValueMapper;
 use App\Statistics\Application\Mapping\HospitalLocationValueMapper;
 use App\Statistics\Application\Mapping\HospitalTypeValueMapper;
 use App\Statistics\Application\Mapping\TriageValueMapper;
+use App\Statistics\Application\Panel\Distribution\DistributionNumericMetricMerge;
 use App\Statistics\Application\Panel\Distribution\DistributionPageConfigResolver;
 use App\Statistics\Application\Panel\Distribution\DistributionSectionNavProvider;
 use App\Statistics\Application\Panel\Distribution\DistributionTransformer;
@@ -104,7 +105,8 @@ final class DistributionPanelComponentTest extends TestCase
             $resolver,
             $query,
             new DistributionTransformer(),
-            new Renderer(),
+            new DistributionNumericMetricMerge(),
+            new Renderer($translator),
             new TriageValueMapper($translator),
             new GenderValueMapper($translator),
             new HospitalTypeValueMapper($translator),

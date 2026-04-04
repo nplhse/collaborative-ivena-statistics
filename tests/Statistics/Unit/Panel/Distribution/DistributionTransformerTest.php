@@ -20,8 +20,8 @@ final class DistributionTransformerTest extends TestCase
 
         $result = $transformer->transform(
             [
-                ['dimension_key' => 1, 'group_key' => null, 'value' => 25],
-                ['dimension_key' => 2, 'group_key' => null, 'value' => 75],
+                ['dimension_key' => 1, 'group_key' => null, 'value' => 25, 'distinct_hospitals' => 5],
+                ['dimension_key' => 2, 'group_key' => null, 'value' => 75, 'distinct_hospitals' => 10],
             ],
             $primary,
             null,
@@ -36,6 +36,9 @@ final class DistributionTransformerTest extends TestCase
         self::assertSame('Total', $result['table'][2]['dimensionLabel']);
         self::assertTrue($result['table'][2]['isTotal']);
         self::assertSame(100, $result['table'][2]['value']);
+        self::assertSame([1, 2], $result['dimensionKeys']);
+        self::assertSame([0], $result['groupKeys']);
+        self::assertSame([0 => [1 => 5, 2 => 10]], $result['hospitalDistinctMatrix']);
     }
 
     public function testGroupedPercentagesArePerPrimaryCategory(): void
@@ -69,6 +72,15 @@ final class DistributionTransformerTest extends TestCase
         self::assertSame([75.0, 50.0], $byName['G20']['percentages']);
         self::assertCount(5, $result['table']);
         self::assertTrue($result['table'][4]['isTotal']);
+        self::assertSame([1, 2], $result['dimensionKeys']);
+        self::assertSame([10, 20], $result['groupKeys']);
+        self::assertSame(
+            [
+                10 => [1 => 0, 2 => 0],
+                20 => [1 => 0, 2 => 0],
+            ],
+            $result['hospitalDistinctMatrix'],
+        );
     }
 
     /**
