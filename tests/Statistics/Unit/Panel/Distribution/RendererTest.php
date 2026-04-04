@@ -175,6 +175,69 @@ final class RendererTest extends TestCase
         self::assertSame('G20', $chart['series'][1]['name']);
     }
 
+    public function testBoxPlotFallsBackWhenStatsStructureMissing(): void
+    {
+        $distribution = [
+            'labels' => ['A'],
+            'series' => [['name' => 'Gesamt', 'values' => [1], 'percentages' => [100.0]]],
+            'table' => [],
+        ];
+
+        $chart = $this->renderer()->render($distribution, 'absolute', 'boxplot', 'counts', DistributionNumericMetric::Age)['chart'];
+
+        self::assertSame('boxPlot', $chart['chart']['type']);
+        self::assertSame([], $chart['series']);
+        self::assertSame(
+            'statistics.distribution.metric.age.yaxis',
+            $chart['yaxis']['title']['text'],
+        );
+    }
+
+    public function testBoxPlotFallsBackWhenAllSeriesWouldBeEmpty(): void
+    {
+        $distribution = [
+            'labels' => ['A', 'B'],
+            'series' => [['name' => 'Gesamt', 'values' => [1, 1], 'percentages' => [50.0, 50.0]]],
+            'table' => [],
+            'dimensionKeys' => [1, 2],
+            'groupKeys' => [0],
+            'statsByDimensionGroup' => [
+                1 => [0 => ['n' => 0, 'mean' => 0.0, 'min' => 0, 'q1' => 0.0, 'median' => 0.0, 'q3' => 0.0, 'max' => 0]],
+                2 => [0 => ['n' => 0, 'mean' => 0.0, 'min' => 0, 'q1' => 0.0, 'median' => 0.0, 'q3' => 0.0, 'max' => 0]],
+            ],
+        ];
+
+        $chart = $this->renderer()->render($distribution, 'absolute', 'boxplot', 'counts', null)['chart'];
+
+        self::assertSame([], $chart['series']);
+        self::assertSame(
+            'statistics.distribution.boxplot.yaxis_generic',
+            $chart['yaxis']['title']['text'],
+        );
+    }
+
+    public function testBarAverageUsesZeroWhenStatsMapMissingEntries(): void
+    {
+        $distribution = [
+            'labels' => ['A', 'B'],
+            'series' => [
+                ['name' => 'Gesamt', 'values' => [1, 2], 'percentages' => [33.33, 66.67]],
+            ],
+            'table' => [],
+            'dimensionKeys' => [1, 2],
+            'groupKeys' => [0],
+            'statsByDimensionGroup' => [],
+        ];
+
+        $result = $this->renderer()->render($distribution, 'absolute', 'bar', 'average', null);
+
+        self::assertSame([0.0, 0.0], $result['chart']['series'][0]['data']);
+        self::assertSame(
+            'statistics.distribution.bar_basis.average.yaxis_per_hospital',
+            $result['chart']['yaxis']['title']['text'],
+        );
+    }
+
     private function renderer(): Renderer
     {
         $translator = $this->createMock(TranslatorInterface::class);

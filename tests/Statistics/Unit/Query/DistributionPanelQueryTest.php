@@ -194,6 +194,44 @@ final class DistributionPanelQueryTest extends TestCase
         self::assertNull($query->fetchOverallNumericStats($panel, $state, DistributionNumericMetric::Age));
     }
 
+    public function testFetchOverallNumericStatsReturnsParsedRowWhenPresent(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
+        $panel = DistributionPanelFixtures::urgency();
+        $state = new FilterState([
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
+
+        $connection->expects(self::once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'n' => '12',
+                'mean_val' => '41.25',
+                'min_val' => '20',
+                'q1_val' => '35',
+                'median_val' => '40',
+                'q3_val' => '48',
+                'max_val' => '70',
+            ]);
+
+        $query = new DistributionPanelQuery($connection, $sqlFilterBuilder);
+        self::assertSame(
+            [
+                'n' => 12,
+                'mean' => 41.25,
+                'min' => 20,
+                'q1' => 35.0,
+                'median' => 40.0,
+                'q3' => 48.0,
+                'max' => 70,
+            ],
+            $query->fetchOverallNumericStats($panel, $state, DistributionNumericMetric::Age),
+        );
+    }
+
     public function testFetchOverallHospitalParticipationReturnsRatioInputs(): void
     {
         $connection = $this->createMock(Connection::class);
