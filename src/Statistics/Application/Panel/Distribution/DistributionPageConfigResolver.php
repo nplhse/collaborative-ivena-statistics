@@ -47,6 +47,18 @@ final class DistributionPageConfigResolver
     {
         $p = $this->configurePanelResolver()->resolve($panelOptions);
 
+        $averageMetric = $p['average_metric'];
+        if (\is_string($averageMetric) && '' === trim($averageMetric)) {
+            $averageMetric = null;
+        }
+
+        $controls = $p['controls'];
+        if (null !== $averageMetric) {
+            $controls = array_replace([
+                'allow_chart_type_boxplot' => true,
+            ], $controls);
+        }
+
         return new PanelDefinition(
             key: $p['key'],
             type: $p['type'],
@@ -57,8 +69,9 @@ final class DistributionPageConfigResolver
             groupByLabel: $p['group_by_label'],
             filters: $p['filters'],
             options: $p['options'],
-            controls: $p['controls'],
+            controls: $controls,
             filterDefaults: $p['filter_defaults'],
+            averageMetric: $averageMetric,
         );
     }
 
@@ -108,6 +121,7 @@ final class DistributionPageConfigResolver
             'options',
             'controls',
             'filter_defaults',
+            'average_metric',
         ]);
         $resolver->setRequired([
             'key',
@@ -123,6 +137,7 @@ final class DistributionPageConfigResolver
             'group_by_field' => null,
             'group_by_label' => null,
             'filter_defaults' => [],
+            'average_metric' => null,
         ]);
 
         $resolver->setAllowedTypes('key', 'string');
@@ -136,10 +151,29 @@ final class DistributionPageConfigResolver
         $resolver->setAllowedTypes('options', 'array');
         $resolver->setAllowedTypes('controls', 'array');
         $resolver->setAllowedTypes('filter_defaults', 'array');
+        $resolver->setAllowedTypes('average_metric', ['string', 'null']);
 
         $resolver->setAllowedValues('dimension_kind', $dimensionValues);
 
         $resolver->setNormalizer('key', static fn (Options $options, string $value): string => '' !== trim($value) ? $value : throw new \InvalidArgumentException('panel key must be non-empty.'));
+
+        $resolver->setNormalizer('average_metric', static function (Options $options, mixed $value): ?string {
+            if (null === $value || '' === $value) {
+                return null;
+            }
+            if (!\is_string($value)) {
+                throw new \InvalidArgumentException('average_metric must be string or null.');
+            }
+            $trimmed = trim($value);
+            if ('' === $trimmed) {
+                return null;
+            }
+            if (null === DistributionNumericMetric::tryFrom($trimmed)) {
+                throw new \InvalidArgumentException(\sprintf('Unknown average_metric "%s".', $trimmed));
+            }
+
+            return $trimmed;
+        });
 
         return $resolver;
     }
