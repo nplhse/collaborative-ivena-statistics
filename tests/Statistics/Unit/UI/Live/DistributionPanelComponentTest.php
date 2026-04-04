@@ -10,13 +10,15 @@ use App\Statistics\Application\Mapping\GenderValueMapper;
 use App\Statistics\Application\Mapping\HospitalLocationValueMapper;
 use App\Statistics\Application\Mapping\HospitalTypeValueMapper;
 use App\Statistics\Application\Mapping\TriageValueMapper;
-use App\Statistics\Application\Panel\Distribution\DistributionPageConfigFactory;
+use App\Statistics\Application\Panel\Distribution\DistributionPageConfigResolver;
+use App\Statistics\Application\Panel\Distribution\DistributionSectionNavProvider;
 use App\Statistics\Application\Panel\Distribution\DistributionTransformer;
 use App\Statistics\Application\Panel\Distribution\Renderer;
 use App\Statistics\Application\State\QueryStateResolver;
 use App\Statistics\Infrastructure\Query\DistributionPanelQuery;
 use App\Statistics\Infrastructure\Query\SqlFilterBuilder;
 use App\Statistics\UI\Live\DistributionPanelComponent;
+use App\Tests\Statistics\Fixtures\DistributionPanelFixtures;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +30,6 @@ final class DistributionPanelComponentTest extends TestCase
     public function testAllowedViewModesDependOnGrouping(): void
     {
         $component = $this->component();
-        $component->distributionPageId = DistributionPageConfigFactory::PAGE_URGENCY;
 
         $component->groupedBy = 'none';
         self::assertSame(['absolute', 'percent_of_total'], $component->getAllowedViewModes());
@@ -37,10 +38,26 @@ final class DistributionPanelComponentTest extends TestCase
         self::assertSame(['grouped', 'stacked', 'percent'], $component->getAllowedViewModes());
     }
 
+    public function testPageConfigRequiresDistributionPageOptions(): void
+    {
+        $component = $this->bareComponent();
+        $component->distributionPageOptions = [];
+
+        $this->expectException(\LogicException::class);
+        $component->pageConfig();
+    }
+
+    public function testPageConfigResolvesFromDistributionPageOptions(): void
+    {
+        $component = $this->bareComponent();
+        $component->distributionPageOptions = DistributionPanelFixtures::sampleUrgencyPageOptions();
+
+        self::assertSame('app_stats_distribution_urgency', $component->pageConfig()->routeName);
+    }
+
     public function testUrlStateUsesNormalizedViewMode(): void
     {
         $component = $this->component();
-        $component->distributionPageId = DistributionPageConfigFactory::PAGE_URGENCY;
         $component->groupedBy = 'none';
         $component->viewMode = 'stacked';
         $component->panelKey = 'urgency';
@@ -60,6 +77,14 @@ final class DistributionPanelComponentTest extends TestCase
 
     private function component(): DistributionPanelComponent
     {
+        $c = $this->bareComponent();
+        $c->distributionPageOptions = DistributionPanelFixtures::sampleUrgencyPageOptions();
+
+        return $c;
+    }
+
+    private function bareComponent(): DistributionPanelComponent
+    {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
 
@@ -70,8 +95,12 @@ final class DistributionPanelComponentTest extends TestCase
             new SqlFilterBuilder($filterRegistry),
         );
 
+        $stack = new RequestStack();
+        $stack->push(Request::create('/statistics/distribution/urgency'));
+
         return new DistributionPanelComponent(
-            new DistributionPageConfigFactory(),
+            new DistributionSectionNavProvider(),
+            new DistributionPageConfigResolver(),
             $resolver,
             $query,
             new DistributionTransformer(),
@@ -82,15 +111,7 @@ final class DistributionPanelComponentTest extends TestCase
             new HospitalLocationValueMapper($translator),
             new AgeCohortValueMapper($translator),
             $filterRegistry,
-            $this->requestStackWithPath('/statistics/distribution/urgency'),
+            $stack,
         );
-    }
-
-    private function requestStackWithPath(string $path): RequestStack
-    {
-        $stack = new RequestStack();
-        $stack->push(Request::create($path));
-
-        return $stack;
     }
 }

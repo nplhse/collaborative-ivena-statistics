@@ -7,8 +7,8 @@ namespace App\Tests\Statistics\Unit\Query;
 use App\Statistics\Application\Filter\FilterDefinition;
 use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Filter\FilterState;
-use App\Statistics\Application\Panel\Distribution\DistributionPanelPresets;
 use App\Statistics\Infrastructure\Query\SqlFilterBuilder;
+use App\Tests\Statistics\Fixtures\DistributionPanelFixtures;
 use PHPUnit\Framework\TestCase;
 
 final class SqlFilterBuilderTest extends TestCase
@@ -16,7 +16,7 @@ final class SqlFilterBuilderTest extends TestCase
     public function testBuildsWhereForLastTwelveMonthsPreset(): void
     {
         $builder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
 
         $where = $builder->buildWhere(new FilterState([
             'date_range' => 'last_12_months',
@@ -31,7 +31,7 @@ final class SqlFilterBuilderTest extends TestCase
     public function testBuildsNoWhereForAllCases(): void
     {
         $builder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
 
         $where = $builder->buildWhere(new FilterState([
             'date_range' => 'all_cases',
@@ -46,7 +46,7 @@ final class SqlFilterBuilderTest extends TestCase
     public function testBuildsExplicitDateRangeWhere(): void
     {
         $builder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
 
         $where = $builder->buildWhere(new FilterState([
             'date_range' => ['from' => '2025-01-01', 'to' => '2025-01-31'],
@@ -75,7 +75,7 @@ final class SqlFilterBuilderTest extends TestCase
         $prop->setValue($registry, $defs);
 
         $builder = new SqlFilterBuilder($registry);
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
 
         $where = $builder->buildWhere(new FilterState([
             'date_range' => 'last_12_months',
@@ -89,7 +89,7 @@ final class SqlFilterBuilderTest extends TestCase
     public function testHospitalTierInClause(): void
     {
         $builder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
 
         $where = $builder->buildWhere(new FilterState([
             'date_range' => 'all_cases',
@@ -105,7 +105,7 @@ final class SqlFilterBuilderTest extends TestCase
     public function testHospitalLocationInClause(): void
     {
         $builder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
 
         $where = $builder->buildWhere(new FilterState([
             'date_range' => 'all_cases',

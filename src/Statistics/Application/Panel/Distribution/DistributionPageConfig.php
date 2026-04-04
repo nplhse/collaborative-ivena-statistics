@@ -8,13 +8,12 @@ use App\Statistics\Application\Panel\PanelDefinition;
 
 final readonly class DistributionPageConfig
 {
-    public const string REQUEST_ATTRIBUTE = '_distribution_page';
-
     /**
      * @param list<PanelDefinition> $panels
      */
     public function __construct(
         public string $routeName,
+        public string $sectionKey,
         public array $panels,
         public ?string $defaultPanelKey = null,
     ) {

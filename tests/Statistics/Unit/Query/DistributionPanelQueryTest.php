@@ -6,9 +6,9 @@ namespace App\Tests\Statistics\Unit\Query;
 
 use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Filter\FilterState;
-use App\Statistics\Application\Panel\Distribution\DistributionPanelPresets;
 use App\Statistics\Infrastructure\Query\DistributionPanelQuery;
 use App\Statistics\Infrastructure\Query\SqlFilterBuilder;
+use App\Tests\Statistics\Fixtures\DistributionPanelFixtures;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +18,7 @@ final class DistributionPanelQueryTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
         $state = new FilterState([
             'date_range' => ['from' => '2025-01-01', 'to' => '2025-01-31'],
             'hospital_tier' => [],
@@ -56,7 +56,7 @@ final class DistributionPanelQueryTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
         $state = new FilterState([
             'date_range' => 'all_cases',
             'hospital_tier' => [],
@@ -80,7 +80,7 @@ final class DistributionPanelQueryTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
-        $panel = DistributionPanelPresets::ageCohort();
+        $panel = DistributionPanelFixtures::ageCohort();
         $state = new FilterState([
             'date_range' => 'all_cases',
             'hospital_tier' => [],
