@@ -6,15 +6,12 @@ namespace App\Statistics\UI\Live;
 
 use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Filter\FilterState;
-use App\Statistics\Application\Mapping\AgeCohortValueMapper;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
-use App\Statistics\Application\Mapping\GenderValueMapper;
+use App\Statistics\Application\Mapping\DistributionDimensionValueMapperResolver;
 use App\Statistics\Application\Mapping\HospitalLocationValueMapper;
 use App\Statistics\Application\Mapping\HospitalTypeValueMapper;
-use App\Statistics\Application\Mapping\TriageValueMapper;
 use App\Statistics\Application\Mapping\ValueMapper;
-use App\Statistics\Application\Panel\Distribution\DimensionKind;
 use App\Statistics\Application\Panel\Distribution\DistributionNumericMetric;
 use App\Statistics\Application\Panel\Distribution\DistributionNumericMetricMerge;
 use App\Statistics\Application\Panel\Distribution\DistributionPageConfig;
@@ -76,11 +73,9 @@ final class DistributionPanelComponent
         private readonly DistributionTransformer $transformer,
         private readonly DistributionNumericMetricMerge $distributionNumericMetricMerge,
         private readonly Renderer $renderer,
-        private readonly TriageValueMapper $triageMapper,
-        private readonly GenderValueMapper $genderValueMapper,
+        private readonly DistributionDimensionValueMapperResolver $distributionDimensionValueMapperResolver,
         private readonly HospitalTypeValueMapper $hospitalTypeMapper,
         private readonly HospitalLocationValueMapper $hospitalLocationValueMapper,
-        private readonly AgeCohortValueMapper $ageCohortValueMapper,
         private readonly FilterRegistry $filterRegistry,
         private readonly RequestStack $requestStack,
     ) {
@@ -154,7 +149,7 @@ final class DistributionPanelComponent
         $rows = $this->distributionPanelQuery->fetchDistribution($panel, $filterState, $groupByField);
         $distribution = $this->transformer->transform(
             $rows,
-            $this->dimensionMapperFor($panel),
+            $this->distributionDimensionValueMapperResolver->forPanel($panel),
             $this->groupMapperForSelection(),
         );
 
@@ -435,18 +430,6 @@ final class DistributionPanelComponent
         if ('boxplot' === $this->chartType) {
             $this->barBasis = 'counts';
         }
-    }
-
-    private function dimensionMapperFor(PanelDefinition $panel): ValueMapper
-    {
-        if (DimensionKind::AgeCohort === $panel->dimensionKind) {
-            return $this->ageCohortValueMapper;
-        }
-
-        return match ($panel->key) {
-            'gender' => $this->genderValueMapper,
-            default => $this->triageMapper,
-        };
     }
 
     private function groupMapperForSelection(): ?ValueMapper
