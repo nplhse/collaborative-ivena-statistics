@@ -7,6 +7,7 @@ namespace App\Tests\Statistics\Unit\Query;
 use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Filter\FilterState;
 use App\Statistics\Application\Panel\Distribution\DistributionNumericMetric;
+use App\Statistics\Application\Panel\Distribution\TransportTimeBucketExpression;
 use App\Statistics\Infrastructure\Query\DistributionPanelQuery;
 use App\Statistics\Infrastructure\Query\SqlFilterBuilder;
 use App\Tests\Statistics\Fixtures\DistributionPanelFixtures;
@@ -103,6 +104,123 @@ final class DistributionPanelQueryTest extends TestCase
                     self::stringContains('WHEN age IS NULL THEN -1'),
                     self::stringContains('GROUP BY (CASE'),
                     self::stringContains('COUNT(DISTINCT hospital_id)')
+                ),
+                [],
+                []
+            )
+            ->willReturn([]);
+
+        $query = new DistributionPanelQuery($connection, $sqlFilterBuilder);
+        $query->fetchDistribution($panel, $state);
+    }
+
+    public function testFetchDistributionGroupsByCreatedHour(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
+        $panel = DistributionPanelFixtures::createdHour();
+        $state = new FilterState([
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
+
+        $connection->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->with(
+                self::logicalAnd(
+                    self::stringContains('SELECT created_hour AS dimension_key'),
+                    self::stringContains('GROUP BY created_hour'),
+                    self::stringContains('ORDER BY created_hour')
+                ),
+                [],
+                []
+            )
+            ->willReturn([]);
+
+        $query = new DistributionPanelQuery($connection, $sqlFilterBuilder);
+        $query->fetchDistribution($panel, $state);
+    }
+
+    public function testFetchDistributionGroupsByTransportTimeBucketExpression(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
+        $panel = DistributionPanelFixtures::transportTimeBucket();
+        $state = new FilterState([
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
+
+        $bucketSql = TransportTimeBucketExpression::sql('transport_time_minutes');
+
+        $connection->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->with(
+                self::logicalAnd(
+                    self::stringContains('SELECT '.$bucketSql.' AS dimension_key'),
+                    self::stringContains('GROUP BY '.$bucketSql),
+                    self::stringContains('ORDER BY '.$bucketSql)
+                ),
+                [],
+                []
+            )
+            ->willReturn([]);
+
+        $query = new DistributionPanelQuery($connection, $sqlFilterBuilder);
+        $query->fetchDistribution($panel, $state);
+    }
+
+    public function testFetchNumericStatsForTransportTimeUsesMetricColumnInGroupBy(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
+        $panel = DistributionPanelFixtures::transportTimeBucket();
+        $state = new FilterState([
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
+
+        $bucketSql = TransportTimeBucketExpression::sql('transport_time_minutes');
+
+        $connection->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->with(
+                self::logicalAnd(
+                    self::stringContains('transport_time_minutes IS NOT NULL'),
+                    self::stringContains('GROUP BY '.$bucketSql),
+                    self::stringContains('percentile_cont(0.5) WITHIN GROUP (ORDER BY transport_time_minutes)')
+                ),
+                [],
+                []
+            )
+            ->willReturn([]);
+
+        $query = new DistributionPanelQuery($connection, $sqlFilterBuilder);
+        $query->fetchNumericDistributionStats($panel, $state, DistributionNumericMetric::TransportTimeMinutes);
+    }
+
+    public function testFetchDistributionGroupsByRequiresResusTriState(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $sqlFilterBuilder = new SqlFilterBuilder(new FilterRegistry());
+        $panel = DistributionPanelFixtures::requiresResus();
+        $state = new FilterState([
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ]);
+
+        $connection->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->with(
+                self::logicalAnd(
+                    self::stringContains('requires_resus IS NULL THEN 0'),
+                    self::stringContains('requires_resus = false THEN 1'),
+                    self::stringContains('GROUP BY (CASE'),
+                    self::stringContains('ORDER BY (CASE')
                 ),
                 [],
                 []

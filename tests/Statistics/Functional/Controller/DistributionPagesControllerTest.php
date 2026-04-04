@@ -9,26 +9,27 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class DistributionPagesControllerTest extends WebTestCase
 {
-    public function testUrgencyDistributionPageIsReachable(): void
+    /**
+     * @return \Generator<string, array{0: string}>
+     */
+    public static function distributionPathsProvider(): \Generator
     {
-        $client = self::createClient();
-        $client->request(Request::METHOD_GET, '/statistics/distribution/urgency');
-
-        self::assertResponseIsSuccessful();
+        yield 'urgency' => ['/statistics/distribution/urgency'];
+        yield 'gender' => ['/statistics/distribution/gender'];
+        yield 'age' => ['/statistics/distribution/age'];
+        yield 'assignment' => ['/statistics/distribution/assignment'];
+        yield 'occasion' => ['/statistics/distribution/occasion'];
+        yield 'time' => ['/statistics/distribution/time'];
+        yield 'transport_time' => ['/statistics/distribution/transport-time'];
+        yield 'resources' => ['/statistics/distribution/resources'];
+        yield 'traits' => ['/statistics/distribution/traits'];
     }
 
-    public function testGenderDistributionPageIsReachable(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('distributionPathsProvider')]
+    public function testDistributionPageIsReachable(string $path): void
     {
         $client = self::createClient();
-        $client->request(Request::METHOD_GET, '/statistics/distribution/gender');
-
-        self::assertResponseIsSuccessful();
-    }
-
-    public function testAgeCohortDistributionPageIsReachable(): void
-    {
-        $client = self::createClient();
-        $client->request(Request::METHOD_GET, '/statistics/distribution/age');
+        $client->request(Request::METHOD_GET, $path);
 
         self::assertResponseIsSuccessful();
     }
