@@ -6,10 +6,16 @@ namespace App\Tests\Statistics\Unit\UI\Live;
 
 use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Mapping\AgeCohortValueMapper;
+use App\Statistics\Application\Mapping\AssignmentDistributionNameMapper;
+use App\Statistics\Application\Mapping\DistributionDimensionValueMapperResolver;
 use App\Statistics\Application\Mapping\GenderValueMapper;
 use App\Statistics\Application\Mapping\HospitalLocationValueMapper;
 use App\Statistics\Application\Mapping\HospitalTypeValueMapper;
+use App\Statistics\Application\Mapping\HourOfDayValueMapper;
+use App\Statistics\Application\Mapping\OccasionDistributionNameMapper;
+use App\Statistics\Application\Mapping\TransportTimeBucketValueMapper;
 use App\Statistics\Application\Mapping\TriageValueMapper;
+use App\Statistics\Application\Mapping\WeekdayValueMapper;
 use App\Statistics\Application\Panel\Distribution\DistributionNumericMetricMerge;
 use App\Statistics\Application\Panel\Distribution\DistributionPageConfigResolver;
 use App\Statistics\Application\Panel\Distribution\DistributionSectionNavProvider;
@@ -334,10 +340,25 @@ final class DistributionPanelComponentTest extends TestCase
     private function buildComponent(DistributionPanelQuery $query, RequestStack $stack): DistributionPanelComponent
     {
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
+        $translator->method('trans')->willReturnCallback(static fn (string $key, array $parameters = []): string => $key);
 
         $filterRegistry = new FilterRegistry();
         $resolver = new QueryStateResolver($filterRegistry);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
+        $dimensionMapperResolver = new DistributionDimensionValueMapperResolver(
+            $translator,
+            new TriageValueMapper($translator),
+            new GenderValueMapper($translator),
+            new AgeCohortValueMapper($translator),
+            new WeekdayValueMapper($translator),
+            new HourOfDayValueMapper($translator),
+            new TransportTimeBucketValueMapper($translator),
+            new AssignmentDistributionNameMapper($connection, $translator),
+            new OccasionDistributionNameMapper($connection, $translator),
+        );
 
         return new DistributionPanelComponent(
             new DistributionSectionNavProvider(),
@@ -347,11 +368,9 @@ final class DistributionPanelComponentTest extends TestCase
             new DistributionTransformer(),
             new DistributionNumericMetricMerge(),
             new Renderer($translator),
-            new TriageValueMapper($translator),
-            new GenderValueMapper($translator),
+            $dimensionMapperResolver,
             new HospitalTypeValueMapper($translator),
             new HospitalLocationValueMapper($translator),
-            new AgeCohortValueMapper($translator),
             $filterRegistry,
             $stack,
         );
