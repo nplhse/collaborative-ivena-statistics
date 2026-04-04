@@ -55,7 +55,7 @@ final readonly class DistributionPanelNumericMetricPolicy
 
     public function needsNumericQuery(string $chartType): bool
     {
-        if (!$this->hasConfiguredMetric() || null === $this->metric()) {
+        if (!$this->hasConfiguredMetric() || !$this->metric() instanceof DistributionNumericMetric) {
             return false;
         }
 

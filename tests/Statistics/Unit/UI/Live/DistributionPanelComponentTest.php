@@ -186,7 +186,7 @@ final class DistributionPanelComponentTest extends TestCase
     public function testMountFallsBackToDefaultPanelForUnknownKey(): void
     {
         $opts = DistributionPanelFixtures::sampleUrgencyPageOptions();
-        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', 'GET', ['panel' => 'unknown']));
+        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', Request::METHOD_GET, ['panel' => 'unknown']));
         $c->mount($opts);
 
         self::assertSame('urgency', $c->panelKey);
@@ -197,7 +197,7 @@ final class DistributionPanelComponentTest extends TestCase
         $opts = DistributionPanelFixtures::sampleUrgencyPageOptions();
         $opts['panels'][0]['controls']['allow_group_by'] = false;
 
-        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', 'GET', ['grouped_by' => 'tier']));
+        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', Request::METHOD_GET, ['grouped_by' => 'tier']));
         $c->mount($opts);
 
         self::assertSame('none', $c->groupedBy);
@@ -206,7 +206,7 @@ final class DistributionPanelComponentTest extends TestCase
     public function testMountReadsChartTypeAndNormalizesInvalidValue(): void
     {
         $opts = DistributionPanelFixtures::sampleUrgencyPageOptions();
-        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', 'GET', ['chart_type' => 'pie']));
+        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', Request::METHOD_GET, ['chart_type' => 'pie']));
         $c->mount($opts);
 
         self::assertSame('bar', $c->chartType);
@@ -215,7 +215,7 @@ final class DistributionPanelComponentTest extends TestCase
     public function testMountReadsBarBasisFromQuery(): void
     {
         $opts = DistributionPanelFixtures::sampleUrgencyPageOptions();
-        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', 'GET', ['bar_basis' => 'average']));
+        $c = $this->componentForRequest(Request::create('/statistics/distribution/urgency', Request::METHOD_GET, ['bar_basis' => 'average']));
         $c->mount($opts);
 
         self::assertSame('average', $c->barBasis);
