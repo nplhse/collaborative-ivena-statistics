@@ -909,6 +909,70 @@
         <source>statistics.distribution.dim.gender</source>
         <target>Gender</target>
       </trans-unit>
+      <trans-unit id="d1strPha" resname="statistics.distribution.dim.age_cohort">
+        <source>statistics.distribution.dim.age_cohort</source>
+        <target>Age cohorts</target>
+      </trans-unit>
+      <trans-unit id="d1strSecU" resname="statistics.distribution.section.urgency">
+        <source>statistics.distribution.section.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="d1strSecG" resname="statistics.distribution.section.gender">
+        <source>statistics.distribution.section.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="d1strSecA" resname="statistics.distribution.section.age">
+        <source>statistics.distribution.section.age</source>
+        <target>Age cohorts</target>
+      </trans-unit>
+      <trans-unit id="d1strAgeU" resname="statistics.distribution.age.unknown">
+        <source>statistics.distribution.age.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="d1strAge0" resname="statistics.distribution.age.under_18">
+        <source>statistics.distribution.age.under_18</source>
+        <target>Under 18</target>
+      </trans-unit>
+      <trans-unit id="d1strAge1" resname="statistics.distribution.age.18_29">
+        <source>statistics.distribution.age.18_29</source>
+        <target>18–29</target>
+      </trans-unit>
+      <trans-unit id="d1strAge2" resname="statistics.distribution.age.30_39">
+        <source>statistics.distribution.age.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="d1strAge3" resname="statistics.distribution.age.40_49">
+        <source>statistics.distribution.age.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="d1strAge4" resname="statistics.distribution.age.50_59">
+        <source>statistics.distribution.age.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="d1strAge5" resname="statistics.distribution.age.60_69">
+        <source>statistics.distribution.age.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="d1strAge6" resname="statistics.distribution.age.70_79">
+        <source>statistics.distribution.age.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="d1strAge7" resname="statistics.distribution.age.80_89">
+        <source>statistics.distribution.age.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="d1strAge8" resname="statistics.distribution.age.90_99">
+        <source>statistics.distribution.age.90_99</source>
+        <target>90–99 (and older)</target>
+      </trans-unit>
+      <trans-unit id="d1strFht" resname="statistics.distribution.filter.hospital_tier">
+        <source>statistics.distribution.filter.hospital_tier</source>
+        <target>Hospital tier</target>
+      </trans-unit>
+      <trans-unit id="d1strFhl" resname="statistics.distribution.filter.hospital_location">
+        <source>statistics.distribution.filter.hospital_location</source>
+        <target>Hospital location</target>
+      </trans-unit>
       <trans-unit id="d1strPi" resname="statistics.distribution.dim.hospital_tier">
         <source>statistics.distribution.dim.hospital_tier</source>
         <target>Hospital tier</target>

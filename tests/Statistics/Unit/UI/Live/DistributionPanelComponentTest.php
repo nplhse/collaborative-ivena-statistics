@@ -5,19 +5,21 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\UI\Live;
 
 use App\Statistics\Application\Filter\FilterRegistry;
+use App\Statistics\Application\Mapping\AgeCohortValueMapper;
 use App\Statistics\Application\Mapping\GenderValueMapper;
 use App\Statistics\Application\Mapping\HospitalLocationValueMapper;
 use App\Statistics\Application\Mapping\HospitalTypeValueMapper;
 use App\Statistics\Application\Mapping\TriageValueMapper;
+use App\Statistics\Application\Panel\Distribution\DistributionPageConfigFactory;
 use App\Statistics\Application\Panel\Distribution\DistributionTransformer;
 use App\Statistics\Application\Panel\Distribution\Renderer;
-use App\Statistics\Application\Panel\PanelFactory;
 use App\Statistics\Application\State\QueryStateResolver;
 use App\Statistics\Infrastructure\Query\DistributionPanelQuery;
 use App\Statistics\Infrastructure\Query\SqlFilterBuilder;
 use App\Statistics\UI\Live\DistributionPanelComponent;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -26,6 +28,7 @@ final class DistributionPanelComponentTest extends TestCase
     public function testAllowedViewModesDependOnGrouping(): void
     {
         $component = $this->component();
+        $component->distributionPageId = DistributionPageConfigFactory::PAGE_URGENCY;
 
         $component->groupedBy = 'none';
         self::assertSame(['absolute', 'percent_of_total'], $component->getAllowedViewModes());
@@ -37,10 +40,15 @@ final class DistributionPanelComponentTest extends TestCase
     public function testUrlStateUsesNormalizedViewMode(): void
     {
         $component = $this->component();
+        $component->distributionPageId = DistributionPageConfigFactory::PAGE_URGENCY;
         $component->groupedBy = 'none';
         $component->viewMode = 'stacked';
         $component->panelKey = 'urgency';
-        $component->datePreset = 'all_cases';
+        $component->filterValues = [
+            'date_range' => 'all_cases',
+            'hospital_tier' => [],
+            'hospital_location' => [],
+        ];
 
         $state = $component->getUrlState();
 
@@ -63,7 +71,7 @@ final class DistributionPanelComponentTest extends TestCase
         );
 
         return new DistributionPanelComponent(
-            new PanelFactory(),
+            new DistributionPageConfigFactory(),
             $resolver,
             $query,
             new DistributionTransformer(),
@@ -72,7 +80,17 @@ final class DistributionPanelComponentTest extends TestCase
             new GenderValueMapper($translator),
             new HospitalTypeValueMapper($translator),
             new HospitalLocationValueMapper($translator),
-            new RequestStack(),
+            new AgeCohortValueMapper($translator),
+            $filterRegistry,
+            $this->requestStackWithPath('/statistics/distribution/urgency'),
         );
+    }
+
+    private function requestStackWithPath(string $path): RequestStack
+    {
+        $stack = new RequestStack();
+        $stack->push(Request::create($path));
+
+        return $stack;
     }
 }
