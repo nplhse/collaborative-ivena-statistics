@@ -15,8 +15,11 @@ use App\Statistics\Application\Mapping\HospitalTypeValueMapper;
 use App\Statistics\Application\Mapping\TriageValueMapper;
 use App\Statistics\Application\Mapping\ValueMapper;
 use App\Statistics\Application\Panel\Distribution\DimensionKind;
+use App\Statistics\Application\Panel\Distribution\DistributionNumericMetric;
+use App\Statistics\Application\Panel\Distribution\DistributionNumericMetricMerge;
 use App\Statistics\Application\Panel\Distribution\DistributionPageConfig;
 use App\Statistics\Application\Panel\Distribution\DistributionPageConfigResolver;
+use App\Statistics\Application\Panel\Distribution\DistributionPanelNumericMetricPolicy;
 use App\Statistics\Application\Panel\Distribution\DistributionSectionNavProvider;
 use App\Statistics\Application\Panel\Distribution\DistributionTransformer;
 use App\Statistics\Application\Panel\Distribution\Renderer;
@@ -33,7 +36,16 @@ final class DistributionPanelComponent
 {
     use DefaultActionTrait;
 
-    /** @var array<string, mixed> */
+    /**
+     * @var (
+     *     array{
+     *         route_name: string,
+     *         section_key: string,
+     *         panels: list<array<string, mixed>>,
+     *         default_panel_key?: string|null,
+     *     }|array{}
+     * )
+     */
     #[LiveProp(writable: true)]
     public array $distributionPageOptions = [];
 
@@ -50,12 +62,19 @@ final class DistributionPanelComponent
     #[LiveProp(writable: true)]
     public string $groupedBy = 'none';
 
+    #[LiveProp(writable: true)]
+    public string $chartType = 'bar';
+
+    #[LiveProp(writable: true)]
+    public string $barBasis = 'counts';
+
     public function __construct(
         private readonly DistributionSectionNavProvider $distributionSectionNavProvider,
         private readonly DistributionPageConfigResolver $distributionPageConfigResolver,
         private readonly QueryStateResolver $queryStateResolver,
         private readonly DistributionPanelQuery $distributionPanelQuery,
         private readonly DistributionTransformer $transformer,
+        private readonly DistributionNumericMetricMerge $distributionNumericMetricMerge,
         private readonly Renderer $renderer,
         private readonly TriageValueMapper $triageMapper,
         private readonly GenderValueMapper $genderValueMapper,
@@ -68,7 +87,12 @@ final class DistributionPanelComponent
     }
 
     /**
-     * @param array<string, mixed> $distributionPageOptions
+     * @param array{
+     *     route_name: string,
+     *     section_key: string,
+     *     panels: list<array<string, mixed>>,
+     *     default_panel_key?: string|null,
+     * } $distributionPageOptions
      */
     public function mount(array $distributionPageOptions): void
     {
@@ -97,13 +121,18 @@ final class DistributionPanelComponent
 
         $showPercent = true === ($panel->options['show_percent'] ?? false);
         $this->viewMode = $this->queryStateResolver->resolveViewMode($request->query, $panel, $showPercent);
+
+        $this->chartType = $request->query->getString('chart_type', 'bar');
+        $this->barBasis = $request->query->getString('bar_basis', 'counts');
+        $this->normalizeChartState($panel);
         $this->viewMode = $this->normalizeViewMode($this->viewMode);
     }
 
     /**
      * @return array{
      *     chart: array<string, mixed>,
-     *     table: list<array{dimensionLabel: string, groupLabel: string|null, value: int, percent: float, isTotal: bool}>
+     *     table: list<array<string, mixed>>,
+     *     tableMode: string
      * }
      */
     public function getRenderedData(): array
@@ -111,6 +140,10 @@ final class DistributionPanelComponent
         $pageConfig = $this->pageConfig();
         $panel = $pageConfig->getPanel($this->panelKey) ?? $pageConfig->defaultPanel();
         $filterState = new FilterState($this->effectiveFilterValues($panel));
+        $policy = DistributionPanelNumericMetricPolicy::for($panel);
+        $metric = $policy->metric();
+
+        $this->normalizeChartState($panel);
 
         $groupByField = match ($this->groupedBy) {
             'tier' => 'hospital_tier_code',
@@ -125,9 +158,31 @@ final class DistributionPanelComponent
             $this->groupMapperForSelection(),
         );
 
+        if ('bar' === $this->chartType && 'average' === $this->barBasis && $policy->allowsAverageBars()) {
+            $overallH = $this->distributionPanelQuery->fetchOverallHospitalParticipation($panel, $filterState);
+            $distribution = $this->distributionNumericMetricMerge->mergeCasesPerHospitalBarAverage($distribution, $overallH);
+        }
+
+        if ($policy->needsNumericQuery($this->chartType) && $metric instanceof DistributionNumericMetric) {
+            $statRows = $this->distributionPanelQuery->fetchNumericDistributionStats(
+                $panel,
+                $filterState,
+                $metric,
+                $groupByField,
+            );
+            $overall = $this->distributionPanelQuery->fetchOverallNumericStats($panel, $filterState, $metric);
+            $distribution = $this->distributionNumericMetricMerge->mergeBoxplotTable($distribution, $statRows, $overall);
+        }
+
         $this->viewMode = $this->normalizeViewMode($this->viewMode);
 
-        return $this->renderer->render($distribution, $this->viewMode);
+        return $this->renderer->render(
+            $distribution,
+            $this->viewMode,
+            $this->chartType,
+            $this->barBasis,
+            $metric,
+        );
     }
 
     /**
@@ -141,6 +196,8 @@ final class DistributionPanelComponent
         $state['panel'] = $this->panelKey;
         $state['grouped_by'] = $this->groupedBy;
         $state['view'] = $this->normalizeViewMode($this->viewMode);
+        $state['chart_type'] = $this->chartType;
+        $state['bar_basis'] = $this->barBasis;
 
         return $state;
     }
@@ -153,6 +210,8 @@ final class DistributionPanelComponent
         return [
             'view' => $this->normalizeViewMode($this->viewMode),
             'grouped_by' => $this->groupedBy,
+            'chart_type' => $this->chartType,
+            'bar_basis' => $this->barBasis,
             'f' => $this->effectiveFilterValues($panel),
         ];
     }
@@ -164,11 +223,24 @@ final class DistributionPanelComponent
 
     public function pageConfig(): DistributionPageConfig
     {
+        $this->assertDistributionPageOptionsNotEmpty();
+
+        return $this->distributionPageConfigResolver->resolve($this->distributionPageOptions);
+    }
+
+    /**
+     * @psalm-assert array{
+     *     route_name: string,
+     *     section_key: string,
+     *     panels: list<array<string, mixed>>,
+     *     default_panel_key?: string|null,
+     * } $this->distributionPageOptions
+     */
+    private function assertDistributionPageOptionsNotEmpty(): void
+    {
         if ([] === $this->distributionPageOptions) {
             throw new \LogicException('distributionPageOptions must be set (e.g. from the distribution controller via Twig).');
         }
-
-        return $this->distributionPageConfigResolver->resolve($this->distributionPageOptions);
     }
 
     /**
@@ -192,6 +264,14 @@ final class DistributionPanelComponent
      */
     public function getAllowedViewModes(): array
     {
+        if ('boxplot' === $this->chartType) {
+            return ['absolute'];
+        }
+
+        if ('average' === $this->barBasis) {
+            return 'none' === $this->groupedBy ? ['absolute'] : ['grouped'];
+        }
+
         if ('none' === $this->groupedBy) {
             return ['absolute', 'percent_of_total'];
         }
@@ -250,8 +330,33 @@ final class DistributionPanelComponent
     public function showViewModeToggle(): bool
     {
         $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+        $base = true === ($panel->controls['allow_view_mode_toggle'] ?? false);
 
-        return true === ($panel->controls['allow_view_mode_toggle'] ?? false);
+        return $base
+            && 'bar' === $this->chartType
+            && 'counts' === $this->barBasis;
+    }
+
+    public function showChartTypeControl(): bool
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+
+        return DistributionPanelNumericMetricPolicy::for($panel)->showChartTypeControl();
+    }
+
+    public function showBarBasisControl(): bool
+    {
+        $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
+
+        return 'bar' === $this->chartType
+            && DistributionPanelNumericMetricPolicy::for($panel)->showBarBasisControl();
+    }
+
+    public function useYAxisPercentFormatter(): bool
+    {
+        return 'bar' === $this->chartType
+            && 'counts' === $this->barBasis
+            && \in_array($this->viewMode, ['percent', 'percent_of_total'], true);
     }
 
     /**
@@ -305,6 +410,31 @@ final class DistributionPanelComponent
         }
 
         return $out;
+    }
+
+    private function normalizeChartState(PanelDefinition $panel): void
+    {
+        $policy = DistributionPanelNumericMetricPolicy::for($panel);
+
+        if (!\in_array($this->chartType, ['bar', 'boxplot'], true)) {
+            $this->chartType = 'bar';
+        }
+
+        if ('boxplot' === $this->chartType && !$policy->allowsBoxplotChart()) {
+            $this->chartType = 'bar';
+        }
+
+        if (!\in_array($this->barBasis, ['counts', 'average'], true)) {
+            $this->barBasis = 'counts';
+        }
+
+        if ('average' === $this->barBasis && !$policy->allowsAverageBars()) {
+            $this->barBasis = 'counts';
+        }
+
+        if ('boxplot' === $this->chartType) {
+            $this->barBasis = 'counts';
+        }
     }
 
     private function dimensionMapperFor(PanelDefinition $panel): ValueMapper

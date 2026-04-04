@@ -26,6 +26,7 @@ final readonly class PanelDefinition
         public array $options,
         public array $controls,
         public array $filterDefaults = [],
+        public ?string $averageMetric = null,
     ) {
     }
 

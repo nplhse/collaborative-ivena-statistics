@@ -98,6 +98,24 @@
                                 </select>
                             </div>
                         {% endif %}
+                        {% if this.showChartTypeControl %}
+                            <div class="col-auto">
+                                <label class="form-label">{{ 'statistics.distribution.chart_type'|trans }}</label>
+                                <select class="form-select" data-model="chartType" data-action="change->analytics-url-state#sync" name="chart_type">
+                                    <option value="bar" {{ this.chartType == 'bar' ? 'selected' : '' }}>{{ 'statistics.distribution.chart_type.bar'|trans }}</option>
+                                    <option value="boxplot" {{ this.chartType == 'boxplot' ? 'selected' : '' }}>{{ 'statistics.distribution.chart_type.boxplot'|trans }}</option>
+                                </select>
+                            </div>
+                        {% endif %}
+                        {% if this.showBarBasisControl %}
+                            <div class="col-auto">
+                                <label class="form-label">{{ 'statistics.distribution.bar_basis'|trans }}</label>
+                                <select class="form-select" data-model="barBasis" data-action="change->analytics-url-state#sync" name="bar_basis">
+                                    <option value="counts" {{ this.barBasis == 'counts' ? 'selected' : '' }}>{{ 'statistics.distribution.bar_basis.counts'|trans }}</option>
+                                    <option value="average" {{ this.barBasis == 'average' ? 'selected' : '' }}>{{ 'statistics.distribution.bar_basis.average'|trans }}</option>
+                                </select>
+                            </div>
+                        {% endif %}
                         {% if this.showViewModeToggle %}
                             <div class="col-auto">
                                 <label class="form-label">{{ 'statistics.distribution.chart_mode'|trans }}</label>
@@ -117,15 +135,19 @@
             {% set rendered = this.renderedData %}
             {% set chart = rendered.chart %}
             {% set tableRows = rendered.table %}
+            {% set tableMode = rendered.tableMode %}
 
             <div class="card mb-3">
                 <div class="card-body">
                     <div
                         data-controller="distribution-panel"
                         data-distribution-panel-options-value="{{ chart|json_encode|e('html_attr') }}"
-                        data-distribution-panel-y-axis-percent-value="{{ this.viewMode in ['percent', 'percent_of_total'] ? 'true' : 'false' }}"
+                        data-distribution-panel-y-axis-percent-value="{{ this.useYAxisPercentFormatter ? 'true' : 'false' }}"
                     >
                         <div class="position-relative mb-4" style="min-height: 320px" data-distribution-panel-target="chart" data-live-ignore></div>
+                        {% if tableMode == 'boxplot' and (chart.series is not defined or chart.series is empty) %}
+                            <p class="text-muted small mb-0">{{ 'statistics.distribution.boxplot.empty'|trans }}</p>
+                        {% endif %}
                     </div>
                     <div class="table-responsive">
                         <table class="table table-vcenter card-table table-striped text-nowrap">
@@ -135,8 +157,21 @@
                                 {% if this.groupedBy != 'none' %}
                                     <th>{{ 'statistics.distribution.table.group'|trans }}</th>
                                 {% endif %}
-                                <th class="text-end">{{ 'statistics.distribution.table.count'|trans }}</th>
-                                <th class="text-end">{{ 'statistics.distribution.table.percent'|trans }}</th>
+                                {% if tableMode != 'boxplot' %}
+                                    <th class="text-end">{{ 'statistics.distribution.table.count'|trans }}</th>
+                                    <th class="text-end">{{ 'statistics.distribution.table.percent'|trans }}</th>
+                                {% endif %}
+                                {% if tableMode == 'boxplot' %}
+                                    <th class="text-end">{{ 'statistics.distribution.table.metric_n'|trans }}</th>
+                                    <th class="text-end">{{ 'statistics.distribution.table.metric_min'|trans }}</th>
+                                    <th class="text-end">{{ 'statistics.distribution.table.metric_q1'|trans }}</th>
+                                    <th class="text-end">{{ 'statistics.distribution.table.metric_median'|trans }}</th>
+                                    <th class="text-end">{{ 'statistics.distribution.table.metric_q3'|trans }}</th>
+                                    <th class="text-end">{{ 'statistics.distribution.table.metric_max'|trans }}</th>
+                                    <th class="text-end">{{ 'statistics.distribution.table.metric_mean'|trans }}</th>
+                                {% elseif tableMode == 'bar_average' %}
+                                    <th class="text-end">{{ 'statistics.distribution.bar_basis.average.table_mean_per_hospital'|trans }}</th>
+                                {% endif %}
                             </tr>
                             </thead>
                             <tbody>
@@ -146,8 +181,21 @@
                                     {% if this.groupedBy != 'none' %}
                                         <td>{{ row.groupLabel }}</td>
                                     {% endif %}
-                                    <td class="text-end">{{ row.value }}</td>
-                                    <td class="text-end">{{ row.percent }}%</td>
+                                    {% if tableMode != 'boxplot' %}
+                                        <td class="text-end">{{ row.value }}</td>
+                                        <td class="text-end">{{ row.percent }}%</td>
+                                    {% endif %}
+                                    {% if tableMode == 'boxplot' %}
+                                        <td class="text-end">{{ row.metricN|default(0) }}</td>
+                                        <td class="text-end">{% if row.metricMin is not null %}{{ row.metricMin|number_format(0, ',', '.') }}{% else %}–{% endif %}</td>
+                                        <td class="text-end">{% if row.metricQ1 is not null %}{{ row.metricQ1|number_format(1, ',', '.') }}{% else %}–{% endif %}</td>
+                                        <td class="text-end">{% if row.metricMedian is not null %}{{ row.metricMedian|number_format(1, ',', '.') }}{% else %}–{% endif %}</td>
+                                        <td class="text-end">{% if row.metricQ3 is not null %}{{ row.metricQ3|number_format(1, ',', '.') }}{% else %}–{% endif %}</td>
+                                        <td class="text-end">{% if row.metricMax is not null %}{{ row.metricMax|number_format(0, ',', '.') }}{% else %}–{% endif %}</td>
+                                        <td class="text-end">{% if row.metricMean is not null %}{{ row.metricMean|number_format(1, ',', '.') }}{% else %}–{% endif %}</td>
+                                    {% elseif tableMode == 'bar_average' %}
+                                        <td class="text-end">{% if row.metricMean is not null %}{{ row.metricMean|number_format(1, ',', '.') }}{% else %}–{% endif %}</td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
