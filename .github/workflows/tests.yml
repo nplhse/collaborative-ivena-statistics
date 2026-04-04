@@ -71,11 +71,17 @@ jobs:
                   php bin/console doctrine:schema:create --env test
 
             - name: Execute tests via PHPUnit
-              run: vendor/bin/phpunit
+              run: vendor/bin/phpunit --log-junit junit.xml
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
 
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v6
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+
+            - name: Upload test results to Codecov
+              if: ${{ !cancelled() }}
+              uses: codecov/test-results-action@v1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
