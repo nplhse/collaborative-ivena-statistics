@@ -6,9 +6,9 @@ namespace App\Tests\Statistics\Unit\State;
 
 use App\Statistics\Application\Filter\FilterRegistry;
 use App\Statistics\Application\Panel\Distribution\DimensionKind;
-use App\Statistics\Application\Panel\Distribution\DistributionPanelPresets;
 use App\Statistics\Application\Panel\PanelDefinition;
 use App\Statistics\Application\State\QueryStateResolver;
+use App\Tests\Statistics\Fixtures\DistributionPanelFixtures;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -17,7 +17,7 @@ final class QueryStateResolverTest extends TestCase
     public function testResolvesFiltersFromQuery(): void
     {
         $resolver = new QueryStateResolver(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
 
         $request = new Request([
             'f' => [
@@ -43,7 +43,7 @@ final class QueryStateResolverTest extends TestCase
     public function testResolveViewModeFallsBackForInvalidMode(): void
     {
         $resolver = new QueryStateResolver(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
         $request = new Request(['view' => 'invalid']);
 
         self::assertSame('stacked', $resolver->resolveViewMode($request->query, $panel, true));
@@ -53,7 +53,7 @@ final class QueryStateResolverTest extends TestCase
     public function testResolvesLastTwelveMonthsStringFromQuery(): void
     {
         $resolver = new QueryStateResolver(new FilterRegistry());
-        $panel = DistributionPanelPresets::urgency();
+        $panel = DistributionPanelFixtures::urgency();
         $request = new Request(['f' => ['date_range' => 'last_12_months']]);
 
         $state = $resolver->resolveFilters($request->query, $panel);
