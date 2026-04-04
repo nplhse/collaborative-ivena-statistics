@@ -16,7 +16,8 @@ use App\Statistics\Application\Mapping\TriageValueMapper;
 use App\Statistics\Application\Mapping\ValueMapper;
 use App\Statistics\Application\Panel\Distribution\DimensionKind;
 use App\Statistics\Application\Panel\Distribution\DistributionPageConfig;
-use App\Statistics\Application\Panel\Distribution\DistributionPageConfigFactory;
+use App\Statistics\Application\Panel\Distribution\DistributionPageConfigResolver;
+use App\Statistics\Application\Panel\Distribution\DistributionSectionNavProvider;
 use App\Statistics\Application\Panel\Distribution\DistributionTransformer;
 use App\Statistics\Application\Panel\Distribution\Renderer;
 use App\Statistics\Application\Panel\PanelDefinition;
@@ -32,8 +33,9 @@ final class DistributionPanelComponent
 {
     use DefaultActionTrait;
 
-    #[LiveProp(writable: false)]
-    public string $distributionPageId = DistributionPageConfigFactory::PAGE_URGENCY;
+    /** @var array<string, mixed> */
+    #[LiveProp(writable: true)]
+    public array $distributionPageOptions = [];
 
     #[LiveProp(writable: true)]
     public string $viewMode = 'absolute';
@@ -49,7 +51,8 @@ final class DistributionPanelComponent
     public string $groupedBy = 'none';
 
     public function __construct(
-        private readonly DistributionPageConfigFactory $pageConfigFactory,
+        private readonly DistributionSectionNavProvider $distributionSectionNavProvider,
+        private readonly DistributionPageConfigResolver $distributionPageConfigResolver,
         private readonly QueryStateResolver $queryStateResolver,
         private readonly DistributionPanelQuery $distributionPanelQuery,
         private readonly DistributionTransformer $transformer,
@@ -64,8 +67,13 @@ final class DistributionPanelComponent
     ) {
     }
 
-    public function mount(): void
+    /**
+     * @param array<string, mixed> $distributionPageOptions
+     */
+    public function mount(array $distributionPageOptions): void
     {
+        $this->distributionPageOptions = $distributionPageOptions;
+
         $request = $this->requestStack->getCurrentRequest();
         if (!$request instanceof \Symfony\Component\HttpFoundation\Request) {
             return;
@@ -137,11 +145,7 @@ final class DistributionPanelComponent
         return $state;
     }
 
-    /**
-     * Query-Parameter beim Wechsel der Distributions-Sektion (ohne panel, Zielseite setzt Default).
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getCrossSectionQueryParams(): array
     {
         $panel = $this->pageConfig()->getPanel($this->panelKey) ?? $this->pageConfig()->defaultPanel();
@@ -160,15 +164,11 @@ final class DistributionPanelComponent
 
     public function pageConfig(): DistributionPageConfig
     {
-        $request = $this->requestStack->getCurrentRequest();
-        if ($request instanceof \Symfony\Component\HttpFoundation\Request) {
-            $fromRequest = $request->attributes->get(DistributionPageConfig::REQUEST_ATTRIBUTE);
-            if ($fromRequest instanceof DistributionPageConfig) {
-                return $fromRequest;
-            }
+        if ([] === $this->distributionPageOptions) {
+            throw new \LogicException('distributionPageOptions must be set (e.g. from the distribution controller via Twig).');
         }
 
-        return $this->pageConfigFactory->forPageId($this->distributionPageId);
+        return $this->distributionPageConfigResolver->resolve($this->distributionPageOptions);
     }
 
     /**
@@ -291,29 +291,20 @@ final class DistributionPanelComponent
      */
     public function getDistributionSectionNav(): array
     {
-        $current = $this->distributionPageId;
+        $currentRoute = $this->pageConfig()->routeName;
         $hrefBase = $this->getCrossSectionQueryParams();
 
-        return [
-            [
-                'route' => 'app_stats_distribution_urgency',
-                'label' => 'statistics.distribution.section.urgency',
-                'active' => DistributionPageConfigFactory::PAGE_URGENCY === $current,
+        $out = [];
+        foreach ($this->distributionSectionNavProvider->sections() as $section) {
+            $out[] = [
+                'route' => $section['route'],
+                'label' => $section['label'],
+                'active' => $section['route'] === $currentRoute,
                 'hrefParams' => $hrefBase,
-            ],
-            [
-                'route' => 'app_stats_distribution_gender',
-                'label' => 'statistics.distribution.section.gender',
-                'active' => DistributionPageConfigFactory::PAGE_GENDER === $current,
-                'hrefParams' => $hrefBase,
-            ],
-            [
-                'route' => 'app_stats_distribution_age',
-                'label' => 'statistics.distribution.section.age',
-                'active' => DistributionPageConfigFactory::PAGE_AGE_COHORT === $current,
-                'hrefParams' => $hrefBase,
-            ],
-        ];
+            ];
+        }
+
+        return $out;
     }
 
     private function dimensionMapperFor(PanelDefinition $panel): ValueMapper

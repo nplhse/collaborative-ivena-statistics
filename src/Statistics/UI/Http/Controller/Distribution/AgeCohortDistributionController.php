@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller\Distribution;
 
-use App\Statistics\Application\Panel\Distribution\DistributionPageConfig;
-use App\Statistics\Application\Panel\Distribution\DistributionPageConfigFactory;
+use App\Statistics\Application\Panel\Distribution\DimensionKind;
+use App\Statistics\Application\Panel\Distribution\DistributionPageConfigResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -15,17 +14,47 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AgeCohortDistributionController extends AbstractController
 {
     public function __construct(
-        private readonly DistributionPageConfigFactory $distributionPageConfigFactory,
+        private readonly DistributionPageConfigResolver $distributionPageConfigResolver,
     ) {
     }
 
-    public function __invoke(Request $request): Response
+    public function __invoke(): Response
     {
-        $config = $this->distributionPageConfigFactory->forPageId(DistributionPageConfigFactory::PAGE_AGE_COHORT);
-        $request->attributes->set(DistributionPageConfig::REQUEST_ATTRIBUTE, $config);
+        $options = $this->pageOptions();
+        $this->distributionPageConfigResolver->resolve($options);
 
         return $this->render('@Statistics/distribution/index.html.twig', [
-            'distributionPageId' => DistributionPageConfigFactory::PAGE_AGE_COHORT,
+            'distributionPageOptions' => $options,
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function pageOptions(): array
+    {
+        return [
+            'route_name' => 'app_stats_distribution_age',
+            'section_key' => 'age_cohort',
+            'panels' => [
+                [
+                    'key' => 'age_cohort',
+                    'type' => 'distribution',
+                    'dimension_kind' => DimensionKind::AgeCohort->value,
+                    'dimension_field' => '',
+                    'dimension_label' => 'statistics.distribution.dim.age_cohort',
+                    'group_by_field' => 'hospital_tier_code',
+                    'group_by_label' => 'statistics.distribution.dim.hospital_tier',
+                    'filters' => ['date_range', 'hospital_tier', 'hospital_location'],
+                    'options' => ['default_view' => 'absolute', 'show_percent' => false],
+                    'controls' => ['allow_view_mode_toggle' => true, 'allow_group_by' => true],
+                    'filter_defaults' => [
+                        'date_range' => 'all_cases',
+                        'hospital_tier' => [],
+                        'hospital_location' => [],
+                    ],
+                ],
+            ],
+        ];
     }
 }
