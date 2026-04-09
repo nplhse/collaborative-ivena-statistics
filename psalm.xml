@@ -92,6 +92,7 @@
         <UnusedProperty>
             <errorLevel type="suppress">
                 <directory name="src/Import/Infrastructure/Adapter/" />
+                <directory name="src/Shared/Domain/Entity/" />
             </errorLevel>
         </UnusedProperty>
     </issueHandlers>
