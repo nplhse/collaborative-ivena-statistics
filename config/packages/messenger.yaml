@@ -34,8 +34,6 @@ framework:
             Symfony\Component\Notifier\Message\SmsMessage: async_priority_low
 
             App\Import\Application\Message\ImportAllocationsMessage: async_priority_high
-            App\Statistics\Application\Message\RecomputeScope: async_priority_low
-            App\Statistics\Application\Message\ScheduleScope: [async_priority_high, async_priority_low]
             App\Statistics\Application\Message\RebuildAllocationStatsProjection: async_priority_low
 
 when@test:

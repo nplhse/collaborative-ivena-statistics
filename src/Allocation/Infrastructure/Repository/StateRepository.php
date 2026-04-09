@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Repository;
 
-use App\Allocation\Application\Contract\StateLookupInterface;
+use App\Allocation\Application\Contracts\StateLookupInterface;
 use App\Allocation\Domain\Entity\State;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

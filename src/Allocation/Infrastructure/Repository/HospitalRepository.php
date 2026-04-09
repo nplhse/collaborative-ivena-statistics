@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Repository;
 
-use App\Allocation\Application\Contract\HospitalLookupInterface;
+use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\State;
