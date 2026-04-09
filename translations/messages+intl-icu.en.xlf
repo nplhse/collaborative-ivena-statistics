@@ -129,6 +129,10 @@
         <source>field.urgency</source>
         <target>Urgency</target>
       </trans-unit>
+      <trans-unit id="yamfE2Q" resname="flash.hospital.updated">
+        <source>flash.hospital.updated</source>
+        <target>Hospital updated.</target>
+      </trans-unit>
       <trans-unit id="oB3P1Zq" resname="flash.import.created">
         <source>flash.import.created</source>
         <target>New Import has been created successfully!</target>
@@ -137,9 +141,73 @@
         <source>flash.indication.assigned</source>
         <target>Normalized indication has been assigned.</target>
       </trans-unit>
+      <trans-unit id="3gHiL0q" resname="flash.registration.logged_in_verify_hint">
+        <source>flash.registration.logged_in_verify_hint</source>
+        <target>You are now signed in. Please verify your email address to unlock all account features.</target>
+      </trans-unit>
+      <trans-unit id="jxMi62X" resname="flash.registration.success_verify_required">
+        <source>flash.registration.success_verify_required</source>
+        <target>Registration successful. Please verify your email address.</target>
+      </trans-unit>
+      <trans-unit id="81QuWtI" resname="flash.registration.verify.missing_id">
+        <source>flash.registration.verify.missing_id</source>
+        <target>Missing verification id.</target>
+      </trans-unit>
+      <trans-unit id="UQ4qXjW" resname="flash.registration.verify.success">
+        <source>flash.registration.verify.success</source>
+        <target>Your email address has been verified.</target>
+      </trans-unit>
+      <trans-unit id="f..ne_w" resname="flash.registration.verify.user_not_found">
+        <source>flash.registration.verify.user_not_found</source>
+        <target>User not found.</target>
+      </trans-unit>
+      <trans-unit id="b90.2eT" resname="flash.reset_password.changed">
+        <source>flash.reset_password.changed</source>
+        <target>Your password has been changed.</target>
+      </trans-unit>
+      <trans-unit id="V6d.mPt" resname="flash.reset_password.validation_failed">
+        <source>flash.reset_password.validation_failed</source>
+        <target>There was a problem validating your reset request.</target>
+      </trans-unit>
+      <trans-unit id="RS3d7CX" resname="flash.security.invalid_csrf">
+        <source>flash.security.invalid_csrf</source>
+        <target>Invalid CSRF token.</target>
+      </trans-unit>
+      <trans-unit id="yPy4.0U" resname="flash.settings.email.already_verified">
+        <source>flash.settings.email.already_verified</source>
+        <target>Your email is already verified.</target>
+      </trans-unit>
+      <trans-unit id=".AaD_bM" resname="flash.settings.email.resend_rate_limited">
+        <source>flash.settings.email.resend_rate_limited</source>
+        <target>Please wait before requesting another verification email.</target>
+      </trans-unit>
+      <trans-unit id="FHE32nf" resname="flash.settings.email.updated_verify_required">
+        <source>flash.settings.email.updated_verify_required</source>
+        <target>Email address updated. Please verify your new email.</target>
+      </trans-unit>
+      <trans-unit id="E8Dfb_w" resname="flash.settings.email.verification_resent">
+        <source>flash.settings.email.verification_resent</source>
+        <target>Verification email sent.</target>
+      </trans-unit>
+      <trans-unit id="sGiJY6J" resname="flash.settings.password.current_invalid">
+        <source>flash.settings.password.current_invalid</source>
+        <target>Current password is invalid.</target>
+      </trans-unit>
+      <trans-unit id="ezYjnyc" resname="flash.settings.password.updated">
+        <source>flash.settings.password.updated</source>
+        <target>Password updated.</target>
+      </trans-unit>
+      <trans-unit id="vHELHHc" resname="help.no_hospitals_assigned">
+        <source>help.no_hospitals_assigned</source>
+        <target>Sorry there are no hospitals assigned to your account.</target>
+      </trans-unit>
       <trans-unit id="IlEDRed" resname="help.search_no_results">
         <source>help.search_no_results</source>
         <target>Try adjusting your search or filter to find what you're looking for.</target>
+      </trans-unit>
+      <trans-unit id="9xtc9Dc" resname="help.settings.username_fixed">
+        <source>help.settings.username_fixed</source>
+        <target>Username is fixed and cannot be changed.</target>
       </trans-unit>
       <trans-unit id="SZjOELg" resname="hospital.location.Mixed">
         <source>hospital.location.Mixed</source>
@@ -177,13 +245,13 @@
         <source>hospital.tier.Full</source>
         <target>Full Tier</target>
       </trans-unit>
+      <trans-unit id="B5etO2s" resname="import.action.preview_mci_cases">
+        <source>import.action.preview_mci_cases</source>
+        <target>Preview MCI Cases</target>
+      </trans-unit>
       <trans-unit id="2_8EtuE" resname="import.action.preview_rows">
         <source>import.action.preview_rows</source>
         <target>Preview Rows</target>
-      </trans-unit>
-      <trans-unit id="mciPreview" resname="import.action.preview_mci_cases">
-        <source>import.action.preview_mci_cases</source>
-        <target>Preview MCI Cases</target>
       </trans-unit>
       <trans-unit id="T_sGody" resname="import.field.fileExtension">
         <source>import.field.fileExtension</source>
@@ -245,6 +313,26 @@
         <source>label.address</source>
         <target>Address</target>
       </trans-unit>
+      <trans-unit id="mIx3LmL" resname="label.address.city">
+        <source>label.address.city</source>
+        <target>City</target>
+      </trans-unit>
+      <trans-unit id="xryE_CP" resname="label.address.country">
+        <source>label.address.country</source>
+        <target>Country</target>
+      </trans-unit>
+      <trans-unit id="NaFm1t3" resname="label.address.postal_code">
+        <source>label.address.postal_code</source>
+        <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="Dcq8y5P" resname="label.address.state">
+        <source>label.address.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="DRh87f8" resname="label.address.street">
+        <source>label.address.street</source>
+        <target>Street</target>
+      </trans-unit>
       <trans-unit id="dnzVgba" resname="label.age">
         <source>label.age</source>
         <target>Age</target>
@@ -257,10 +345,6 @@
         <source>label.all_indications</source>
         <target>All indications</target>
       </trans-unit>
-      <trans-unit id="allSecTr" resname="label.all_secondary_transports">
-        <source>label.all_secondary_transports</source>
-        <target>All secondary transports</target>
-      </trans-unit>
       <trans-unit id="t2o1BoP" resname="label.all_locations">
         <source>label.all_locations</source>
         <target>All Locations</target>
@@ -268,6 +352,10 @@
       <trans-unit id="OIVPERw" resname="label.all_modes">
         <source>label.all_modes</source>
         <target>All Modes</target>
+      </trans-unit>
+      <trans-unit id="yiYI0Yg" resname="label.all_secondary_transports">
+        <source>label.all_secondary_transports</source>
+        <target>All secondary transports</target>
       </trans-unit>
       <trans-unit id="GRL.4Ts" resname="label.all_sizes">
         <source>label.all_sizes</source>
@@ -288,6 +376,10 @@
       <trans-unit id="6QPDzOS" resname="label.allocation">
         <source>label.allocation</source>
         <target>Allocation</target>
+      </trans-unit>
+      <trans-unit id="syYYvs0" resname="label.already_have_account">
+        <source>label.already_have_account</source>
+        <target>Already have an account?</target>
       </trans-unit>
       <trans-unit id="InXuxeP" resname="label.arrival_at">
         <source>label.arrival_at</source>
@@ -373,6 +465,10 @@
         <source>label.assignment</source>
         <target>Assignment</target>
       </trans-unit>
+      <trans-unit id="QgoejJR" resname="label.back">
+        <source>label.back</source>
+        <target>Back</target>
+      </trans-unit>
       <trans-unit id="1GXuSep" resname="label.back_to_list">
         <source>label.back_to_list</source>
         <target>Back to list</target>
@@ -409,6 +505,18 @@
         <source>label.dispatch_area</source>
         <target>Dispatch Area</target>
       </trans-unit>
+      <trans-unit id="1vyz2Yp" resname="label.edit">
+        <source>label.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="ykW6lkh" resname="label.email">
+        <source>label.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="2xiRrwC" resname="label.email_address">
+        <source>label.email_address</source>
+        <target>Email address</target>
+      </trans-unit>
       <trans-unit id="kvrnu44" resname="label.explore.index.subtitle">
         <source>label.explore.index.subtitle</source>
         <target>Overview of all available data records</target>
@@ -433,6 +541,10 @@
         <source>label.filters.reset</source>
         <target>Reset Filters</target>
       </trans-unit>
+      <trans-unit id="9kwOG_r" resname="label.forgot_password">
+        <source>label.forgot_password</source>
+        <target>Forgot password?</target>
+      </trans-unit>
       <trans-unit id="cpKk2WF" resname="label.gender.female">
         <source>label.gender.female</source>
         <target>Female</target>
@@ -448,6 +560,22 @@
       <trans-unit id="wyzinGh" resname="label.hospital">
         <source>label.hospital</source>
         <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="d_6Cl6S" resname="label.hospital.address_information">
+        <source>label.hospital.address_information</source>
+        <target>Address</target>
+      </trans-unit>
+      <trans-unit id="59mwZwQ" resname="label.hospital.back_to_profile">
+        <source>label.hospital.back_to_profile</source>
+        <target>Back to Hospital Profile</target>
+      </trans-unit>
+      <trans-unit id="wzKzHLY" resname="label.hospital.general_information">
+        <source>label.hospital.general_information</source>
+        <target>General Information</target>
+      </trans-unit>
+      <trans-unit id="mSFhUIM" resname="label.hospital.no_tier">
+        <source>label.hospital.no_tier</source>
+        <target>No tier</target>
       </trans-unit>
       <trans-unit id="O4DzdiL" resname="label.hospital_beds">
         <source>label.hospital_beds</source>
@@ -533,14 +661,6 @@
         <source>label.link.allocations</source>
         <target>Emergency service deployments recorded in IVENA with their details.</target>
       </trans-unit>
-      <trans-unit id="labelLinkMciCases" resname="label.link.mci_cases">
-        <source>label.link.mci_cases</source>
-        <target>Mass casualty incidents recorded in IVENA with their associated operational and medical details.</target>
-      </trans-unit>
-      <trans-unit id="linkMciCases" resname="link.mci_cases">
-        <source>link.mci_cases</source>
-        <target>MCI Cases</target>
-      </trans-unit>
       <trans-unit id="_jHXFXz" resname="label.link.assignments">
         <source>label.link.assignments</source>
         <target>Indicates who initiated the hospital selection, e.g. patient, physician, or emergency service.</target>
@@ -565,11 +685,15 @@
         <source>label.link.infections</source>
         <target>Potential infectious diseases that may require isolation at the destination hospital.</target>
       </trans-unit>
+      <trans-unit id="ulq7DBJ" resname="label.link.mci_cases">
+        <source>label.link.mci_cases</source>
+        <target>Mass casualty incidents recorded in IVENA with their associated operational and medical details.</target>
+      </trans-unit>
       <trans-unit id="FMtrgMt" resname="label.link.occasions">
         <source>label.link.occasions</source>
         <target>Origins or contexts of an emergency case, such as public space, doctor’s office, or home environment.</target>
       </trans-unit>
-      <trans-unit id="linkSecTr" resname="label.link.secondary_transports">
+      <trans-unit id="WwxUTqa" resname="label.link.secondary_transports">
         <source>label.link.secondary_transports</source>
         <target>Secondary transport types for inter-hospital or follow-up transfers.</target>
       </trans-unit>
@@ -593,6 +717,10 @@
         <source>label.logout</source>
         <target>Logout</target>
       </trans-unit>
+      <trans-unit id="IDIV8Sp" resname="label.my_hospitals">
+        <source>label.my_hospitals</source>
+        <target>My hospitals</target>
+      </trans-unit>
       <trans-unit id="aSiMEIt" resname="label.name">
         <source>label.name</source>
         <target>Name</target>
@@ -613,7 +741,7 @@
         <source>label.no_occasion</source>
         <target>No occasion</target>
       </trans-unit>
-      <trans-unit id="nOsecTr" resname="label.no_secondary_transport">
+      <trans-unit id="ItWMKVw" resname="label.no_secondary_transport">
         <source>label.no_secondary_transport</source>
         <target>No secondary transport</target>
       </trans-unit>
@@ -621,13 +749,13 @@
         <source>label.normalized</source>
         <target>Normalized Indication</target>
       </trans-unit>
+      <trans-unit id="pGuEkdr" resname="label.not_verified">
+        <source>label.not_verified</source>
+        <target>not verified</target>
+      </trans-unit>
       <trans-unit id="u3qOfXy" resname="label.occasion">
         <source>label.occasion</source>
         <target>Occasion</target>
-      </trans-unit>
-      <trans-unit id="sEcTr1" resname="label.secondary_transport">
-        <source>label.secondary_transport</source>
-        <target>Secondary transport</target>
       </trans-unit>
       <trans-unit id="Pak93P_" resname="label.pagination_numbers">
         <source>label.pagination_numbers</source>
@@ -641,6 +769,10 @@
         <source>label.participation</source>
         <target>Participation</target>
       </trans-unit>
+      <trans-unit id="yaiKGee" resname="label.password">
+        <source>label.password</source>
+        <target>Password</target>
+      </trans-unit>
       <trans-unit id="dzmkSoD" resname="label.pregnant">
         <source>label.pregnant</source>
         <target>Pregnant</target>
@@ -652,6 +784,10 @@
       <trans-unit id="WhXFmcQ" resname="label.properties">
         <source>label.properties</source>
         <target>Properties</target>
+      </trans-unit>
+      <trans-unit id="Cn7F.4b" resname="label.register">
+        <source>label.register</source>
+        <target>Register</target>
       </trans-unit>
       <trans-unit id="2p6VMAQ" resname="label.requires_cathlab">
         <source>label.requires_cathlab</source>
@@ -669,6 +805,10 @@
         <source>label.resus.not_required</source>
         <target>Resus not required</target>
       </trans-unit>
+      <trans-unit id="Wk4edhy" resname="label.save_new_password">
+        <source>label.save_new_password</source>
+        <target>Save new password</target>
+      </trans-unit>
       <trans-unit id="iw9qUxb" resname="label.search">
         <source>label.search</source>
         <target>Search</target>
@@ -684,6 +824,50 @@
       <trans-unit id="3mHhvAz" resname="label.searching_for">
         <source>label.searching_for</source>
         <target>Searching for: {term}</target>
+      </trans-unit>
+      <trans-unit id="YA3rBVj" resname="label.secondary_transport">
+        <source>label.secondary_transport</source>
+        <target>Secondary transport</target>
+      </trans-unit>
+      <trans-unit id="22vcaHK" resname="label.send_reset_email">
+        <source>label.send_reset_email</source>
+        <target>Send reset email</target>
+      </trans-unit>
+      <trans-unit id="sKwVoqy" resname="label.settings">
+        <source>label.settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="xhpYzN3" resname="label.settings.change_email">
+        <source>label.settings.change_email</source>
+        <target>Change email</target>
+      </trans-unit>
+      <trans-unit id="FYr3SWn" resname="label.settings.my_account">
+        <source>label.settings.my_account</source>
+        <target>My Account</target>
+      </trans-unit>
+      <trans-unit id="Tha5z5U" resname="label.settings.profile_details">
+        <source>label.settings.profile_details</source>
+        <target>Profile Details</target>
+      </trans-unit>
+      <trans-unit id="F4TkS0D" resname="label.settings.resend_verification">
+        <source>label.settings.resend_verification</source>
+        <target>Resend verification email</target>
+      </trans-unit>
+      <trans-unit id="w20JsCq" resname="label.settings.save_email">
+        <source>label.settings.save_email</source>
+        <target>Save email</target>
+      </trans-unit>
+      <trans-unit id="qkYaoMb" resname="label.settings.save_password">
+        <source>label.settings.save_password</source>
+        <target>Save password</target>
+      </trans-unit>
+      <trans-unit id="VrOQPjb" resname="label.settings.set_new_password">
+        <source>label.settings.set_new_password</source>
+        <target>Set new password</target>
+      </trans-unit>
+      <trans-unit id="VOPv4L_" resname="label.settings.verification_status">
+        <source>label.settings.verification_status</source>
+        <target>Verification status:</target>
       </trans-unit>
       <trans-unit id="_gI37hZ" resname="label.signin">
         <source>label.signin</source>
@@ -725,6 +909,10 @@
         <source>label.transportType.ground</source>
         <target>Ground</target>
       </trans-unit>
+      <trans-unit id="9GLUW2b" resname="label.try_again">
+        <source>label.try_again</source>
+        <target>Try again</target>
+      </trans-unit>
       <trans-unit id="ZQcON8C" resname="label.type">
         <source>label.type</source>
         <target>Type</target>
@@ -741,17 +929,25 @@
         <source>label.urgency</source>
         <target>Urgency</target>
       </trans-unit>
-      <trans-unit id="krNU.kK" resname="label.urgency.outpatient">
-        <source>label.urgency.outpatient</source>
-        <target>Outpatient Care</target>
-      </trans-unit>
-      <trans-unit id="3kkNmIA" resname="label.urgency.emergency">
+      <trans-unit id="eixbWD4" resname="label.urgency.emergency">
         <source>label.urgency.emergency</source>
         <target>Emergency Care</target>
       </trans-unit>
-      <trans-unit id="Ogn7GN1" resname="label.urgency.inpatient">
+      <trans-unit id="eYuJoae" resname="label.urgency.inpatient">
         <source>label.urgency.inpatient</source>
         <target>Inpatient Care</target>
+      </trans-unit>
+      <trans-unit id="S1nQzP0" resname="label.urgency.outpatient">
+        <source>label.urgency.outpatient</source>
+        <target>Outpatient Care</target>
+      </trans-unit>
+      <trans-unit id="6ta.Ukc" resname="label.username">
+        <source>label.username</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="wqGnRZZ" resname="label.verified">
+        <source>label.verified</source>
+        <target>verified</target>
       </trans-unit>
       <trans-unit id="JU6yi9y" resname="label.without_owner">
         <source>label.without_owner</source>
@@ -801,11 +997,15 @@
         <source>link.infections</source>
         <target>Infections</target>
       </trans-unit>
+      <trans-unit id="aR9T_pC" resname="link.mci_cases">
+        <source>link.mci_cases</source>
+        <target>MCI Cases</target>
+      </trans-unit>
       <trans-unit id="C4XIIu3" resname="link.occasions">
         <source>link.occasions</source>
         <target>Occasions</target>
       </trans-unit>
-      <trans-unit id="linkST" resname="link.secondary_transports">
+      <trans-unit id="d34Xfof" resname="link.secondary_transports">
         <source>link.secondary_transports</source>
         <target>Secondary Transports</target>
       </trans-unit>
@@ -821,6 +1021,10 @@
         <source>link.stats.dashboard</source>
         <target>Overview</target>
       </trans-unit>
+      <trans-unit id="CXSATlj" resname="link.stats.distribution">
+        <source>link.stats.distribution</source>
+        <target>Distribution</target>
+      </trans-unit>
       <trans-unit id="cIyk7DA" resname="link.stats.hospitals">
         <source>link.stats.hospitals</source>
         <target>Hospitals</target>
@@ -833,539 +1037,551 @@
         <source>link.stats.transport_time</source>
         <target>Transport Time</target>
       </trans-unit>
-      <trans-unit id="d1strP0" resname="link.stats.distribution">
-        <source>link.stats.distribution</source>
-        <target>Distribution</target>
-      </trans-unit>
-      <trans-unit id="d1strP1" resname="statistics.distribution.title">
-        <source>statistics.distribution.title</source>
-        <target>Distributions</target>
-      </trans-unit>
-      <trans-unit id="d1strPl" resname="statistics.distribution.scope_all">
-        <source>statistics.distribution.scope_all</source>
-        <target>Aggregated across the full allocation stats projection: %count% rows total.</target>
-      </trans-unit>
-      <trans-unit id="d1strP2" resname="statistics.distribution.import">
-        <source>statistics.distribution.import</source>
-        <target>Import</target>
-      </trans-unit>
-      <trans-unit id="d1strP3" resname="statistics.distribution.primary">
-        <source>statistics.distribution.primary</source>
-        <target>Primary category</target>
-      </trans-unit>
-      <trans-unit id="d1strP4" resname="statistics.distribution.group">
-        <source>statistics.distribution.group</source>
-        <target>Group by</target>
-      </trans-unit>
-      <trans-unit id="d1strP5" resname="statistics.distribution.group_none">
-        <source>statistics.distribution.group_none</source>
-        <target>None</target>
-      </trans-unit>
-      <trans-unit id="d1strP6" resname="statistics.distribution.table.category">
-        <source>statistics.distribution.table.category</source>
-        <target>Category</target>
-      </trans-unit>
-      <trans-unit id="d1strP7" resname="statistics.distribution.table.group">
-        <source>statistics.distribution.table.group</source>
-        <target>Group</target>
-      </trans-unit>
-      <trans-unit id="d1strP8" resname="statistics.distribution.table.count">
-        <source>statistics.distribution.table.count</source>
-        <target>Count</target>
-      </trans-unit>
-      <trans-unit id="d1strP9" resname="statistics.distribution.table.percent">
-        <source>statistics.distribution.table.percent</source>
-        <target>Percent</target>
-      </trans-unit>
-      <trans-unit id="d1strP9a" resname="statistics.distribution.table.mean_age">
-        <source>statistics.distribution.table.mean_age</source>
-        <target>Mean age (years)</target>
-      </trans-unit>
-      <trans-unit id="d1strPa" resname="statistics.distribution.empty">
-        <source>statistics.distribution.empty</source>
-        <target>The projection has no rows yet. Import data and rebuild the allocation stats projection to see charts here.</target>
-      </trans-unit>
-      <trans-unit id="d1strPb" resname="statistics.distribution.count_series">
-        <source>statistics.distribution.count_series</source>
-        <target>Count</target>
-      </trans-unit>
-      <trans-unit id="d1strPc" resname="statistics.distribution.unknown_code">
-        <source>statistics.distribution.unknown_code</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strPd" resname="statistics.distribution.tier_not_set">
-        <source>statistics.distribution.tier_not_set</source>
-        <target>Tier not set</target>
-      </trans-unit>
-      <trans-unit id="d1strPe" resname="statistics.distribution.apply">
-        <source>statistics.distribution.apply</source>
-        <target>Apply</target>
-      </trans-unit>
-      <trans-unit id="d1strPf" resname="statistics.distribution.pick_intro">
-        <source>statistics.distribution.pick_intro</source>
-        <target>Select an import to view allocation distributions from the projection.</target>
-      </trans-unit>
-      <trans-unit id="d1strPg" resname="statistics.distribution.dim.urgency">
-        <source>statistics.distribution.dim.urgency</source>
-        <target>Urgency</target>
-      </trans-unit>
-      <trans-unit id="d1strPh" resname="statistics.distribution.dim.gender">
-        <source>statistics.distribution.dim.gender</source>
-        <target>Gender</target>
-      </trans-unit>
-      <trans-unit id="d1strPha" resname="statistics.distribution.dim.age_cohort">
-        <source>statistics.distribution.dim.age_cohort</source>
-        <target>Age cohorts</target>
-      </trans-unit>
-      <trans-unit id="d1strSecU" resname="statistics.distribution.section.urgency">
-        <source>statistics.distribution.section.urgency</source>
-        <target>Urgency</target>
-      </trans-unit>
-      <trans-unit id="d1strSecG" resname="statistics.distribution.section.gender">
-        <source>statistics.distribution.section.gender</source>
-        <target>Gender</target>
-      </trans-unit>
-      <trans-unit id="d1strSecA" resname="statistics.distribution.section.age">
-        <source>statistics.distribution.section.age</source>
-        <target>Age cohorts</target>
-      </trans-unit>
-      <trans-unit id="d1strSecAs" resname="statistics.distribution.section.assignment">
-        <source>statistics.distribution.section.assignment</source>
-        <target>Assignments</target>
-      </trans-unit>
-      <trans-unit id="d1strSecOc" resname="statistics.distribution.section.occasion">
-        <source>statistics.distribution.section.occasion</source>
-        <target>Occasions</target>
-      </trans-unit>
-      <trans-unit id="d1strSecTm" resname="statistics.distribution.section.time">
-        <source>statistics.distribution.section.time</source>
-        <target>Weekday &amp; hour</target>
-      </trans-unit>
-      <trans-unit id="d1strSecTt" resname="statistics.distribution.section.transport_time">
-        <source>statistics.distribution.section.transport_time</source>
-        <target>Transport time</target>
-      </trans-unit>
-      <trans-unit id="d1strSecRs" resname="statistics.distribution.section.resources">
-        <source>statistics.distribution.section.resources</source>
-        <target>Resources</target>
-      </trans-unit>
-      <trans-unit id="d1strSecTr" resname="statistics.distribution.section.traits">
-        <source>statistics.distribution.section.traits</source>
-        <target>Clinical traits</target>
-      </trans-unit>
-      <trans-unit id="d1strDimAs" resname="statistics.distribution.dim.assignment">
-        <source>statistics.distribution.dim.assignment</source>
-        <target>Assignment</target>
-      </trans-unit>
-      <trans-unit id="d1strDimOc" resname="statistics.distribution.dim.occasion">
-        <source>statistics.distribution.dim.occasion</source>
-        <target>Occasion</target>
-      </trans-unit>
-      <trans-unit id="d1strDimWd" resname="statistics.distribution.dim.weekday">
-        <source>statistics.distribution.dim.weekday</source>
-        <target>Weekday</target>
-      </trans-unit>
-      <trans-unit id="d1strDimHr" resname="statistics.distribution.dim.hour">
-        <source>statistics.distribution.dim.hour</source>
-        <target>Hour of day</target>
-      </trans-unit>
-      <trans-unit id="d1strDimTtb" resname="statistics.distribution.dim.transport_time_bucket">
-        <source>statistics.distribution.dim.transport_time_bucket</source>
-        <target>Transport time (bucket)</target>
-      </trans-unit>
-      <trans-unit id="d1strDimRr" resname="statistics.distribution.dim.requires_resus">
-        <source>statistics.distribution.dim.requires_resus</source>
-        <target>Resuscitation room required</target>
-      </trans-unit>
-      <trans-unit id="d1strDimRc" resname="statistics.distribution.dim.requires_cathlab">
-        <source>statistics.distribution.dim.requires_cathlab</source>
-        <target>Cath lab required</target>
-      </trans-unit>
-      <trans-unit id="d1strDimCp" resname="statistics.distribution.dim.is_cpr">
-        <source>statistics.distribution.dim.is_cpr</source>
-        <target>CPR</target>
-      </trans-unit>
-      <trans-unit id="d1strDimVe" resname="statistics.distribution.dim.is_ventilated">
-        <source>statistics.distribution.dim.is_ventilated</source>
-        <target>Ventilated</target>
-      </trans-unit>
-      <trans-unit id="d1strDimPh" resname="statistics.distribution.dim.is_with_physician">
-        <source>statistics.distribution.dim.is_with_physician</source>
-        <target>With physician</target>
-      </trans-unit>
-      <trans-unit id="d1strTtB0" resname="statistics.distribution.transport_time_bucket.under_10">
-        <source>statistics.distribution.transport_time_bucket.under_10</source>
-        <target>Under 10 min</target>
-      </trans-unit>
-      <trans-unit id="d1strTtB1" resname="statistics.distribution.transport_time_bucket.10_20">
-        <source>statistics.distribution.transport_time_bucket.10_20</source>
-        <target>10–20 min</target>
-      </trans-unit>
-      <trans-unit id="d1strTtB2" resname="statistics.distribution.transport_time_bucket.20_30">
-        <source>statistics.distribution.transport_time_bucket.20_30</source>
-        <target>20–30 min</target>
-      </trans-unit>
-      <trans-unit id="d1strTtB3" resname="statistics.distribution.transport_time_bucket.30_40">
-        <source>statistics.distribution.transport_time_bucket.30_40</source>
-        <target>30–40 min</target>
-      </trans-unit>
-      <trans-unit id="d1strTtB4" resname="statistics.distribution.transport_time_bucket.40_50">
-        <source>statistics.distribution.transport_time_bucket.40_50</source>
-        <target>40–50 min</target>
-      </trans-unit>
-      <trans-unit id="d1strTtB5" resname="statistics.distribution.transport_time_bucket.50_60">
-        <source>statistics.distribution.transport_time_bucket.50_60</source>
-        <target>50–60 min</target>
-      </trans-unit>
-      <trans-unit id="d1strTtB6" resname="statistics.distribution.transport_time_bucket.over_60">
-        <source>statistics.distribution.transport_time_bucket.over_60</source>
-        <target>Over 60 min</target>
-      </trans-unit>
-      <trans-unit id="d1strTtBU" resname="statistics.distribution.transport_time_bucket.unknown">
-        <source>statistics.distribution.transport_time_bucket.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strTriRU" resname="statistics.distribution.tri.requires_resus.unknown">
-        <source>statistics.distribution.tri.requires_resus.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strTriRN" resname="statistics.distribution.tri.requires_resus.no">
-        <source>statistics.distribution.tri.requires_resus.no</source>
-        <target>No</target>
-      </trans-unit>
-      <trans-unit id="d1strTriRY" resname="statistics.distribution.tri.requires_resus.yes">
-        <source>statistics.distribution.tri.requires_resus.yes</source>
-        <target>Yes</target>
-      </trans-unit>
-      <trans-unit id="d1strTriCU" resname="statistics.distribution.tri.requires_cathlab.unknown">
-        <source>statistics.distribution.tri.requires_cathlab.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strTriCN" resname="statistics.distribution.tri.requires_cathlab.no">
-        <source>statistics.distribution.tri.requires_cathlab.no</source>
-        <target>No</target>
-      </trans-unit>
-      <trans-unit id="d1strTriCY" resname="statistics.distribution.tri.requires_cathlab.yes">
-        <source>statistics.distribution.tri.requires_cathlab.yes</source>
-        <target>Yes</target>
-      </trans-unit>
-      <trans-unit id="d1strTriCpU" resname="statistics.distribution.tri.is_cpr.unknown">
-        <source>statistics.distribution.tri.is_cpr.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strTriCpN" resname="statistics.distribution.tri.is_cpr.no">
-        <source>statistics.distribution.tri.is_cpr.no</source>
-        <target>No</target>
-      </trans-unit>
-      <trans-unit id="d1strTriCpY" resname="statistics.distribution.tri.is_cpr.yes">
-        <source>statistics.distribution.tri.is_cpr.yes</source>
-        <target>Yes</target>
-      </trans-unit>
-      <trans-unit id="d1strTriVeU" resname="statistics.distribution.tri.is_ventilated.unknown">
-        <source>statistics.distribution.tri.is_ventilated.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strTriVeN" resname="statistics.distribution.tri.is_ventilated.no">
-        <source>statistics.distribution.tri.is_ventilated.no</source>
-        <target>No</target>
-      </trans-unit>
-      <trans-unit id="d1strTriVeY" resname="statistics.distribution.tri.is_ventilated.yes">
-        <source>statistics.distribution.tri.is_ventilated.yes</source>
-        <target>Yes</target>
-      </trans-unit>
-      <trans-unit id="d1strTriPhU" resname="statistics.distribution.tri.is_with_physician.unknown">
-        <source>statistics.distribution.tri.is_with_physician.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strTriPhN" resname="statistics.distribution.tri.is_with_physician.no">
-        <source>statistics.distribution.tri.is_with_physician.no</source>
-        <target>No</target>
-      </trans-unit>
-      <trans-unit id="d1strTriPhY" resname="statistics.distribution.tri.is_with_physician.yes">
-        <source>statistics.distribution.tri.is_with_physician.yes</source>
-        <target>Yes</target>
-      </trans-unit>
-      <trans-unit id="d1strWdUk" resname="statistics.distribution.weekday.unknown">
-        <source>statistics.distribution.weekday.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strWdN1" resname="statistics.distribution.weekday.n1">
-        <source>statistics.distribution.weekday.n1</source>
-        <target>Monday</target>
-      </trans-unit>
-      <trans-unit id="d1strWdN2" resname="statistics.distribution.weekday.n2">
-        <source>statistics.distribution.weekday.n2</source>
-        <target>Tuesday</target>
-      </trans-unit>
-      <trans-unit id="d1strWdN3" resname="statistics.distribution.weekday.n3">
-        <source>statistics.distribution.weekday.n3</source>
-        <target>Wednesday</target>
-      </trans-unit>
-      <trans-unit id="d1strWdN4" resname="statistics.distribution.weekday.n4">
-        <source>statistics.distribution.weekday.n4</source>
-        <target>Thursday</target>
-      </trans-unit>
-      <trans-unit id="d1strWdN5" resname="statistics.distribution.weekday.n5">
-        <source>statistics.distribution.weekday.n5</source>
-        <target>Friday</target>
-      </trans-unit>
-      <trans-unit id="d1strWdN6" resname="statistics.distribution.weekday.n6">
-        <source>statistics.distribution.weekday.n6</source>
-        <target>Saturday</target>
-      </trans-unit>
-      <trans-unit id="d1strWdN7" resname="statistics.distribution.weekday.n7">
-        <source>statistics.distribution.weekday.n7</source>
-        <target>Sunday</target>
-      </trans-unit>
-      <trans-unit id="d1strHrUk" resname="statistics.distribution.hour.unknown">
-        <source>statistics.distribution.hour.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strHrSl" resname="statistics.distribution.hour.slot">
-        <source>statistics.distribution.hour.slot</source>
-        <target>{hour}:00</target>
-      </trans-unit>
-      <trans-unit id="d1strOccNone" resname="statistics.distribution.occasion.none">
-        <source>statistics.distribution.occasion.none</source>
-        <target>No occasion</target>
-      </trans-unit>
-      <trans-unit id="d1strOccInv" resname="statistics.distribution.occasion.invalid_id">
-        <source>statistics.distribution.occasion.invalid_id</source>
-        <target>Unknown occasion</target>
-      </trans-unit>
-      <trans-unit id="d1strAsInv" resname="statistics.distribution.assignment.invalid_id">
-        <source>statistics.distribution.assignment.invalid_id</source>
-        <target>Unknown assignment</target>
-      </trans-unit>
-      <trans-unit id="d1strEntMiss" resname="statistics.distribution.entity_name_missing">
-        <source>statistics.distribution.entity_name_missing</source>
-        <target>ID {id}</target>
-      </trans-unit>
-      <trans-unit id="d1strAgeU" resname="statistics.distribution.age.unknown">
-        <source>statistics.distribution.age.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="d1strAge0" resname="statistics.distribution.age.under_18">
-        <source>statistics.distribution.age.under_18</source>
-        <target>Under 18</target>
-      </trans-unit>
-      <trans-unit id="d1strAge1" resname="statistics.distribution.age.18_29">
-        <source>statistics.distribution.age.18_29</source>
-        <target>18–29</target>
-      </trans-unit>
-      <trans-unit id="d1strAge2" resname="statistics.distribution.age.30_39">
-        <source>statistics.distribution.age.30_39</source>
-        <target>30–39</target>
-      </trans-unit>
-      <trans-unit id="d1strAge3" resname="statistics.distribution.age.40_49">
-        <source>statistics.distribution.age.40_49</source>
-        <target>40–49</target>
-      </trans-unit>
-      <trans-unit id="d1strAge4" resname="statistics.distribution.age.50_59">
-        <source>statistics.distribution.age.50_59</source>
-        <target>50–59</target>
-      </trans-unit>
-      <trans-unit id="d1strAge5" resname="statistics.distribution.age.60_69">
-        <source>statistics.distribution.age.60_69</source>
-        <target>60–69</target>
-      </trans-unit>
-      <trans-unit id="d1strAge6" resname="statistics.distribution.age.70_79">
-        <source>statistics.distribution.age.70_79</source>
-        <target>70–79</target>
-      </trans-unit>
-      <trans-unit id="d1strAge7" resname="statistics.distribution.age.80_89">
-        <source>statistics.distribution.age.80_89</source>
-        <target>80–89</target>
-      </trans-unit>
-      <trans-unit id="d1strAge8" resname="statistics.distribution.age.90_99">
-        <source>statistics.distribution.age.90_99</source>
-        <target>90–99 (and older)</target>
-      </trans-unit>
-      <trans-unit id="d1strFht" resname="statistics.distribution.filter.hospital_tier">
-        <source>statistics.distribution.filter.hospital_tier</source>
-        <target>Hospital tier</target>
-      </trans-unit>
-      <trans-unit id="d1strFhl" resname="statistics.distribution.filter.hospital_location">
-        <source>statistics.distribution.filter.hospital_location</source>
-        <target>Hospital location</target>
-      </trans-unit>
-      <trans-unit id="d1strPi" resname="statistics.distribution.dim.hospital_tier">
-        <source>statistics.distribution.dim.hospital_tier</source>
-        <target>Hospital tier</target>
-      </trans-unit>
-      <trans-unit id="d1strPp" resname="statistics.distribution.dim.hospital_location">
-        <source>statistics.distribution.dim.hospital_location</source>
-        <target>Hospital location</target>
-      </trans-unit>
-      <trans-unit id="d1strPq" resname="statistics.distribution.location_not_set">
-        <source>statistics.distribution.location_not_set</source>
-        <target>Location not set</target>
-      </trans-unit>
-      <trans-unit id="d1strPm" resname="statistics.distribution.chart_mode">
-        <source>statistics.distribution.chart_mode</source>
-        <target>Chart</target>
-      </trans-unit>
-      <trans-unit id="d1strPn" resname="statistics.distribution.chart_mode.absolute">
-        <source>statistics.distribution.chart_mode.absolute</source>
-        <target>Counts (grouped bars)</target>
-      </trans-unit>
-      <trans-unit id="d1strPo" resname="statistics.distribution.chart_mode.percent">
-        <source>statistics.distribution.chart_mode.percent</source>
-        <target>Percent (100% stacked)</target>
-      </trans-unit>
-      <trans-unit id="d1strPr" resname="statistics.distribution.chart_mode.grouped">
-        <source>statistics.distribution.chart_mode.grouped</source>
-        <target>Grouped bars</target>
-      </trans-unit>
-      <trans-unit id="d1strPs" resname="statistics.distribution.chart_mode.stacked">
-        <source>statistics.distribution.chart_mode.stacked</source>
-        <target>Stacked bars</target>
-      </trans-unit>
-      <trans-unit id="d1strPt" resname="statistics.distribution.chart_mode.percent_of_total">
-        <source>statistics.distribution.chart_mode.percent_of_total</source>
-        <target>Percent of total</target>
-      </trans-unit>
-      <trans-unit id="d1strCht1" resname="statistics.distribution.chart_type">
-        <source>statistics.distribution.chart_type</source>
-        <target>Chart type</target>
-      </trans-unit>
-      <trans-unit id="d1strCht2" resname="statistics.distribution.chart_type.bar">
-        <source>statistics.distribution.chart_type.bar</source>
-        <target>Bar chart</target>
-      </trans-unit>
-      <trans-unit id="d1strCht3" resname="statistics.distribution.chart_type.boxplot">
-        <source>statistics.distribution.chart_type.boxplot</source>
-        <target>Box plot</target>
-      </trans-unit>
-      <trans-unit id="d1strBb1" resname="statistics.distribution.bar_basis">
-        <source>statistics.distribution.bar_basis</source>
-        <target>Bar values</target>
-      </trans-unit>
-      <trans-unit id="d1strBb2" resname="statistics.distribution.bar_basis.counts">
-        <source>statistics.distribution.bar_basis.counts</source>
-        <target>Counts / share</target>
-      </trans-unit>
-      <trans-unit id="d1strBb3" resname="statistics.distribution.bar_basis.average">
-        <source>statistics.distribution.bar_basis.average</source>
-        <target>Average per hospital</target>
-      </trans-unit>
-      <trans-unit id="d1strBbYax" resname="statistics.distribution.bar_basis.average.yaxis_per_hospital">
-        <source>statistics.distribution.bar_basis.average.yaxis_per_hospital</source>
-        <target>Avg. cases per hospital</target>
-      </trans-unit>
-      <trans-unit id="d1strBbTbl" resname="statistics.distribution.bar_basis.average.table_mean_per_hospital">
-        <source>statistics.distribution.bar_basis.average.table_mean_per_hospital</source>
-        <target>Avg. cases per hospital</target>
-      </trans-unit>
-      <trans-unit id="d1strMtrN" resname="statistics.distribution.table.metric_n">
-        <source>statistics.distribution.table.metric_n</source>
-        <target>n (with value)</target>
-      </trans-unit>
-      <trans-unit id="d1strMtrMin" resname="statistics.distribution.table.metric_min">
-        <source>statistics.distribution.table.metric_min</source>
-        <target>Min</target>
-      </trans-unit>
-      <trans-unit id="d1strMtrQ1" resname="statistics.distribution.table.metric_q1">
-        <source>statistics.distribution.table.metric_q1</source>
-        <target>Q1</target>
-      </trans-unit>
-      <trans-unit id="d1strMtrMed" resname="statistics.distribution.table.metric_median">
-        <source>statistics.distribution.table.metric_median</source>
-        <target>Median</target>
-      </trans-unit>
-      <trans-unit id="d1strMtrQ3" resname="statistics.distribution.table.metric_q3">
-        <source>statistics.distribution.table.metric_q3</source>
-        <target>Q3</target>
-      </trans-unit>
-      <trans-unit id="d1strMtrMax" resname="statistics.distribution.table.metric_max">
-        <source>statistics.distribution.table.metric_max</source>
-        <target>Max</target>
-      </trans-unit>
-      <trans-unit id="d1strMtrMean" resname="statistics.distribution.table.metric_mean">
-        <source>statistics.distribution.table.metric_mean</source>
-        <target>Mean</target>
-      </trans-unit>
-      <trans-unit id="d1strMetAgeY" resname="statistics.distribution.metric.age.yaxis">
-        <source>statistics.distribution.metric.age.yaxis</source>
-        <target>Age (years)</target>
-      </trans-unit>
-      <trans-unit id="d1strMetAgeT" resname="statistics.distribution.metric.age.table_mean">
-        <source>statistics.distribution.metric.age.table_mean</source>
-        <target>Mean age</target>
-      </trans-unit>
-      <trans-unit id="d1strMetTtY" resname="statistics.distribution.metric.transport_time_minutes.yaxis">
-        <source>statistics.distribution.metric.transport_time_minutes.yaxis</source>
-        <target>Transport time (minutes)</target>
-      </trans-unit>
-      <trans-unit id="d1strMetTtT" resname="statistics.distribution.metric.transport_time_minutes.table_mean">
-        <source>statistics.distribution.metric.transport_time_minutes.table_mean</source>
-        <target>Avg. transport time</target>
-      </trans-unit>
-      <trans-unit id="d1strBoxYGen" resname="statistics.distribution.boxplot.yaxis_generic">
-        <source>statistics.distribution.boxplot.yaxis_generic</source>
-        <target>Value</target>
-      </trans-unit>
-      <trans-unit id="d1strPu" resname="statistics.distribution.filter.date_range">
-        <source>statistics.distribution.filter.date_range</source>
-        <target>Date range</target>
-      </trans-unit>
-      <trans-unit id="d1strPv" resname="statistics.distribution.filter.date_range.all_cases">
-        <source>statistics.distribution.filter.date_range.all_cases</source>
-        <target>All cases</target>
-      </trans-unit>
-      <trans-unit id="d1strPw" resname="statistics.distribution.filter.date_range.last_12_months">
-        <source>statistics.distribution.filter.date_range.last_12_months</source>
-        <target>Last 12 months</target>
-      </trans-unit>
-      <trans-unit id="d1strPx" resname="statistics.distribution.group.tier">
-        <source>statistics.distribution.group.tier</source>
-        <target>Hospital tier</target>
-      </trans-unit>
-      <trans-unit id="d1strPy" resname="statistics.distribution.group.location">
-        <source>statistics.distribution.group.location</source>
-        <target>Hospital location</target>
-      </trans-unit>
-      <trans-unit id="d1strPz" resname="statistics.distribution.table.total">
-        <source>statistics.distribution.table.total</source>
-        <target>Total</target>
-      </trans-unit>
-      <trans-unit id="d1strPj" resname="statistics.distribution.no_imports">
-        <source>statistics.distribution.no_imports</source>
-        <target>No imports found.</target>
-      </trans-unit>
-      <trans-unit id="d1strPk" resname="statistics.distribution.import_name">
-        <source>statistics.distribution.import_name</source>
-        <target>Name</target>
-      </trans-unit>
-      <trans-unit id="d1strBox1" resname="statistics.distribution.boxplot.title">
-        <source>statistics.distribution.boxplot.title</source>
-        <target>Age distribution by category (min, quartiles, median, max)</target>
-      </trans-unit>
-      <trans-unit id="d1strBox2" resname="statistics.distribution.boxplot.yaxis_age">
-        <source>statistics.distribution.boxplot.yaxis_age</source>
-        <target>Age (years)</target>
-      </trans-unit>
-      <trans-unit id="d1strBox3" resname="statistics.distribution.boxplot.empty">
-        <source>statistics.distribution.boxplot.empty</source>
-        <target>No rows with known age for this selection; box plot is not shown.</target>
-      </trans-unit>
-      <trans-unit id="d1strDashAge1" resname="statistics.distribution.dashboard_age_cohort_link">
-        <source>statistics.distribution.dashboard_age_cohort_link</source>
-        <target>Detailed cohort distribution (mean age &amp; box plot)</target>
-      </trans-unit>
-      <trans-unit id="d1strDashAge2" resname="statistics.distribution.dashboard_age_cohort_link_hint">
-        <source>statistics.distribution.dashboard_age_cohort_link_hint</source>
-        <target>Statistics → Distribution → Age cohorts: table, filters, and box plot by category.</target>
-      </trans-unit>
       <trans-unit id="wQKGxus" resname="link.users">
         <source>link.users</source>
         <target>Users</target>
+      </trans-unit>
+      <trans-unit id="NDaPwn5" resname="statistics.distribution.age.18_29">
+        <source>statistics.distribution.age.18_29</source>
+        <target>18–29</target>
+      </trans-unit>
+      <trans-unit id="gdTDWWH" resname="statistics.distribution.age.30_39">
+        <source>statistics.distribution.age.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="qo9FgZ4" resname="statistics.distribution.age.40_49">
+        <source>statistics.distribution.age.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="0mI1fEs" resname="statistics.distribution.age.50_59">
+        <source>statistics.distribution.age.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="pjFFcAx" resname="statistics.distribution.age.60_69">
+        <source>statistics.distribution.age.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="RmZBvHp" resname="statistics.distribution.age.70_79">
+        <source>statistics.distribution.age.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="jXtU.Wa" resname="statistics.distribution.age.80_89">
+        <source>statistics.distribution.age.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="TEQm_YG" resname="statistics.distribution.age.90_99">
+        <source>statistics.distribution.age.90_99</source>
+        <target>90–99 (and older)</target>
+      </trans-unit>
+      <trans-unit id="KtY8Hdy" resname="statistics.distribution.age.under_18">
+        <source>statistics.distribution.age.under_18</source>
+        <target>Under 18</target>
+      </trans-unit>
+      <trans-unit id="NyeAvsM" resname="statistics.distribution.age.unknown">
+        <source>statistics.distribution.age.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="nppJRVk" resname="statistics.distribution.apply">
+        <source>statistics.distribution.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="pYi8ACm" resname="statistics.distribution.assignment.invalid_id">
+        <source>statistics.distribution.assignment.invalid_id</source>
+        <target>Unknown assignment</target>
+      </trans-unit>
+      <trans-unit id="NtkZTNR" resname="statistics.distribution.bar_basis">
+        <source>statistics.distribution.bar_basis</source>
+        <target>Bar values</target>
+      </trans-unit>
+      <trans-unit id="Ruw6WXO" resname="statistics.distribution.bar_basis.average">
+        <source>statistics.distribution.bar_basis.average</source>
+        <target>Average per hospital</target>
+      </trans-unit>
+      <trans-unit id="hC1VUGM" resname="statistics.distribution.bar_basis.average.table_mean_per_hospital">
+        <source>statistics.distribution.bar_basis.average.table_mean_per_hospital</source>
+        <target>Avg. cases per hospital</target>
+      </trans-unit>
+      <trans-unit id="efz.V.y" resname="statistics.distribution.bar_basis.average.yaxis_per_hospital">
+        <source>statistics.distribution.bar_basis.average.yaxis_per_hospital</source>
+        <target>Avg. cases per hospital</target>
+      </trans-unit>
+      <trans-unit id="gOdutf5" resname="statistics.distribution.bar_basis.counts">
+        <source>statistics.distribution.bar_basis.counts</source>
+        <target>Counts / share</target>
+      </trans-unit>
+      <trans-unit id="7_FtR4h" resname="statistics.distribution.boxplot.empty">
+        <source>statistics.distribution.boxplot.empty</source>
+        <target>No rows with known age for this selection; box plot is not shown.</target>
+      </trans-unit>
+      <trans-unit id="SqKWhyN" resname="statistics.distribution.boxplot.title">
+        <source>statistics.distribution.boxplot.title</source>
+        <target>Age distribution by category (min, quartiles, median, max)</target>
+      </trans-unit>
+      <trans-unit id="xCqg4iP" resname="statistics.distribution.boxplot.yaxis_age">
+        <source>statistics.distribution.boxplot.yaxis_age</source>
+        <target>Age (years)</target>
+      </trans-unit>
+      <trans-unit id="40J6dgH" resname="statistics.distribution.boxplot.yaxis_generic">
+        <source>statistics.distribution.boxplot.yaxis_generic</source>
+        <target>Value</target>
+      </trans-unit>
+      <trans-unit id="DBOVwtD" resname="statistics.distribution.chart_mode">
+        <source>statistics.distribution.chart_mode</source>
+        <target>Chart</target>
+      </trans-unit>
+      <trans-unit id="NTdd6Ka" resname="statistics.distribution.chart_mode.absolute">
+        <source>statistics.distribution.chart_mode.absolute</source>
+        <target>Counts (grouped bars)</target>
+      </trans-unit>
+      <trans-unit id="dIUfxvm" resname="statistics.distribution.chart_mode.grouped">
+        <source>statistics.distribution.chart_mode.grouped</source>
+        <target>Grouped bars</target>
+      </trans-unit>
+      <trans-unit id="ihFNgDx" resname="statistics.distribution.chart_mode.percent">
+        <source>statistics.distribution.chart_mode.percent</source>
+        <target>Percent (100% stacked)</target>
+      </trans-unit>
+      <trans-unit id="xmFHu1I" resname="statistics.distribution.chart_mode.percent_of_total">
+        <source>statistics.distribution.chart_mode.percent_of_total</source>
+        <target>Percent of total</target>
+      </trans-unit>
+      <trans-unit id="AYR.5Jw" resname="statistics.distribution.chart_mode.stacked">
+        <source>statistics.distribution.chart_mode.stacked</source>
+        <target>Stacked bars</target>
+      </trans-unit>
+      <trans-unit id="fCygEKt" resname="statistics.distribution.chart_type">
+        <source>statistics.distribution.chart_type</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="qsbtQWL" resname="statistics.distribution.chart_type.bar">
+        <source>statistics.distribution.chart_type.bar</source>
+        <target>Bar chart</target>
+      </trans-unit>
+      <trans-unit id="gDPAC9S" resname="statistics.distribution.chart_type.boxplot">
+        <source>statistics.distribution.chart_type.boxplot</source>
+        <target>Box plot</target>
+      </trans-unit>
+      <trans-unit id="EgDUpzU" resname="statistics.distribution.count_series">
+        <source>statistics.distribution.count_series</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="puUUby0" resname="statistics.distribution.dashboard_age_cohort_link">
+        <source>statistics.distribution.dashboard_age_cohort_link</source>
+        <target><![CDATA[Detailed cohort distribution (mean age & box plot)]]></target>
+      </trans-unit>
+      <trans-unit id="ZS0pwYk" resname="statistics.distribution.dashboard_age_cohort_link_hint">
+        <source>statistics.distribution.dashboard_age_cohort_link_hint</source>
+        <target>Statistics → Distribution → Age cohorts: table, filters, and box plot by category.</target>
+      </trans-unit>
+      <trans-unit id="3j4KP56" resname="statistics.distribution.dim.age_cohort">
+        <source>statistics.distribution.dim.age_cohort</source>
+        <target>Age cohorts</target>
+      </trans-unit>
+      <trans-unit id="lbC9q68" resname="statistics.distribution.dim.assignment">
+        <source>statistics.distribution.dim.assignment</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="_TQluXw" resname="statistics.distribution.dim.gender">
+        <source>statistics.distribution.dim.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="4O5lDvy" resname="statistics.distribution.dim.hospital_location">
+        <source>statistics.distribution.dim.hospital_location</source>
+        <target>Hospital location</target>
+      </trans-unit>
+      <trans-unit id="OjRwfFs" resname="statistics.distribution.dim.hospital_tier">
+        <source>statistics.distribution.dim.hospital_tier</source>
+        <target>Hospital tier</target>
+      </trans-unit>
+      <trans-unit id="vCBSkky" resname="statistics.distribution.dim.hour">
+        <source>statistics.distribution.dim.hour</source>
+        <target>Hour of day</target>
+      </trans-unit>
+      <trans-unit id="1Mewp_X" resname="statistics.distribution.dim.is_cpr">
+        <source>statistics.distribution.dim.is_cpr</source>
+        <target>CPR</target>
+      </trans-unit>
+      <trans-unit id="yiqEcLx" resname="statistics.distribution.dim.is_ventilated">
+        <source>statistics.distribution.dim.is_ventilated</source>
+        <target>Ventilated</target>
+      </trans-unit>
+      <trans-unit id="tjrmI0x" resname="statistics.distribution.dim.is_with_physician">
+        <source>statistics.distribution.dim.is_with_physician</source>
+        <target>With physician</target>
+      </trans-unit>
+      <trans-unit id=".kMTBrN" resname="statistics.distribution.dim.occasion">
+        <source>statistics.distribution.dim.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="auwoPXt" resname="statistics.distribution.dim.requires_cathlab">
+        <source>statistics.distribution.dim.requires_cathlab</source>
+        <target>Cath lab required</target>
+      </trans-unit>
+      <trans-unit id="hMxySNJ" resname="statistics.distribution.dim.requires_resus">
+        <source>statistics.distribution.dim.requires_resus</source>
+        <target>Resuscitation room required</target>
+      </trans-unit>
+      <trans-unit id="8FuPL9D" resname="statistics.distribution.dim.transport_time_bucket">
+        <source>statistics.distribution.dim.transport_time_bucket</source>
+        <target>Transport time (bucket)</target>
+      </trans-unit>
+      <trans-unit id="tG1bvRT" resname="statistics.distribution.dim.urgency">
+        <source>statistics.distribution.dim.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="OxGRVCw" resname="statistics.distribution.dim.weekday">
+        <source>statistics.distribution.dim.weekday</source>
+        <target>Weekday</target>
+      </trans-unit>
+      <trans-unit id="kumAO7X" resname="statistics.distribution.empty">
+        <source>statistics.distribution.empty</source>
+        <target>The projection has no rows yet. Import data and rebuild the allocation stats projection to see charts here.</target>
+      </trans-unit>
+      <trans-unit id="qo3lUYq" resname="statistics.distribution.entity_name_missing">
+        <source>statistics.distribution.entity_name_missing</source>
+        <target>ID {id}</target>
+      </trans-unit>
+      <trans-unit id="UUXZgF5" resname="statistics.distribution.filter.date_range">
+        <source>statistics.distribution.filter.date_range</source>
+        <target>Date range</target>
+      </trans-unit>
+      <trans-unit id="NvKOONO" resname="statistics.distribution.filter.date_range.all_cases">
+        <source>statistics.distribution.filter.date_range.all_cases</source>
+        <target>All cases</target>
+      </trans-unit>
+      <trans-unit id="fXeUe_V" resname="statistics.distribution.filter.date_range.last_12_months">
+        <source>statistics.distribution.filter.date_range.last_12_months</source>
+        <target>Last 12 months</target>
+      </trans-unit>
+      <trans-unit id="pO1XDvh" resname="statistics.distribution.filter.hospital_location">
+        <source>statistics.distribution.filter.hospital_location</source>
+        <target>Hospital location</target>
+      </trans-unit>
+      <trans-unit id="uAimy9N" resname="statistics.distribution.filter.hospital_tier">
+        <source>statistics.distribution.filter.hospital_tier</source>
+        <target>Hospital tier</target>
+      </trans-unit>
+      <trans-unit id="mXuuRMH" resname="statistics.distribution.group">
+        <source>statistics.distribution.group</source>
+        <target>Group by</target>
+      </trans-unit>
+      <trans-unit id="wlAAHB4" resname="statistics.distribution.group.location">
+        <source>statistics.distribution.group.location</source>
+        <target>Hospital location</target>
+      </trans-unit>
+      <trans-unit id="IWi23ml" resname="statistics.distribution.group.tier">
+        <source>statistics.distribution.group.tier</source>
+        <target>Hospital tier</target>
+      </trans-unit>
+      <trans-unit id="7r08mb7" resname="statistics.distribution.group_none">
+        <source>statistics.distribution.group_none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="lkTvVO9" resname="statistics.distribution.hour.slot">
+        <source>statistics.distribution.hour.slot</source>
+        <target>{hour}:00</target>
+      </trans-unit>
+      <trans-unit id="39DzzJC" resname="statistics.distribution.hour.unknown">
+        <source>statistics.distribution.hour.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="km0dlXg" resname="statistics.distribution.import">
+        <source>statistics.distribution.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="b0uJ5By" resname="statistics.distribution.import_name">
+        <source>statistics.distribution.import_name</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="WsN2_S9" resname="statistics.distribution.location_not_set">
+        <source>statistics.distribution.location_not_set</source>
+        <target>Location not set</target>
+      </trans-unit>
+      <trans-unit id="6GE_gjj" resname="statistics.distribution.metric.age.table_mean">
+        <source>statistics.distribution.metric.age.table_mean</source>
+        <target>Mean age</target>
+      </trans-unit>
+      <trans-unit id="qZadvOj" resname="statistics.distribution.metric.age.yaxis">
+        <source>statistics.distribution.metric.age.yaxis</source>
+        <target>Age (years)</target>
+      </trans-unit>
+      <trans-unit id="Kzd4Gjj" resname="statistics.distribution.metric.transport_time_minutes.table_mean">
+        <source>statistics.distribution.metric.transport_time_minutes.table_mean</source>
+        <target>Avg. transport time</target>
+      </trans-unit>
+      <trans-unit id="WqrhMh2" resname="statistics.distribution.metric.transport_time_minutes.yaxis">
+        <source>statistics.distribution.metric.transport_time_minutes.yaxis</source>
+        <target>Transport time (minutes)</target>
+      </trans-unit>
+      <trans-unit id="MaBcQxn" resname="statistics.distribution.no_imports">
+        <source>statistics.distribution.no_imports</source>
+        <target>No imports found.</target>
+      </trans-unit>
+      <trans-unit id="q9YCTCD" resname="statistics.distribution.occasion.invalid_id">
+        <source>statistics.distribution.occasion.invalid_id</source>
+        <target>Unknown occasion</target>
+      </trans-unit>
+      <trans-unit id="PbxRACk" resname="statistics.distribution.occasion.none">
+        <source>statistics.distribution.occasion.none</source>
+        <target>No occasion</target>
+      </trans-unit>
+      <trans-unit id="zvUtTIz" resname="statistics.distribution.pick_intro">
+        <source>statistics.distribution.pick_intro</source>
+        <target>Select an import to view allocation distributions from the projection.</target>
+      </trans-unit>
+      <trans-unit id="pREzACy" resname="statistics.distribution.primary">
+        <source>statistics.distribution.primary</source>
+        <target>Primary category</target>
+      </trans-unit>
+      <trans-unit id="jZC44Vm" resname="statistics.distribution.scope_all">
+        <source>statistics.distribution.scope_all</source>
+        <target>Aggregated across the full allocation stats projection: %count% rows total.</target>
+      </trans-unit>
+      <trans-unit id=".K1ytJR" resname="statistics.distribution.section.age">
+        <source>statistics.distribution.section.age</source>
+        <target>Age cohorts</target>
+      </trans-unit>
+      <trans-unit id="l3HIi8p" resname="statistics.distribution.section.assignment">
+        <source>statistics.distribution.section.assignment</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="ttACIAh" resname="statistics.distribution.section.gender">
+        <source>statistics.distribution.section.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="qNkaGsB" resname="statistics.distribution.section.occasion">
+        <source>statistics.distribution.section.occasion</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="eMMyMNR" resname="statistics.distribution.section.resources">
+        <source>statistics.distribution.section.resources</source>
+        <target>Resources</target>
+      </trans-unit>
+      <trans-unit id="Lln_8ra" resname="statistics.distribution.section.time">
+        <source>statistics.distribution.section.time</source>
+        <target><![CDATA[Weekday & hour]]></target>
+      </trans-unit>
+      <trans-unit id="TcCIzaN" resname="statistics.distribution.section.traits">
+        <source>statistics.distribution.section.traits</source>
+        <target>Clinical traits</target>
+      </trans-unit>
+      <trans-unit id="SjmIRw0" resname="statistics.distribution.section.transport_time">
+        <source>statistics.distribution.section.transport_time</source>
+        <target>Transport time</target>
+      </trans-unit>
+      <trans-unit id="vUsgQHw" resname="statistics.distribution.section.urgency">
+        <source>statistics.distribution.section.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="gThvkit" resname="statistics.distribution.table.category">
+        <source>statistics.distribution.table.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="cbygDd8" resname="statistics.distribution.table.count">
+        <source>statistics.distribution.table.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="qY1Ub.g" resname="statistics.distribution.table.group">
+        <source>statistics.distribution.table.group</source>
+        <target>Group</target>
+      </trans-unit>
+      <trans-unit id="F.KxXP6" resname="statistics.distribution.table.mean_age">
+        <source>statistics.distribution.table.mean_age</source>
+        <target>Mean age (years)</target>
+      </trans-unit>
+      <trans-unit id="C1auGr1" resname="statistics.distribution.table.metric_max">
+        <source>statistics.distribution.table.metric_max</source>
+        <target>Max</target>
+      </trans-unit>
+      <trans-unit id="lLxBSnE" resname="statistics.distribution.table.metric_mean">
+        <source>statistics.distribution.table.metric_mean</source>
+        <target>Mean</target>
+      </trans-unit>
+      <trans-unit id="d7nLUHO" resname="statistics.distribution.table.metric_median">
+        <source>statistics.distribution.table.metric_median</source>
+        <target>Median</target>
+      </trans-unit>
+      <trans-unit id="tpvSCkx" resname="statistics.distribution.table.metric_min">
+        <source>statistics.distribution.table.metric_min</source>
+        <target>Min</target>
+      </trans-unit>
+      <trans-unit id="KH0rioJ" resname="statistics.distribution.table.metric_n">
+        <source>statistics.distribution.table.metric_n</source>
+        <target>n (with value)</target>
+      </trans-unit>
+      <trans-unit id="CcPEEzN" resname="statistics.distribution.table.metric_q1">
+        <source>statistics.distribution.table.metric_q1</source>
+        <target>Q1</target>
+      </trans-unit>
+      <trans-unit id="vUtVZiX" resname="statistics.distribution.table.metric_q3">
+        <source>statistics.distribution.table.metric_q3</source>
+        <target>Q3</target>
+      </trans-unit>
+      <trans-unit id="a53rP0V" resname="statistics.distribution.table.percent">
+        <source>statistics.distribution.table.percent</source>
+        <target>Percent</target>
+      </trans-unit>
+      <trans-unit id="oDWwqnX" resname="statistics.distribution.table.total">
+        <source>statistics.distribution.table.total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="R2CQZRq" resname="statistics.distribution.tier_not_set">
+        <source>statistics.distribution.tier_not_set</source>
+        <target>Tier not set</target>
+      </trans-unit>
+      <trans-unit id="gGFnOsx" resname="statistics.distribution.title">
+        <source>statistics.distribution.title</source>
+        <target>Distributions</target>
+      </trans-unit>
+      <trans-unit id="Pr9kLU1" resname="statistics.distribution.transport_time_bucket.10_20">
+        <source>statistics.distribution.transport_time_bucket.10_20</source>
+        <target>10–20 min</target>
+      </trans-unit>
+      <trans-unit id="tyZszOu" resname="statistics.distribution.transport_time_bucket.20_30">
+        <source>statistics.distribution.transport_time_bucket.20_30</source>
+        <target>20–30 min</target>
+      </trans-unit>
+      <trans-unit id="uMKg272" resname="statistics.distribution.transport_time_bucket.30_40">
+        <source>statistics.distribution.transport_time_bucket.30_40</source>
+        <target>30–40 min</target>
+      </trans-unit>
+      <trans-unit id="yNico3E" resname="statistics.distribution.transport_time_bucket.40_50">
+        <source>statistics.distribution.transport_time_bucket.40_50</source>
+        <target>40–50 min</target>
+      </trans-unit>
+      <trans-unit id="ESKUj6q" resname="statistics.distribution.transport_time_bucket.50_60">
+        <source>statistics.distribution.transport_time_bucket.50_60</source>
+        <target>50–60 min</target>
+      </trans-unit>
+      <trans-unit id="oNSLHCq" resname="statistics.distribution.transport_time_bucket.over_60">
+        <source>statistics.distribution.transport_time_bucket.over_60</source>
+        <target>Over 60 min</target>
+      </trans-unit>
+      <trans-unit id="qMfVvHi" resname="statistics.distribution.transport_time_bucket.under_10">
+        <source>statistics.distribution.transport_time_bucket.under_10</source>
+        <target>Under 10 min</target>
+      </trans-unit>
+      <trans-unit id="fGsmiOD" resname="statistics.distribution.transport_time_bucket.unknown">
+        <source>statistics.distribution.transport_time_bucket.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="fKImHL3" resname="statistics.distribution.tri.is_cpr.no">
+        <source>statistics.distribution.tri.is_cpr.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="2ujORn9" resname="statistics.distribution.tri.is_cpr.unknown">
+        <source>statistics.distribution.tri.is_cpr.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="IiWNRBH" resname="statistics.distribution.tri.is_cpr.yes">
+        <source>statistics.distribution.tri.is_cpr.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="ADu6TZ4" resname="statistics.distribution.tri.is_ventilated.no">
+        <source>statistics.distribution.tri.is_ventilated.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="DOV08YI" resname="statistics.distribution.tri.is_ventilated.unknown">
+        <source>statistics.distribution.tri.is_ventilated.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="Y5Q1e0K" resname="statistics.distribution.tri.is_ventilated.yes">
+        <source>statistics.distribution.tri.is_ventilated.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="4GEMfrc" resname="statistics.distribution.tri.is_with_physician.no">
+        <source>statistics.distribution.tri.is_with_physician.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="9uKE_I." resname="statistics.distribution.tri.is_with_physician.unknown">
+        <source>statistics.distribution.tri.is_with_physician.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="rSRU_KV" resname="statistics.distribution.tri.is_with_physician.yes">
+        <source>statistics.distribution.tri.is_with_physician.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="M_urAVZ" resname="statistics.distribution.tri.requires_cathlab.no">
+        <source>statistics.distribution.tri.requires_cathlab.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="xY3Nv6n" resname="statistics.distribution.tri.requires_cathlab.unknown">
+        <source>statistics.distribution.tri.requires_cathlab.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="LZuQqjv" resname="statistics.distribution.tri.requires_cathlab.yes">
+        <source>statistics.distribution.tri.requires_cathlab.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="JEuHxOV" resname="statistics.distribution.tri.requires_resus.no">
+        <source>statistics.distribution.tri.requires_resus.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="9yVvfMX" resname="statistics.distribution.tri.requires_resus.unknown">
+        <source>statistics.distribution.tri.requires_resus.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="ZemYz.s" resname="statistics.distribution.tri.requires_resus.yes">
+        <source>statistics.distribution.tri.requires_resus.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="YxgRxaw" resname="statistics.distribution.unknown_code">
+        <source>statistics.distribution.unknown_code</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="Aw.9OCB" resname="statistics.distribution.weekday.n1">
+        <source>statistics.distribution.weekday.n1</source>
+        <target>Monday</target>
+      </trans-unit>
+      <trans-unit id="uh7GYDq" resname="statistics.distribution.weekday.n2">
+        <source>statistics.distribution.weekday.n2</source>
+        <target>Tuesday</target>
+      </trans-unit>
+      <trans-unit id="T_ntxLx" resname="statistics.distribution.weekday.n3">
+        <source>statistics.distribution.weekday.n3</source>
+        <target>Wednesday</target>
+      </trans-unit>
+      <trans-unit id="qaToIIi" resname="statistics.distribution.weekday.n4">
+        <source>statistics.distribution.weekday.n4</source>
+        <target>Thursday</target>
+      </trans-unit>
+      <trans-unit id="gbgziTf" resname="statistics.distribution.weekday.n5">
+        <source>statistics.distribution.weekday.n5</source>
+        <target>Friday</target>
+      </trans-unit>
+      <trans-unit id="L9AokMg" resname="statistics.distribution.weekday.n6">
+        <source>statistics.distribution.weekday.n6</source>
+        <target>Saturday</target>
+      </trans-unit>
+      <trans-unit id="2BwMnYE" resname="statistics.distribution.weekday.n7">
+        <source>statistics.distribution.weekday.n7</source>
+        <target>Sunday</target>
+      </trans-unit>
+      <trans-unit id="x6Odwog" resname="statistics.distribution.weekday.unknown">
+        <source>statistics.distribution.weekday.unknown</source>
+        <target>Unknown</target>
       </trans-unit>
       <trans-unit id="h2aLGzg" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
         <target>This form allows you to link a raw indication with a corresponding normalized indication from the
                     standardized list. By selecting the appropriate normalized indication, you help ensure consistent data
                     classification and make further analysis and reporting more accurate.</target>
+      </trans-unit>
+      <trans-unit id="8P9KH0y" resname="text.reset_password.check_email_intro">
+        <source>text.reset_password.check_email_intro</source>
+        <target>If your account exists and your email is verified, a password reset link was sent.</target>
+      </trans-unit>
+      <trans-unit id="Qu.waDP" resname="text.reset_password.expires_in">
+        <source>text.reset_password.expires_in</source>
+        <target>The link expires in</target>
+      </trans-unit>
+      <trans-unit id="XkcNzou" resname="text.reset_password.no_email">
+        <source>text.reset_password.no_email</source>
+        <target>Didn't receive an email?</target>
+      </trans-unit>
+      <trans-unit id="NkgZk7H" resname="text.settings.account_intro">
+        <source>text.settings.account_intro</source>
+        <target>Manage your account profile, email, and password.</target>
       </trans-unit>
       <trans-unit id="GhGeHI9" resname="title.allocation.list">
         <source>title.allocation.list</source>
@@ -1375,17 +1591,13 @@
         <source>title.allocation.show</source>
         <target>Show Allocation Detail</target>
       </trans-unit>
-      <trans-unit id="mciTitleList" resname="title.mci_case.list">
-        <source>title.mci_case.list</source>
-        <target>Listing MCI Cases</target>
-      </trans-unit>
-      <trans-unit id="mciTitleShow" resname="title.mci_case.show">
-        <source>title.mci_case.show</source>
-        <target>Show MCI Case Detail</target>
-      </trans-unit>
       <trans-unit id="2yVgyK_" resname="title.assignment.list">
         <source>title.assignment.list</source>
         <target>Listing Assignments</target>
+      </trans-unit>
+      <trans-unit id="7OoEnsr" resname="title.check_email">
+        <source>title.check_email</source>
+        <target>Check your email</target>
       </trans-unit>
       <trans-unit id="6k49n8G" resname="title.data">
         <source>title.data</source>
@@ -1407,6 +1619,10 @@
         <source>title.explore.index</source>
         <target>Explore Data</target>
       </trans-unit>
+      <trans-unit id="M9Dva9P" resname="title.hospital.edit">
+        <source>title.hospital.edit</source>
+        <target>Edit Hospital</target>
+      </trans-unit>
       <trans-unit id="0bnImEj" resname="title.hospital.list">
         <source>title.hospital.list</source>
         <target>Listing Hospitals</target>
@@ -1414,6 +1630,10 @@
       <trans-unit id="ipAfzN6" resname="title.hospital_show">
         <source>title.hospital_show</source>
         <target>Showing Hospital detail</target>
+      </trans-unit>
+      <trans-unit id="otxv8gh" resname="title.hospitals.my">
+        <source>title.hospitals.my</source>
+        <target>My Hospitals</target>
       </trans-unit>
       <trans-unit id="J7c0M1U" resname="title.import.index">
         <source>title.import.index</source>
@@ -1447,221 +1667,65 @@
         <source>title.login</source>
         <target>Login</target>
       </trans-unit>
+      <trans-unit id="vksTd9U" resname="title.mci_case.list">
+        <source>title.mci_case.list</source>
+        <target>Listing MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="DAuIJFm" resname="title.mci_case.show">
+        <source>title.mci_case.show</source>
+        <target>Show MCI Case Detail</target>
+      </trans-unit>
       <trans-unit id="x2zBU9m" resname="title.occasion.list">
         <source>title.occasion.list</source>
         <target>Listing Occasions</target>
       </trans-unit>
-      <trans-unit id="titSecL" resname="title.secondary_transport.list">
+      <trans-unit id="C0SBwTU" resname="title.register">
+        <source>title.register</source>
+        <target>Register</target>
+      </trans-unit>
+      <trans-unit id="phg.0GO" resname="title.reset_password">
+        <source>title.reset_password</source>
+        <target>Reset password</target>
+      </trans-unit>
+      <trans-unit id="W5KBPlI" resname="title.secondary_transport.list">
         <source>title.secondary_transport.list</source>
         <target>Listing Secondary Transports</target>
       </trans-unit>
-      <trans-unit id="titSecS" resname="title.secondary_transport.show">
+      <trans-unit id="cgz_0pl" resname="title.secondary_transport.show">
         <source>title.secondary_transport.show</source>
         <target>Secondary Transport</target>
+      </trans-unit>
+      <trans-unit id="lLy.Z_P" resname="title.set_new_password">
+        <source>title.set_new_password</source>
+        <target>Set a new password</target>
+      </trans-unit>
+      <trans-unit id="G6BcHiU" resname="title.settings">
+        <source>title.settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="wHfaeqZ" resname="title.settings.account">
+        <source>title.settings.account</source>
+        <target>Account Settings</target>
+      </trans-unit>
+      <trans-unit id="qvDfVyy" resname="title.settings.change_email">
+        <source>title.settings.change_email</source>
+        <target>Change email</target>
+      </trans-unit>
+      <trans-unit id="zBC_qAO" resname="title.settings.change_email_breadcrumb">
+        <source>title.settings.change_email_breadcrumb</source>
+        <target>Settings / Change email</target>
+      </trans-unit>
+      <trans-unit id="5Zw5X9R" resname="title.settings.change_password">
+        <source>title.settings.change_password</source>
+        <target>Change password</target>
+      </trans-unit>
+      <trans-unit id="CpWB5qC" resname="title.settings.change_password_breadcrumb">
+        <source>title.settings.change_password_breadcrumb</source>
+        <target>Settings / Change password</target>
       </trans-unit>
       <trans-unit id="uhopb3E" resname="title.speciality.list">
         <source>title.speciality.list</source>
         <target>Listing Specialities</target>
-      </trans-unit>
-      <trans-unit id="titleRegister" resname="title.register">
-        <source>title.register</source>
-        <target>Register</target>
-      </trans-unit>
-      <trans-unit id="titleResetPassword" resname="title.reset_password">
-        <source>title.reset_password</source>
-        <target>Reset password</target>
-      </trans-unit>
-      <trans-unit id="titleCheckEmail" resname="title.check_email">
-        <source>title.check_email</source>
-        <target>Check your email</target>
-      </trans-unit>
-      <trans-unit id="titleSetNewPassword" resname="title.set_new_password">
-        <source>title.set_new_password</source>
-        <target>Set a new password</target>
-      </trans-unit>
-      <trans-unit id="titleSettings" resname="title.settings">
-        <source>title.settings</source>
-        <target>Settings</target>
-      </trans-unit>
-      <trans-unit id="titleSettingsAccount" resname="title.settings.account">
-        <source>title.settings.account</source>
-        <target>Account Settings</target>
-      </trans-unit>
-      <trans-unit id="titleSettingsChangeEmail" resname="title.settings.change_email">
-        <source>title.settings.change_email</source>
-        <target>Change email</target>
-      </trans-unit>
-      <trans-unit id="titleSettingsChangeEmailBreadcrumb" resname="title.settings.change_email_breadcrumb">
-        <source>title.settings.change_email_breadcrumb</source>
-        <target>Settings / Change email</target>
-      </trans-unit>
-      <trans-unit id="titleSettingsChangePassword" resname="title.settings.change_password">
-        <source>title.settings.change_password</source>
-        <target>Change password</target>
-      </trans-unit>
-      <trans-unit id="titleSettingsChangePasswordBreadcrumb" resname="title.settings.change_password_breadcrumb">
-        <source>title.settings.change_password_breadcrumb</source>
-        <target>Settings / Change password</target>
-      </trans-unit>
-      <trans-unit id="labelRegister" resname="label.register">
-        <source>label.register</source>
-        <target>Register</target>
-      </trans-unit>
-      <trans-unit id="labelForgotPassword" resname="label.forgot_password">
-        <source>label.forgot_password</source>
-        <target>Forgot password?</target>
-      </trans-unit>
-      <trans-unit id="labelAlreadyHaveAccount" resname="label.already_have_account">
-        <source>label.already_have_account</source>
-        <target>Already have an account?</target>
-      </trans-unit>
-      <trans-unit id="labelSendResetEmail" resname="label.send_reset_email">
-        <source>label.send_reset_email</source>
-        <target>Send reset email</target>
-      </trans-unit>
-      <trans-unit id="labelTryAgain" resname="label.try_again">
-        <source>label.try_again</source>
-        <target>Try again</target>
-      </trans-unit>
-      <trans-unit id="labelSaveNewPassword" resname="label.save_new_password">
-        <source>label.save_new_password</source>
-        <target>Save new password</target>
-      </trans-unit>
-      <trans-unit id="labelBack" resname="label.back">
-        <source>label.back</source>
-        <target>Back</target>
-      </trans-unit>
-      <trans-unit id="labelUsername" resname="label.username">
-        <source>label.username</source>
-        <target>Username</target>
-      </trans-unit>
-      <trans-unit id="labelEmail" resname="label.email">
-        <source>label.email</source>
-        <target>Email</target>
-      </trans-unit>
-      <trans-unit id="labelEmailAddress" resname="label.email_address">
-        <source>label.email_address</source>
-        <target>Email address</target>
-      </trans-unit>
-      <trans-unit id="labelPassword" resname="label.password">
-        <source>label.password</source>
-        <target>Password</target>
-      </trans-unit>
-      <trans-unit id="labelVerified" resname="label.verified">
-        <source>label.verified</source>
-        <target>verified</target>
-      </trans-unit>
-      <trans-unit id="labelNotVerified" resname="label.not_verified">
-        <source>label.not_verified</source>
-        <target>not verified</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsMyAccount" resname="label.settings.my_account">
-        <source>label.settings.my_account</source>
-        <target>My Account</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsProfileDetails" resname="label.settings.profile_details">
-        <source>label.settings.profile_details</source>
-        <target>Profile Details</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsChangeEmail" resname="label.settings.change_email">
-        <source>label.settings.change_email</source>
-        <target>Change email</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsSaveEmail" resname="label.settings.save_email">
-        <source>label.settings.save_email</source>
-        <target>Save email</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsSavePassword" resname="label.settings.save_password">
-        <source>label.settings.save_password</source>
-        <target>Save password</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsSetNewPassword" resname="label.settings.set_new_password">
-        <source>label.settings.set_new_password</source>
-        <target>Set new password</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsVerificationStatus" resname="label.settings.verification_status">
-        <source>label.settings.verification_status</source>
-        <target>Verification status:</target>
-      </trans-unit>
-      <trans-unit id="labelSettingsResendVerification" resname="label.settings.resend_verification">
-        <source>label.settings.resend_verification</source>
-        <target>Resend verification email</target>
-      </trans-unit>
-      <trans-unit id="textSettingsIntro" resname="text.settings.account_intro">
-        <source>text.settings.account_intro</source>
-        <target>Manage your account profile, email, and password.</target>
-      </trans-unit>
-      <trans-unit id="textResetIntro" resname="text.reset_password.check_email_intro">
-        <source>text.reset_password.check_email_intro</source>
-        <target>If your account exists and your email is verified, a password reset link was sent.</target>
-      </trans-unit>
-      <trans-unit id="textResetExpiresIn" resname="text.reset_password.expires_in">
-        <source>text.reset_password.expires_in</source>
-        <target>The link expires in</target>
-      </trans-unit>
-      <trans-unit id="textResetNoEmail" resname="text.reset_password.no_email">
-        <source>text.reset_password.no_email</source>
-        <target>Didn't receive an email?</target>
-      </trans-unit>
-      <trans-unit id="helpSettingsUsernameFixed" resname="help.settings.username_fixed">
-        <source>help.settings.username_fixed</source>
-        <target>Username is fixed and cannot be changed.</target>
-      </trans-unit>
-      <trans-unit id="flashInvalidCsrf" resname="flash.security.invalid_csrf">
-        <source>flash.security.invalid_csrf</source>
-        <target>Invalid CSRF token.</target>
-      </trans-unit>
-      <trans-unit id="flashRegSuccess" resname="flash.registration.success_verify_required">
-        <source>flash.registration.success_verify_required</source>
-        <target>Registration successful. Please verify your email address.</target>
-      </trans-unit>
-      <trans-unit id="flashRegLoggedInHint" resname="flash.registration.logged_in_verify_hint">
-        <source>flash.registration.logged_in_verify_hint</source>
-        <target>You are now signed in. Please verify your email address to unlock all account features.</target>
-      </trans-unit>
-      <trans-unit id="flashRegMissingId" resname="flash.registration.verify.missing_id">
-        <source>flash.registration.verify.missing_id</source>
-        <target>Missing verification id.</target>
-      </trans-unit>
-      <trans-unit id="flashRegUserNotFound" resname="flash.registration.verify.user_not_found">
-        <source>flash.registration.verify.user_not_found</source>
-        <target>User not found.</target>
-      </trans-unit>
-      <trans-unit id="flashRegVerified" resname="flash.registration.verify.success">
-        <source>flash.registration.verify.success</source>
-        <target>Your email address has been verified.</target>
-      </trans-unit>
-      <trans-unit id="flashResetValidationFailed" resname="flash.reset_password.validation_failed">
-        <source>flash.reset_password.validation_failed</source>
-        <target>There was a problem validating your reset request.</target>
-      </trans-unit>
-      <trans-unit id="flashResetChanged" resname="flash.reset_password.changed">
-        <source>flash.reset_password.changed</source>
-        <target>Your password has been changed.</target>
-      </trans-unit>
-      <trans-unit id="flashSettingsEmailAlreadyVerified" resname="flash.settings.email.already_verified">
-        <source>flash.settings.email.already_verified</source>
-        <target>Your email is already verified.</target>
-      </trans-unit>
-      <trans-unit id="flashSettingsEmailRateLimited" resname="flash.settings.email.resend_rate_limited">
-        <source>flash.settings.email.resend_rate_limited</source>
-        <target>Please wait before requesting another verification email.</target>
-      </trans-unit>
-      <trans-unit id="flashSettingsEmailResent" resname="flash.settings.email.verification_resent">
-        <source>flash.settings.email.verification_resent</source>
-        <target>Verification email sent.</target>
-      </trans-unit>
-      <trans-unit id="flashSettingsEmailUpdated" resname="flash.settings.email.updated_verify_required">
-        <source>flash.settings.email.updated_verify_required</source>
-        <target>Email address updated. Please verify your new email.</target>
-      </trans-unit>
-      <trans-unit id="flashSettingsPwdInvalid" resname="flash.settings.password.current_invalid">
-        <source>flash.settings.password.current_invalid</source>
-        <target>Current password is invalid.</target>
-      </trans-unit>
-      <trans-unit id="flashSettingsPwdUpdated" resname="flash.settings.password.updated">
-        <source>flash.settings.password.updated</source>
-        <target>Password updated.</target>
       </trans-unit>
     </body>
   </file>

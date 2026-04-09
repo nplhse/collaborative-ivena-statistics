@@ -1,0 +1,72 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}Meine Kliniken - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.hospitals.my' }
+            ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.hospitals.my'|trans }}</h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ hospitals|length }} {{ 'label.hospital'|trans }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                    <tr>
+                        <th>{{ 'label.name'|trans }}</th>
+                        <th>{{ 'label.dispatch_area'|trans }}</th>
+                        <th>{{ 'label.state'|trans }}</th>
+                        <th>{{ 'label.location'|trans }}</th>
+                        <th>{{ 'label.tier'|trans }}</th>
+                        <th>{{ 'label.size'|trans }}</th>
+                        <th class="w-1"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% import '@Shared/_macros/badges.html.twig' as badges %}
+                    {% for hospital in hospitals %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('app_explore_hospital_show', {id: hospital.id}) }}">
+                                    {{ hospital.name }}
+                                </a>
+                            </td>
+                            <td>{{ hospital.dispatchArea }}</td>
+                            <td>{{ hospital.state }}</td>
+                            <td>{{ badges.render('hospital_location', hospital.location.value) }}</td>
+                            <td>{% if hospital.tier %}{{ badges.render('hospital_tier', hospital.tier.value) }}{% endif %}</td>
+                            <td>{{ badges.render('hospital_size', hospital.size.value, hospital.beds) }}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
+                                    {{ 'label.edit'|trans }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                {{ 'help.no_hospitals_assigned'|trans }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+{% endblock %}
