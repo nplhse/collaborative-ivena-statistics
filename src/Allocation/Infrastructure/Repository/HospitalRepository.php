@@ -51,6 +51,23 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->setParameter('user', $user->getId());
     }
 
+    /**
+     * @return list<Hospital>
+     */
+    public function findOwnedByUser(User $user): array
+    {
+        /** @var list<Hospital> $hospitals */
+        $hospitals = $this->createQueryBuilder('h')
+            ->innerJoin('h.owner', 'o')
+            ->andWhere('o = :user')
+            ->setParameter('user', $user->getId())
+            ->orderBy('h.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $hospitals;
+    }
+
     public function getHospitalListPaginator(HospitalQueryParametersDTO $queryParametersDTO): Paginator
     {
         $qb = $this->createQueryBuilder('h')

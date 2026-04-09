@@ -65,11 +65,13 @@ final class UserCrudController extends AbstractCrudController
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => 'ROLE_ADMIN',
+                'Participant' => 'ROLE_PARTICIPANT',
                 'User' => 'ROLE_USER',
             ])
             ->allowMultipleChoices()
             ->renderAsBadges([
                 'ROLE_ADMIN' => 'danger',
+                'ROLE_PARTICIPANT' => 'warning',
                 'ROLE_USER' => 'primary',
             ]);
         yield TextField::new('password')
