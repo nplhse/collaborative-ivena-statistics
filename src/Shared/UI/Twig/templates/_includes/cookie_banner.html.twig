@@ -1,0 +1,36 @@
+<div
+    id="cookie-consent-banner"
+    class="offcanvas offcanvas-bottom h-auto d-none"
+    tabindex="-1"
+    data-cookie-consent-banner
+    data-cookie-consent-current-url="{{ path('app_cookie_consent_current') }}"
+    data-cookie-consent-update-url="{{ path('app_cookie_consent_update') }}"
+    data-cookie-consent-preferences-url="{{ path('app_cookie_preferences') }}"
+    data-cookie-consent-token="{{ csrf_token('cookie_consent') }}"
+>
+    <div class="offcanvas-body">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col">
+                    <strong><span aria-hidden="true">🍪</span> {{ 'cookie.banner.title'|trans }}</strong> {{ 'cookie.banner.text'|trans }}
+                    <a href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.learn_more'|trans }}</a>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <button type="button" class="btn btn-primary" data-cookie-consent-action="essential">
+                        {{ 'cookie.banner.essential_only'|trans }}
+                    </button>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <button type="button" class="btn btn-primary" data-cookie-consent-action="all">
+                        {{ 'cookie.banner.accept_all'|trans }}
+                    </button>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <a class="btn btn-outline-secondary" href="{{ path('app_cookie_preferences') }}">
+                        {{ 'cookie.banner.settings'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

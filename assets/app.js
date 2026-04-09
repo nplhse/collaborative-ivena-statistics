@@ -10,3 +10,12 @@ import './styles/app.css'
 
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core'
+import { initCookieConsent } from './cookie-consent.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    void initCookieConsent();
+});
+
+document.addEventListener('turbo:load', () => {
+    void initCookieConsent();
+});
