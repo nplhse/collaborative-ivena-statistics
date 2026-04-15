@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Functional\Controller;
 
+use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Browser\Test\HasBrowser;
@@ -12,6 +13,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 final class SettingsControllerTest extends WebTestCase
 {
+    use CookieConsentTestHelper;
     use Factories;
     use HasBrowser;
     use ResetDatabase;
@@ -24,12 +26,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'settings-user',
         ])->create();
 
-        $this->browser()
-            ->visit('/login')
-            ->fillField('Username', 'settings-user')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
+        $this->loginWithConsent($this->browser(), 'settings-user')
             ->visit('/settings')
             ->assertSuccessful()
             ->assertSee('Account Settings')
@@ -44,12 +41,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'unverified-settings-user',
         ])->create();
 
-        $this->browser()
-            ->visit('/login')
-            ->fillField('Username', 'unverified-settings-user')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
+        $this->loginWithConsent($this->browser(), 'unverified-settings-user')
             ->visit('/settings')
             ->assertSuccessful()
             ->assertSee('Resend verification email')
@@ -68,12 +60,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => $username,
         ])->create();
 
-        $browser = $this->browser()
-            ->visit('/login')
-            ->fillField('Username', $username)
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
+        $browser = $this->loginWithConsent($this->browser(), $username)
             ->visit('/settings')
             ->assertSuccessful()
         ;
@@ -92,12 +79,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'email-page-user',
         ])->create();
 
-        $this->browser()
-            ->visit('/login')
-            ->fillField('Username', 'email-page-user')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
+        $this->loginWithConsent($this->browser(), 'email-page-user')
             ->visit('/settings/email')
             ->assertSuccessful()
             ->assertSee('Change email')
@@ -112,12 +94,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'pwd-page-user',
         ])->create();
 
-        $this->browser()
-            ->visit('/login')
-            ->fillField('Username', 'pwd-page-user')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
+        $this->loginWithConsent($this->browser(), 'pwd-page-user')
             ->visit('/settings/password')
             ->assertSuccessful()
             ->assertSee('Change password')
@@ -132,12 +109,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'pwd-wrong-user',
         ])->create();
 
-        $this->browser()
-            ->visit('/login')
-            ->fillField('Username', 'pwd-wrong-user')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
+        $this->loginWithConsent($this->browser(), 'pwd-wrong-user')
             ->visit('/settings/password')
             ->fillField('Current password', 'not-the-real-password')
             ->fillField('New password', 'newpass-123456')
