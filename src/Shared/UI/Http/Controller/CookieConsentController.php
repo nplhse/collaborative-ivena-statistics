@@ -7,7 +7,6 @@ namespace App\Shared\UI\Http\Controller;
 use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,45 +19,37 @@ final class CookieConsentController extends AbstractController
     ) {
     }
 
-    #[Route('/cookies/consent/current', name: 'app_cookie_consent_current', methods: ['GET'])]
-    public function current(Request $request): JsonResponse
+    #[Route('/cookies/banner', name: 'app_cookie_banner', methods: ['POST'])]
+    public function banner(Request $request): RedirectResponse
     {
-        $consent = $this->cookieConsentService->getOrCreateForRequest($request, $this->currentUser());
-
-        $response = $this->json($this->normalize($consent));
-        $response->headers->setCookie($this->cookieConsentService->buildSubjectCookie($request, $consent));
-
-        return $response;
-    }
-
-    #[Route('/cookies/consent/update', name: 'app_cookie_consent_update', methods: ['POST'])]
-    public function update(Request $request): JsonResponse
-    {
-        if (!$this->isCsrfTokenValid('cookie_consent', (string) $request->request->get('_token'))) {
-            return $this->json(['error' => 'invalid_csrf'], Response::HTTP_FORBIDDEN);
+        $payload = $request->request->all();
+        $submitted = $payload['cookie_consent_banner'] ?? null;
+        if (!\is_array($submitted)) {
+            return $this->redirectToRoute('app_default');
         }
 
-        $consent = $this->cookieConsentService->getOrCreateForRequest($request, $this->currentUser());
-        $monitoring = filter_var($request->request->get('monitoring'), FILTER_VALIDATE_BOOL);
-        $this->cookieConsentService->applyPreference($consent, $monitoring);
+        if (!$this->isCsrfTokenValid('cookie_consent_banner', (string) ($submitted['_token'] ?? ''))) {
+            return $this->redirectToRoute('app_default');
+        }
 
-        $response = $this->json($this->normalize($consent));
-        $response->headers->setCookie($this->cookieConsentService->buildSubjectCookie($request, $consent));
+        $monitoring = \array_key_exists('all', $submitted);
 
-        return $response;
+        $consent = $this->cookieConsentService->resolveForRequest($request, $this->currentUser());
+        $this->cookieConsentService->applyPreference($consent, $monitoring, $this->currentUser());
+
+        $target = $this->resolveSafeLocalPath((string) ($submitted['target'] ?? '/'));
+
+        return $this->redirect($target);
     }
 
     #[Route('/cookies/preferences', name: 'app_cookie_preferences', methods: ['GET'])]
     public function preferences(Request $request): Response
     {
-        $consent = $this->cookieConsentService->getOrCreateForRequest($request, $this->currentUser());
+        $consent = $this->cookieConsentService->resolveForRequest($request, $this->currentUser());
 
-        $response = $this->render('@Shared/cookies/preferences.html.twig', [
-            'consent' => $this->normalize($consent),
+        return $this->render('@Shared/cookies/preferences.html.twig', [
+            'consent' => $this->cookieConsentService->describe($consent),
         ]);
-        $response->headers->setCookie($this->cookieConsentService->buildSubjectCookie($request, $consent));
-
-        return $response;
     }
 
     #[Route('/cookies/preferences', name: 'app_cookie_preferences_save', methods: ['POST'])]
@@ -68,31 +59,22 @@ final class CookieConsentController extends AbstractController
             throw $this->createAccessDeniedException('flash.security.invalid_csrf');
         }
 
-        $consent = $this->cookieConsentService->getOrCreateForRequest($request, $this->currentUser());
-        $monitoring = filter_var($request->request->get('monitoring'), FILTER_VALIDATE_BOOL);
-        $this->cookieConsentService->applyPreference($consent, $monitoring);
+        $consent = $this->cookieConsentService->resolveForRequest($request, $this->currentUser());
+        $monitoring = $request->request->has('monitoring');
+        $this->cookieConsentService->applyPreference($consent, $monitoring, $this->currentUser());
         $this->addFlash('success', 'flash.cookies.updated');
 
-        $response = $this->redirectToRoute('app_cookie_preferences');
-        $response->headers->setCookie($this->cookieConsentService->buildSubjectCookie($request, $consent));
-
-        return $response;
+        return $this->redirectToRoute('app_cookie_preferences');
     }
 
-    /**
-     * @return array{
-     *   decided: bool,
-     *   preferences: array{essential: bool, monitoring: bool},
-     *   consentVersion: string
-     * }
-     */
-    private function normalize(\App\Shared\Domain\Entity\CookieConsent $consent): array
+    private function resolveSafeLocalPath(string $target): string
     {
-        return [
-            'decided' => $consent->getDecidedAt() instanceof \DateTimeImmutable,
-            'preferences' => $consent->getPreferences(),
-            'consentVersion' => $consent->getConsentVersion(),
-        ];
+        $target = trim($target);
+        if ('' === $target || !str_starts_with($target, '/') || str_starts_with($target, '//')) {
+            return '/';
+        }
+
+        return $target;
     }
 
     private function currentUser(): ?User

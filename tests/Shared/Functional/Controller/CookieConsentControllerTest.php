@@ -5,75 +5,73 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Functional\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 
 final class CookieConsentControllerTest extends WebTestCase
 {
-    public function testCurrentReturnsJsonAndSetsSubjectCookie(): void
+    public function testHomeSetsSubjectCookieAndShowsBannerForm(): void
     {
         $client = self::createClient();
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/cookies/consent/current');
+        $crawler = $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertResponseFormatSame('json');
-        $data = json_decode($client->getResponse()->getContent(), true);
-        self::assertIsArray($data);
-        self::assertArrayHasKey('decided', $data);
-        self::assertFalse($data['decided']);
-        self::assertArrayHasKey('preferences', $data);
-        self::assertFalse($data['preferences']['monitoring']);
-        self::assertTrue($data['preferences']['essential']);
-
         self::assertTrue($client->getResponse()->headers->has('Set-Cookie'));
         $cookies = $client->getResponse()->headers->all('Set-Cookie');
-        self::assertNotEmpty($cookies);
         self::assertTrue(
             array_any($cookies, static fn (string $c): bool => str_contains($c, 'consent_subject_id='))
         );
+
+        self::assertGreaterThan(0, $crawler->filter('form[action="/cookies/banner"]')->count());
+        self::assertGreaterThan(0, $crawler->filter('input[name="cookie_consent_banner[_token]"]')->count());
     }
 
-    public function testUpdateRejectsInvalidCsrf(): void
+    public function testBannerPostAcceptAllPersistsMonitoring(): void
     {
         $client = self::createClient();
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/cookies/consent/current');
+        $crawler = $client->request(Request::METHOD_GET, '/');
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_POST, '/cookies/consent/update', [
-            '_token' => 'invalid',
-            'monitoring' => '1',
-        ]);
-
-        self::assertResponseStatusCodeSame(403);
-    }
-
-    public function testUpdateWithValidCsrfSetsMonitoringAndDecided(): void
-    {
-        $client = self::createClient();
-
-        $crawler = $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/cookies/preferences');
         self::assertResponseIsSuccessful();
-        $token = $crawler->filter('input[name="_token"]')->first()->attr('value');
+        $token = $crawler->filter('input[name="cookie_consent_banner[_token]"]')->first()->attr('value');
         self::assertIsString($token);
         self::assertNotSame('', $token);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/cookies/consent/current');
-
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_POST, '/cookies/consent/update', [
-            '_token' => $token,
-            'monitoring' => '1',
+        $client->request(Request::METHOD_POST, '/cookies/banner', [
+            'cookie_consent_banner' => [
+                '_token' => $token,
+                'target' => '/',
+                'all' => '',
+            ],
         ]);
 
+        self::assertResponseRedirects('/');
+        $crawlerAfter = $client->followRedirect();
         self::assertResponseIsSuccessful();
-        $data = json_decode($client->getResponse()->getContent(), true);
-        self::assertIsArray($data);
-        self::assertTrue($data['decided']);
-        self::assertTrue($data['preferences']['monitoring']);
+        self::assertCount(0, $crawlerAfter->filter('form[action="/cookies/banner"]'));
     }
 
     public function testPreferencesPageIsReachable(): void
     {
         $client = self::createClient();
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/cookies/preferences');
+        $client->request(Request::METHOD_GET, '/cookies/preferences');
 
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('Cookie preferences', $client->getResponse()->getContent());
+    }
+
+    public function testSavePreferencesWithValidCsrfUpdatesConsent(): void
+    {
+        $client = self::createClient();
+        $crawler = $client->request(Request::METHOD_GET, '/cookies/preferences');
+
+        self::assertResponseIsSuccessful();
+        $token = $crawler->filter('input[name="_token"]')->first()->attr('value');
+        self::assertIsString($token);
+
+        $client->request(Request::METHOD_POST, '/cookies/preferences', [
+            '_token' => $token,
+            'monitoring' => '1',
+        ]);
+
+        self::assertResponseRedirects('/cookies/preferences');
     }
 }

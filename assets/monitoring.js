@@ -11,3 +11,5 @@ export function initMonitoring() {
     // is intentionally isolated here and only loaded after consent.
     window.dispatchEvent(new CustomEvent('monitoring:enabled'));
 }
+
+void initMonitoring();

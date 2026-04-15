@@ -20,33 +20,56 @@ final readonly class CookieConsentService
     ) {
     }
 
-    public function getOrCreateForRequest(Request $request, ?User $user): CookieConsent
+    public function resolveForRequest(Request $request, ?User $user): CookieConsent
     {
         $subjectId = $this->resolveSubjectId($request);
-        $consent = $this->repository->findOneBySubjectId($subjectId);
+        $request->attributes->set('cookie_consent_subject_id', $subjectId);
 
-        if (!$consent instanceof CookieConsent) {
-            $consent = new CookieConsent($subjectId);
+        $consent = $this->repository->findOneBySubjectId($subjectId);
+        if ($consent instanceof CookieConsent) {
+            return $consent;
         }
 
-        if ($user instanceof User && $consent->getUser() !== $user) {
+        $consent = new CookieConsent($subjectId);
+        if ($user instanceof User) {
             $consent->setUser($user);
         }
-
-        $this->repository->save($consent);
 
         return $consent;
     }
 
-    public function applyPreference(CookieConsent $consent, bool $monitoring): void
+    public function applyPreference(CookieConsent $consent, bool $monitoring, ?User $user): void
     {
+        if ($user instanceof User) {
+            $consent->setUser($user);
+        }
         $consent->setMonitoringConsent($monitoring);
         $this->repository->save($consent);
     }
 
+    public function attachUser(CookieConsent $consent, User $user): void
+    {
+        if (!$consent->getDecidedAt() instanceof \DateTimeImmutable) {
+            return;
+        }
+
+        if ($consent->getUser()?->getId() === $user->getId()) {
+            return;
+        }
+
+        $consent->setUser($user);
+        $this->repository->save($consent);
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function buildSubjectCookie(Request $request, CookieConsent $consent): Cookie
     {
-        return Cookie::create(self::SUBJECT_COOKIE_NAME, $consent->getSubjectId())
+        return $this->buildSubjectCookieForSubjectId($request, $consent->getSubjectId());
+    }
+
+    public function buildSubjectCookieForSubjectId(Request $request, string $subjectId): Cookie
+    {
+        return Cookie::create(self::SUBJECT_COOKIE_NAME, $subjectId)
             ->withPath('/')
             ->withSecure($request->isSecure())
             ->withHttpOnly(true)
@@ -54,11 +77,27 @@ final readonly class CookieConsentService
             ->withExpires(new \DateTimeImmutable('+1 year'));
     }
 
+    /**
+     * @return array{
+     *   decided: bool,
+     *   preferences: array{essential: bool, monitoring: bool},
+     *   consentVersion: string
+     * }
+     */
+    public function describe(CookieConsent $consent): array
+    {
+        return [
+            'decided' => $consent->getDecidedAt() instanceof \DateTimeImmutable,
+            'preferences' => $consent->getPreferences(),
+            'consentVersion' => $consent->getConsentVersion(),
+        ];
+    }
+
     private function resolveSubjectId(Request $request): string
     {
         $cookieValue = $request->cookies->get(self::SUBJECT_COOKIE_NAME);
         if (\is_string($cookieValue) && '' !== trim($cookieValue)) {
-            return $cookieValue;
+            return trim($cookieValue);
         }
 
         return bin2hex(random_bytes(16));

@@ -1,3 +1,5 @@
+{% set cookie_consent = app.request.attributes.get('cookie_consent') %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +13,13 @@
     {% endblock %}
 
     {% block javascripts %}
-        {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% block importmap %}
+            {{ importmap('app') }}
+
+            {% if cookie_consent is not null and cookie_consent.preferences.monitoring|default(false) %}
+                {{ importmap('monitoring') }}
+            {% endif %}
+        {% endblock %}
     {% endblock %}
 </head>
 <body {% block turbo_drive %}{% endblock %}>
@@ -32,6 +40,8 @@
         </div>
     {% endblock %}
 {% endblock %}
-{{ include('@Shared/_includes/cookie_banner.html.twig') }}
+{% if cookie_consent is not null and not cookie_consent.decided %}
+    {{ include('@Shared/_includes/cookie_banner.html.twig') }}
+{% endif %}
 </body>
 </html>
