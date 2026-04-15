@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\UI\Http\Controller;
 
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\Infrastructure\Security\LoginFormAuthenticator;
@@ -29,6 +30,7 @@ final class RegistrationController extends AbstractController
         private readonly UserAuthenticatorInterface $userAuthenticator,
         private readonly LoginFormAuthenticator $loginFormAuthenticator,
         private readonly AuditContext $auditContext,
+        private readonly CookieConsentService $cookieConsentService,
     ) {
     }
 
@@ -68,6 +70,11 @@ final class RegistrationController extends AbstractController
 
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
             $this->addFlash('success', 'flash.registration.success_verify_required');
+
+            $consent = $this->cookieConsentService->resolveForRequest($request, $user);
+            if (!$consent->getDecidedAt() instanceof \DateTimeImmutable) {
+                return $this->redirectToRoute('app_login', ['showConsentHint' => '0']);
+            }
 
             $authenticatedResponse = $this->userAuthenticator->authenticateUser($user, $this->loginFormAuthenticator, $request);
 

@@ -1,0 +1,34 @@
+{% set mode = field.formattedValue %}
+
+{% if mode == 'monitoring_enabled' %}
+    <span
+        class="badge bg-green-lt text-green-fg"
+        title="{{ 'label.admin.cookies.monitoring_enabled'|trans }}"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        aria-label="{{ 'label.admin.cookies.monitoring_enabled'|trans }}"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-line me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M4 19l16 0" />
+            <path d="M4 15l4 -6l4 2l4 -5l4 4" />
+        </svg>
+        {{ 'label.admin.cookies.monitoring_enabled'|trans }}
+    </span>
+{% else %}
+    <span
+        class="badge bg-secondary-lt text-secondary-fg"
+        title="{{ 'label.admin.cookies.essential_only'|trans }}"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        aria-label="{{ 'label.admin.cookies.essential_only'|trans }}"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shield-lock me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 3l8 4v5c0 5.25 -3.5 9.74 -8 11c-4.5 -1.26 -8 -5.75 -8 -11v-5l8 -4z" />
+            <path d="M10 12m0 1a2 2 0 0 0 4 0a2 2 0 0 0 -4 0" />
+            <path d="M12 14l0 2" />
+        </svg>
+        {{ 'label.admin.cookies.essential_only'|trans }}
+    </span>
+{% endif %}

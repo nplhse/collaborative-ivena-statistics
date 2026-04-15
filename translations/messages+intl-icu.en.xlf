@@ -57,6 +57,66 @@
         <source>btn.save.changes</source>
         <target>Save changes</target>
       </trans-unit>
+      <trans-unit id="qLSIn.8" resname="cookie.banner.accept_all">
+        <source>cookie.banner.accept_all</source>
+        <target>Allow All Cookies</target>
+      </trans-unit>
+      <trans-unit id="aDNOOux" resname="cookie.banner.essential_only">
+        <source>cookie.banner.essential_only</source>
+        <target>Essential Cookies Only</target>
+      </trans-unit>
+      <trans-unit id="C6FAVZx" resname="cookie.banner.learn_more">
+        <source>cookie.banner.learn_more</source>
+        <target>Learn more</target>
+      </trans-unit>
+      <trans-unit id="Bgkm67w" resname="cookie.banner.settings">
+        <source>cookie.banner.settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="w0UG6MC" resname="cookie.banner.text">
+        <source>cookie.banner.text</source>
+        <target>We use essential cookies to run this app and optional monitoring cookies to improve reliability.</target>
+      </trans-unit>
+      <trans-unit id="1r7OhrC" resname="cookie.banner.title">
+        <source>cookie.banner.title</source>
+        <target>Do you like cookies?</target>
+      </trans-unit>
+      <trans-unit id="D2QXA0x" resname="cookie.preferences.categories">
+        <source>cookie.preferences.categories</source>
+        <target>Cookie categories</target>
+      </trans-unit>
+      <trans-unit id="c8IhNc0" resname="cookie.preferences.essential.text">
+        <source>cookie.preferences.essential.text</source>
+        <target>Required for authentication, security and core functionality. This category is always active.</target>
+      </trans-unit>
+      <trans-unit id="5a0.6q5" resname="cookie.preferences.essential.title">
+        <source>cookie.preferences.essential.title</source>
+        <target>Essential cookies</target>
+      </trans-unit>
+      <trans-unit id="tFESRQ5" resname="cookie.preferences.intro">
+        <source>cookie.preferences.intro</source>
+        <target>Choose which optional cookie categories may be used.</target>
+      </trans-unit>
+      <trans-unit id="qP7Ku6G" resname="cookie.preferences.monitoring.provider_hint">
+        <source>cookie.preferences.monitoring.provider_hint</source>
+        <target>Currently this category uses Sentry for application and error monitoring.</target>
+      </trans-unit>
+      <trans-unit id="k2tpZJh" resname="cookie.preferences.monitoring.text">
+        <source>cookie.preferences.monitoring.text</source>
+        <target>Helps us monitor application stability and error rates.</target>
+      </trans-unit>
+      <trans-unit id="qJ7ToIK" resname="cookie.preferences.monitoring.title">
+        <source>cookie.preferences.monitoring.title</source>
+        <target>Monitoring cookies</target>
+      </trans-unit>
+      <trans-unit id="I21gDqr" resname="cookie.preferences.save">
+        <source>cookie.preferences.save</source>
+        <target>Save cookie preferences</target>
+      </trans-unit>
+      <trans-unit id="e4KvqAC" resname="cookie.preferences.title">
+        <source>cookie.preferences.title</source>
+        <target>Cookie preferences</target>
+      </trans-unit>
       <trans-unit id="EiKSkqu" resname="field.age">
         <source>field.age</source>
         <target>Age</target>
@@ -129,6 +189,10 @@
         <source>field.urgency</source>
         <target>Urgency</target>
       </trans-unit>
+      <trans-unit id="S0Cv.FB" resname="flash.cookies.updated">
+        <source>flash.cookies.updated</source>
+        <target>Cookie preferences updated.</target>
+      </trans-unit>
       <trans-unit id="yamfE2Q" resname="flash.hospital.updated">
         <source>flash.hospital.updated</source>
         <target>Hospital updated.</target>
@@ -172,6 +236,10 @@
       <trans-unit id="RS3d7CX" resname="flash.security.invalid_csrf">
         <source>flash.security.invalid_csrf</source>
         <target>Invalid CSRF token.</target>
+      </trans-unit>
+      <trans-unit id="zqI8KJ2" resname="flash.security.cookie_consent_required">
+        <source>flash.security.cookie_consent_required</source>
+        <target>Please confirm your cookie settings before signing in.</target>
       </trans-unit>
       <trans-unit id="yPy4.0U" resname="flash.settings.email.already_verified">
         <source>flash.settings.email.already_verified</source>
@@ -332,6 +400,14 @@
       <trans-unit id="DRh87f8" resname="label.address.street">
         <source>label.address.street</source>
         <target>Street</target>
+      </trans-unit>
+      <trans-unit id="6ALJXj1" resname="label.admin.cookies.essential_only">
+        <source>label.admin.cookies.essential_only</source>
+        <target>Essential only</target>
+      </trans-unit>
+      <trans-unit id="HTE7ESd" resname="label.admin.cookies.monitoring_enabled">
+        <source>label.admin.cookies.monitoring_enabled</source>
+        <target>Monitoring enabled</target>
       </trans-unit>
       <trans-unit id="dnzVgba" resname="label.age">
         <source>label.age</source>
@@ -960,6 +1036,10 @@
       <trans-unit id="DPbhibY" resname="link.assignments">
         <source>link.assignments</source>
         <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="emRWlOT" resname="link.cookie_preferences">
+        <source>link.cookie_preferences</source>
+        <target>Cookie settings</target>
       </trans-unit>
       <trans-unit id="AWjlM2g" resname="link.departments">
         <source>link.departments</source>
