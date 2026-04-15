@@ -19,7 +19,7 @@ final class CookieConsentServiceTest extends KernelTestCase
     use Factories;
     use ResetDatabase;
 
-    public function testGetOrCreatePersistsRowForAnonymousSubject(): void
+    public function testResolveDoesNotPersistAnonymousSubjectUntilApply(): void
     {
         self::bootKernel();
 
@@ -28,16 +28,13 @@ final class CookieConsentServiceTest extends KernelTestCase
 
         $request = Request::create('/');
 
-        $consent = $service->getOrCreateForRequest($request, null);
+        $consent = $service->resolveForRequest($request, null);
 
-        $reloaded = $repository->findOneBySubjectId($consent->getSubjectId());
-
-        self::assertNotNull($reloaded);
-        self::assertSame($consent->getSubjectId(), $reloaded->getSubjectId());
-        self::assertNull($reloaded->getDecidedAt());
+        self::assertNull($consent->getId());
+        self::assertNull($repository->findOneBySubjectId($consent->getSubjectId()));
     }
 
-    public function testGetOrCreateReusesSubjectCookieWhenPresent(): void
+    public function testResolveReusesSubjectCookieWhenPresentWithoutDatabaseRow(): void
     {
         self::bootKernel();
 
@@ -46,14 +43,16 @@ final class CookieConsentServiceTest extends KernelTestCase
         $request = Request::create('/');
         $request->cookies->set(CookieConsentService::SUBJECT_COOKIE_NAME, 'fixed-subject-id-1234567890123456');
 
-        $first = $service->getOrCreateForRequest($request, null);
-        self::assertSame('fixed-subject-id-1234567890123456', $first->getSubjectId());
+        $first = $service->resolveForRequest($request, null);
+        $second = $service->resolveForRequest($request, null);
 
-        $second = $service->getOrCreateForRequest($request, null);
-        self::assertSame($first->getId(), $second->getId());
+        self::assertSame('fixed-subject-id-1234567890123456', $first->getSubjectId());
+        self::assertSame('fixed-subject-id-1234567890123456', $second->getSubjectId());
+        self::assertNull($first->getId());
+        self::assertNull($second->getId());
     }
 
-    public function testGetOrCreateAssociatesLoggedInUser(): void
+    public function testApplyPreferenceAfterResolveAssociatesLoggedInUser(): void
     {
         self::bootKernel();
 
@@ -65,13 +64,17 @@ final class CookieConsentServiceTest extends KernelTestCase
         self::assertInstanceOf(User::class, $user);
 
         $service = self::getContainer()->get(CookieConsentService::class);
+        $repository = self::getContainer()->get(CookieConsentRepository::class);
 
         $request = Request::create('/');
 
-        $consent = $service->getOrCreateForRequest($request, $user);
+        $consent = $service->resolveForRequest($request, $user);
+        $service->applyPreference($consent, false, $user);
 
-        self::assertNotNull($consent->getUser());
-        self::assertSame($user->getId(), $consent->getUser()->getId());
+        $reloaded = $repository->findOneBySubjectId($consent->getSubjectId());
+        self::assertNotNull($reloaded);
+        self::assertNotNull($reloaded->getUser());
+        self::assertSame($user->getId(), $reloaded->getUser()->getId());
     }
 
     public function testApplyPreferencePersistsMonitoringFlag(): void
@@ -82,13 +85,46 @@ final class CookieConsentServiceTest extends KernelTestCase
         $repository = self::getContainer()->get(CookieConsentRepository::class);
 
         $request = Request::create('/');
-        $consent = $service->getOrCreateForRequest($request, null);
+        $consent = $service->resolveForRequest($request, null);
 
-        $service->applyPreference($consent, true);
+        $service->applyPreference($consent, true, null);
 
         $reloaded = $repository->findOneBySubjectId($consent->getSubjectId());
         self::assertNotNull($reloaded);
         self::assertTrue($reloaded->getPreferences()['monitoring']);
         self::assertInstanceOf(\DateTimeImmutable::class, $reloaded->getDecidedAt());
+    }
+
+    public function testAttachUserLinksExistingDecidedConsentWithoutChangingPreferences(): void
+    {
+        self::bootKernel();
+
+        $service = self::getContainer()->get(CookieConsentService::class);
+        $repository = self::getContainer()->get(CookieConsentRepository::class);
+
+        $firstUser = UserFactory::createOne([
+            'username' => 'consent-old-'.bin2hex(random_bytes(4)),
+        ]);
+        $secondUser = UserFactory::createOne([
+            'username' => 'consent-new-'.bin2hex(random_bytes(4)),
+        ]);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $oldUser = $entityManager->find(User::class, $firstUser->getId());
+        $newUser = $entityManager->find(User::class, $secondUser->getId());
+        self::assertInstanceOf(User::class, $oldUser);
+        self::assertInstanceOf(User::class, $newUser);
+
+        $request = Request::create('/');
+        $consent = $service->resolveForRequest($request, $oldUser);
+        $service->applyPreference($consent, true, $oldUser);
+
+        $service->attachUser($consent, $newUser);
+
+        $reloaded = $repository->findOneBySubjectId($consent->getSubjectId());
+        self::assertNotNull($reloaded);
+        self::assertNotNull($reloaded->getUser());
+        self::assertSame($newUser->getId(), $reloaded->getUser()->getId());
+        self::assertTrue($reloaded->getPreferences()['monitoring']);
     }
 }

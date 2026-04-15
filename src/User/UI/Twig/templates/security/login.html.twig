@@ -10,7 +10,14 @@
             <h2 class="text-center mb-4">{{ 'title.login'|trans }}</h2>
 
             <form method="post">
-                {% if error %}
+                {% set consentRequiredKey = 'flash.security.cookie_consent_required' %}
+                {% set isConsentError = error and error.messageKey == consentRequiredKey %}
+                {% if isConsentError or (not hasConsentDecision and showConsentHint) %}
+                    <div class="alert {{ isConsentError ? 'alert-danger' : 'alert-warning' }}" role="alert">
+                        {{ consentRequiredKey|trans }}
+                        <a class="alert-link" href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.settings'|trans }}</a>
+                    </div>
+                {% elseif error %}
                     <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                 {% endif %}
 

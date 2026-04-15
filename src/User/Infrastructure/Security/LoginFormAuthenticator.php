@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security;
 
+use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use App\User\UI\Form\LoginType;
 use App\User\UI\Http\DTO\LoginTypeDTO;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\BadgeInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -33,6 +35,7 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly FormFactoryInterface $formFactory,
+        private readonly CookieConsentService $cookieConsentService,
     ) {
     }
 
@@ -44,6 +47,11 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
         /** @var LoginTypeDTO $loginTypeDTO */
         $loginTypeDTO = $form->getData();
+
+        $consent = $this->cookieConsentService->resolveForRequest($request, null);
+        if (!$consent->getDecidedAt() instanceof \DateTimeImmutable) {
+            throw new CustomUserMessageAuthenticationException('flash.security.cookie_consent_required');
+        }
 
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $loginTypeDTO->getUsername());
 
@@ -58,6 +66,11 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
     {
         $user = $token->getUser();
+        if ($user instanceof User) {
+            $consent = $this->cookieConsentService->resolveForRequest($request, $user);
+            $this->cookieConsentService->attachUser($consent, $user);
+        }
+
         if ($user instanceof User && $user->isCredentialsExpired()) {
             return new RedirectResponse($this->urlGenerator->generate('app_force_change_password'));
         }

@@ -237,6 +237,10 @@
         <source>flash.security.invalid_csrf</source>
         <target>Invalid CSRF token.</target>
       </trans-unit>
+      <trans-unit id="zqI8KJ2" resname="flash.security.cookie_consent_required">
+        <source>flash.security.cookie_consent_required</source>
+        <target>Please confirm your cookie settings before signing in.</target>
+      </trans-unit>
       <trans-unit id="yPy4.0U" resname="flash.settings.email.already_verified">
         <source>flash.settings.email.already_verified</source>
         <target>Your email is already verified.</target>
