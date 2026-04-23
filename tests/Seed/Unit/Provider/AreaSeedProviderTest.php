@@ -24,7 +24,6 @@ final class AreaSeedProviderTest extends TestCase
 
         self::assertInstanceOf(State::class, $built[0]);
 
-        /** @var State $firstState */
         $firstState = $built[0];
         self::assertSame('Hessen', $firstState->getName());
         self::assertSame($user, $firstState->getCreatedBy());
