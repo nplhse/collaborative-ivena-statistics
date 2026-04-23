@@ -1,0 +1,130 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+{% block title %}{{ app_blog_title }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'link.blog', path: path('app_blog_index') },
+                { label: list_title, label_params: list_title_params|default({}) }
+            ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ list_title|trans(list_title_params|default({})) }}</h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ 'blog.list.range_of_total'|trans({
+                            first: paginator.firstResultNumber,
+                            last: paginator.lastResultNumber,
+                            total: paginator.numResults,
+                        }) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    {% set routeParams = pagination_route_params|default({})|merge(app.request.query.all) %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <div class="row row-cards">
+                        {% for post in paginator.results %}
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex flex-column gap-2">
+                                            <h2 class="h3 mb-0">
+                                                <a href="{{ path('app_blog_show', {slug: post.slug}) }}">{{ post.title }}</a>
+                                            </h2>
+                                        </div>
+                                        <div class="text-secondary small mb-2 d-flex flex-wrap gap-2">
+                                            <twig:ux:icon name="tabler:clock" class="w-3 h-3" />
+                                            {{ post.publishedAt|date('d.m.Y H:i') }} |
+                                            <twig:ux:icon name="tabler:folder" class="w-3 h-3" />
+                                            <a class="badge bg-blue-lt text-blue-emphasis" href="{{ path('app_blog_category', {slug: post.category.slug}) }}">{{ post.category.name }}</a>
+                                            <span>| <twig:ux:icon name="tabler:user" class="w-3 h-3" /> {{ post.createdBy ?: 'blog.meta.unknown_author'|trans }}</span>
+                                            <span>| {{ 'blog.comments.count'|trans({count: post.comments|length}) }}</span>
+                                        </div>
+                                        <div>
+                                            {% if '</p>' in post.content %}
+                                                {{ (post.content|split('</p>')|first ~ '</p>')|raw }}
+                                            {% else %}
+                                                {% set preview = post.content|striptags %}
+                                                {{ preview|length > 260 ? preview|slice(0, 260) ~ '...' : preview }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="mt-3 d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                            <a class="btn btn-outline-primary btn-sm" href="{{ path('app_blog_show', {slug: post.slug}) }}">
+                                                {{ 'blog.action.read_more'|trans }}
+                                                <twig:ux:icon name="tabler:arrow-right" width="1em" height="1em" class="ms-1" />
+                                            </a>
+                                            {% if post.tags|length > 0 %}
+                                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                                    <twig:ux:icon name="tabler:tags" class="w-3 h-3 text-muted" />
+                                                    {% for tag in post.tags %}
+                                                        <a class="badge bg-azure-lt" href="{{ path('app_blog_tag', {slug: tag.slug}) }}">{{ tag.name }}</a>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12">
+                                <div class="alert alert-secondary mb-0">{{ 'blog.empty.posts'|trans }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12 d-flex align-items-center justify-content-center">
+                            {% if paginator.hasToPaginate %}
+                                <ul class="pagination m-0">
+                                    {% if paginator.hasPreviousPage %}
+                                        <li class="page-item">
+                                            <a class="page-link page-text" href="{{ path(pagination_route, routeParams|merge({page: paginator.previousPage})) }}">
+                                                {{ 'blog.pagination.previous'|trans }}
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.previous'|trans }}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% for i in 1..paginator.lastPage %}
+                                        {% if i == paginator.currentPage %}
+                                            <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                        {% else %}
+                                            <li class="page-item"><a class="page-link" href="{{ path(pagination_route, routeParams|merge({page: i})) }}">{{ i }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if paginator.hasNextPage %}
+                                        <li class="page-item">
+                                            <a class="page-link page-text" href="{{ path(pagination_route, routeParams|merge({page: paginator.nextPage})) }}">
+                                                {{ 'blog.pagination.next'|trans }}
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.next'|trans }}</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    {{ include('@Content/blog/_sidebar.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

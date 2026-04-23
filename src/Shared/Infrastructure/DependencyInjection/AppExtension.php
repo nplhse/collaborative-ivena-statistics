@@ -19,6 +19,8 @@ final class AppExtension extends Extension
         $container->setParameter('app.title', $config['title']);
         $container->setParameter('app.short_title', $config['short_title']);
         $container->setParameter('app.default.locale', $config['default_locale']);
+        $container->setParameter('app.blog.title', $config['blog']['title']);
+        $container->setParameter('app.blog.description', $config['blog']['description']);
 
         // Import settings
         $importConfig = $config['import'];

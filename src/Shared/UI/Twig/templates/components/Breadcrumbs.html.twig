@@ -8,13 +8,13 @@
                             {% if item.icon is defined %}
                                 <twig:ux:icon name="{{ item.icon }}" class="w-3 h-3 me-1" />
                             {% endif %}
-                            {{ item.label|trans }}
+                            {{ item.label|trans(item.label_params|default({})) }}
                         </a>
                     {% else %}
                         {% if item.icon is defined %}
                             <twig:ux:icon name="{{ item.icon }}" class="w-3 h-3 me-1" />
                         {% endif %}
-                        {{ item.label|trans }}
+                        {{ item.label|trans(item.label_params|default({})) }}
                     {% endif %}
                 </li>
             {% endfor %}

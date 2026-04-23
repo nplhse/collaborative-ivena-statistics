@@ -1995,6 +1995,270 @@
         <source>title.stats.overview</source>
         <target>Overview</target>
       </trans-unit>
+      <trans-unit id="blog0001" resname="link.blog">
+        <source>link.blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="blog0002" resname="blog.meta.category">
+        <source>blog.meta.category</source>
+        <target>Category:</target>
+      </trans-unit>
+      <trans-unit id="blog0003" resname="blog.meta.tag">
+        <source>blog.meta.tag</source>
+        <target>Tag:</target>
+      </trans-unit>
+      <trans-unit id="blog0064" resname="blog.meta.author">
+        <source>blog.meta.author</source>
+        <target>Author:</target>
+      </trans-unit>
+      <trans-unit id="blog0065" resname="blog.meta.unknown_author">
+        <source>blog.meta.unknown_author</source>
+        <target>Unknown author</target>
+      </trans-unit>
+      <trans-unit id="blog0066" resname="blog.meta.tags">
+        <source>blog.meta.tags</source>
+        <target>Tags:</target>
+      </trans-unit>
+      <trans-unit id="blog0004" resname="blog.action.read_more">
+        <source>blog.action.read_more</source>
+        <target>Read more</target>
+      </trans-unit>
+      <trans-unit id="blog0005" resname="blog.empty.posts">
+        <source>blog.empty.posts</source>
+        <target>No published posts available yet.</target>
+      </trans-unit>
+      <trans-unit id="blog0006" resname="blog.comments.title">
+        <source>blog.comments.title</source>
+        <target>Comments</target>
+      </trans-unit>
+      <trans-unit id="blog0007" resname="blog.comments.placeholder">
+        <source>blog.comments.placeholder</source>
+        <target>Write a comment...</target>
+      </trans-unit>
+      <trans-unit id="blog0008" resname="blog.comments.submit">
+        <source>blog.comments.submit</source>
+        <target>Post comment</target>
+      </trans-unit>
+      <trans-unit id="blog0009" resname="blog.comments.login_required">
+        <source>blog.comments.login_required</source>
+        <target>Please sign in to leave a comment.</target>
+      </trans-unit>
+      <trans-unit id="blog0010" resname="blog.comments.empty">
+        <source>blog.comments.empty</source>
+        <target>No comments yet.</target>
+      </trans-unit>
+      <trans-unit id="blog0011" resname="blog.comments.reply.toggle">
+        <source>blog.comments.reply.toggle</source>
+        <target>Reply</target>
+      </trans-unit>
+      <trans-unit id="blog0012" resname="blog.comments.reply.placeholder">
+        <source>blog.comments.reply.placeholder</source>
+        <target>Write a reply...</target>
+      </trans-unit>
+      <trans-unit id="blog0013" resname="blog.comments.reply.submit">
+        <source>blog.comments.reply.submit</source>
+        <target>Send reply</target>
+      </trans-unit>
+      <trans-unit id="blog0014" resname="blog.sidebar.latest_posts">
+        <source>blog.sidebar.latest_posts</source>
+        <target>Latest posts</target>
+      </trans-unit>
+      <trans-unit id="blog0015" resname="blog.sidebar.no_latest_posts">
+        <source>blog.sidebar.no_latest_posts</source>
+        <target>No recent posts.</target>
+      </trans-unit>
+      <trans-unit id="blog0016" resname="blog.sidebar.categories">
+        <source>blog.sidebar.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="blog0017" resname="blog.sidebar.no_categories">
+        <source>blog.sidebar.no_categories</source>
+        <target>No categories available.</target>
+      </trans-unit>
+      <trans-unit id="blog0018" resname="blog.sidebar.tags">
+        <source>blog.sidebar.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="blog0019" resname="blog.sidebar.no_tags">
+        <source>blog.sidebar.no_tags</source>
+        <target>No tags available.</target>
+      </trans-unit>
+      <trans-unit id="blog0020" resname="blog.sidebar.links">
+        <source>blog.sidebar.links</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="blog0021" resname="blog.sidebar.rss_feed">
+        <source>blog.sidebar.rss_feed</source>
+        <target>RSS feed</target>
+      </trans-unit>
+      <trans-unit id="blog0022" resname="blog.sidebar.about_title">
+        <source>blog.sidebar.about_title</source>
+        <target>About this blog</target>
+      </trans-unit>
+      <trans-unit id="blog0023" resname="blog.sidebar.about_text">
+        <source>blog.sidebar.about_text</source>
+        <target>This blog shares product updates, release notes and project insights from the Collaborative IVENA Statistics team.</target>
+      </trans-unit>
+      <trans-unit id="blog0024" resname="flash.blog.comment.empty">
+        <source>flash.blog.comment.empty</source>
+        <target>Comment must not be empty.</target>
+      </trans-unit>
+      <trans-unit id="blog0025" resname="flash.blog.comment.created">
+        <source>flash.blog.comment.created</source>
+        <target>Comment saved.</target>
+      </trans-unit>
+      <trans-unit id="blog0026" resname="error.blog.category_not_found">
+        <source>error.blog.category_not_found</source>
+        <target>Category not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0027" resname="error.blog.tag_not_found">
+        <source>error.blog.tag_not_found</source>
+        <target>Tag not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0028" resname="error.blog.post_not_found">
+        <source>error.blog.post_not_found</source>
+        <target>Post not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0029" resname="error.blog.invalid_csrf">
+        <source>error.blog.invalid_csrf</source>
+        <target>Invalid CSRF token.</target>
+      </trans-unit>
+      <trans-unit id="blog0030" resname="error.blog.user_not_found">
+        <source>error.blog.user_not_found</source>
+        <target>User not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0031" resname="label.blog.posts">
+        <source>label.blog.posts</source>
+        <target>Blog posts</target>
+      </trans-unit>
+      <trans-unit id="blog0032" resname="label.blog.categories">
+        <source>label.blog.categories</source>
+        <target>Blog categories</target>
+      </trans-unit>
+      <trans-unit id="blog0033" resname="label.blog.tags">
+        <source>label.blog.tags</source>
+        <target>Blog tags</target>
+      </trans-unit>
+      <trans-unit id="blog0034" resname="label.blog.comments">
+        <source>label.blog.comments</source>
+        <target>Blog comments</target>
+      </trans-unit>
+      <trans-unit id="blog0035" resname="label.blog.post">
+        <source>label.blog.post</source>
+        <target>Blog post</target>
+      </trans-unit>
+      <trans-unit id="blog0036" resname="label.blog.category">
+        <source>label.blog.category</source>
+        <target>Blog category</target>
+      </trans-unit>
+      <trans-unit id="blog0037" resname="label.blog.tag">
+        <source>label.blog.tag</source>
+        <target>Blog tag</target>
+      </trans-unit>
+      <trans-unit id="blog0038" resname="label.blog.comment">
+        <source>label.blog.comment</source>
+        <target>Blog comment</target>
+      </trans-unit>
+      <trans-unit id="blog0039" resname="label.title">
+        <source>label.title</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="blog0040" resname="label.slug">
+        <source>label.slug</source>
+        <target>Slug</target>
+      </trans-unit>
+      <trans-unit id="blog0041" resname="label.category">
+        <source>label.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="blog0042" resname="label.tags">
+        <source>label.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="blog0043" resname="label.draft">
+        <source>label.draft</source>
+        <target>Draft</target>
+      </trans-unit>
+      <trans-unit id="blog0044" resname="label.published">
+        <source>label.published</source>
+        <target>Published</target>
+      </trans-unit>
+      <trans-unit id="blog0045" resname="label.published_at">
+        <source>label.published_at</source>
+        <target>Published at</target>
+      </trans-unit>
+      <trans-unit id="blog0046" resname="label.content">
+        <source>label.content</source>
+        <target>Content</target>
+      </trans-unit>
+      <trans-unit id="blog0047" resname="label.created">
+        <source>label.created</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="blog0048" resname="label.updated">
+        <source>label.updated</source>
+        <target>Updated</target>
+      </trans-unit>
+      <trans-unit id="blog0049" resname="label.post">
+        <source>label.post</source>
+        <target>Post</target>
+      </trans-unit>
+      <trans-unit id="blog0050" resname="label.author">
+        <source>label.author</source>
+        <target>Author</target>
+      </trans-unit>
+      <trans-unit id="blog0051" resname="label.parent">
+        <source>label.parent</source>
+        <target>Parent</target>
+      </trans-unit>
+      <trans-unit id="blog0052" resname="help.blog.published_at">
+        <source>help.blog.published_at</source>
+        <target>Only published posts with a timestamp in the past become publicly visible.</target>
+      </trans-unit>
+      <trans-unit id="blog0053" resname="blog.list.all_posts">
+        <source>blog.list.all_posts</source>
+        <target>All posts</target>
+      </trans-unit>
+      <trans-unit id="blog0054" resname="blog.list.category">
+        <source>blog.list.category</source>
+        <target>Category: {name}</target>
+      </trans-unit>
+      <trans-unit id="blog0055" resname="blog.list.tag">
+        <source>blog.list.tag</source>
+        <target>Tag: {name}</target>
+      </trans-unit>
+      <trans-unit id="blog0056" resname="blog.list.range_of_total">
+        <source>blog.list.range_of_total</source>
+        <target>{first}-{last} of {total} posts</target>
+      </trans-unit>
+      <trans-unit id="blog0057" resname="blog.comments.count">
+        <source>blog.comments.count</source>
+        <target>{count, plural, =0 {no comments} one {# comment} other {# comments}}</target>
+      </trans-unit>
+      <trans-unit id="blog0058" resname="blog.comments.first_cta">
+        <source>blog.comments.first_cta</source>
+        <target>Be the first to post a comment.</target>
+      </trans-unit>
+      <trans-unit id="blog0059" resname="blog.pagination.previous">
+        <source>blog.pagination.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="blog0060" resname="blog.pagination.next">
+        <source>blog.pagination.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="blog0061" resname="blog.pagination.previous_lower">
+        <source>blog.pagination.previous_lower</source>
+        <target>previous</target>
+      </trans-unit>
+      <trans-unit id="blog0062" resname="blog.pagination.next_lower">
+        <source>blog.pagination.next_lower</source>
+        <target>next</target>
+      </trans-unit>
+      <trans-unit id="blog0063" resname="blog.pagination.none">
+        <source>blog.pagination.none</source>
+        <target>Not available</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

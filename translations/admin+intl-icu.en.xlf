@@ -145,6 +145,94 @@
         <source>title.import_reject.show</source>
         <target>Show rejected Imports</target>
       </trans-unit>
+      <trans-unit id="bloga001" resname="label.blog.post">
+        <source>label.blog.post</source>
+        <target>Blog post</target>
+      </trans-unit>
+      <trans-unit id="bloga002" resname="label.blog.posts">
+        <source>label.blog.posts</source>
+        <target>Blog posts</target>
+      </trans-unit>
+      <trans-unit id="bloga003" resname="label.blog.category">
+        <source>label.blog.category</source>
+        <target>Blog category</target>
+      </trans-unit>
+      <trans-unit id="bloga004" resname="label.blog.categories">
+        <source>label.blog.categories</source>
+        <target>Blog categories</target>
+      </trans-unit>
+      <trans-unit id="bloga005" resname="label.blog.tag">
+        <source>label.blog.tag</source>
+        <target>Blog tag</target>
+      </trans-unit>
+      <trans-unit id="bloga006" resname="label.blog.tags">
+        <source>label.blog.tags</source>
+        <target>Blog tags</target>
+      </trans-unit>
+      <trans-unit id="bloga007" resname="label.blog.comment">
+        <source>label.blog.comment</source>
+        <target>Blog comment</target>
+      </trans-unit>
+      <trans-unit id="bloga008" resname="label.blog.comments">
+        <source>label.blog.comments</source>
+        <target>Blog comments</target>
+      </trans-unit>
+      <trans-unit id="bloga009" resname="label.title">
+        <source>label.title</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="bloga010" resname="label.slug">
+        <source>label.slug</source>
+        <target>Slug</target>
+      </trans-unit>
+      <trans-unit id="bloga011" resname="label.category">
+        <source>label.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="bloga012" resname="label.tags">
+        <source>label.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="bloga013" resname="label.draft">
+        <source>label.draft</source>
+        <target>Draft</target>
+      </trans-unit>
+      <trans-unit id="bloga014" resname="label.published">
+        <source>label.published</source>
+        <target>Published</target>
+      </trans-unit>
+      <trans-unit id="bloga015" resname="label.published_at">
+        <source>label.published_at</source>
+        <target>Published at</target>
+      </trans-unit>
+      <trans-unit id="bloga016" resname="label.content">
+        <source>label.content</source>
+        <target>Content</target>
+      </trans-unit>
+      <trans-unit id="bloga017" resname="label.created">
+        <source>label.created</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="bloga018" resname="label.updated">
+        <source>label.updated</source>
+        <target>Updated</target>
+      </trans-unit>
+      <trans-unit id="bloga019" resname="label.post">
+        <source>label.post</source>
+        <target>Post</target>
+      </trans-unit>
+      <trans-unit id="bloga020" resname="label.author">
+        <source>label.author</source>
+        <target>Author</target>
+      </trans-unit>
+      <trans-unit id="bloga021" resname="label.parent">
+        <source>label.parent</source>
+        <target>Parent</target>
+      </trans-unit>
+      <trans-unit id="bloga022" resname="help.blog.published_at">
+        <source>help.blog.published_at</source>
+        <target>Only published posts with a timestamp in the past become publicly visible.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,6 +1,9 @@
 app:
     title: 'Collaborative IVENA statistics'
     short_title: 'COIS'
+    blog:
+        title: 'Our Blog'
+        description: 'Updates, Backgrounds and News about Collaborative IVENA Statistics.'
 
     default_locale: 'en'
 

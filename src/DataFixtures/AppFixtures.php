@@ -16,6 +16,10 @@ use App\Allocation\Infrastructure\Factory\MciCaseFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Content\Infrastructure\Factory\PostCategoryFactory;
+use App\Content\Infrastructure\Factory\PostCommentFactory;
+use App\Content\Infrastructure\Factory\PostFactory;
+use App\Content\Infrastructure\Factory\PostTagFactory;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
@@ -62,6 +66,17 @@ final class AppFixtures extends Fixture
 
         AllocationFactory::createMany(100);
         MciCaseFactory::createMany(8);
+
+        PostCategoryFactory::createOne();
+        PostCategoryFactory::createOne();
+
+        PostTagFactory::createOne();
+        PostTagFactory::createOne();
+        PostTagFactory::createOne();
+
+        PostFactory::createMany(15);
+
+        PostCommentFactory::createMany(6);
 
         $manager->flush();
     }
