@@ -52,7 +52,7 @@ final class DefaultControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Research Together.');
         self::assertSelectorTextContains('body', 'About us');
-        self::assertSelectorTextContains('body', 'The platform is free of charge.');
+        self::assertSelectorTextContains('body', 'Core platform strengths');
     }
 
     public function testAuthenticatedUsersSeeEmptyDashboardOnHomepage(): void
