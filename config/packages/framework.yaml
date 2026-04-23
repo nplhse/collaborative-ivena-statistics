@@ -8,6 +8,34 @@ framework:
     #esi: true
     #fragments: true
 
+    html_sanitizer:
+        sanitizers:
+            page_richtext:
+                allow_safe_elements: true
+                allow_elements:
+                    - p
+                    - br
+                    - h2
+                    - h3
+                    - h4
+                    - strong
+                    - em
+                    - ul
+                    - ol
+                    - li
+                    - a
+                    - blockquote
+                allow_attributes:
+                    a:
+                        - href
+                        - title
+                        - target
+                        - rel
+                force_attributes:
+                    a:
+                        rel: 'noopener noreferrer'
+                force_https_urls: true
+
 when@test:
     framework:
         test: true
