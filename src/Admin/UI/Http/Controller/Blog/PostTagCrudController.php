@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Admin\UI\Http\Controller\Blog;
+
+use App\Content\Domain\Entity\PostTag;
+use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\String\Slugger\AsciiSlugger;
+
+/**
+ * @extends AbstractCrudController<PostTag>
+ */
+final class PostTagCrudController extends AbstractCrudController
+{
+    #[\Override]
+    public static function getEntityFqcn(): string
+    {
+        return PostTag::class;
+    }
+
+    #[\Override]
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('label.blog.tag')
+            ->setEntityLabelInPlural('label.blog.tags')
+            ->setSearchFields(['id', 'name', 'slug'])
+            ->setDefaultSort(['name' => 'ASC']);
+    }
+
+    #[\Override]
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::INDEX);
+    }
+
+    #[\Override]
+    public function configureFields(string $pageName): iterable
+    {
+        yield IdField::new('id')->onlyOnDetail();
+        yield TextField::new('name', 'label.name');
+        yield TextField::new('slug', 'label.slug')->setDisabled();
+        yield DateTimeField::new('createdAt', 'label.created')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
+        yield DateTimeField::new('updatedAt', 'label.updated')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
+    }
+
+    #[\Override]
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        /* @var PostTag $entityInstance */
+        $entityInstance->setSlug(strtolower(new AsciiSlugger()->slug((string) $entityInstance->getName())->toString()));
+
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    #[\Override]
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        /* @var PostTag $entityInstance */
+        $entityInstance->setSlug(strtolower(new AsciiSlugger()->slug((string) $entityInstance->getName())->toString()));
+
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+}
