@@ -22,6 +22,7 @@ use App\Admin\UI\Http\Controller\IndicationRaw\IndicationRawCrudController;
 use App\Admin\UI\Http\Controller\Infection\InfectionCrudController;
 use App\Admin\UI\Http\Controller\MciCase\MciCaseCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
+use App\Admin\UI\Http\Controller\Page\PageCrudController;
 use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
 use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
@@ -83,6 +84,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(StateCrudController::class, 'States', 'fas fa-list');
         yield MenuItem::section('Content');
         yield MenuItem::linkTo(PostCrudController::class, 'label.blog.posts', 'fas fa-blog');
+        yield MenuItem::linkTo(PageCrudController::class, 'Pages', 'fas fa-file');
         yield MenuItem::linkTo(PostCategoryCrudController::class, 'label.blog.categories', 'fas fa-folder');
         yield MenuItem::linkTo(PostTagCrudController::class, 'label.blog.tags', 'fas fa-tags');
         yield MenuItem::linkTo(PostCommentCrudController::class, 'label.blog.comments', 'fas fa-comments');
