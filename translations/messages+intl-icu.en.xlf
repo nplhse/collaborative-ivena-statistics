@@ -117,6 +117,14 @@
         <source>cookie.preferences.title</source>
         <target>Cookie preferences</target>
       </trans-unit>
+      <trans-unit id="WbCJOyn" resname="dashboard.empty.description">
+        <source>dashboard.empty.description</source>
+        <target>This is your personal workspace. Use the navigation above to explore data, statistics, and imports.</target>
+      </trans-unit>
+      <trans-unit id="DZA3KTc" resname="dashboard.empty.title">
+        <source>dashboard.empty.title</source>
+        <target>Your dashboard is ready</target>
+      </trans-unit>
       <trans-unit id="EiKSkqu" resname="field.age">
         <source>field.age</source>
         <target>Age</target>
@@ -233,13 +241,13 @@
         <source>flash.reset_password.validation_failed</source>
         <target>There was a problem validating your reset request.</target>
       </trans-unit>
+      <trans-unit id="LkFXLzD" resname="flash.security.cookie_consent_required">
+        <source>flash.security.cookie_consent_required</source>
+        <target>Please confirm your cookie settings before signing in.</target>
+      </trans-unit>
       <trans-unit id="RS3d7CX" resname="flash.security.invalid_csrf">
         <source>flash.security.invalid_csrf</source>
         <target>Invalid CSRF token.</target>
-      </trans-unit>
-      <trans-unit id="zqI8KJ2" resname="flash.security.cookie_consent_required">
-        <source>flash.security.cookie_consent_required</source>
-        <target>Please confirm your cookie settings before signing in.</target>
       </trans-unit>
       <trans-unit id="yPy4.0U" resname="flash.settings.email.already_verified">
         <source>flash.settings.email.already_verified</source>
@@ -1029,6 +1037,10 @@
         <source>label.without_owner</source>
         <target>Without owner</target>
       </trans-unit>
+      <trans-unit id="z3o4rg_" resname="link.about">
+        <source>link.about</source>
+        <target>About</target>
+      </trans-unit>
       <trans-unit id="ZdrXMaQ" resname="link.allocations">
         <source>link.allocations</source>
         <target>Allocations</target>
@@ -1052,6 +1064,10 @@
       <trans-unit id="ojUc4Dn" resname="link.explore">
         <source>link.explore</source>
         <target>Explore</target>
+      </trans-unit>
+      <trans-unit id="DPqI5NZ" resname="link.features">
+        <source>link.features</source>
+        <target>Features</target>
       </trans-unit>
       <trans-unit id="9XmczE8" resname="link.home">
         <source>link.home</source>
@@ -1119,6 +1135,170 @@
       </trans-unit>
       <trans-unit id="wQKGxus" resname="link.users">
         <source>link.users</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="ZKHDIRf" resname="public.cta.learn_more">
+        <source>public.cta.learn_more</source>
+        <target>Learn more</target>
+      </trans-unit>
+      <trans-unit id="88M4YBe" resname="public.cta.register">
+        <source>public.cta.register</source>
+        <target>Register</target>
+      </trans-unit>
+      <trans-unit id="MC1jwCz" resname="public.cta.sign_in">
+        <source>public.cta.sign_in</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="6_P.fwQ" resname="public.home.about.p1">
+        <source>public.home.about.p1</source>
+        <target>Although emergency medical services are among the largest referrers to emergency departments, there are still only few large-scale systematic analyses of EMS patient characteristics. Since 2017, the web-based IVENA system has been used across Germany to digitally register EMS patients at acute care hospitals.</target>
+      </trans-unit>
+      <trans-unit id="aJrjagd" resname="public.home.about.p2">
+        <source>public.home.about.p2</source>
+        <target>For every allocation, an anonymized dataset is created and stored, including variables such as age, sex, coded suspected diagnosis, urgency, assignment pathway, physician accompaniment, CPR, ventilation, infection status, pregnancy, and requested resources like resuscitation room or cath lab.</target>
+      </trans-unit>
+      <trans-unit id="DF5.wOi" resname="public.home.about.p3">
+        <source>public.home.about.p3</source>
+        <target>In early 2021, members of the DGINA working group in Hesse initiated this collaborative platform to merge IVENA allocation data from many hospitals and enable shared statistics and dedicated analyses for specific emergency care research questions.</target>
+      </trans-unit>
+      <trans-unit id="LYDzZRg" resname="public.home.about.title">
+        <source>public.home.about.title</source>
+        <target>About us</target>
+      </trans-unit>
+      <trans-unit id="WuHj_y1" resname="public.home.features.card.analytics.text">
+        <source>public.home.features.card.analytics.text</source>
+        <target>Generate distributions and trend views to support evidence-based emergency care decisions.</target>
+      </trans-unit>
+      <trans-unit id="tjJAU5R" resname="public.home.features.card.analytics.title">
+        <source>public.home.features.card.analytics.title</source>
+        <target>Statistics and benchmarking</target>
+      </trans-unit>
+      <trans-unit id="0PVf_q7" resname="public.home.features.card.explore.text">
+        <source>public.home.features.card.explore.text</source>
+        <target>Inspect records with filters for urgency, transport context, assignment patterns, and clinical characteristics.</target>
+      </trans-unit>
+      <trans-unit id="FTHRlFT" resname="public.home.features.card.explore.title">
+        <source>public.home.features.card.explore.title</source>
+        <target>Explore data</target>
+      </trans-unit>
+      <trans-unit id="dANFfmE" resname="public.home.features.card.hospital_centered.text">
+        <source>public.home.features.card.hospital_centered.text</source>
+        <target>Participating sites can manage institutions, maintain metadata, and work with their own allocation exports.</target>
+      </trans-unit>
+      <trans-unit id="u_l6K6x" resname="public.home.features.card.hospital_centered.title">
+        <source>public.home.features.card.hospital_centered.title</source>
+        <target>Hospital-centered workflows</target>
+      </trans-unit>
+      <trans-unit id="EWBcXbq" resname="public.home.features.card.independent.text">
+        <source>public.home.features.card.independent.text</source>
+        <target>The initiative is run by an independent clinical research network with a clear public-health focus.</target>
+      </trans-unit>
+      <trans-unit id="dxR6rAB" resname="public.home.features.card.independent.title">
+        <source>public.home.features.card.independent.title</source>
+        <target>Independent and non-commercial</target>
+      </trans-unit>
+      <trans-unit id="mr0cgLL" resname="public.home.features.detail.data_exploration.text">
+        <source>public.home.features.detail.data_exploration.text</source>
+        <target>Analyze age, sex, coded suspected diagnosis, priority, assignment pathway, and other operational characteristics across large cohorts.</target>
+      </trans-unit>
+      <trans-unit id="H9s9kYv" resname="public.home.features.detail.data_exploration.title">
+        <source>public.home.features.detail.data_exploration.title</source>
+        <target>Detailed data exploration</target>
+      </trans-unit>
+      <trans-unit id="zeUoGVL" resname="public.home.features.detail.hospital_management.text">
+        <source>public.home.features.detail.hospital_management.text</source>
+        <target>Each hospital can be represented with structured profile data, participation status, and ownership assignments for local administration.</target>
+      </trans-unit>
+      <trans-unit id="MOb1ADP" resname="public.home.features.detail.hospital_management.title">
+        <source>public.home.features.detail.hospital_management.title</source>
+        <target>Hospital management and participation</target>
+      </trans-unit>
+      <trans-unit id="wm3cSki" resname="public.home.features.detail.import_export.text">
+        <source>public.home.features.detail.import_export.text</source>
+        <target>Hospitals can continuously import new IVENA exports and use structured exports for downstream scientific workflows.</target>
+      </trans-unit>
+      <trans-unit id="xN5TuWQ" resname="public.home.features.detail.import_export.title">
+        <source>public.home.features.detail.import_export.title</source>
+        <target>Import and export pipeline</target>
+      </trans-unit>
+      <trans-unit id=".YOlX__" resname="public.home.features.detail.statistics.text">
+        <source>public.home.features.detail.statistics.text</source>
+        <target>Create focused analyses for specific research questions and compare institutional patterns with anonymized clusters.</target>
+      </trans-unit>
+      <trans-unit id="VF9iPLp" resname="public.home.features.detail.statistics.title">
+        <source>public.home.features.detail.statistics.title</source>
+        <target>Shared statistics for targeted questions</target>
+      </trans-unit>
+      <trans-unit id="7xCs85r" resname="public.home.features.overview.subtitle">
+        <source>public.home.features.overview.subtitle</source>
+        <target>Built for hospitals, research teams, and quality improvement initiatives.</target>
+      </trans-unit>
+      <trans-unit id="Jf37X.O" resname="public.home.features.overview.title">
+        <source>public.home.features.overview.title</source>
+        <target>Core platform strengths</target>
+      </trans-unit>
+      <trans-unit id="Axt3js1" resname="public.home.hero.preview_alt">
+        <source>public.home.hero.preview_alt</source>
+        <target>Upcoming homepage preview screenshot placeholder</target>
+      </trans-unit>
+      <trans-unit id="inGjAQS" resname="public.home.hero.preview_note">
+        <source>public.home.hero.preview_note</source>
+        <target>Placeholder image: final visual screenshot will be added next.</target>
+      </trans-unit>
+      <trans-unit id="o35EWat" resname="public.home.hero.preview_text">
+        <source>public.home.hero.preview_text</source>
+        <target>Participating hospitals can combine IVENA allocation data, run shared analyses, and compare anonymized benchmarks in one place.</target>
+      </trans-unit>
+      <trans-unit id="EFn3O.C" resname="public.home.hero.preview_title">
+        <source>public.home.hero.preview_title</source>
+        <target>One collaborative platform</target>
+      </trans-unit>
+      <trans-unit id="abSseey" resname="public.home.hero.subtitle">
+        <source>public.home.hero.subtitle</source>
+        <target>We collaboratively build emergency care research statistics in Germany based on IVENA allocation data.</target>
+      </trans-unit>
+      <trans-unit id="7nDvcYo" resname="public.home.hero.title">
+        <source>public.home.hero.title</source>
+        <target>Research Together.</target>
+      </trans-unit>
+      <trans-unit id="s19o8l1" resname="public.home.meta_title">
+        <source>public.home.meta_title</source>
+        <target>Collaborative Emergency Care Research</target>
+      </trans-unit>
+      <trans-unit id="M6R_RDR" resname="public.home.participation.free_note">
+        <source>public.home.participation.free_note</source>
+        <target>The platform is free of charge.</target>
+      </trans-unit>
+      <trans-unit id="a.wot55" resname="public.home.participation.text">
+        <source>public.home.participation.text</source>
+        <target>Participation is open to interested institutions and users. Register to learn more and access the collaborative workspace.</target>
+      </trans-unit>
+      <trans-unit id="zFXKMOx" resname="public.home.participation.title">
+        <source>public.home.participation.title</source>
+        <target>Join the project</target>
+      </trans-unit>
+      <trans-unit id="VgJqB_Q" resname="public.home.stats.subtitle">
+        <source>public.home.stats.subtitle</source>
+        <target>A quick snapshot of the current collaborative data network.</target>
+      </trans-unit>
+      <trans-unit id="SuNofpS" resname="public.home.stats.title">
+        <source>public.home.stats.title</source>
+        <target>Project overview</target>
+      </trans-unit>
+      <trans-unit id="rJakKKg" resname="public.stats.allocations">
+        <source>public.stats.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="n4D_l_N" resname="public.stats.hospitals">
+        <source>public.stats.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="_oAVFM1" resname="public.stats.imports">
+        <source>public.stats.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="wmaFOpu" resname="public.stats.users">
+        <source>public.stats.users</source>
         <target>Users</target>
       </trans-unit>
       <trans-unit id="NDaPwn5" resname="statistics.distribution.age.18_29">
@@ -1679,6 +1859,10 @@
         <source>title.check_email</source>
         <target>Check your email</target>
       </trans-unit>
+      <trans-unit id="YE7XVBb" resname="title.dashboard">
+        <source>title.dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
       <trans-unit id="6k49n8G" resname="title.data">
         <source>title.data</source>
         <target>Data</target>
@@ -1806,6 +1990,10 @@
       <trans-unit id="uhopb3E" resname="title.speciality.list">
         <source>title.speciality.list</source>
         <target>Listing Specialities</target>
+      </trans-unit>
+      <trans-unit id="kCCr8EE" resname="title.stats.overview">
+        <source>title.stats.overview</source>
+        <target>Overview</target>
       </trans-unit>
     </body>
   </file>
