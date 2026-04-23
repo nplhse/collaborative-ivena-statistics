@@ -2259,6 +2259,114 @@
         <source>blog.pagination.none</source>
         <target>Not available</target>
       </trans-unit>
+      <trans-unit id="page0001" resname="label.page">
+        <source>label.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="page0002" resname="label.pages">
+        <source>label.pages</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="page0003" resname="label.parent_page">
+        <source>label.parent_page</source>
+        <target>Parent page</target>
+      </trans-unit>
+      <trans-unit id="page0004" resname="label.visibility">
+        <source>label.visibility</source>
+        <target>Visibility</target>
+      </trans-unit>
+      <trans-unit id="page0005" resname="label.public">
+        <source>label.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="page0006" resname="label.authenticated">
+        <source>label.authenticated</source>
+        <target>Authenticated</target>
+      </trans-unit>
+      <trans-unit id="page0007" resname="label.sort_order">
+        <source>label.sort_order</source>
+        <target>Sort order</target>
+      </trans-unit>
+      <trans-unit id="page0008" resname="label.path">
+        <source>label.path</source>
+        <target>Path</target>
+      </trans-unit>
+      <trans-unit id="page0009" resname="label.content_blocks">
+        <source>label.content_blocks</source>
+        <target>Content blocks</target>
+      </trans-unit>
+      <trans-unit id="page0010" resname="label.block">
+        <source>label.block</source>
+        <target>Block</target>
+      </trans-unit>
+      <trans-unit id="page0011" resname="label.enabled">
+        <source>label.enabled</source>
+        <target>Enabled</target>
+      </trans-unit>
+      <trans-unit id="page0012" resname="label.disabled">
+        <source>label.disabled</source>
+        <target>Disabled</target>
+      </trans-unit>
+      <trans-unit id="page0013" resname="label.type">
+        <source>label.type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="page0014" resname="label.block_type.richtext">
+        <source>label.block_type.richtext</source>
+        <target>Rich text</target>
+      </trans-unit>
+      <trans-unit id="page0015" resname="label.block_type.image">
+        <source>label.block_type.image</source>
+        <target>Image</target>
+      </trans-unit>
+      <trans-unit id="page0016" resname="label.block_type.cta">
+        <source>label.block_type.cta</source>
+        <target>Call to action</target>
+      </trans-unit>
+      <trans-unit id="page0017" resname="label.block_type.quote">
+        <source>label.block_type.quote</source>
+        <target>Quote</target>
+      </trans-unit>
+      <trans-unit id="page0018" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="page0019" resname="help.page.richtext_allowed_tags">
+        <source>help.page.richtext_allowed_tags</source>
+        <target>Allowed tags: p, br, h2-h4, strong, em, ul, ol, li, a, blockquote</target>
+      </trans-unit>
+      <trans-unit id="page0020" resname="label.image_url">
+        <source>label.image_url</source>
+        <target>Image URL</target>
+      </trans-unit>
+      <trans-unit id="page0021" resname="label.image_alt">
+        <source>label.image_alt</source>
+        <target>Image alt text</target>
+      </trans-unit>
+      <trans-unit id="page0022" resname="label.image_caption">
+        <source>label.image_caption</source>
+        <target>Image caption</target>
+      </trans-unit>
+      <trans-unit id="page0023" resname="label.headline">
+        <source>label.headline</source>
+        <target>Headline</target>
+      </trans-unit>
+      <trans-unit id="page0024" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button label</target>
+      </trans-unit>
+      <trans-unit id="page0025" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button URL</target>
+      </trans-unit>
+      <trans-unit id="page0026" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Quote text</target>
+      </trans-unit>
+      <trans-unit id="page0027" resname="error.page.auth_required">
+        <source>error.page.auth_required</source>
+        <target>This page is only available to signed-in users.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

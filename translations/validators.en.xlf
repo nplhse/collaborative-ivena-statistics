@@ -701,6 +701,54 @@
         <source>label.import.mimeTypes</source>
         <target>Mime Types</target>
       </trans-unit>
+      <trans-unit id="pagev001" resname="page.validation.path_unique">
+        <source>page.validation.path_unique</source>
+        <target>This path already exists.</target>
+      </trans-unit>
+      <trans-unit id="pagev002" resname="page.validation.parent_slug_unique">
+        <source>page.validation.parent_slug_unique</source>
+        <target>This slug already exists on the same level.</target>
+      </trans-unit>
+      <trans-unit id="pagev003" resname="page.validation.slug_format">
+        <source>page.validation.slug_format</source>
+        <target>The slug may only contain lowercase letters, numbers, and hyphens.</target>
+      </trans-unit>
+      <trans-unit id="pagev004" resname="page.validation.parent_not_self">
+        <source>page.validation.parent_not_self</source>
+        <target>A page cannot be its own parent.</target>
+      </trans-unit>
+      <trans-unit id="pagev005" resname="page.validation.no_cycles">
+        <source>page.validation.no_cycles</source>
+        <target>Cyclic hierarchies are not allowed.</target>
+      </trans-unit>
+      <trans-unit id="pagev006" resname="page.validation.content_must_be_array">
+        <source>page.validation.content_must_be_array</source>
+        <target>Content must be a list of blocks.</target>
+      </trans-unit>
+      <trans-unit id="pagev007" resname="page.validation.block_must_be_object">
+        <source>page.validation.block_must_be_object</source>
+        <target>must be an object.</target>
+      </trans-unit>
+      <trans-unit id="pagev008" resname="page.validation.block_type_required">
+        <source>page.validation.block_type_required</source>
+        <target>field "type" is required.</target>
+      </trans-unit>
+      <trans-unit id="pagev009" resname="page.validation.block_unknown_type">
+        <source>page.validation.block_unknown_type</source>
+        <target>unknown block type "{type}".</target>
+      </trans-unit>
+      <trans-unit id="pagev010" resname="page.validation.block_data_must_be_object">
+        <source>page.validation.block_data_must_be_object</source>
+        <target>field "data" must be an object.</target>
+      </trans-unit>
+      <trans-unit id="pagev011" resname="page.validation.block_enabled_must_be_bool">
+        <source>page.validation.block_enabled_must_be_bool</source>
+        <target>field "enabled" must be true or false.</target>
+      </trans-unit>
+      <trans-unit id="pagev012" resname="page.validation.block_required_field">
+        <source>page.validation.block_required_field</source>
+        <target>data.{field} is required.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
