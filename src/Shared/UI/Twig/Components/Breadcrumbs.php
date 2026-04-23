@@ -16,12 +16,12 @@ final class Breadcrumbs
     }
 
     /**
-     * @var list<array{label:string, path?:string, icon?:string}>
+     * @var list<array{label:string, path?:string, icon?:string, label_params?:array<string, mixed>}>
      */
     public array $items = [];
 
     /**
-     * @return list<array{label:string, path?:string, icon?:string}>
+     * @return list<array{label:string, path?:string, icon?:string, label_params?:array<string, mixed>}>
      */
     public function getFullItems(): array
     {

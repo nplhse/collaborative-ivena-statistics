@@ -1,0 +1,23 @@
+<div class="border rounded p-3" style="margin-left: {{ level * 1.5 }}rem;">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong>{{ comment.author.userIdentifier }}</strong>
+        <span class="text-secondary">{{ comment.createdAt|date('d.m.Y H:i') }}</span>
+    </div>
+    <div class="mb-2">{{ comment.content|nl2br }}</div>
+
+    {% if is_granted('ROLE_USER') %}
+        <details class="mb-2">
+            <summary>{{ 'blog.comments.reply.toggle'|trans }}</summary>
+            <form method="post" action="{{ path('app_blog_comment_create', {slug: post.slug}) }}" class="mt-2">
+                <input type="hidden" name="_token" value="{{ csrf_token('comment_' ~ post.id) }}">
+                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                <textarea name="content" class="form-control mb-2" rows="3" required placeholder="{{ 'blog.comments.reply.placeholder'|trans }}"></textarea>
+                <button type="submit" class="btn btn-sm btn-primary">{{ 'blog.comments.reply.submit'|trans }}</button>
+            </form>
+        </details>
+    {% endif %}
+
+    {% for child in comment.children %}
+        {{ include('@Content/blog/_comment.html.twig', {post: post, comment: child, level: level + 1}) }}
+    {% endfor %}
+</div>

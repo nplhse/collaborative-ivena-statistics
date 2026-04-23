@@ -1,0 +1,82 @@
+<div class="row row-cards">
+    {% if show_about is not defined or show_about %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h3 class="card-title d-flex align-items-center gap-2">
+                        <twig:ux:icon name="tabler:info-circle" class="w-4 h-4" />
+                        {{ app_blog_title }}
+                    </h3>
+                </div>
+                <div class="card-body text-secondary">
+                    <p class="mb-2">{{ app_blog_description }}</p>
+                    <a class="btn btn-orange btn-sm" href="{{ path('app_blog_rss') }}">
+                        <twig:ux:icon name="tabler:rss" width="1em" height="1em" />
+                        {{ 'blog.sidebar.rss_feed'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h3 class="card-title d-flex align-items-center gap-2">
+                    <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
+                    {{ 'blog.sidebar.latest_posts'|trans }}
+                </h3>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for latest in latest_posts %}
+                    <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action">
+                        {{ latest.title }}
+                    </a>
+                {% else %}
+                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h3 class="card-title d-flex align-items-center gap-2">
+                    <twig:ux:icon name="tabler:folder" class="w-4 h-4" />
+                    {{ 'blog.sidebar.categories'|trans }}
+                </h3>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for item in sidebar_categories %}
+                    <a href="{{ path('app_blog_category', {slug: item.category.slug}) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span>{{ item.category.name }}</span>
+                        <span class="badge bg-secondary-lt">{{ item.postCount }}</span>
+                    </a>
+                {% else %}
+                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_categories'|trans }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h3 class="card-title d-flex align-items-center gap-2">
+                    <twig:ux:icon name="tabler:tags" class="w-4 h-4" />
+                    {{ 'blog.sidebar.tags'|trans }}
+                </h3>
+            </div>
+            <div class="card-body">
+                {% for item in sidebar_tags %}
+                    <a class="badge bg-azure-lt me-1 mb-1" href="{{ path('app_blog_tag', {slug: item.tag.slug}) }}">
+                        {{ item.tag.name }} ({{ item.postCount }})
+                    </a>
+                {% else %}
+                    <div class="text-secondary">{{ 'blog.sidebar.no_tags'|trans }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

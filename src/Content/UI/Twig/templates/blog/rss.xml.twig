@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+    <channel>
+        <title>{{ app_blog_title }}</title>
+        <link>{{ absolute_url(path('app_blog_index')) }}</link>
+        <description>{{ app_blog_description }}</description>
+        <lastBuildDate>{{ buildDate|date('r') }}</lastBuildDate>
+        {% for post in posts %}
+            <item>
+                <title><![CDATA[{{ post.title }}]]></title>
+                <link>{{ absolute_url(path('app_blog_show', {slug: post.slug})) }}</link>
+                <guid>{{ absolute_url(path('app_blog_show', {slug: post.slug})) }}</guid>
+                <pubDate>{{ post.publishedAt|date('r') }}</pubDate>
+                <description><![CDATA[{{ post.content }}]]></description>
+            </item>
+        {% endfor %}
+    </channel>
+</rss>

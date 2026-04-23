@@ -9,6 +9,8 @@ twig:
     globals:
         'app_title': '%app.title%'
         'app_short_title': '%app.short_title%'
+        'app_blog_title': '%app.blog.title%'
+        'app_blog_description': '%app.blog.description%'
 
     paths:
         '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin
