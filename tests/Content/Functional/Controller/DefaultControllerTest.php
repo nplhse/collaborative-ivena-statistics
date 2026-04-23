@@ -28,7 +28,7 @@ final class DefaultControllerTest extends WebTestCase
     use Factories;
     use ResetDatabase;
 
-    public function testHelloWorldIsDisplayed(): void
+    public function testPublicHomepageIsDisplayedForGuests(): void
     {
         $client = self::createClient();
 
@@ -50,6 +50,20 @@ final class DefaultControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Hello, world!');
+        self::assertSelectorTextContains('body', 'Research Together.');
+        self::assertSelectorTextContains('body', 'About us');
+        self::assertSelectorTextContains('body', 'Core platform strengths');
+    }
+
+    public function testAuthenticatedUsersSeeEmptyDashboardOnHomepage(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'dashboard-user'])->_real();
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Your dashboard is ready');
     }
 }

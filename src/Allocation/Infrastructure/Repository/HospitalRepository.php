@@ -36,6 +36,15 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         return $entity instanceof Hospital ? $entity : null;
     }
 
+    public function countParticipating(): int
+    {
+        return $this->createQueryBuilder('h')
+            ->select('COUNT(h.id)')
+            ->andWhere('h.isParticipating = true')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function getQueryBuilderForAccessibleHospitals(User $user): QueryBuilder
     {
         $qb = $this->createQueryBuilder('h')

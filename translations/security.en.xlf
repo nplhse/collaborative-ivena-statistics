@@ -61,10 +61,6 @@
         <source>No token could be found.</source>
         <target>No token could be found.</target>
       </trans-unit>
-      <trans-unit id="eRzF2kq" resname="flash.security.cookie_consent_required">
-        <source>flash.security.cookie_consent_required</source>
-        <target>Please confirm your cookie settings before signing in.</target>
-      </trans-unit>
       <trans-unit id="6rEex5P" resname="Not privileged to request the resource.">
         <source>Not privileged to request the resource.</source>
         <target>Not privileged to request the resource.</target>
@@ -84,6 +80,10 @@
       <trans-unit id="VZija00" resname="Username could not be found.">
         <source>Username could not be found.</source>
         <target>Username could not be found.</target>
+      </trans-unit>
+      <trans-unit id="LkFXLzD" resname="flash.security.cookie_consent_required">
+        <source>flash.security.cookie_consent_required</source>
+        <target>Please confirm your cookie settings before signing in.</target>
       </trans-unit>
     </body>
   </file>

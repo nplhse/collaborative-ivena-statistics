@@ -43,6 +43,14 @@ class AppRoutesTest extends WebTestCase
         );
     }
 
+    public function testFeaturesRouteIsNotAvailable(): void
+    {
+        $client = static::createClient();
+        $client->request(Request::METHOD_GET, '/features');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
     public static function getPublicUrls(): \Generator
     {
         yield 'app_default' => ['/'];

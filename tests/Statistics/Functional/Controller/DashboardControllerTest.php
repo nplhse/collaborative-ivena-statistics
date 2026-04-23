@@ -8,12 +8,12 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class DashboardControllerTest extends WebTestCase
 {
-    public function testSomething(): void
+    public function testStatisticsOverviewIsDisplayed(): void
     {
         $client = static::createClient();
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('title', 'Statistics');
+        $this->assertSelectorTextContains('body', 'Overview');
     }
 }
