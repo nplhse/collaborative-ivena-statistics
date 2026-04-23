@@ -7,6 +7,7 @@ namespace App\Tests\Content\Functional\Controller;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Factory\PostCategoryFactory;
+use App\Content\Infrastructure\Factory\PostCommentFactory;
 use App\Content\Infrastructure\Factory\PostFactory;
 use App\Content\Infrastructure\Factory\PostTagFactory;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
@@ -282,5 +283,67 @@ final class BlogControllerTest extends WebTestCase
         );
 
         self::assertNotEmpty($entries, 'Expected audit entry for created post.');
+    }
+
+    public function testUnknownRoutesReturnNotFound(): void
+    {
+        $client = self::createClient();
+
+        $client->request(Request::METHOD_GET, '/blog/category/does-not-exist');
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+
+        $client->request(Request::METHOD_GET, '/blog/tag/does-not-exist');
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+
+        $client->request(Request::METHOD_GET, '/blog/does-not-exist');
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testAuthenticatedCommentValidationAndReplyBranches(): void
+    {
+        $client = self::createClient();
+        $author = UserFactory::createOne(['username' => 'reply-author'])->_real();
+        $replier = UserFactory::createOne(['username' => 'reply-user'])->_real();
+
+        $post = PostFactory::createOne([
+            'title' => 'Reply target',
+            'slug' => 'reply-target',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'createdBy' => $author,
+        ])->_real();
+
+        $parent = PostCommentFactory::createOne([
+            'post' => $post,
+            'author' => $author,
+            'createdBy' => $author,
+            'content' => 'Parent comment',
+        ])->_real();
+
+        $client->loginUser($replier);
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog/reply-target');
+        $token = (string) $crawler->filter('input[name="_token"]')->first()->attr('value');
+
+        $client->request(Request::METHOD_POST, '/blog/reply-target/comments', [
+            'content' => '',
+            '_token' => $token,
+        ]);
+        self::assertResponseRedirects('/blog/reply-target');
+
+        $client->request(Request::METHOD_POST, '/blog/reply-target/comments', [
+            'content' => 'Invalid csrf',
+            '_token' => 'bad-token',
+        ]);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+
+        $client->request(Request::METHOD_POST, '/blog/reply-target/comments', [
+            'content' => 'Nested reply',
+            'parent_id' => $parent->getId(),
+            '_token' => $token,
+        ]);
+        self::assertResponseRedirects('/blog/reply-target', Response::HTTP_SEE_OTHER);
+        $client->followRedirect();
+        self::assertSelectorTextContains('body', 'Nested reply');
     }
 }
