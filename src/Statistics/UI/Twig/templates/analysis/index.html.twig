@@ -1,0 +1,160 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.analysis.page_title'|trans }} · {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('@Shared/_includes/subnav_stats.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'link.stats.analysis' }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle" data-testid="stats-heading-scope">
+                        {{ statisticsHeadingScope }}
+                    </div>
+                    <h2 class="page-title" data-testid="stats-heading-period">
+                        {{ statisticsHeadingPeriod }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row g-4 align-items-start">
+        <aside class="col-12 col-lg-3 col-xl-2">
+            <div class="position-lg-sticky" style="top: 1rem;">
+                {{ include('@Statistics/dashboard/_statistics_filter_bar.html.twig') }}
+            </div>
+        </aside>
+        <div class="col-12 col-lg-9 col-xl-10 min-w-0">
+            <div class="card mb-3">
+                <div class="card-body py-3">
+                    <div class="row g-3 align-items-end flex-wrap">
+                        <div class="col min-w-0">
+                            <label class="form-label mb-1" for="stats-analysis-select-trigger">{{ 'stats.analysis.select_label'|trans }}</label>
+                            <div class="dropdown w-100">
+                                <button id="stats-analysis-select-trigger"
+                                        class="btn btn-primary dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center"
+                                        type="button" data-bs-toggle="dropdown" data-testid="stats-analysis-select">
+                                    {% for def in analysisDefinitions %}
+                                        {% if def.key == currentAnalysisKey %}
+                                            {{ def.labelTranslationKey|trans }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </button>
+                                <div class="dropdown-menu w-100">
+                                    {% for def in analysisDefinitions %}
+                                        <a class="dropdown-item{% if def.key == currentAnalysisKey %} active{% endif %}"
+                                           href="{{ analysisSelectUrls[def.key] }}">
+                                            {{ def.labelTranslationKey|trans }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-auto">
+                            <span class="form-label d-block mb-1">{{ 'stats.analysis.presentation_label'|trans }}</span>
+                            {% if currentAnalysisKey == 'pivot' %}
+                                <div class="btn-group" role="group">
+                                    <span class="btn btn-outline-primary active">{{ 'stats.analysis.view.table'|trans }}</span>
+                                </div>
+                            {% else %}
+                                <div class="btn-group" role="group">
+                                    <a href="{{ viewChartUrl }}"
+                                       class="btn btn-outline-primary{% if currentView == 'chart' %} active{% endif %}"
+                                       data-testid="stats-analysis-view-chart">
+                                        {{ 'stats.analysis.view.chart'|trans }}
+                                    </a>
+                                    <a href="{{ viewTableUrl }}"
+                                       class="btn btn-outline-primary{% if currentView == 'table' %} active{% endif %}"
+                                       data-testid="stats-analysis-view-table">
+                                        {{ 'stats.analysis.view.table'|trans }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if currentAnalysisKey != 'pivot' %}
+                            <div class="col-12">
+                                <span class="form-label d-block mb-1">{{ 'stats.analysis.dimension_label'|trans }}</span>
+                                <div class="btn-group flex-wrap"
+                                     role="group"
+                                     aria-label="{{ 'stats.analysis.dimension_label'|trans }}"
+                                     data-testid="stats-analysis-dimension-selector">
+                                    <a href="{{ dimensionTotalUrl }}"
+                                       class="btn btn-outline-secondary{% if currentAnalysisDimension == 'total' %} active{% endif %}"
+                                       data-testid="stats-analysis-dimension-total">
+                                        {{ 'stats.analysis.dimension.total'|trans }}
+                                    </a>
+                                    <a href="{{ dimensionGenderUrl }}"
+                                       class="btn btn-outline-secondary{% if currentAnalysisDimension == 'gender' %} active{% endif %}"
+                                       data-testid="stats-analysis-dimension-gender">
+                                        {{ 'stats.analysis.dimension.gender'|trans }}
+                                    </a>
+                                    <a href="{{ dimensionUrgencyUrl }}"
+                                       class="btn btn-outline-secondary{% if currentAnalysisDimension == 'urgency' %} active{% endif %}"
+                                       data-testid="stats-analysis-dimension-urgency">
+                                        {{ 'stats.analysis.dimension.urgency'|trans }}
+                                    </a>
+                                    <a href="{{ dimensionResourcesUrl }}"
+                                       class="btn btn-outline-secondary{% if currentAnalysisDimension == 'resources' %} active{% endif %}"
+                                       data-testid="stats-analysis-dimension-resources">
+                                        {{ 'stats.analysis.dimension.resources'|trans }}
+                                    </a>
+                                    <a href="{{ dimensionFeaturesUrl }}"
+                                       class="btn btn-outline-secondary{% if currentAnalysisDimension == 'features' %} active{% endif %}"
+                                       data-testid="stats-analysis-dimension-features">
+                                        {{ 'stats.analysis.dimension.features'|trans }}
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if currentAnalysisDimension == 'resources' and currentView == 'chart' and currentChartType == 'bar' %}
+                            <div class="col-12">
+                                <span class="form-label d-block mb-1">{{ 'stats.analysis.chart_measure.label'|trans }}</span>
+                                <div class="btn-group"
+                                     role="group"
+                                     aria-label="{{ 'stats.analysis.chart_measure.label'|trans }}"
+                                     data-testid="stats-analysis-chart-measure">
+                                    <a href="{{ chartMeasureAbsoluteUrl }}"
+                                       class="btn btn-outline-secondary{% if currentChartMeasure == 'absolute' %} active{% endif %}"
+                                       data-testid="stats-analysis-chart-measure-absolute">
+                                        {{ 'stats.analysis.chart_measure.absolute'|trans }}
+                                    </a>
+                                    <a href="{{ chartMeasureShareUrl }}"
+                                       class="btn btn-outline-secondary{% if currentChartMeasure == 'share' %} active{% endif %}"
+                                       data-testid="stats-analysis-chart-measure-share">
+                                        {{ 'stats.analysis.chart_measure.share'|trans }}
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div data-testid="stats-analysis-widget">
+                {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {
+                    widget: analysisWidget,
+                    analysisChartStyle: {
+                        chartBarUrl: chartBarUrl,
+                        chartLineUrl: chartLineUrl,
+                        currentChartType: currentChartType,
+                    },
+                }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

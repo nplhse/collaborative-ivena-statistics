@@ -1,0 +1,69 @@
+{# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
+{% set p = widget.payload %}
+<div class="card" data-testid="stats-analysis-pivot-table-card">
+    {% if p.pivotRowChoices is defined and p.pivotColChoices is defined %}
+        <div class="card-body border-bottom py-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1" for="stats-analysis-pivot-rows">{{ 'stats.analysis.pivot.rows_label'|trans }}</label>
+                    <select id="stats-analysis-pivot-rows"
+                            class="form-select"
+                            data-testid="stats-analysis-pivot-rows"
+                            onchange="window.location.href=this.value">
+                        {% for opt in p.pivotRowChoices %}
+                            <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1" for="stats-analysis-pivot-cols">{{ 'stats.analysis.pivot.cols_label'|trans }}</label>
+                    <select id="stats-analysis-pivot-cols"
+                            class="form-select"
+                            data-testid="stats-analysis-pivot-cols"
+                            onchange="window.location.href=this.value">
+                        {% for opt in p.pivotColChoices %}
+                            <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ p.rowDimensionLabel }}</th>
+                        {% for colLabel in p.columnLabels %}
+                            <th scope="col" class="text-end">{{ colLabel }}</th>
+                        {% endfor %}
+                        <th scope="col" class="text-end">{{ p.rowTotalHeaderLabel }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rowLabel in p.rowLabels %}
+                        <tr>
+                            <th scope="row">{{ rowLabel }}</th>
+                            {% for v in p.matrix[loop.index0] %}
+                                <td class="text-end">{{ v }}</td>
+                            {% endfor %}
+                            <td class="text-end fw-semibold">{{ p.row_totals[loop.index0] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                {% if p.columnLabels is not empty %}
+                    <tfoot class="table-light">
+                        <tr>
+                            <th scope="row">{{ p.columnTotalFooterLabel }}</th>
+                            {% for v in p.column_totals %}
+                                <td class="text-end fw-semibold">{{ v }}</td>
+                            {% endfor %}
+                            <td class="text-end fw-bold">{{ p.grand_total }}</td>
+                        </tr>
+                    </tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</div>

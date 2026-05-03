@@ -1,0 +1,12 @@
+{# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
+{% set p = widget.payload %}
+<div class="card" data-testid="stats-analysis-chart-card">
+    <div class="card-body">
+        {{ include('@Statistics/dashboard/_simple_chart_panel_body.html.twig', {
+            p: p,
+            analysisChartStyle: analysisChartStyle|default(null),
+            chartSummaryTestId: 'stats-analysis-chart-summary',
+            showChartStyleToggle: true,
+        }) }}
+    </div>
+</div>

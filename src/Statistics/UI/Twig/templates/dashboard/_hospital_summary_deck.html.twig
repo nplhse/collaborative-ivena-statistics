@@ -1,0 +1,100 @@
+{# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
+{% set p = widget.payload %}
+{% set kpi = p.kpi %}
+{% set gender = p.gender %}
+{% set urgency = p.urgency %}
+
+{% if p.showUnscopedHint|default(false) %}
+    <p class="text-muted small mb-3">{{ 'stats.overview.hospital_summary.unscoped_hint'|trans }}</p>
+{% endif %}
+
+<div class="row row-deck row-cards mb-3">
+    <div class="col-sm-6 col-lg-4">
+        <div class="card">
+            {% if kpi.actions is defined and kpi.actions is not empty %}
+                <div class="card-header py-2 d-flex justify-content-end align-items-center">
+                    {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {
+                        targets: kpi.actions,
+                        primary_test_id: 'stats-cross-nav-overview-kpi',
+                        secondary_test_id: 'stats-cross-nav-overview-resources',
+                        tertiary_test_id: 'stats-cross-nav-overview-indicators',
+                    }) }}
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <div class="subheader">{{ kpi.subheaderTranslationKey|trans }}</div>
+                <div class="h1 mt-2 mb-0">{{ kpi.value|number_format(0, ',', '.') }}</div>
+                <div class="text-muted">
+                    {{ kpi.mutedTranslationKey|trans({
+                        percent: kpi.percent,
+                        total: kpi.totalCount,
+                    }) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+        <div class="card">
+            {% if gender.actions is defined and gender.actions is not empty %}
+                <div class="card-header py-2 d-flex justify-content-end align-items-center">
+                    {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {
+                        targets: gender.actions,
+                        primary_test_id: 'stats-cross-nav-overview-gender',
+                    }) }}
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <p class="mb-2">{{ gender.titleTranslationKey|trans }}</p>
+                <div class="progress progress-separated mb-3">
+                    {% for seg in gender.segments %}
+                        <div class="progress-bar {{ seg.barClass }}"
+                             style="width: {{ seg.percent }}%"
+                             aria-label="{{ seg.labelTranslationKey|trans }}"></div>
+                    {% endfor %}
+                </div>
+                <div class="row">
+                    {% for seg in gender.segments %}
+                        <div class="col-auto d-flex align-items-center {% if not loop.first %}px-2{% else %}pe-2{% endif %}">
+                            <span class="legend me-2 {{ seg.barClass }}"></span>
+                            <span>{{ seg.labelTranslationKey|trans }}</span>
+                            <span class="text-muted ms-2">{{ seg.count|number_format(0, ',', '.') }} ({{ seg.percent }}%)</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+        <div class="card">
+            {% if urgency.actions is defined and urgency.actions is not empty %}
+                <div class="card-header py-2 d-flex justify-content-end align-items-center">
+                    {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {
+                        targets: urgency.actions,
+                        primary_test_id: 'stats-cross-nav-overview-urgency',
+                    }) }}
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <p class="mb-2">{{ urgency.titleTranslationKey|trans }}</p>
+                <div class="progress progress-separated mb-3">
+                    {% for seg in urgency.segments %}
+                        <div class="progress-bar {{ seg.barClass }}"
+                             style="width: {{ seg.percent }}%"
+                             aria-label="{{ seg.labelTranslationKey|trans }}"></div>
+                    {% endfor %}
+                </div>
+                <div class="row">
+                    {% for seg in urgency.segments %}
+                        <div class="col-auto d-flex align-items-center {% if not loop.first %}px-2{% else %}pe-2{% endif %}">
+                            <span class="legend me-2 {{ seg.barClass }}"></span>
+                            <span>{{ seg.labelTranslationKey|trans }}</span>
+                            <span class="text-muted ms-2">{{ seg.count|number_format(0, ',', '.') }} ({{ seg.percent }}%)</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

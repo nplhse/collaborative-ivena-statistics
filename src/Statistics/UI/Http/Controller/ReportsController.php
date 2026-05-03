@@ -8,9 +8,9 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
-use App\Statistics\Application\HospitalSummaryProvider;
-use App\Statistics\Application\OverviewDashboardProvider;
+use App\Statistics\Application\Report\ReportDefinitionRegistry;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\User\Domain\Entity\User;
@@ -20,15 +20,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class DashboardController extends AbstractController
+final class ReportsController extends AbstractController
 {
     use StatisticsPagePresentationTrait;
 
+    private const array ALLOWED_LIMITS = [10, 25, 50];
+
     public function __construct(
-        private readonly OverviewDashboardProvider $overviewDashboardProvider,
-        private readonly HospitalSummaryProvider $hospitalSummaryProvider,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
         private readonly HospitalRepository $hospitalRepository,
+        private readonly ReportDefinitionRegistry $reportDefinitionRegistry,
         private readonly TranslatorInterface $translator,
         private readonly StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
     ) {
@@ -46,8 +47,8 @@ final class DashboardController extends AbstractController
         return $this->statisticsNavigationUrlBuilder;
     }
 
-    #[Route('/statistics/', name: 'app_stats_dashboard', methods: ['GET'])]
-    public function index(Request $request): Response
+    #[Route('/statistics/reports', name: 'app_stats_reports', methods: ['GET'])]
+    public function __invoke(Request $request): Response
     {
         $user = $this->getUser();
         $filter = $this->statisticsFilterFactory->createFromRequest(
@@ -66,13 +67,13 @@ final class DashboardController extends AbstractController
         $scopeUrls = [
             'public' => $this->statisticsPageUrl(
                 $request,
-                'app_stats_dashboard',
+                'app_stats_reports',
                 ['scope' => StatisticsFilterScope::Public->value],
                 ['hospital'],
             ),
             'my_hospitals' => $this->statisticsPageUrl(
                 $request,
-                'app_stats_dashboard',
+                'app_stats_reports',
                 ['scope' => StatisticsFilterScope::MyHospitals->value],
                 ['hospital'],
             ),
@@ -85,7 +86,7 @@ final class DashboardController extends AbstractController
             foreach ($accessibleHospitals as $row) {
                 $hospitalUrls[(string) $row['id']] = $this->statisticsPageUrl(
                     $request,
-                    'app_stats_dashboard',
+                    'app_stats_reports',
                     [
                         'scope' => StatisticsFilterScope::Hospital->value,
                         'hospital' => $row['id'],
@@ -98,19 +99,19 @@ final class DashboardController extends AbstractController
         $periodUrls = [
             'all' => $this->statisticsPageUrl(
                 $request,
-                'app_stats_dashboard',
+                'app_stats_reports',
                 ['period' => StatisticsFilterPeriod::All->value],
                 ['year', 'month'],
             ),
             'all_time' => $this->statisticsPageUrl(
                 $request,
-                'app_stats_dashboard',
+                'app_stats_reports',
                 ['period' => StatisticsFilterPeriod::AllTime->value],
                 ['year', 'month'],
             ),
             'year' => $this->statisticsPageUrl(
                 $request,
-                'app_stats_dashboard',
+                'app_stats_reports',
                 [
                     'period' => StatisticsFilterPeriod::Year->value,
                     'year' => $defaultYear,
@@ -119,7 +120,7 @@ final class DashboardController extends AbstractController
             ),
             'month' => $this->statisticsPageUrl(
                 $request,
-                'app_stats_dashboard',
+                'app_stats_reports',
                 [
                     'period' => StatisticsFilterPeriod::Month->value,
                     'year' => $defaultYear,
@@ -144,13 +145,40 @@ final class DashboardController extends AbstractController
             && StatisticsFilterScope::MyHospitals === $filter->scope) {
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
-        $chartPairWidget = array_find($this->overviewDashboardProvider->build($context), fn ($widget): bool => StatisticWidgetType::ChartPair === $widget->type);
+
+        $requestedReport = $request->query->getString('report', '');
+        $definition = $this->reportDefinitionRegistry->getOrFirst($requestedReport);
+        $reportKey = $definition->key();
+
+        $limit = $this->resolveReportLimit($request->query->all()['limit'] ?? null);
+
+        $reportWidget = $definition->build($context, $limit);
+
+        $reportSelectUrls = [];
+        foreach ($this->reportDefinitionRegistry->all() as $item) {
+            $reportSelectUrls[$item->key()] = $this->statisticsPageUrl(
+                $request,
+                'app_stats_reports',
+                ['report' => $item->key()],
+                [],
+            );
+        }
+
+        $limitUrls = [];
+        foreach (self::ALLOWED_LIMITS as $lim) {
+            $limitUrls[$lim] = $this->statisticsPageUrl(
+                $request,
+                'app_stats_reports',
+                ['limit' => $lim],
+                [],
+            );
+        }
+
+        $reportWidget = $this->withReportTableLimitFooter($reportWidget, $limitUrls, $limit);
 
         $locale = $request->getLocale();
 
-        return $this->render('@Statistics/dashboard/index.html.twig', [
-            'chartPairWidget' => $chartPairWidget,
-            'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context),
+        return $this->render('@Statistics/reports/index.html.twig', [
             'statisticsFilter' => $filter,
             'statsScopeUrls' => $scopeUrls,
             'statsHospitalUrls' => $hospitalUrls,
@@ -166,6 +194,42 @@ final class DashboardController extends AbstractController
                 \count($accessibleHospitals),
             ),
             'statisticsHeadingPeriod' => $this->statisticsHeadingPeriod($filter, $locale),
+            'reportWidget' => $reportWidget,
+            'reportDefinitions' => $this->reportDefinitionRegistry->all(),
+            'currentReportKey' => $reportKey,
+            'reportSelectUrls' => $reportSelectUrls,
         ]);
+    }
+
+    /**
+     * @param array<int, string> $limitUrls
+     */
+    private function withReportTableLimitFooter(StatisticWidget $widget, array $limitUrls, int $currentLimit): StatisticWidget
+    {
+        if (StatisticWidgetType::Table !== $widget->type) {
+            return $widget;
+        }
+
+        $payload = $widget->payload;
+        $payload['limitFooter'] = [
+            'urls' => $limitUrls,
+            'current' => $currentLimit,
+        ];
+
+        return new StatisticWidget($widget->type, $widget->id, $payload, $widget->title, $widget->actions);
+    }
+
+    private function resolveReportLimit(mixed $rawLimit): int
+    {
+        if (null === $rawLimit || '' === (string) $rawLimit) {
+            return 25;
+        }
+
+        $parsed = filter_var((string) $rawLimit, FILTER_VALIDATE_INT);
+        if (false !== $parsed && \in_array($parsed, self::ALLOWED_LIMITS, true)) {
+            return $parsed;
+        }
+
+        return 25;
     }
 }
