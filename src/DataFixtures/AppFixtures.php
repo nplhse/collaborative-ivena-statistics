@@ -66,7 +66,17 @@ final class AppFixtures extends Fixture
         IndicationRawFactory::createMany(25);
         IndicationNormalizedFactory::createMany(20);
 
-        AllocationFactory::createMany(100);
+        $faker = \Faker\Factory::create();
+        AllocationFactory::createMany(random_int(250, 500), static function (int $_) use ($faker): array {
+            $createdAt = \DateTimeImmutable::createFromMutable(
+                $faker->dateTimeBetween('-12 months', 'now'),
+            );
+
+            return [
+                'createdAt' => $createdAt,
+                'arrivalAt' => $createdAt->add(new \DateInterval('PT'.random_int(5, 120).'M')),
+            ];
+        });
         MciCaseFactory::createMany(8);
 
         PostCategoryFactory::createOne();
