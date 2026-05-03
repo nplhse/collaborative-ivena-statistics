@@ -1,0 +1,6 @@
+<figure class="mb-3">
+    <img class="img-fluid rounded" src="{{ block.data.src|default('') }}" alt="{{ block.data.alt|default('') }}">
+    {% if block.data.caption|default('') is not empty %}
+        <figcaption class="text-secondary mt-1">{{ block.data.caption }}</figcaption>
+    {% endif %}
+</figure>

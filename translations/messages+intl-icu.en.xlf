@@ -125,6 +125,26 @@
         <source>dashboard.empty.title</source>
         <target>Your dashboard is ready</target>
       </trans-unit>
+      <trans-unit id="dshPgTit" resname="dashboard.pages.card_title">
+        <source>dashboard.pages.card_title</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="dshPgEmp" resname="dashboard.pages.empty">
+        <source>dashboard.pages.empty</source>
+        <target>No pages available.</target>
+      </trans-unit>
+      <trans-unit id="dshBlgTit" resname="dashboard.blog.recent_title">
+        <source>dashboard.blog.recent_title</source>
+        <target>Latest blog posts</target>
+      </trans-unit>
+      <trans-unit id="dshBlgEmp" resname="dashboard.blog.recent_empty">
+        <source>dashboard.blog.recent_empty</source>
+        <target>No published posts yet.</target>
+      </trans-unit>
+      <trans-unit id="dshBlgVis" resname="dashboard.blog.visit">
+        <source>dashboard.blog.visit</source>
+        <target>Visit Blog</target>
+      </trans-unit>
       <trans-unit id="EiKSkqu" resname="field.age">
         <source>field.age</source>
         <target>Age</target>
@@ -2258,6 +2278,142 @@
       <trans-unit id="blog0063" resname="blog.pagination.none">
         <source>blog.pagination.none</source>
         <target>Not available</target>
+      </trans-unit>
+      <trans-unit id="page0001" resname="label.page">
+        <source>label.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="page0002" resname="label.pages">
+        <source>label.pages</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="page0003" resname="label.parent_page">
+        <source>label.parent_page</source>
+        <target>Parent page</target>
+      </trans-unit>
+      <trans-unit id="page0004" resname="label.visibility">
+        <source>label.visibility</source>
+        <target>Visibility</target>
+      </trans-unit>
+      <trans-unit id="page0005" resname="label.public">
+        <source>label.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="page0006" resname="label.authenticated">
+        <source>label.authenticated</source>
+        <target>Authenticated</target>
+      </trans-unit>
+      <trans-unit id="page0007" resname="label.sort_order">
+        <source>label.sort_order</source>
+        <target>Sort order</target>
+      </trans-unit>
+      <trans-unit id="page0008" resname="label.path">
+        <source>label.path</source>
+        <target>Path</target>
+      </trans-unit>
+      <trans-unit id="page0009" resname="label.content_blocks">
+        <source>label.content_blocks</source>
+        <target>Content blocks</target>
+      </trans-unit>
+      <trans-unit id="page0010" resname="label.block">
+        <source>label.block</source>
+        <target>Block</target>
+      </trans-unit>
+      <trans-unit id="page0011" resname="label.enabled">
+        <source>label.enabled</source>
+        <target>Enabled</target>
+      </trans-unit>
+      <trans-unit id="page0012" resname="label.disabled">
+        <source>label.disabled</source>
+        <target>Disabled</target>
+      </trans-unit>
+      <trans-unit id="page0013" resname="label.type">
+        <source>label.type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="page0014" resname="label.block_type.richtext">
+        <source>label.block_type.richtext</source>
+        <target>Rich text</target>
+      </trans-unit>
+      <trans-unit id="page0015" resname="label.block_type.image">
+        <source>label.block_type.image</source>
+        <target>Image</target>
+      </trans-unit>
+      <trans-unit id="page0016" resname="label.block_type.cta">
+        <source>label.block_type.cta</source>
+        <target>Call to action</target>
+      </trans-unit>
+      <trans-unit id="page0017" resname="label.block_type.quote">
+        <source>label.block_type.quote</source>
+        <target>Quote</target>
+      </trans-unit>
+      <trans-unit id="page0018" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="page0019" resname="help.page.richtext_allowed_tags">
+        <source>help.page.richtext_allowed_tags</source>
+        <target>Allowed tags: p, br, h2-h4, strong, em, ul, ol, li, a, blockquote</target>
+      </trans-unit>
+      <trans-unit id="page0020" resname="label.image_url">
+        <source>label.image_url</source>
+        <target>Image URL</target>
+      </trans-unit>
+      <trans-unit id="page0021" resname="label.image_alt">
+        <source>label.image_alt</source>
+        <target>Image alt text</target>
+      </trans-unit>
+      <trans-unit id="page0022" resname="label.image_caption">
+        <source>label.image_caption</source>
+        <target>Image caption</target>
+      </trans-unit>
+      <trans-unit id="page0023" resname="label.headline">
+        <source>label.headline</source>
+        <target>Headline</target>
+      </trans-unit>
+      <trans-unit id="page0024" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button label</target>
+      </trans-unit>
+      <trans-unit id="page0025" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button URL</target>
+      </trans-unit>
+      <trans-unit id="page0026" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Quote text</target>
+      </trans-unit>
+      <trans-unit id="page0027" resname="error.page.auth_required">
+        <source>error.page.auth_required</source>
+        <target>This page is only available to signed-in users.</target>
+      </trans-unit>
+      <trans-unit id="page0028" resname="page.breadcrumb.untitled">
+        <source>page.breadcrumb.untitled</source>
+        <target>Untitled page</target>
+      </trans-unit>
+      <trans-unit id="admPg001" resname="admin.page.action.view_public">
+        <source>admin.page.action.view_public</source>
+        <target>View page</target>
+      </trans-unit>
+      <trans-unit id="admPg002" resname="admin.page.action.back_to_index">
+        <source>admin.page.action.back_to_index</source>
+        <target>Back to list</target>
+      </trans-unit>
+      <trans-unit id="menuBlgCt" resname="menu.blog.categories">
+        <source>menu.blog.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="menuBlgCm" resname="menu.blog.comments">
+        <source>menu.blog.comments</source>
+        <target>Comments</target>
+      </trans-unit>
+      <trans-unit id="menuBlgPt" resname="menu.blog.posts">
+        <source>menu.blog.posts</source>
+        <target>Posts</target>
+      </trans-unit>
+      <trans-unit id="menuBlgTg" resname="menu.blog.tags">
+        <source>menu.blog.tags</source>
+        <target>Tags</target>
       </trans-unit>
     </body>
   </file>

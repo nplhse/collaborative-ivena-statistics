@@ -1,0 +1,102 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Content\Unit\Page;
+
+use App\Content\Application\Page\PageContentValidator;
+use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+final class PageContentValidatorTest extends TestCase
+{
+    public function testValidContentProducesNoErrors(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $content = [
+            ['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Hallo</p>']],
+            ['type' => 'image', 'data' => ['src' => '/img.jpg', 'alt' => 'Alt']],
+            ['type' => 'cta', 'data' => ['headline' => 'Mehr', 'buttonLabel' => 'Los', 'buttonUrl' => '/x']],
+            ['type' => 'quote', 'data' => ['text' => 'Zitat']],
+        ];
+
+        self::assertSame([], $validator->validate($content));
+    }
+
+    public function testInvalidContentReturnsReadableErrors(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate([
+            ['type' => 'unknown', 'data' => []],
+            ['type' => 'image', 'data' => ['src' => '']],
+            ['type' => 'richtext', 'data' => []],
+        ]);
+
+        self::assertNotEmpty($errors);
+        self::assertStringContainsString('unknown block type "unknown"', implode(' ', $errors));
+        self::assertStringContainsString('data.alt is required', implode(' ', $errors));
+        self::assertStringContainsString('data.html is required', implode(' ', $errors));
+    }
+
+    public function testNonArrayContentReturnsSingleError(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate('not-a-list');
+
+        self::assertSame(['Content must be a list of blocks.'], $errors);
+    }
+
+    public function testScalarBlockIsRejected(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate([
+            'scalar-block',
+        ]);
+
+        self::assertCount(1, $errors);
+        self::assertStringContainsString('Block 1', $errors[0]);
+        self::assertStringContainsString('must be an object.', $errors[0]);
+    }
+
+    private function translator(): TranslatorInterface
+    {
+        return new class implements TranslatorInterface {
+            /**
+             * @param array<string, mixed> $parameters
+             */
+            #[\Override]
+            public function trans(?string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
+            {
+                $id = (string) $id;
+
+                $messages = [
+                    'page.validation.content_must_be_array' => 'Content must be a list of blocks.',
+                    'page.validation.block_must_be_object' => 'must be an object.',
+                    'page.validation.block_type_required' => 'field "type" is required.',
+                    'page.validation.block_unknown_type' => 'unknown block type "{type}".',
+                    'page.validation.block_data_must_be_object' => 'field "data" must be an object.',
+                    'page.validation.block_enabled_must_be_bool' => 'field "enabled" must be true or false.',
+                    'page.validation.block_required_field' => 'data.{field} is required.',
+                ];
+
+                $message = $messages[$id] ?? $id;
+
+                foreach ($parameters as $name => $value) {
+                    $message = str_replace((string) $name, (string) $value, $message);
+                }
+
+                return $message;
+            }
+
+            #[\Override]
+            public function getLocale(): string
+            {
+                return 'en';
+            }
+        };
+    }
+}

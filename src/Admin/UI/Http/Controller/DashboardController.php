@@ -22,6 +22,7 @@ use App\Admin\UI\Http\Controller\IndicationRaw\IndicationRawCrudController;
 use App\Admin\UI\Http\Controller\Infection\InfectionCrudController;
 use App\Admin\UI\Http\Controller\MciCase\MciCaseCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
+use App\Admin\UI\Http\Controller\Page\PageCrudController;
 use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
 use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
@@ -62,30 +63,38 @@ final class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToRoute('Back to frontend', 'fas fa-backward-fast', 'app_default');
         yield MenuItem::section('Management');
         yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fas fa-users');
-        yield MenuItem::section('Imports');
-        yield MenuItem::linkTo(ImportCrudController::class, 'Imports', 'fa fa-database');
-        yield MenuItem::linkTo(ImportRejectCrudController::class, 'Import Rejects', 'fas fa-triangle-exclamation');
+
         yield MenuItem::section('Data');
-        yield MenuItem::linkTo(AllocationCrudController::class, 'Allocations', 'fas fa-list');
-        yield MenuItem::linkTo(MciCaseCrudController::class, 'MCI Cases', 'fas fa-list');
-        yield MenuItem::linkTo(AssignmentCrudController::class, 'Assignments', 'fas fa-list');
-        yield MenuItem::linkTo(DepartmentCrudController::class, 'Departments', 'fas fa-list');
-        yield MenuItem::linkTo(DispatchAreaCrudController::class, 'Dispatch Areas', 'fas fa-list');
-        yield MenuItem::linkTo(HospitalCrudController::class, 'Hospitals', 'fas fa-list');
-        yield MenuItem::linkTo(IndicationNormalizedCrudController::class, 'Indication Normalized', 'fas fa-list');
-        yield MenuItem::linkTo(IndicationRawCrudController::class, 'Indication Raw', 'fas fa-list');
-        yield MenuItem::linkTo(InfectionCrudController::class, 'Infections', 'fas fa-list');
-        yield MenuItem::linkTo(OccasionCrudController::class, 'Occasions', 'fas fa-list');
-        yield MenuItem::linkTo(SecondaryTransportCrudController::class, 'Secondary Transports', 'fas fa-list');
-        yield MenuItem::linkTo(SpecialityCrudController::class, 'Specialities', 'fas fa-list');
-        yield MenuItem::linkTo(StateCrudController::class, 'States', 'fas fa-list');
+        yield MenuItem::subMenu('Data', 'fas fa-layer-group')->setSubItems([
+            MenuItem::linkTo(AllocationCrudController::class, 'Allocations', 'fas fa-list'),
+            MenuItem::linkTo(AssignmentCrudController::class, 'Assignments', 'fas fa-list'),
+            MenuItem::linkTo(DepartmentCrudController::class, 'Departments', 'fas fa-list'),
+            MenuItem::linkTo(DispatchAreaCrudController::class, 'Dispatch Areas', 'fas fa-list'),
+            MenuItem::linkTo(HospitalCrudController::class, 'Hospitals', 'fas fa-list'),
+            MenuItem::linkTo(IndicationNormalizedCrudController::class, 'Indication Normalized', 'fas fa-list'),
+            MenuItem::linkTo(IndicationRawCrudController::class, 'Indication Raw', 'fas fa-list'),
+            MenuItem::linkTo(InfectionCrudController::class, 'Infections', 'fas fa-list'),
+            MenuItem::linkTo(MciCaseCrudController::class, 'MCI Cases', 'fas fa-list'),
+            MenuItem::linkTo(OccasionCrudController::class, 'Occasions', 'fas fa-list'),
+            MenuItem::linkTo(SecondaryTransportCrudController::class, 'Secondary Transports', 'fas fa-list'),
+            MenuItem::linkTo(SpecialityCrudController::class, 'Specialities', 'fas fa-list'),
+            MenuItem::linkTo(StateCrudController::class, 'States', 'fas fa-list'),
+        ]);
+        yield MenuItem::linkTo(ImportRejectCrudController::class, 'Import Rejects', 'fas fa-triangle-exclamation');
+        yield MenuItem::linkTo(ImportCrudController::class, 'Imports', 'fa fa-database');
+
         yield MenuItem::section('Content');
-        yield MenuItem::linkTo(PostCrudController::class, 'label.blog.posts', 'fas fa-blog');
-        yield MenuItem::linkTo(PostCategoryCrudController::class, 'label.blog.categories', 'fas fa-folder');
-        yield MenuItem::linkTo(PostTagCrudController::class, 'label.blog.tags', 'fas fa-tags');
-        yield MenuItem::linkTo(PostCommentCrudController::class, 'label.blog.comments', 'fas fa-comments');
+        yield MenuItem::subMenu('Blog', 'fas fa-book')->setSubItems([
+            MenuItem::linkTo(PostCrudController::class, 'menu.blog.posts', 'fas fa-align-left'),
+            MenuItem::linkTo(PostCategoryCrudController::class, 'menu.blog.categories', 'fas fa-folder'),
+            MenuItem::linkTo(PostCommentCrudController::class, 'menu.blog.comments', 'fas fa-comments'),
+            MenuItem::linkTo(PostTagCrudController::class, 'menu.blog.tags', 'fas fa-tags'),
+        ]);
+        yield MenuItem::linkTo(PageCrudController::class, 'Pages', 'fas fa-file');
+
         yield MenuItem::section('System');
         yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');
         yield MenuItem::linkTo(CookieConsentCrudController::class, 'Cookie consents', 'fas fa-cookie-bite');

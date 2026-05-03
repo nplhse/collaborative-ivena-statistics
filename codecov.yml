@@ -1,8 +1,13 @@
+# Fixture loaders are not exercised by PHPUnit; exclude from Codecov patch/project noise.
+# Paths are regex/globs — see https://docs.codecov.com/docs/ignoring-paths
+ignore:
+  - "src/DataFixtures/*.php"
+
 coverage:
-    status:
-        project:
-            default:
-                target: auto
-                # adjust accordingly based on how flaky your tests are
-                # this allows a 10% drop from the previous base commit coverage
-                threshold: 10%
+  status:
+    project:
+      default:
+        target: auto
+        # adjust accordingly based on how flaky your tests are
+        # this allows a 10% drop from the previous base commit coverage
+        threshold: 10%

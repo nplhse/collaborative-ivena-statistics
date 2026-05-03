@@ -16,6 +16,8 @@ use App\Allocation\Infrastructure\Factory\MciCaseFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Content\Domain\Entity\Page;
+use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Factory\PostCategoryFactory;
 use App\Content\Infrastructure\Factory\PostCommentFactory;
 use App\Content\Infrastructure\Factory\PostFactory;
@@ -77,6 +79,153 @@ final class AppFixtures extends Fixture
         PostFactory::createMany(15);
 
         PostCommentFactory::createMany(6);
+
+        $aboutPage = PageFactory::createOne([
+            'title' => 'About us',
+            'slug' => 'about',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 10,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<h2>Lorem Ipsum</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
+                    ],
+                ],
+                [
+                    'type' => 'quote',
+                    'enabled' => true,
+                    'data' => [
+                        'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                    ],
+                ],
+            ],
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Contact',
+            'slug' => 'kontakt',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 20,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<h2>Contact</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p><p><strong>Email:</strong> hello@example.org</p>',
+                    ],
+                ],
+                [
+                    'type' => 'cta',
+                    'enabled' => true,
+                    'data' => [
+                        'headline' => 'Get in touch now',
+                        'buttonLabel' => 'Contact form',
+                        'buttonUrl' => '/kontakt',
+                    ],
+                ],
+            ],
+        ]);
+
+        $productsPage = PageFactory::createOne([
+            'title' => 'Products',
+            'slug' => 'produkte',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 30,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<h2>Our products</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                    ],
+                ],
+            ],
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Hosting',
+            'slug' => 'hosting',
+            'parent' => $productsPage,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 10,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<h2>Hosting</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>',
+                    ],
+                ],
+                [
+                    'type' => 'image',
+                    'enabled' => true,
+                    'data' => [
+                        'src' => '/uploads/example-hosting.jpg',
+                        'alt' => 'Server Rack',
+                        'caption' => 'Lorem ipsum caption',
+                    ],
+                ],
+            ],
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Consulting',
+            'slug' => 'beratung',
+            'parent' => $productsPage,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 20,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<h2>Consulting</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                    ],
+                ],
+            ],
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Members area',
+            'slug' => 'mitgliederbereich',
+            'parent' => $aboutPage,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+            'sortOrder' => 30,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<h2>Internal area</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Only signed-in users can access this page.</p>',
+                    ],
+                ],
+            ],
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Roadmap draft',
+            'slug' => 'roadmap-entwurf',
+            'status' => Page::STATUS_DRAFT,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 99,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<h2>Draft</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                    ],
+                ],
+            ],
+        ]);
 
         $manager->flush();
     }
