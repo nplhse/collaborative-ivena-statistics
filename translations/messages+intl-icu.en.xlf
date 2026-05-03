@@ -2399,6 +2399,22 @@
         <source>admin.page.action.back_to_index</source>
         <target>Back to list</target>
       </trans-unit>
+      <trans-unit id="menuBlgCt" resname="menu.blog.categories">
+        <source>menu.blog.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="menuBlgCm" resname="menu.blog.comments">
+        <source>menu.blog.comments</source>
+        <target>Comments</target>
+      </trans-unit>
+      <trans-unit id="menuBlgPt" resname="menu.blog.posts">
+        <source>menu.blog.posts</source>
+        <target>Posts</target>
+      </trans-unit>
+      <trans-unit id="menuBlgTg" resname="menu.blog.tags">
+        <source>menu.blog.tags</source>
+        <target>Tags</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
