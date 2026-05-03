@@ -55,7 +55,7 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Core platform strengths');
     }
 
-    public function testAuthenticatedUsersSeeEmptyDashboardOnHomepage(): void
+    public function testAuthenticatedUsersSeeDashboardOnHomepage(): void
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'dashboard-user'])->_real();
@@ -65,5 +65,9 @@ final class DefaultControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Your dashboard is ready');
+        self::assertSelectorTextContains('body', 'Latest blog posts');
+        self::assertSelectorTextContains('body', 'Pages');
+        self::assertSelectorTextContains('body', 'No published posts yet.');
+        self::assertSelectorTextContains('body', 'No pages available.');
     }
 }

@@ -125,6 +125,26 @@
         <source>dashboard.empty.title</source>
         <target>Your dashboard is ready</target>
       </trans-unit>
+      <trans-unit id="dshPgTit" resname="dashboard.pages.card_title">
+        <source>dashboard.pages.card_title</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="dshPgEmp" resname="dashboard.pages.empty">
+        <source>dashboard.pages.empty</source>
+        <target>No pages available.</target>
+      </trans-unit>
+      <trans-unit id="dshBlgTit" resname="dashboard.blog.recent_title">
+        <source>dashboard.blog.recent_title</source>
+        <target>Latest blog posts</target>
+      </trans-unit>
+      <trans-unit id="dshBlgEmp" resname="dashboard.blog.recent_empty">
+        <source>dashboard.blog.recent_empty</source>
+        <target>No published posts yet.</target>
+      </trans-unit>
+      <trans-unit id="dshBlgVis" resname="dashboard.blog.visit">
+        <source>dashboard.blog.visit</source>
+        <target>Visit Blog</target>
+      </trans-unit>
       <trans-unit id="EiKSkqu" resname="field.age">
         <source>field.age</source>
         <target>Age</target>

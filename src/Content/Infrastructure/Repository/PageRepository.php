@@ -49,4 +49,25 @@ final class PageRepository extends ServiceEntityRepository
 
         return $pages;
     }
+
+    /**
+     * Published pages visible to authenticated users (public + authenticated visibility).
+     *
+     * @return list<Page>
+     */
+    public function findAllPublishedVisibleToAuthenticatedUser(): array
+    {
+        /** @var list<Page> $pages */
+        $pages = $this->createQueryBuilder('p')
+            ->addSelect('parent')
+            ->leftJoin('p.parent', 'parent')
+            ->andWhere('p.status = :status')
+            ->andWhere('p.visibility IN (:visibilities)')
+            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->setParameter('visibilities', [Page::VISIBILITY_PUBLIC, Page::VISIBILITY_AUTHENTICATED])
+            ->getQuery()
+            ->getResult();
+
+        return $pages;
+    }
 }
