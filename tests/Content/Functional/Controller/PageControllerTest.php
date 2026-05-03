@@ -42,6 +42,8 @@ final class PageControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Hosting');
+        self::assertSelectorExists('nav[aria-label="breadcrumb"]');
+        self::assertSelectorTextContains('nav[aria-label="breadcrumb"]', 'Produkte');
     }
 
     public function testDraftPageIsNotPubliclyVisible(): void

@@ -2387,6 +2387,10 @@
         <source>error.page.auth_required</source>
         <target>This page is only available to signed-in users.</target>
       </trans-unit>
+      <trans-unit id="page0028" resname="page.breadcrumb.untitled">
+        <source>page.breadcrumb.untitled</source>
+        <target>Untitled page</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
