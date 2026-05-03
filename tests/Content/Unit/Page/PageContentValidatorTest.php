@@ -40,6 +40,28 @@ final class PageContentValidatorTest extends TestCase
         self::assertStringContainsString('data.html is required', implode(' ', $errors));
     }
 
+    public function testNonArrayContentReturnsSingleError(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate('not-a-list');
+
+        self::assertSame(['Content must be a list of blocks.'], $errors);
+    }
+
+    public function testScalarBlockIsRejected(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate([
+            'scalar-block',
+        ]);
+
+        self::assertCount(1, $errors);
+        self::assertStringContainsString('Block 1', $errors[0]);
+        self::assertStringContainsString('must be an object.', $errors[0]);
+    }
+
     private function translator(): TranslatorInterface
     {
         return new class implements TranslatorInterface {
