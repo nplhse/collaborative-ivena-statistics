@@ -2391,6 +2391,14 @@
         <source>page.breadcrumb.untitled</source>
         <target>Untitled page</target>
       </trans-unit>
+      <trans-unit id="admPg001" resname="admin.page.action.view_public">
+        <source>admin.page.action.view_public</source>
+        <target>View page</target>
+      </trans-unit>
+      <trans-unit id="admPg002" resname="admin.page.action.back_to_index">
+        <source>admin.page.action.back_to_index</source>
+        <target>Back to list</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

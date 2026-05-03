@@ -9,6 +9,10 @@ use App\Content\Application\Page\PageContentSanitizer;
 use App\Content\Application\Page\PageContentValidator;
 use App\Content\Domain\Entity\Page;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -48,6 +52,42 @@ final class PageCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('label.pages')
             ->setSearchFields(['id', 'title', 'slug', 'path'])
             ->setDefaultSort(['path' => 'ASC']);
+    }
+
+    #[\Override]
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $this->createViewPublicAction())
+            ->update(Crud::PAGE_DETAIL, Action::INDEX, static fn (Action $action): Action => $action->setLabel('admin.page.action.back_to_index'))
+            ->add(Crud::PAGE_DETAIL, $this->createViewPublicAction())
+            ->add(Crud::PAGE_EDIT, Action::INDEX)
+            ->update(Crud::PAGE_EDIT, Action::INDEX, static fn (Action $action): Action => $action->setLabel('admin.page.action.back_to_index'))
+            ->add(Crud::PAGE_EDIT, $this->createViewPublicAction());
+    }
+
+    private function createViewPublicAction(): Action
+    {
+        return Action::new('viewPublic', 'admin.page.action.view_public', 'fas fa-external-link-alt')
+            ->linkToRoute('app_page_show', static fn (Page $page): array => ['path' => trim((string) $page->getPath(), '/')])
+            ->setHtmlAttributes(['target' => '_blank', 'rel' => 'noopener noreferrer'])
+            ->displayIf(static function (Page $page): bool {
+                if (Page::STATUS_PUBLISHED !== $page->getStatus()) {
+                    return false;
+                }
+
+                return '' !== trim((string) $page->getPath(), '/');
+            });
+    }
+
+    /** TextEditorType in {@see PageContentBlockType} does not pull field assets; mirror TextEditorField. */
+    #[\Override]
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addCssFile(Asset::fromEasyAdminAssetPackage('field-text-editor.css')->onlyOnForms())
+            ->addJsFile(Asset::fromEasyAdminAssetPackage('field-text-editor.js')->onlyOnForms());
     }
 
     #[\Override]
