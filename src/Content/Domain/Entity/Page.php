@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Domain\Entity;
 
 use App\Content\Infrastructure\Repository\PageRepository;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,6 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+#[Audit\Audited]
 #[ORM\Entity(repositoryClass: PageRepository::class)]
 #[ORM\Table(name: 'page')]
 #[ORM\UniqueConstraint(name: 'uniq_page_path', columns: ['path'])]

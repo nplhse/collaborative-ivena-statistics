@@ -51,6 +51,15 @@ final readonly class AuditValueNormalizer
             return array_map($this->normalize(...), $value->toArray());
         }
 
+        if (\is_array($value)) {
+            $normalized = [];
+            foreach ($value as $key => $item) {
+                $normalized[$key] = $this->normalize($item);
+            }
+
+            return $normalized;
+        }
+
         if (\is_object($value)) {
             return $this->normalizeEntityReference($value);
         }
