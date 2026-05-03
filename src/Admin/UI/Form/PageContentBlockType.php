@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Form;
 
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\TextEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -98,10 +99,10 @@ final class PageContentBlockType extends AbstractType
      */
     private function addRichtextFields(FormInterface $dataForm): void
     {
-        $dataForm->add('html', TextareaType::class, [
+        $dataForm->add('html', TextEditorType::class, [
             'label' => 'label.html',
             'required' => true,
-            'attr' => ['rows' => 8],
+            'attr' => ['rows' => 20],
             'help' => 'help.page.richtext_allowed_tags',
         ]);
     }
