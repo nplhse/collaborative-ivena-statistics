@@ -22,6 +22,23 @@ services:
     App\:
         resource: '../src/'
 
+    App\Statistics\Application\Analysis\AllocationsByMonthAnalysis:
+        tags: ['app.statistics.analysis_definition']
+
+    App\Statistics\Application\Analysis\PivotAnalysis:
+        tags: ['app.statistics.analysis_definition']
+
+    App\Statistics\Application\Analysis\AnalysisDefinitionRegistry:
+        arguments:
+            $definitions: !tagged_iterator 'app.statistics.analysis_definition'
+
+    App\Statistics\Application\Report\TopDiagnosesReport:
+        tags: ['app.statistics.report_definition']
+
+    App\Statistics\Application\Report\ReportDefinitionRegistry:
+        arguments:
+            $definitions: !tagged_iterator 'app.statistics.report_definition'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
