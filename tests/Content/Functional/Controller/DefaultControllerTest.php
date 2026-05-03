@@ -64,7 +64,7 @@ final class DefaultControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Your dashboard is ready');
+        self::assertSelectorTextContains('body', 'This is your personal workspace.');
         self::assertSelectorTextContains('body', 'Latest blog posts');
         self::assertSelectorTextContains('body', 'Pages');
         self::assertSelectorTextContains('body', 'No published posts yet.');
