@@ -26,7 +26,7 @@ final class PivotTableBuilder
             $row = [];
             $rowTotal = 0.0;
             foreach ($colKeys as $colKey) {
-                $value = (float) ($index[$rowKey.'|'.$colKey] ?? 0.0);
+                $value = $index[$rowKey.'|'.$colKey] ?? 0.0;
                 $row[] = $value;
                 $rowTotal += $value;
             }
