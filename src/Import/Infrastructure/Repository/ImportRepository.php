@@ -100,4 +100,49 @@ final class ImportRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /**
+     * @return array<int, array{year: int, month: int, count: int}>
+     */
+    public function countImportsByMonthInRange(\DateTimeInterface $from, ?\DateTimeInterface $toExclusive): array
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->where('i.createdAt >= :from')
+            ->setParameter('from', $from)
+            ->orderBy('i.createdAt', 'ASC');
+        if ($toExclusive instanceof \DateTimeInterface) {
+            $qb->andWhere('i.createdAt < :toExclusive')
+                ->setParameter('toExclusive', $toExclusive);
+        }
+
+        /** @var Import[] $rows */
+        $rows = $qb->getQuery()->getResult();
+
+        $buckets = [];
+        foreach ($rows as $import) {
+            $createdAt = $import->getCreatedAt();
+            if (!$createdAt) {
+                continue;
+            }
+            $key = $createdAt->format('Y-m');
+            if (!isset($buckets[$key])) {
+                $buckets[$key] = 0;
+            }
+            ++$buckets[$key];
+        }
+
+        $result = [];
+        foreach ($buckets as $key => $count) {
+            [$year, $month] = explode('-', $key);
+            $result[] = [
+                'year' => (int) $year,
+                'month' => (int) $month,
+                'count' => $count,
+            ];
+        }
+
+        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
+
+        return $result;
+    }
 }

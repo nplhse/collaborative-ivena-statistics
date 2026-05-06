@@ -37,6 +37,26 @@
     </div>
 {% endmacro %}
 
+{# Wie {{ results() }}, aber mit vorgegebenen Ziel-URLs (z. B. Statistics-Reports, Limit ohne Pagination). #}
+{% macro rowLimitDropdown(limitUrls, currentLimit) %}
+    <div class="dropdown">
+        <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-testid="stats-reports-limit-trigger">
+            <span class="me-1">
+                {{ 'label.pagination_results'|trans({pageSize: currentLimit}) }}
+            </span>
+        </a>
+        <div class="dropdown-menu">
+            {% for size, url in limitUrls %}
+                <a class="dropdown-item{% if size == currentLimit %} active{% endif %}"
+                   href="{{ url }}"
+                   data-testid="stats-reports-limit-{{ size }}">
+                    {{ 'label.pagination_results'|trans({pageSize: size}) }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+{% endmacro %}
+
 {% macro navbar(paginator, targetPath) %}
     {% if paginator.hasToPaginate %}
         {% set query = app.request.query.all %}

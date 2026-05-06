@@ -1,0 +1,37 @@
+<div class="row g-3 align-items-end">
+    <div class="col-12 col-md-4">
+        <label class="form-label mb-1" for="stats-analysis-pivot-rows">{{ 'stats.analysis.pivot.rows_label'|trans }}</label>
+        <select id="stats-analysis-pivot-rows"
+                class="form-select"
+                data-testid="stats-analysis-pivot-rows"
+                onchange="window.location.href=this.value">
+            {% for opt in pivotRowChoices %}
+                <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12 col-md-4">
+        <label class="form-label mb-1" for="stats-analysis-pivot-cols">{{ 'stats.analysis.pivot.cols_label'|trans }}</label>
+        <select id="stats-analysis-pivot-cols"
+                class="form-select"
+                data-testid="stats-analysis-pivot-cols"
+                onchange="window.location.href=this.value">
+            {% for opt in pivotColChoices %}
+                <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if pivotMeasureChoices is defined %}
+        <div class="col-12 col-md-4">
+            <label class="form-label mb-1" for="stats-analysis-pivot-measure">{{ 'stats.analysis.pivot.measure_label'|trans }}</label>
+            <select id="stats-analysis-pivot-measure"
+                    class="form-select"
+                    data-testid="stats-analysis-pivot-measure"
+                    onchange="window.location.href=this.value">
+                {% for opt in pivotMeasureChoices %}
+                    <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+</div>

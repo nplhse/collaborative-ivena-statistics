@@ -1,0 +1,18 @@
+{% if toolbar.isPivotLike %}
+    <div class="btn-group" role="group">
+        <span class="btn btn-outline-primary active">{{ 'stats.analysis.view.table'|trans }}</span>
+    </div>
+{% else %}
+    <div class="btn-group" role="group">
+        <a href="{{ toolbar.viewChartUrl }}"
+           class="btn btn-outline-primary{% if toolbar.currentView == 'chart' %} active{% endif %}"
+           data-testid="stats-analysis-view-chart">
+            {{ 'stats.analysis.view.chart'|trans }}
+        </a>
+        <a href="{{ toolbar.viewTableUrl }}"
+           class="btn btn-outline-primary{% if toolbar.currentView == 'table' %} active{% endif %}"
+           data-testid="stats-analysis-view-table">
+            {{ 'stats.analysis.view.table'|trans }}
+        </a>
+    </div>
+{% endif %}
