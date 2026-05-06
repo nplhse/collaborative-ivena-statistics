@@ -43,41 +43,26 @@
             <div class="card mb-3">
                 <div class="card-body py-3">
                     <div class="row g-3 align-items-end flex-wrap">
-                        <div class="col min-w-0">
-                            <label class="form-label mb-1" for="stats-reports-select-trigger">{{ 'stats.reports.select_label'|trans }}</label>
-                            <div class="dropdown w-100">
-                                <button id="stats-reports-select-trigger"
-                                        class="btn btn-primary dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center"
-                                        type="button" data-bs-toggle="dropdown" data-testid="stats-reports-select">
-                                    {% for def in reportsPage.reportDefinitions %}
-                                        {% if def.key == reportsPage.currentReportKey %}
-                                            {{ def.labelTranslationKey|trans }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </button>
-                                <div class="dropdown-menu w-100">
-                                    {% for def in reportsPage.reportDefinitions %}
-                                        <a class="dropdown-item{% if def.key == reportsPage.currentReportKey %} active{% endif %}"
-                                           href="{{ reportsPage.reportSelectUrls[def.key] }}">
-                                            {{ def.labelTranslationKey|trans }}
-                                        </a>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% for def in reportsPage.reportDefinitions %}
-                                {% if def.key == reportsPage.currentReportKey %}
-                                    <p class="text-secondary small mt-2 mb-0" data-testid="stats-reports-description">
-                                        {{ def.descriptionTranslationKey|trans }}
-                                    </p>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
+                        {% set selectedReportDescription = null %}
+                        {% for def in reportsPage.reportDefinitions %}
+                            {% if def.key == reportsPage.currentReportKey %}
+                                {% set selectedReportDescription = def.descriptionTranslationKey %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ include('@Statistics/_definition_select_control.html.twig', {
+                            triggerId: 'stats-reports-select-trigger',
+                            labelKey: 'stats.reports.select_label',
+                            definitions: reportsPage.reportDefinitions,
+                            currentKey: reportsPage.currentReportKey,
+                            selectUrls: reportsPage.reportSelectUrls,
+                            selectedDescriptionKey: selectedReportDescription,
+                        }) }}
                     </div>
                 </div>
             </div>
 
             <div data-testid="stats-reports-widget">
-                {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {widget: reportsPage.reportWidget}) }}
+                {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: reportsPage.reportWidget}) }}
             </div>
         </div>
     </div>

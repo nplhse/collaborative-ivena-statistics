@@ -42,7 +42,7 @@
         <div class="col-12 col-lg-9 col-xl-10 min-w-0">
             <div data-testid="stats-hospital-summary">
                 {% for widget in hospitalSummaryWidgets %}
-                    {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {widget: widget}) }}
+                    {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: widget}) }}
                 {% endfor %}
             </div>
 
@@ -79,10 +79,10 @@
                     </div>
                     <div class="col-md-6">
                         {% if resourcesWidget is not null %}
-                            {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {widget: resourcesWidget}) }}
+                            {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: resourcesWidget}) }}
                         {% endif %}
                         {% if featuresWidget is not null %}
-                            {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {widget: featuresWidget}) }}
+                            {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: featuresWidget}) }}
                         {% endif %}
                     </div>
                 </div>

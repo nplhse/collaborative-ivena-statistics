@@ -3,43 +3,11 @@
 <div class="card" data-testid="stats-analysis-pivot-table-card">
     {% if p.pivotRowChoices is defined and p.pivotColChoices is defined %}
         <div class="card-body border-bottom py-3">
-            <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-4">
-                    <label class="form-label mb-1" for="stats-analysis-pivot-rows">{{ 'stats.analysis.pivot.rows_label'|trans }}</label>
-                    <select id="stats-analysis-pivot-rows"
-                            class="form-select"
-                            data-testid="stats-analysis-pivot-rows"
-                            onchange="window.location.href=this.value">
-                        {% for opt in p.pivotRowChoices %}
-                            <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-md-4">
-                    <label class="form-label mb-1" for="stats-analysis-pivot-cols">{{ 'stats.analysis.pivot.cols_label'|trans }}</label>
-                    <select id="stats-analysis-pivot-cols"
-                            class="form-select"
-                            data-testid="stats-analysis-pivot-cols"
-                            onchange="window.location.href=this.value">
-                        {% for opt in p.pivotColChoices %}
-                            <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% if p.pivotMeasureChoices is defined %}
-                    <div class="col-12 col-md-4">
-                        <label class="form-label mb-1" for="stats-analysis-pivot-measure">{{ 'stats.analysis.pivot.measure_label'|trans }}</label>
-                        <select id="stats-analysis-pivot-measure"
-                                class="form-select"
-                                data-testid="stats-analysis-pivot-measure"
-                                onchange="window.location.href=this.value">
-                            {% for opt in p.pivotMeasureChoices %}
-                                <option value="{{ opt.url }}"{% if opt.active %} selected{% endif %}>{{ opt.labelKey|trans }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                {% endif %}
-            </div>
+            {{ include('@Statistics/analysis/_pivot_selector_group.html.twig', {
+                pivotRowChoices: p.pivotRowChoices,
+                pivotColChoices: p.pivotColChoices,
+                pivotMeasureChoices: p.pivotMeasureChoices|default([]),
+            }) }}
         </div>
     {% endif %}
     <div class="card-body">

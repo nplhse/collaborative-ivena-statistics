@@ -43,102 +43,25 @@
             <div class="card mb-3">
                 <div class="card-body py-3">
                     <div class="row g-3 align-items-end flex-wrap">
-                        <div class="col min-w-0">
-                            <label class="form-label mb-1" for="stats-analysis-select-trigger">{{ 'stats.analysis.select_label'|trans }}</label>
-                            <div class="dropdown w-100">
-                                <button id="stats-analysis-select-trigger"
-                                        class="btn btn-primary dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center"
-                                        type="button" data-bs-toggle="dropdown" data-testid="stats-analysis-select">
-                                    {% for def in analysisPage.analysisDefinitions %}
-                                        {% if def.key == analysisPage.currentAnalysisKey %}
-                                            {{ def.labelTranslationKey|trans }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </button>
-                                <div class="dropdown-menu w-100">
-                                    {% for def in analysisPage.analysisDefinitions %}
-                                        <a class="dropdown-item{% if def.key == analysisPage.currentAnalysisKey %} active{% endif %}"
-                                           href="{{ analysisPage.analysisSelectUrls[def.key] }}">
-                                            {{ def.labelTranslationKey|trans }}
-                                        </a>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
+                        {{ include('@Statistics/_definition_select_control.html.twig', {
+                            triggerId: 'stats-analysis-select-trigger',
+                            labelKey: 'stats.analysis.select_label',
+                            definitions: analysisPage.analysisDefinitions,
+                            currentKey: analysisPage.currentAnalysisKey,
+                            selectUrls: analysisPage.analysisSelectUrls,
+                        }) }}
                         <div class="col-12 col-sm-auto">
                             <span class="form-label d-block mb-1">{{ 'stats.analysis.presentation_label'|trans }}</span>
-                            {% if analysisPage.toolbar.isPivotLike %}
-                                <div class="btn-group" role="group">
-                                    <span class="btn btn-outline-primary active">{{ 'stats.analysis.view.table'|trans }}</span>
-                                </div>
-                            {% else %}
-                                <div class="btn-group" role="group">
-                                    <a href="{{ analysisPage.toolbar.viewChartUrl }}"
-                                       class="btn btn-outline-primary{% if analysisPage.toolbar.currentView == 'chart' %} active{% endif %}"
-                                       data-testid="stats-analysis-view-chart">
-                                        {{ 'stats.analysis.view.chart'|trans }}
-                                    </a>
-                                    <a href="{{ analysisPage.toolbar.viewTableUrl }}"
-                                       class="btn btn-outline-primary{% if analysisPage.toolbar.currentView == 'table' %} active{% endif %}"
-                                       data-testid="stats-analysis-view-table">
-                                        {{ 'stats.analysis.view.table'|trans }}
-                                    </a>
-                                </div>
-                            {% endif %}
+                            {{ include('@Statistics/analysis/_view_toggle.html.twig', {toolbar: analysisPage.toolbar}) }}
                         </div>
                         {% if analysisPage.toolbar.showDimensionSelector %}
                             <div class="col-12">
-                                <span class="form-label d-block mb-1">{{ 'stats.analysis.dimension_label'|trans }}</span>
-                                <div class="btn-group flex-wrap"
-                                     role="group"
-                                     aria-label="{{ 'stats.analysis.dimension_label'|trans }}"
-                                     data-testid="stats-analysis-dimension-selector">
-                                    <a href="{{ analysisPage.toolbar.dimensionTotalUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'total' %} active{% endif %}"
-                                       data-testid="stats-analysis-dimension-total">
-                                        {{ 'stats.analysis.dimension.total'|trans }}
-                                    </a>
-                                    <a href="{{ analysisPage.toolbar.dimensionGenderUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'gender' %} active{% endif %}"
-                                       data-testid="stats-analysis-dimension-gender">
-                                        {{ 'stats.analysis.dimension.gender'|trans }}
-                                    </a>
-                                    <a href="{{ analysisPage.toolbar.dimensionUrgencyUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'urgency' %} active{% endif %}"
-                                       data-testid="stats-analysis-dimension-urgency">
-                                        {{ 'stats.analysis.dimension.urgency'|trans }}
-                                    </a>
-                                    <a href="{{ analysisPage.toolbar.dimensionResourcesUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'resources' %} active{% endif %}"
-                                       data-testid="stats-analysis-dimension-resources">
-                                        {{ 'stats.analysis.dimension.resources'|trans }}
-                                    </a>
-                                    <a href="{{ analysisPage.toolbar.dimensionFeaturesUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'features' %} active{% endif %}"
-                                       data-testid="stats-analysis-dimension-features">
-                                        {{ 'stats.analysis.dimension.features'|trans }}
-                                    </a>
-                                </div>
+                                {{ include('@Statistics/analysis/_dimension_selector.html.twig', {toolbar: analysisPage.toolbar}) }}
                             </div>
                         {% endif %}
                         {% if analysisPage.toolbar.showChartMeasureSelector %}
                             <div class="col-12">
-                                <span class="form-label d-block mb-1">{{ 'stats.analysis.chart_measure.label'|trans }}</span>
-                                <div class="btn-group"
-                                     role="group"
-                                     aria-label="{{ 'stats.analysis.chart_measure.label'|trans }}"
-                                     data-testid="stats-analysis-chart-measure">
-                                    <a href="{{ analysisPage.toolbar.chartMeasureAbsoluteUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentChartMeasure == 'absolute' %} active{% endif %}"
-                                       data-testid="stats-analysis-chart-measure-absolute">
-                                        {{ 'stats.analysis.chart_measure.absolute'|trans }}
-                                    </a>
-                                    <a href="{{ analysisPage.toolbar.chartMeasureShareUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentChartMeasure == 'share' %} active{% endif %}"
-                                       data-testid="stats-analysis-chart-measure-share">
-                                        {{ 'stats.analysis.chart_measure.share'|trans }}
-                                    </a>
-                                </div>
+                                {{ include('@Statistics/analysis/_chart_measure_selector.html.twig', {toolbar: analysisPage.toolbar}) }}
                             </div>
                         {% endif %}
                     </div>
@@ -146,7 +69,7 @@
             </div>
 
             <div data-testid="stats-analysis-widget">
-                {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {
+                {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {
                     widget: analysisPage.analysisWidget,
                     analysisChartStyle: {
                         chartBarUrl: analysisPage.toolbar.chartBarUrl,
