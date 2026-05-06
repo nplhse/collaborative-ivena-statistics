@@ -85,7 +85,8 @@ final readonly class ClinicalFeaturesQuery
     private function loadCounts(StatisticsContext $context): array
     {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $hospitalIds = $this->scopeResolver->hospitalIdsOrNull($context);
+        $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
+        $hospitalIds = $scopeCriteria->hospitalIds;
         $totalAllocations = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $hospitalIds);
         $clinicalCounts = $this->featureQuery->clinicalFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);
         $resourceCounts = $this->featureQuery->resourceFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);

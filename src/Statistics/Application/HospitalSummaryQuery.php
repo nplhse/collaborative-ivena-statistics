@@ -45,7 +45,7 @@ final readonly class HospitalSummaryQuery
             );
         }
 
-        $hospitalIds = $this->scopeResolver->hospitalIdsOrNull($context);
+        $hospitalIds = $this->scopeResolver->resolveCriteria($context)->hospitalIds;
         if (null === $hospitalIds) {
             return $this->buildDataForPublicSlice($totalAllocations, $from, $to, usedUnscopedFallback: true);
         }

@@ -71,7 +71,7 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         $cells = $this->allocationPivotQuery->fetchCells(
             $bounds->from,
             $bounds->toExclusive,
-            $this->scopeResolver->hospitalIdsOrNull($context),
+            $this->scopeResolver->resolveCriteria($context)->hospitalIds,
             $selection->rows,
             $selection->cols,
         );

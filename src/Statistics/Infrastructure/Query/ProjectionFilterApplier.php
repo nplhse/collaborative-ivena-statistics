@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\QueryBuilder;
 
@@ -35,5 +36,25 @@ final class ProjectionFilterApplier
 
         $qb->andWhere(sprintf('%s IN (:hospitalIds)', $field))
             ->setParameter('hospitalIds', $hospitalIds);
+    }
+
+    public function applyScopeCriteria(
+        QueryBuilder $qb,
+        string $hospitalIdField,
+        StatisticsScopeCriteria $criteria,
+        ?string $locationCodeField = null,
+        ?string $tierCodeField = null,
+    ): void {
+        $this->applyHospitalScope($qb, $hospitalIdField, $criteria->hospitalIds);
+
+        if (null !== $locationCodeField && null !== $criteria->locationCodes) {
+            $qb->andWhere(sprintf('%s IN (:cohortLocationCodes)', $locationCodeField))
+                ->setParameter('cohortLocationCodes', $criteria->locationCodes);
+        }
+
+        if (null !== $tierCodeField && null !== $criteria->tierCodes) {
+            $qb->andWhere(sprintf('%s IN (:cohortTierCodes)', $tierCodeField))
+                ->setParameter('cohortTierCodes', $criteria->tierCodes);
+        }
     }
 }

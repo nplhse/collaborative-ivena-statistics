@@ -28,16 +28,16 @@ final readonly class TopDiagnosesQuery
     public function fetch(StatisticsContext $context, int $limit): array
     {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $hospitalIds = $this->scopeResolver->hospitalIdsOrNull($context);
+        $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
 
         $rows = $this->diagnosisQuery->fetchTopDiagnosisAggregates(
             $bounds->from,
             $bounds->toExclusive,
-            $hospitalIds,
+            $scopeCriteria->hospitalIds,
             $limit,
         );
 
-        $total = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $hospitalIds);
+        $total = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $scopeCriteria->hospitalIds);
 
         return [
             'rows' => $rows,

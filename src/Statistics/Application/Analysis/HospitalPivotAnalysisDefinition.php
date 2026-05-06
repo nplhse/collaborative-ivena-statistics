@@ -70,7 +70,7 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         $cells = $this->hospitalPivotQuery->fetchCells(
             $bounds->from,
             $bounds->toExclusive,
-            $this->scopeResolver->hospitalIdsOrNull($context),
+            $this->scopeResolver->resolveCriteria($context)->hospitalIds,
             $selection->rows,
             $selection->cols,
             $selection->measure,
