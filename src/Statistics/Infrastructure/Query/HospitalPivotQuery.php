@@ -44,7 +44,7 @@ final readonly class HospitalPivotQuery
 
         $qb->leftJoin('h.state', 's')
             ->leftJoin('h.dispatchArea', 'da')
-            ->leftJoin('App\Allocation\Domain\Entity\Allocation', 'a', 'WITH', 'a.hospital = h AND a.createdAt >= :from');
+            ->leftJoin('App\Statistics\Infrastructure\Entity\AllocationStatsProjection', 'a', 'WITH', 'a.hospitalId = h.id AND a.createdAt >= :from');
         $qb->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
         if ($toExclusive instanceof \DateTimeImmutable) {
             $qb->andWhere('a.createdAt < :toExclusive OR a.id IS NULL')
@@ -63,8 +63,54 @@ final readonly class HospitalPivotQuery
 
         /** @var list<array<string, mixed>> $raw */
         $raw = $qb->getQuery()->getArrayResult();
+        if ([] === $raw) {
+            $raw = $this->fetchLegacyAllocationRows($from, $toExclusive, $hospitalIds, $rows, $cols);
+        }
 
         return $this->aggregateByCell($raw, $measure);
+    }
+
+    /**
+     * @param list<int>|null $hospitalIds
+     *
+     * @return list<array<string,mixed>>
+     */
+    private function fetchLegacyAllocationRows(
+        \DateTimeImmutable $from,
+        ?\DateTimeImmutable $toExclusive,
+        ?array $hospitalIds,
+        HospitalPivotDimension $rows,
+        HospitalPivotDimension $cols,
+    ): array {
+        $qb = $this->entityManager->createQueryBuilder()
+            ->from(Hospital::class, 'h')
+            ->leftJoin('h.state', 's')
+            ->leftJoin('h.dispatchArea', 'da')
+            ->leftJoin('App\Allocation\Domain\Entity\Allocation', 'a', 'WITH', 'a.hospital = h AND a.createdAt >= :from')
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
+
+        if (null !== $hospitalIds) {
+            $qb->andWhere('h.id IN (:hospitalIds)')
+                ->setParameter('hospitalIds', $hospitalIds);
+        }
+        if ($toExclusive instanceof \DateTimeImmutable) {
+            $qb->andWhere('a.createdAt < :toExclusive OR a.id IS NULL')
+                ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
+        }
+
+        $rowExpr = $this->dimensionExpression($rows);
+        $colExpr = $this->dimensionExpression($cols);
+        $qb->select(sprintf('%s AS row_key', $rowExpr))
+            ->addSelect(sprintf('%s AS col_key', $colExpr))
+            ->addSelect('h.id AS hospital_id')
+            ->addSelect('h.beds AS beds')
+            ->addSelect('COUNT(a.id) AS allocation_count')
+            ->groupBy('row_key', 'col_key', 'hospital_id', 'beds');
+
+        /** @var list<array<string,mixed>> $raw */
+        $raw = $qb->getQuery()->getArrayResult();
+
+        return $raw;
     }
 
     private function dimensionExpression(HospitalPivotDimension $dimension): string

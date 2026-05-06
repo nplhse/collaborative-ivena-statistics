@@ -6,7 +6,6 @@ namespace App\Statistics\Application\Analysis;
 
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
 use App\Statistics\Application\DTO\StatisticsContext;
@@ -17,6 +16,7 @@ use App\Statistics\Application\Pivot\AllocationPivotMeasure;
 use App\Statistics\Application\Pivot\AllocationPivotSelection;
 use App\Statistics\Application\Pivot\PivotTableBuilder;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Infrastructure\Query\AllocationPivotQuery;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -24,7 +24,7 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
 {
     public function __construct(
         private AllocationPivotQuery $allocationPivotQuery,
-        private HospitalRepository $hospitalRepository,
+        private StatisticsScopeResolver $scopeResolver,
         private PivotTableBuilder $pivotTableBuilder,
         private TranslatorInterface $translator,
     ) {
@@ -171,9 +171,9 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
                     AllocationGender::tryFrom($key)?->label() ?? 'stats.analysis.pivot.unknown',
                 ),
                 AllocationPivotDimension::Urgency => $this->translator->trans(match ((int) $key) {
-                    1 => 'stats.overview.hospital_summary.urgency_u1',
-                    2 => 'stats.overview.hospital_summary.urgency_u2',
-                    3 => 'stats.overview.hospital_summary.urgency_u3',
+                    AllocationUrgency::EMERGENCY->value => 'stats.overview.hospital_summary.urgency_u1',
+                    AllocationUrgency::INPATIENT->value => 'stats.overview.hospital_summary.urgency_u2',
+                    AllocationUrgency::OUTPATIENT->value => 'stats.overview.hospital_summary.urgency_u3',
                     default => 'stats.analysis.pivot.unknown',
                 }),
                 AllocationPivotDimension::AgeGroup => $this->translator->trans('stats.analysis.pivot.age.'.$this->ageLabelKey($key)),
@@ -240,29 +240,6 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
      */
     private function hospitalIdsOrNull(StatisticsContext $context): ?array
     {
-        $filter = $context->filter;
-        if ('public' === $filter->scope->value) {
-            return null;
-        }
-        if (null !== $filter->hospitalId) {
-            return [$filter->hospitalId];
-        }
-
-        if (null === $context->user) {
-            return null;
-        }
-
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($context->user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        if ([] === $rawIds) {
-            return null;
-        }
-
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
+        return $this->scopeResolver->hospitalIdsOrNull($context);
     }
 }

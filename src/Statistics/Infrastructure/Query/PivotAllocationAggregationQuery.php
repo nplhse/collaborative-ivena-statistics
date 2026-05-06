@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query;
 
-use App\Allocation\Domain\Entity\Allocation;
-use App\Allocation\Domain\Enum\AllocationGender;
-use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\DTO\PivotColAxis;
 use App\Statistics\Application\DTO\PivotRowAxis;
+use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -46,7 +45,7 @@ DQL;
         }
 
         $qb = $this->entityManager->createQueryBuilder()
-            ->from(Allocation::class, 'a')
+            ->from(AllocationStatsProjection::class, 'a')
             ->where('a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
         $this->applyCreatedAtUpperBound($qb, $toExclusive);
@@ -65,9 +64,9 @@ DQL;
      */
     private function executeDepartmentByUrgency(QueryBuilder $qb): array
     {
-        $qb->select('d.id AS deptId', 'd.name AS deptName', 'a.urgency AS urgency', 'COUNT(a.id) AS cnt')
-            ->join('a.department', 'd')
-            ->groupBy('d.id', 'd.name', 'a.urgency');
+        $qb->select('a.departmentId AS deptId', 'd.name AS deptName', 'a.urgencyCode AS urgency', 'COUNT(a.id) AS cnt')
+            ->leftJoin('App\Allocation\Domain\Entity\Department', 'd', 'WITH', 'd.id = a.departmentId')
+            ->groupBy('deptId', 'deptName', 'urgency');
 
         /** @var list<array<string, mixed>> $rows */
         $rows = $qb->getQuery()->getArrayResult();
@@ -82,7 +81,7 @@ DQL;
     {
         $ageExpr = trim(self::AGE_BUCKET_CASE);
         // DQL: GroupByItem disallows CASE — only paths or SELECT result aliases (Parser::GroupByItem).
-        $qb->select("{$ageExpr} AS rk", 'a.gender AS gender', 'COUNT(a.id) AS cnt')
+        $qb->select("{$ageExpr} AS rk", 'a.genderCode AS gender', 'COUNT(a.id) AS cnt')
             ->groupBy('rk', 'gender');
 
         /** @var list<array<string, mixed>> $rows */
@@ -96,8 +95,8 @@ DQL;
      */
     private function executeUrgencyByGender(QueryBuilder $qb): array
     {
-        $qb->select('a.urgency AS urgency', 'a.gender AS gender', 'COUNT(a.id) AS cnt')
-            ->groupBy('a.urgency', 'a.gender');
+        $qb->select('a.urgencyCode AS urgency', 'a.genderCode AS gender', 'COUNT(a.id) AS cnt')
+            ->groupBy('urgency', 'gender');
 
         /** @var list<array<string, mixed>> $rows */
         $rows = $qb->getQuery()->getArrayResult();
@@ -114,8 +113,8 @@ DQL;
     {
         $out = [];
         foreach ($rows as $row) {
-            $urgency = $row['urgency'] ?? null;
-            $colKey = $urgency instanceof AllocationUrgency ? (string) $urgency->value : (string) $urgency;
+            $urgency = isset($row['urgency']) ? (int) $row['urgency'] : 0;
+            $colKey = (string) $urgency;
             $deptId = $row['deptId'] ?? null;
             $name = isset($row['deptName']) ? (string) $row['deptName'] : '';
             $rk = null !== $deptId ? (string) $deptId : '0';
@@ -139,8 +138,13 @@ DQL;
     {
         $out = [];
         foreach ($rows as $row) {
-            $gender = $row['gender'] ?? null;
-            $colKey = $gender instanceof AllocationGender ? $gender->value : (string) $gender;
+            $gender = isset($row['gender']) ? (int) $row['gender'] : 0;
+            $colKey = match ($gender) {
+                AllocationStatsGenderProjectionCode::Male->value => 'M',
+                AllocationStatsGenderProjectionCode::Female->value => 'F',
+                AllocationStatsGenderProjectionCode::Other->value => 'X',
+                default => '',
+            };
 
             $out[] = [
                 'row_key' => (string) ($row['rk'] ?? ''),
@@ -161,10 +165,15 @@ DQL;
     {
         $out = [];
         foreach ($rows as $row) {
-            $urgency = $row['urgency'] ?? null;
-            $gender = $row['gender'] ?? null;
-            $rk = $urgency instanceof AllocationUrgency ? (string) $urgency->value : (string) $urgency;
-            $colKey = $gender instanceof AllocationGender ? $gender->value : (string) $gender;
+            $urgency = isset($row['urgency']) ? (int) $row['urgency'] : 0;
+            $gender = isset($row['gender']) ? (int) $row['gender'] : 0;
+            $rk = (string) $urgency;
+            $colKey = match ($gender) {
+                AllocationStatsGenderProjectionCode::Male->value => 'M',
+                AllocationStatsGenderProjectionCode::Female->value => 'F',
+                AllocationStatsGenderProjectionCode::Other->value => 'X',
+                default => '',
+            };
 
             $out[] = [
                 'row_key' => $rk,
@@ -185,7 +194,7 @@ DQL;
             return;
         }
 
-        $qb->andWhere('a.hospital IN (:hospitalIds)')
+        $qb->andWhere('a.hospitalId IN (:hospitalIds)')
             ->setParameter('hospitalIds', $hospitalIds);
     }
 

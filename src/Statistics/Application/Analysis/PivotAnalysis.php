@@ -6,19 +6,17 @@ namespace App\Statistics\Application\Analysis;
 
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\DTO\PivotColAxis;
 use App\Statistics\Application\DTO\PivotRowAxis;
 use App\Statistics\Application\DTO\PivotTableAxes;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
 use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Infrastructure\Query\PivotAllocationAggregationQuery;
-use App\User\Domain\Entity\User;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class PivotAnalysis implements AnalysisDefinitionInterface
@@ -46,7 +44,7 @@ final readonly class PivotAnalysis implements AnalysisDefinitionInterface
 
     public function __construct(
         private PivotAllocationAggregationQuery $pivotAllocationAggregationQuery,
-        private HospitalRepository $hospitalRepository,
+        private StatisticsScopeResolver $scopeResolver,
         private TranslatorInterface $translator,
     ) {
     }
@@ -414,40 +412,6 @@ final readonly class PivotAnalysis implements AnalysisDefinitionInterface
      */
     private function hospitalIdsOrNull(StatisticsContext $context): ?array
     {
-        $filter = $context->filter;
-
-        if (StatisticsFilterScope::Public === $filter->scope) {
-            return null;
-        }
-
-        if (StatisticsFilterScope::Hospital === $filter->scope && null !== $filter->hospitalId) {
-            return [$filter->hospitalId];
-        }
-
-        $ids = $this->resolveMyHospitalIds($context->user);
-        if ([] === $ids) {
-            return null;
-        }
-
-        return $ids;
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function resolveMyHospitalIds(?User $user): array
-    {
-        if (!$user instanceof User) {
-            return [];
-        }
-
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
+        return $this->scopeResolver->hospitalIdsOrNull($context);
     }
 }

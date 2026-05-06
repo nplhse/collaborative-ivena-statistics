@@ -6,18 +6,16 @@ namespace App\Statistics\Application;
 
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
-use App\Allocation\Infrastructure\Repository\AllocationRepository;
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\DTO\HospitalSummaryData;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\User\Domain\Entity\User;
+use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository;
 
 final readonly class HospitalSummaryQuery
 {
     public function __construct(
-        private HospitalRepository $hospitalRepository,
-        private AllocationRepository $allocationRepository,
+        private StatisticsScopeResolver $scopeResolver,
+        private AllocationStatsProjectionRepository $projectionRepository,
     ) {
     }
 
@@ -27,7 +25,7 @@ final readonly class HospitalSummaryQuery
         $from = $bounds->from;
         $to = $bounds->toExclusive;
 
-        $totalAllocations = $this->allocationRepository->countCreatedInPeriod($from, $to);
+        $totalAllocations = $this->projectionRepository->countCreatedInPeriod($from, $to, null);
 
         $scope = $context->filter->scope;
 
@@ -47,8 +45,8 @@ final readonly class HospitalSummaryQuery
             );
         }
 
-        $hospitalIds = $this->resolveMyHospitalIds($context->user);
-        if ([] === $hospitalIds) {
+        $hospitalIds = $this->scopeResolver->hospitalIdsOrNull($context);
+        if (null === $hospitalIds) {
             return $this->buildDataForPublicSlice($totalAllocations, $from, $to, usedUnscopedFallback: true);
         }
 
@@ -71,9 +69,9 @@ final readonly class HospitalSummaryQuery
         array $ids,
         bool $usedUnscopedFallback,
     ): HospitalSummaryData {
-        $userAllocations = $this->allocationRepository->countCreatedInPeriodForHospitals($from, $to, $ids);
-        $genderRaw = $this->allocationRepository->countGroupedByGenderInPeriodForHospitals($from, $to, $ids);
-        $urgencyRaw = $this->allocationRepository->countGroupedByUrgencyInPeriodForHospitals($from, $to, $ids);
+        $userAllocations = $this->projectionRepository->countCreatedInPeriod($from, $to, $ids);
+        $genderRaw = $this->projectionRepository->countGroupedByGenderInPeriod($from, $to, $ids);
+        $urgencyRaw = $this->projectionRepository->countGroupedByUrgencyInPeriod($from, $to, $ids);
 
         return $this->assembleHospitalSummaryData(
             $totalAllocations,
@@ -90,8 +88,8 @@ final readonly class HospitalSummaryQuery
         ?\DateTimeImmutable $to,
         bool $usedUnscopedFallback = false,
     ): HospitalSummaryData {
-        $genderRaw = $this->allocationRepository->countGroupedByGenderInPeriod($from, $to);
-        $urgencyRaw = $this->allocationRepository->countGroupedByUrgencyInPeriod($from, $to);
+        $genderRaw = $this->projectionRepository->countGroupedByGenderInPeriod($from, $to, null);
+        $urgencyRaw = $this->projectionRepository->countGroupedByUrgencyInPeriod($from, $to, null);
 
         return $this->assembleHospitalSummaryData(
             $totalAllocations,
@@ -133,22 +131,4 @@ final readonly class HospitalSummaryQuery
         );
     }
 
-    /**
-     * @return list<int>
-     */
-    private function resolveMyHospitalIds(?User $user): array
-    {
-        if (!$user instanceof User) {
-            return [];
-        }
-
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
-    }
 }

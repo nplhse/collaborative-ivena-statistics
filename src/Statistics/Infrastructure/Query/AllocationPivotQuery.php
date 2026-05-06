@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query;
 
-use App\Allocation\Domain\Entity\Allocation;
-use App\Allocation\Domain\Enum\AllocationGender;
-use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\Pivot\AllocationPivotDimension;
+use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -40,7 +38,7 @@ DQL;
         }
 
         $qb = $this->entityManager->createQueryBuilder()
-            ->from(Allocation::class, 'a')
+            ->from(AllocationStatsProjection::class, 'a')
             ->where('a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
 
@@ -50,7 +48,7 @@ DQL;
         }
 
         if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
+            $qb->andWhere('a.hospitalId IN (:hospitalIds)')
                 ->setParameter('hospitalIds', $hospitalIds);
         }
 
@@ -64,9 +62,11 @@ DQL;
 
         if (null !== $rowLabelExpr) {
             $qb->addSelect(sprintf('%s AS row_label', $rowLabelExpr));
+            $qb->addGroupBy('row_label');
         }
         if (null !== $colLabelExpr) {
             $qb->addSelect(sprintf('%s AS col_label', $colLabelExpr));
+            $qb->addGroupBy('col_label');
         }
 
         /** @var list<array<string, mixed>> $raw */
@@ -94,13 +94,6 @@ DQL;
 
     private function scalarKey(mixed $value): string
     {
-        if ($value instanceof AllocationGender) {
-            return $value->value;
-        }
-        if ($value instanceof AllocationUrgency) {
-            return (string) $value->value;
-        }
-
         return (string) $value;
     }
 
@@ -110,8 +103,8 @@ DQL;
     private function dimensionExpression(AllocationPivotDimension $dimension, QueryBuilder $qb, string $prefix): array
     {
         return match ($dimension) {
-            AllocationPivotDimension::Gender => ['a.gender', null],
-            AllocationPivotDimension::Urgency => ['a.urgency', null],
+            AllocationPivotDimension::Gender => ["CASE WHEN a.genderCode = 1 THEN 'M' WHEN a.genderCode = 2 THEN 'F' WHEN a.genderCode = 3 THEN 'X' ELSE '' END", null],
+            AllocationPivotDimension::Urgency => ['a.urgencyCode', null],
             AllocationPivotDimension::AgeGroup => [self::AGE_BUCKET_CASE, null],
             AllocationPivotDimension::Department => $this->departmentExpression($qb, $prefix),
         };
@@ -123,8 +116,8 @@ DQL;
     private function departmentExpression(QueryBuilder $qb, string $prefix): array
     {
         $alias = $prefix.'Dept';
-        $qb->leftJoin('a.department', $alias);
+        $qb->leftJoin('App\Allocation\Domain\Entity\Department', $alias, 'WITH', sprintf('%s.id = a.departmentId', $alias));
 
-        return [sprintf('%s.id', $alias), sprintf('%s.name', $alias)];
+        return ['a.departmentId', sprintf('%s.name', $alias)];
     }
 }

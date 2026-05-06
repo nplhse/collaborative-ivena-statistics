@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Analysis;
 
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
 use App\Statistics\Application\DTO\StatisticsContext;
@@ -15,6 +14,7 @@ use App\Statistics\Application\Pivot\HospitalPivotMeasure;
 use App\Statistics\Application\Pivot\HospitalPivotSelection;
 use App\Statistics\Application\Pivot\PivotTableBuilder;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Infrastructure\Query\HospitalPivotQuery;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -22,7 +22,7 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
 {
     public function __construct(
         private HospitalPivotQuery $hospitalPivotQuery,
-        private HospitalRepository $hospitalRepository,
+        private StatisticsScopeResolver $scopeResolver,
         private PivotTableBuilder $pivotTableBuilder,
         private TranslatorInterface $translator,
     ) {
@@ -63,6 +63,12 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
 
         $rowKeys = $this->orderedKeys($cells, 'row_key');
         $colKeys = $this->orderedKeys($cells, 'col_key');
+        if ([] === $rowKeys) {
+            $rowKeys = ['unknown'];
+        }
+        if ([] === $colKeys) {
+            $colKeys = ['unknown'];
+        }
         $pivot = $this->pivotTableBuilder->build($rowKeys, $colKeys, $cells, $this->labels($rowKeys), $this->labels($colKeys));
 
         $format = match ($selection->measure) {
@@ -165,29 +171,6 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
      */
     private function hospitalIdsOrNull(StatisticsContext $context): ?array
     {
-        $filter = $context->filter;
-        if ('public' === $filter->scope->value) {
-            return null;
-        }
-        if (null !== $filter->hospitalId) {
-            return [$filter->hospitalId];
-        }
-
-        if (null === $context->user) {
-            return null;
-        }
-
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($context->user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        if ([] === $rawIds) {
-            return null;
-        }
-
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
+        return $this->scopeResolver->hospitalIdsOrNull($context);
     }
 }
