@@ -7,8 +7,8 @@ namespace App\Statistics\Application;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\User\Domain\Entity\User;
 
@@ -44,8 +44,13 @@ final readonly class StatisticsScopeResolver
         if (StatisticsFilterScope::Hospital === $filter->scope && null !== $filter->hospitalId) {
             return new StatisticsScopeCriteria([$filter->hospitalId]);
         }
+        if (StatisticsFilterScope::State === $filter->scope && null !== $filter->stateId) {
+            $hospitalIds = $this->projectionScopeQuery->distinctHospitalIdsForState($filter->stateId);
 
-        if (StatisticsFilterScope::HospitalCohort === $filter->scope && null !== $filter->cohortType) {
+            return new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
+        }
+
+        if (StatisticsFilterScope::HospitalCohort === $filter->scope && $filter->cohortType instanceof Cohort\HospitalCohortType) {
             $cohort = $this->hospitalCohortResolver->resolve($filter->cohortType);
             $hospitalIds = $this->projectionScopeQuery->distinctHospitalIdsForCohort($cohort);
 

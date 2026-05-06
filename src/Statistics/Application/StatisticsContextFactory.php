@@ -18,6 +18,7 @@ final class StatisticsContextFactory
         ?string $pivotRows = null,
         ?string $pivotCols = null,
         ?string $pivotMeasure = null,
+        ?StatisticsFilter $comparisonFilter = null,
     ): StatisticsContext {
         return new StatisticsContext(
             $user,
@@ -26,6 +27,7 @@ final class StatisticsContextFactory
             $pivotRows,
             $pivotCols,
             $pivotMeasure,
+            $comparisonFilter,
         );
     }
 }

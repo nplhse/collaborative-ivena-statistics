@@ -18,6 +18,10 @@ final readonly class AnalysisRequestModel
         public ?string $rows,
         public ?string $cols,
         public ?string $measure,
+        public string $comparisonScope = '',
+        public string $comparisonPeriod = '',
+        public ?int $comparisonYear = null,
+        public ?int $comparisonMonth = null,
     ) {
     }
 }

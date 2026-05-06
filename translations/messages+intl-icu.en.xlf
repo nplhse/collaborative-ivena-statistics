@@ -2039,6 +2039,30 @@
         <source>stats.filter.scope.my_hospitals</source>
         <target>My hospitals</target>
       </trans-unit>
+      <trans-unit id="statsFlt03b" resname="stats.filter.scope.hospital_cohort">
+        <source>stats.filter.scope.hospital_cohort</source>
+        <target>Hospital cohort</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03c" resname="stats.filter.scope.hospital_cohorts">
+        <source>stats.filter.scope.hospital_cohorts</source>
+        <target>Hospital cohorts</target>
+      </trans-unit>
+      <trans-unit id="statsCohort01" resname="stats.filter.cohort.urban_basic">
+        <source>stats.filter.cohort.urban_basic</source>
+        <target>Urban Basic</target>
+      </trans-unit>
+      <trans-unit id="statsCohort02" resname="stats.filter.cohort.urban_advanced">
+        <source>stats.filter.cohort.urban_advanced</source>
+        <target>Urban Advanced</target>
+      </trans-unit>
+      <trans-unit id="statsCohort03" resname="stats.filter.cohort.rural_basic">
+        <source>stats.filter.cohort.rural_basic</source>
+        <target>Rural Basic</target>
+      </trans-unit>
+      <trans-unit id="statsCohort04" resname="stats.filter.cohort.rural_maximum">
+        <source>stats.filter.cohort.rural_maximum</source>
+        <target>Rural Maximum</target>
+      </trans-unit>
       <trans-unit id="statsFlt04" resname="stats.filter.hospital_label">
         <source>stats.filter.hospital_label</source>
         <target>Hospital</target>
@@ -2118,6 +2142,42 @@
       <trans-unit id="statsAnAbmLb" resname="stats.analysis.allocations_by_month.label">
         <source>stats.analysis.allocations_by_month.label</source>
         <target>Allocations over time</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmpLb" resname="stats.analysis.allocations_comparison_over_time.label">
+        <source>stats.analysis.allocations_comparison_over_time.label</source>
+        <target>Allocations Comparison Over Time</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp01" resname="stats.analysis.comparison.scope_label">
+        <source>stats.analysis.comparison.scope_label</source>
+        <target>Comparison scope</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp02" resname="stats.analysis.comparison.choose_scope">
+        <source>stats.analysis.comparison.choose_scope</source>
+        <target>Select cohort</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp02b" resname="stats.analysis.comparison.period_label">
+        <source>stats.analysis.comparison.period_label</source>
+        <target>Comparison period</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp02c" resname="stats.analysis.comparison.choose_period">
+        <source>stats.analysis.comparison.choose_period</source>
+        <target>Select period</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp03" resname="stats.analysis.comparison.primary">
+        <source>stats.analysis.comparison.primary</source>
+        <target>Primary</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp04" resname="stats.analysis.comparison.comparison">
+        <source>stats.analysis.comparison.comparison</source>
+        <target>Comparison</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp05" resname="stats.analysis.comparison.delta">
+        <source>stats.analysis.comparison.delta</source>
+        <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp06" resname="stats.analysis.comparison.delta_percent">
+        <source>stats.analysis.comparison.delta_percent</source>
+        <target>Delta %</target>
       </trans-unit>
       <trans-unit id="statsAnAbmCt" resname="stats.analysis.allocations_by_month.card_title">
         <source>stats.analysis.allocations_by_month.card_title</source>

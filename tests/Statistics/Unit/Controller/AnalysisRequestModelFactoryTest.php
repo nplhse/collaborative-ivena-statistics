@@ -37,6 +37,9 @@ final class AnalysisRequestModelFactoryTest extends TestCase
         self::assertSame('urgency', $model->rows);
         self::assertSame('gender', $model->cols);
         self::assertSame('row_percent', $model->measure);
+        self::assertSame('', $model->comparisonPeriod);
+        self::assertNull($model->comparisonYear);
+        self::assertNull($model->comparisonMonth);
     }
 
     public function testForcesAbsoluteMeasureForFeaturesDimension(): void
@@ -53,5 +56,24 @@ final class AnalysisRequestModelFactoryTest extends TestCase
         self::assertSame('allocations_by_month', $model->analysisKey);
         self::assertSame(StatisticsAnalysisDimension::Features, $model->dimension);
         self::assertSame(StatisticsChartMeasure::Absolute, $model->chartMeasure);
+    }
+
+    public function testParsesComparisonPeriodAndAnchors(): void
+    {
+        $factory = new AnalysisRequestModelFactory(new AnalysisKeyAliasResolver());
+        $request = new Request(query: [
+            'analysis' => 'allocations_comparison_over_time',
+            'comparison_scope' => 'hospital_cohort:urban_basic',
+            'comparison_period' => 'month',
+            'comparison_year' => '2024',
+            'comparison_month' => '3',
+        ]);
+
+        $model = $factory->fromRequest($request);
+
+        self::assertSame('hospital_cohort:urban_basic', $model->comparisonScope);
+        self::assertSame('month', $model->comparisonPeriod);
+        self::assertSame(2024, $model->comparisonYear);
+        self::assertSame(3, $model->comparisonMonth);
     }
 }

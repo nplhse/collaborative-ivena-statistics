@@ -10,4 +10,9 @@ enum HospitalCohortType: string
     case UrbanAdvanced = 'urban_advanced';
     case RuralBasic = 'rural_basic';
     case RuralMaximum = 'rural_maximum';
+
+    public function labelTranslationKey(): string
+    {
+        return 'stats.filter.cohort.'.$this->value;
+    }
 }

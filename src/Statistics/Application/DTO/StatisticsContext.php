@@ -15,6 +15,7 @@ final readonly class StatisticsContext
         public ?string $pivotRows = null,
         public ?string $pivotCols = null,
         public ?string $pivotMeasure = null,
+        public ?StatisticsFilter $comparisonFilter = null,
     ) {
     }
 }

@@ -12,7 +12,7 @@ final class HospitalCohortResolverTest extends TestCase
 {
     public function testResolvesUrbanAdvancedToUrbanAndExtendedFullTiers(): void
     {
-        $cohort = (new HospitalCohortResolver())->resolve(HospitalCohortType::UrbanAdvanced);
+        $cohort = new HospitalCohortResolver()->resolve(HospitalCohortType::UrbanAdvanced);
 
         self::assertSame([1], $cohort->locationCodeValues());
         self::assertSame([2, 3], $cohort->tierCodeValues());

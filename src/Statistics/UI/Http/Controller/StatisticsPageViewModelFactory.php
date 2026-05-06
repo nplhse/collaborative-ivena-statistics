@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
+use App\Statistics\Application\Cohort\HospitalCohortResolver;
+use App\Statistics\Application\Cohort\HospitalCohortType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
@@ -17,6 +20,8 @@ final readonly class StatisticsPageViewModelFactory
 {
     public function __construct(
         private HospitalRepository $hospitalRepository,
+        private HospitalCohortResolver $hospitalCohortResolver,
+        private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
         private TranslatorInterface $translator,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
     ) {
@@ -92,6 +97,35 @@ final readonly class StatisticsPageViewModelFactory
             ),
         ];
 
+        $cohortScopeChoices = [];
+        foreach (HospitalCohortType::cases() as $cohortType) {
+            $cohort = $this->hospitalCohortResolver->resolve($cohortType);
+            if (!$this->hospitalCohortEligibilityChecker->hasMinimumParticipants($cohort)) {
+                continue;
+            }
+            $cohortScopeChoices[] = [
+                'key' => $cohortType->value,
+                'label' => $this->translator->trans($cohortType->labelTranslationKey(), [], null, $request->getLocale()),
+                'url' => $this->statisticsNavigationUrlBuilder->build(
+                    $request,
+                    $routeName,
+                    [
+                        'scope' => StatisticsFilterScope::HospitalCohort->value.':'.$cohortType->value,
+                    ],
+                    ['hospital', 'cohort'],
+                ),
+                'active' => StatisticsFilterScope::HospitalCohort === $filter->scope
+                    && $filter->cohortType === $cohortType,
+            ];
+        }
+        $cohortDropdownSelectedName = null;
+        foreach ($cohortScopeChoices as $cohortChoice) {
+            if ($cohortChoice['active']) {
+                $cohortDropdownSelectedName = $cohortChoice['label'];
+                break;
+            }
+        }
+
         $hospitalDropdownSelectedName = null;
         if (StatisticsFilterScope::Hospital === $filter->scope && null !== $filter->hospitalId) {
             foreach ($accessibleHospitals as $row) {
@@ -112,6 +146,8 @@ final readonly class StatisticsPageViewModelFactory
             $filter,
             $scopeUrls,
             $hospitalUrls,
+            $cohortScopeChoices,
+            $cohortDropdownSelectedName,
             $periodUrls,
             $accessibleHospitals,
             $hospitalDropdownSelectedName,
@@ -149,7 +185,10 @@ final readonly class StatisticsPageViewModelFactory
             StatisticsFilterScope::Hospital => (null !== $hospitalDisplayName && '' !== $hospitalDisplayName)
                 ? $this->translator->trans('stats.filter.hospital.named_line', ['name' => $hospitalDisplayName], null, $locale)
                 : $this->translator->trans('stats.filter.hospital.choose', [], null, $locale),
-            StatisticsFilterScope::HospitalCohort => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
+            StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortType
+                ? $this->translator->trans($filter->cohortType->labelTranslationKey(), [], null, $locale)
+                : $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
+            StatisticsFilterScope::State => $this->translator->trans('scope.state', [], null, $locale),
         };
     }
 

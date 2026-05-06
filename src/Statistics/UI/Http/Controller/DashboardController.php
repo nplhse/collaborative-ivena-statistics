@@ -37,7 +37,7 @@ final class DashboardController extends AbstractController
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
         if ($filter->requiresPublicRedirect) {
-            if (null !== $filter->notice) {
+            if ($filter->notice instanceof \App\Statistics\Application\DTO\StatisticsFilterNotice) {
                 $this->addFlash('error', $filter->notice->value);
             }
             $query = $request->query->all();
@@ -67,6 +67,8 @@ final class DashboardController extends AbstractController
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,
+            'cohortScopeChoices' => $pageViewModel->cohortScopeChoices,
+            'statsCohortDropdownSelectedName' => $pageViewModel->cohortDropdownSelectedName,
             'statsPeriodUrls' => $pageViewModel->periodUrls,
             'accessibleHospitals' => $pageViewModel->accessibleHospitals,
             'statsHospitalDropdownSelectedName' => $pageViewModel->hospitalDropdownSelectedName,

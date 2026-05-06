@@ -22,6 +22,7 @@ final readonly class AnalysisPageViewModel
         public string $currentAnalysisKey,
         public array $analysisSelectUrls,
         public AnalysisToolbarViewModel $toolbar,
+        public AnalysisComparisonControlsViewModel $comparisonControls,
         public array $pivotRowChoices,
         public array $pivotColChoices,
         public array $pivotMeasureChoices,

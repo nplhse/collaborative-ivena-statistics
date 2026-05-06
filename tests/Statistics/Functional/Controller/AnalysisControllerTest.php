@@ -375,4 +375,58 @@ class AnalysisControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"]', '%');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"] tfoot', '100.0%');
     }
+
+    public function testComparisonAnalysisIsReachableAndShowsComparisonColumns(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=allocations_comparison_over_time&view=table&comparison_scope=hospital_cohort:urban_basic&comparison_period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Public (Last 12 months)');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Delta');
+    }
+
+    public function testComparisonAnalysisDefaultsComparisonScopeWhenMissing(): void
+    {
+        $client = static::createClient();
+        $client->followRedirects(true);
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=allocations_comparison_over_time',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-comparison-scope-menu"]', 'Urban Basic');
+    }
+
+    public function testComparisonAnalysisSupportsDifferentComparisonPeriod(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=year&year=2025&analysis=allocations_comparison_over_time&comparison_scope=hospital_cohort:urban_basic&comparison_period=year&comparison_year=2024&view=table',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Public (2025)');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Public (2024)');
+    }
+
+    public function testComparisonAnalysisDefaultsComparisonPeriodToPrimaryPeriodWhenMissing(): void
+    {
+        $client = static::createClient();
+        $client->followRedirects(false);
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=year&year=2025&analysis=allocations_comparison_over_time&comparison_scope=hospital_cohort:urban_basic',
+        );
+
+        $this->assertResponseStatusCodeSame(302);
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('comparison_period=year', $location);
+        $this->assertStringContainsString('comparison_year=2025', $location);
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\Analysis\AnalysisDefinitionInterface;
+use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ final readonly class AnalysisPagePresenter
         private AnalysisDefinitionOptionsBuilder $optionsBuilder,
         private AnalysisPivotChoicesFactory $pivotChoicesFactory,
         private AnalysisToolbarViewModelFactory $toolbarViewModelFactory,
+        private AnalysisComparisonControlsFactory $analysisComparisonControlsFactory,
     ) {
     }
 
@@ -26,6 +28,7 @@ final readonly class AnalysisPagePresenter
         AnalysisRequestModel $analysisRequest,
         string $analysisKey,
         StatisticWidget $analysisWidget,
+        StatisticsFilter $comparisonFilter,
         array $allDefinitions,
     ): AnalysisPageViewModel {
         $activeDefinition = $this->findDefinition($allDefinitions, $analysisKey);
@@ -51,6 +54,7 @@ final readonly class AnalysisPagePresenter
             $analysisKey,
             $options['urls'],
             $this->toolbarViewModelFactory->create($request, $activeDefinition, $analysisRequest),
+            $this->analysisComparisonControlsFactory->build($request, $analysisKey, $comparisonFilter),
             $pivotChoices['rows'],
             $pivotChoices['cols'],
             $pivotChoices['measures'],

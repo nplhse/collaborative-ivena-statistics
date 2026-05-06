@@ -26,12 +26,18 @@ final readonly class StatisticsFilterFactory
 
     public function createFromRequest(Request $request, ?User $user): StatisticsFilter
     {
+        $normalized = $this->normalizeScopeInput(
+            $request->query->getString('scope', StatisticsFilterScope::MyHospitals->value),
+            $request->query->getString('hospital'),
+            $request->query->getString('cohort'),
+            $request->query->getString('state'),
+        );
         $hasScopeQueryParameter = $request->query->has('scope');
         $explicitMyHospitalsInUrl = $hasScopeQueryParameter
-            && StatisticsFilterScope::MyHospitals === StatisticsFilterScope::tryFrom($request->query->getString('scope'));
-        $scope = $this->parseScope($request->query->getString('scope', StatisticsFilterScope::MyHospitals->value));
+            && StatisticsFilterScope::MyHospitals === StatisticsFilterScope::tryFrom($normalized['scope']);
+        $scope = $this->parseScope($normalized['scope']);
         $period = $this->parsePeriod($request->query->getString('period', StatisticsFilterPeriod::All->value));
-        $cohortType = $this->parseCohortType($request->query->getString('cohort'));
+        $cohortType = $this->parseCohortType($normalized['cohort']);
         $notice = null;
         $requiresPublicRedirect = false;
 
@@ -39,7 +45,8 @@ final readonly class StatisticsFilterFactory
             $scope = StatisticsFilterScope::Public;
         }
 
-        $hospitalId = $this->parsePositiveInt($request->query->get('hospital'));
+        $hospitalId = $this->parsePositiveInt($normalized['hospital']);
+        $stateId = $this->parsePositiveInt($normalized['state']);
         if (StatisticsFilterScope::Hospital === $scope && (null === $hospitalId || $hospitalId <= 0)) {
             $scope = StatisticsFilterScope::MyHospitals;
             $hospitalId = null;
@@ -53,10 +60,13 @@ final readonly class StatisticsFilterFactory
         if (StatisticsFilterScope::Hospital !== $scope) {
             $hospitalId = null;
         }
+        if (StatisticsFilterScope::State !== $scope) {
+            $stateId = null;
+        }
 
         if (StatisticsFilterScope::HospitalCohort !== $scope) {
             $cohortType = null;
-        } elseif (null === $cohortType) {
+        } elseif (!$cohortType instanceof HospitalCohortType) {
             $scope = StatisticsFilterScope::MyHospitals;
         } else {
             $cohort = $this->hospitalCohortResolver->resolve($cohortType);
@@ -97,7 +107,63 @@ final readonly class StatisticsFilterFactory
             $referenceMonth,
             $notice,
             $requiresPublicRedirect,
+            $stateId,
         );
+    }
+
+    /**
+     * @return array{scope: string, hospital: string, cohort: string, state: string}
+     */
+    private function normalizeScopeInput(string $scopeRaw, string $hospitalRaw, string $cohortRaw, string $stateRaw): array
+    {
+        if (!str_contains($scopeRaw, ':')) {
+            return [
+                'scope' => $scopeRaw,
+                'hospital' => $hospitalRaw,
+                'cohort' => $cohortRaw,
+                'state' => $stateRaw,
+            ];
+        }
+
+        [$scopeToken, $operand] = array_pad(explode(':', $scopeRaw, 2), 2, '');
+        $scopeToken = trim($scopeToken);
+        $operand = trim($operand);
+        if ('' === $scopeToken || '' === $operand) {
+            return [
+                'scope' => $scopeRaw,
+                'hospital' => $hospitalRaw,
+                'cohort' => $cohortRaw,
+                'state' => $stateRaw,
+            ];
+        }
+
+        $scope = StatisticsFilterScope::tryFrom($scopeToken);
+        if (!$scope instanceof StatisticsFilterScope) {
+            return [
+                'scope' => $scopeRaw,
+                'hospital' => $hospitalRaw,
+                'cohort' => $cohortRaw,
+                'state' => $stateRaw,
+            ];
+        }
+
+        if (StatisticsFilterScope::Hospital === $scope && '' === $hospitalRaw) {
+            $hospitalRaw = $operand;
+        }
+
+        if (StatisticsFilterScope::HospitalCohort === $scope && '' === $cohortRaw) {
+            $cohortRaw = $operand;
+        }
+        if (StatisticsFilterScope::State === $scope && '' === $stateRaw) {
+            $stateRaw = $operand;
+        }
+
+        return [
+            'scope' => $scope->value,
+            'hospital' => $hospitalRaw,
+            'cohort' => $cohortRaw,
+            'state' => $stateRaw,
+        ];
     }
 
     private function parseScope(string $raw): StatisticsFilterScope

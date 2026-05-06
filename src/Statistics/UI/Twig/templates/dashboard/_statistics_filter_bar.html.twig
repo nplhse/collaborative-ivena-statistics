@@ -58,6 +58,32 @@
             </div>
         {% endif %}
 
+        {% if cohortScopeChoices is not empty %}
+            <div class="subheader mb-2">{{ 'stats.filter.scope.hospital_cohorts'|trans }}</div>
+            <div class="dropdown mb-4">
+                <button type="button"
+                        class="btn btn-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between text-start gap-2"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    <span class="flex-grow-1 min-w-0 text-break">
+                        {% if statisticsFilter.scope.value == 'hospital_cohort' and statsCohortDropdownSelectedName %}
+                            {{ statsCohortDropdownSelectedName }}
+                        {% else %}
+                            {{ 'stats.filter.scope.hospital_cohort'|trans }}
+                        {% endif %}
+                    </span>
+                </button>
+                <div class="dropdown-menu w-100">
+                    {% for cohortChoice in cohortScopeChoices %}
+                        <a class="dropdown-item text-wrap text-break{% if cohortChoice.active %} active{% endif %}"
+                           href="{{ cohortChoice.url }}">
+                            {{ cohortChoice.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
         <div class="subheader mb-2">{{ 'stats.filter.period_label'|trans }}</div>
         <div class="list-group list-group-transparent">
             <a href="{{ statsPeriodUrls.all }}"

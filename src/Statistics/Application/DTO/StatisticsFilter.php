@@ -24,6 +24,7 @@ final readonly class StatisticsFilter
         public ?int $referenceMonth = null,
         public ?StatisticsFilterNotice $notice = null,
         public bool $requiresPublicRedirect = false,
+        public ?int $stateId = null,
     ) {
     }
 }

@@ -39,4 +39,18 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
         self::assertNull($filter->cohortType);
         self::assertNull($filter->notice);
     }
+
+    public function testSupportsColonScopedHospitalSyntax(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(StatisticsFilterFactory::class);
+
+        $filter = $factory->createFromRequest(
+            new Request(query: ['scope' => 'hospital:12']),
+            null,
+        );
+
+        self::assertSame('hospital', $filter->scope->value);
+        self::assertSame(12, $filter->hospitalId);
+    }
 }

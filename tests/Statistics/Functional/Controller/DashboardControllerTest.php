@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Functional\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 
 class DashboardControllerTest extends WebTestCase
@@ -85,6 +86,24 @@ class DashboardControllerTest extends WebTestCase
         $location = (string) $client->getResponse()->headers->get('Location');
         $this->assertStringContainsString('scope=public', $location);
         $this->assertStringNotContainsString('cohort=', $location);
+    }
+
+    public function testScopeSidebarShowsHospitalCohortGroup(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
+
+        $this->assertResponseIsSuccessful();
+        $cohortDropdown = $crawler->filter('[data-testid="stats-filter-bar"] .dropdown-menu')->reduce(
+            static fn (Crawler $node): bool => str_contains($node->text('', true), 'Urban')
+                || str_contains($node->text('', true), 'Rural')
+        );
+
+        if ($cohortDropdown->count() > 0) {
+            $this->assertSelectorTextContains('[data-testid="stats-filter-bar"]', 'Hospital cohorts');
+        } else {
+            $this->assertSelectorTextNotContains('[data-testid="stats-filter-bar"]', 'Hospital cohorts');
+        }
     }
 
     public function testStatisticsOverviewAcceptsYearPeriodWithYear(): void

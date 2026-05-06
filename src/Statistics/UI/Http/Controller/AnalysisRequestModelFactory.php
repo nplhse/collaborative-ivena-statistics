@@ -48,6 +48,10 @@ final readonly class AnalysisRequestModelFactory
             $request->query->getString('rows'),
             $request->query->getString('cols'),
             $request->query->getString('measure'),
+            $request->query->getString('comparison_scope'),
+            $request->query->getString('comparison_period'),
+            $request->query->has('comparison_year') ? $request->query->getInt('comparison_year') : null,
+            $request->query->has('comparison_month') ? $request->query->getInt('comparison_month') : null,
         );
     }
 }

@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\Controller;
 
 use App\Statistics\Application\Analysis\AnalysisDefinitionInterface;
+use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\UI\Http\Controller\AnalysisComparisonControlsFactory;
 use App\Statistics\UI\Http\Controller\AnalysisDefinitionOptionsBuilder;
 use App\Statistics\UI\Http\Controller\AnalysisPagePresenter;
 use App\Statistics\UI\Http\Controller\AnalysisPivotChoicesFactory;
@@ -16,6 +20,7 @@ use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AnalysisPagePresenterTest extends TestCase
 {
@@ -30,6 +35,7 @@ final class AnalysisPagePresenterTest extends TestCase
             new AnalysisDefinitionOptionsBuilder($urlBuilder),
             new AnalysisPivotChoicesFactory($urlBuilder),
             new AnalysisToolbarViewModelFactory($urlBuilder),
+            new AnalysisComparisonControlsFactory($urlBuilder, null, $this->translator()),
         );
 
         $request = new Request(query: [
@@ -51,6 +57,7 @@ final class AnalysisPagePresenterTest extends TestCase
             $analysisRequest,
             'allocation_pivot',
             $widget,
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
             [
                 $this->definition('allocations_by_month'),
                 $this->definition('pivot'),
@@ -82,6 +89,14 @@ final class AnalysisPagePresenterTest extends TestCase
         $definition->method('supportsChartMeasureSelector')->willReturn(false);
 
         return $definition;
+    }
+
+    private function translator(): TranslatorInterface
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+
+        return $translator;
     }
 }
 
