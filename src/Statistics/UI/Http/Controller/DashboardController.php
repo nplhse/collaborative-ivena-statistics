@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\ClinicalFeaturesProvider;
+use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\HospitalSummaryProvider;
 use App\Statistics\Application\OverviewDashboardProvider;
-use App\Statistics\Application\StatisticsFilterFactory;
+use App\Statistics\Application\StatisticsContextFactory;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class DashboardController extends AbstractController
 {
@@ -22,27 +24,22 @@ final class DashboardController extends AbstractController
         private readonly OverviewDashboardProvider $overviewDashboardProvider,
         private readonly HospitalSummaryProvider $hospitalSummaryProvider,
         private readonly ClinicalFeaturesProvider $clinicalFeaturesProvider,
-        private readonly StatisticsFilterFactory $statisticsFilterFactory,
+        private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
     ) {
     }
 
     #[Route('/statistics/', name: 'app_stats_dashboard', methods: ['GET'])]
-    public function index(Request $request): Response
-    {
-        $user = $this->getUser();
-        $filter = $this->statisticsFilterFactory->createFromRequest(
-            $request,
-            $user instanceof User ? $user : null,
-        );
-        $context = new StatisticsContext(
-            $user instanceof User ? $user : null,
-            $filter,
-        );
+    public function index(
+        Request $request,
+        #[CurrentUser] ?User $user,
+        #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
+    ): Response {
+        $context = $this->statisticsContextFactory->create($user, $filter);
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
             'app_stats_dashboard',
-            $user instanceof User ? $user : null,
+            $user,
             $filter,
         );
 
