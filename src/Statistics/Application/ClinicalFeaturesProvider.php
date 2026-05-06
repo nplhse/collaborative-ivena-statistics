@@ -8,6 +8,8 @@ use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\DTO\WidgetPayload\DistributionWidgetPayload;
+use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 
 final readonly class ClinicalFeaturesProvider
 {
@@ -16,6 +18,7 @@ final readonly class ClinicalFeaturesProvider
 
     public function __construct(
         private ClinicalFeaturesQuery $clinicalFeaturesQuery,
+        private WidgetPayloadNormalizer $widgetPayloadNormalizer,
     ) {
     }
 
@@ -28,18 +31,20 @@ final readonly class ClinicalFeaturesProvider
             new StatisticWidget(
                 StatisticWidgetType::Distribution,
                 'clinical_resources_distribution',
-                [
-                    'titleTranslationKey' => 'stats.analysis.dimension.resources',
-                    'rows' => $this->clinicalFeaturesQuery->fetchResourceRows($context),
-                    'testId' => 'stats-overview-resources',
-                    'actionTestId' => 'stats-cross-nav-overview-resources',
-                ],
+                $this->widgetPayloadNormalizer->normalize(new DistributionWidgetPayload(
+                    'stats.analysis.dimension.resources',
+                    $this->clinicalFeaturesQuery->fetchResourceRows($context),
+                    [
+                        'testId' => 'stats-overview-resources',
+                        'actionTestId' => 'stats-cross-nav-overview-resources',
+                    ],
+                )),
                 actions: [
                     new StatisticWidgetNavigationTarget(
                         'stats.nav.overview_indicators_to_analysis',
                         'app_stats_analysis',
                         [
-                            'analysis' => 'allocations_over_time',
+                            'analysis' => 'allocations_by_month',
                             'dimension' => 'resources',
                         ],
                         self::ANALYSIS_CROSS_NAV_REMOVE_KEYS,
@@ -49,18 +54,20 @@ final readonly class ClinicalFeaturesProvider
             new StatisticWidget(
                 StatisticWidgetType::Distribution,
                 'clinical_features_distribution',
-                [
-                    'titleTranslationKey' => 'stats.analysis.dimension.features',
-                    'rows' => $this->clinicalFeaturesQuery->fetchClinicalRows($context),
-                    'testId' => 'stats-overview-features',
-                    'actionTestId' => 'stats-cross-nav-overview-features',
-                ],
+                $this->widgetPayloadNormalizer->normalize(new DistributionWidgetPayload(
+                    'stats.analysis.dimension.features',
+                    $this->clinicalFeaturesQuery->fetchClinicalRows($context),
+                    [
+                        'testId' => 'stats-overview-features',
+                        'actionTestId' => 'stats-cross-nav-overview-features',
+                    ],
+                )),
                 actions: [
                     new StatisticWidgetNavigationTarget(
                         'stats.nav.overview_indicators_to_analysis',
                         'app_stats_analysis',
                         [
-                            'analysis' => 'allocations_over_time',
+                            'analysis' => 'allocations_by_month',
                             'dimension' => 'features',
                         ],
                         self::ANALYSIS_CROSS_NAV_REMOVE_KEYS,

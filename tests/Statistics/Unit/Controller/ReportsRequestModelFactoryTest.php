@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Controller;
 
+use App\Statistics\Application\Report\ReportLimitPolicy;
 use App\Statistics\UI\Http\Controller\ReportsRequestModelFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +12,7 @@ final class ReportsRequestModelFactoryTest extends TestCase
 {
     public function testParsesReportAndLimitFromQuery(): void
     {
-        $factory = new ReportsRequestModelFactory();
+        $factory = new ReportsRequestModelFactory(new ReportLimitPolicy());
 
         $model = $factory->fromQuery([
             'report' => 'top_diagnoses',
@@ -24,7 +25,7 @@ final class ReportsRequestModelFactoryTest extends TestCase
 
     public function testFallsBackToDefaultLimit(): void
     {
-        $factory = new ReportsRequestModelFactory();
+        $factory = new ReportsRequestModelFactory(new ReportLimitPolicy());
 
         self::assertSame(25, $factory->fromQuery(['limit' => 'invalid'])->limit);
         self::assertSame(25, $factory->fromQuery([])->limit);

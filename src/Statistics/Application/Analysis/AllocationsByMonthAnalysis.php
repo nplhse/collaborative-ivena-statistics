@@ -13,6 +13,9 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\DTO\WidgetPayload\SimpleChartWidgetPayload;
+use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
+use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInterface
@@ -20,6 +23,7 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
     public function __construct(
         private AllocationsByMonthQuery $allocationsByMonthQuery,
         private TranslatorInterface $translator,
+        private WidgetPayloadNormalizer $widgetPayloadNormalizer,
     ) {
     }
 
@@ -71,10 +75,21 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
 
         if ('table' === $view) {
             if ($this->usesPlainCountColumnsTable($dimension)) {
+                $plainTablePayload = $this->buildPlainMultiSegmentTablePayload($series, $dimension, $monthTotalsByKey);
+
                 return new StatisticWidget(
                     StatisticWidgetType::Table,
                     $this->key().'_table',
-                    $this->buildPlainMultiSegmentTablePayload($series, $dimension, $monthTotalsByKey),
+                    $this->widgetPayloadNormalizer->normalize(
+                        new TableWidgetPayload(
+                            $plainTablePayload['headerTranslationKeys'],
+                            $plainTablePayload['rows'],
+                            array_diff_key(
+                                $plainTablePayload,
+                                ['headerTranslationKeys' => true, 'rows' => true]
+                            ),
+                        )
+                    ),
                 );
             }
 
@@ -92,7 +107,11 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
             return new StatisticWidget(
                 StatisticWidgetType::SimpleChart,
                 $this->key().'_chart',
-                $this->buildMultiSeriesChartPayload($series, $chartType, $chartMeasureForSeries, $monthTotalsByKey),
+                $this->widgetPayloadNormalizer->normalize(
+                    $this->toSimpleChartPayload(
+                        $this->buildMultiSeriesChartPayload($series, $chartType, $chartMeasureForSeries, $monthTotalsByKey)
+                    )
+                ),
             );
         }
 
@@ -124,7 +143,7 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         return new StatisticWidget(
             StatisticWidgetType::SimpleChart,
             $this->key().'_chart',
-            $payload,
+            $this->widgetPayloadNormalizer->normalize($this->toSimpleChartPayload($payload)),
         );
     }
 
@@ -431,21 +450,23 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         return new StatisticWidget(
             StatisticWidgetType::Table,
             $this->key().'_table',
-            [
-                'headerTranslationKeys' => [
+            $this->widgetPayloadNormalizer->normalize(new TableWidgetPayload(
+                [
                     'stats.analysis.table.month',
                     'stats.analysis.table.count',
                     'stats.analysis.table.share',
                 ],
-                'rows' => $rows,
-                'monthRowTargets' => $monthRowTargets,
-                'footerRow' => [
-                    'labelTranslationKey' => 'stats.analysis.table.total',
-                    'count' => $total,
-                    'percentDisplay' => $total > 0 ? '100.0%' : '—',
+                $rows,
+                [
+                    'monthRowTargets' => $monthRowTargets,
+                    'footerRow' => [
+                        'labelTranslationKey' => 'stats.analysis.table.total',
+                        'count' => $total,
+                        'percentDisplay' => $total > 0 ? '100.0%' : '—',
+                    ],
+                    'summaryStats' => $summaryStats,
                 ],
-                'summaryStats' => $summaryStats,
-            ],
+            )),
         );
     }
 
@@ -494,18 +515,33 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         return new StatisticWidget(
             StatisticWidgetType::Table,
             $this->key().'_table',
-            [
-                'headerTranslationKeys' => $headerTranslationKeys,
-                'numericColumnStartIndex' => 2,
-                'rows' => $rows,
-                'monthRowTargets' => $monthRowTargets,
-                'footerRow' => [
-                    'labelTranslationKey' => 'stats.analysis.table.total',
-                    'counts' => $footerCounts,
+            $this->widgetPayloadNormalizer->normalize(new TableWidgetPayload(
+                $headerTranslationKeys,
+                $rows,
+                [
+                    'numericColumnStartIndex' => 2,
+                    'monthRowTargets' => $monthRowTargets,
+                    'footerRow' => [
+                        'labelTranslationKey' => 'stats.analysis.table.total',
+                        'counts' => $footerCounts,
+                    ],
+                    'summaryStats' => $summaryStats,
                 ],
-                'summaryStats' => $summaryStats,
-            ],
+            )),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function toSimpleChartPayload(array $payload): SimpleChartWidgetPayload
+    {
+        $chartType = \is_string($payload['chartType'] ?? null) ? $payload['chartType'] : 'bar';
+        /** @var list<string> $labels */
+        $labels = \is_array($payload['labels'] ?? null) ? $payload['labels'] : [];
+        unset($payload['chartType'], $payload['labels']);
+
+        return new SimpleChartWidgetPayload($chartType, $labels, $payload);
     }
 
     /** Row-relative share (segment cells in the row sum to 100%). */

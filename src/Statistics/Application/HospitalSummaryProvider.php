@@ -12,6 +12,8 @@ use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\DTO\WidgetPayload\SummaryDeckWidgetPayload;
+use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 
 final readonly class HospitalSummaryProvider
 {
@@ -41,6 +43,7 @@ final readonly class HospitalSummaryProvider
 
     public function __construct(
         private HospitalSummaryQuery $hospitalSummaryQuery,
+        private WidgetPayloadNormalizer $widgetPayloadNormalizer,
     ) {
     }
 
@@ -89,9 +92,8 @@ final readonly class HospitalSummaryProvider
         return new StatisticWidget(
             StatisticWidgetType::SummaryDeck,
             'hospital_summary_deck',
-            [
-                'showUnscopedHint' => false,
-                'kpi' => [
+            $this->widgetPayloadNormalizer->normalize(new SummaryDeckWidgetPayload(
+                [
                     'subheaderTranslationKey' => 'stats.overview.hospital_summary.kpi_subheader',
                     'value' => $user,
                     'mutedTranslationKey' => 'stats.overview.hospital_summary.kpi_subline',
@@ -104,7 +106,7 @@ final readonly class HospitalSummaryProvider
                         ),
                     ],
                 ],
-                'gender' => [
+                [
                     'titleTranslationKey' => 'stats.overview.hospital_summary.gender_card_title',
                     'segments' => $genderSegments,
                     'actions' => $this->openAllocationsByMonthAnalysisActions(
@@ -112,7 +114,7 @@ final readonly class HospitalSummaryProvider
                         StatisticsAnalysisDimension::Gender,
                     ),
                 ],
-                'urgency' => [
+                [
                     'titleTranslationKey' => 'stats.overview.hospital_summary.urgency_card_title',
                     'segments' => $urgencySegments,
                     'actions' => $this->openAllocationsByMonthAnalysisActions(
@@ -120,7 +122,8 @@ final readonly class HospitalSummaryProvider
                         StatisticsAnalysisDimension::Urgency,
                     ),
                 ],
-            ],
+                ['showUnscopedHint' => false],
+            )),
         );
     }
 

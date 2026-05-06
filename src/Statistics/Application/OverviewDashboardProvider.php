@@ -9,6 +9,8 @@ use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\DTO\WidgetPayload\ChartPairWidgetPayload;
+use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 
 final readonly class OverviewDashboardProvider
@@ -16,6 +18,7 @@ final readonly class OverviewDashboardProvider
     public function __construct(
         private ImportRepository $importRepository,
         private ProjectionTimeSeriesQuery $timeSeriesQuery,
+        private WidgetPayloadNormalizer $widgetPayloadNormalizer,
     ) {
     }
 
@@ -30,10 +33,9 @@ final readonly class OverviewDashboardProvider
             new StatisticWidget(
                 StatisticWidgetType::ChartPair,
                 'chart_pair_overview',
-                [
-                    'allocationChart' => $charts['allocationChart'],
-                    'importChart' => $charts['importChart'],
-                ],
+                $this->widgetPayloadNormalizer->normalize(
+                    new ChartPairWidgetPayload($charts['allocationChart'], $charts['importChart'])
+                ),
             ),
         ];
     }

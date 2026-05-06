@@ -9,12 +9,16 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
+use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Application\TopDiagnosesQuery;
 
 final readonly class TopDiagnosesReport implements ReportDefinitionInterface
 {
     public function __construct(
         private TopDiagnosesQuery $topDiagnosesQuery,
+        private ReportLimitPolicy $reportLimitPolicy,
+        private WidgetPayloadNormalizer $widgetPayloadNormalizer,
     ) {
     }
 
@@ -62,19 +66,21 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
             ++$rank;
         }
 
+        $payload = new TableWidgetPayload(
+            [
+                'stats.reports.table.rank',
+                'stats.reports.table.diagnosis',
+                'stats.reports.table.count',
+                'stats.reports.table.share',
+            ],
+            $rows,
+            ['numericColumnStartIndex' => 3],
+        );
+
         return new StatisticWidget(
             StatisticWidgetType::Table,
             $this->key().'_table',
-            [
-                'numericColumnStartIndex' => 3,
-                'headerTranslationKeys' => [
-                    'stats.reports.table.rank',
-                    'stats.reports.table.diagnosis',
-                    'stats.reports.table.count',
-                    'stats.reports.table.share',
-                ],
-                'rows' => $rows,
-            ],
+            $this->widgetPayloadNormalizer->normalize($payload),
             null,
             [
                 new StatisticWidgetNavigationTarget(
@@ -90,6 +96,6 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
     #[\Override]
     public function allowedLimits(): array
     {
-        return [10, 25, 50];
+        return $this->reportLimitPolicy->allowed();
     }
 }

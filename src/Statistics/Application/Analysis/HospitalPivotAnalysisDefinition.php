@@ -9,6 +9,8 @@ use App\Statistics\Application\DTO\StatisticsChartMeasure;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\DTO\WidgetPayload\PivotTableWidgetPayload;
+use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Application\Pivot\HospitalPivotDimension;
 use App\Statistics\Application\Pivot\HospitalPivotMeasure;
 use App\Statistics\Application\Pivot\HospitalPivotSelection;
@@ -26,6 +28,7 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         private StatisticsScopeResolver $scopeResolver,
         private PivotTableBuilder $pivotTableBuilder,
         private PivotPresentationMapper $pivotPresentationMapper,
+        private WidgetPayloadNormalizer $widgetPayloadNormalizer,
         private TranslatorInterface $translator,
     ) {
     }
@@ -91,22 +94,28 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
             $format,
         );
 
-        $payload = [
-            'rowDimensionLabel' => $this->translator->trans($this->dimensionLabel($selection->rows)),
-            'columnDimensionLabel' => $this->translator->trans($this->dimensionLabel($selection->cols)),
-            'rowLabels' => $pivot->rowLabels,
-            'columnLabels' => $pivot->columnLabels,
-            'matrix' => $presentation->matrix,
-            'showTotals' => true,
-            'row_totals' => $presentation->rowTotals,
-            'column_totals' => $presentation->columnTotals,
-            'grand_total' => $presentation->grandTotal,
-            'rowTotalHeaderLabel' => $this->translator->trans('stats.analysis.pivot.row_total'),
-            'columnTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.column_total'),
-            'grandTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.grand_total'),
-        ];
+        $payload = new PivotTableWidgetPayload(
+            $this->translator->trans($this->dimensionLabel($selection->rows)),
+            $this->translator->trans($this->dimensionLabel($selection->cols)),
+            $pivot->rowLabels,
+            $pivot->columnLabels,
+            $presentation->matrix,
+            $presentation->rowTotals,
+            $presentation->columnTotals,
+            $presentation->grandTotal,
+            [
+                'showTotals' => true,
+                'rowTotalHeaderLabel' => $this->translator->trans('stats.analysis.pivot.row_total'),
+                'columnTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.column_total'),
+                'grandTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.grand_total'),
+            ],
+        );
 
-        return new StatisticWidget(StatisticWidgetType::PivotTable, 'hospital_pivot_table', $payload);
+        return new StatisticWidget(
+            StatisticWidgetType::PivotTable,
+            'hospital_pivot_table',
+            $this->widgetPayloadNormalizer->normalize($payload),
+        );
     }
 
     public function supportsDimensionSelector(): bool
