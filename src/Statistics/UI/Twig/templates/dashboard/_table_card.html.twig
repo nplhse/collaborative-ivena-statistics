@@ -1,0 +1,21 @@
+{# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
+{% set p = widget.payload %}
+<div class="card" data-testid="stats-analysis-table-card">
+    {% if widget.actions is not empty %}
+        <div class="card-header py-2 d-flex justify-content-end align-items-center">
+            {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {targets: widget.actions}) }}
+        </div>
+    {% endif %}
+    <div class="card-body">
+        {{ include('@Statistics/dashboard/_analysis_table_inner.html.twig', {
+            tablePayload: p,
+            tableSummaryTestId: 'stats-analysis-table-summary',
+        }) }}
+    </div>
+    {% if p.limitFooter is defined and p.limitFooter.urls is defined and p.limitFooter.current is defined %}
+        <div class="card-footer d-flex align-items-center">
+            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+            {{ pagination.rowLimitDropdown(p.limitFooter.urls, p.limitFooter.current) }}
+        </div>
+    {% endif %}
+</div>

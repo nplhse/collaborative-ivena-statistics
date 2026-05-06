@@ -113,6 +113,12 @@ class AllocationStatsProjection
     private ?bool $isVentilated = null;
 
     #[ORM\Column(nullable: true)]
+    private ?bool $isShock = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $isPregnant = null;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $isWithPhysician = null;
 
     public function getId(): int
@@ -268,6 +274,16 @@ class AllocationStatsProjection
     public function isVentilated(): ?bool
     {
         return $this->isVentilated;
+    }
+
+    public function isShock(): ?bool
+    {
+        return $this->isShock;
+    }
+
+    public function isPregnant(): ?bool
+    {
+        return $this->isPregnant;
     }
 
     public function isWithPhysician(): ?bool

@@ -1137,6 +1137,14 @@
         <source>link.stats.dashboard</source>
         <target>Overview</target>
       </trans-unit>
+      <trans-unit id="statsLnkAn01" resname="link.stats.analysis">
+        <source>link.stats.analysis</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsLnkRp01" resname="link.stats.reports">
+        <source>link.stats.reports</source>
+        <target>Reports</target>
+      </trans-unit>
       <trans-unit id="CXSATlj" resname="link.stats.distribution">
         <source>link.stats.distribution</source>
         <target>Distribution</target>
@@ -2014,6 +2022,538 @@
       <trans-unit id="kCCr8EE" resname="title.stats.overview">
         <source>title.stats.overview</source>
         <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="statsHdrYr01" resname="stats.dashboard.heading.year">
+        <source>stats.dashboard.heading.year</source>
+        <target>Year {year}</target>
+      </trans-unit>
+      <trans-unit id="statsFlt01" resname="stats.filter.scope_label">
+        <source>stats.filter.scope_label</source>
+        <target>Scope</target>
+      </trans-unit>
+      <trans-unit id="statsFlt02" resname="stats.filter.scope.public">
+        <source>stats.filter.scope.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03" resname="stats.filter.scope.my_hospitals">
+        <source>stats.filter.scope.my_hospitals</source>
+        <target>My hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03b" resname="stats.filter.scope.hospital_cohort">
+        <source>stats.filter.scope.hospital_cohort</source>
+        <target>Hospital cohort</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03c" resname="stats.filter.scope.hospital_cohorts">
+        <source>stats.filter.scope.hospital_cohorts</source>
+        <target>Hospital cohorts</target>
+      </trans-unit>
+      <trans-unit id="statsCohort01" resname="stats.filter.cohort.urban_basic">
+        <source>stats.filter.cohort.urban_basic</source>
+        <target>Urban Basic</target>
+      </trans-unit>
+      <trans-unit id="statsCohort02" resname="stats.filter.cohort.urban_advanced">
+        <source>stats.filter.cohort.urban_advanced</source>
+        <target>Urban Advanced</target>
+      </trans-unit>
+      <trans-unit id="statsCohort03" resname="stats.filter.cohort.rural_basic">
+        <source>stats.filter.cohort.rural_basic</source>
+        <target>Rural Basic</target>
+      </trans-unit>
+      <trans-unit id="statsCohort04" resname="stats.filter.cohort.rural_maximum">
+        <source>stats.filter.cohort.rural_maximum</source>
+        <target>Rural Maximum</target>
+      </trans-unit>
+      <trans-unit id="statsFlt04" resname="stats.filter.hospital_label">
+        <source>stats.filter.hospital_label</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="statsFlt05" resname="stats.filter.period_label">
+        <source>stats.filter.period_label</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="statsFlt06" resname="stats.filter.period.all">
+        <source>stats.filter.period.all</source>
+        <target>Last 12 months</target>
+      </trans-unit>
+      <trans-unit id="statsFlt06b" resname="stats.filter.period.all_time">
+        <source>stats.filter.period.all_time</source>
+        <target>All time</target>
+      </trans-unit>
+      <trans-unit id="statsFlt07" resname="stats.filter.period.year">
+        <source>stats.filter.period.year</source>
+        <target>Year</target>
+      </trans-unit>
+      <trans-unit id="statsFlt08" resname="stats.filter.period.month">
+        <source>stats.filter.period.month</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="statsFlt09" resname="stats.filter.hospital.all_hospitals">
+        <source>stats.filter.hospital.all_hospitals</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsFlt10" resname="stats.filter.hospital.my_hospital">
+        <source>stats.filter.hospital.my_hospital</source>
+        <target>My hospital</target>
+      </trans-unit>
+      <trans-unit id="statsFlt11" resname="stats.filter.hospital.choose">
+        <source>stats.filter.hospital.choose</source>
+        <target>Select a hospital</target>
+      </trans-unit>
+      <trans-unit id="statsFlt12" resname="stats.filter.hospital.named_line">
+        <source>stats.filter.hospital.named_line</source>
+        <target>Hospital: {name}</target>
+      </trans-unit>
+      <trans-unit id="statsFlt13" resname="stats.filter.scope.cohort_too_small">
+        <source>stats.filter.scope.cohort_too_small</source>
+        <target>The selected cohort has fewer than 2 participating hospitals. Showing public statistics instead.</target>
+      </trans-unit>
+      <trans-unit id="statsAnPg01" resname="stats.analysis.page_title">
+        <source>stats.analysis.page_title</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAnSel00" resname="stats.analysis.select_label">
+        <source>stats.analysis.select_label</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAnPr00" resname="stats.analysis.presentation_label">
+        <source>stats.analysis.presentation_label</source>
+        <target>View</target>
+      </trans-unit>
+      <trans-unit id="statsAnVwCh" resname="stats.analysis.view.chart">
+        <source>stats.analysis.view.chart</source>
+        <target>Chart</target>
+      </trans-unit>
+      <trans-unit id="statsAnVwTb" resname="stats.analysis.view.table">
+        <source>stats.analysis.view.table</source>
+        <target>Table</target>
+      </trans-unit>
+      <trans-unit id="statsAnCtLb" resname="stats.analysis.chart_type_label">
+        <source>stats.analysis.chart_type_label</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsAnCtBr" resname="stats.analysis.chart.bar">
+        <source>stats.analysis.chart.bar</source>
+        <target>Bar</target>
+      </trans-unit>
+      <trans-unit id="statsAnCtLn" resname="stats.analysis.chart.line">
+        <source>stats.analysis.chart.line</source>
+        <target>Line</target>
+      </trans-unit>
+      <trans-unit id="statsAnAbmLb" resname="stats.analysis.allocations_by_month.label">
+        <source>stats.analysis.allocations_by_month.label</source>
+        <target>Allocations over time</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmpLb" resname="stats.analysis.allocations_comparison_over_time.label">
+        <source>stats.analysis.allocations_comparison_over_time.label</source>
+        <target>Allocations Comparison Over Time</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp01" resname="stats.analysis.comparison.scope_label">
+        <source>stats.analysis.comparison.scope_label</source>
+        <target>Comparison scope</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp02" resname="stats.analysis.comparison.choose_scope">
+        <source>stats.analysis.comparison.choose_scope</source>
+        <target>Select cohort</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp02b" resname="stats.analysis.comparison.period_label">
+        <source>stats.analysis.comparison.period_label</source>
+        <target>Comparison period</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp02c" resname="stats.analysis.comparison.choose_period">
+        <source>stats.analysis.comparison.choose_period</source>
+        <target>Select period</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp03" resname="stats.analysis.comparison.primary">
+        <source>stats.analysis.comparison.primary</source>
+        <target>Primary</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp04" resname="stats.analysis.comparison.comparison">
+        <source>stats.analysis.comparison.comparison</source>
+        <target>Comparison</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp05" resname="stats.analysis.comparison.delta">
+        <source>stats.analysis.comparison.delta</source>
+        <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="statsAnCmp06" resname="stats.analysis.comparison.delta_percent">
+        <source>stats.analysis.comparison.delta_percent</source>
+        <target>Delta %</target>
+      </trans-unit>
+      <trans-unit id="statsAnAbmCt" resname="stats.analysis.allocations_by_month.card_title">
+        <source>stats.analysis.allocations_by_month.card_title</source>
+        <target>Allocations over time</target>
+      </trans-unit>
+      <trans-unit id="statsAnDimLb" resname="stats.analysis.dimension_label">
+        <source>stats.analysis.dimension_label</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsAnDimTot" resname="stats.analysis.dimension.total">
+        <source>stats.analysis.dimension.total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsAnDimGen" resname="stats.analysis.dimension.gender">
+        <source>stats.analysis.dimension.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsAnDimUrg" resname="stats.analysis.dimension.urgency">
+        <source>stats.analysis.dimension.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsAnDimRes" resname="stats.analysis.dimension.resources">
+        <source>stats.analysis.dimension.resources</source>
+        <target>Resources</target>
+      </trans-unit>
+      <trans-unit id="statsAnDimFeat" resname="stats.analysis.dimension.features">
+        <source>stats.analysis.dimension.features</source>
+        <target>Clinical features</target>
+      </trans-unit>
+      <trans-unit id="statsPivotLbl" resname="stats.analysis.pivot.label">
+        <source>stats.analysis.pivot.label</source>
+        <target>Pivot</target>
+      </trans-unit>
+      <trans-unit id="statsAllocPivotLbl" resname="stats.analysis.allocation_pivot.label">
+        <source>stats.analysis.allocation_pivot.label</source>
+        <target>Allocation Pivot</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotLbl" resname="stats.analysis.hospital_pivot.label">
+        <source>stats.analysis.hospital_pivot.label</source>
+        <target>Hospital Pivot</target>
+      </trans-unit>
+      <trans-unit id="statsPivotRowsLbl" resname="stats.analysis.pivot.rows_label">
+        <source>stats.analysis.pivot.rows_label</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsPivotColsLbl" resname="stats.analysis.pivot.cols_label">
+        <source>stats.analysis.pivot.cols_label</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsPivotMeasureLbl" resname="stats.analysis.pivot.measure_label">
+        <source>stats.analysis.pivot.measure_label</source>
+        <target>Measure</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAxRowsDept" resname="stats.analysis.pivot.axis.rows.department">
+        <source>stats.analysis.pivot.axis.rows.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAxRowsAge" resname="stats.analysis.pivot.axis.rows.age_group">
+        <source>stats.analysis.pivot.axis.rows.age_group</source>
+        <target>Age group</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAxRowsUrg" resname="stats.analysis.pivot.axis.rows.urgency">
+        <source>stats.analysis.pivot.axis.rows.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAxRowsGen" resname="stats.analysis.pivot.axis.rows.gender">
+        <source>stats.analysis.pivot.axis.rows.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAxColsGen" resname="stats.analysis.pivot.axis.cols.gender">
+        <source>stats.analysis.pivot.axis.cols.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAxColsUrg" resname="stats.analysis.pivot.axis.cols.urgency">
+        <source>stats.analysis.pivot.axis.cols.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAgeUnk" resname="stats.analysis.pivot.age.unknown">
+        <source>stats.analysis.pivot.age.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge018" resname="stats.analysis.pivot.age.0_18">
+        <source>stats.analysis.pivot.age.0_18</source>
+        <target>0–18</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge1929" resname="stats.analysis.pivot.age.19_29">
+        <source>stats.analysis.pivot.age.19_29</source>
+        <target>19–29</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge3039" resname="stats.analysis.pivot.age.30_39">
+        <source>stats.analysis.pivot.age.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge4049" resname="stats.analysis.pivot.age.40_49">
+        <source>stats.analysis.pivot.age.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge5059" resname="stats.analysis.pivot.age.50_59">
+        <source>stats.analysis.pivot.age.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge6069" resname="stats.analysis.pivot.age.60_69">
+        <source>stats.analysis.pivot.age.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge7079" resname="stats.analysis.pivot.age.70_79">
+        <source>stats.analysis.pivot.age.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge8089" resname="stats.analysis.pivot.age.80_89">
+        <source>stats.analysis.pivot.age.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge9099" resname="stats.analysis.pivot.age.90_99">
+        <source>stats.analysis.pivot.age.90_99</source>
+        <target>90–99</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAge100p" resname="stats.analysis.pivot.age.100_plus">
+        <source>stats.analysis.pivot.age.100_plus</source>
+        <target>100+</target>
+      </trans-unit>
+      <trans-unit id="statsPivotRowTot" resname="stats.analysis.pivot.row_total">
+        <source>stats.analysis.pivot.row_total</source>
+        <target>Row total</target>
+      </trans-unit>
+      <trans-unit id="statsPivotColTot" resname="stats.analysis.pivot.column_total">
+        <source>stats.analysis.pivot.column_total</source>
+        <target>Column total</target>
+      </trans-unit>
+      <trans-unit id="statsPivotGrandTot" resname="stats.analysis.pivot.grand_total">
+        <source>stats.analysis.pivot.grand_total</source>
+        <target>Grand total</target>
+      </trans-unit>
+      <trans-unit id="statsPivotUnknown" resname="stats.analysis.pivot.unknown">
+        <source>stats.analysis.pivot.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsAllPivotMeasCount" resname="stats.analysis.allocation_pivot.measure.count">
+        <source>stats.analysis.allocation_pivot.measure.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsAllPivotMeasRowPct" resname="stats.analysis.allocation_pivot.measure.row_percent">
+        <source>stats.analysis.allocation_pivot.measure.row_percent</source>
+        <target>Row percent</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxState" resname="stats.analysis.hospital_pivot.axis.state">
+        <source>stats.analysis.hospital_pivot.axis.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxDispatch" resname="stats.analysis.hospital_pivot.axis.dispatch_area">
+        <source>stats.analysis.hospital_pivot.axis.dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxLoc" resname="stats.analysis.hospital_pivot.axis.location">
+        <source>stats.analysis.hospital_pivot.axis.location</source>
+        <target>Location</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxTier" resname="stats.analysis.hospital_pivot.axis.tier">
+        <source>stats.analysis.hospital_pivot.axis.tier</source>
+        <target>Tier</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxSize" resname="stats.analysis.hospital_pivot.axis.size">
+        <source>stats.analysis.hospital_pivot.axis.size</source>
+        <target>Size</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasHospCount" resname="stats.analysis.hospital_pivot.measure.hospital_count">
+        <source>stats.analysis.hospital_pivot.measure.hospital_count</source>
+        <target>Hospital count</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasAvgBeds" resname="stats.analysis.hospital_pivot.measure.avg_beds">
+        <source>stats.analysis.hospital_pivot.measure.avg_beds</source>
+        <target>Average beds</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMinBeds" resname="stats.analysis.hospital_pivot.measure.min_beds">
+        <source>stats.analysis.hospital_pivot.measure.min_beds</source>
+        <target>Min beds</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMaxBeds" resname="stats.analysis.hospital_pivot.measure.max_beds">
+        <source>stats.analysis.hospital_pivot.measure.max_beds</source>
+        <target>Max beds</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasTotAlloc" resname="stats.analysis.hospital_pivot.measure.total_allocations">
+        <source>stats.analysis.hospital_pivot.measure.total_allocations</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasAvgAlloc" resname="stats.analysis.hospital_pivot.measure.avg_allocations">
+        <source>stats.analysis.hospital_pivot.measure.avg_allocations</source>
+        <target>Average allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMinAlloc" resname="stats.analysis.hospital_pivot.measure.min_allocations">
+        <source>stats.analysis.hospital_pivot.measure.min_allocations</source>
+        <target>Min allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMaxAlloc" resname="stats.analysis.hospital_pivot.measure.max_allocations">
+        <source>stats.analysis.hospital_pivot.measure.max_allocations</source>
+        <target>Max allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasRowPct" resname="stats.analysis.hospital_pivot.measure.row_percent">
+        <source>stats.analysis.hospital_pivot.measure.row_percent</source>
+        <target>Share in % (row)</target>
+      </trans-unit>
+      <trans-unit id="statsAnChMsLbl" resname="stats.analysis.chart_measure.label">
+        <source>stats.analysis.chart_measure.label</source>
+        <target>Bar chart</target>
+      </trans-unit>
+      <trans-unit id="statsAnChMsAbs" resname="stats.analysis.chart_measure.absolute">
+        <source>stats.analysis.chart_measure.absolute</source>
+        <target>Absolute counts</target>
+      </trans-unit>
+      <trans-unit id="statsAnChMsShr" resname="stats.analysis.chart_measure.share">
+        <source>stats.analysis.chart_measure.share</source>
+        <target>Share of monthly total</target>
+      </trans-unit>
+      <trans-unit id="statsAnChRm" resname="stats.analysis.chart.remainder_series">
+        <source>stats.analysis.chart.remainder_series</source>
+        <target>Virtual remainder (no listed flag)</target>
+      </trans-unit>
+      <trans-unit id="statsAnChOv" resname="stats.analysis.chart.overlap_hint">
+        <source>stats.analysis.chart.overlap_hint</source>
+        <target>The “virtual remainder” assumes cases without any listed flag; overlapping flags can make segment sums exceed the total, so stacked percentages may exceed 100%.</target>
+      </trans-unit>
+      <trans-unit id="statsAnTblFeat" resname="stats.analysis.table.feature">
+        <source>stats.analysis.table.feature</source>
+        <target>Feature</target>
+      </trans-unit>
+      <trans-unit id="statsAnFeatShk" resname="stats.analysis.feature.is_shock">
+        <source>stats.analysis.feature.is_shock</source>
+        <target>Shock</target>
+      </trans-unit>
+      <trans-unit id="statsAnFeatPrg" resname="stats.analysis.feature.is_pregnant">
+        <source>stats.analysis.feature.is_pregnant</source>
+        <target>Pregnant</target>
+      </trans-unit>
+      <trans-unit id="statsAnTblMo" resname="stats.analysis.table.month">
+        <source>stats.analysis.table.month</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="statsAnTblCnt" resname="stats.analysis.table.count">
+        <source>stats.analysis.table.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsAnTblShr" resname="stats.analysis.table.share">
+        <source>stats.analysis.table.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsAnTblMoTot" resname="stats.analysis.table.allocations_month_total">
+        <source>stats.analysis.table.allocations_month_total</source>
+        <target>Allocations (month total)</target>
+      </trans-unit>
+      <trans-unit id="statsAnTblTot" resname="stats.analysis.table.total">
+        <source>stats.analysis.table.total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsAnSumMn" resname="stats.analysis.table.summary_mean_label">
+        <source>stats.analysis.table.summary_mean_label</source>
+        <target>Mean (per month):</target>
+      </trans-unit>
+      <trans-unit id="statsAnSumSd" resname="stats.analysis.table.summary_std_label">
+        <source>stats.analysis.table.summary_std_label</source>
+        <target>Std. deviation:</target>
+      </trans-unit>
+      <trans-unit id="statsRpPg01" resname="stats.reports.page_title">
+        <source>stats.reports.page_title</source>
+        <target>Reports</target>
+      </trans-unit>
+      <trans-unit id="statsRpSel00" resname="stats.reports.select_label">
+        <source>stats.reports.select_label</source>
+        <target>Report</target>
+      </trans-unit>
+      <trans-unit id="statsRpTdLb" resname="stats.reports.top_diagnoses.label">
+        <source>stats.reports.top_diagnoses.label</source>
+        <target>Top diagnoses</target>
+      </trans-unit>
+      <trans-unit id="statsRpTdDs" resname="stats.reports.top_diagnoses.description">
+        <source>stats.reports.top_diagnoses.description</source>
+        <target>Most frequent diagnosis labels (normalized indication name, otherwise raw name) in the selected scope and period. Share is relative to all allocations in that window.</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbRk" resname="stats.reports.table.rank">
+        <source>stats.reports.table.rank</source>
+        <target>Rank</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbDx" resname="stats.reports.table.diagnosis">
+        <source>stats.reports.table.diagnosis</source>
+        <target>Diagnosis</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbCnt" resname="stats.reports.table.count">
+        <source>stats.reports.table.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbShr" resname="stats.reports.table.share">
+        <source>stats.reports.table.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsNavKpi" resname="stats.nav.overview_kpi_to_analysis">
+        <source>stats.nav.overview_kpi_to_analysis</source>
+        <target>Open allocations over time</target>
+      </trans-unit>
+      <trans-unit id="statsNavRes" resname="stats.nav.overview_resources_to_analysis">
+        <source>stats.nav.overview_resources_to_analysis</source>
+        <target>Open resources over time</target>
+      </trans-unit>
+      <trans-unit id="statsNavGn" resname="stats.nav.overview_gender_to_analysis">
+        <source>stats.nav.overview_gender_to_analysis</source>
+        <target>Open in analysis</target>
+      </trans-unit>
+      <trans-unit id="statsNavUr" resname="stats.nav.overview_urgency_to_analysis">
+        <source>stats.nav.overview_urgency_to_analysis</source>
+        <target>Open in analysis</target>
+      </trans-unit>
+      <trans-unit id="statsNavInd" resname="stats.nav.overview_indicators_to_analysis">
+        <source>stats.nav.overview_indicators_to_analysis</source>
+        <target>Open in analysis</target>
+      </trans-unit>
+      <trans-unit id="statsNavRp" resname="stats.nav.report_to_analysis_allocations_by_month">
+        <source>stats.nav.report_to_analysis_allocations_by_month</source>
+        <target>Open in analysis</target>
+      </trans-unit>
+      <trans-unit id="statsOvInd01" resname="stats.overview.indicators.card_title">
+        <source>stats.overview.indicators.card_title</source>
+        <target>Clinical Features</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs01" resname="stats.overview.hospital_summary.title">
+        <source>stats.overview.hospital_summary.title</source>
+        <target>Hospital summary</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs02" resname="stats.overview.hospital_summary.placeholder">
+        <source>stats.overview.hospital_summary.placeholder</source>
+        <target>Detailed KPIs, distributions and top lists for your hospitals will appear here in a future release.</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs03" resname="stats.overview.hospital_summary.allocations_kpi">
+        <source>stats.overview.hospital_summary.allocations_kpi</source>
+        <target>{user, number, integer} Allocations (of {total, number, integer}, {percent, number, :: .#}%)</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs04" resname="stats.overview.hospital_summary.gender_title">
+        <source>stats.overview.hospital_summary.gender_title</source>
+        <target>Gender (your hospitals)</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs05" resname="stats.overview.hospital_summary.urgency_title">
+        <source>stats.overview.hospital_summary.urgency_title</source>
+        <target>Care setting / urgency (your hospitals)</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs06" resname="stats.overview.hospital_summary.kpi_subheader">
+        <source>stats.overview.hospital_summary.kpi_subheader</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs07" resname="stats.overview.hospital_summary.kpi_subline">
+        <source>stats.overview.hospital_summary.kpi_subline</source>
+        <target>{percent, number, :: .#}% of {total, number, integer} allocations in this period</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs08" resname="stats.overview.hospital_summary.unscoped_hint">
+        <source>stats.overview.hospital_summary.unscoped_hint</source>
+        <target>Showing all hospitals — no clinics are assigned to your account.</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs09" resname="stats.overview.hospital_summary.gender_card_title">
+        <source>stats.overview.hospital_summary.gender_card_title</source>
+        <target>Gender distribution</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs10" resname="stats.overview.hospital_summary.urgency_card_title">
+        <source>stats.overview.hospital_summary.urgency_card_title</source>
+        <target>Emergency / Inpatient / Outpatient</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs11" resname="stats.overview.hospital_summary.urgency_u1">
+        <source>stats.overview.hospital_summary.urgency_u1</source>
+        <target>U1</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs12" resname="stats.overview.hospital_summary.urgency_u2">
+        <source>stats.overview.hospital_summary.urgency_u2</source>
+        <target>U2</target>
+      </trans-unit>
+      <trans-unit id="statsOvHs13" resname="stats.overview.hospital_summary.urgency_u3">
+        <source>stats.overview.hospital_summary.urgency_u3</source>
+        <target>U3</target>
+      </trans-unit>
+      <trans-unit id="statsOvTbl01" resname="stats.overview.table.placeholder">
+        <source>stats.overview.table.placeholder</source>
+        <target>Table widgets will be available here later.</target>
       </trans-unit>
       <trans-unit id="blog0001" resname="link.blog">
         <source>link.blog</source>

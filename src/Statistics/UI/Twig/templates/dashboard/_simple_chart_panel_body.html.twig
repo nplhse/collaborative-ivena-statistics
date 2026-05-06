@@ -1,0 +1,50 @@
+{# Inner chart area (summary + bar/line + Apex); p is the simple_chart payload #}
+{% set summaryTestId = chartSummaryTestId|default('stats-analysis-chart-summary') %}
+{% set showStyleToggle = showChartStyleToggle|default(true) %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    {% if p.summaryStats is defined %}
+        <p class="text-secondary small mb-0 flex-grow-1 min-w-0" data-testid="{{ summaryTestId }}">
+            <span class="text-body">{{ 'stats.analysis.table.summary_mean_label'|trans }}</span>
+            {{ p.summaryStats.meanDisplay }}
+            <span class="mx-1">·</span>
+            <span class="text-body">{{ 'stats.analysis.table.summary_std_label'|trans }}</span>
+            {{ p.summaryStats.stdDevDisplay }}
+        </p>
+    {% else %}
+        <div class="flex-grow-1"></div>
+    {% endif %}
+    {% if showStyleToggle and analysisChartStyle is defined and analysisChartStyle is not null %}
+        <div class="btn-group btn-group-sm flex-shrink-0"
+             role="group"
+             aria-label="{{ 'stats.analysis.chart_type_label'|trans }}"
+             data-testid="stats-analysis-chart-style">
+            <a href="{{ analysisChartStyle.chartBarUrl }}"
+               class="btn btn-outline-secondary{% if analysisChartStyle.currentChartType == 'bar' %} active{% endif %}">
+                {{ 'stats.analysis.chart.bar'|trans }}
+            </a>
+            <a href="{{ analysisChartStyle.chartLineUrl }}"
+               class="btn btn-outline-secondary{% if analysisChartStyle.currentChartType == 'line' %} active{% endif %}">
+                {{ 'stats.analysis.chart.line'|trans }}
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% set chartSpec = {chartType: p.chartType, labels: p.labels} %}
+{% if p.series is defined %}
+    {% set chartSpec = chartSpec|merge({series: p.series}) %}
+{% else %}
+    {% set chartSpec = chartSpec|merge({counts: p.counts}) %}
+{% endif %}
+{% if p.barGrouped is defined %}
+    {% set chartSpec = chartSpec|merge({barGrouped: p.barGrouped}) %}
+{% endif %}
+{% if p.percentScale is defined %}
+    {% set chartSpec = chartSpec|merge({percentScale: p.percentScale}) %}
+{% endif %}
+<div data-controller="analysis-chart"
+     data-analysis-chart-spec-value="{{ chartSpec|json_encode|e('html_attr') }}">
+    <div class="chart-lg" data-analysis-chart-target="chart"></div>
+</div>
+{% if p.overlapNote is defined and p.overlapNote %}
+    <p class="text-secondary small mt-2 mb-0" data-testid="stats-analysis-chart-overlap-note">{{ p.overlapNote }}</p>
+{% endif %}

@@ -26,6 +26,23 @@ services:
 
     Doctrine\DBAL\Connection: '@doctrine.dbal.default_connection'
     App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface: '@App\LegacyMigration\Infrastructure\Doctrine\LegacyMigrationStateRepository'
+    _instanceof:
+        App\Statistics\Application\Analysis\AnalysisDefinitionInterface:
+            tags: ['app.statistics.analysis_definition']
+        App\Statistics\Application\Report\ReportDefinitionInterface:
+            tags: ['app.statistics.report_definition']
+
+    App\Statistics\Application\Analysis\AnalysisDefinitionRegistry:
+        arguments:
+            $definitions: !tagged_iterator 'app.statistics.analysis_definition'
+
+    App\Statistics\Application\Report\ReportDefinitionRegistry:
+        arguments:
+            $definitions: !tagged_iterator 'app.statistics.report_definition'
+
+    App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver:
+        tags:
+            - { name: controller.argument_value_resolver, priority: 180 }
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

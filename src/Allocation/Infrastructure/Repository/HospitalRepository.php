@@ -61,6 +61,27 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     }
 
     /**
+     * Zählt Krankenhäuser wie {@see getQueryBuilderForAccessibleHospitals}, aber ohne ORDER BY — für Aggregate mit PostgreSQL.
+     */
+    public function countAccessibleHospitals(User $user): int
+    {
+        if (\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            return (int) $this->createQueryBuilder('h')
+                ->select('COUNT(h.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+
+        return (int) $this->createQueryBuilder('h')
+            ->select('COUNT(h.id)')
+            ->innerJoin('h.owner', 'o')
+            ->andWhere('o = :user')
+            ->setParameter('user', $user->getId())
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
      * @return list<Hospital>
      */
     public function findOwnedByUser(User $user): array
@@ -143,5 +164,26 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         }
 
         return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     */
+    public function findAccessibleHospitalSummaries(User $user): array
+    {
+        $rows = $this->getQueryBuilderForAccessibleHospitals($user)
+            ->select('h.id AS id', 'h.name AS name')
+            ->getQuery()
+            ->getArrayResult();
+
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = [
+                'id' => (int) $row['id'],
+                'name' => (string) $row['name'],
+            ];
+        }
+
+        return $out;
     }
 }
