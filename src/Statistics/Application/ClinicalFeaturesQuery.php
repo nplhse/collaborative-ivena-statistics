@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\Application;
 
 use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository;
+use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
+use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 
 final readonly class ClinicalFeaturesQuery
 {
@@ -27,7 +28,8 @@ final readonly class ClinicalFeaturesQuery
 
     public function __construct(
         private StatisticsScopeResolver $scopeResolver,
-        private AllocationStatsProjectionRepository $projectionRepository,
+        private ProjectionTimeSeriesQuery $timeSeriesQuery,
+        private ProjectionFeatureQuery $featureQuery,
     ) {
     }
 
@@ -82,9 +84,9 @@ final readonly class ClinicalFeaturesQuery
     {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $hospitalIds = $this->scopeResolver->hospitalIdsOrNull($context);
-        $totalAllocations = $this->projectionRepository->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $hospitalIds);
-        $clinicalCounts = $this->projectionRepository->clinicalFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);
-        $resourceCounts = $this->projectionRepository->resourceFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);
+        $totalAllocations = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $hospitalIds);
+        $clinicalCounts = $this->featureQuery->clinicalFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);
+        $resourceCounts = $this->featureQuery->resourceFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);
 
         return [$totalAllocations, $clinicalCounts, $resourceCounts];
     }

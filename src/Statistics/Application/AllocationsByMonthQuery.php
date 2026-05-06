@@ -11,7 +11,8 @@ use App\Statistics\Application\DTO\AllocationsOverTimeSeriesSegment;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
-use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository;
+use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
+use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 
 /**
  * Fetches allocations per month for the selected statistics period and scope (public / my hospitals / single hospital).
@@ -26,7 +27,8 @@ final readonly class AllocationsByMonthQuery
     ];
 
     public function __construct(
-        private AllocationStatsProjectionRepository $projectionRepository,
+        private ProjectionTimeSeriesQuery $timeSeriesQuery,
+        private ProjectionFeatureQuery $featureQuery,
         private StatisticsScopeResolver $scopeResolver,
     ) {
     }
@@ -123,7 +125,7 @@ final readonly class AllocationsByMonthQuery
     {
         [$labels, $monthKeys] = $this->buildRolling12MonthAxis();
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketResourcesByMonth(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
+        $buckets = $this->featureQuery->bucketResourcesByMonth(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
 
         return $this->mapResourcesRequiredBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -132,7 +134,7 @@ final readonly class AllocationsByMonthQuery
     {
         [$labels, $monthKeys, $start, $toExclusive] = $this->buildBoundedMonthAxis($context);
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketResourcesByMonth($start, $toExclusive, $hospitalIds);
+        $buckets = $this->featureQuery->bucketResourcesByMonth($start, $toExclusive, $hospitalIds);
 
         return $this->mapResourcesRequiredBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -142,7 +144,7 @@ final readonly class AllocationsByMonthQuery
         [$labels, $monthKeys] = $this->buildCalendarMonthOfYearAxis();
         $start = $this->effectiveAllTimeQueryStart($context);
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketResourcesByCalendarMonth($start, null, $hospitalIds);
+        $buckets = $this->featureQuery->bucketResourcesByCalendarMonth($start, null, $hospitalIds);
 
         return $this->mapResourcesRequiredBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -151,7 +153,7 @@ final readonly class AllocationsByMonthQuery
     {
         [$labels, $monthKeys, $start, $toExclusive] = $this->buildDailyAxis($context);
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketResourcesByDay($start, $toExclusive, $hospitalIds);
+        $buckets = $this->featureQuery->bucketResourcesByDay($start, $toExclusive, $hospitalIds);
 
         return $this->mapResourcesRequiredBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -160,7 +162,7 @@ final readonly class AllocationsByMonthQuery
     {
         [$labels, $monthKeys] = $this->buildRolling12MonthAxis();
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketClinicalFeaturesByMonth(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
+        $buckets = $this->featureQuery->bucketClinicalFeaturesByMonth(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
 
         return $this->mapClinicalFeaturesBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -169,7 +171,7 @@ final readonly class AllocationsByMonthQuery
     {
         [$labels, $monthKeys, $start, $toExclusive] = $this->buildBoundedMonthAxis($context);
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketClinicalFeaturesByMonth($start, $toExclusive, $hospitalIds);
+        $buckets = $this->featureQuery->bucketClinicalFeaturesByMonth($start, $toExclusive, $hospitalIds);
 
         return $this->mapClinicalFeaturesBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -179,7 +181,7 @@ final readonly class AllocationsByMonthQuery
         [$labels, $monthKeys] = $this->buildCalendarMonthOfYearAxis();
         $start = $this->effectiveAllTimeQueryStart($context);
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketClinicalFeaturesByCalendarMonth($start, null, $hospitalIds);
+        $buckets = $this->featureQuery->bucketClinicalFeaturesByCalendarMonth($start, null, $hospitalIds);
 
         return $this->mapClinicalFeaturesBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -188,7 +190,7 @@ final readonly class AllocationsByMonthQuery
     {
         [$labels, $monthKeys, $start, $toExclusive] = $this->buildDailyAxis($context);
         $hospitalIds = $this->hospitalIdsOrNull($context);
-        $buckets = $this->projectionRepository->bucketClinicalFeaturesByDay($start, $toExclusive, $hospitalIds);
+        $buckets = $this->featureQuery->bucketClinicalFeaturesByDay($start, $toExclusive, $hospitalIds);
 
         return $this->mapClinicalFeaturesBucketsToSeries($labels, $monthKeys, $buckets);
     }
@@ -288,7 +290,7 @@ final readonly class AllocationsByMonthQuery
             throw new \LogicException('all_time expects open-ended upper bound.');
         }
 
-        $earliest = $this->projectionRepository->getEarliestCreatedAt();
+        $earliest = $this->timeSeriesQuery->getEarliestCreatedAt();
         if ($earliest instanceof \DateTimeImmutable) {
             $firstMonth = $earliest->modify('first day of this month')->setTime(0, 0, 0);
             if ($firstMonth > $start) {
@@ -355,7 +357,7 @@ final readonly class AllocationsByMonthQuery
      */
     private function fetchTotalRolling(array $labels, array $monthKeys, ?array $hospitalIds): AllocationsOverTimeSeries
     {
-        $raw = $this->projectionRepository->countByMonthInPeriod(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
+        $raw = $this->timeSeriesQuery->countByMonthInPeriod(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
         $counts = $this->mapMonthlyCounts($raw, $monthKeys);
 
         return new AllocationsOverTimeSeries($labels, $monthKeys, [
@@ -370,7 +372,7 @@ final readonly class AllocationsByMonthQuery
      */
     private function fetchGenderRolling(array $labels, array $monthKeys, ?array $hospitalIds): AllocationsOverTimeSeries
     {
-        $buckets = $this->projectionRepository->bucketByMonthAndGender(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByMonthAndGender(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Gender);
     }
@@ -382,7 +384,7 @@ final readonly class AllocationsByMonthQuery
      */
     private function fetchUrgencyRolling(array $labels, array $monthKeys, ?array $hospitalIds): AllocationsOverTimeSeries
     {
-        $buckets = $this->projectionRepository->bucketByMonthAndUrgency(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByMonthAndUrgency(StatisticsPeriod::overviewPeriodStart(), null, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Urgency);
     }
@@ -445,7 +447,7 @@ final readonly class AllocationsByMonthQuery
         \DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
     ): AllocationsOverTimeSeries {
-        $map = $this->projectionRepository->countByDayInPeriod($start, $toExclusive, $hospitalIds);
+        $map = $this->timeSeriesQuery->countByDayInPeriod($start, $toExclusive, $hospitalIds);
         $counts = [];
         foreach ($monthKeys as $mk) {
             $counts[] = $map[$mk] ?? 0;
@@ -468,7 +470,7 @@ final readonly class AllocationsByMonthQuery
         \DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
     ): AllocationsOverTimeSeries {
-        $buckets = $this->projectionRepository->bucketByDayAndGender($start, $toExclusive, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByDayAndGender($start, $toExclusive, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Gender);
     }
@@ -485,7 +487,7 @@ final readonly class AllocationsByMonthQuery
         \DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
     ): AllocationsOverTimeSeries {
-        $buckets = $this->projectionRepository->bucketByDayAndUrgency($start, $toExclusive, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByDayAndUrgency($start, $toExclusive, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Urgency);
     }
@@ -502,7 +504,7 @@ final readonly class AllocationsByMonthQuery
         \DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
     ): AllocationsOverTimeSeries {
-        $raw = $this->projectionRepository->countByMonthInPeriod($start, $toExclusive, $hospitalIds);
+        $raw = $this->timeSeriesQuery->countByMonthInPeriod($start, $toExclusive, $hospitalIds);
         $counts = $this->mapMonthlyCounts($raw, $monthKeys);
 
         return new AllocationsOverTimeSeries($labels, $monthKeys, [
@@ -522,7 +524,7 @@ final readonly class AllocationsByMonthQuery
         \DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
     ): AllocationsOverTimeSeries {
-        $buckets = $this->projectionRepository->bucketByMonthAndGender($start, $toExclusive, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByMonthAndGender($start, $toExclusive, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Gender);
     }
@@ -539,7 +541,7 @@ final readonly class AllocationsByMonthQuery
         \DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
     ): AllocationsOverTimeSeries {
-        $buckets = $this->projectionRepository->bucketByMonthAndUrgency($start, $toExclusive, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByMonthAndUrgency($start, $toExclusive, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Urgency);
     }
@@ -566,7 +568,7 @@ final readonly class AllocationsByMonthQuery
      */
     private function fetchTotalAllTimeSeasonality(array $labels, array $monthKeys, \DateTimeImmutable $start, ?array $hospitalIds): AllocationsOverTimeSeries
     {
-        $map = $this->projectionRepository->countByCalendarMonthInPeriod($start, null, $hospitalIds);
+        $map = $this->timeSeriesQuery->countByCalendarMonthInPeriod($start, null, $hospitalIds);
         $counts = [];
         foreach ($monthKeys as $mk) {
             $counts[] = $map[$mk] ?? 0;
@@ -584,7 +586,7 @@ final readonly class AllocationsByMonthQuery
      */
     private function fetchGenderAllTimeSeasonality(array $labels, array $monthKeys, \DateTimeImmutable $start, ?array $hospitalIds): AllocationsOverTimeSeries
     {
-        $buckets = $this->projectionRepository->bucketByCalendarMonthAndGender($start, null, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByCalendarMonthAndGender($start, null, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Gender);
     }
@@ -596,7 +598,7 @@ final readonly class AllocationsByMonthQuery
      */
     private function fetchUrgencyAllTimeSeasonality(array $labels, array $monthKeys, \DateTimeImmutable $start, ?array $hospitalIds): AllocationsOverTimeSeries
     {
-        $buckets = $this->projectionRepository->bucketByCalendarMonthAndUrgency($start, null, $hospitalIds);
+        $buckets = $this->timeSeriesQuery->bucketByCalendarMonthAndUrgency($start, null, $hospitalIds);
 
         return $this->mapBucketsToSeries($labels, $monthKeys, $buckets, StatisticsAnalysisDimension::Urgency);
     }

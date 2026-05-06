@@ -9,13 +9,13 @@ use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
-use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository;
+use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 
 final readonly class OverviewDashboardProvider
 {
     public function __construct(
         private ImportRepository $importRepository,
-        private AllocationStatsProjectionRepository $projectionRepository,
+        private ProjectionTimeSeriesQuery $timeSeriesQuery,
     ) {
     }
 
@@ -84,7 +84,7 @@ final readonly class OverviewDashboardProvider
             $cursor = $cursor->modify('+1 month');
         }
 
-        $allocationRaw = $this->projectionRepository->countByMonthInPeriod(StatisticsPeriod::overviewPeriodStart(), null, null);
+        $allocationRaw = $this->timeSeriesQuery->countByMonthInPeriod(StatisticsPeriod::overviewPeriodStart(), null, null);
         $importRaw = $this->importRepository->countByMonthLast12Months();
 
         return $this->assembleChartPayload($monthKeys, $labels, $allocationRaw, $importRaw, $start);
@@ -117,7 +117,7 @@ final readonly class OverviewDashboardProvider
             $labels[] = $start->format('M');
         }
 
-        $allocationRaw = $this->projectionRepository->countByMonthInPeriod($start, $toExclusive, null);
+        $allocationRaw = $this->timeSeriesQuery->countByMonthInPeriod($start, $toExclusive, null);
         $importRaw = $this->importRepository->countImportsByMonthInRange($start, $toExclusive);
 
         return $this->assembleChartPayload($monthKeys, $labels, $allocationRaw, $importRaw, $start);
@@ -139,7 +139,7 @@ final readonly class OverviewDashboardProvider
             throw new \LogicException('all_time charts expect an open-ended upper bound.');
         }
 
-        $earliest = $this->projectionRepository->getEarliestCreatedAt();
+        $earliest = $this->timeSeriesQuery->getEarliestCreatedAt();
         if ($earliest instanceof \DateTimeImmutable) {
             $firstMonth = $earliest->modify('first day of this month')->setTime(0, 0, 0);
             if ($firstMonth > $start) {
@@ -165,7 +165,7 @@ final readonly class OverviewDashboardProvider
             $labels[] = $start->format('M');
         }
 
-        $allocationRaw = $this->projectionRepository->countByMonthInPeriod($start, null, null);
+        $allocationRaw = $this->timeSeriesQuery->countByMonthInPeriod($start, null, null);
         $importRaw = $this->importRepository->countImportsByMonthInRange($start, null);
 
         return $this->assembleChartPayload($monthKeys, $labels, $allocationRaw, $importRaw, $start);
@@ -204,7 +204,7 @@ final readonly class OverviewDashboardProvider
 
         $allocationMonthlyCounts = $mapMonthlyCounts($allocationRaw, $monthKeys);
         $importMonthlyCounts = $mapMonthlyCounts($importRaw, $monthKeys);
-        $initialAllocations = $this->projectionRepository->countBefore($rangeStartForCumulative);
+        $initialAllocations = $this->timeSeriesQuery->countBefore($rangeStartForCumulative);
 
         $allocationCumulativeCounts = [];
         $runningTotal = $initialAllocations;

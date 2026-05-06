@@ -9,13 +9,13 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\HospitalSummaryData;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository;
+use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 
 final readonly class HospitalSummaryQuery
 {
     public function __construct(
         private StatisticsScopeResolver $scopeResolver,
-        private AllocationStatsProjectionRepository $projectionRepository,
+        private ProjectionTimeSeriesQuery $timeSeriesQuery,
     ) {
     }
 
@@ -25,7 +25,7 @@ final readonly class HospitalSummaryQuery
         $from = $bounds->from;
         $to = $bounds->toExclusive;
 
-        $totalAllocations = $this->projectionRepository->countCreatedInPeriod($from, $to, null);
+        $totalAllocations = $this->timeSeriesQuery->countCreatedInPeriod($from, $to, null);
 
         $scope = $context->filter->scope;
 
@@ -69,9 +69,9 @@ final readonly class HospitalSummaryQuery
         array $ids,
         bool $usedUnscopedFallback,
     ): HospitalSummaryData {
-        $userAllocations = $this->projectionRepository->countCreatedInPeriod($from, $to, $ids);
-        $genderRaw = $this->projectionRepository->countGroupedByGenderInPeriod($from, $to, $ids);
-        $urgencyRaw = $this->projectionRepository->countGroupedByUrgencyInPeriod($from, $to, $ids);
+        $userAllocations = $this->timeSeriesQuery->countCreatedInPeriod($from, $to, $ids);
+        $genderRaw = $this->timeSeriesQuery->countGroupedByGenderInPeriod($from, $to, $ids);
+        $urgencyRaw = $this->timeSeriesQuery->countGroupedByUrgencyInPeriod($from, $to, $ids);
 
         return $this->assembleHospitalSummaryData(
             $totalAllocations,
@@ -88,8 +88,8 @@ final readonly class HospitalSummaryQuery
         ?\DateTimeImmutable $to,
         bool $usedUnscopedFallback = false,
     ): HospitalSummaryData {
-        $genderRaw = $this->projectionRepository->countGroupedByGenderInPeriod($from, $to, null);
-        $urgencyRaw = $this->projectionRepository->countGroupedByUrgencyInPeriod($from, $to, null);
+        $genderRaw = $this->timeSeriesQuery->countGroupedByGenderInPeriod($from, $to, null);
+        $urgencyRaw = $this->timeSeriesQuery->countGroupedByUrgencyInPeriod($from, $to, null);
 
         return $this->assembleHospitalSummaryData(
             $totalAllocations,

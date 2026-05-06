@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\Application;
 
 use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository;
+use App\Statistics\Infrastructure\Query\ProjectionDiagnosisQuery;
+use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 
 /**
  * Most frequent diagnosis / indication labels (normalized, otherwise raw name) for the selected period and scope.
@@ -15,7 +16,8 @@ use App\Statistics\Infrastructure\Repository\AllocationStatsProjectionRepository
 final readonly class TopDiagnosesQuery
 {
     public function __construct(
-        private AllocationStatsProjectionRepository $projectionRepository,
+        private ProjectionDiagnosisQuery $diagnosisQuery,
+        private ProjectionTimeSeriesQuery $timeSeriesQuery,
         private StatisticsScopeResolver $scopeResolver,
     ) {
     }
@@ -28,14 +30,14 @@ final readonly class TopDiagnosesQuery
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $hospitalIds = $this->scopeResolver->hospitalIdsOrNull($context);
 
-        $rows = $this->projectionRepository->fetchTopDiagnosisAggregates(
+        $rows = $this->diagnosisQuery->fetchTopDiagnosisAggregates(
             $bounds->from,
             $bounds->toExclusive,
             $hospitalIds,
             $limit,
         );
 
-        $total = $this->projectionRepository->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $hospitalIds);
+        $total = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $hospitalIds);
 
         return [
             'rows' => $rows,
