@@ -34,6 +34,15 @@ preferably with the symfony binary in your development environment.
   application that is populated with some reasonable default data. Due to the 
   very early development state, there is no way to install an empty application.
 
+## Seed helpers
+
+If you work with fixtures and need to rebuild analytics projection data from the
+current `allocation` table, run:
+
+```
+$ php bin/console app:seed:projection
+```
+
 # Contributing
 Any contribution to this project is appreciated, whether it is related to
 fixing bugs, suggestions or improvements. Feel free to take your part in the
