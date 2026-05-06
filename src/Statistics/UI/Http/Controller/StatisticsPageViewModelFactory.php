@@ -33,13 +33,13 @@ final readonly class StatisticsPageViewModelFactory
                 $request,
                 $routeName,
                 ['scope' => StatisticsFilterScope::Public->value],
-                ['hospital'],
+                ['hospital', 'cohort'],
             ),
             'my_hospitals' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
                 ['scope' => StatisticsFilterScope::MyHospitals->value],
-                ['hospital'],
+                ['hospital', 'cohort'],
             ),
         ];
 
@@ -149,6 +149,7 @@ final readonly class StatisticsPageViewModelFactory
             StatisticsFilterScope::Hospital => (null !== $hospitalDisplayName && '' !== $hospitalDisplayName)
                 ? $this->translator->trans('stats.filter.hospital.named_line', ['name' => $hospitalDisplayName], null, $locale)
                 : $this->translator->trans('stats.filter.hospital.choose', [], null, $locale),
+            StatisticsFilterScope::HospitalCohort => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
         };
     }
 

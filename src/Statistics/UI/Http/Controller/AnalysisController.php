@@ -6,6 +6,7 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\Analysis\AnalysisDefinitionRegistry;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +33,17 @@ final class AnalysisController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
+        if ($filter->requiresPublicRedirect) {
+            if (null !== $filter->notice) {
+                $this->addFlash('error', $filter->notice->value);
+            }
+            $query = $request->query->all();
+            $query['scope'] = StatisticsFilterScope::Public->value;
+            unset($query['cohort'], $query['hospital']);
+
+            return $this->redirectToRoute('app_stats_analysis', $query);
+        }
+
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
             'app_stats_analysis',

@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace App\Statistics\Application;
 
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
+use App\Statistics\Application\Cohort\HospitalCohortResolver;
+use App\Statistics\Application\Cohort\HospitalCohortType;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterNotice;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\User\Domain\Entity\User;
@@ -15,6 +19,8 @@ final readonly class StatisticsFilterFactory
 {
     public function __construct(
         private HospitalRepository $hospitalRepository,
+        private HospitalCohortResolver $hospitalCohortResolver,
+        private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
     ) {
     }
 
@@ -25,6 +31,9 @@ final readonly class StatisticsFilterFactory
             && StatisticsFilterScope::MyHospitals === StatisticsFilterScope::tryFrom($request->query->getString('scope'));
         $scope = $this->parseScope($request->query->getString('scope', StatisticsFilterScope::MyHospitals->value));
         $period = $this->parsePeriod($request->query->getString('period', StatisticsFilterPeriod::All->value));
+        $cohortType = $this->parseCohortType($request->query->getString('cohort'));
+        $notice = null;
+        $requiresPublicRedirect = false;
 
         if (!$user instanceof User && StatisticsFilterScope::MyHospitals === $scope) {
             $scope = StatisticsFilterScope::Public;
@@ -43,6 +52,20 @@ final readonly class StatisticsFilterFactory
 
         if (StatisticsFilterScope::Hospital !== $scope) {
             $hospitalId = null;
+        }
+
+        if (StatisticsFilterScope::HospitalCohort !== $scope) {
+            $cohortType = null;
+        } elseif (null === $cohortType) {
+            $scope = StatisticsFilterScope::MyHospitals;
+        } else {
+            $cohort = $this->hospitalCohortResolver->resolve($cohortType);
+            if (!$this->hospitalCohortEligibilityChecker->hasMinimumParticipants($cohort)) {
+                $scope = StatisticsFilterScope::Public;
+                $cohortType = null;
+                $notice = StatisticsFilterNotice::CohortTooSmall;
+                $requiresPublicRedirect = true;
+            }
         }
 
         $referenceYear = $this->parsePositiveInt($request->query->get('year'));
@@ -68,9 +91,12 @@ final readonly class StatisticsFilterFactory
         return new StatisticsFilter(
             $scope,
             $hospitalId,
+            $cohortType,
             $period,
             $referenceYear,
             $referenceMonth,
+            $notice,
+            $requiresPublicRedirect,
         );
     }
 
@@ -82,6 +108,15 @@ final readonly class StatisticsFilterFactory
     private function parsePeriod(string $raw): StatisticsFilterPeriod
     {
         return StatisticsFilterPeriod::tryFrom($raw) ?? StatisticsFilterPeriod::All;
+    }
+
+    private function parseCohortType(string $raw): ?HospitalCohortType
+    {
+        if ('' === $raw) {
+            return null;
+        }
+
+        return HospitalCohortType::tryFrom($raw);
     }
 
     private function parsePositiveInt(mixed $value): ?int

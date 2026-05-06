@@ -2079,6 +2079,10 @@
         <source>stats.filter.hospital.named_line</source>
         <target>Hospital: {name}</target>
       </trans-unit>
+      <trans-unit id="statsFlt13" resname="stats.filter.scope.cohort_too_small">
+        <source>stats.filter.scope.cohort_too_small</source>
+        <target>The selected cohort has fewer than 2 participating hospitals. Showing public statistics instead.</target>
+      </trans-unit>
       <trans-unit id="statsAnPg01" resname="stats.analysis.page_title">
         <source>stats.analysis.page_title</source>
         <target>Analysis</target>

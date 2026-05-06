@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\DTO;
 
+use App\Statistics\Application\Cohort\HospitalCohortType;
+
 /**
  * URL-driven statistics filter (immutable).
  *
@@ -16,9 +18,12 @@ final readonly class StatisticsFilter
     public function __construct(
         public StatisticsFilterScope $scope,
         public ?int $hospitalId,
+        public ?HospitalCohortType $cohortType,
         public StatisticsFilterPeriod $period,
         public ?int $referenceYear = null,
         public ?int $referenceMonth = null,
+        public ?StatisticsFilterNotice $notice = null,
+        public bool $requiresPublicRedirect = false,
     ) {
     }
 }
