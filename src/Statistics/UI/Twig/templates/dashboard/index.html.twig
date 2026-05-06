@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}Statistics - {{ parent() }}{% endblock %}
+{% block title %}Overview: {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -13,18 +13,18 @@
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs :items="[
-            { label: 'link.statistics' },
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
             { label: 'link.stats.dashboard' }
         ]" />
 
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <div class="page-pretitle">
-                        {{ 'link.statistics'|trans }}
+                    <div class="page-pretitle" data-testid="stats-heading-scope">
+                        {{ statisticsHeadingScope }}
                     </div>
-                    <h2 class="page-title">
-                        {{ 'title.stats.overview'|trans }}
+                    <h2 class="page-title" data-testid="stats-heading-period">
+                        {{ statisticsHeadingPeriod }}
                     </h2>
                 </div>
             </div>
@@ -33,109 +33,60 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="row row-deck row-cards">
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="avatar">
-                                <twig:ux:icon name="tabler:list" style="height: 2em;" />
-                            </span>
+    <div class="row g-4 align-items-start">
+        <aside class="col-12 col-lg-3 col-xl-2">
+            <div class="position-lg-sticky" style="top: 1rem;">
+                {{ include('@Statistics/dashboard/_statistics_filter_bar.html.twig') }}
+            </div>
+        </aside>
+        <div class="col-12 col-lg-9 col-xl-10 min-w-0">
+            <div data-testid="stats-hospital-summary">
+                {% for widget in hospitalSummaryWidgets %}
+                    {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: widget}) }}
+                {% endfor %}
+            </div>
+
+            {% set resourcesWidget = null %}
+            {% set featuresWidget = null %}
+            {% for widget in clinicalFeatureWidgets %}
+                {% if widget.id == 'clinical_resources_distribution' %}
+                    {% set resourcesWidget = widget %}
+                {% elseif widget.id == 'clinical_features_distribution' %}
+                    {% set featuresWidget = widget %}
+                {% endif %}
+            {% endfor %}
+
+            {% if chartPairWidget is not null %}
+                {% set p = chartPairWidget.payload %}
+                <div class="row g-3 mt-1"
+                     data-testid="stats-charts"
+                     data-controller="dashboard-charts"
+                     data-dashboard-charts-allocations-value="{{ p.allocationChart|json_encode|e('html_attr') }}"
+                     data-dashboard-charts-imports-value="{{ p.importChart|json_encode|e('html_attr') }}">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title mb-0">Allocations</h3>
+                                <div data-dashboard-charts-target="allocationsChart" class="chart-lg"></div>
+                            </div>
                         </div>
-                        <div class="col">
-                            <div class="font-weight-medium">
-                                {{ allocationCount|number_format(0, ',', '.') }} {{ 'link.allocations'|trans }}
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h3 class="card-title mb-0">Imports</h3>
+                                <div data-dashboard-charts-target="importsChart" class="chart-lg"></div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="avatar">
-                                <twig:ux:icon name="tabler:database-import" style="height: 2em;" />
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="font-weight-medium">
-                                {{ importCount|number_format(0, ',', '.') }} {{ 'link.imports'|trans }}
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        {% if resourcesWidget is not null %}
+                            {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: resourcesWidget}) }}
+                        {% endif %}
+                        {% if featuresWidget is not null %}
+                            {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: featuresWidget}) }}
+                        {% endif %}
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="avatar">
-                                <twig:ux:icon name="tabler:user" style="height: 2em;" />
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="font-weight-medium">
-                                {{ userCount }} {{ 'link.users'|trans }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="avatar">
-                                <twig:ux:icon name="tabler:building-hospital" style="height: 2em;" />
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="font-weight-medium">
-                                {{ hospitalCount }} {{ 'link.hospitals'|trans }}
-                            </div>
-                            <div class="text-muted">
-                                {{ 'label.hospitals.participating'|trans }}:
-                                <strong>{{ participatingHospitalCount }}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row row-cards mt-1"
-         data-controller="dashboard-charts"
-         data-dashboard-charts-allocations-value="{{ allocationChart|json_encode|e('html_attr') }}"
-         data-dashboard-charts-imports-value="{{ importChart|json_encode|e('html_attr') }}"
-    >
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title mb-0">Allocations</h3>
-                    <div data-dashboard-charts-target="allocationsChart" class="chart-lg"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title mb-0">Imports</h3>
-                    <div data-dashboard-charts-target="importsChart" class="chart-lg"></div>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

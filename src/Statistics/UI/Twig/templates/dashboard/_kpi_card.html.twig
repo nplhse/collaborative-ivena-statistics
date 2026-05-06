@@ -1,0 +1,30 @@
+{# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
+{% set p = widget.payload %}
+<div class="col-sm-6 col-lg-3">
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span class="avatar">
+                        <twig:ux:icon name="{{ p.icon }}" style="height: 2em;" />
+                    </span>
+                </div>
+                <div class="col">
+                    <div class="font-weight-medium">
+                        {% if p.formatThousands|default(false) %}
+                            {{ p.value|number_format(0, ',', '.') }} {{ p.labelTranslationKey|trans }}
+                        {% else %}
+                            {{ p.value }} {{ p.labelTranslationKey|trans }}
+                        {% endif %}
+                    </div>
+                    {% if p.secondaryLabelTranslationKey is defined and p.secondaryValue is defined %}
+                        <div class="text-muted">
+                            {{ p.secondaryLabelTranslationKey|trans }}:
+                            <strong>{{ p.secondaryValue }}</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

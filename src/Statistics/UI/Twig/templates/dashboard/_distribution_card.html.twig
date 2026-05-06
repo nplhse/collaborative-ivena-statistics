@@ -1,0 +1,31 @@
+{# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
+{% set p = widget.payload %}
+<div class="card mt-3" data-testid="{{ p.testId|default('stats-overview-indicators') }}">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <h3 class="card-title mb-0">{{ p.titleTranslationKey|trans }}</h3>
+        {% if widget.actions is not empty %}
+            {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {
+                targets: widget.actions,
+                primary_test_id: p.actionTestId|default('stats-cross-nav-overview-indicators'),
+            }) }}
+        {% endif %}
+    </div>
+    <div class="card-body">
+        {% for row in p.rows %}
+            <div class="mb-3{% if loop.last %} mb-0{% endif %}">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>{{ row.labelTranslationKey|trans }}</span>
+                    <span class="text-muted">{{ row.count|number_format(0, ',', '.') }}&nbsp;&nbsp;{{ (row.percent|default(0))|number_format(1, '.', '') }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar"
+                         style="width: {{ row.percent|default(0) }}%"
+                         role="progressbar"
+                         aria-valuenow="{{ row.percent|default(0) }}"
+                         aria-valuemin="0"
+                         aria-valuemax="100"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
