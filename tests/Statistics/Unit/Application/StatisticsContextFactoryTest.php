@@ -18,6 +18,7 @@ final class StatisticsContextFactoryTest extends TestCase
         $filter = new StatisticsFilter(
             StatisticsFilterScope::Public,
             null,
+            null,
             StatisticsFilterPeriod::All,
         );
 

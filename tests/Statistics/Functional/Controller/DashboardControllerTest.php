@@ -71,6 +71,22 @@ class DashboardControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', 'All time');
     }
 
+    public function testHospitalCohortWithTooFewHospitalsRedirectsToPublic(): void
+    {
+        $client = static::createClient();
+        $client->followRedirects(false);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=hospital_cohort&cohort=urban_basic',
+        );
+
+        $this->assertResponseStatusCodeSame(302);
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('scope=public', $location);
+        $this->assertStringNotContainsString('cohort=', $location);
+    }
+
     public function testStatisticsOverviewAcceptsYearPeriodWithYear(): void
     {
         $client = static::createClient();
