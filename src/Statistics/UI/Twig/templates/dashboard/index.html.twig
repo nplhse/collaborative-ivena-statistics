@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
+{% block title %}Overview: {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -46,9 +46,45 @@
                 {% endfor %}
             </div>
 
+            {% set resourcesWidget = null %}
+            {% set featuresWidget = null %}
+            {% for widget in clinicalFeatureWidgets %}
+                {% if widget.id == 'clinical_resources_distribution' %}
+                    {% set resourcesWidget = widget %}
+                {% elseif widget.id == 'clinical_features_distribution' %}
+                    {% set featuresWidget = widget %}
+                {% endif %}
+            {% endfor %}
+
             {% if chartPairWidget is not null %}
-                <div class="mt-3">
-                    {{ include('@Statistics/dashboard/_chart_pair_row.html.twig', {widget: chartPairWidget}) }}
+                {% set p = chartPairWidget.payload %}
+                <div class="row g-3 mt-1"
+                     data-testid="stats-charts"
+                     data-controller="dashboard-charts"
+                     data-dashboard-charts-allocations-value="{{ p.allocationChart|json_encode|e('html_attr') }}"
+                     data-dashboard-charts-imports-value="{{ p.importChart|json_encode|e('html_attr') }}">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title mb-0">Allocations</h3>
+                                <div data-dashboard-charts-target="allocationsChart" class="chart-lg"></div>
+                            </div>
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h3 class="card-title mb-0">Imports</h3>
+                                <div data-dashboard-charts-target="importsChart" class="chart-lg"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {% if resourcesWidget is not null %}
+                            {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {widget: resourcesWidget}) }}
+                        {% endif %}
+                        {% if featuresWidget is not null %}
+                            {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {widget: featuresWidget}) }}
+                        {% endif %}
+                    </div>
                 </div>
             {% endif %}
         </div>

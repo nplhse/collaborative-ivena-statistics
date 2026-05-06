@@ -99,14 +99,6 @@ final readonly class HospitalSummaryProvider
                     'percent' => $percent,
                     'actions' => [
                         ...$this->openAllocationsByMonthAnalysisActions(
-                            'stats.nav.overview_kpi_to_analysis',
-                            StatisticsAnalysisDimension::Total,
-                        ),
-                        ...$this->openAllocationsByMonthAnalysisActions(
-                            'stats.nav.overview_resources_to_analysis',
-                            StatisticsAnalysisDimension::Resources,
-                        ),
-                        ...$this->openAllocationsByMonthAnalysisActions(
                             'stats.nav.overview_indicators_to_analysis',
                             StatisticsAnalysisDimension::Features,
                         ),

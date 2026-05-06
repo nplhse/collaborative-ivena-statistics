@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.reports.page_title'|trans }} · {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
+{% block title %}Reports: {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}

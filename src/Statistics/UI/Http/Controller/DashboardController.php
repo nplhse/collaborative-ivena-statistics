@@ -9,6 +9,7 @@ use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\ClinicalFeaturesProvider;
 use App\Statistics\Application\HospitalSummaryProvider;
 use App\Statistics\Application\OverviewDashboardProvider;
 use App\Statistics\Application\StatisticsFilterFactory;
@@ -27,6 +28,7 @@ final class DashboardController extends AbstractController
     public function __construct(
         private readonly OverviewDashboardProvider $overviewDashboardProvider,
         private readonly HospitalSummaryProvider $hospitalSummaryProvider,
+        private readonly ClinicalFeaturesProvider $clinicalFeaturesProvider,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
         private readonly HospitalRepository $hospitalRepository,
         private readonly TranslatorInterface $translator,
@@ -151,6 +153,7 @@ final class DashboardController extends AbstractController
         return $this->render('@Statistics/dashboard/index.html.twig', [
             'chartPairWidget' => $chartPairWidget,
             'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context),
+            'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context),
             'statisticsFilter' => $filter,
             'statsScopeUrls' => $scopeUrls,
             'statsHospitalUrls' => $hospitalUrls,
