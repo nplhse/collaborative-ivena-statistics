@@ -8,7 +8,6 @@ use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\DTO\PivotColAxis;
 use App\Statistics\Application\DTO\PivotRowAxis;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
@@ -25,6 +24,7 @@ DQL;
 
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ProjectionFilterApplier $filterApplier,
     ) {
     }
 
@@ -45,11 +45,9 @@ DQL;
         }
 
         $qb = $this->entityManager->createQueryBuilder()
-            ->from(AllocationStatsProjection::class, 'a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
-        $this->applyCreatedAtUpperBound($qb, $toExclusive);
-        $this->applyHospitalFilter($qb, $hospitalIds);
+            ->from(AllocationStatsProjection::class, 'a');
+        $this->filterApplier->applyCreatedAtRange($qb, 'a.createdAt', $from, $toExclusive);
+        $this->filterApplier->applyHospitalScope($qb, 'a.hospitalId', $hospitalIds);
 
         return match ([$row, $col]) {
             [PivotRowAxis::Department, PivotColAxis::Urgency] => $this->executeDepartmentByUrgency($qb),
@@ -185,26 +183,4 @@ DQL;
         return $out;
     }
 
-    /**
-     * @param list<int>|null $hospitalIds
-     */
-    private function applyHospitalFilter(QueryBuilder $qb, ?array $hospitalIds): void
-    {
-        if (null === $hospitalIds) {
-            return;
-        }
-
-        $qb->andWhere('a.hospitalId IN (:hospitalIds)')
-            ->setParameter('hospitalIds', $hospitalIds);
-    }
-
-    private function applyCreatedAtUpperBound(QueryBuilder $qb, ?\DateTimeImmutable $toExclusive): void
-    {
-        if (!$toExclusive instanceof \DateTimeImmutable) {
-            return;
-        }
-
-        $qb->andWhere('a.createdAt < :toExclusive')
-            ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
-    }
 }

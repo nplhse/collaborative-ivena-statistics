@@ -6,7 +6,6 @@ namespace App\Statistics\Infrastructure\Query;
 
 use App\Statistics\Application\Pivot\AllocationPivotDimension;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
@@ -18,6 +17,7 @@ DQL;
 
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ProjectionFilterApplier $filterApplier,
     ) {
     }
 
@@ -38,19 +38,9 @@ DQL;
         }
 
         $qb = $this->entityManager->createQueryBuilder()
-            ->from(AllocationStatsProjection::class, 'a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
-
-        if ($toExclusive instanceof \DateTimeImmutable) {
-            $qb->andWhere('a.createdAt < :toExclusive')
-                ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
-        }
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospitalId IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
+            ->from(AllocationStatsProjection::class, 'a');
+        $this->filterApplier->applyCreatedAtRange($qb, 'a.createdAt', $from, $toExclusive);
+        $this->filterApplier->applyHospitalScope($qb, 'a.hospitalId', $hospitalIds);
 
         [$rowExpr, $rowLabelExpr] = $this->dimensionExpression($rows, $qb, 'r');
         [$colExpr, $colLabelExpr] = $this->dimensionExpression($cols, $qb, 'c');

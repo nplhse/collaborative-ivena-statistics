@@ -14,6 +14,7 @@ final readonly class HospitalPivotQuery
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ProjectionFilterApplier $filterApplier,
     ) {
     }
 
@@ -37,10 +38,7 @@ final readonly class HospitalPivotQuery
         $qb = $this->entityManager->createQueryBuilder()
             ->from(Hospital::class, 'h');
 
-        if (null !== $hospitalIds) {
-            $qb->andWhere('h.id IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
+        $this->filterApplier->applyHospitalScope($qb, 'h.id', $hospitalIds);
 
         $qb->leftJoin('h.state', 's')
             ->leftJoin('h.dispatchArea', 'da')
@@ -89,10 +87,7 @@ final readonly class HospitalPivotQuery
             ->leftJoin('App\Allocation\Domain\Entity\Allocation', 'a', 'WITH', 'a.hospital = h AND a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
 
-        if (null !== $hospitalIds) {
-            $qb->andWhere('h.id IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
+        $this->filterApplier->applyHospitalScope($qb, 'h.id', $hospitalIds);
         if ($toExclusive instanceof \DateTimeImmutable) {
             $qb->andWhere('a.createdAt < :toExclusive OR a.id IS NULL')
                 ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
