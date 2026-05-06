@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\LegacyMigration\Application\Service;
 
+use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Adapter\DoctrineAllocationPersister;
 use App\Import\Infrastructure\Mapping\AllocationImportFactory;
-use App\Import\Domain\Entity\Import;
 use App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface;
 use App\LegacyMigration\Infrastructure\Mapper\LegacyAllocationRowMapper;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final readonly class LegacyAllocationMigrator
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private Connection $legacyConnection,
         private Connection $defaultConnection,
@@ -51,8 +52,8 @@ final readonly class LegacyAllocationMigrator
 
             $this->defaultConnection->update('legacy_migration_import_mapping', [
                 'status' => 'running',
-                'started_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                'updated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'started_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
+                'updated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
                 'error_message' => null,
             ], ['legacy_import_id' => $legacyImportId]);
 
@@ -112,10 +113,7 @@ SQL,
                             $dto = $this->rowMapper->mapAssoc($row);
                             $violations = $this->validator->validate($dto);
                             if (\count($violations) > 0) {
-                                throw new \RuntimeException(sprintf(
-                                    'Validation failed: %s',
-                                    (string) $violations
-                                ));
+                                throw new \RuntimeException(sprintf('Validation failed: %s', (string) $violations));
                             }
 
                             $allocation = $this->allocationImportFactory->fromDto($dto, $import);
@@ -132,7 +130,7 @@ SQL,
                                 'legacy_allocation_id' => $legacyAllocationId,
                                 'new_allocation_id' => (int) $allocation->getId(),
                                 'legacy_import_id' => $legacyImportId,
-                                'migrated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                                'migrated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
                             ]);
 
                             $lastAllocationId = $legacyAllocationId;
@@ -160,7 +158,7 @@ SQL,
                     $this->defaultConnection->update('legacy_migration_import_mapping', [
                         'last_allocation_id' => $lastAllocationId,
                         'migrated_count' => $migratedCount,
-                        'updated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                        'updated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
                     ], ['legacy_import_id' => $legacyImportId]);
 
                     $this->defaultConnection->commit();
@@ -171,7 +169,7 @@ SQL,
                     $this->defaultConnection->update('legacy_migration_import_mapping', [
                         'status' => 'failed',
                         'error_message' => $e->getMessage(),
-                        'updated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                        'updated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
                     ], ['legacy_import_id' => $legacyImportId]);
                     $this->stateRepository->log('allocations', 'error', $e->getMessage(), $legacyImportId);
                     throw $e;
@@ -187,8 +185,8 @@ SQL,
             }
             $this->defaultConnection->update('legacy_migration_import_mapping', [
                 'status' => 'done',
-                'finished_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                'updated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'finished_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
+                'updated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
             ], ['legacy_import_id' => $legacyImportId]);
             if ($skippedCount > 0) {
                 $this->stateRepository->log(
@@ -203,4 +201,3 @@ SQL,
         return $totalMigrated;
     }
 }
-

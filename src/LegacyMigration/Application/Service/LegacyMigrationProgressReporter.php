@@ -7,10 +7,11 @@ namespace App\LegacyMigration\Application\Service;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/** @psalm-suppress UnusedClass */
 final class LegacyMigrationProgressReporter
 {
     private ?ProgressBar $progressBar = null;
-    private int $startedAt;
+    private int $startedAt = 0;
 
     public function startPhase(SymfonyStyle $io, string $name, ?int $max, bool $enabled): void
     {
@@ -38,7 +39,7 @@ final class LegacyMigrationProgressReporter
     public function writeBatch(SymfonyStyle $io, int $legacyImportId, int $batchSize, ?int $lastAllocationId, int $migratedCount): void
     {
         $elapsedMinutes = max((time() - $this->startedAt) / 60, 0.1);
-        $speed = (int) round($migratedCount / $elapsedMinutes);
+        $speed = (int) round((float) $migratedCount / (float) $elapsedMinutes);
         $io->writeln(sprintf(
             'Import %d | Batch %d | Last legacy allocation %s | Migrated %d | %d/min',
             $legacyImportId,
@@ -57,4 +58,3 @@ final class LegacyMigrationProgressReporter
         }
     }
 }
-

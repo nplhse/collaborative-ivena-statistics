@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/** @psalm-suppress UnusedClass */
 #[AsCommand(
     name: 'app:legacy-migration:migrate',
     description: 'Run migration from legacy database into current app.',
@@ -43,12 +44,12 @@ final class LegacyMigrateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $dryRun = (bool) $input->getOption('dry-run');
+        $dryRun = $input->getOption('dry-run');
         $batchSize = max(1, (int) $input->getOption('batch-size'));
-        $only = (string) $input->getOption('only');
+        $only = $input->getOption('only');
         $legacyImportId = null !== $input->getOption('legacy-import-id') ? (int) $input->getOption('legacy-import-id') : null;
-        $resume = (bool) $input->getOption('resume');
-        $noProgress = (bool) $input->getOption('no-progress');
+        $resume = $input->getOption('resume');
+        $noProgress = $input->getOption('no-progress');
 
         $allowed = ['users', 'hospitals', 'imports', 'allocations', 'all'];
         if (!\in_array($only, $allowed, true)) {
@@ -94,4 +95,3 @@ final class LegacyMigrateCommand extends Command
         return Command::SUCCESS;
     }
 }
-

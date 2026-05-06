@@ -11,4 +11,3 @@ enum LegacyImportMigrationStatus: string
     case Done = 'done';
     case Failed = 'failed';
 }
-

@@ -40,4 +40,3 @@ final class HospitalNameNormalizer
         return trim($value);
     }
 }
-

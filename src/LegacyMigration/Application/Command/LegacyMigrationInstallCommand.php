@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/** @psalm-suppress UnusedClass */
 #[AsCommand(
     name: 'app:legacy-migration:install',
     description: 'Install legacy migration tables in default database.',
@@ -42,4 +43,3 @@ final class LegacyMigrationInstallCommand extends Command
         return Command::SUCCESS;
     }
 }
-

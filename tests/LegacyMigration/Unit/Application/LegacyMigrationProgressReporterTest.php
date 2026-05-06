@@ -14,6 +14,8 @@ final class LegacyMigrationProgressReporterTest extends TestCase
 {
     public function testProgressCanBeEnabledAndDisabled(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $reporter = new LegacyMigrationProgressReporter();
         $io = new SymfonyStyle(new ArrayInput([]), new BufferedOutput());
 
@@ -24,8 +26,5 @@ final class LegacyMigrationProgressReporterTest extends TestCase
         $reporter->startPhase($io, 'Users', 10, false);
         $reporter->advance();
         $reporter->finish();
-
-        self::assertTrue(true);
     }
 }
-

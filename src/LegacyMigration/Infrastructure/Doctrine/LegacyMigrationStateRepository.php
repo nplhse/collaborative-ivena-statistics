@@ -8,6 +8,7 @@ use App\LegacyMigration\Domain\Model\LegacyMigrationStatus;
 use App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface;
 use Doctrine\DBAL\Connection;
 
+/** @psalm-suppress UnusedClass */
 final readonly class LegacyMigrationStateRepository implements LegacyMigrationStateRepositoryInterface
 {
     public function __construct(
@@ -16,11 +17,16 @@ final readonly class LegacyMigrationStateRepository implements LegacyMigrationSt
     ) {
     }
 
+    #[\Override]
     public function getStatus(): LegacyMigrationStatus
     {
         return $this->schemaManager->getStatus();
     }
 
+    /**
+     * @param array<string, mixed>|null $context
+     */
+    #[\Override]
     public function log(
         string $scope,
         string $level,
@@ -38,8 +44,7 @@ final readonly class LegacyMigrationStateRepository implements LegacyMigrationSt
             'level' => $level,
             'message' => $message,
             'context' => null === $context ? null : json_encode($context, JSON_THROW_ON_ERROR),
-            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'created_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
         ]);
     }
 }
-

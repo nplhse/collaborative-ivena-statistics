@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/** @psalm-suppress UnusedClass */
 #[AsCommand(
     name: 'app:legacy-migration:status',
     description: 'Show current legacy migration status.',
@@ -69,10 +70,12 @@ final class LegacyMigrationStatusCommand extends Command
             $perImportRows
         ));
 
-        $doneImports = (int) ($status->importStatusCounts['done'] ?? 0);
+        $doneImports = $status->importStatusCounts['done'] ?? 0;
         try {
             $legacyTotalImports = (int) $this->legacyConnection->fetchOne('SELECT COUNT(*) FROM import');
-            $progress = $legacyTotalImports > 0 ? round(($doneImports / $legacyTotalImports) * 100, 2) : 0.0;
+            $progress = $legacyTotalImports > 0
+                ? round(((float) $doneImports / (float) $legacyTotalImports) * 100.0, 2)
+                : 0.0;
             $io->writeln(sprintf('Estimated progress by imports: %s%% (%d/%d)', $progress, $doneImports, $legacyTotalImports));
         } catch (\Throwable) {
             $io->writeln('Estimated progress by imports: n/a (legacy table import is not readable).');
@@ -81,4 +84,3 @@ final class LegacyMigrationStatusCommand extends Command
         return Command::SUCCESS;
     }
 }
-

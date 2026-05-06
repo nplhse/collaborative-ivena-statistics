@@ -47,4 +47,3 @@ final class LegacyMigrationSchemaManagerTest extends KernelTestCase
         self::assertTrue($this->schemaManager->isInstalled());
     }
 }
-

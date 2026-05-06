@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class LegacyHospitalMigrator
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private Connection $legacyConnection,
         private Connection $defaultConnection,
@@ -24,7 +25,6 @@ final readonly class LegacyHospitalMigrator
     public function migrate(bool $dryRun = false): int
     {
         $rows = $this->legacyConnection->fetchAllAssociative('SELECT id, name FROM hospital ORDER BY id ASC');
-        /** @var list<Hospital> $hospitals */
         $hospitals = $this->entityManager->getRepository(Hospital::class)->findAll();
         $migrated = 0;
 
@@ -42,7 +42,6 @@ final readonly class LegacyHospitalMigrator
             $matched = $this->matcher->matchOrFail($legacyHospitalId, $legacyName, $hospitals);
 
             if (!$dryRun) {
-                /** @var Hospital $hospital */
                 $hospital = $matched['hospital'];
                 $this->defaultConnection->insert('legacy_migration_hospital_mapping', [
                     'legacy_hospital_id' => $legacyHospitalId,
@@ -50,7 +49,7 @@ final readonly class LegacyHospitalMigrator
                     'legacy_name' => $legacyName,
                     'matched_name' => (string) $hospital->getName(),
                     'match_score' => $matched['score'],
-                    'migrated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                    'migrated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
                 ]);
             }
             ++$migrated;
@@ -61,4 +60,3 @@ final readonly class LegacyHospitalMigrator
         return $migrated;
     }
 }
-

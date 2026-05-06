@@ -13,6 +13,7 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 
 final readonly class LegacyUserMigrator
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private Connection $legacyConnection,
         private Connection $defaultConnection,
@@ -43,7 +44,6 @@ final readonly class LegacyUserMigrator
                 throw new \RuntimeException(sprintf('Legacy user %d has no email.', $legacyUserId));
             }
 
-            /** @var User|null $user */
             $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
             if (!$user instanceof User && !$dryRun) {
                 $usernameBase = (string) $slugger->slug((string) ($row['username'] ?? 'legacy-user-'.$legacyUserId))->lower();
@@ -55,7 +55,7 @@ final readonly class LegacyUserMigrator
                     $username = sprintf('%s-%d', $usernameBase, $suffix);
                 }
 
-                $user = (new User())
+                $user = new User()
                     ->setEmail($email)
                     ->setUsername($username)
                     ->setRoles(['ROLE_USER'])
@@ -78,7 +78,7 @@ final readonly class LegacyUserMigrator
                 'legacy_user_id' => $legacyUserId,
                 'new_user_id' => (int) $user->getId(),
                 'legacy_email' => $email,
-                'migrated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'migrated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
             ]);
             ++$migrated;
         }
@@ -88,4 +88,3 @@ final readonly class LegacyUserMigrator
         return $migrated;
     }
 }
-

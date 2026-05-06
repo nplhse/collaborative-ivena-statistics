@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/** @psalm-suppress UnusedClass */
 #[AsCommand(
     name: 'app:legacy-migration:uninstall',
     description: 'Drop legacy migration tables from default database.',
@@ -36,7 +37,7 @@ final class LegacyMigrationUninstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $force = (bool) $input->getOption('force');
+        $force = $input->getOption('force');
 
         if ($this->schemaManager->isInstalled()) {
             $io->table(['Metric', 'Value'], [
@@ -60,4 +61,3 @@ final class LegacyMigrationUninstallCommand extends Command
         return Command::SUCCESS;
     }
 }
-

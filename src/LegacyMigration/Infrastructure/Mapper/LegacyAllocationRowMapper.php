@@ -62,7 +62,7 @@ final class LegacyAllocationRowMapper
             return $value;
         }
         if (\is_int($value) || \is_float($value)) {
-            return (int) $value === 1;
+            return 1 === (int) $value;
         }
         if (\is_string($value)) {
             return self::normalizeBoolean($value);
@@ -71,4 +71,3 @@ final class LegacyAllocationRowMapper
         return null;
     }
 }
-

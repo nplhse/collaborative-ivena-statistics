@@ -9,6 +9,7 @@ use Doctrine\DBAL\Connection;
 
 final readonly class LegacyMigrationOrchestrator
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private Connection $legacyConnection,
         private LegacyUserMigrator $userMigrator,
@@ -27,6 +28,9 @@ final readonly class LegacyMigrationOrchestrator
         }
     }
 
+    /**
+     * @return array{users:int, hospitals:int, imports:int, allocations:int}
+     */
     public function migrate(
         bool $dryRun,
         int $batchSize,
@@ -35,6 +39,7 @@ final readonly class LegacyMigrationOrchestrator
         bool $resume,
         bool $withProgress,
     ): array {
+        /** @var array{users:int, hospitals:int, imports:int, allocations:int} $results */
         $results = [
             'users' => 0,
             'hospitals' => 0,
@@ -60,4 +65,3 @@ final readonly class LegacyMigrationOrchestrator
         return $results;
     }
 }
-

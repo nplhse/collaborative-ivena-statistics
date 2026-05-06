@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class LegacyImportMigrator
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private Connection $legacyConnection,
         private Connection $defaultConnection,
@@ -70,7 +71,7 @@ final readonly class LegacyImportMigrator
             /** @var Hospital $hospital */
             $hospital = $this->entityManager->getReference(Hospital::class, (int) $mappedHospitalId);
 
-            $import = (new Import())
+            $import = new Import()
                 ->setName((string) ($row['name'] ?? sprintf('Legacy Import %d', $legacyId)))
                 ->setHospital($hospital)
                 ->setStatus($this->mapStatus((string) ($row['status'] ?? 'pending')))
@@ -106,7 +107,7 @@ final readonly class LegacyImportMigrator
                 'error_message' => null,
                 'started_at' => null,
                 'finished_at' => null,
-                'updated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'updated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
             ]);
             ++$migrated;
         }
@@ -126,4 +127,3 @@ final readonly class LegacyImportMigrator
         };
     }
 }
-

@@ -19,6 +19,7 @@ final readonly class LegacyMigrationSchemaManager
         'legacy_migration_run',
     ];
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private Connection $defaultConnection,
     ) {
@@ -118,11 +119,8 @@ SQL,
             }
         }
 
-        $existing = $this->defaultConnection->createSchemaManager()->listTableNames();
         foreach (self::ALLOWLIST_TABLES as $table) {
-            if (\in_array($table, $existing, true)) {
-                $this->defaultConnection->executeStatement(sprintf('DROP TABLE IF EXISTS %s', $table));
-            }
+            $this->defaultConnection->executeStatement(sprintf('DROP TABLE IF EXISTS %s', $table));
         }
     }
 
@@ -141,6 +139,11 @@ SQL,
             'SELECT status, COUNT(*) FROM legacy_migration_import_mapping GROUP BY status'
         );
 
+        $lastError = $this->defaultConnection->fetchOne(
+            "SELECT message FROM legacy_migration_log WHERE level = 'error' ORDER BY id DESC LIMIT 1"
+        );
+        $lastErrorMessage = \is_string($lastError) ? $lastError : null;
+
         return new LegacyMigrationStatus(
             true,
             (int) $this->defaultConnection->fetchOne('SELECT COUNT(*) FROM legacy_migration_user_mapping'),
@@ -149,19 +152,14 @@ SQL,
             (int) $this->defaultConnection->fetchOne('SELECT COUNT(*) FROM legacy_migration_allocation_mapping'),
             (int) $this->defaultConnection->fetchOne('SELECT COALESCE(SUM(migrated_count), 0) FROM legacy_migration_import_mapping'),
             array_map(static fn (mixed $v): int => (int) $v, $statusCounts),
-            $this->defaultConnection->fetchOne(
-                "SELECT message FROM legacy_migration_log WHERE level = 'error' ORDER BY id DESC LIMIT 1"
-            ) ?: null,
+            $lastErrorMessage,
         );
     }
 
     public function assertInstalled(): void
     {
         if (!$this->isInstalled()) {
-            throw new \RuntimeException(
-                'Legacy migration tables are not installed. Run php bin/console app:legacy-migration:install first.'
-            );
+            throw new \RuntimeException('Legacy migration tables are not installed. Run php bin/console app:legacy-migration:install first.');
         }
     }
 }
-

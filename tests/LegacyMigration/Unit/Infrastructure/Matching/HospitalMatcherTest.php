@@ -14,8 +14,8 @@ final class HospitalMatcherTest extends TestCase
     public function testFindsUniqueMatch(): void
     {
         $matcher = new HospitalMatcher(new HospitalNameNormalizer());
-        $h1 = (new Hospital())->setName('Klinikum Musterstadt');
-        $h2 = (new Hospital())->setName('St. Elisabeth');
+        $h1 = new Hospital()->setName('Klinikum Musterstadt');
+        $h2 = new Hospital()->setName('St. Elisabeth');
 
         $result = $matcher->matchOrFail(5, 'Musterstadt', [$h1, $h2]);
 
@@ -29,7 +29,7 @@ final class HospitalMatcherTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('No hospital match');
 
-        $matcher->matchOrFail(8, 'Completely Unknown', [(new Hospital())->setName('A')]);
+        $matcher->matchOrFail(8, 'Completely Unknown', [new Hospital()->setName('A')]);
     }
 
     public function testFailsOnAmbiguousMatches(): void
@@ -39,9 +39,8 @@ final class HospitalMatcherTest extends TestCase
         $this->expectExceptionMessage('Ambiguous hospital match');
 
         $matcher->matchOrFail(11, 'St Marien', [
-            (new Hospital())->setName('Klinik St. Marien'),
-            (new Hospital())->setName('Klinikum St Marien'),
+            new Hospital()->setName('Klinik St. Marien'),
+            new Hospital()->setName('Klinikum St Marien'),
         ]);
     }
 }
-
