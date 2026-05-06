@@ -7,8 +7,11 @@ namespace App\Tests\Statistics\Unit\Controller;
 use App\Statistics\Application\Analysis\AnalysisDefinitionInterface;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\UI\Http\Controller\AnalysisDefinitionOptionsBuilder;
 use App\Statistics\UI\Http\Controller\AnalysisPagePresenter;
+use App\Statistics\UI\Http\Controller\AnalysisPivotChoicesFactory;
 use App\Statistics\UI\Http\Controller\AnalysisRequestModel;
+use App\Statistics\UI\Http\Controller\AnalysisToolbarViewModelFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +25,12 @@ final class AnalysisPagePresenterTest extends TestCase
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
         );
-        $presenter = new AnalysisPagePresenter(new StatisticsNavigationUrlBuilder($router));
+        $urlBuilder = new StatisticsNavigationUrlBuilder($router);
+        $presenter = new AnalysisPagePresenter(
+            new AnalysisDefinitionOptionsBuilder($urlBuilder),
+            new AnalysisPivotChoicesFactory($urlBuilder),
+            new AnalysisToolbarViewModelFactory($urlBuilder),
+        );
 
         $request = new Request(query: [
             'scope' => 'public',
