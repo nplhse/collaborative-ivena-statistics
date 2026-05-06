@@ -44,5 +44,4 @@ final readonly class TopDiagnosesQuery
             'totalAllocations' => $total,
         ];
     }
-
 }

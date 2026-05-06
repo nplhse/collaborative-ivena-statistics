@@ -42,7 +42,7 @@ final readonly class HospitalPivotQuery
 
         $qb->leftJoin('h.state', 's')
             ->leftJoin('h.dispatchArea', 'da')
-            ->leftJoin('App\Statistics\Infrastructure\Entity\AllocationStatsProjection', 'a', 'WITH', 'a.hospitalId = h.id AND a.createdAt >= :from');
+            ->leftJoin(\App\Statistics\Infrastructure\Entity\AllocationStatsProjection::class, 'a', 'WITH', 'a.hospitalId = h.id AND a.createdAt >= :from');
         $qb->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
         if ($toExclusive instanceof \DateTimeImmutable) {
             $qb->andWhere('a.createdAt < :toExclusive OR a.id IS NULL')
@@ -84,7 +84,7 @@ final readonly class HospitalPivotQuery
             ->from(Hospital::class, 'h')
             ->leftJoin('h.state', 's')
             ->leftJoin('h.dispatchArea', 'da')
-            ->leftJoin('App\Allocation\Domain\Entity\Allocation', 'a', 'WITH', 'a.hospital = h AND a.createdAt >= :from')
+            ->leftJoin(\App\Allocation\Domain\Entity\Allocation::class, 'a', 'WITH', 'a.hospital = h AND a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
 
         $this->filterApplier->applyHospitalScope($qb, 'h.id', $hospitalIds);
@@ -122,7 +122,6 @@ final readonly class HospitalPivotQuery
     private function scalarKey(mixed $value): string
     {
         if ($value instanceof \UnitEnum && property_exists($value, 'value')) {
-            /** @var mixed $enumValue */
             $enumValue = $value->value;
 
             return (string) $enumValue;

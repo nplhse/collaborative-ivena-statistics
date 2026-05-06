@@ -196,13 +196,11 @@ final readonly class ProjectionTimeSeriesQuery
      */
     public function bucketByMonthAndGender(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->bucketByMonthCode('genderCode', $from, $toExclusive, $hospitalIds, static function (int $code): ?string {
-            return match ($code) {
-                AllocationStatsGenderProjectionCode::Male->value => 'M',
-                AllocationStatsGenderProjectionCode::Female->value => 'F',
-                AllocationStatsGenderProjectionCode::Other->value => 'X',
-                default => null,
-            };
+        return $this->bucketByMonthCode('genderCode', $from, $toExclusive, $hospitalIds, static fn (int $code): ?string => match ($code) {
+            AllocationStatsGenderProjectionCode::Male->value => 'M',
+            AllocationStatsGenderProjectionCode::Female->value => 'F',
+            AllocationStatsGenderProjectionCode::Other->value => 'X',
+            default => null,
         });
     }
 
@@ -213,7 +211,7 @@ final readonly class ProjectionTimeSeriesQuery
      */
     public function bucketByMonthAndUrgency(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->bucketByMonthCode('urgencyCode', $from, $toExclusive, $hospitalIds, static fn (int $code): ?string => (string) $code);
+        return $this->bucketByMonthCode('urgencyCode', $from, $toExclusive, $hospitalIds, static fn (int $code): string => (string) $code);
     }
 
     /**
@@ -223,13 +221,11 @@ final readonly class ProjectionTimeSeriesQuery
      */
     public function bucketByDayAndGender(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->bucketByDayCode('genderCode', $from, $toExclusive, $hospitalIds, static function (int $code): ?string {
-            return match ($code) {
-                AllocationStatsGenderProjectionCode::Male->value => 'M',
-                AllocationStatsGenderProjectionCode::Female->value => 'F',
-                AllocationStatsGenderProjectionCode::Other->value => 'X',
-                default => null,
-            };
+        return $this->bucketByDayCode('genderCode', $from, $toExclusive, $hospitalIds, static fn (int $code): ?string => match ($code) {
+            AllocationStatsGenderProjectionCode::Male->value => 'M',
+            AllocationStatsGenderProjectionCode::Female->value => 'F',
+            AllocationStatsGenderProjectionCode::Other->value => 'X',
+            default => null,
         });
     }
 
@@ -240,7 +236,7 @@ final readonly class ProjectionTimeSeriesQuery
      */
     public function bucketByDayAndUrgency(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->bucketByDayCode('urgencyCode', $from, $toExclusive, $hospitalIds, static fn (int $code): ?string => (string) $code);
+        return $this->bucketByDayCode('urgencyCode', $from, $toExclusive, $hospitalIds, static fn (int $code): string => (string) $code);
     }
 
     /**
@@ -250,13 +246,11 @@ final readonly class ProjectionTimeSeriesQuery
      */
     public function bucketByCalendarMonthAndGender(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->bucketByCalendarMonthCode('genderCode', $from, $toExclusive, $hospitalIds, static function (int $code): ?string {
-            return match ($code) {
-                AllocationStatsGenderProjectionCode::Male->value => 'M',
-                AllocationStatsGenderProjectionCode::Female->value => 'F',
-                AllocationStatsGenderProjectionCode::Other->value => 'X',
-                default => null,
-            };
+        return $this->bucketByCalendarMonthCode('genderCode', $from, $toExclusive, $hospitalIds, static fn (int $code): ?string => match ($code) {
+            AllocationStatsGenderProjectionCode::Male->value => 'M',
+            AllocationStatsGenderProjectionCode::Female->value => 'F',
+            AllocationStatsGenderProjectionCode::Other->value => 'X',
+            default => null,
         });
     }
 
@@ -267,7 +261,7 @@ final readonly class ProjectionTimeSeriesQuery
      */
     public function bucketByCalendarMonthAndUrgency(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->bucketByCalendarMonthCode('urgencyCode', $from, $toExclusive, $hospitalIds, static fn (int $code): ?string => (string) $code);
+        return $this->bucketByCalendarMonthCode('urgencyCode', $from, $toExclusive, $hospitalIds, static fn (int $code): string => (string) $code);
     }
 
     /**

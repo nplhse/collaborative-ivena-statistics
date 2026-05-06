@@ -20,6 +20,7 @@ final readonly class SummaryDeckWidgetPayload implements WidgetPayloadInterface
     ) {
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return array_merge([

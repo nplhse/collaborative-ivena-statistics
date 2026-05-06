@@ -7,9 +7,9 @@ namespace App\Statistics\Application\DTO\WidgetPayload;
 final readonly class TableWidgetPayload implements WidgetPayloadInterface
 {
     /**
-     * @param list<string>                                   $headerTranslationKeys
-     * @param list<list<string|int|float|null>>             $rows
-     * @param array<string, mixed>                          $extra
+     * @param list<string>                      $headerTranslationKeys
+     * @param list<list<string|int|float|null>> $rows
+     * @param array<string, mixed>              $extra
      */
     public function __construct(
         private array $headerTranslationKeys,
@@ -18,6 +18,7 @@ final readonly class TableWidgetPayload implements WidgetPayloadInterface
     ) {
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return array_merge([

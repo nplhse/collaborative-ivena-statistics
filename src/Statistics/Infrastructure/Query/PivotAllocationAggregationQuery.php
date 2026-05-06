@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query;
 
-use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\DTO\PivotColAxis;
 use App\Statistics\Application\DTO\PivotRowAxis;
+use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -63,7 +63,7 @@ DQL;
     private function executeDepartmentByUrgency(QueryBuilder $qb): array
     {
         $qb->select('a.departmentId AS deptId', 'd.name AS deptName', 'a.urgencyCode AS urgency', 'COUNT(a.id) AS cnt')
-            ->leftJoin('App\Allocation\Domain\Entity\Department', 'd', 'WITH', 'd.id = a.departmentId')
+            ->leftJoin(\App\Allocation\Domain\Entity\Department::class, 'd', 'WITH', 'd.id = a.departmentId')
             ->groupBy('deptId', 'deptName', 'urgency');
 
         /** @var list<array<string, mixed>> $rows */
@@ -182,5 +182,4 @@ DQL;
 
         return $out;
     }
-
 }

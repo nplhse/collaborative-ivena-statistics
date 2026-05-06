@@ -10,8 +10,8 @@ use App\Statistics\Application\DTO\StatisticWidget;
 final readonly class AnalysisPageViewModel
 {
     /**
-     * @param list<AnalysisDefinitionInterface> $analysisDefinitions
-     * @param array<string, string>             $analysisSelectUrls
+     * @param list<AnalysisDefinitionInterface>                              $analysisDefinitions
+     * @param array<string, string>                                          $analysisSelectUrls
      * @param array<int, array{labelKey: string, url: string, active: bool}> $pivotRowChoices
      * @param array<int, array{labelKey: string, url: string, active: bool}> $pivotColChoices
      * @param array<int, array{labelKey: string, url: string, active: bool}> $pivotMeasureChoices

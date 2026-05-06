@@ -106,7 +106,7 @@ DQL;
     private function departmentExpression(QueryBuilder $qb, string $prefix): array
     {
         $alias = $prefix.'Dept';
-        $qb->leftJoin('App\Allocation\Domain\Entity\Department', $alias, 'WITH', sprintf('%s.id = a.departmentId', $alias));
+        $qb->leftJoin(\App\Allocation\Domain\Entity\Department::class, $alias, 'WITH', sprintf('%s.id = a.departmentId', $alias));
 
         return ['a.departmentId', sprintf('%s.name', $alias)];
     }

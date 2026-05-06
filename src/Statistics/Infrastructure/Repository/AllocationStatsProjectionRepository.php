@@ -21,8 +21,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
         private readonly ProjectionTimeSeriesQuery $timeSeriesQuery,
         private readonly ProjectionFeatureQuery $featureQuery,
         private readonly ProjectionDiagnosisQuery $diagnosisQuery,
-    )
-    {
+    ) {
         parent::__construct($registry, AllocationStatsProjection::class);
     }
 

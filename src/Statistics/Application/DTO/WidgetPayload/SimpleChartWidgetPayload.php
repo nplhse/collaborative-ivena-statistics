@@ -17,6 +17,7 @@ final readonly class SimpleChartWidgetPayload implements WidgetPayloadInterface
     ) {
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return array_merge([

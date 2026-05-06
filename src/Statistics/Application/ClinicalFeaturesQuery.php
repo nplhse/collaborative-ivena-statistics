@@ -39,6 +39,7 @@ final readonly class ClinicalFeaturesQuery
     public function fetchClinicalRows(StatisticsContext $context): array
     {
         [$totalAllocations, $clinicalCounts] = $this->loadCounts($context);
+        $totalAllocationsFloat = (float) $totalAllocations;
 
         $rows = [];
         foreach (self::CLINICAL_FEATURE_DEFINITIONS as $definition) {
@@ -46,7 +47,7 @@ final readonly class ClinicalFeaturesQuery
             $rows[] = [
                 'labelTranslationKey' => $definition['labelTranslationKey'],
                 'count' => $count,
-                'percent' => $totalAllocations > 0 ? round(($count / $totalAllocations) * 100, 1) : 0.0,
+                'percent' => $totalAllocations > 0 ? round(((float) $count / $totalAllocationsFloat) * 100.0, 1) : 0.0,
             ];
         }
 
@@ -59,18 +60,19 @@ final readonly class ClinicalFeaturesQuery
     public function fetchResourceRows(StatisticsContext $context): array
     {
         [$totalAllocations, , $resourceCounts] = $this->loadCounts($context);
+        $totalAllocationsFloat = (float) $totalAllocations;
+        $resourceCountByDefinitionKey = [
+            'cathlab_required' => $resourceCounts['cathlab'] ?? 0,
+            'resus_required' => $resourceCounts['resus'] ?? 0,
+        ];
 
         $rows = [];
         foreach (self::RESOURCE_FEATURE_DEFINITIONS as $definition) {
-            $count = match ($definition['key']) {
-                'cathlab_required' => $resourceCounts['cathlab'] ?? 0,
-                'resus_required' => $resourceCounts['resus'] ?? 0,
-                default => 0,
-            };
+            $count = $resourceCountByDefinitionKey[$definition['key']];
             $rows[] = [
                 'labelTranslationKey' => $definition['labelTranslationKey'],
                 'count' => $count,
-                'percent' => $totalAllocations > 0 ? round(($count / $totalAllocations) * 100, 1) : 0.0,
+                'percent' => $totalAllocations > 0 ? round(((float) $count / $totalAllocationsFloat) * 100.0, 1) : 0.0,
             ];
         }
 

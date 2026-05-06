@@ -68,7 +68,7 @@ final readonly class ReportsPagePresenter
         }
 
         $payload = $widget->payload;
-        $payload['limitFooter'] = (new ReportTableLimitFooter($limitUrls, $currentLimit))->toArray();
+        $payload['limitFooter'] = new ReportTableLimitFooter($limitUrls, $currentLimit)->toArray();
 
         return new StatisticWidget($widget->type, $widget->id, $payload, $widget->title, $widget->actions);
     }

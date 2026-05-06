@@ -6,13 +6,16 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\Report\ReportLimitPolicy;
 
-final class ReportsRequestModelFactory
+final readonly class ReportsRequestModelFactory
 {
     public function __construct(
-        private readonly ReportLimitPolicy $reportLimitPolicy,
+        private ReportLimitPolicy $reportLimitPolicy,
     ) {
     }
 
+    /**
+     * @param array<string, scalar|null> $query
+     */
     public function fromQuery(array $query): ReportsRequestModel
     {
         $reportKey = isset($query['report']) ? (string) $query['report'] : '';

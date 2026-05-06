@@ -8,10 +8,10 @@ use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
 use Symfony\Component\HttpFoundation\Request;
 
-final class AnalysisRequestModelFactory
+final readonly class AnalysisRequestModelFactory
 {
     public function __construct(
-        private readonly AnalysisKeyAliasResolver $analysisKeyAliasResolver,
+        private AnalysisKeyAliasResolver $analysisKeyAliasResolver,
     ) {
     }
 

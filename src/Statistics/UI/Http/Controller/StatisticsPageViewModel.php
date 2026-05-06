@@ -9,9 +9,9 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 final readonly class StatisticsPageViewModel
 {
     /**
-     * @param array<string, string>      $scopeUrls
-     * @param array<string, string>      $hospitalUrls
-     * @param array<string, string>      $periodUrls
+     * @param array<string, string>              $scopeUrls
+     * @param array<string, string>              $hospitalUrls
+     * @param array<string, string>              $periodUrls
      * @param list<array{id: int, name: string}> $accessibleHospitals
      */
     public function __construct(

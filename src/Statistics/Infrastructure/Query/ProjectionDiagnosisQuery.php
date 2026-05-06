@@ -24,7 +24,7 @@ final readonly class ProjectionDiagnosisQuery
     public function fetchTopDiagnosisAggregates(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
     {
         $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds)
-            ->leftJoin('App\Allocation\Domain\Entity\IndicationNormalized', 'inorm', 'WITH', 'inorm.id = p.indicationNormalizedId')
+            ->leftJoin(\App\Allocation\Domain\Entity\IndicationNormalized::class, 'inorm', 'WITH', 'inorm.id = p.indicationNormalizedId')
             ->select('COALESCE(inorm.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
             ->groupBy('label')
@@ -35,7 +35,7 @@ final readonly class ProjectionDiagnosisQuery
         $rows = $qb->getQuery()->getArrayResult();
 
         return array_map(
-            static fn (array $row): array => ['label' => (string) $row['label'], 'count' => (int) $row['cnt']],
+            static fn (array $row): array => ['label' => $row['label'], 'count' => (int) $row['cnt']],
             $rows,
         );
     }

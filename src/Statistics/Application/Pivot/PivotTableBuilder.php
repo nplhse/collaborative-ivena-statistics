@@ -7,11 +7,11 @@ namespace App\Statistics\Application\Pivot;
 final class PivotTableBuilder
 {
     /**
-     * @param list<string>                               $rowKeys
-     * @param list<string>                               $colKeys
+     * @param list<string>                                                $rowKeys
+     * @param list<string>                                                $colKeys
      * @param list<array{row_key: string, col_key: string, value: float}> $cells
-     * @param array<string, string>                      $rowLabels
-     * @param array<string, string>                      $colLabels
+     * @param array<string, string>                                       $rowLabels
+     * @param array<string, string>                                       $colLabels
      */
     public function build(array $rowKeys, array $colKeys, array $cells, array $rowLabels, array $colLabels): PivotResult
     {

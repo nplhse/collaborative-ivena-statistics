@@ -8,7 +8,7 @@ final readonly class DistributionWidgetPayload implements WidgetPayloadInterface
 {
     /**
      * @param list<array{labelTranslationKey: string, count: int, percent: float}> $rows
-     * @param array<string, mixed>                                                   $extra
+     * @param array<string, mixed>                                                 $extra
      */
     public function __construct(
         private string $titleTranslationKey,
@@ -17,6 +17,7 @@ final readonly class DistributionWidgetPayload implements WidgetPayloadInterface
     ) {
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return array_merge([

@@ -7,12 +7,12 @@ namespace App\Statistics\Application\DTO\WidgetPayload;
 final readonly class PivotTableWidgetPayload implements WidgetPayloadInterface
 {
     /**
-     * @param list<string>               $rowLabels
-     * @param list<string>               $columnLabels
-     * @param list<list<string>>         $matrix
-     * @param list<string>               $rowTotals
-     * @param list<string>               $columnTotals
-     * @param array<string, mixed>       $extra
+     * @param list<string>         $rowLabels
+     * @param list<string>         $columnLabels
+     * @param list<list<string>>   $matrix
+     * @param list<string>         $rowTotals
+     * @param list<string>         $columnTotals
+     * @param array<string, mixed> $extra
      */
     public function __construct(
         private string $rowDimensionLabel,
@@ -27,6 +27,7 @@ final readonly class PivotTableWidgetPayload implements WidgetPayloadInterface
     ) {
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return array_merge([

@@ -34,7 +34,17 @@ final readonly class OverviewDashboardProvider
                 StatisticWidgetType::ChartPair,
                 'chart_pair_overview',
                 $this->widgetPayloadNormalizer->normalize(
-                    new ChartPairWidgetPayload($charts['allocationChart'], $charts['importChart'])
+                    new ChartPairWidgetPayload(
+                        [
+                            'labels' => array_values($charts['allocationChart']['labels']),
+                            'monthlyCounts' => array_values($charts['allocationChart']['monthlyCounts']),
+                            'cumulativeCounts' => array_values($charts['allocationChart']['cumulativeCounts']),
+                        ],
+                        [
+                            'labels' => array_values($charts['importChart']['labels']),
+                            'monthlyCounts' => array_values($charts['importChart']['monthlyCounts']),
+                        ],
+                    )
                 ),
             ),
         ];

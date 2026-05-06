@@ -130,5 +130,4 @@ final readonly class HospitalSummaryQuery
             $usedUnscopedFallback,
         );
     }
-
 }

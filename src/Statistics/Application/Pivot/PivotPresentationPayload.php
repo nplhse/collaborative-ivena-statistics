@@ -8,8 +8,8 @@ final readonly class PivotPresentationPayload
 {
     /**
      * @param list<list<string>> $matrix
-     * @param list<string> $rowTotals
-     * @param list<string> $columnTotals
+     * @param list<string>       $rowTotals
+     * @param list<string>       $columnTotals
      */
     public function __construct(
         public array $matrix,

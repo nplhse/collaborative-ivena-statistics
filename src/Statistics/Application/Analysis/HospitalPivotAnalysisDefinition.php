@@ -33,16 +33,19 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
     ) {
     }
 
+    #[\Override]
     public function key(): string
     {
         return 'hospital_pivot';
     }
 
+    #[\Override]
     public function labelTranslationKey(): string
     {
         return 'stats.analysis.hospital_pivot.label';
     }
 
+    #[\Override]
     public function supports(StatisticsContext $context): bool
     {
         unset($context);
@@ -50,11 +53,13 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         return true;
     }
 
+    #[\Override]
     public function isPivotLike(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function build(StatisticsContext $context, string $view, string $chartType, StatisticsAnalysisDimension $dimension, StatisticsChartMeasure $chartMeasure = StatisticsChartMeasure::Absolute): StatisticWidget
     {
         unset($view, $chartType, $dimension, $chartMeasure);
@@ -118,11 +123,13 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         );
     }
 
+    #[\Override]
     public function supportsDimensionSelector(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function supportsChartMeasureSelector(
         StatisticsAnalysisDimension $dimension,
         string $view,
@@ -174,5 +181,4 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
             HospitalPivotDimension::Size => 'stats.analysis.hospital_pivot.axis.size',
         };
     }
-
 }

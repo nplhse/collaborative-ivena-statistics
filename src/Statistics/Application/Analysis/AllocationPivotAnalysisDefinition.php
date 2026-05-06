@@ -15,8 +15,8 @@ use App\Statistics\Application\DTO\WidgetPayload\PivotTableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Application\Pivot\AllocationPivotDimension;
 use App\Statistics\Application\Pivot\AllocationPivotMeasure;
-use App\Statistics\Application\Pivot\PivotPresentationMapper;
 use App\Statistics\Application\Pivot\AllocationPivotSelection;
+use App\Statistics\Application\Pivot\PivotPresentationMapper;
 use App\Statistics\Application\Pivot\PivotTableBuilder;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
@@ -35,16 +35,19 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
     ) {
     }
 
+    #[\Override]
     public function key(): string
     {
         return 'allocation_pivot';
     }
 
+    #[\Override]
     public function labelTranslationKey(): string
     {
         return 'stats.analysis.allocation_pivot.label';
     }
 
+    #[\Override]
     public function supports(StatisticsContext $context): bool
     {
         unset($context);
@@ -52,11 +55,13 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         return true;
     }
 
+    #[\Override]
     public function isPivotLike(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function build(StatisticsContext $context, string $view, string $chartType, StatisticsAnalysisDimension $dimension, StatisticsChartMeasure $chartMeasure = StatisticsChartMeasure::Absolute): StatisticWidget
     {
         unset($view, $chartType, $dimension, $chartMeasure);
@@ -79,10 +84,11 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         $colLabelOverrides = AllocationPivotDimension::Department === $selection->cols
             ? $this->labelsFromCells($cells, 'col_key', 'col_label')
             : [];
+        $baseCells = $this->basePivotCells($cells);
         $pivot = $this->pivotTableBuilder->build(
             $rowKeys,
             $colKeys,
-            $cells,
+            $baseCells,
             array_replace($this->labelMap($rowKeys, $selection->rows), $rowLabelOverrides),
             array_replace($this->labelMap($colKeys, $selection->cols), $colLabelOverrides),
         );
@@ -117,11 +123,13 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         );
     }
 
+    #[\Override]
     public function supportsDimensionSelector(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function supportsChartMeasureSelector(
         StatisticsAnalysisDimension $dimension,
         string $view,
@@ -131,7 +139,7 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
     }
 
     /**
-     * @param list<array{row_key: string, col_key: string, value: float}> $cells
+     * @param list<array{row_key: string, col_key: string, value: float, row_label?: string, col_label?: string}> $cells
      *
      * @return list<string>
      */
@@ -162,6 +170,25 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         }
 
         return $keys;
+    }
+
+    /**
+     * @param list<array{row_key: string, col_key: string, value: float, row_label?: string, col_label?: string}> $cells
+     *
+     * @return list<array{row_key: string, col_key: string, value: float}>
+     */
+    private function basePivotCells(array $cells): array
+    {
+        $baseCells = [];
+        foreach ($cells as $cell) {
+            $baseCells[] = [
+                'row_key' => $cell['row_key'],
+                'col_key' => $cell['col_key'],
+                'value' => $cell['value'],
+            ];
+        }
+
+        return $baseCells;
     }
 
     /**
@@ -241,5 +268,4 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
             default => 'unknown',
         };
     }
-
 }

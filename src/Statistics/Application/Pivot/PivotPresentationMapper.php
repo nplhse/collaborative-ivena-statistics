@@ -18,7 +18,7 @@ final class PivotPresentationMapper
             foreach ($rowValues as $value) {
                 if ($isRowPercent) {
                     $denominator = $rowTotals[$rowIndex] ?? 0.0;
-                    $pct = $denominator > 0 ? round(($value / $denominator) * 100, 1) : 0.0;
+                    $pct = $denominator > 0.0 ? round(((float) $value / (float) $denominator) * 100.0, 1) : 0.0;
                     $formattedRow[] = sprintf('%.1f%%', $pct);
                     continue;
                 }
