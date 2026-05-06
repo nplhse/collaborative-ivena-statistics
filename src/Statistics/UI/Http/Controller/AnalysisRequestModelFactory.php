@@ -10,14 +10,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class AnalysisRequestModelFactory
 {
+    public function __construct(
+        private readonly AnalysisKeyAliasResolver $analysisKeyAliasResolver,
+    ) {
+    }
+
     public function fromRequest(Request $request): AnalysisRequestModel
     {
-        $requestedAnalysis = $request->query->getString('analysis', 'allocations_by_month');
-        if ('pivot' === $requestedAnalysis) {
-            $requestedAnalysis = 'allocation_pivot';
-        } elseif ('allocations_over_time' === $requestedAnalysis) {
-            $requestedAnalysis = 'allocations_by_month';
-        }
+        $requestedAnalysis = $this->analysisKeyAliasResolver->resolve(
+            $request->query->getString('analysis', 'allocations_by_month')
+        );
 
         $view = $request->query->getString('view', 'chart');
         if (!\in_array($view, ['chart', 'table'], true)) {

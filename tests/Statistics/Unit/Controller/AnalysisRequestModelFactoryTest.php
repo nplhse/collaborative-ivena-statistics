@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Unit\Controller;
 
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
+use App\Statistics\UI\Http\Controller\AnalysisKeyAliasResolver;
 use App\Statistics\UI\Http\Controller\AnalysisRequestModelFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +15,7 @@ final class AnalysisRequestModelFactoryTest extends TestCase
 {
     public function testNormalizesAliasesAndInvalidValues(): void
     {
-        $factory = new AnalysisRequestModelFactory();
+        $factory = new AnalysisRequestModelFactory(new AnalysisKeyAliasResolver());
         $request = new Request(query: [
             'analysis' => 'pivot',
             'view' => 'invalid',
@@ -40,7 +41,7 @@ final class AnalysisRequestModelFactoryTest extends TestCase
 
     public function testForcesAbsoluteMeasureForFeaturesDimension(): void
     {
-        $factory = new AnalysisRequestModelFactory();
+        $factory = new AnalysisRequestModelFactory(new AnalysisKeyAliasResolver());
         $request = new Request(query: [
             'analysis' => 'allocations_over_time',
             'dimension' => 'features',

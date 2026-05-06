@@ -154,7 +154,7 @@ class DashboardControllerTest extends WebTestCase
 
         $featuresLink = $crawler->filter('[data-testid="stats-cross-nav-overview-features"]')->link();
         $featuresUri = $featuresLink->getUri();
-        $this->assertStringContainsString('analysis=allocations_over_time', $featuresUri);
+        $this->assertStringContainsString('analysis=allocations_by_month', $featuresUri);
         $this->assertStringContainsString('dimension=features', $featuresUri);
         $this->assertStringContainsString('scope=public', $featuresUri);
         $this->assertStringContainsString('period=month', $featuresUri);
@@ -163,7 +163,7 @@ class DashboardControllerTest extends WebTestCase
 
         $resourcesLink = $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->link();
         $resourcesUri = $resourcesLink->getUri();
-        $this->assertStringContainsString('analysis=allocations_over_time', $resourcesUri);
+        $this->assertStringContainsString('analysis=allocations_by_month', $resourcesUri);
         $this->assertStringContainsString('dimension=resources', $resourcesUri);
         $this->assertStringContainsString('scope=public', $resourcesUri);
         $this->assertStringContainsString('period=month', $resourcesUri);
