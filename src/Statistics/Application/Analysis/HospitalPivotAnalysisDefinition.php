@@ -55,7 +55,7 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         $cells = $this->hospitalPivotQuery->fetchCells(
             $bounds->from,
             $bounds->toExclusive,
-            $this->hospitalIdsOrNull($context),
+            $this->scopeResolver->hospitalIdsOrNull($context),
             $selection->rows,
             $selection->cols,
             $selection->measure,
@@ -166,11 +166,4 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         };
     }
 
-    /**
-     * @return list<int>|null
-     */
-    private function hospitalIdsOrNull(StatisticsContext $context): ?array
-    {
-        return $this->scopeResolver->hospitalIdsOrNull($context);
-    }
 }

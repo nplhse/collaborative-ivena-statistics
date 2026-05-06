@@ -56,7 +56,7 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         $cells = $this->allocationPivotQuery->fetchCells(
             $bounds->from,
             $bounds->toExclusive,
-            $this->hospitalIdsOrNull($context),
+            $this->scopeResolver->hospitalIdsOrNull($context),
             $selection->rows,
             $selection->cols,
         );
@@ -235,11 +235,4 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         };
     }
 
-    /**
-     * @return list<int>|null
-     */
-    private function hospitalIdsOrNull(StatisticsContext $context): ?array
-    {
-        return $this->scopeResolver->hospitalIdsOrNull($context);
-    }
 }

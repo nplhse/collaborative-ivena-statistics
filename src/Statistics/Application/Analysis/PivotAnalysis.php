@@ -79,7 +79,7 @@ final readonly class PivotAnalysis implements AnalysisDefinitionInterface
 
         $axes = $context->pivotAxes ?? PivotTableAxes::default();
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $hospitalIds = $this->hospitalIdsOrNull($context);
+        $hospitalIds = $this->scopeResolver->hospitalIdsOrNull($context);
 
         $cells = $this->pivotAllocationAggregationQuery->fetchCells(
             $bounds->from,
@@ -407,11 +407,4 @@ final readonly class PivotAnalysis implements AnalysisDefinitionInterface
         return $unique;
     }
 
-    /**
-     * @return list<int>|null
-     */
-    private function hospitalIdsOrNull(StatisticsContext $context): ?array
-    {
-        return $this->scopeResolver->hospitalIdsOrNull($context);
-    }
 }
