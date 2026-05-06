@@ -22,21 +22,15 @@ services:
     App\:
         resource: '../src/'
 
-    App\Statistics\Application\Analysis\AllocationsByMonthAnalysis:
-        tags: ['app.statistics.analysis_definition']
-
-    App\Statistics\Application\Analysis\AllocationPivotAnalysisDefinition:
-        tags: ['app.statistics.analysis_definition']
-
-    App\Statistics\Application\Analysis\HospitalPivotAnalysisDefinition:
-        tags: ['app.statistics.analysis_definition']
+    _instanceof:
+        App\Statistics\Application\Analysis\AnalysisDefinitionInterface:
+            tags: ['app.statistics.analysis_definition']
+        App\Statistics\Application\Report\ReportDefinitionInterface:
+            tags: ['app.statistics.report_definition']
 
     App\Statistics\Application\Analysis\AnalysisDefinitionRegistry:
         arguments:
             $definitions: !tagged_iterator 'app.statistics.analysis_definition'
-
-    App\Statistics\Application\Report\TopDiagnosesReport:
-        tags: ['app.statistics.report_definition']
 
     App\Statistics\Application\Report\ReportDefinitionRegistry:
         arguments:
