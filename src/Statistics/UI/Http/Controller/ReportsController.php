@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Application\DTO\StatisticsFilterPeriod;
-use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\Report\ReportDefinitionRegistry;
@@ -18,33 +15,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ReportsController extends AbstractController
 {
-    use StatisticsPagePresentationTrait;
-
     private const array ALLOWED_LIMITS = [10, 25, 50];
 
     public function __construct(
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
-        private readonly HospitalRepository $hospitalRepository,
         private readonly ReportDefinitionRegistry $reportDefinitionRegistry,
-        private readonly TranslatorInterface $translator,
+        private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
     ) {
-    }
-
-    #[\Override]
-    protected function getTranslator(): TranslatorInterface
-    {
-        return $this->translator;
-    }
-
-    #[\Override]
-    protected function getStatisticsNavigationUrlBuilder(): StatisticsNavigationUrlBuilder
-    {
-        return $this->statisticsNavigationUrlBuilder;
     }
 
     #[Route('/statistics/reports', name: 'app_stats_reports', methods: ['GET'])]
@@ -59,90 +40,14 @@ final class ReportsController extends AbstractController
             $user instanceof User ? $user : null,
             $filter,
         );
+        $pageViewModel = $this->statisticsPageViewModelFactory->create(
+            $request,
+            'app_stats_reports',
+            $user instanceof User ? $user : null,
+            $filter,
+        );
 
-        $now = new \DateTimeImmutable();
-        $defaultYear = $filter->referenceYear ?? (int) $now->format('Y');
-        $defaultMonth = $filter->referenceMonth ?? (int) $now->format('n');
-
-        $scopeUrls = [
-            'public' => $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                ['scope' => StatisticsFilterScope::Public->value],
-                ['hospital'],
-            ),
-            'my_hospitals' => $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                ['scope' => StatisticsFilterScope::MyHospitals->value],
-                ['hospital'],
-            ),
-        ];
-
-        $accessibleHospitals = [];
-        $hospitalUrls = [];
-        if ($user instanceof User) {
-            $accessibleHospitals = $this->hospitalRepository->findAccessibleHospitalSummaries($user);
-            foreach ($accessibleHospitals as $row) {
-                $hospitalUrls[(string) $row['id']] = $this->statisticsPageUrl(
-                    $request,
-                    'app_stats_reports',
-                    [
-                        'scope' => StatisticsFilterScope::Hospital->value,
-                        'hospital' => $row['id'],
-                    ],
-                    [],
-                );
-            }
-        }
-
-        $periodUrls = [
-            'all' => $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                ['period' => StatisticsFilterPeriod::All->value],
-                ['year', 'month'],
-            ),
-            'all_time' => $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                ['period' => StatisticsFilterPeriod::AllTime->value],
-                ['year', 'month'],
-            ),
-            'year' => $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                [
-                    'period' => StatisticsFilterPeriod::Year->value,
-                    'year' => $defaultYear,
-                ],
-                ['month'],
-            ),
-            'month' => $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                [
-                    'period' => StatisticsFilterPeriod::Month->value,
-                    'year' => $defaultYear,
-                    'month' => $defaultMonth,
-                ],
-                [],
-            ),
-        ];
-
-        $hospitalDropdownSelectedName = null;
-        if (StatisticsFilterScope::Hospital === $filter->scope && null !== $filter->hospitalId) {
-            foreach ($accessibleHospitals as $row) {
-                if ($row['id'] === $filter->hospitalId) {
-                    $hospitalDropdownSelectedName = $row['name'];
-                    break;
-                }
-            }
-        }
-
-        if ($user instanceof User
-            && [] === $accessibleHospitals
-            && StatisticsFilterScope::MyHospitals === $filter->scope) {
+        if ($pageViewModel->showUnscopedHint) {
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
 
@@ -157,43 +62,29 @@ final class ReportsController extends AbstractController
         $reportSelectUrls = [];
         foreach ($this->reportDefinitionRegistry->all() as $item) {
             $reportSelectUrls[$item->key()] = $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                ['report' => $item->key()],
-                [],
+                $request, 'app_stats_reports', ['report' => $item->key()],
             );
         }
 
         $limitUrls = [];
         foreach (self::ALLOWED_LIMITS as $lim) {
             $limitUrls[$lim] = $this->statisticsPageUrl(
-                $request,
-                'app_stats_reports',
-                ['limit' => $lim],
-                [],
+                $request, 'app_stats_reports', ['limit' => $lim],
             );
         }
 
         $reportWidget = $this->withReportTableLimitFooter($reportWidget, $limitUrls, $limit);
 
-        $locale = $request->getLocale();
-
         return $this->render('@Statistics/reports/index.html.twig', [
-            'statisticsFilter' => $filter,
-            'statsScopeUrls' => $scopeUrls,
-            'statsHospitalUrls' => $hospitalUrls,
-            'statsPeriodUrls' => $periodUrls,
-            'accessibleHospitals' => $accessibleHospitals,
-            'statsHospitalDropdownSelectedName' => $hospitalDropdownSelectedName,
-            'isLoggedIn' => $user instanceof User,
-            'statisticsHeadingScope' => $this->statisticsHeadingScope(
-                $filter,
-                $hospitalDropdownSelectedName,
-                $locale,
-                $user instanceof User && [] === $accessibleHospitals,
-                \count($accessibleHospitals),
-            ),
-            'statisticsHeadingPeriod' => $this->statisticsHeadingPeriod($filter, $locale),
+            'statisticsFilter' => $pageViewModel->filter,
+            'statsScopeUrls' => $pageViewModel->scopeUrls,
+            'statsHospitalUrls' => $pageViewModel->hospitalUrls,
+            'statsPeriodUrls' => $pageViewModel->periodUrls,
+            'accessibleHospitals' => $pageViewModel->accessibleHospitals,
+            'statsHospitalDropdownSelectedName' => $pageViewModel->hospitalDropdownSelectedName,
+            'isLoggedIn' => $pageViewModel->isLoggedIn,
+            'statisticsHeadingScope' => $pageViewModel->headingScope,
+            'statisticsHeadingPeriod' => $pageViewModel->headingPeriod,
             'reportWidget' => $reportWidget,
             'reportDefinitions' => $this->reportDefinitionRegistry->all(),
             'currentReportKey' => $reportKey,
@@ -231,5 +122,18 @@ final class ReportsController extends AbstractController
         }
 
         return 25;
+    }
+
+    /**
+     * @param array<string, scalar|null> $replace
+     * @param list<string>               $removeKeys
+     */
+    private function statisticsPageUrl(
+        Request $request,
+        string $routeName,
+        array $replace = [],
+        array $removeKeys = [],
+    ): string {
+        return $this->statisticsNavigationUrlBuilder->build($request, $routeName, $replace, $removeKeys);
     }
 }
