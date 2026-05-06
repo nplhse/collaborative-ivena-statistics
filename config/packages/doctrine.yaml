@@ -1,5 +1,6 @@
 doctrine:
     dbal:
+        default_connection: default
         connections:
             default:
                 # IMPORTANT: You MUST configure your server version,
@@ -8,6 +9,9 @@ doctrine:
                 url: '%env(resolve:DATABASE_URL)%'
                 profiling_collect_backtrace: '%kernel.debug%'
                 use_savepoints: true
+            legacy:
+                url: '%env(resolve:LEGACY_DATABASE_URL)%'
+                profiling_collect_backtrace: '%kernel.debug%'
 
     orm:
         auto_generate_proxy_classes: true

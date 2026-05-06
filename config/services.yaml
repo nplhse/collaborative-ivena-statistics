@@ -16,11 +16,16 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             string $projectDir: '%kernel.project_dir%'
+            Doctrine\DBAL\Connection $defaultConnection: '@doctrine.dbal.default_connection'
+            Doctrine\DBAL\Connection $legacyConnection: '@doctrine.dbal.legacy_connection'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+
+    Doctrine\DBAL\Connection: '@doctrine.dbal.default_connection'
+    App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface: '@App\LegacyMigration\Infrastructure\Doctrine\LegacyMigrationStateRepository'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
