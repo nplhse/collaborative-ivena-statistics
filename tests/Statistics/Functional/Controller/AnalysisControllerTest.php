@@ -176,6 +176,19 @@ class AnalysisControllerTest extends WebTestCase
         $this->assertStringContainsString('"barGrouped"', $specRaw);
     }
 
+    public function testAnalysisAliasAllocationsOverTimeResolvesToAllocationsByMonth(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=allocations_over_time&view=chart&dimension=features',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-chart-card"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-dimension-features"].active');
+    }
+
     public function testAnalysisResourcesChartShareMeasureUsesPercentScale(): void
     {
         $client = static::createClient();
@@ -289,5 +302,77 @@ class AnalysisControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"]', 'Department');
+    }
+
+    public function testAnalysisDropdownContainsAllocationAndHospitalPivotEntries(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('#stats-analysis-select-trigger', 'Allocations over time');
+        $this->assertSelectorTextContains('.dropdown-menu', 'Allocation Pivot');
+        $this->assertSelectorTextContains('.dropdown-menu', 'Hospital Pivot');
+    }
+
+    public function testAllocationPivotShowsMeasureSelectorAndSupportsRowPercent(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=allocation_pivot&rows=urgency&cols=gender&measure=row_percent',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-pivot-measure"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"]', '%');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"] tfoot', '100.0%');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-dimension-selector"]');
+    }
+
+    public function testHospitalPivotSupportsConfiguredDimensionsAndMeasures(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=hospital_pivot&rows=state&cols=tier&measure=hospital_count',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-pivot-table-card"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-pivot-rows"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-pivot-cols"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-pivot-measure"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"]', 'State');
+    }
+
+    public function testHospitalPivotSupportsMinMaxMeasuresAndRowPercent(): void
+    {
+        $client = static::createClient();
+
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=hospital_pivot&rows=state&cols=tier&measure=min_beds',
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-pivot-table-card"]');
+
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=hospital_pivot&rows=state&cols=tier&measure=max_allocations',
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-pivot-table-card"]');
+
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=hospital_pivot&rows=state&cols=tier&measure=row_percent',
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"]', '%');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-pivot-table-card"] tfoot', '100.0%');
     }
 }

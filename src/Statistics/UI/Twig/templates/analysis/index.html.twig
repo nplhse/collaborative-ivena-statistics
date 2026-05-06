@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.analysis.page_title'|trans }} · {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
+{% block title %}Analysis: {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -67,7 +67,7 @@
                         </div>
                         <div class="col-12 col-sm-auto">
                             <span class="form-label d-block mb-1">{{ 'stats.analysis.presentation_label'|trans }}</span>
-                            {% if currentAnalysisKey == 'pivot' %}
+                            {% if currentAnalysisKey in ['pivot', 'allocation_pivot', 'hospital_pivot'] %}
                                 <div class="btn-group" role="group">
                                     <span class="btn btn-outline-primary active">{{ 'stats.analysis.view.table'|trans }}</span>
                                 </div>
@@ -86,7 +86,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        {% if currentAnalysisKey != 'pivot' %}
+                        {% if currentAnalysisKey not in ['pivot', 'allocation_pivot', 'hospital_pivot'] %}
                             <div class="col-12">
                                 <span class="form-label d-block mb-1">{{ 'stats.analysis.dimension_label'|trans }}</span>
                                 <div class="btn-group flex-wrap"

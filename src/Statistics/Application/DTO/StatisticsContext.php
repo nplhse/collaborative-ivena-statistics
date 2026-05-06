@@ -12,6 +12,9 @@ final readonly class StatisticsContext
         public ?User $user,
         public StatisticsFilter $filter,
         public ?PivotTableAxes $pivotAxes = null,
+        public ?string $pivotRows = null,
+        public ?string $pivotCols = null,
+        public ?string $pivotMeasure = null,
     ) {
     }
 }

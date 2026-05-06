@@ -6,9 +6,12 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\Analysis\AnalysisDefinitionRegistry;
-use App\Statistics\Application\DTO\PivotColAxis;
-use App\Statistics\Application\DTO\PivotRowAxis;
-use App\Statistics\Application\DTO\PivotTableAxes;
+use App\Statistics\Application\Pivot\AllocationPivotDimension;
+use App\Statistics\Application\Pivot\AllocationPivotMeasure;
+use App\Statistics\Application\Pivot\AllocationPivotSelection;
+use App\Statistics\Application\Pivot\HospitalPivotDimension;
+use App\Statistics\Application\Pivot\HospitalPivotMeasure;
+use App\Statistics\Application\Pivot\HospitalPivotSelection;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
 use App\Statistics\Application\DTO\StatisticsContext;
@@ -144,7 +147,12 @@ final class AnalysisController extends AbstractController
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
 
-        $requestedAnalysis = $request->query->getString('analysis', '');
+        $requestedAnalysis = $request->query->getString('analysis', 'allocations_by_month');
+        if ('pivot' === $requestedAnalysis) {
+            $requestedAnalysis = 'allocation_pivot';
+        } elseif ('allocations_over_time' === $requestedAnalysis) {
+            $requestedAnalysis = 'allocations_by_month';
+        }
         $definition = $this->analysisDefinitionRegistry->getOrFirst($requestedAnalysis);
         $analysisKey = $definition->key();
 
@@ -166,20 +174,24 @@ final class AnalysisController extends AbstractController
             $chartMeasure = StatisticsChartMeasure::Absolute;
         }
 
-        $pivotAxes = PivotTableAxes::fromQuery(
-            $request->query->getString('rows'),
-            $request->query->getString('cols'),
-        );
         $context = new StatisticsContext(
             $user instanceof User ? $user : null,
             $filter,
-            'pivot' === $analysisKey ? $pivotAxes : null,
+            null,
+            $request->query->getString('rows'),
+            $request->query->getString('cols'),
+            $request->query->getString('measure'),
         );
 
         $analysisWidget = $definition->build($context, $view, $chartType, $dimension, $chartMeasure);
 
         $analysisSelectUrls = [];
+        $analysisDefinitions = [];
         foreach ($this->analysisDefinitionRegistry->all() as $item) {
+            if ('pivot' === $item->key()) {
+                continue;
+            }
+            $analysisDefinitions[] = $item;
             $analysisSelectUrls[$item->key()] = $this->statisticsPageUrl(
                 $request,
                 'app_stats_analysis',
@@ -238,60 +250,83 @@ final class AnalysisController extends AbstractController
         );
 
         $pivotStaleQueryKeys = ['dimension', 'chart_measure', 'chart'];
-        /** @var list<array{labelKey: string, url: string, active: bool}> $pivotRowChoices */
         $pivotRowChoices = [];
-        foreach ([PivotRowAxis::Department, PivotRowAxis::AgeGroup, PivotRowAxis::Urgency] as $rowAxis) {
-            $canonical = match ($rowAxis) {
-                PivotRowAxis::Department => new PivotTableAxes(PivotRowAxis::Department, PivotColAxis::Urgency),
-                PivotRowAxis::AgeGroup => new PivotTableAxes(PivotRowAxis::AgeGroup, PivotColAxis::Gender),
-                PivotRowAxis::Urgency => new PivotTableAxes(PivotRowAxis::Urgency, PivotColAxis::Gender),
-            };
-            $pivotRowChoices[] = [
-                'labelKey' => match ($rowAxis) {
-                    PivotRowAxis::Department => 'stats.analysis.pivot.axis.rows.department',
-                    PivotRowAxis::AgeGroup => 'stats.analysis.pivot.axis.rows.age_group',
-                    PivotRowAxis::Urgency => 'stats.analysis.pivot.axis.rows.urgency',
-                },
-                'url' => $this->statisticsPageUrl(
-                    $request,
-                    'app_stats_analysis',
-                    [
-                        'analysis' => 'pivot',
-                        'rows' => $canonical->row->value,
-                        'cols' => $canonical->col->value,
-                        'view' => 'table',
-                    ],
-                    $pivotStaleQueryKeys,
-                ),
-                'active' => $pivotAxes->row === $rowAxis,
-            ];
-        }
-
-        /** @var list<array{labelKey: string, url: string, active: bool}> $pivotColChoices */
         $pivotColChoices = [];
-        foreach ([PivotColAxis::Gender, PivotColAxis::Urgency] as $colAxis) {
-            $canonical = match ($colAxis) {
-                PivotColAxis::Gender => new PivotTableAxes(PivotRowAxis::Urgency, PivotColAxis::Gender),
-                PivotColAxis::Urgency => new PivotTableAxes(PivotRowAxis::Department, PivotColAxis::Urgency),
-            };
-            $pivotColChoices[] = [
-                'labelKey' => match ($colAxis) {
-                    PivotColAxis::Gender => 'stats.analysis.pivot.axis.cols.gender',
-                    PivotColAxis::Urgency => 'stats.analysis.pivot.axis.cols.urgency',
-                },
-                'url' => $this->statisticsPageUrl(
-                    $request,
-                    'app_stats_analysis',
-                    [
-                        'analysis' => 'pivot',
-                        'rows' => $canonical->row->value,
-                        'cols' => $canonical->col->value,
+        $pivotMeasureChoices = [];
+        if ('allocation_pivot' === $analysisKey) {
+            $selection = AllocationPivotSelection::fromQuery(
+                $request->query->getString('rows'),
+                $request->query->getString('cols'),
+                $request->query->getString('measure'),
+            );
+            foreach (AllocationPivotDimension::cases() as $axis) {
+                $pivotRowChoices[] = [
+                    'labelKey' => 'stats.analysis.pivot.axis.rows.'.$axis->value,
+                    'url' => $this->statisticsPageUrl($request, 'app_stats_analysis', [
+                        'analysis' => 'allocation_pivot',
+                        'rows' => $axis->value,
                         'view' => 'table',
-                    ],
-                    $pivotStaleQueryKeys,
-                ),
-                'active' => $pivotAxes->col === $colAxis,
-            ];
+                    ], $pivotStaleQueryKeys),
+                    'active' => $selection->rows === $axis,
+                ];
+                $pivotColChoices[] = [
+                    'labelKey' => 'stats.analysis.pivot.axis.rows.'.$axis->value,
+                    'url' => $this->statisticsPageUrl($request, 'app_stats_analysis', [
+                        'analysis' => 'allocation_pivot',
+                        'cols' => $axis->value,
+                        'view' => 'table',
+                    ], $pivotStaleQueryKeys),
+                    'active' => $selection->cols === $axis,
+                ];
+            }
+            foreach (AllocationPivotMeasure::cases() as $measure) {
+                $pivotMeasureChoices[] = [
+                    'labelKey' => 'stats.analysis.allocation_pivot.measure.'.$measure->value,
+                    'url' => $this->statisticsPageUrl($request, 'app_stats_analysis', [
+                        'analysis' => 'allocation_pivot',
+                        'measure' => $measure->value,
+                        'view' => 'table',
+                    ], $pivotStaleQueryKeys),
+                    'active' => $selection->measure === $measure,
+                ];
+            }
+        } elseif ('hospital_pivot' === $analysisKey) {
+            $selection = HospitalPivotSelection::fromQuery(
+                $request->query->getString('rows'),
+                $request->query->getString('cols'),
+                $request->query->getString('measure'),
+            );
+            foreach (HospitalPivotDimension::cases() as $axis) {
+                $pivotRowChoices[] = [
+                    'labelKey' => 'stats.analysis.hospital_pivot.axis.'.$axis->value,
+                    'url' => $this->statisticsPageUrl($request, 'app_stats_analysis', [
+                        'analysis' => 'hospital_pivot',
+                        'rows' => $axis->value,
+                        'view' => 'table',
+                    ], $pivotStaleQueryKeys),
+                    'active' => $selection->rows === $axis,
+                ];
+                $pivotColChoices[] = [
+                    'labelKey' => 'stats.analysis.hospital_pivot.axis.'.$axis->value,
+                    'url' => $this->statisticsPageUrl($request, 'app_stats_analysis', [
+                        'analysis' => 'hospital_pivot',
+                        'cols' => $axis->value,
+                        'view' => 'table',
+                    ], $pivotStaleQueryKeys),
+                    'active' => $selection->cols === $axis,
+                ];
+            }
+            foreach (HospitalPivotMeasure::cases() as $measure) {
+                $pivotMeasureChoices[] = [
+                    'labelKey' => 'stats.analysis.hospital_pivot.measure.'.$measure->value,
+                    'url' => $this->statisticsPageUrl($request, 'app_stats_analysis', [
+                        'analysis' => 'hospital_pivot',
+                        'measure' => $measure->value,
+                        'view' => 'table',
+                    ], $pivotStaleQueryKeys),
+                    'active' => $selection->measure === $measure,
+                ];
+            }
         }
 
         if (StatisticWidgetType::PivotTable === $analysisWidget->type) {
@@ -301,6 +336,7 @@ final class AnalysisController extends AbstractController
                 array_merge($analysisWidget->payload, [
                     'pivotRowChoices' => $pivotRowChoices,
                     'pivotColChoices' => $pivotColChoices,
+                    'pivotMeasureChoices' => $pivotMeasureChoices,
                 ]),
                 $analysisWidget->title,
                 $analysisWidget->actions,
@@ -326,7 +362,7 @@ final class AnalysisController extends AbstractController
             ),
             'statisticsHeadingPeriod' => $this->statisticsHeadingPeriod($filter, $locale),
             'analysisWidget' => $analysisWidget,
-            'analysisDefinitions' => $this->analysisDefinitionRegistry->all(),
+            'analysisDefinitions' => $analysisDefinitions,
             'currentAnalysisKey' => $analysisKey,
             'analysisSelectUrls' => $analysisSelectUrls,
             'currentView' => $view,

@@ -2147,6 +2147,14 @@
         <source>stats.analysis.pivot.label</source>
         <target>Pivot</target>
       </trans-unit>
+      <trans-unit id="statsAllocPivotLbl" resname="stats.analysis.allocation_pivot.label">
+        <source>stats.analysis.allocation_pivot.label</source>
+        <target>Allocation Pivot</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotLbl" resname="stats.analysis.hospital_pivot.label">
+        <source>stats.analysis.hospital_pivot.label</source>
+        <target>Hospital Pivot</target>
+      </trans-unit>
       <trans-unit id="statsPivotRowsLbl" resname="stats.analysis.pivot.rows_label">
         <source>stats.analysis.pivot.rows_label</source>
         <target>Rows</target>
@@ -2154,6 +2162,10 @@
       <trans-unit id="statsPivotColsLbl" resname="stats.analysis.pivot.cols_label">
         <source>stats.analysis.pivot.cols_label</source>
         <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsPivotMeasureLbl" resname="stats.analysis.pivot.measure_label">
+        <source>stats.analysis.pivot.measure_label</source>
+        <target>Measure</target>
       </trans-unit>
       <trans-unit id="statsPivotAxRowsDept" resname="stats.analysis.pivot.axis.rows.department">
         <source>stats.analysis.pivot.axis.rows.department</source>
@@ -2166,6 +2178,10 @@
       <trans-unit id="statsPivotAxRowsUrg" resname="stats.analysis.pivot.axis.rows.urgency">
         <source>stats.analysis.pivot.axis.rows.urgency</source>
         <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsPivotAxRowsGen" resname="stats.analysis.pivot.axis.rows.gender">
+        <source>stats.analysis.pivot.axis.rows.gender</source>
+        <target>Gender</target>
       </trans-unit>
       <trans-unit id="statsPivotAxColsGen" resname="stats.analysis.pivot.axis.cols.gender">
         <source>stats.analysis.pivot.axis.cols.gender</source>
@@ -2234,6 +2250,70 @@
       <trans-unit id="statsPivotUnknown" resname="stats.analysis.pivot.unknown">
         <source>stats.analysis.pivot.unknown</source>
         <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsAllPivotMeasCount" resname="stats.analysis.allocation_pivot.measure.count">
+        <source>stats.analysis.allocation_pivot.measure.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsAllPivotMeasRowPct" resname="stats.analysis.allocation_pivot.measure.row_percent">
+        <source>stats.analysis.allocation_pivot.measure.row_percent</source>
+        <target>Row percent</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxState" resname="stats.analysis.hospital_pivot.axis.state">
+        <source>stats.analysis.hospital_pivot.axis.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxDispatch" resname="stats.analysis.hospital_pivot.axis.dispatch_area">
+        <source>stats.analysis.hospital_pivot.axis.dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxLoc" resname="stats.analysis.hospital_pivot.axis.location">
+        <source>stats.analysis.hospital_pivot.axis.location</source>
+        <target>Location</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxTier" resname="stats.analysis.hospital_pivot.axis.tier">
+        <source>stats.analysis.hospital_pivot.axis.tier</source>
+        <target>Tier</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotAxSize" resname="stats.analysis.hospital_pivot.axis.size">
+        <source>stats.analysis.hospital_pivot.axis.size</source>
+        <target>Size</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasHospCount" resname="stats.analysis.hospital_pivot.measure.hospital_count">
+        <source>stats.analysis.hospital_pivot.measure.hospital_count</source>
+        <target>Hospital count</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasAvgBeds" resname="stats.analysis.hospital_pivot.measure.avg_beds">
+        <source>stats.analysis.hospital_pivot.measure.avg_beds</source>
+        <target>Average beds</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMinBeds" resname="stats.analysis.hospital_pivot.measure.min_beds">
+        <source>stats.analysis.hospital_pivot.measure.min_beds</source>
+        <target>Min beds</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMaxBeds" resname="stats.analysis.hospital_pivot.measure.max_beds">
+        <source>stats.analysis.hospital_pivot.measure.max_beds</source>
+        <target>Max beds</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasTotAlloc" resname="stats.analysis.hospital_pivot.measure.total_allocations">
+        <source>stats.analysis.hospital_pivot.measure.total_allocations</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasAvgAlloc" resname="stats.analysis.hospital_pivot.measure.avg_allocations">
+        <source>stats.analysis.hospital_pivot.measure.avg_allocations</source>
+        <target>Average allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMinAlloc" resname="stats.analysis.hospital_pivot.measure.min_allocations">
+        <source>stats.analysis.hospital_pivot.measure.min_allocations</source>
+        <target>Min allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasMaxAlloc" resname="stats.analysis.hospital_pivot.measure.max_allocations">
+        <source>stats.analysis.hospital_pivot.measure.max_allocations</source>
+        <target>Max allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHospPivotMeasRowPct" resname="stats.analysis.hospital_pivot.measure.row_percent">
+        <source>stats.analysis.hospital_pivot.measure.row_percent</source>
+        <target>Share in % (row)</target>
       </trans-unit>
       <trans-unit id="statsAnChMsLbl" resname="stats.analysis.chart_measure.label">
         <source>stats.analysis.chart_measure.label</source>
@@ -2353,7 +2433,7 @@
       </trans-unit>
       <trans-unit id="statsOvInd01" resname="stats.overview.indicators.card_title">
         <source>stats.overview.indicators.card_title</source>
-        <target>Clinical indicators</target>
+        <target>Clinical Features</target>
       </trans-unit>
       <trans-unit id="statsOvHs01" resname="stats.overview.hospital_summary.title">
         <source>stats.overview.hospital_summary.title</source>

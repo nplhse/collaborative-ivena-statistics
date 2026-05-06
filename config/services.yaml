@@ -25,7 +25,10 @@ services:
     App\Statistics\Application\Analysis\AllocationsByMonthAnalysis:
         tags: ['app.statistics.analysis_definition']
 
-    App\Statistics\Application\Analysis\PivotAnalysis:
+    App\Statistics\Application\Analysis\AllocationPivotAnalysisDefinition:
+        tags: ['app.statistics.analysis_definition']
+
+    App\Statistics\Application\Analysis\HospitalPivotAnalysisDefinition:
         tags: ['app.statistics.analysis_definition']
 
     App\Statistics\Application\Analysis\AnalysisDefinitionRegistry:
