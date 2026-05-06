@@ -56,9 +56,9 @@ final class AnalysisPagePresenterTest extends TestCase
         self::assertNotEmpty($model->pivotRowChoices);
         self::assertNotEmpty($model->pivotColChoices);
         self::assertNotEmpty($model->pivotMeasureChoices);
-        self::assertTrue($model->isPivotLike);
-        self::assertFalse($model->showDimensionSelector);
-        self::assertFalse($model->showChartMeasureSelector);
+        self::assertTrue($model->toolbar->isPivotLike);
+        self::assertFalse($model->toolbar->showDimensionSelector);
+        self::assertFalse($model->toolbar->showChartMeasureSelector);
         self::assertArrayHasKey('pivotRowChoices', $model->analysisWidget->payload);
         self::assertArrayHasKey('pivotColChoices', $model->analysisWidget->payload);
         self::assertArrayHasKey('pivotMeasureChoices', $model->analysisWidget->payload);

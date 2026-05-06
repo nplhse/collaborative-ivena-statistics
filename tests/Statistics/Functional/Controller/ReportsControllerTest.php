@@ -16,7 +16,9 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
@@ -35,7 +37,7 @@ class ReportsControllerTest extends WebTestCase
         StateFactory::createOne(['name' => 'Hessen']);
         DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
         HospitalFactory::createOne(['name' => 'Test Hospital']);
-        ImportFactory::createOne(['name' => 'Test Import']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
         SpecialityFactory::createOne(['name' => 'Innere Medizin']);
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
         AssignmentFactory::createOne(['name' => 'Test Assignment']);
@@ -45,9 +47,11 @@ class ReportsControllerTest extends WebTestCase
         $normalized = IndicationNormalizedFactory::createOne(['name' => 'Seeded Report Diagnosis']);
         AllocationFactory::createOne([
             'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
             'indicationRaw' => $raw,
             'indicationNormalized' => $normalized,
         ]);
+        $this->rebuildProjection([(int) $import->getId()]);
 
         $client->request(
             Request::METHOD_GET,
@@ -63,6 +67,19 @@ class ReportsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Diagnosis');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Count');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Share');
+    }
+
+    /**
+     * @param list<int> $importIds
+     */
+    private function rebuildProjection(array $importIds): void
+    {
+        $container = static::getContainer();
+        $container->get(Connection::class)->executeStatement('TRUNCATE TABLE allocation_stats_projection');
+        $rebuilder = $container->get(AllocationStatsProjectionRebuildInterface::class);
+        foreach ($importIds as $importId) {
+            $rebuilder->rebuildForImport($importId);
+        }
     }
 
     public function testLimitParameterTenIsAccepted(): void
@@ -88,5 +105,18 @@ class ReportsControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-reports-limit-25"].active');
+    }
+
+    public function testReportsPageAcceptsScopeAndPeriodParameters(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/reports?scope=public&period=all_time',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-heading-scope"]', 'Public');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', 'All time');
     }
 }

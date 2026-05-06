@@ -13,6 +13,7 @@ use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\Pivot\AllocationPivotDimension;
 use App\Statistics\Application\Pivot\AllocationPivotMeasure;
+use App\Statistics\Application\Pivot\PivotPresentationMapper;
 use App\Statistics\Application\Pivot\AllocationPivotSelection;
 use App\Statistics\Application\Pivot\PivotTableBuilder;
 use App\Statistics\Application\StatisticsPeriodResolver;
@@ -26,6 +27,7 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         private AllocationPivotQuery $allocationPivotQuery,
         private StatisticsScopeResolver $scopeResolver,
         private PivotTableBuilder $pivotTableBuilder,
+        private PivotPresentationMapper $pivotPresentationMapper,
         private TranslatorInterface $translator,
     ) {
     }
@@ -82,44 +84,22 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
             array_replace($this->labelMap($colKeys, $selection->cols), $colLabelOverrides),
         );
 
-        $matrix = [];
-        $rowTotals = $pivot->rowTotals;
-        foreach ($pivot->matrix as $rowIndex => $rowValues) {
-            $formattedRow = [];
-            foreach ($rowValues as $value) {
-                if (AllocationPivotMeasure::RowPercent === $selection->measure) {
-                    $denominator = $rowTotals[$rowIndex] ?? 0.0;
-                    $pct = $denominator > 0 ? round(($value / $denominator) * 100, 1) : 0.0;
-                    $formattedRow[] = sprintf('%.1f%%', $pct);
-                    continue;
-                }
-                $formattedRow[] = (string) (int) round($value);
-            }
-            $matrix[] = $formattedRow;
-        }
-
-        $showTotals = true;
-        $rowTotalsOut = array_map(static fn (float $v): string => (string) (int) round($v), $pivot->rowTotals);
-        $colTotalsOut = array_map(static fn (float $v): string => (string) (int) round($v), $pivot->columnTotals);
-        $grandTotalOut = (string) (int) round($pivot->grandTotal);
-
-        if (AllocationPivotMeasure::RowPercent === $selection->measure) {
-            $showTotals = true;
-            $rowTotalsOut = array_fill(0, \count($pivot->rowTotals), '100.0%');
-            $colTotalsOut = array_fill(0, \count($pivot->columnTotals), '100.0%');
-            $grandTotalOut = '100.0%';
-        }
+        $presentation = $this->pivotPresentationMapper->map(
+            $pivot,
+            AllocationPivotMeasure::RowPercent === $selection->measure,
+            static fn (float $v): string => (string) (int) round($v),
+        );
 
         $payload = [
             'rowDimensionLabel' => $this->translator->trans($this->dimensionLabel($selection->rows)),
             'columnDimensionLabel' => $this->translator->trans($this->dimensionLabel($selection->cols)),
             'rowLabels' => $pivot->rowLabels,
             'columnLabels' => $pivot->columnLabels,
-            'matrix' => $matrix,
-            'showTotals' => $showTotals,
-            'row_totals' => $rowTotalsOut,
-            'column_totals' => $colTotalsOut,
-            'grand_total' => $grandTotalOut,
+            'matrix' => $presentation->matrix,
+            'showTotals' => true,
+            'row_totals' => $presentation->rowTotals,
+            'column_totals' => $presentation->columnTotals,
+            'grand_total' => $presentation->grandTotal,
             'rowTotalHeaderLabel' => $this->translator->trans('stats.analysis.pivot.row_total'),
             'columnTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.column_total'),
             'grandTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.grand_total'),

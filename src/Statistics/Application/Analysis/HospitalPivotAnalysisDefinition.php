@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\Pivot\HospitalPivotDimension;
 use App\Statistics\Application\Pivot\HospitalPivotMeasure;
 use App\Statistics\Application\Pivot\HospitalPivotSelection;
+use App\Statistics\Application\Pivot\PivotPresentationMapper;
 use App\Statistics\Application\Pivot\PivotTableBuilder;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
@@ -24,6 +25,7 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         private HospitalPivotQuery $hospitalPivotQuery,
         private StatisticsScopeResolver $scopeResolver,
         private PivotTableBuilder $pivotTableBuilder,
+        private PivotPresentationMapper $pivotPresentationMapper,
         private TranslatorInterface $translator,
     ) {
     }
@@ -83,42 +85,22 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
             default => static fn (float $v): string => (string) (int) round($v),
         };
 
-        $matrix = [];
-        $rowTotals = $pivot->rowTotals;
-        foreach ($pivot->matrix as $rowIndex => $row) {
-            $formatted = [];
-            foreach ($row as $value) {
-                if (HospitalPivotMeasure::RowPercent === $selection->measure) {
-                    $denom = $rowTotals[$rowIndex] ?? 0.0;
-                    $pct = $denom > 0 ? round(($value / $denom) * 100, 1) : 0.0;
-                    $formatted[] = sprintf('%.1f%%', $pct);
-                    continue;
-                }
-                $formatted[] = $format($value);
-            }
-            $matrix[] = $formatted;
-        }
-
-        $rowTotalsOut = array_map($format, $pivot->rowTotals);
-        $colTotalsOut = array_map($format, $pivot->columnTotals);
-        $grandTotalOut = $format($pivot->grandTotal);
-
-        if (HospitalPivotMeasure::RowPercent === $selection->measure) {
-            $rowTotalsOut = array_fill(0, \count($pivot->rowTotals), '100.0%');
-            $colTotalsOut = array_fill(0, \count($pivot->columnTotals), '100.0%');
-            $grandTotalOut = '100.0%';
-        }
+        $presentation = $this->pivotPresentationMapper->map(
+            $pivot,
+            HospitalPivotMeasure::RowPercent === $selection->measure,
+            $format,
+        );
 
         $payload = [
             'rowDimensionLabel' => $this->translator->trans($this->dimensionLabel($selection->rows)),
             'columnDimensionLabel' => $this->translator->trans($this->dimensionLabel($selection->cols)),
             'rowLabels' => $pivot->rowLabels,
             'columnLabels' => $pivot->columnLabels,
-            'matrix' => $matrix,
+            'matrix' => $presentation->matrix,
             'showTotals' => true,
-            'row_totals' => $rowTotalsOut,
-            'column_totals' => $colTotalsOut,
-            'grand_total' => $grandTotalOut,
+            'row_totals' => $presentation->rowTotals,
+            'column_totals' => $presentation->columnTotals,
+            'grand_total' => $presentation->grandTotal,
             'rowTotalHeaderLabel' => $this->translator->trans('stats.analysis.pivot.row_total'),
             'columnTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.column_total'),
             'grandTotalFooterLabel' => $this->translator->trans('stats.analysis.pivot.grand_total'),

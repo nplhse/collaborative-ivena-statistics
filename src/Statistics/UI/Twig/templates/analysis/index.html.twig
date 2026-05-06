@@ -67,74 +67,74 @@
                         </div>
                         <div class="col-12 col-sm-auto">
                             <span class="form-label d-block mb-1">{{ 'stats.analysis.presentation_label'|trans }}</span>
-                            {% if analysisPage.isPivotLike %}
+                            {% if analysisPage.toolbar.isPivotLike %}
                                 <div class="btn-group" role="group">
                                     <span class="btn btn-outline-primary active">{{ 'stats.analysis.view.table'|trans }}</span>
                                 </div>
                             {% else %}
                                 <div class="btn-group" role="group">
-                                    <a href="{{ analysisPage.viewChartUrl }}"
-                                       class="btn btn-outline-primary{% if analysisPage.currentView == 'chart' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.viewChartUrl }}"
+                                       class="btn btn-outline-primary{% if analysisPage.toolbar.currentView == 'chart' %} active{% endif %}"
                                        data-testid="stats-analysis-view-chart">
                                         {{ 'stats.analysis.view.chart'|trans }}
                                     </a>
-                                    <a href="{{ analysisPage.viewTableUrl }}"
-                                       class="btn btn-outline-primary{% if analysisPage.currentView == 'table' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.viewTableUrl }}"
+                                       class="btn btn-outline-primary{% if analysisPage.toolbar.currentView == 'table' %} active{% endif %}"
                                        data-testid="stats-analysis-view-table">
                                         {{ 'stats.analysis.view.table'|trans }}
                                     </a>
                                 </div>
                             {% endif %}
                         </div>
-                        {% if analysisPage.showDimensionSelector %}
+                        {% if analysisPage.toolbar.showDimensionSelector %}
                             <div class="col-12">
                                 <span class="form-label d-block mb-1">{{ 'stats.analysis.dimension_label'|trans }}</span>
                                 <div class="btn-group flex-wrap"
                                      role="group"
                                      aria-label="{{ 'stats.analysis.dimension_label'|trans }}"
                                      data-testid="stats-analysis-dimension-selector">
-                                    <a href="{{ analysisPage.dimensionTotalUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.currentAnalysisDimension == 'total' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.dimensionTotalUrl }}"
+                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'total' %} active{% endif %}"
                                        data-testid="stats-analysis-dimension-total">
                                         {{ 'stats.analysis.dimension.total'|trans }}
                                     </a>
-                                    <a href="{{ analysisPage.dimensionGenderUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.currentAnalysisDimension == 'gender' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.dimensionGenderUrl }}"
+                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'gender' %} active{% endif %}"
                                        data-testid="stats-analysis-dimension-gender">
                                         {{ 'stats.analysis.dimension.gender'|trans }}
                                     </a>
-                                    <a href="{{ analysisPage.dimensionUrgencyUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.currentAnalysisDimension == 'urgency' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.dimensionUrgencyUrl }}"
+                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'urgency' %} active{% endif %}"
                                        data-testid="stats-analysis-dimension-urgency">
                                         {{ 'stats.analysis.dimension.urgency'|trans }}
                                     </a>
-                                    <a href="{{ analysisPage.dimensionResourcesUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.currentAnalysisDimension == 'resources' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.dimensionResourcesUrl }}"
+                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'resources' %} active{% endif %}"
                                        data-testid="stats-analysis-dimension-resources">
                                         {{ 'stats.analysis.dimension.resources'|trans }}
                                     </a>
-                                    <a href="{{ analysisPage.dimensionFeaturesUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.currentAnalysisDimension == 'features' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.dimensionFeaturesUrl }}"
+                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentAnalysisDimension == 'features' %} active{% endif %}"
                                        data-testid="stats-analysis-dimension-features">
                                         {{ 'stats.analysis.dimension.features'|trans }}
                                     </a>
                                 </div>
                             </div>
                         {% endif %}
-                        {% if analysisPage.showChartMeasureSelector %}
+                        {% if analysisPage.toolbar.showChartMeasureSelector %}
                             <div class="col-12">
                                 <span class="form-label d-block mb-1">{{ 'stats.analysis.chart_measure.label'|trans }}</span>
                                 <div class="btn-group"
                                      role="group"
                                      aria-label="{{ 'stats.analysis.chart_measure.label'|trans }}"
                                      data-testid="stats-analysis-chart-measure">
-                                    <a href="{{ analysisPage.chartMeasureAbsoluteUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.currentChartMeasure == 'absolute' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.chartMeasureAbsoluteUrl }}"
+                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentChartMeasure == 'absolute' %} active{% endif %}"
                                        data-testid="stats-analysis-chart-measure-absolute">
                                         {{ 'stats.analysis.chart_measure.absolute'|trans }}
                                     </a>
-                                    <a href="{{ analysisPage.chartMeasureShareUrl }}"
-                                       class="btn btn-outline-secondary{% if analysisPage.currentChartMeasure == 'share' %} active{% endif %}"
+                                    <a href="{{ analysisPage.toolbar.chartMeasureShareUrl }}"
+                                       class="btn btn-outline-secondary{% if analysisPage.toolbar.currentChartMeasure == 'share' %} active{% endif %}"
                                        data-testid="stats-analysis-chart-measure-share">
                                         {{ 'stats.analysis.chart_measure.share'|trans }}
                                     </a>
@@ -149,9 +149,9 @@
                 {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {
                     widget: analysisPage.analysisWidget,
                     analysisChartStyle: {
-                        chartBarUrl: analysisPage.chartBarUrl,
-                        chartLineUrl: analysisPage.chartLineUrl,
-                        currentChartType: analysisPage.currentChartType,
+                        chartBarUrl: analysisPage.toolbar.chartBarUrl,
+                        chartLineUrl: analysisPage.toolbar.chartLineUrl,
+                        currentChartType: analysisPage.toolbar.currentChartType,
                     },
                 }) }}
             </div>

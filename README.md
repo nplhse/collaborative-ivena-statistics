@@ -43,6 +43,22 @@ current `allocation` table, run:
 $ php bin/console app:seed:projection
 ```
 
+## Statistics architecture overview
+
+The statistics pages follow a strict read path to keep controller code slim and
+to make query and presentation layers testable:
+
+1. HTTP controllers create filter/request models (`StatisticsFilterFactory`,
+   `AnalysisRequestModelFactory`, `ReportsRequestModelFactory`).
+2. Application definitions/queries build widget domain data from
+   `allocation_stats_projection`.
+3. Page presenters map domain output to Twig view models
+   (`StatisticsPageViewModel`, `AnalysisPageViewModel`, `ReportsPageViewModel`).
+4. Twig templates render view models only; no SQL, no business logic.
+
+This separation keeps URLs and UI stable while allowing internal query and
+presentation refactors with focused unit tests.
+
 # Contributing
 Any contribution to this project is appreciated, whether it is related to
 fixing bugs, suggestions or improvements. Feel free to take your part in the
