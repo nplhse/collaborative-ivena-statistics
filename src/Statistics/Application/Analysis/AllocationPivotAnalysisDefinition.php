@@ -47,6 +47,11 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         return true;
     }
 
+    public function isPivotLike(): bool
+    {
+        return true;
+    }
+
     public function build(StatisticsContext $context, string $view, string $chartType, StatisticsAnalysisDimension $dimension, StatisticsChartMeasure $chartMeasure = StatisticsChartMeasure::Absolute): StatisticWidget
     {
         unset($view, $chartType, $dimension, $chartMeasure);
@@ -121,6 +126,19 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         ];
 
         return new StatisticWidget(StatisticWidgetType::PivotTable, 'allocation_pivot_table', $payload);
+    }
+
+    public function supportsDimensionSelector(): bool
+    {
+        return false;
+    }
+
+    public function supportsChartMeasureSelector(
+        StatisticsAnalysisDimension $dimension,
+        string $view,
+        string $chartType,
+    ): bool {
+        return false;
     }
 
     /**

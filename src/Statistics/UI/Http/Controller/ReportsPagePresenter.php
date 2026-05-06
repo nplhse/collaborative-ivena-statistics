@@ -12,8 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 final readonly class ReportsPagePresenter
 {
-    private const array ALLOWED_LIMITS = [10, 25, 50];
-
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
     ) {
@@ -24,11 +22,12 @@ final readonly class ReportsPagePresenter
      */
     public function present(
         Request $request,
-        string $currentReportKey,
+        ReportDefinitionInterface $currentDefinition,
+        ReportsRequestModel $requestModel,
         StatisticWidget $reportWidget,
         array $reportDefinitions,
     ): ReportsPageViewModel {
-        $currentLimit = $this->resolveReportLimit($request->query->all()['limit'] ?? null);
+        $currentLimit = $requestModel->limit;
 
         $reportSelectUrls = [];
         foreach ($reportDefinitions as $item) {
@@ -40,7 +39,7 @@ final readonly class ReportsPagePresenter
         }
 
         $limitUrls = [];
-        foreach (self::ALLOWED_LIMITS as $limit) {
+        foreach ($currentDefinition->allowedLimits() as $limit) {
             $limitUrls[$limit] = $this->statisticsPageUrl(
                 $request,
                 'app_stats_reports',
@@ -53,24 +52,10 @@ final readonly class ReportsPagePresenter
         return new ReportsPageViewModel(
             $reportWidget,
             $reportDefinitions,
-            $currentReportKey,
+            $currentDefinition->key(),
             $reportSelectUrls,
             $currentLimit,
         );
-    }
-
-    public function resolveReportLimit(mixed $rawLimit): int
-    {
-        if (null === $rawLimit || '' === (string) $rawLimit) {
-            return 25;
-        }
-
-        $parsed = filter_var((string) $rawLimit, FILTER_VALIDATE_INT);
-        if (false !== $parsed && \in_array($parsed, self::ALLOWED_LIMITS, true)) {
-            return $parsed;
-        }
-
-        return 25;
     }
 
     /**
@@ -83,10 +68,7 @@ final readonly class ReportsPagePresenter
         }
 
         $payload = $widget->payload;
-        $payload['limitFooter'] = [
-            'urls' => $limitUrls,
-            'current' => $currentLimit,
-        ];
+        $payload['limitFooter'] = (new ReportTableLimitFooter($limitUrls, $currentLimit))->toArray();
 
         return new StatisticWidget($widget->type, $widget->id, $payload, $widget->title, $widget->actions);
     }

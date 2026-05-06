@@ -67,7 +67,7 @@
                         </div>
                         <div class="col-12 col-sm-auto">
                             <span class="form-label d-block mb-1">{{ 'stats.analysis.presentation_label'|trans }}</span>
-                            {% if analysisPage.currentAnalysisKey in ['pivot', 'allocation_pivot', 'hospital_pivot'] %}
+                            {% if analysisPage.isPivotLike %}
                                 <div class="btn-group" role="group">
                                     <span class="btn btn-outline-primary active">{{ 'stats.analysis.view.table'|trans }}</span>
                                 </div>
@@ -86,7 +86,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        {% if analysisPage.currentAnalysisKey not in ['pivot', 'allocation_pivot', 'hospital_pivot'] %}
+                        {% if analysisPage.showDimensionSelector %}
                             <div class="col-12">
                                 <span class="form-label d-block mb-1">{{ 'stats.analysis.dimension_label'|trans }}</span>
                                 <div class="btn-group flex-wrap"
@@ -121,7 +121,7 @@
                                 </div>
                             </div>
                         {% endif %}
-                        {% if analysisPage.currentAnalysisDimension == 'resources' and analysisPage.currentView == 'chart' and analysisPage.currentChartType == 'bar' %}
+                        {% if analysisPage.showChartMeasureSelector %}
                             <div class="col-12">
                                 <span class="form-label d-block mb-1">{{ 'stats.analysis.chart_measure.label'|trans }}</span>
                                 <div class="btn-group"

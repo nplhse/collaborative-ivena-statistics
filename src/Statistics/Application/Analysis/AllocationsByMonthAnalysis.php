@@ -42,6 +42,12 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
     }
 
     #[\Override]
+    public function isPivotLike(): bool
+    {
+        return false;
+    }
+
+    #[\Override]
     public function build(
         StatisticsContext $context,
         string $view,
@@ -120,6 +126,23 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
             $this->key().'_chart',
             $payload,
         );
+    }
+
+    #[\Override]
+    public function supportsDimensionSelector(): bool
+    {
+        return true;
+    }
+
+    #[\Override]
+    public function supportsChartMeasureSelector(
+        StatisticsAnalysisDimension $dimension,
+        string $view,
+        string $chartType,
+    ): bool {
+        return StatisticsAnalysisDimension::Resources === $dimension
+            && 'chart' === $view
+            && 'bar' === $chartType;
     }
 
     private function usesPlainCountColumnsTable(StatisticsAnalysisDimension $dimension): bool

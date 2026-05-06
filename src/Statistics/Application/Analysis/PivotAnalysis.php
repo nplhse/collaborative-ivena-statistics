@@ -67,6 +67,11 @@ final readonly class PivotAnalysis implements AnalysisDefinitionInterface
         return true;
     }
 
+    public function isPivotLike(): bool
+    {
+        return true;
+    }
+
     #[\Override]
     public function build(
         StatisticsContext $context,
@@ -92,6 +97,19 @@ final readonly class PivotAnalysis implements AnalysisDefinitionInterface
         $payload = $this->buildPivotPayload($cells, $axes);
 
         return new StatisticWidget(StatisticWidgetType::PivotTable, 'pivot_table', $payload);
+    }
+
+    public function supportsDimensionSelector(): bool
+    {
+        return false;
+    }
+
+    public function supportsChartMeasureSelector(
+        StatisticsAnalysisDimension $dimension,
+        string $view,
+        string $chartType,
+    ): bool {
+        return false;
     }
 
     /**

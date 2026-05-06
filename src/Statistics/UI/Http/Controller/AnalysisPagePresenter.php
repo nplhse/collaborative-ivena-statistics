@@ -35,6 +35,8 @@ final readonly class AnalysisPagePresenter
         StatisticWidget $analysisWidget,
         array $allDefinitions,
     ): AnalysisPageViewModel {
+        $activeDefinition = $this->findDefinition($allDefinitions, $analysisKey);
+
         $analysisSelectUrls = [];
         $analysisDefinitions = [];
         foreach ($allDefinitions as $item) {
@@ -69,6 +71,13 @@ final readonly class AnalysisPagePresenter
             $analysisDefinitions,
             $analysisKey,
             $analysisSelectUrls,
+            $activeDefinition->isPivotLike(),
+            $activeDefinition->supportsDimensionSelector(),
+            $activeDefinition->supportsChartMeasureSelector(
+                $analysisRequest->dimension,
+                $analysisRequest->view,
+                $analysisRequest->chartType,
+            ),
             $analysisRequest->view,
             $analysisRequest->chartType,
             $analysisRequest->dimension->value,
@@ -88,6 +97,20 @@ final readonly class AnalysisPagePresenter
             $pivotChoices['cols'],
             $pivotChoices['measures'],
         );
+    }
+
+    /**
+     * @param list<AnalysisDefinitionInterface> $definitions
+     */
+    private function findDefinition(array $definitions, string $analysisKey): AnalysisDefinitionInterface
+    {
+        foreach ($definitions as $definition) {
+            if ($definition->key() === $analysisKey) {
+                return $definition;
+            }
+        }
+
+        return $definitions[0];
     }
 
     /**

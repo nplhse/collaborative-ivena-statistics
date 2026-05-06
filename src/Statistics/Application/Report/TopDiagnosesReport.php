@@ -86,4 +86,10 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
             ],
         );
     }
+
+    #[\Override]
+    public function allowedLimits(): array
+    {
+        return [10, 25, 50];
+    }
 }

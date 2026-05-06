@@ -56,6 +56,9 @@ final class AnalysisPagePresenterTest extends TestCase
         self::assertNotEmpty($model->pivotRowChoices);
         self::assertNotEmpty($model->pivotColChoices);
         self::assertNotEmpty($model->pivotMeasureChoices);
+        self::assertTrue($model->isPivotLike);
+        self::assertFalse($model->showDimensionSelector);
+        self::assertFalse($model->showChartMeasureSelector);
         self::assertArrayHasKey('pivotRowChoices', $model->analysisWidget->payload);
         self::assertArrayHasKey('pivotColChoices', $model->analysisWidget->payload);
         self::assertArrayHasKey('pivotMeasureChoices', $model->analysisWidget->payload);
@@ -66,6 +69,9 @@ final class AnalysisPagePresenterTest extends TestCase
         $definition = $this->createMock(AnalysisDefinitionInterface::class);
         $definition->method('key')->willReturn($key);
         $definition->method('labelTranslationKey')->willReturn('label.'.$key);
+        $definition->method('isPivotLike')->willReturn('allocation_pivot' === $key || 'pivot' === $key);
+        $definition->method('supportsDimensionSelector')->willReturn(false);
+        $definition->method('supportsChartMeasureSelector')->willReturn(false);
 
         return $definition;
     }

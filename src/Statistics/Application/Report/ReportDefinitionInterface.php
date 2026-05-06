@@ -27,4 +27,9 @@ interface ReportDefinitionInterface
     public function supports(StatisticsFilter $filter): bool;
 
     public function build(StatisticsContext $context, int $limit): StatisticWidget;
+
+    /**
+     * @return list<int>
+     */
+    public function allowedLimits(): array;
 }

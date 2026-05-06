@@ -24,6 +24,8 @@ interface AnalysisDefinitionInterface
 
     public function supports(StatisticsContext $context): bool;
 
+    public function isPivotLike(): bool;
+
     /**
      * @param AnalysisView           $view
      * @param AnalysisChartType      $chartType    only used when $view === 'chart'
@@ -36,4 +38,12 @@ interface AnalysisDefinitionInterface
         StatisticsAnalysisDimension $dimension,
         StatisticsChartMeasure $chartMeasure = StatisticsChartMeasure::Absolute,
     ): StatisticWidget;
+
+    public function supportsDimensionSelector(): bool;
+
+    public function supportsChartMeasureSelector(
+        StatisticsAnalysisDimension $dimension,
+        string $view,
+        string $chartType,
+    ): bool;
 }

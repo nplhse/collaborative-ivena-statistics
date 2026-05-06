@@ -17,6 +17,7 @@ final class ReportsController extends AbstractController
 {
     public function __construct(
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
+        private readonly ReportsRequestModelFactory $reportsRequestModelFactory,
         private readonly ReportDefinitionRegistry $reportDefinitionRegistry,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly ReportsPagePresenter $reportsPagePresenter,
@@ -46,14 +47,13 @@ final class ReportsController extends AbstractController
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
 
-        $requestedReport = $request->query->getString('report', '');
-        $definition = $this->reportDefinitionRegistry->getOrFirst($requestedReport);
-        $reportKey = $definition->key();
-        $limit = $this->reportsPagePresenter->resolveReportLimit($request->query->all()['limit'] ?? null);
-        $reportWidget = $definition->build($context, $limit);
+        $reportsRequest = $this->reportsRequestModelFactory->fromQuery($request->query->all());
+        $definition = $this->reportDefinitionRegistry->getOrFirst($reportsRequest->reportKey);
+        $reportWidget = $definition->build($context, $reportsRequest->limit);
         $reportsPage = $this->reportsPagePresenter->present(
             $request,
-            $reportKey,
+            $definition,
+            $reportsRequest,
             $reportWidget,
             $this->reportDefinitionRegistry->all(),
         );

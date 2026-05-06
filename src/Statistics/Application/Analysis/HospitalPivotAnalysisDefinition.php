@@ -45,6 +45,11 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         return true;
     }
 
+    public function isPivotLike(): bool
+    {
+        return true;
+    }
+
     public function build(StatisticsContext $context, string $view, string $chartType, StatisticsAnalysisDimension $dimension, StatisticsChartMeasure $chartMeasure = StatisticsChartMeasure::Absolute): StatisticWidget
     {
         unset($view, $chartType, $dimension, $chartMeasure);
@@ -120,6 +125,19 @@ final readonly class HospitalPivotAnalysisDefinition implements AnalysisDefiniti
         ];
 
         return new StatisticWidget(StatisticWidgetType::PivotTable, 'hospital_pivot_table', $payload);
+    }
+
+    public function supportsDimensionSelector(): bool
+    {
+        return false;
+    }
+
+    public function supportsChartMeasureSelector(
+        StatisticsAnalysisDimension $dimension,
+        string $view,
+        string $chartType,
+    ): bool {
+        return false;
     }
 
     /**
