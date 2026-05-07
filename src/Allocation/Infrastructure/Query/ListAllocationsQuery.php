@@ -33,7 +33,9 @@ final readonly class ListAllocationsQuery
         $qb->select('a.id, a.createdAt, a.arrivalAt, s.id as state_id, s.name as state, da.id as dispatchArea_id, da.name as dispatchArea,
                 h.id as hospital_id, h.name as hospital, h.tier, h.size, h.location, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock,
                 a.isPregnant, a.isWorkAccident, a.isWithPhysician, a.urgency, i.name as infection, iraw.name as indicationRawName, iraw.code indicationRawCode,
-                inor.name as indicationNormalizedName, inor.code as indicationNormalizedCode')
+                inor.name as indicationNormalizedName, inor.code as indicationNormalizedCode,
+                iraw2.name as secondaryIndicationRawName, iraw2.code as secondaryIndicationRawCode,
+                inor2.name as secondaryIndicationNormalizedName, inor2.code as secondaryIndicationNormalizedCode')
             ->from(Allocation::class, 'a')
             ->leftJoin(
                 State::class,
@@ -76,6 +78,18 @@ final readonly class ListAllocationsQuery
                 'inor',
                 \Doctrine\ORM\Query\Expr\Join::WITH,
                 'a.indicationNormalized = inor.id'
+            )
+            ->leftJoin(
+                IndicationRaw::class,
+                'iraw2',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'a.secondaryIndicationRaw = iraw2.id'
+            )
+            ->leftJoin(
+                IndicationNormalized::class,
+                'inor2',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'a.secondaryIndicationNormalized = inor2.id'
             );
 
         if (null !== $queryParametersDTO->importId) {

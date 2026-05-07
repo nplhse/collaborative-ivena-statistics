@@ -112,6 +112,13 @@ class Allocation
     #[ORM\ManyToOne]
     private ?IndicationNormalized $indicationNormalized = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?IndicationRaw $secondaryIndicationRaw = null;
+
+    #[ORM\ManyToOne]
+    private ?IndicationNormalized $secondaryIndicationNormalized = null;
+
     #[ORM\OneToOne(Assessment::class, cascade: ['persist', 'remove'])]
     private ?Assessment $assessment = null;
 
@@ -448,6 +455,30 @@ class Allocation
     public function setIndicationNormalized(?IndicationNormalized $indicationNormalized): static
     {
         $this->indicationNormalized = $indicationNormalized;
+
+        return $this;
+    }
+
+    public function getSecondaryIndicationRaw(): ?IndicationRaw
+    {
+        return $this->secondaryIndicationRaw;
+    }
+
+    public function setSecondaryIndicationRaw(?IndicationRaw $secondaryIndicationRaw): static
+    {
+        $this->secondaryIndicationRaw = $secondaryIndicationRaw;
+
+        return $this;
+    }
+
+    public function getSecondaryIndicationNormalized(): ?IndicationNormalized
+    {
+        return $this->secondaryIndicationNormalized;
+    }
+
+    public function setSecondaryIndicationNormalized(?IndicationNormalized $secondaryIndicationNormalized): static
+    {
+        $this->secondaryIndicationNormalized = $secondaryIndicationNormalized;
 
         return $this;
     }

@@ -59,6 +59,8 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'secondaryTransport' => self::faker()->boolean(20) ? SecondaryTransportFactory::randomOrCreate() : null,
             'indicationRaw' => IndicationRawFactory::random(),
             'indicationNormalized' => self::faker()->boolean(90) ? IndicationNormalizedFactory::random() : null,
+            'secondaryIndicationRaw' => null,
+            'secondaryIndicationNormalized' => null,
             'assessment' => self::faker()->boolean(10) ? AssessmentFactory::createOne() : null,
         ];
     }

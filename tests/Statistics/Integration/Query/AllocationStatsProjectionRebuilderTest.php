@@ -69,6 +69,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         InfectionFactory::createOne(['name' => 'StatsProjInfection']);
         IndicationRawFactory::createOne(['name' => 'StatsProjIndRaw', 'code' => 912_345]);
         $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'StatsProjIndNorm']);
+        $secondaryIndicationRaw = IndicationRawFactory::createOne(['name' => 'StatsProjSecIndRaw', 'code' => 888]);
+        $secondaryIndicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'StatsProjSecIndNorm']);
 
         $createdAt = new \DateTimeImmutable('2025-06-15 10:00:00');
         $arrivalAt = new \DateTimeImmutable('2025-06-15 11:30:00');
@@ -93,6 +95,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
             'occasion' => null,
             'infection' => null,
             'indicationNormalized' => $indicationNormalized,
+            'secondaryIndicationRaw' => $secondaryIndicationRaw,
+            'secondaryIndicationNormalized' => $secondaryIndicationNormalized,
         ]);
 
         $importId = $import->getId();
@@ -119,6 +123,7 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertNull($row['occasion_id'] ?? null);
         self::assertNull($row['infection_id'] ?? null);
         self::assertSame($indicationNormalized->getId(), (int) $row['indication_normalized_id']);
+        self::assertSame($secondaryIndicationNormalized->getId(), (int) $row['secondary_indication_normalized_id']);
 
         self::assertSame(90, (int) $row['transport_time_minutes']);
         self::assertSame(2025, (int) $row['created_year']);
@@ -158,6 +163,7 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertSame($allocation->getAssignment()->getId(), $projection->getAssignmentId());
         self::assertNull($projection->getInfectionId());
         self::assertSame($indicationNormalized->getId(), $projection->getIndicationNormalizedId());
+        self::assertSame($secondaryIndicationNormalized->getId(), $projection->getSecondaryIndicationNormalizedId());
 
         self::assertEquals($createdAt, $projection->getCreatedAt());
         self::assertEquals($arrivalAt, $projection->getArrivalAt());

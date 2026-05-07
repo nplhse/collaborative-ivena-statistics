@@ -87,6 +87,8 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
         // Indications
         $dto->indicationCode = self::normalizeCodeFromPZC(self::getStringOrNull($row, 'pzc'));
         $dto->indication = self::normalizeIndication(self::getStringOrNull($row, 'pzc_und_text'));
+        $dto->secondaryIndicationCode = self::normalizeCodeFromPZC(self::getStringOrNull($row, 'neben_pzc'));
+        $dto->secondaryIndication = self::getStringOrNull($row, 'neben_pzc_text');
 
         // Assessment
         $dto->assessmentAirway = self::normalizeAssessmentAirway(

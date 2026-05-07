@@ -190,6 +190,27 @@ final class AllocationRowDTOTest extends TestCase
         }
     }
 
+    public function testSecondaryIndicationFieldsOptional(): void
+    {
+        $dto = $this->makeValidDto();
+        $dto->secondaryIndicationCode = null;
+        $dto->secondaryIndication = null;
+
+        self::assertCount(0, $this->validator->validate($dto));
+    }
+
+    public function testSecondaryIndicationCodeOutOfRangeFails(): void
+    {
+        $dto = $this->makeValidDto();
+        $dto->secondaryIndicationCode = 50;
+        $dto->secondaryIndication = 'Some text';
+
+        $violations = $this->validator->validate($dto);
+        $paths = array_map(static fn (ConstraintViolationInterface $v): string => $v->getPropertyPath(), iterator_to_array($violations));
+
+        self::assertContains('secondaryIndicationCode', $paths);
+    }
+
     /**
      * @return iterable<array{0: string|null, 1: bool}>
      */

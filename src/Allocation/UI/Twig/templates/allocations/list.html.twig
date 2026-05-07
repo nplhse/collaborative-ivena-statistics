@@ -187,11 +187,24 @@
                             {{ allocation.dispatchArea }} - {{ allocation.state }}
                         </td>
                         <td>
-                            {% if allocation.indicationNormalizedName is not null %}
-                                <span class="badge">{{ allocation.indicationNormalizedCode }}</span> <strong>{{ allocation.indicationNormalizedName }}</strong>
-                            {% else %}
-                                <span class="badge">{{ allocation.indicationRawCode }}</span> {{ allocation.indicationRawName }}
-                            {% endif %}
+                            <div class="d-flex flex-column gap-1">
+                                <div>
+                                    {% if allocation.indicationNormalizedName is not null %}
+                                        <span class="badge">{{ allocation.indicationNormalizedCode }}</span> <strong>{{ allocation.indicationNormalizedName }}</strong>
+                                    {% else %}
+                                        <span class="badge">{{ allocation.indicationRawCode }}</span> {{ allocation.indicationRawName }}
+                                    {% endif %}
+                                </div>
+                                {% if allocation.secondaryIndicationRawName is not null %}
+                                    <div>
+                                        {% if allocation.secondaryIndicationNormalizedName is not null %}
+                                            <span class="badge">{{ allocation.secondaryIndicationNormalizedCode }}</span> <strong class="fst-italic">{{ allocation.secondaryIndicationNormalizedName }}</strong>
+                                        {% else %}
+                                            <span class="badge bg-gray-500 text-white">{{ allocation.secondaryIndicationRawCode }}</span> <span class="fst-italic">{{ allocation.secondaryIndicationRawName }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </td>
                         <td>
                             {% import '@Shared/_macros/badges.html.twig' as badges %}
