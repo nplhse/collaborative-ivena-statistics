@@ -13,6 +13,7 @@ use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\DTO\StatisticsFilterNotice;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\User\Domain\Entity\User;
 
 final readonly class StatisticsFilterFactory
@@ -21,6 +22,7 @@ final readonly class StatisticsFilterFactory
         private HospitalAccessInterface $hospitalAccess,
         private HospitalCohortResolver $hospitalCohortResolver,
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
+        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
     ) {
     }
 
@@ -31,6 +33,7 @@ final readonly class StatisticsFilterFactory
             $input->hospital,
             $input->cohort,
             $input->state,
+            $input->dispatchArea,
         );
         $explicitMyHospitalsInUrl = $input->hasScopeQueryParameter
             && StatisticsFilterScope::MyHospitals === StatisticsFilterScope::tryFrom($normalized['scope']);
@@ -46,6 +49,7 @@ final readonly class StatisticsFilterFactory
 
         $hospitalId = $this->parsePositiveInt($normalized['hospital']);
         $stateId = $this->parsePositiveInt($normalized['state']);
+        $dispatchAreaId = $this->parsePositiveInt($normalized['dispatch_area']);
         if (StatisticsFilterScope::Hospital === $scope && (null === $hospitalId || $hospitalId <= 0)) {
             $scope = StatisticsFilterScope::MyHospitals;
             $hospitalId = null;
@@ -62,6 +66,9 @@ final readonly class StatisticsFilterFactory
         if (StatisticsFilterScope::State !== $scope) {
             $stateId = null;
         }
+        if (StatisticsFilterScope::DispatchArea !== $scope) {
+            $dispatchAreaId = null;
+        }
 
         if (StatisticsFilterScope::HospitalCohort !== $scope) {
             $cohortType = null;
@@ -75,6 +82,20 @@ final readonly class StatisticsFilterFactory
                 $notice = StatisticsFilterNotice::CohortTooSmall;
                 $requiresPublicRedirect = true;
             }
+        }
+
+        if (StatisticsFilterScope::State === $scope && (null === $stateId || $this->projectionScopeQuery->countDistinctHospitalsForState($stateId) < 2)) {
+            $scope = StatisticsFilterScope::Public;
+            $stateId = null;
+            $notice = StatisticsFilterNotice::StateInvalid;
+            $requiresPublicRedirect = true;
+        }
+
+        if (StatisticsFilterScope::DispatchArea === $scope && (null === $dispatchAreaId || $this->projectionScopeQuery->countDistinctHospitalsForDispatchArea($dispatchAreaId) < 2)) {
+            $scope = StatisticsFilterScope::Public;
+            $dispatchAreaId = null;
+            $notice = StatisticsFilterNotice::DispatchAreaInvalid;
+            $requiresPublicRedirect = true;
         }
 
         $referenceYear = $this->parsePositiveInt($input->year);
@@ -107,13 +128,14 @@ final readonly class StatisticsFilterFactory
             $notice,
             $requiresPublicRedirect,
             $stateId,
+            $dispatchAreaId,
         );
     }
 
     /**
-     * @return array{scope: string, hospital: string, cohort: string, state: string}
+     * @return array{scope: string, hospital: string, cohort: string, state: string, dispatch_area: string}
      */
-    private function normalizeScopeInput(string $scopeRaw, string $hospitalRaw, string $cohortRaw, string $stateRaw): array
+    private function normalizeScopeInput(string $scopeRaw, string $hospitalRaw, string $cohortRaw, string $stateRaw, string $dispatchAreaRaw): array
     {
         if (!str_contains($scopeRaw, ':')) {
             return [
@@ -121,6 +143,7 @@ final readonly class StatisticsFilterFactory
                 'hospital' => $hospitalRaw,
                 'cohort' => $cohortRaw,
                 'state' => $stateRaw,
+                'dispatch_area' => $dispatchAreaRaw,
             ];
         }
 
@@ -133,6 +156,7 @@ final readonly class StatisticsFilterFactory
                 'hospital' => $hospitalRaw,
                 'cohort' => $cohortRaw,
                 'state' => $stateRaw,
+                'dispatch_area' => $dispatchAreaRaw,
             ];
         }
 
@@ -143,6 +167,7 @@ final readonly class StatisticsFilterFactory
                 'hospital' => $hospitalRaw,
                 'cohort' => $cohortRaw,
                 'state' => $stateRaw,
+                'dispatch_area' => $dispatchAreaRaw,
             ];
         }
 
@@ -156,12 +181,16 @@ final readonly class StatisticsFilterFactory
         if (StatisticsFilterScope::State === $scope && '' === $stateRaw) {
             $stateRaw = $operand;
         }
+        if (StatisticsFilterScope::DispatchArea === $scope && '' === $dispatchAreaRaw) {
+            $dispatchAreaRaw = $operand;
+        }
 
         return [
             'scope' => $scope->value,
             'hospital' => $hospitalRaw,
             'cohort' => $cohortRaw,
             'state' => $stateRaw,
+            'dispatch_area' => $dispatchAreaRaw,
         ];
     }
 

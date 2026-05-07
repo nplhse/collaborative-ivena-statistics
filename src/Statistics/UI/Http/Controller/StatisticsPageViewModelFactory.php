@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Cohort\HospitalCohortType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
@@ -25,6 +28,9 @@ final readonly class StatisticsPageViewModelFactory
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
         private TranslatorInterface $translator,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
+        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
+        private StateRepository $stateRepository,
+        private DispatchAreaRepository $dispatchAreaRepository,
     ) {
     }
 
@@ -33,6 +39,7 @@ final readonly class StatisticsPageViewModelFactory
         $now = new \DateTimeImmutable();
         $defaultYear = $filter->referenceYear ?? (int) $now->format('Y');
         $defaultMonth = $filter->referenceMonth ?? (int) $now->format('n');
+        $locale = $request->getLocale();
 
         $scopeUrls = [
             'public' => $this->statisticsNavigationUrlBuilder->build(
@@ -106,7 +113,7 @@ final readonly class StatisticsPageViewModelFactory
             }
             $cohortScopeChoices[] = [
                 'key' => $cohortType->value,
-                'label' => $this->translator->trans($cohortType->labelTranslationKey(), [], null, $request->getLocale()),
+                'label' => $this->translator->trans($cohortType->labelTranslationKey(), [], null, $locale),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
                     $routeName,
@@ -127,6 +134,42 @@ final readonly class StatisticsPageViewModelFactory
             }
         }
 
+        $eligibleStateRows = $this->eligibleStateRows();
+        $eligibleDispatchRows = $this->eligibleDispatchAreaRows();
+
+        $scopePrimaryMenu = $this->buildScopePrimaryMenu(
+            $request,
+            $routeName,
+            $filter,
+            $scopeUrls,
+            $eligibleStateRows,
+            $eligibleDispatchRows,
+            $cohortScopeChoices,
+            $user,
+            $accessibleHospitals,
+            $locale,
+        );
+
+        $scopeSecondaryMenu = $this->buildScopeSecondaryMenu(
+            $request,
+            $routeName,
+            $filter,
+            $scopeUrls,
+            $hospitalUrls,
+            $eligibleStateRows,
+            $eligibleDispatchRows,
+            $cohortScopeChoices,
+            $user,
+            $accessibleHospitals,
+        );
+
+        $myHospitalsDual = $user instanceof User && \count($accessibleHospitals) > 1
+            && (StatisticsFilterScope::MyHospitals === $filter->scope || StatisticsFilterScope::Hospital === $filter->scope);
+        $stateDual = StatisticsFilterScope::State === $filter->scope && [] !== $eligibleStateRows;
+        $dispatchDual = StatisticsFilterScope::DispatchArea === $filter->scope && [] !== $eligibleDispatchRows;
+        $cohortDual = StatisticsFilterScope::HospitalCohort === $filter->scope && [] !== $cohortScopeChoices;
+        $showScopeSecondaryPicker = $myHospitalsDual || $stateDual || $dispatchDual || $cohortDual;
+
         $hospitalDropdownSelectedName = null;
         if (StatisticsFilterScope::Hospital === $filter->scope && null !== $filter->hospitalId) {
             foreach ($accessibleHospitals as $row) {
@@ -141,7 +184,23 @@ final readonly class StatisticsPageViewModelFactory
             && [] === $accessibleHospitals
             && StatisticsFilterScope::MyHospitals === $filter->scope;
 
-        $locale = $request->getLocale();
+        [$scopePrimaryDropdownLabel, $scopeSecondaryDropdownLabel] = $this->scopeDropdownLabels(
+            $filter,
+            $accessibleHospitals,
+            $locale,
+            $showScopeSecondaryPicker,
+            $showUnscopedHint,
+            $hospitalDropdownSelectedName,
+        );
+
+        $stateDisplayName = null;
+        if (StatisticsFilterScope::State === $filter->scope && null !== $filter->stateId) {
+            $stateDisplayName = $this->stateRepository->findById($filter->stateId)?->getName();
+        }
+        $dispatchDisplayName = null;
+        if (StatisticsFilterScope::DispatchArea === $filter->scope && null !== $filter->dispatchAreaId) {
+            $dispatchDisplayName = $this->dispatchAreaRepository->findById($filter->dispatchAreaId)?->getName();
+        }
 
         return new StatisticsPageViewModel(
             $filter,
@@ -159,9 +218,308 @@ final readonly class StatisticsPageViewModelFactory
                 $locale,
                 $showUnscopedHint,
                 \count($accessibleHospitals),
+                $stateDisplayName,
+                $dispatchDisplayName,
             ),
             $this->statisticsHeadingPeriod($filter, $locale),
             $showUnscopedHint,
+            $scopePrimaryMenu,
+            $scopeSecondaryMenu,
+            $showScopeSecondaryPicker,
+            $scopePrimaryDropdownLabel,
+            $scopeSecondaryDropdownLabel,
+        );
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     */
+    private function eligibleStateRows(): array
+    {
+        $ids = $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(2);
+        $rows = [];
+        foreach ($ids as $stateId) {
+            $state = $this->stateRepository->findById($stateId);
+            $name = $state?->getName();
+            if (null === $name || '' === $name) {
+                continue;
+            }
+            $rows[] = ['id' => $stateId, 'name' => $name];
+        }
+        usort($rows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
+
+        return $rows;
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     */
+    private function eligibleDispatchAreaRows(): array
+    {
+        $ids = $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(2);
+        $rows = [];
+        foreach ($ids as $dispatchAreaId) {
+            $area = $this->dispatchAreaRepository->findById($dispatchAreaId);
+            $name = $area?->getName();
+            if (null === $name || '' === $name) {
+                continue;
+            }
+            $rows[] = ['id' => $dispatchAreaId, 'name' => $name];
+        }
+        usort($rows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
+
+        return $rows;
+    }
+
+    /**
+     * @param array<string, string>                                              $scopeUrls
+     * @param list<array{id: int, name: string}>                                 $eligibleStateRows
+     * @param list<array{id: int, name: string}>                                 $eligibleDispatchRows
+     * @param list<array{key: string, label: string, url: string, active: bool}> $cohortScopeChoices
+     * @param list<array{id: int, name: string}>                                 $accessibleHospitals
+     *
+     * @return list<array{key: string, label: string, url: string, active: bool}>
+     */
+    private function buildScopePrimaryMenu(
+        Request $request,
+        string $routeName,
+        StatisticsFilter $filter,
+        array $scopeUrls,
+        array $eligibleStateRows,
+        array $eligibleDispatchRows,
+        array $cohortScopeChoices,
+        ?User $user,
+        array $accessibleHospitals,
+        string $locale,
+    ): array {
+        $menu = [];
+        $menu[] = [
+            'key' => 'public',
+            'label' => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
+            'url' => $scopeUrls['public'],
+            'active' => StatisticsFilterScope::Public === $filter->scope,
+        ];
+
+        if ([] !== $eligibleStateRows) {
+            $first = $eligibleStateRows[0];
+            $menu[] = [
+                'key' => 'state_group',
+                'label' => $this->translator->trans('stats.filter.scope.state', [], null, $locale),
+                'url' => $this->buildStateScopeUrl($request, $routeName, $first['id']),
+                'active' => StatisticsFilterScope::State === $filter->scope,
+            ];
+        }
+
+        if ([] !== $eligibleDispatchRows) {
+            $first = $eligibleDispatchRows[0];
+            $menu[] = [
+                'key' => 'dispatch_area_group',
+                'label' => $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale),
+                'url' => $this->buildDispatchAreaScopeUrl($request, $routeName, $first['id']),
+                'active' => StatisticsFilterScope::DispatchArea === $filter->scope,
+            ];
+        }
+
+        if ([] !== $cohortScopeChoices) {
+            $first = $cohortScopeChoices[0];
+            $menu[] = [
+                'key' => 'cohort_group',
+                'label' => $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
+                'url' => $first['url'],
+                'active' => StatisticsFilterScope::HospitalCohort === $filter->scope,
+            ];
+        }
+
+        if ($user instanceof User && [] !== $accessibleHospitals) {
+            $menu[] = [
+                'key' => 'my_hospitals_group',
+                'label' => $this->translator->trans('stats.filter.scope.my_hospitals', [], null, $locale),
+                'url' => $scopeUrls['my_hospitals'],
+                'active' => StatisticsFilterScope::MyHospitals === $filter->scope
+                    || StatisticsFilterScope::Hospital === $filter->scope,
+            ];
+        }
+
+        return $menu;
+    }
+
+    /**
+     * @param array<string, string>                                              $scopeUrls
+     * @param list<array{id: int, name: string}>                                 $eligibleStateRows
+     * @param list<array{id: int, name: string}>                                 $eligibleDispatchRows
+     * @param list<array{key: string, label: string, url: string, active: bool}> $cohortScopeChoices
+     * @param array<string, string>                                              $hospitalUrls
+     * @param list<array{id: int, name: string}>                                 $accessibleHospitals
+     *
+     * @return list<array{label: string, url: string, active: bool}>
+     */
+    private function buildScopeSecondaryMenu(
+        Request $request,
+        string $routeName,
+        StatisticsFilter $filter,
+        array $scopeUrls,
+        array $hospitalUrls,
+        array $eligibleStateRows,
+        array $eligibleDispatchRows,
+        array $cohortScopeChoices,
+        ?User $user,
+        array $accessibleHospitals,
+    ): array {
+        if (StatisticsFilterScope::State === $filter->scope && [] !== $eligibleStateRows) {
+            $menu = [];
+            foreach ($eligibleStateRows as $row) {
+                $menu[] = [
+                    'label' => $row['name'],
+                    'url' => $this->buildStateScopeUrl($request, $routeName, $row['id']),
+                    'active' => null !== $filter->stateId && $filter->stateId === $row['id'],
+                ];
+            }
+
+            return $menu;
+        }
+
+        if (StatisticsFilterScope::DispatchArea === $filter->scope && [] !== $eligibleDispatchRows) {
+            $menu = [];
+            foreach ($eligibleDispatchRows as $row) {
+                $menu[] = [
+                    'label' => $row['name'],
+                    'url' => $this->buildDispatchAreaScopeUrl($request, $routeName, $row['id']),
+                    'active' => null !== $filter->dispatchAreaId && $filter->dispatchAreaId === $row['id'],
+                ];
+            }
+
+            return $menu;
+        }
+
+        if (StatisticsFilterScope::HospitalCohort === $filter->scope && [] !== $cohortScopeChoices) {
+            $menu = [];
+            foreach ($cohortScopeChoices as $c) {
+                $menu[] = [
+                    'label' => $c['label'],
+                    'url' => $c['url'],
+                    'active' => true === $c['active'],
+                ];
+            }
+
+            return $menu;
+        }
+
+        if ($user instanceof User
+            && \count($accessibleHospitals) > 1
+            && (StatisticsFilterScope::MyHospitals === $filter->scope || StatisticsFilterScope::Hospital === $filter->scope)
+        ) {
+            $menu = [[
+                'label' => $this->translator->trans('stats.filter.hospital.all_hospitals'),
+                'url' => $scopeUrls['my_hospitals'],
+                'active' => StatisticsFilterScope::MyHospitals === $filter->scope,
+            ]];
+            foreach ($accessibleHospitals as $row) {
+                $menu[] = [
+                    'label' => $row['name'],
+                    'url' => $hospitalUrls[(string) $row['id']] ?? $scopeUrls['my_hospitals'],
+                    'active' => StatisticsFilterScope::Hospital === $filter->scope && $filter->hospitalId === $row['id'],
+                ];
+            }
+
+            return $menu;
+        }
+
+        return [];
+    }
+
+    /**
+     * @param list<array{id: int, name: string}> $accessibleHospitals
+     *
+     * @return array{0: string, 1: ?string}
+     */
+    private function scopeDropdownLabels(
+        StatisticsFilter $filter,
+        array $accessibleHospitals,
+        string $locale,
+        bool $showScopeSecondaryPicker,
+        bool $showUnscopedHint,
+        ?string $hospitalDropdownSelectedName,
+    ): array {
+        if (!$showScopeSecondaryPicker) {
+            return [
+                $this->statisticsHeadingScope(
+                    $filter,
+                    $hospitalDropdownSelectedName,
+                    $locale,
+                    $showUnscopedHint,
+                    \count($accessibleHospitals),
+                    $this->stateNameForFilter($filter),
+                    $this->dispatchNameForFilter($filter),
+                ),
+                null,
+            ];
+        }
+
+        $primary = match ($filter->scope) {
+            StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
+            StatisticsFilterScope::State => $this->translator->trans('stats.filter.scope.state', [], null, $locale),
+            StatisticsFilterScope::DispatchArea => $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale),
+            StatisticsFilterScope::HospitalCohort => $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
+            StatisticsFilterScope::MyHospitals,
+            StatisticsFilterScope::Hospital => $this->translator->trans('stats.filter.scope.my_hospitals', [], null, $locale),
+        };
+
+        $secondary = match ($filter->scope) {
+            StatisticsFilterScope::State => $this->stateNameForFilter($filter)
+                ?? $this->translator->trans('stats.filter.scope.choose_region', [], null, $locale),
+            StatisticsFilterScope::DispatchArea => $this->dispatchNameForFilter($filter)
+                ?? $this->translator->trans('stats.filter.scope.choose_dispatch_area', [], null, $locale),
+            StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortType
+                ? $this->translator->trans($filter->cohortType->labelTranslationKey(), [], null, $locale)
+                : $this->translator->trans('stats.filter.scope.choose_cohort', [], null, $locale),
+            StatisticsFilterScope::MyHospitals => $this->translator->trans('stats.filter.hospital.all_hospitals', [], null, $locale),
+            StatisticsFilterScope::Hospital => $hospitalDropdownSelectedName
+                ?? $this->translator->trans('stats.filter.hospital.choose', [], null, $locale),
+            default => null,
+        };
+
+        return [$primary, $secondary];
+    }
+
+    private function stateNameForFilter(StatisticsFilter $filter): ?string
+    {
+        if (StatisticsFilterScope::State !== $filter->scope || null === $filter->stateId) {
+            return null;
+        }
+
+        return $this->stateRepository->findById($filter->stateId)?->getName();
+    }
+
+    private function dispatchNameForFilter(StatisticsFilter $filter): ?string
+    {
+        if (StatisticsFilterScope::DispatchArea !== $filter->scope || null === $filter->dispatchAreaId) {
+            return null;
+        }
+
+        return $this->dispatchAreaRepository->findById($filter->dispatchAreaId)?->getName();
+    }
+
+    private function buildStateScopeUrl(Request $request, string $routeName, int $stateId): string
+    {
+        return $this->statisticsNavigationUrlBuilder->build(
+            $request,
+            $routeName,
+            [
+                StatisticsQueryKeys::SCOPE => StatisticsFilterScope::State->value.':'.$stateId,
+            ],
+            StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT,
+        );
+    }
+
+    private function buildDispatchAreaScopeUrl(Request $request, string $routeName, int $dispatchAreaId): string
+    {
+        return $this->statisticsNavigationUrlBuilder->build(
+            $request,
+            $routeName,
+            [
+                StatisticsQueryKeys::SCOPE => StatisticsFilterScope::DispatchArea->value.':'.$dispatchAreaId,
+            ],
+            StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT,
         );
     }
 
@@ -171,6 +529,8 @@ final readonly class StatisticsPageViewModelFactory
         string $locale,
         bool $loggedInUserHasNoAccessibleHospitals,
         int $accessibleHospitalCount,
+        ?string $stateDisplayName,
+        ?string $dispatchDisplayName,
     ): string {
         if (StatisticsFilterScope::MyHospitals === $filter->scope && $loggedInUserHasNoAccessibleHospitals) {
             return $this->translator->trans('stats.filter.scope.public', [], null, $locale);
@@ -189,7 +549,12 @@ final readonly class StatisticsPageViewModelFactory
             StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortType
                 ? $this->translator->trans($filter->cohortType->labelTranslationKey(), [], null, $locale)
                 : $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
-            StatisticsFilterScope::State => $this->translator->trans('scope.state', [], null, $locale),
+            StatisticsFilterScope::State => (null !== $stateDisplayName && '' !== $stateDisplayName)
+                ? $stateDisplayName
+                : $this->translator->trans('stats.filter.scope.state', [], null, $locale),
+            StatisticsFilterScope::DispatchArea => (null !== $dispatchDisplayName && '' !== $dispatchDisplayName)
+                ? $dispatchDisplayName
+                : $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale),
         };
     }
 

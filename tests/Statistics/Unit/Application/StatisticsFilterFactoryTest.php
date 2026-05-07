@@ -21,6 +21,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
                 '',
                 'unknown_cohort',
                 '',
+                '',
                 'all',
                 null,
                 null,
@@ -45,6 +46,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
                 '',
                 '',
                 '',
+                '',
                 'all',
                 null,
                 null,
@@ -66,6 +68,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
         $filter = $factory->createFromInput(
             new StatisticsFilterInput(
                 'hospital:12',
+                '',
                 '',
                 '',
                 '',

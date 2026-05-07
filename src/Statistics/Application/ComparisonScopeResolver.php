@@ -44,6 +44,17 @@ final readonly class ComparisonScopeResolver
         $hospitalIds = match ($primaryFilter->scope) {
             StatisticsFilterScope::Hospital => null !== $primaryFilter->hospitalId ? [$primaryFilter->hospitalId] : [],
             StatisticsFilterScope::MyHospitals => $this->accessibleHospitalIds($user),
+            StatisticsFilterScope::State => null !== $primaryFilter->stateId
+                ? $this->projectionScopeQuery->distinctHospitalIdsForState($primaryFilter->stateId)
+                : [],
+            StatisticsFilterScope::DispatchArea => null !== $primaryFilter->dispatchAreaId
+                ? $this->projectionScopeQuery->distinctHospitalIdsForDispatchArea($primaryFilter->dispatchAreaId)
+                : [],
+            StatisticsFilterScope::HospitalCohort => $primaryFilter->cohortType instanceof HospitalCohortType
+                ? $this->projectionScopeQuery->distinctHospitalIdsForCohort(
+                    $this->hospitalCohortResolver->resolve($primaryFilter->cohortType),
+                )
+                : [],
             default => [],
         };
 

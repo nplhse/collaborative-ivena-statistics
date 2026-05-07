@@ -2103,6 +2103,34 @@
         <source>stats.filter.scope.hospital_cohorts</source>
         <target>Hospital cohorts</target>
       </trans-unit>
+      <trans-unit id="statsFlt03d" resname="stats.filter.scope.state">
+        <source>stats.filter.scope.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03e" resname="stats.filter.scope.dispatch_area">
+        <source>stats.filter.scope.dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03f" resname="stats.filter.scope.choose_region">
+        <source>stats.filter.scope.choose_region</source>
+        <target>Select a state</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03g" resname="stats.filter.scope.choose_dispatch_area">
+        <source>stats.filter.scope.choose_dispatch_area</source>
+        <target>Select a dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsFlt03h" resname="stats.filter.scope.choose_cohort">
+        <source>stats.filter.scope.choose_cohort</source>
+        <target>Select a cohort</target>
+      </trans-unit>
+      <trans-unit id="statsFlt13b" resname="stats.filter.scope.state_invalid">
+        <source>stats.filter.scope.state_invalid</source>
+        <target>The selected state does not have enough hospitals in the statistics data. Showing public statistics instead.</target>
+      </trans-unit>
+      <trans-unit id="statsFlt13c" resname="stats.filter.scope.dispatch_area_invalid">
+        <source>stats.filter.scope.dispatch_area_invalid</source>
+        <target>The selected dispatch area does not have enough hospitals in the statistics data. Showing public statistics instead.</target>
+      </trans-unit>
       <trans-unit id="statsCohort01" resname="stats.filter.cohort.urban_basic">
         <source>stats.filter.cohort.urban_basic</source>
         <target>Urban Basic</target>

@@ -86,6 +86,30 @@ class DashboardControllerTest extends WebTestCase
         $this->assertStringNotContainsString('cohort=', $location);
     }
 
+    public function testStateScopeWithoutStateIdRedirectsToPublic(): void
+    {
+        $client = static::createClient();
+        $client->followRedirects(false);
+
+        $client->request(Request::METHOD_GET, '/statistics/?scope=state&period=all');
+
+        $this->assertResponseStatusCodeSame(302);
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('scope=public', $location);
+    }
+
+    public function testUnknownStateIdRedirectsToPublic(): void
+    {
+        $client = static::createClient();
+        $client->followRedirects(false);
+
+        $client->request(Request::METHOD_GET, '/statistics/?scope=state&state=999999&period=all');
+
+        $this->assertResponseStatusCodeSame(302);
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('scope=public', $location);
+    }
+
     public function testScopeSidebarShowsHospitalCohortGroup(): void
     {
         $client = static::createClient();

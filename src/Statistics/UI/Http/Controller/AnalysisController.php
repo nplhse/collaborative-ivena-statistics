@@ -60,14 +60,19 @@ final class AnalysisController extends AbstractController
         }
         $analysisRequest = $this->analysisRequestModelFactory->fromRequest($request);
         $comparisonFilter = $this->comparisonScopeResolver->resolve($request, $user, $filter);
-        if (
-            !$request->query->has(StatisticsQueryKeys::COMPARISON_SCOPE)
-            && $comparisonFilter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortType
-        ) {
+        if (!$request->query->has(StatisticsQueryKeys::COMPARISON_SCOPE)) {
             $query = $request->query->all();
-            $query[StatisticsQueryKeys::COMPARISON_SCOPE] = StatisticsFilterScope::HospitalCohort->value.':'.$comparisonFilter->cohortType->value;
-
-            return $this->redirectToRoute('app_stats_analysis', $query);
+            if ($comparisonFilter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortType
+                && StatisticsFilterScope::HospitalCohort === $comparisonFilter->scope) {
+                $query[StatisticsQueryKeys::COMPARISON_SCOPE] = StatisticsFilterScope::HospitalCohort->value.':'.$comparisonFilter->cohortType->value;
+            } elseif (StatisticsFilterScope::State === $comparisonFilter->scope && null !== $comparisonFilter->stateId) {
+                $query[StatisticsQueryKeys::COMPARISON_SCOPE] = 'state:'.$comparisonFilter->stateId;
+            } elseif (StatisticsFilterScope::DispatchArea === $comparisonFilter->scope && null !== $comparisonFilter->dispatchAreaId) {
+                $query[StatisticsQueryKeys::COMPARISON_SCOPE] = StatisticsFilterScope::DispatchArea->value.':'.$comparisonFilter->dispatchAreaId;
+            }
+            if (isset($query[StatisticsQueryKeys::COMPARISON_SCOPE])) {
+                return $this->redirectToRoute('app_stats_analysis', $query);
+            }
         }
         if (
             'allocations_comparison_over_time' === $analysisRequest->analysisKey
@@ -122,6 +127,11 @@ final class AnalysisController extends AbstractController
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,
             'cohortScopeChoices' => $pageViewModel->cohortScopeChoices,
             'statsCohortDropdownSelectedName' => $pageViewModel->cohortDropdownSelectedName,
+            'statsScopePrimaryMenu' => $pageViewModel->scopePrimaryMenu,
+            'statsScopeSecondaryMenu' => $pageViewModel->scopeSecondaryMenu,
+            'statsShowScopeSecondaryPicker' => $pageViewModel->showScopeSecondaryPicker,
+            'statsScopePrimaryDropdownLabel' => $pageViewModel->scopePrimaryDropdownLabel,
+            'statsScopeSecondaryDropdownLabel' => $pageViewModel->scopeSecondaryDropdownLabel,
             'statsPeriodUrls' => $pageViewModel->periodUrls,
             'accessibleHospitals' => $pageViewModel->accessibleHospitals,
             'statsHospitalDropdownSelectedName' => $pageViewModel->hospitalDropdownSelectedName,

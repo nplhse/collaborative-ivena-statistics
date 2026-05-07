@@ -11,6 +11,7 @@ final readonly class StatisticsFilterInput
         public string $hospital,
         public string $cohort,
         public string $state,
+        public string $dispatchArea,
         public string $period,
         public mixed $year,
         public mixed $month,

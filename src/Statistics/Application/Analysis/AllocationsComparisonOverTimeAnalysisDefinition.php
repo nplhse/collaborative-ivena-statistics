@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Analysis;
 
+use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Application\AllocationsByMonthQuery;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
@@ -27,6 +28,7 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
         private TranslatorInterface $translator,
         private StateRepository $stateRepository,
+        private DispatchAreaRepository $dispatchAreaRepository,
     ) {
     }
 
@@ -222,16 +224,27 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
                 ? $this->translator->trans($filter->cohortType->labelTranslationKey())
                 : $this->translator->trans('stats.filter.scope.hospital_cohort'),
             \App\Statistics\Application\DTO\StatisticsFilterScope::State => $this->stateLabel($filter->stateId),
+            \App\Statistics\Application\DTO\StatisticsFilterScope::DispatchArea => $this->dispatchAreaLabel($filter->dispatchAreaId),
         };
     }
 
     private function stateLabel(?int $stateId): string
     {
         if (null === $stateId) {
-            return $this->translator->trans('scope.state');
+            return $this->translator->trans('stats.filter.scope.state');
         }
         $state = $this->stateRepository->findById($stateId);
 
         return $state?->getName() ?? sprintf('State %d', $stateId);
+    }
+
+    private function dispatchAreaLabel(?int $dispatchAreaId): string
+    {
+        if (null === $dispatchAreaId) {
+            return $this->translator->trans('stats.filter.scope.dispatch_area');
+        }
+        $area = $this->dispatchAreaRepository->findById($dispatchAreaId);
+
+        return $area?->getName() ?? sprintf('Dispatch area %d', $dispatchAreaId);
     }
 }

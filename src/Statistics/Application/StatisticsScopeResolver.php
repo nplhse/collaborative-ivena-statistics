@@ -50,6 +50,12 @@ final readonly class StatisticsScopeResolver
             return new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
         }
 
+        if (StatisticsFilterScope::DispatchArea === $filter->scope && null !== $filter->dispatchAreaId) {
+            $hospitalIds = $this->projectionScopeQuery->distinctHospitalIdsForDispatchArea($filter->dispatchAreaId);
+
+            return new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
+        }
+
         if (StatisticsFilterScope::HospitalCohort === $filter->scope && $filter->cohortType instanceof Cohort\HospitalCohortType) {
             $cohort = $this->hospitalCohortResolver->resolve($filter->cohortType);
             $hospitalIds = $this->projectionScopeQuery->distinctHospitalIdsForCohort($cohort);

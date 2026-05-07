@@ -11,4 +11,5 @@ enum StatisticsFilterScope: string
     case Hospital = 'hospital';
     case HospitalCohort = 'hospital_cohort';
     case State = 'state';
+    case DispatchArea = 'dispatch_area';
 }
