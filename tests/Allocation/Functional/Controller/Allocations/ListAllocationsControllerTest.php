@@ -19,6 +19,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -28,52 +29,113 @@ class ListAllocationsControllerTest extends WebTestCase
     use ResetDatabase;
     use Factories;
 
-    public function testTableWithResultsIsShown(): void
+    public function testFirstPageAndNextCursorWork(): void
     {
-        // Arrange
         $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
-        StateFactory::createOne(['name' => 'Hessen']);
-        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
-        HospitalFactory::createOne(['name' => 'Test Hospital']);
-        ImportFactory::createOne(['name' => 'Test Import']);
-        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
-        DepartmentFactory::createOne(['name' => 'Kardiologie']);
-        AssignmentFactory::createOne(['name' => 'Test Assignment']);
-        OccasionFactory::createOne(['name' => 'Test Occasion']);
-        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
-        InfectionFactory::createOne(['name' => 'Test Infection']);
-        IndicationRawFactory::createOne(['name' => 'Test Indication']);
-        IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
-        AllocationFactory::createMany(25);
+        $this->seedDependencies();
+        $base = new \DateTimeImmutable('2026-01-01 12:00:00');
+        AllocationFactory::createMany(5, static fn (): array => [
+            'createdAt' => $base->sub(new \DateInterval('PT5M')),
+            'arrivalAt' => $base,
+        ]);
 
-        // Act
-        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation');
-
-        // Assert
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?limit=2&sortBy=arrivalAt&orderBy=desc');
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Listing Allocations');
-        self::assertSelectorTextContains('h2', 'Listing Allocations');
-
-        // Check for the table structure
-        self::assertSelectorExists('table.table tbody');
-        self::assertSelectorTextContains('table.table thead th:nth-child(2)', 'Age');
-        self::assertSelectorTextContains('table.table thead th:nth-child(3)', 'Hospital');
-
-        // Check for table contents
         $rows = $crawler->filter('table.table tbody tr');
-        self::assertCount(25, $rows, 'We should see 25 rows of results.');
-        self::assertSelectorTextContains('#result-count', 'Showing 1-25 of 25 results.');
+        self::assertCount(2, $rows);
+        self::assertSelectorExists('ul.pagination a.page-link');
 
-        $nameRowText = $rows->eq(0)->filter('td')->eq(0)->text();
-        self::assertNotEmpty($nameRowText);
+        $firstPageIds = $this->extractAllocationIds($crawler);
+        self::assertCount(2, $firstPageIds);
+
+        $nextHref = $this->findNextPageHref($crawler);
+        self::assertNotNull($nextHref);
+        $crawlerPage2 = $client->request(Request::METHOD_GET, $nextHref);
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, $crawlerPage2->filter('table.table tbody tr'));
+
+        $secondPageIds = $this->extractAllocationIds($crawlerPage2);
+        self::assertCount(0, array_intersect($firstPageIds, $secondPageIds));
     }
 
-    public function testTableCanBePaginated(): void
+    public function testStableTieBreakerWithSameArrivalAtAvoidsDuplicates(): void
     {
-        // Arrange
         $client = static::createClient();
+        $this->seedDependencies();
+        $arrival = new \DateTimeImmutable('2026-02-01 10:00:00');
 
+        AllocationFactory::createMany(3, static fn (): array => [
+            'createdAt' => $arrival->sub(new \DateInterval('PT10M')),
+            'arrivalAt' => $arrival,
+            'age' => 40,
+        ]);
+        AllocationFactory::createOne([
+            'createdAt' => $arrival->sub(new \DateInterval('PT20M')),
+            'arrivalAt' => $arrival->sub(new \DateInterval('PT1H')),
+            'age' => 41,
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?limit=2&sortBy=arrivalAt&orderBy=desc');
+        self::assertResponseIsSuccessful();
+        $firstIds = $this->extractAllocationIds($crawler);
+        self::assertCount(2, $firstIds);
+
+        $nextHref = $this->findNextPageHref($crawler);
+        self::assertNotNull($nextHref);
+        $crawlerPage2 = $client->request(Request::METHOD_GET, $nextHref);
+        self::assertResponseIsSuccessful();
+        $secondIds = $this->extractAllocationIds($crawlerPage2);
+        self::assertCount(2, $secondIds);
+
+        $combined = array_merge($firstIds, $secondIds);
+        self::assertCount(\count(array_unique($combined)), $combined);
+    }
+
+    public function testInvalidCursorFallsBackToFirstPage(): void
+    {
+        $client = static::createClient();
+        $this->seedDependencies();
+        AllocationFactory::createMany(4);
+
+        $firstPage = $client->request(Request::METHOD_GET, '/explore/allocation?limit=2&sortBy=arrivalAt&orderBy=desc');
+        $firstIds = $this->extractAllocationIds($firstPage);
+
+        $invalidCursorPage = $client->request(Request::METHOD_GET, '/explore/allocation?limit=2&sortBy=arrivalAt&orderBy=desc&cursor=not-a-valid-cursor');
+        self::assertResponseIsSuccessful();
+        $invalidIds = $this->extractAllocationIds($invalidCursorPage);
+
+        self::assertSame($firstIds, $invalidIds);
+    }
+
+    public function testLimitPlusOneBehaviourAndFilterPersistence(): void
+    {
+        $client = static::createClient();
+        $this->seedDependencies();
+        $importOne = ImportFactory::createOne(['name' => 'Filtered Import']);
+        $importTwo = ImportFactory::createOne(['name' => 'Other Import']);
+
+        AllocationFactory::createMany(3, ['import' => $importOne]);
+        AllocationFactory::createMany(2, ['import' => $importTwo]);
+
+        $firstPage = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?limit=2&sortBy=arrivalAt&orderBy=desc&importId=%d', $importOne->getId())
+        );
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('ul.pagination a.page-link');
+
+        $nextHref = $this->findNextPageHref($firstPage);
+        self::assertNotNull($nextHref);
+        self::assertStringContainsString(sprintf('importId=%d', $importOne->getId()), $nextHref);
+
+        $secondPage = $client->request(Request::METHOD_GET, $nextHref);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $secondPage->filter('table.table tbody tr'));
+        self::assertSelectorExists('ul.pagination li.page-item.disabled');
+    }
+
+    private function seedDependencies(): void
+    {
         UserFactory::createOne(['username' => 'area-user']);
         StateFactory::createOne(['name' => 'Hessen']);
         DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
@@ -87,16 +149,40 @@ class ListAllocationsControllerTest extends WebTestCase
         InfectionFactory::createOne(['name' => 'Test Infection']);
         IndicationRawFactory::createOne(['name' => 'Test Indication']);
         IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
-        AllocationFactory::createMany(30);
+    }
 
-        // Act
-        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?page=2&limit=25');
+    /**
+     * @return list<int>
+     */
+    private function extractAllocationIds(Crawler $crawler): array
+    {
+        $ids = [];
+        foreach ($crawler->filter('td .btn-actions a') as $node) {
+            if (!$node instanceof \DOMElement) {
+                continue;
+            }
+            $href = $node->getAttribute('href');
+            if (preg_match('/\/explore\/allocation\/(\d+)$/', $href, $matches)) {
+                $ids[] = (int) $matches[1];
+            }
+        }
 
-        // Assert
-        self::assertResponseIsSuccessful();
+        return $ids;
+    }
 
-        $rows = $crawler->filter('table.table tbody tr');
-        self::assertCount(5, $rows, 'We should see 5 rows of results.');
-        self::assertSelectorTextContains('#result-count', 'Showing 26-30 of 30 results.');
+    private function findNextPageHref(Crawler $crawler): ?string
+    {
+        $links = $crawler->filter('ul.pagination a.page-link');
+        foreach ($links as $link) {
+            if (!$link instanceof \DOMElement) {
+                continue;
+            }
+            $text = trim($link->textContent);
+            if (str_contains($text, 'Next') || str_contains($text, 'Weiter')) {
+                return $link->getAttribute('href');
+            }
+        }
+
+        return null;
     }
 }

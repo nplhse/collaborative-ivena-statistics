@@ -31,7 +31,16 @@
                         {% block page_subtitle %}
                             {% block result_count %}
                                 <div id="result-count" class="text-body-secondary mt-1">
-                                    {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber|number_format(0, ',', '.'), last: paginator.lastResultNumber|number_format(0, ',', '.'), total: paginator.numResults|number_format(0, ',', '.')}) }}
+                                    {% if paginator.estimatedNumResults %}
+                                        {% set estimatedResults = paginator.estimatedNumResults %}
+                                        {% set estimatedPages = paginator.estimatedLastPage %}
+                                        Showing approx. {{ estimatedResults|number_format(0, ',', '.') }}
+                                        {{ estimatedResults == 1 ? 'result' : 'results' }}
+                                        across {{ estimatedPages|number_format(0, ',', '.') }}
+                                        {{ estimatedPages == 1 ? 'page' : 'pages' }}.
+                                    {% else %}
+                                        Showing results.
+                                    {% endif %}
                                 </div>
                             {% endblock %}
                         {% endblock %}
@@ -125,6 +134,7 @@
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
+            paginationTemplate="@Allocation/allocations/_cursor_pagination_footer.html.twig"
         >
             {% import '@Shared/_macros/pagination.html.twig' as pagination %}
 
@@ -134,6 +144,7 @@
                     <th class="col-2">
                         <a class="text-muted" href="{{ path('app_explore_allocation_list', {
                             ...app.request.query.all(),
+                            cursor: null,
                             sortBy: 'arrivalAt',
                             orderBy: sortBy == 'arrivalAt' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
@@ -143,6 +154,7 @@
                     <th class="col-1">
                         <a class="text-muted" href="{{ path('app_explore_allocation_list', {
                             ...app.request.query.all(),
+                            cursor: null,
                             sortBy: 'age',
                             orderBy: sortBy == 'age' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">

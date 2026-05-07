@@ -15,6 +15,9 @@ final readonly class AllocationQueryParametersDTO
         #[Assert\Range(min: 1, max: 100)]
         public int $limit = 50,
 
+        #[Assert\Length(max: 2048)]
+        public ?string $cursor = null,
+
         #[Assert\Choice(choices: ['asc', 'desc'])]
         public string $orderBy = 'desc',
 

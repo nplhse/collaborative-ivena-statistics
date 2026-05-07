@@ -31,6 +31,7 @@
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
                 <file name="src/Shared/Infrastructure/Pagination/Paginator.php" />
+                <file name="src/Shared/Infrastructure/Pagination/CursorPaginator.php" />
                 <directory name="src/*/Application/Contracts/" />
                 <directory name="src/*/Application/DTO/" />
                 <directory name="src/*/Application/Exception/" />

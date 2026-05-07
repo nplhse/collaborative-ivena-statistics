@@ -17,17 +17,21 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Shared\Infrastructure\Pagination\CursorCodec;
+use App\Shared\Infrastructure\Pagination\CursorPaginator;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class ListAllocationsQuery
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private CursorCodec $cursorCodec,
     ) {
     }
 
-    public function getPaginator(AllocationQueryParametersDTO $queryParametersDTO): Paginator
+    public function getPaginator(AllocationQueryParametersDTO $queryParametersDTO): CursorPaginator
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('a.id, a.createdAt, a.arrivalAt, s.id as state_id, s.name as state, da.id as dispatchArea_id, da.name as dispatchArea,
@@ -159,8 +163,165 @@ final readonly class ListAllocationsQuery
                 ->setParameter('secondaryTransportId', $queryParametersDTO->secondaryTransport);
         }
 
-        $qb->orderBy($field, $queryParametersDTO->orderBy);
+        $estimatedNumResults = $this->estimateNumResults($qb);
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        $cursorPayload = null;
+        if (null !== $queryParametersDTO->cursor) {
+            try {
+                $decodedCursor = $this->cursorCodec->decode($queryParametersDTO->cursor);
+                if (
+                    $decodedCursor['sortBy'] === $queryParametersDTO->sortBy
+                    && $decodedCursor['orderBy'] === $queryParametersDTO->orderBy
+                ) {
+                    $cursorPayload = $decodedCursor;
+                }
+            } catch (\InvalidArgumentException) {
+                $cursorPayload = null;
+            }
+        }
+
+        if (null !== $cursorPayload) {
+            $sortValue = 'age' === $queryParametersDTO->sortBy
+                ? (int) $cursorPayload['sortValue']
+                : new \DateTimeImmutable((string) $cursorPayload['sortValue']);
+
+            $isDescending = 'desc' === $queryParametersDTO->orderBy;
+            $mainComparison = $isDescending
+                ? $qb->expr()->lt($field, ':cursorSortValue')
+                : $qb->expr()->gt($field, ':cursorSortValue');
+
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    $mainComparison,
+                    $qb->expr()->andX(
+                        $qb->expr()->eq($field, ':cursorSortValue'),
+                        $isDescending
+                            ? $qb->expr()->lt('a.id', ':cursorId')
+                            : $qb->expr()->gt('a.id', ':cursorId')
+                    )
+                )
+            )
+                ->setParameter(
+                    'cursorSortValue',
+                    $sortValue,
+                    'age' === $queryParametersDTO->sortBy ? ParameterType::INTEGER : Types::DATETIME_IMMUTABLE
+                )
+                ->setParameter('cursorId', $cursorPayload['id'], ParameterType::INTEGER);
+        }
+
+        $qb
+            ->orderBy($field, $queryParametersDTO->orderBy)
+            ->addOrderBy('a.id', $queryParametersDTO->orderBy)
+            ->setMaxResults($queryParametersDTO->limit + 1);
+
+        /** @var list<array<string, mixed>> $results */
+        $results = $qb->getQuery()->getArrayResult();
+        $hasNextPage = \count($results) > $queryParametersDTO->limit;
+        $visibleResults = \array_slice($results, 0, $queryParametersDTO->limit);
+
+        $nextCursor = null;
+        if ($hasNextPage && [] !== $visibleResults) {
+            $lastItem = $visibleResults[\array_key_last($visibleResults)];
+            $sortValue = 'age' === $queryParametersDTO->sortBy
+                ? (int) $lastItem['age']
+                : $this->formatDateTimeValue($lastItem['arrivalAt']);
+
+            $nextCursor = $this->cursorCodec->encode(
+                $queryParametersDTO->sortBy,
+                $queryParametersDTO->orderBy,
+                $sortValue,
+                (int) $lastItem['id'],
+            );
+        }
+
+        return new CursorPaginator(
+            $visibleResults,
+            $queryParametersDTO->limit,
+            $nextCursor,
+            null,
+            $estimatedNumResults,
+        );
+    }
+
+    private function formatDateTimeValue(mixed $value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
+        }
+
+        return (string) $value;
+    }
+
+    private function estimateNumResults(\Doctrine\ORM\QueryBuilder $qb): ?int
+    {
+        $estimateQb = clone $qb;
+        $estimateQb
+            ->resetDQLPart('orderBy')
+            ->select('a.id');
+
+        $query = $estimateQb->getQuery();
+        $rawSql = $query->getSQL();
+        $explainSql = \is_array($rawSql) ? implode(' ', $rawSql) : $rawSql;
+        $connection = $this->entityManager->getConnection();
+
+        try {
+            foreach ($query->getParameters() as $parameter) {
+                $quoted = $this->quoteForExplain($parameter->getValue());
+                $explainSql = preg_replace('/\?/', $quoted, $explainSql, 1) ?? $explainSql;
+            }
+
+            $rows = $connection
+                ->executeQuery('EXPLAIN '.$explainSql)
+                ->fetchAllAssociative();
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $this->extractEstimatedRows($rows);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     */
+    private function extractEstimatedRows(array $rows): ?int
+    {
+        foreach ($rows as $row) {
+            if (isset($row['rows']) && \is_numeric($row['rows'])) {
+                return (int) $row['rows'];
+            }
+
+            if (isset($row['QUERY PLAN']) && \is_string($row['QUERY PLAN']) && 1 === preg_match('/rows=(\d+)/', $row['QUERY PLAN'], $matches)) {
+                return (int) $matches[1];
+            }
+        }
+
+        return null;
+    }
+
+    private function quoteForExplain(mixed $value): string
+    {
+        if ($value instanceof \BackedEnum) {
+            return $this->quoteForExplain($value->value);
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return "'".$value->format('Y-m-d H:i:s')."'";
+        }
+
+        if (\is_int($value) || \is_float($value)) {
+            return (string) $value;
+        }
+
+        if (\is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (null === $value) {
+            return 'NULL';
+        }
+
+        $escaped = str_replace("'", "''", (string) $value);
+
+        return "'".$escaped."'";
     }
 }

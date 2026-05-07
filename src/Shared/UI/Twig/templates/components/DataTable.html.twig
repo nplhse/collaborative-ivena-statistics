@@ -21,8 +21,12 @@
             {% block content %}{% endblock %}
         </div>
 
-        {% if paginator is not null %}
-            {{ include('@Shared/_includes/card_pagination_footer.html.twig') }}
+        {% if paginator is not null and showPaginationFooter %}
+            {% if paginationTemplate %}
+                {{ include(paginationTemplate) }}
+            {% else %}
+                {{ include('@Shared/_includes/card_pagination_footer.html.twig') }}
+            {% endif %}
         {% endif %}
     </div>
 </div>
