@@ -50,7 +50,7 @@ final readonly class ComparisonScopeResolver
             $comparisonQuery['state'] = (string) $comparisonStateId;
         } else {
             $comparisonQuery['scope'] = StatisticsFilterScope::HospitalCohort->value;
-            $comparisonQuery['cohort'] = $comparisonCohort ?? HospitalCohortType::cases()[0]->value;
+            $comparisonQuery['cohort'] = $comparisonCohort;
         }
         if ((StatisticsFilterPeriod::Year === $comparisonPeriod || StatisticsFilterPeriod::Month === $comparisonPeriod) && (null !== $comparisonYear && $comparisonYear > 0)) {
             $comparisonQuery['year'] = (string) $comparisonYear;

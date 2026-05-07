@@ -65,7 +65,6 @@ final class AppFixtures extends Fixture
 
         IndicationRawFactory::createMany(25);
         IndicationNormalizedFactory::createMany(20);
-
         $faker = \Faker\Factory::create();
         AllocationFactory::createMany(random_int(250, 500), static function (int $_) use ($faker): array {
             $createdAt = \DateTimeImmutable::createFromMutable(

@@ -101,6 +101,7 @@ final class AllocationOrmTest extends KernelTestCase
             ->setIsVentilated(true)
             ->setIsShock(false)
             ->setIsPregnant(false)
+            ->setIsWorkAccident(true)
             ->setIsWithPhysician(true)
             ->setTransportType(AllocationTransportType::GROUND)
             ->setUrgency(AllocationUrgency::EMERGENCY)
@@ -139,6 +140,7 @@ final class AllocationOrmTest extends KernelTestCase
         self::assertTrue($object->isVentilated());
         self::assertFalse($object->isShock());
         self::assertFalse($object->isPregnant());
+        self::assertTrue($object->isWorkAccident());
         self::assertTrue($object->isWithPhysician());
         self::assertSame(AllocationUrgency::EMERGENCY, $object->getUrgency());
         self::assertFalse($object->isDepartmentWasClosed());
@@ -211,6 +213,7 @@ final class AllocationOrmTest extends KernelTestCase
             ->setIsVentilated(false)
             ->setIsShock(false)
             ->setIsPregnant(false)
+            ->setIsWorkAccident(false)
             ->setIsWithPhysician(false)
             ->setTransportType(null)
             ->setUrgency(AllocationUrgency::EMERGENCY)

@@ -221,6 +221,9 @@
                                 {% if allocation.isPregnant %}
                                     {{ 'label.pregnant'|trans }}
                                 {% endif %}
+                                {% if allocation.isWorkAccident %}
+                                    {{ 'BG+'|trans }}
+                                {% endif %}
                             </span>
                         </td>
                         <td>

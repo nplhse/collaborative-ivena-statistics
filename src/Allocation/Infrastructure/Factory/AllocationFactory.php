@@ -45,6 +45,7 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'isShock' => self::faker()->boolean(),
             'isVentilated' => self::faker()->boolean(),
             'isWithPhysician' => self::faker()->boolean(13),
+            'isWorkAccident' => self::faker()->boolean(8),
             'requiresCathlab' => self::faker()->boolean(1),
             'requiresResus' => self::faker()->boolean(5),
             'transportType' => self::faker()->randomElement(AllocationTransportType::cases()),

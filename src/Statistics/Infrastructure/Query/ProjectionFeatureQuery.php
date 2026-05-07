@@ -10,7 +10,7 @@ use Doctrine\ORM\QueryBuilder;
 
 final class ProjectionFeatureQuery
 {
-    private ?bool $hasShockPregnantColumns = null;
+    private ?bool $hasExtendedClinicalFeatureColumns = null;
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -21,13 +21,14 @@ final class ProjectionFeatureQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int}
+     * @return array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int}
      */
     public function clinicalFeatureCounts(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        $hasShockPregnant = $this->hasShockPregnantColumns();
-        $shockExpr = $hasShockPregnant ? 'SUM(CASE WHEN p.isShock = true THEN 1 ELSE 0 END) AS shock' : '0 AS shock';
-        $pregnantExpr = $hasShockPregnant ? 'SUM(CASE WHEN p.isPregnant = true THEN 1 ELSE 0 END) AS pregnant' : '0 AS pregnant';
+        $hasExtendedClinicalFeatures = $this->hasExtendedClinicalFeatureColumns();
+        $shockExpr = $hasExtendedClinicalFeatures ? 'SUM(CASE WHEN p.isShock = true THEN 1 ELSE 0 END) AS shock' : '0 AS shock';
+        $pregnantExpr = $hasExtendedClinicalFeatures ? 'SUM(CASE WHEN p.isPregnant = true THEN 1 ELSE 0 END) AS pregnant' : '0 AS pregnant';
+        $workAccidentExpr = $hasExtendedClinicalFeatures ? 'SUM(CASE WHEN p.isWorkAccident = true THEN 1 ELSE 0 END) AS work_accident' : '0 AS work_accident';
         $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
             ->select(
                 'SUM(CASE WHEN p.isWithPhysician = true THEN 1 ELSE 0 END) AS with_physician',
@@ -35,10 +36,11 @@ final class ProjectionFeatureQuery
                 'SUM(CASE WHEN p.isVentilated = true THEN 1 ELSE 0 END) AS ventilated',
                 $shockExpr,
                 $pregnantExpr,
+                $workAccidentExpr,
                 'SUM(CASE WHEN p.infectionId IS NOT NULL THEN 1 ELSE 0 END) AS infectious',
             );
 
-        /** @var array{with_physician:numeric-string|int|null,cpr:numeric-string|int|null,ventilated:numeric-string|int|null,shock:numeric-string|int|null,pregnant:numeric-string|int|null,infectious:numeric-string|int|null} $row */
+        /** @var array{with_physician:numeric-string|int|null,cpr:numeric-string|int|null,ventilated:numeric-string|int|null,shock:numeric-string|int|null,pregnant:numeric-string|int|null,work_accident:numeric-string|int|null,infectious:numeric-string|int|null} $row */
         $row = $qb->getQuery()->getSingleResult();
 
         return [
@@ -47,6 +49,7 @@ final class ProjectionFeatureQuery
             'ventilated' => (int) ($row['ventilated'] ?? 0),
             'shock' => (int) ($row['shock'] ?? 0),
             'pregnant' => (int) ($row['pregnant'] ?? 0),
+            'work_accident' => (int) ($row['work_accident'] ?? 0),
             'infectious' => (int) ($row['infectious'] ?? 0),
         ];
     }
@@ -76,7 +79,7 @@ final class ProjectionFeatureQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
+     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
     public function bucketClinicalFeaturesByMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
@@ -86,7 +89,7 @@ final class ProjectionFeatureQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
+     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
     public function bucketClinicalFeaturesByDay(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
@@ -96,7 +99,7 @@ final class ProjectionFeatureQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
+     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
     public function bucketClinicalFeaturesByCalendarMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
@@ -149,21 +152,22 @@ final class ProjectionFeatureQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
+     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
     private function bucketClinicalFeatures(string $mode, \DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        $hasShockPregnant = $this->hasShockPregnantColumns();
+        $hasExtendedClinicalFeatures = $this->hasExtendedClinicalFeatureColumns();
         [$bucketFields, $bucketGroupBy, $bucketKeyFromRow] = $this->bucketSpec($mode);
         $select = array_merge($bucketFields, [
             'SUM(CASE WHEN p.isWithPhysician = true THEN 1 ELSE 0 END) AS with_physician',
             'SUM(CASE WHEN p.isCpr = true THEN 1 ELSE 0 END) AS cpr',
             'SUM(CASE WHEN p.isVentilated = true THEN 1 ELSE 0 END) AS ventilated',
-            $hasShockPregnant ? 'SUM(CASE WHEN p.isShock = true THEN 1 ELSE 0 END) AS shock' : '0 AS shock',
-            $hasShockPregnant ? 'SUM(CASE WHEN p.isPregnant = true THEN 1 ELSE 0 END) AS pregnant' : '0 AS pregnant',
+            $hasExtendedClinicalFeatures ? 'SUM(CASE WHEN p.isShock = true THEN 1 ELSE 0 END) AS shock' : '0 AS shock',
+            $hasExtendedClinicalFeatures ? 'SUM(CASE WHEN p.isPregnant = true THEN 1 ELSE 0 END) AS pregnant' : '0 AS pregnant',
+            $hasExtendedClinicalFeatures ? 'SUM(CASE WHEN p.isWorkAccident = true THEN 1 ELSE 0 END) AS work_accident' : '0 AS work_accident',
             'SUM(CASE WHEN p.infectionId IS NOT NULL THEN 1 ELSE 0 END) AS infectious',
-            $hasShockPregnant
-                ? 'SUM(CASE WHEN (p.isWithPhysician = true OR p.isCpr = true OR p.isVentilated = true OR p.isShock = true OR p.isPregnant = true OR p.infectionId IS NOT NULL) THEN 1 ELSE 0 END) AS with_any'
+            $hasExtendedClinicalFeatures
+                ? 'SUM(CASE WHEN (p.isWithPhysician = true OR p.isCpr = true OR p.isVentilated = true OR p.isShock = true OR p.isPregnant = true OR p.isWorkAccident = true OR p.infectionId IS NOT NULL) THEN 1 ELSE 0 END) AS with_any'
                 : 'SUM(CASE WHEN (p.isWithPhysician = true OR p.isCpr = true OR p.isVentilated = true OR p.infectionId IS NOT NULL) THEN 1 ELSE 0 END) AS with_any',
         ]);
         $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
@@ -181,6 +185,7 @@ final class ProjectionFeatureQuery
                 'ventilated' => (int) ($row['ventilated'] ?? 0),
                 'shock' => (int) ($row['shock'] ?? 0),
                 'pregnant' => (int) ($row['pregnant'] ?? 0),
+                'work_accident' => (int) ($row['work_accident'] ?? 0),
                 'infectious' => (int) ($row['infectious'] ?? 0),
                 'with_any' => (int) ($row['with_any'] ?? 0),
             ];
@@ -249,15 +254,31 @@ final class ProjectionFeatureQuery
         };
     }
 
-    private function hasShockPregnantColumns(): bool
+    private function hasExtendedClinicalFeatureColumns(): bool
     {
-        if (\is_bool($this->hasShockPregnantColumns)) {
-            return $this->hasShockPregnantColumns;
+        if (\is_bool($this->hasExtendedClinicalFeatureColumns)) {
+            return $this->hasExtendedClinicalFeatureColumns;
         }
 
-        $columns = $this->entityManager->getConnection()->createSchemaManager()->listTableColumns('allocation_stats_projection');
-        $this->hasShockPregnantColumns = isset($columns['is_shock'], $columns['is_pregnant']);
+        $rows = $this->entityManager->getConnection()->fetchFirstColumn(
+            <<<'SQL'
+SELECT column_name
+FROM information_schema.columns
+WHERE table_schema = current_schema()
+  AND table_name = :tableName
+  AND column_name IN (:columnNames)
+SQL,
+            [
+                'tableName' => 'allocation_stats_projection',
+                'columnNames' => ['is_shock', 'is_pregnant', 'is_work_accident'],
+            ],
+            [
+                'columnNames' => \Doctrine\DBAL\ArrayParameterType::STRING,
+            ]
+        );
+        $columnSet = array_fill_keys(array_map(static fn (mixed $value): string => (string) $value, $rows), true);
+        $this->hasExtendedClinicalFeatureColumns = isset($columnSet['is_shock'], $columnSet['is_pregnant'], $columnSet['is_work_accident']);
 
-        return $this->hasShockPregnantColumns;
+        return $this->hasExtendedClinicalFeatureColumns;
     }
 }

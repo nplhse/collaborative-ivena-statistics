@@ -184,7 +184,7 @@ class DashboardControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=month&year=2025&month=6');
 
         $this->assertResponseIsSuccessful();
-        $this->assertCount(6, $crawler->filter('[data-testid="stats-overview-features"] .progress'));
+        $this->assertCount(7, $crawler->filter('[data-testid="stats-overview-features"] .progress'));
         $this->assertCount(2, $crawler->filter('[data-testid="stats-overview-resources"] .progress'));
 
         $featuresLink = $crawler->filter('[data-testid="stats-cross-nav-overview-features"]')->link();

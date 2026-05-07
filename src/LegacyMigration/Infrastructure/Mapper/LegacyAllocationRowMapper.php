@@ -29,6 +29,7 @@ final class LegacyAllocationRowMapper
         $dto->isVentilated = $this->toBool($row['is_ventilated'] ?? null);
         $dto->isShock = $this->toBool($row['is_shock'] ?? null);
         $dto->isPregnant = $this->toBool($row['is_pregnant'] ?? null);
+        $dto->isWorkAccident = $this->toBool($row['is_work_accident'] ?? null);
         $dto->isWithPhysician = $this->toBool($row['is_with_physician'] ?? null);
         $dto->transportType = self::normalizeTransportType(self::getStringOrNull($row, 'mode_of_transport'));
         $dto->urgency = self::getIntOrNull($row, 'urgency');

@@ -62,6 +62,7 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
         $dto->isVentilated = self::normalizeBoolean(self::getStringOrNull($row, 'beatmet') ?? 'false');
         $dto->isShock = self::normalizeBoolean(self::getStringOrNull($row, 'schock') ?? 'false');
         $dto->isPregnant = self::normalizeBoolean(self::getStringOrNull($row, 'schwanger') ?? 'false');
+        $dto->isWorkAccident = self::normalizeBoolean(self::getStringOrNull($row, 'arbeits_wege_schulunfall') ?? 'false');
         $dto->isWithPhysician = self::normalizeBoolean(self::getStringOrNull($row, 'arztbegleitet') ?? 'false');
         $dto->transportType = self::normalizeTransportType(self::getStringOrNull($row, 'transportmittel'));
         $dto->urgency = self::normalizeUrgencyFromPZC(self::getStringOrNull($row, 'pzc'));

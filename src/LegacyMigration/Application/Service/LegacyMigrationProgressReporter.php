@@ -36,6 +36,7 @@ final class LegacyMigrationProgressReporter
         $this->progressBar?->advance($step);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function writeBatch(SymfonyStyle $io, int $legacyImportId, int $batchSize, ?int $lastAllocationId, int $migratedCount): void
     {
         $elapsedMinutes = max((time() - $this->startedAt) / 60, 0.1);

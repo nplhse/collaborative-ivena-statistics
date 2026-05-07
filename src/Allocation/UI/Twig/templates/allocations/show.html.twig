@@ -183,6 +183,16 @@
                                 {% endif %}
                             </div>
                         </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'allocations.field.isWorkAccident'|trans }}</div>
+                            <div class="datagrid-content">
+                                {% if allocation.isWorkAccident %}
+                                    <span class="status status-green">{{ 'field.true'|trans }}</span>
+                                {% else %}
+                                    <span class="status status-red">{{ 'field.false'|trans }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </twig:Card>
             </div>
