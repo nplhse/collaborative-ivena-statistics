@@ -23,6 +23,8 @@ final readonly class AnalysisPageViewModel
         public array $analysisSelectUrls,
         public string $headerTitleKey,
         public string $headerSubtitleKey,
+        public bool $showViewTabs,
+        public bool $showChartTypeControls,
         public AnalysisToolbarViewModel $toolbar,
         public AnalysisComparisonControlsViewModel $comparisonControls,
         public array $pivotRowChoices,

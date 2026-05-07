@@ -2201,7 +2201,7 @@
       </trans-unit>
       <trans-unit id="statsAnCmpLb" resname="stats.analysis.allocations_comparison_over_time.label">
         <source>stats.analysis.allocations_comparison_over_time.label</source>
-        <target>Allocations Comparison Over Time</target>
+        <target>Allocations compare over time</target>
       </trans-unit>
       <trans-unit id="statsAnCmp01" resname="stats.analysis.comparison.scope_label">
         <source>stats.analysis.comparison.scope_label</source>
@@ -2269,11 +2269,11 @@
       </trans-unit>
       <trans-unit id="statsAllocPivotLbl" resname="stats.analysis.allocation_pivot.label">
         <source>stats.analysis.allocation_pivot.label</source>
-        <target>Allocation Pivot</target>
+        <target>Allocations Pivot</target>
       </trans-unit>
       <trans-unit id="statsHospPivotLbl" resname="stats.analysis.hospital_pivot.label">
         <source>stats.analysis.hospital_pivot.label</source>
-        <target>Hospital Pivot</target>
+        <target>Hospitals Pivot</target>
       </trans-unit>
       <trans-unit id="statsPivotRowsLbl" resname="stats.analysis.pivot.rows_label">
         <source>stats.analysis.pivot.rows_label</source>

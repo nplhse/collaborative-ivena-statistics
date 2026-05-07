@@ -4,12 +4,12 @@
      aria-label="{{ 'stats.analysis.chart_measure.label'|trans }}"
      data-testid="stats-analysis-chart-measure">
     <a href="{{ toolbar.chartMeasureAbsoluteUrl }}"
-       class="btn btn-outline-secondary{% if toolbar.currentChartMeasure == 'absolute' %} active{% endif %}"
+       class="btn{% if toolbar.currentChartMeasure == 'absolute' %} active{% endif %}"
        data-testid="stats-analysis-chart-measure-absolute">
         {{ 'stats.analysis.chart_measure.absolute'|trans }}
     </a>
     <a href="{{ toolbar.chartMeasureShareUrl }}"
-       class="btn btn-outline-secondary{% if toolbar.currentChartMeasure == 'share' %} active{% endif %}"
+       class="btn{% if toolbar.currentChartMeasure == 'share' %} active{% endif %}"
        data-testid="stats-analysis-chart-measure-share">
         {{ 'stats.analysis.chart_measure.share'|trans }}
     </a>

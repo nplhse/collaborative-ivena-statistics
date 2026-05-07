@@ -82,17 +82,5 @@
                 <a class="dropdown-item{% if statisticsFilter.period.value == 'month' %} active{% endif %}" href="{{ statsPeriodUrls.month }}">{{ 'stats.filter.period.month'|trans }}</a>
             </div>
         </div>
-
-        <div class="btn-group">
-            <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#statistics-filters-drawer" aria-controls="statistics-filters-drawer">
-                {{ 'label.filters'|trans }}
-                {% if statsActiveFilterCount > 0 %}
-                    <span class="badge text-primary ms-2">{{ statsActiveFilterCount }}</span>
-                {% endif %}
-            </button>
-            {% if statsActiveFilterCount > 0 %}
-                <a href="{{ statsFilterDrawerResetUrl }}" class="btn btn-icon btn-outline" title="Reset filters" aria-label="Reset filters">×</a>
-            {% endif %}
-        </div>
     </div>
 </div>

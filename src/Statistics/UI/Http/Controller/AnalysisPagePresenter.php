@@ -53,6 +53,7 @@ final readonly class AnalysisPagePresenter
             'table' === $analysisRequest->view => 'stats.analysis.view.table',
             default => 'stats.analysis.view.chart',
         };
+        $toolbar = $this->toolbarViewModelFactory->create($request, $activeDefinition, $analysisRequest);
 
         return new AnalysisPageViewModel(
             $analysisWidget,
@@ -61,7 +62,9 @@ final readonly class AnalysisPagePresenter
             $options['urls'],
             $activeDefinition->labelTranslationKey(),
             $headerSubtitleKey,
-            $this->toolbarViewModelFactory->create($request, $activeDefinition, $analysisRequest),
+            !$toolbar->isPivotLike,
+            !$toolbar->isPivotLike && 'chart' === $toolbar->currentView,
+            $toolbar,
             $this->analysisComparisonControlsFactory->build($request, $analysisKey, $comparisonFilter),
             $pivotChoices['rows'],
             $pivotChoices['cols'],
