@@ -138,7 +138,7 @@ class AnalysisControllerTest extends WebTestCase
         self::assertNotNull($specRaw);
         $this->assertStringContainsString('"series"', $specRaw);
         $this->assertStringContainsString('"barGrouped"', $specRaw);
-        $this->assertSelectorExists('[data-testid="stats-analysis-chart-measure-absolute"].active');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-chart-measure"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-chart-style"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-dimension-resources"].active');
     }
@@ -198,7 +198,7 @@ class AnalysisControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-analysis-chart-measure-share"].active');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-chart-measure"]');
         $specRaw = $crawler->filter('[data-controller="analysis-chart"]')->first()->attr('data-analysis-chart-spec-value');
         self::assertNotNull($specRaw);
         $this->assertStringContainsString('"series"', $specRaw);
@@ -314,8 +314,8 @@ class AnalysisControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Allocations over time');
-        $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Allocation Pivot');
-        $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Hospital Pivot');
+        $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Allocations Pivot');
+        $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Hospitals Pivot');
     }
 
     public function testAllocationPivotShowsMeasureSelectorAndSupportsRowPercent(): void
