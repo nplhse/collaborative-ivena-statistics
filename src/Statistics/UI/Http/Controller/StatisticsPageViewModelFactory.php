@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -37,14 +38,14 @@ final readonly class StatisticsPageViewModelFactory
             'public' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
-                ['scope' => StatisticsFilterScope::Public->value],
-                ['hospital', 'cohort'],
+                [StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Public->value],
+                StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT,
             ),
             'my_hospitals' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
-                ['scope' => StatisticsFilterScope::MyHospitals->value],
-                ['hospital', 'cohort'],
+                [StatisticsQueryKeys::SCOPE => StatisticsFilterScope::MyHospitals->value],
+                StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT,
             ),
         ];
 
@@ -57,8 +58,8 @@ final readonly class StatisticsPageViewModelFactory
                     $request,
                     $routeName,
                     [
-                        'scope' => StatisticsFilterScope::Hospital->value,
-                        'hospital' => $row['id'],
+                        StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Hospital->value,
+                        StatisticsQueryKeys::HOSPITAL => $row['id'],
                     ],
                 );
             }
@@ -68,31 +69,31 @@ final readonly class StatisticsPageViewModelFactory
             'all' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
-                ['period' => StatisticsFilterPeriod::All->value],
-                ['year', 'month'],
+                [StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value],
+                StatisticsQueryKeys::REMOVE_PERIOD_DEPENDENT,
             ),
             'all_time' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
-                ['period' => StatisticsFilterPeriod::AllTime->value],
-                ['year', 'month'],
+                [StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::AllTime->value],
+                StatisticsQueryKeys::REMOVE_PERIOD_DEPENDENT,
             ),
             'year' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
                 [
-                    'period' => StatisticsFilterPeriod::Year->value,
-                    'year' => $defaultYear,
+                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Year->value,
+                    StatisticsQueryKeys::YEAR => $defaultYear,
                 ],
-                ['month'],
+                StatisticsQueryKeys::REMOVE_MONTH_DEPENDENT,
             ),
             'month' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
                 [
-                    'period' => StatisticsFilterPeriod::Month->value,
-                    'year' => $defaultYear,
-                    'month' => $defaultMonth,
+                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Month->value,
+                    StatisticsQueryKeys::YEAR => $defaultYear,
+                    StatisticsQueryKeys::MONTH => $defaultMonth,
                 ],
             ),
         ];
@@ -110,9 +111,9 @@ final readonly class StatisticsPageViewModelFactory
                     $request,
                     $routeName,
                     [
-                        'scope' => StatisticsFilterScope::HospitalCohort->value.':'.$cohortType->value,
+                        StatisticsQueryKeys::SCOPE => StatisticsFilterScope::HospitalCohort->value.':'.$cohortType->value,
                     ],
-                    ['hospital', 'cohort'],
+                    StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT,
                 ),
                 'active' => StatisticsFilterScope::HospitalCohort === $filter->scope
                     && $filter->cohortType === $cohortType,

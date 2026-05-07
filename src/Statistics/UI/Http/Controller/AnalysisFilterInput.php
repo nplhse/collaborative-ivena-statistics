@@ -7,7 +7,7 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
 
-final readonly class AnalysisRequestModel
+final readonly class AnalysisFilterInput
 {
     public function __construct(
         public string $analysisKey,

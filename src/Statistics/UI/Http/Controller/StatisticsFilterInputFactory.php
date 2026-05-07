@@ -21,7 +21,7 @@ final class StatisticsFilterInputFactory
             $query->getString('hospital'),
             $query->getString('cohort'),
             $query->getString('state'),
-            $query->getString('period', StatisticsFilterPeriod::All->value),
+            $query->getString('period', StatisticsFilterPeriod::AllTime->value),
             $query->get('year'),
             $query->get('month'),
             $query->has('scope'),
