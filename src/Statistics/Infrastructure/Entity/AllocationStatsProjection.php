@@ -52,6 +52,9 @@ class AllocationStatsProjection
     #[ORM\Column(nullable: true)]
     private ?int $indicationNormalizedId = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $secondaryIndicationNormalizedId = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -177,6 +180,11 @@ class AllocationStatsProjection
     public function getIndicationNormalizedId(): ?int
     {
         return $this->indicationNormalizedId;
+    }
+
+    public function getSecondaryIndicationNormalizedId(): ?int
+    {
+        return $this->secondaryIndicationNormalizedId;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

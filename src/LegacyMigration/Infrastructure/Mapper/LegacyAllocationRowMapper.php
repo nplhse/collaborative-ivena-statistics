@@ -42,8 +42,28 @@ final class LegacyAllocationRowMapper
         $dto->infection = self::getStringOrNull($row, 'is_infectious');
         $dto->indicationCode = self::getIntOrNull($row, 'indication_code');
         $dto->indication = self::getStringOrNull($row, 'indication');
+        $dto->secondaryIndicationCode = $this->normalizeLegacySecondaryIndicationCode(self::getIntOrNull($row, 'secondary_indication_code'));
+        $dto->secondaryIndication = self::getStringOrNull($row, 'secondary_indication');
 
         return $dto;
+    }
+
+    /**
+     * Legacy may store either a 3-digit indication code (100–999) or a full 6-digit PZC (e.g. 376802).
+     */
+    private function normalizeLegacySecondaryIndicationCode(?int $value): ?int
+    {
+        if (null === $value) {
+            return null;
+        }
+        if ($value >= 100_000 && $value <= 999_999) {
+            return self::normalizeCodeFromPZC(str_pad((string) $value, 6, '0', STR_PAD_LEFT));
+        }
+        if ($value >= 100 && $value <= 999) {
+            return $value;
+        }
+
+        return null;
     }
 
     private function formatDate(?string $value): ?string

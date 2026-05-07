@@ -88,6 +88,22 @@
                                 <strong>{{ 'label.no_indication'|trans }}</strong>
                             {% endif %}
                         </p>
+                        <p>
+                            {{ 'label.indication.secondary_raw'|trans }}:
+                            {% if allocation.secondaryIndicationRaw is not null %}
+                                <strong>{{ allocation.secondaryIndicationRaw.name }}</strong> <span class="badge">{{ allocation.secondaryIndicationRaw.code }}</span>
+                            {% else %}
+                                <strong>{{ 'label.no_secondary_indication'|trans }}</strong>
+                            {% endif %}
+                        </p>
+                        <p>
+                            {{ 'label.indication.secondary_normalized'|trans }}:
+                            {% if allocation.secondaryIndicationNormalized is not null %}
+                                <strong>{{ allocation.secondaryIndicationNormalized.name }}</strong> <span class="badge">{{ allocation.secondaryIndicationNormalized.code }}</span>
+                            {% else %}
+                                <strong>{{ 'label.no_secondary_indication'|trans }}</strong>
+                            {% endif %}
+                        </p>
                     </div>
                 </twig:Card>
             </div>

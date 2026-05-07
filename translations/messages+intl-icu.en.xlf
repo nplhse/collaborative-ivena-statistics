@@ -741,6 +741,18 @@
         <source>label.indication.raw</source>
         <target>Raw Indication</target>
       </trans-unit>
+      <trans-unit id="SecIndRaw" resname="label.indication.secondary_raw">
+        <source>label.indication.secondary_raw</source>
+        <target>Secondary raw indication</target>
+      </trans-unit>
+      <trans-unit id="SecIndNorm" resname="label.indication.secondary_normalized">
+        <source>label.indication.secondary_normalized</source>
+        <target>Secondary normalized indication</target>
+      </trans-unit>
+      <trans-unit id="NoSecInd" resname="label.no_secondary_indication">
+        <source>label.no_secondary_indication</source>
+        <target>No secondary indication</target>
+      </trans-unit>
       <trans-unit id="FAxaB50" resname="label.is_participating">
         <source>label.is_participating</source>
         <target>Participation</target>

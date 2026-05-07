@@ -105,6 +105,13 @@ final class AllocationRowDTO
     #[Assert\NotBlank]
     public ?string $indication = null;
 
+    /** Optional; linked only when both code and text are present (see IndicationCreationStrategy). */
+    #[Assert\Type('integer')]
+    #[Assert\Range(min: 100, max: 999)]
+    public ?int $secondaryIndicationCode = null;
+
+    public ?string $secondaryIndication = null;
+
     public ?string $assessmentAirway = null;
 
     public ?string $assessmentBreathing = null;
