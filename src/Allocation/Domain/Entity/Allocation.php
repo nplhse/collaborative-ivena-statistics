@@ -67,6 +67,9 @@ class Allocation
     #[ORM\Column]
     private ?bool $isPregnant = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isWorkAccident = null;
+
     #[ORM\Column]
     private ?bool $isWithPhysician = null;
 
@@ -289,6 +292,18 @@ class Allocation
     public function setIsPregnant(bool $isPregnant): static
     {
         $this->isPregnant = $isPregnant;
+
+        return $this;
+    }
+
+    public function isWorkAccident(): ?bool
+    {
+        return $this->isWorkAccident;
+    }
+
+    public function setIsWorkAccident(bool $isWorkAccident): static
+    {
+        $this->isWorkAccident = $isWorkAccident;
 
         return $this;
     }

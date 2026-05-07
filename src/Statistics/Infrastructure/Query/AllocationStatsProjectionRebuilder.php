@@ -67,6 +67,7 @@ SELECT
   a.is_ventilated,
   a.is_shock,
   a.is_pregnant,
+  a.is_work_accident,
   a.is_with_physician,
   h.tier AS hospital_tier,
   h.location AS hospital_location
@@ -118,7 +119,7 @@ SQL,
             'created_day', 'created_weekday', 'created_hour',
             'transport_time_minutes',
             'age', 'gender_code', 'urgency_code', 'transport_type_code', 'hospital_tier_code', 'hospital_location_code',
-            'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant', 'is_with_physician',
+            'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant', 'is_work_accident', 'is_with_physician',
         ];
 
         $params = [];
@@ -157,7 +158,7 @@ SQL,
     {
         return match ($column) {
             'created_at', 'arrival_at' => Types::STRING,
-            'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant', 'is_with_physician' => Types::BOOLEAN,
+            'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant', 'is_work_accident', 'is_with_physician' => Types::BOOLEAN,
             default => Types::INTEGER,
         };
     }
@@ -227,6 +228,7 @@ SQL,
             'is_ventilated' => $this->nullableBool($row['is_ventilated'] ?? null),
             'is_shock' => $this->nullableBool($row['is_shock'] ?? null),
             'is_pregnant' => $this->nullableBool($row['is_pregnant'] ?? null),
+            'is_work_accident' => $this->nullableBool($row['is_work_accident'] ?? null),
             'is_with_physician' => $this->nullableBool($row['is_with_physician'] ?? null),
         ];
     }

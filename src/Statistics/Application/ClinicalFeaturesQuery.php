@@ -17,6 +17,7 @@ final readonly class ClinicalFeaturesQuery
         ['key' => 'ventilated', 'labelTranslationKey' => 'statistics.distribution.dim.is_ventilated'],
         ['key' => 'shock', 'labelTranslationKey' => 'stats.analysis.feature.is_shock'],
         ['key' => 'pregnant', 'labelTranslationKey' => 'stats.analysis.feature.is_pregnant'],
+        ['key' => 'work_accident', 'labelTranslationKey' => 'stats.analysis.feature.is_work_accident'],
         ['key' => 'infectious', 'labelTranslationKey' => 'field.infection'],
     ];
 
@@ -80,7 +81,7 @@ final readonly class ClinicalFeaturesQuery
     }
 
     /**
-     * @return array{0:int,1:array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int},2:array{cathlab:int,resus:int}}
+     * @return array{0:int,1:array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int},2:array{cathlab:int,resus:int}}
      */
     private function loadCounts(StatisticsContext $context): array
     {

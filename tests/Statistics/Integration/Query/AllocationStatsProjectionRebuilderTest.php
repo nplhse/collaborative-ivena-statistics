@@ -88,6 +88,7 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
             'requiresCathlab' => false,
             'isCPR' => false,
             'isVentilated' => true,
+            'isWorkAccident' => true,
             'isWithPhysician' => false,
             'occasion' => null,
             'infection' => null,
@@ -139,6 +140,7 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertFalse($this->toBool($row['requires_cathlab']));
         self::assertFalse($this->toBool($row['is_cpr']));
         self::assertTrue($this->toBool($row['is_ventilated']));
+        self::assertTrue($this->toBool($row['is_work_accident']));
         self::assertFalse($this->toBool($row['is_with_physician']));
 
         $repo = self::getContainer()->get(AllocationStatsProjectionRepository::class);
@@ -179,6 +181,7 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertFalse($projection->isRequiresCathlab());
         self::assertFalse($projection->isCpr());
         self::assertTrue($projection->isVentilated());
+        self::assertTrue($projection->isWorkAccident());
         self::assertFalse($projection->isWithPhysician());
     }
 
@@ -201,6 +204,7 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
             'requiresCathlab' => true,
             'isCPR' => false,
             'isVentilated' => false,
+            'isWorkAccident' => false,
             'isWithPhysician' => true,
             'occasion' => null,
             'infection' => null,

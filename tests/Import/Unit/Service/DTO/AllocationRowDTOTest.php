@@ -37,6 +37,7 @@ final class AllocationRowDTOTest extends TestCase
         $dto->isVentilated = false;
         $dto->isShock = false;
         $dto->isPregnant = false;
+        $dto->isWorkAccident = false;
         $dto->isWithPhysician = true;
         $dto->transportType = 'G';
         $dto->urgency = 1;

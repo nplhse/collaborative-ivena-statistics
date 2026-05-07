@@ -41,6 +41,10 @@
         <source>allocations.field.isPregnant</source>
         <target>Is Pregnant</target>
       </trans-unit>
+      <trans-unit id="allocIsWorkAcc" resname="allocations.field.isWorkAccident">
+        <source>allocations.field.isWorkAccident</source>
+        <target>Work Accident</target>
+      </trans-unit>
       <trans-unit id="T4rWOlm" resname="allocations.field.isShock">
         <source>allocations.field.isShock</source>
         <target>Is in Shock</target>
@@ -880,6 +884,10 @@
       <trans-unit id="dzmkSoD" resname="label.pregnant">
         <source>label.pregnant</source>
         <target>Pregnant</target>
+      </trans-unit>
+      <trans-unit id="lblWorkAccident" resname="label.work_accident">
+        <source>label.work_accident</source>
+        <target>Work Accident</target>
       </trans-unit>
       <trans-unit id="qRwFlMY" resname="label.previous">
         <source>label.previous</source>
@@ -2410,6 +2418,10 @@
       <trans-unit id="statsAnFeatPrg" resname="stats.analysis.feature.is_pregnant">
         <source>stats.analysis.feature.is_pregnant</source>
         <target>Pregnant</target>
+      </trans-unit>
+      <trans-unit id="statsAnFeatWrkAcc" resname="stats.analysis.feature.is_work_accident">
+        <source>stats.analysis.feature.is_work_accident</source>
+        <target>Work accident</target>
       </trans-unit>
       <trans-unit id="statsAnTblMo" resname="stats.analysis.table.month">
         <source>stats.analysis.table.month</source>

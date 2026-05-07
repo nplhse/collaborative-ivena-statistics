@@ -94,6 +94,7 @@ final readonly class AllocationsByMonthQuery
         ['key' => 'ventilated', 'labelKey' => 'statistics.distribution.dim.is_ventilated'],
         ['key' => 'shock', 'labelKey' => 'stats.analysis.feature.is_shock'],
         ['key' => 'pregnant', 'labelKey' => 'stats.analysis.feature.is_pregnant'],
+        ['key' => 'work_accident', 'labelKey' => 'stats.analysis.feature.is_work_accident'],
         ['key' => 'infectious', 'labelKey' => 'field.infection'],
     ];
 
@@ -325,9 +326,9 @@ final readonly class AllocationsByMonthQuery
     }
 
     /**
-     * @param list<string>                                                                                                                    $labels
-     * @param list<string>                                                                                                                    $monthKeys
-     * @param array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}> $buckets
+     * @param list<string>                                                                                                                                        $labels
+     * @param list<string>                                                                                                                                        $monthKeys
+     * @param array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, work_accident: int, infectious: int, with_any: int}> $buckets
      */
     private function mapClinicalFeaturesBucketsToSeries(array $labels, array $monthKeys, array $buckets): AllocationsOverTimeSeries
     {

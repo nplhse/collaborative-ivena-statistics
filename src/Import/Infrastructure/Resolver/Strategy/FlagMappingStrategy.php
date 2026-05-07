@@ -8,8 +8,8 @@ final class FlagMappingStrategy
 {
     /**
      * @param object $entity must expose setRequiresResus(), setRequiresCathlab(), setIsCPR(), setIsVentilated(),
-     *                       setIsShock(), setIsPregnant(), setIsWithPhysician()
-     * @param object $dto    must expose requiresResus, requiresCathlab, isCPR, isVentilated, isShock, isPregnant, isWithPhysician
+     *                       setIsShock(), setIsPregnant(), setIsWorkAccident(), setIsWithPhysician()
+     * @param object $dto    must expose requiresResus, requiresCathlab, isCPR, isVentilated, isShock, isPregnant, isWorkAccident, isWithPhysician
      */
     public function apply(object $entity, object $dto, bool $defaultNullToFalse): void
     {
@@ -20,6 +20,7 @@ final class FlagMappingStrategy
         $isVentilated = $defaultNullToFalse ? ($dto->isVentilated ?? false) : $dto->isVentilated;
         $isShock = $defaultNullToFalse ? ($dto->isShock ?? false) : $dto->isShock;
         $isPregnant = $defaultNullToFalse ? ($dto->isPregnant ?? false) : $dto->isPregnant;
+        $isWorkAccident = $defaultNullToFalse ? ($dto->isWorkAccident ?? false) : $dto->isWorkAccident;
         $isWithPhysician = $defaultNullToFalse ? ($dto->isWithPhysician ?? false) : $dto->isWithPhysician;
 
         $entity->setRequiresResus($requiresResus);
@@ -29,6 +30,7 @@ final class FlagMappingStrategy
         $entity->setIsVentilated($isVentilated);
         $entity->setIsShock($isShock);
         $entity->setIsPregnant($isPregnant);
+        $entity->setIsWorkAccident($isWorkAccident);
         $entity->setIsWithPhysician($isWithPhysician);
     }
 }

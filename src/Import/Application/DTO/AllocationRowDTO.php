@@ -64,6 +64,10 @@ final class AllocationRowDTO
 
     #[Assert\NotNull]
     #[Assert\Type('bool')]
+    public ?bool $isWorkAccident = null;
+
+    #[Assert\NotNull]
+    #[Assert\Type('bool')]
     public ?bool $isWithPhysician = null;
 
     #[Assert\Choice(choices: ['G', 'A'], message: 'Unknown transport')]

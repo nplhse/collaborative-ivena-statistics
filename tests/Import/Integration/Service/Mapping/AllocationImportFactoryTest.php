@@ -75,6 +75,7 @@ final class AllocationImportFactoryTest extends KernelTestCase
         $dto->isVentilated = false;
         $dto->isShock = false;
         $dto->isPregnant = false;
+        $dto->isWorkAccident = true;
         $dto->isWithPhysician = true;
         $dto->transportType = 'G';
         $dto->urgency = 1;
@@ -110,6 +111,7 @@ final class AllocationImportFactoryTest extends KernelTestCase
         self::assertFalse($allocation->isVentilated());
         self::assertFalse($allocation->isShock());
         self::assertFalse($allocation->isPregnant());
+        self::assertTrue($allocation->isWorkAccident());
         self::assertTrue($allocation->isWithPhysician());
 
         self::assertSame(AllocationTransportType::tryFrom('G'), $allocation->getTransportType());

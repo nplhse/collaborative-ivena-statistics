@@ -22,6 +22,8 @@ final class AllocationRowMapperBooleanTest extends TestCase
     {
         yield 'suffix plus' => ['S+', true];
         yield 'suffix minus' => ['S-', false];
+        yield 'work accident plus' => ['BG+', true];
+        yield 'work accident minus' => ['BG-', false];
         yield 'German yes' => ['ja', true];
         yield 'German no' => ['nein', false];
         yield '1' => ['1', true];

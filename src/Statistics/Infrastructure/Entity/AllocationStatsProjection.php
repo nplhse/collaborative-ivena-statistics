@@ -119,6 +119,9 @@ class AllocationStatsProjection
     private ?bool $isPregnant = null;
 
     #[ORM\Column(nullable: true)]
+    private ?bool $isWorkAccident = null;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $isWithPhysician = null;
 
     public function getId(): int
@@ -284,6 +287,11 @@ class AllocationStatsProjection
     public function isPregnant(): ?bool
     {
         return $this->isPregnant;
+    }
+
+    public function isWorkAccident(): ?bool
+    {
+        return $this->isWorkAccident;
     }
 
     public function isWithPhysician(): ?bool

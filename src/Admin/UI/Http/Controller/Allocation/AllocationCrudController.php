@@ -89,6 +89,8 @@ final class AllocationCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield BooleanField::new('isPregnant', 'Pregnant')
             ->hideOnIndex();
+        yield BooleanField::new('isWorkAccident', 'Work Accident')
+            ->hideOnIndex();
         yield BooleanField::new('isWithPhysician', 'With Physician')
             ->hideOnIndex();
         yield ChoiceField::new('transportType', 'Transport Type')
