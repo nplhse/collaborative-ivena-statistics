@@ -33,7 +33,6 @@ final class FlagMappingStrategy
 
         // Allocation-only feature: do not require MciCase to support it.
         if (property_exists($dto, 'isWorkAccident') && method_exists($entity, 'setIsWorkAccident')) {
-            /** @var mixed $raw */
             $raw = $dto->isWorkAccident;
             $isWorkAccident = $defaultNullToFalse ? ($raw ?? false) : $raw;
             $entity->setIsWorkAccident((bool) $isWorkAccident);
