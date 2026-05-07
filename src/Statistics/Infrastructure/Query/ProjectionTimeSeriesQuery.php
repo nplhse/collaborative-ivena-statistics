@@ -53,9 +53,6 @@ final readonly class ProjectionTimeSeriesQuery
             return null;
         }
 
-        if ($value instanceof \DateTimeImmutable) {
-            return $value;
-        }
         if ($value instanceof \DateTimeInterface) {
             return \DateTimeImmutable::createFromInterface($value);
         }
@@ -146,7 +143,7 @@ final readonly class ProjectionTimeSeriesQuery
             ->select('p.genderCode AS genderCode', 'COUNT(p.id) AS count')
             ->groupBy('genderCode');
 
-        /** @var list<array{genderCode:int|null,count:numeric-string|int}> $rows */
+        /** @var list<array{genderCode:numeric-string|int|null,count:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();
         $out = [];
         foreach ($rows as $row) {
