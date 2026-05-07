@@ -4,39 +4,38 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\DTO\StatisticsFilterNotice;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\User\Domain\Entity\User;
-use Symfony\Component\HttpFoundation\Request;
 
 final readonly class StatisticsFilterFactory
 {
     public function __construct(
-        private HospitalRepository $hospitalRepository,
+        private HospitalAccessInterface $hospitalAccess,
         private HospitalCohortResolver $hospitalCohortResolver,
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
     ) {
     }
 
-    public function createFromRequest(Request $request, ?User $user): StatisticsFilter
+    public function createFromInput(StatisticsFilterInput $input, ?User $user): StatisticsFilter
     {
         $normalized = $this->normalizeScopeInput(
-            $request->query->getString('scope', StatisticsFilterScope::MyHospitals->value),
-            $request->query->getString('hospital'),
-            $request->query->getString('cohort'),
-            $request->query->getString('state'),
+            $input->scope,
+            $input->hospital,
+            $input->cohort,
+            $input->state,
         );
-        $hasScopeQueryParameter = $request->query->has('scope');
-        $explicitMyHospitalsInUrl = $hasScopeQueryParameter
+        $explicitMyHospitalsInUrl = $input->hasScopeQueryParameter
             && StatisticsFilterScope::MyHospitals === StatisticsFilterScope::tryFrom($normalized['scope']);
         $scope = $this->parseScope($normalized['scope']);
-        $period = $this->parsePeriod($request->query->getString('period', StatisticsFilterPeriod::All->value));
+        $period = $this->parsePeriod($input->period);
         $cohortType = $this->parseCohortType($normalized['cohort']);
         $notice = null;
         $requiresPublicRedirect = false;
@@ -78,8 +77,8 @@ final readonly class StatisticsFilterFactory
             }
         }
 
-        $referenceYear = $this->parsePositiveInt($request->query->get('year'));
-        $referenceMonth = $this->parsePositiveInt($request->query->get('month'));
+        $referenceYear = $this->parsePositiveInt($input->year);
+        $referenceMonth = $this->parsePositiveInt($input->month);
 
         if (StatisticsFilterPeriod::Year === $period) {
             $referenceYear ??= (int) new \DateTimeImmutable()->format('Y');
@@ -198,17 +197,13 @@ final readonly class StatisticsFilterFactory
 
     private function userHasAnyAccessibleHospital(User $user): bool
     {
-        return $this->hospitalRepository->countAccessibleHospitals($user) > 0;
+        return $this->hospitalAccess->countAccessibleHospitals($user) > 0;
     }
 
     private function userMayUseHospital(User $user, int $hospitalId): bool
     {
-        $allowedIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
+        $allowedIds = $this->hospitalAccess->accessibleHospitalIds($user);
 
-        return array_any($allowedIds, fn ($id): bool => (int) $id === $hospitalId);
+        return array_any($allowedIds, static fn (int $id): bool => $id === $hospitalId);
     }
 }

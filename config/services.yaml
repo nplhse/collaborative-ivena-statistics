@@ -26,6 +26,8 @@ services:
 
     Doctrine\DBAL\Connection: '@doctrine.dbal.default_connection'
     App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface: '@App\LegacyMigration\Infrastructure\Doctrine\LegacyMigrationStateRepository'
+    App\Statistics\Application\Contract\HospitalAccessInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineHospitalAccess'
+    App\Statistics\Application\Contract\ImportTimelineInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineImportTimeline'
     _instanceof:
         App\Statistics\Application\Analysis\AnalysisDefinitionInterface:
             tags: ['app.statistics.analysis_definition']

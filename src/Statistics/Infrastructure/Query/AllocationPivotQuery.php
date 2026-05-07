@@ -11,10 +11,6 @@ use Doctrine\ORM\QueryBuilder;
 
 final readonly class AllocationPivotQuery
 {
-    private const string AGE_BUCKET_CASE = <<<'DQL'
-CASE WHEN a.age IS NULL THEN 'unknown' WHEN a.age <= 18 THEN '0_18' WHEN a.age <= 29 THEN '19_29' WHEN a.age <= 39 THEN '30_39' WHEN a.age <= 49 THEN '40_49' WHEN a.age <= 59 THEN '50_59' WHEN a.age <= 69 THEN '60_69' WHEN a.age <= 79 THEN '70_79' WHEN a.age <= 89 THEN '80_89' WHEN a.age <= 99 THEN '90_99' ELSE '100p' END
-DQL;
-
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ProjectionFilterApplier $filterApplier,
@@ -95,7 +91,7 @@ DQL;
         return match ($dimension) {
             AllocationPivotDimension::Gender => ["CASE WHEN a.genderCode = 1 THEN 'M' WHEN a.genderCode = 2 THEN 'F' WHEN a.genderCode = 3 THEN 'X' ELSE '' END", null],
             AllocationPivotDimension::Urgency => ['a.urgencyCode', null],
-            AllocationPivotDimension::AgeGroup => [self::AGE_BUCKET_CASE, null],
+            AllocationPivotDimension::AgeGroup => [PivotValueMapper::AGE_BUCKET_CASE, null],
             AllocationPivotDimension::Department => $this->departmentExpression($qb, $prefix),
         };
     }

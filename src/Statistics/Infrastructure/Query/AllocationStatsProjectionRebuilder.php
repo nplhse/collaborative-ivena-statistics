@@ -41,7 +41,7 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
                 'rows' => $deleted,
             ]);
 
-            $rows = $this->connection->fetchAllAssociative(
+            $result = $this->connection->executeQuery(
                 <<<'SQL'
 SELECT
   a.id,
@@ -80,15 +80,27 @@ SQL,
                 ['importId' => $importId]
             );
 
-            foreach (array_chunk($rows, self::BATCH_SIZE) as $chunk) {
+            $chunk = [];
+            $insertedRows = 0;
+            foreach ($result->iterateAssociative() as $row) {
+                $chunk[] = $row;
+                if (\count($chunk) < self::BATCH_SIZE) {
+                    continue;
+                }
                 $this->insertChunk($chunk);
+                $insertedRows += \count($chunk);
+                $chunk = [];
+            }
+            if ([] !== $chunk) {
+                $this->insertChunk($chunk);
+                $insertedRows += \count($chunk);
             }
 
             $this->connection->commit();
 
             $this->logger->info('allocation_stats_projection.rebuilt', [
                 'import_id' => $importId,
-                'rows' => \count($rows),
+                'rows' => $insertedRows,
             ]);
         } catch (\Throwable $e) {
             $this->connection->rollBack();

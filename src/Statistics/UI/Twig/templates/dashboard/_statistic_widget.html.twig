@@ -1,21 +1,5 @@
 {# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
-{% if widget.type.value == 'summary_deck' %}
-    {{ include('@Statistics/dashboard/_hospital_summary_deck.html.twig', {widget: widget}) }}
-{% elseif widget.type.value == 'section' %}
-    {{ include('@Statistics/dashboard/_section_card.html.twig', {widget: widget}) }}
-{% elseif widget.type.value == 'kpi' %}
-    {{ include('@Statistics/dashboard/_kpi_card.html.twig', {widget: widget}) }}
-{% elseif widget.type.value == 'chart_pair' %}
-    {{ include('@Statistics/dashboard/_chart_pair_row.html.twig', {widget: widget}) }}
-{% elseif widget.type.value == 'distribution' %}
-    {{ include('@Statistics/dashboard/_distribution_card.html.twig', {widget: widget}) }}
-{% elseif widget.type.value == 'simple_chart' %}
-    {{ include('@Statistics/dashboard/_simple_chart_card.html.twig', {
-        widget: widget,
-        analysisChartStyle: analysisChartStyle|default(null),
-    }) }}
-{% elseif widget.type.value == 'table' %}
-    {{ include('@Statistics/dashboard/_table_card.html.twig', {widget: widget}) }}
-{% elseif widget.type.value == 'pivot_table' %}
-    {{ include('@Statistics/dashboard/_pivot_table_card.html.twig', {widget: widget}) }}
-{% endif %}
+{{ include(statistics_widget_template(widget.type), {
+    widget: widget,
+    analysisChartStyle: analysisChartStyle|default(null),
+}) }}

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
@@ -18,7 +19,7 @@ final readonly class ComparisonScopeResolver
 {
     public function __construct(
         private StatisticsFilterFactory $statisticsFilterFactory,
-        private HospitalRepository $hospitalRepository,
+        private HospitalAccessInterface $hospitalAccess,
         private HospitalCohortResolver $hospitalCohortResolver,
         private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
     ) {
@@ -59,9 +60,22 @@ final readonly class ComparisonScopeResolver
             $comparisonQuery['month'] = (string) $comparisonMonth;
         }
 
-        $comparisonRequest = new Request(query: $comparisonQuery);
+        $comparisonCohortValue = $comparisonQuery['cohort'] ?? '';
+        $comparisonStateValue = $comparisonQuery['state'] ?? '';
 
-        return $this->statisticsFilterFactory->createFromRequest($comparisonRequest, $user);
+        return $this->statisticsFilterFactory->createFromInput(
+            new StatisticsFilterInput(
+                $comparisonQuery['scope'],
+                '',
+                $comparisonCohortValue,
+                $comparisonStateValue,
+                $comparisonQuery['period'],
+                $comparisonQuery['year'] ?? null,
+                $comparisonQuery['month'] ?? null,
+                true,
+            ),
+            $user,
+        );
     }
 
     /**
@@ -130,13 +144,6 @@ final readonly class ComparisonScopeResolver
             return [];
         }
 
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
+        return $this->hospitalAccess->accessibleHospitalIds($user);
     }
 }
