@@ -11,13 +11,11 @@ use App\Statistics\Application\Pivot\HospitalPivotDimension;
 use App\Statistics\Application\Pivot\HospitalPivotMeasure;
 use App\Statistics\Application\Pivot\HospitalPivotSelection;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class AnalysisPivotChoicesFactory
 {
-    /** @var list<string> */
-    private const array PIVOT_STALE_QUERY_KEYS = ['dimension', 'chart_measure', 'chart'];
-
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
     ) {
@@ -49,9 +47,9 @@ final readonly class AnalysisPivotChoicesFactory
     private function buildAllocationChoices(Request $request): array
     {
         $selection = AllocationPivotSelection::fromQuery(
-            $request->query->getString('rows'),
-            $request->query->getString('cols'),
-            $request->query->getString('measure'),
+            $request->query->getString(StatisticsQueryKeys::ROWS),
+            $request->query->getString(StatisticsQueryKeys::COLS),
+            $request->query->getString(StatisticsQueryKeys::MEASURE),
         );
 
         $rows = [];
@@ -62,19 +60,19 @@ final readonly class AnalysisPivotChoicesFactory
             $rows[] = [
                 'labelKey' => 'stats.analysis.pivot.axis.rows.'.$axis->value,
                 'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
-                    'analysis' => 'allocation_pivot',
-                    'rows' => $axis->value,
-                    'view' => 'table',
-                ], self::PIVOT_STALE_QUERY_KEYS),
+                    StatisticsQueryKeys::ANALYSIS => 'allocation_pivot',
+                    StatisticsQueryKeys::ROWS => $axis->value,
+                    StatisticsQueryKeys::VIEW => 'table',
+                ], StatisticsQueryKeys::PIVOT_STALE),
                 'active' => $selection->rows === $axis,
             ];
             $cols[] = [
                 'labelKey' => 'stats.analysis.pivot.axis.rows.'.$axis->value,
                 'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
-                    'analysis' => 'allocation_pivot',
-                    'cols' => $axis->value,
-                    'view' => 'table',
-                ], self::PIVOT_STALE_QUERY_KEYS),
+                    StatisticsQueryKeys::ANALYSIS => 'allocation_pivot',
+                    StatisticsQueryKeys::COLS => $axis->value,
+                    StatisticsQueryKeys::VIEW => 'table',
+                ], StatisticsQueryKeys::PIVOT_STALE),
                 'active' => $selection->cols === $axis,
             ];
         }
@@ -83,10 +81,10 @@ final readonly class AnalysisPivotChoicesFactory
             $measures[] = [
                 'labelKey' => 'stats.analysis.allocation_pivot.measure.'.$measure->value,
                 'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
-                    'analysis' => 'allocation_pivot',
-                    'measure' => $measure->value,
-                    'view' => 'table',
-                ], self::PIVOT_STALE_QUERY_KEYS),
+                    StatisticsQueryKeys::ANALYSIS => 'allocation_pivot',
+                    StatisticsQueryKeys::MEASURE => $measure->value,
+                    StatisticsQueryKeys::VIEW => 'table',
+                ], StatisticsQueryKeys::PIVOT_STALE),
                 'active' => $selection->measure === $measure,
             ];
         }
@@ -104,9 +102,9 @@ final readonly class AnalysisPivotChoicesFactory
     private function buildHospitalChoices(Request $request): array
     {
         $selection = HospitalPivotSelection::fromQuery(
-            $request->query->getString('rows'),
-            $request->query->getString('cols'),
-            $request->query->getString('measure'),
+            $request->query->getString(StatisticsQueryKeys::ROWS),
+            $request->query->getString(StatisticsQueryKeys::COLS),
+            $request->query->getString(StatisticsQueryKeys::MEASURE),
         );
 
         $rows = [];
@@ -117,19 +115,19 @@ final readonly class AnalysisPivotChoicesFactory
             $rows[] = [
                 'labelKey' => 'stats.analysis.hospital_pivot.axis.'.$axis->value,
                 'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
-                    'analysis' => 'hospital_pivot',
-                    'rows' => $axis->value,
-                    'view' => 'table',
-                ], self::PIVOT_STALE_QUERY_KEYS),
+                    StatisticsQueryKeys::ANALYSIS => 'hospital_pivot',
+                    StatisticsQueryKeys::ROWS => $axis->value,
+                    StatisticsQueryKeys::VIEW => 'table',
+                ], StatisticsQueryKeys::PIVOT_STALE),
                 'active' => $selection->rows === $axis,
             ];
             $cols[] = [
                 'labelKey' => 'stats.analysis.hospital_pivot.axis.'.$axis->value,
                 'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
-                    'analysis' => 'hospital_pivot',
-                    'cols' => $axis->value,
-                    'view' => 'table',
-                ], self::PIVOT_STALE_QUERY_KEYS),
+                    StatisticsQueryKeys::ANALYSIS => 'hospital_pivot',
+                    StatisticsQueryKeys::COLS => $axis->value,
+                    StatisticsQueryKeys::VIEW => 'table',
+                ], StatisticsQueryKeys::PIVOT_STALE),
                 'active' => $selection->cols === $axis,
             ];
         }
@@ -138,10 +136,10 @@ final readonly class AnalysisPivotChoicesFactory
             $measures[] = [
                 'labelKey' => 'stats.analysis.hospital_pivot.measure.'.$measure->value,
                 'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
-                    'analysis' => 'hospital_pivot',
-                    'measure' => $measure->value,
-                    'view' => 'table',
-                ], self::PIVOT_STALE_QUERY_KEYS),
+                    StatisticsQueryKeys::ANALYSIS => 'hospital_pivot',
+                    StatisticsQueryKeys::MEASURE => $measure->value,
+                    StatisticsQueryKeys::VIEW => 'table',
+                ], StatisticsQueryKeys::PIVOT_STALE),
                 'active' => $selection->measure === $measure,
             ];
         }

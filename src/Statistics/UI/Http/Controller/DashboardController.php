@@ -27,6 +27,8 @@ final class DashboardController extends AbstractController
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
+        private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
+        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
     ) {
     }
 
@@ -56,6 +58,7 @@ final class DashboardController extends AbstractController
         if ($pageViewModel->showUnscopedHint) {
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
+        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
         $chartPairWidget = array_find($this->overviewDashboardProvider->build($context), fn ($widget): bool => StatisticWidgetType::ChartPair === $widget->type);
 
         return $this->render('@Statistics/dashboard/index.html.twig', [
@@ -73,6 +76,10 @@ final class DashboardController extends AbstractController
             'isLoggedIn' => $pageViewModel->isLoggedIn,
             'statisticsHeadingScope' => $pageViewModel->headingScope,
             'statisticsHeadingPeriod' => $pageViewModel->headingPeriod,
+            'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'dashboard'),
+            'statsFilterDrawerValues' => $drawerState['values'],
+            'statsActiveFilterCount' => $drawerState['activeCount'],
+            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_dashboard'),
         ]);
     }
 }

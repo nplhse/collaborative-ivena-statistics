@@ -4,27 +4,27 @@
      aria-label="{{ 'stats.analysis.dimension_label'|trans }}"
      data-testid="stats-analysis-dimension-selector">
     <a href="{{ toolbar.dimensionTotalUrl }}"
-       class="btn btn-outline-secondary{% if toolbar.currentAnalysisDimension == 'total' %} active{% endif %}"
+       class="btn{% if toolbar.currentAnalysisDimension == 'total' %} active{% endif %}"
        data-testid="stats-analysis-dimension-total">
         {{ 'stats.analysis.dimension.total'|trans }}
     </a>
     <a href="{{ toolbar.dimensionGenderUrl }}"
-       class="btn btn-outline-secondary{% if toolbar.currentAnalysisDimension == 'gender' %} active{% endif %}"
+       class="btn{% if toolbar.currentAnalysisDimension == 'gender' %} active{% endif %}"
        data-testid="stats-analysis-dimension-gender">
         {{ 'stats.analysis.dimension.gender'|trans }}
     </a>
     <a href="{{ toolbar.dimensionUrgencyUrl }}"
-       class="btn btn-outline-secondary{% if toolbar.currentAnalysisDimension == 'urgency' %} active{% endif %}"
+       class="btn{% if toolbar.currentAnalysisDimension == 'urgency' %} active{% endif %}"
        data-testid="stats-analysis-dimension-urgency">
         {{ 'stats.analysis.dimension.urgency'|trans }}
     </a>
     <a href="{{ toolbar.dimensionResourcesUrl }}"
-       class="btn btn-outline-secondary{% if toolbar.currentAnalysisDimension == 'resources' %} active{% endif %}"
+       class="btn{% if toolbar.currentAnalysisDimension == 'resources' %} active{% endif %}"
        data-testid="stats-analysis-dimension-resources">
         {{ 'stats.analysis.dimension.resources'|trans }}
     </a>
     <a href="{{ toolbar.dimensionFeaturesUrl }}"
-       class="btn btn-outline-secondary{% if toolbar.currentAnalysisDimension == 'features' %} active{% endif %}"
+       class="btn{% if toolbar.currentAnalysisDimension == 'features' %} active{% endif %}"
        data-testid="stats-analysis-dimension-features">
         {{ 'stats.analysis.dimension.features'|trans }}
     </a>

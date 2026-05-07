@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}Analysis: {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
+{% block title %}Analysis: {{ analysisPage.headerTitleKey|trans }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -20,13 +20,14 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <div class="page-pretitle" data-testid="stats-heading-scope">
-                        {{ statisticsHeadingScope }}
+                    <div class="page-pretitle" data-testid="stats-heading-subtitle">
+                        {{ analysisPage.headerSubtitleKey|trans }}
                     </div>
-                    <h2 class="page-title" data-testid="stats-heading-period">
-                        {{ statisticsHeadingPeriod }}
+                    <h2 class="page-title" data-testid="stats-heading-title">
+                        {{ analysisPage.headerTitleKey|trans }}
                     </h2>
                 </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
             </div>
         </div>
     </div>
@@ -34,90 +35,147 @@
 
 {% block page_content %}
     <div class="row g-4 align-items-start">
-        <aside class="col-12 col-lg-3 col-xl-2">
+        <aside class="col-12 col-lg-4 col-xl-3">
             <div class="position-lg-sticky" style="top: 1rem;">
-                {{ include('@Statistics/dashboard/_statistics_filter_bar.html.twig') }}
+                {{ include('@Statistics/_explorer_sidebar.html.twig') }}
             </div>
         </aside>
-        <div class="col-12 col-lg-9 col-xl-10 min-w-0">
-            <div class="card mb-3">
-                <div class="card-body py-3">
-                    <div class="row g-3 align-items-end flex-wrap">
-                        {{ include('@Statistics/_definition_select_control.html.twig', {
-                            triggerId: 'stats-analysis-select-trigger',
-                            labelKey: 'stats.analysis.select_label',
-                            definitions: analysisPage.analysisDefinitions,
-                            currentKey: analysisPage.currentAnalysisKey,
-                            selectUrls: analysisPage.analysisSelectUrls,
-                        }) }}
-                        <div class="col-12 col-sm-auto">
-                            <span class="form-label d-block mb-1">{{ 'stats.analysis.presentation_label'|trans }}</span>
-                            {{ include('@Statistics/analysis/_view_toggle.html.twig', {toolbar: analysisPage.toolbar}) }}
+        <div class="col-12 col-lg-8 col-xl-9 min-w-0">
+            {% set showTopControls = analysisPage.comparisonControls.show or analysisPage.toolbar.showDimensionSelector %}
+            {% if analysisPage.showViewTabs %}
+                <div class="card-tabs">
+                    {{ include('@Statistics/analysis/_view_toggle.html.twig', {toolbar: analysisPage.toolbar}) }}
+                    <div class="tab-content">
+                        <div class="tab-pane active show">
+                            <div class="card">
+                                <div class="card-body pt-3" data-testid="stats-analysis-widget">
+                                    {% if showTopControls %}
+                                        <div class="row g-3 align-items-end mb-3">
+                                            {% if analysisPage.comparisonControls.show %}
+                                                <div class="col-12 col-md-auto">
+                                                    <span class="form-label d-block mb-1">{{ 'stats.analysis.comparison.scope_label'|trans }}</span>
+                                                    <div class="dropdown">
+                                                        <button type="button"
+                                                                class="btn dropdown-toggle"
+                                                                data-bs-toggle="dropdown"
+                                                                data-testid="stats-analysis-comparison-scope-trigger"
+                                                                aria-expanded="false">
+                                                            {{ analysisPage.comparisonControls.activeScopeLabel }}
+                                                        </button>
+                                                        <div class="dropdown-menu" data-testid="stats-analysis-comparison-scope-menu">
+                                                            {% for scopeKey, scopeChoice in analysisPage.comparisonControls.scopeChoices %}
+                                                                <a class="dropdown-item{% if scopeChoice.active %} active{% endif %}" href="{{ scopeChoice.url }}">
+                                                                    {{ scopeChoice.label }}
+                                                                </a>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-auto">
+                                                    <span class="form-label d-block mb-1">{{ 'stats.analysis.comparison.period_label'|trans }}</span>
+                                                    <div class="dropdown">
+                                                        <button type="button"
+                                                                class="btn dropdown-toggle"
+                                                                data-bs-toggle="dropdown"
+                                                                data-testid="stats-analysis-comparison-period-trigger"
+                                                                aria-expanded="false">
+                                                            {{ analysisPage.comparisonControls.activePeriodLabel }}
+                                                        </button>
+                                                        <div class="dropdown-menu" data-testid="stats-analysis-comparison-period-menu">
+                                                            {% for _, periodChoice in analysisPage.comparisonControls.periodChoices %}
+                                                                <a class="dropdown-item{% if periodChoice.active %} active{% endif %}" href="{{ periodChoice.url }}">
+                                                                    {{ periodChoice.label }}
+                                                                </a>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                            {% if analysisPage.toolbar.showDimensionSelector %}
+                                                <div class="col-12">
+                                                    {{ include('@Statistics/analysis/_dimension_selector.html.twig', {toolbar: analysisPage.toolbar}) }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {
+                                        widget: analysisPage.analysisWidget,
+                                        analysisChartStyle: {
+                                            chartBarUrl: analysisPage.toolbar.chartBarUrl,
+                                            chartLineUrl: analysisPage.toolbar.chartLineUrl,
+                                            currentChartType: analysisPage.toolbar.currentChartType,
+                                        },
+                                        showChartStyleToggle: true,
+                                    }) }}
+                                </div>
+                            </div>
                         </div>
-                        {% if analysisPage.comparisonControls.show %}
-                            <div class="col-12 col-sm-auto">
-                                <span class="form-label d-block mb-1">{{ 'stats.analysis.comparison.scope_label'|trans }}</span>
-                                <div class="dropdown">
-                                    <button type="button"
-                                            class="btn btn-secondary dropdown-toggle"
-                                            data-bs-toggle="dropdown"
-                                            data-testid="stats-analysis-comparison-scope-trigger"
-                                            aria-expanded="false">
-                                        {{ analysisPage.comparisonControls.activeScopeLabel }}
-                                    </button>
-                                    <div class="dropdown-menu" data-testid="stats-analysis-comparison-scope-menu">
-                                        {% for scopeKey, scopeChoice in analysisPage.comparisonControls.scopeChoices %}
-                                            <a class="dropdown-item{% if scopeChoice.active %} active{% endif %}" href="{{ scopeChoice.url }}">
-                                                {{ scopeChoice.label }}
-                                            </a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-auto">
-                                <span class="form-label d-block mb-1">{{ 'stats.analysis.comparison.period_label'|trans }}</span>
-                                <div class="dropdown">
-                                    <button type="button"
-                                            class="btn btn-secondary dropdown-toggle"
-                                            data-bs-toggle="dropdown"
-                                            data-testid="stats-analysis-comparison-period-trigger"
-                                            aria-expanded="false">
-                                        {{ analysisPage.comparisonControls.activePeriodLabel }}
-                                    </button>
-                                    <div class="dropdown-menu" data-testid="stats-analysis-comparison-period-menu">
-                                        {% for _, periodChoice in analysisPage.comparisonControls.periodChoices %}
-                                            <a class="dropdown-item{% if periodChoice.active %} active{% endif %}" href="{{ periodChoice.url }}">
-                                                {{ periodChoice.label }}
-                                            </a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
-                        {% if analysisPage.toolbar.showDimensionSelector %}
-                            <div class="col-12">
-                                {{ include('@Statistics/analysis/_dimension_selector.html.twig', {toolbar: analysisPage.toolbar}) }}
-                            </div>
-                        {% endif %}
-                        {% if analysisPage.toolbar.showChartMeasureSelector %}
-                            <div class="col-12">
-                                {{ include('@Statistics/analysis/_chart_measure_selector.html.twig', {toolbar: analysisPage.toolbar}) }}
-                            </div>
-                        {% endif %}
                     </div>
                 </div>
-            </div>
-
-            <div data-testid="stats-analysis-widget">
-                {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {
-                    widget: analysisPage.analysisWidget,
-                    analysisChartStyle: {
-                        chartBarUrl: analysisPage.toolbar.chartBarUrl,
-                        chartLineUrl: analysisPage.toolbar.chartLineUrl,
-                        currentChartType: analysisPage.toolbar.currentChartType,
-                    },
-                }) }}
-            </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body pt-3" data-testid="stats-analysis-widget">
+                        {% if showTopControls %}
+                            <div class="row g-3 align-items-end mb-3">
+                                {% if analysisPage.comparisonControls.show %}
+                                    <div class="col-12 col-md-auto">
+                                        <span class="form-label d-block mb-1">{{ 'stats.analysis.comparison.scope_label'|trans }}</span>
+                                        <div class="dropdown">
+                                            <button type="button"
+                                                    class="btn dropdown-toggle"
+                                                    data-bs-toggle="dropdown"
+                                                    data-testid="stats-analysis-comparison-scope-trigger"
+                                                    aria-expanded="false">
+                                                {{ analysisPage.comparisonControls.activeScopeLabel }}
+                                            </button>
+                                            <div class="dropdown-menu" data-testid="stats-analysis-comparison-scope-menu">
+                                                {% for scopeKey, scopeChoice in analysisPage.comparisonControls.scopeChoices %}
+                                                    <a class="dropdown-item{% if scopeChoice.active %} active{% endif %}" href="{{ scopeChoice.url }}">
+                                                        {{ scopeChoice.label }}
+                                                    </a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-auto">
+                                        <span class="form-label d-block mb-1">{{ 'stats.analysis.comparison.period_label'|trans }}</span>
+                                        <div class="dropdown">
+                                            <button type="button"
+                                                    class="btn dropdown-toggle"
+                                                    data-bs-toggle="dropdown"
+                                                    data-testid="stats-analysis-comparison-period-trigger"
+                                                    aria-expanded="false">
+                                                {{ analysisPage.comparisonControls.activePeriodLabel }}
+                                            </button>
+                                            <div class="dropdown-menu" data-testid="stats-analysis-comparison-period-menu">
+                                                {% for _, periodChoice in analysisPage.comparisonControls.periodChoices %}
+                                                    <a class="dropdown-item{% if periodChoice.active %} active{% endif %}" href="{{ periodChoice.url }}">
+                                                        {{ periodChoice.label }}
+                                                    </a>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if analysisPage.toolbar.showDimensionSelector %}
+                                    <div class="col-12">
+                                        {{ include('@Statistics/analysis/_dimension_selector.html.twig', {toolbar: analysisPage.toolbar}) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {
+                            widget: analysisPage.analysisWidget,
+                            analysisChartStyle: {
+                                chartBarUrl: analysisPage.toolbar.chartBarUrl,
+                                chartLineUrl: analysisPage.toolbar.chartLineUrl,
+                                currentChartType: analysisPage.toolbar.currentChartType,
+                            },
+                            showChartStyleToggle: true,
+                        }) }}
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

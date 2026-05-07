@@ -19,6 +19,8 @@ final readonly class ReportsPageViewModel
         public string $currentReportKey,
         public array $reportSelectUrls,
         public int $currentLimit,
+        public string $headerTitleKey,
+        public string $headerSubtitleKey,
     ) {
     }
 }

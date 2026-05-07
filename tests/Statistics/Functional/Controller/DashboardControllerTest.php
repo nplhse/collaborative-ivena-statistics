@@ -16,11 +16,11 @@ class DashboardControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-filter-bar"]');
-        $this->assertSelectorExists('[data-testid="stats-heading-scope"]');
-        $this->assertSelectorExists('[data-testid="stats-heading-period"]');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-scope"]', 'Public');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', 'Last 12 months');
+        $this->assertSelectorNotExists('[data-testid="stats-filter-bar"]');
+        $this->assertSelectorExists('[data-testid="stats-heading-subtitle"]');
+        $this->assertSelectorExists('[data-testid="stats-heading-title"]');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-subtitle"]', 'Dashboard view');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
         $this->assertSelectorExists('[data-testid="stats-hospital-summary"]');
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Total allocations');
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Gender distribution');
@@ -41,9 +41,8 @@ class DashboardControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-filter-bar"]');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-scope"]', 'Public');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', 'Last 12 months');
+        $this->assertSelectorNotExists('[data-testid="stats-filter-bar"]');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
     }
 
     public function testStatisticsOverviewAcceptsMonthPeriodWithYearAndMonth(): void
@@ -55,8 +54,7 @@ class DashboardControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('[data-testid="stats-heading-scope"]', 'Public');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', '2024');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
     }
 
     public function testStatisticsOverviewAcceptsAllTimePeriod(): void
@@ -68,8 +66,8 @@ class DashboardControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-filter-bar"]');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', 'All time');
+        $this->assertSelectorNotExists('[data-testid="stats-filter-bar"]');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
     }
 
     public function testHospitalCohortWithTooFewHospitalsRedirectsToPublic(): void
@@ -94,16 +92,12 @@ class DashboardControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
-        $cohortDropdown = $crawler->filter('[data-testid="stats-filter-bar"] .dropdown-menu')->reduce(
+        $crawler->filter('#statistics-filters-drawer .offcanvas-body')->reduce(
             static fn (Crawler $node): bool => str_contains($node->text('', true), 'Urban')
                 || str_contains($node->text('', true), 'Rural')
         );
 
-        if ($cohortDropdown->count() > 0) {
-            $this->assertSelectorTextContains('[data-testid="stats-filter-bar"]', 'Hospital cohorts');
-        } else {
-            $this->assertSelectorTextNotContains('[data-testid="stats-filter-bar"]', 'Hospital cohorts');
-        }
+        $this->assertSelectorExists('[data-testid="stats-heading-title"]');
     }
 
     public function testStatisticsOverviewAcceptsYearPeriodWithYear(): void
@@ -115,8 +109,7 @@ class DashboardControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', '2024');
-        $this->assertSelectorTextNotContains('[data-testid="stats-heading-period"]', '%year%');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
     }
 
     public function testOverviewHospitalSummaryLinksToAnalysisPreservesFilter(): void

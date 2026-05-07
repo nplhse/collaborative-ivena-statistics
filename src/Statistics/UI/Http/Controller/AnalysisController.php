@@ -9,6 +9,7 @@ use App\Statistics\Application\ComparisonScopeResolver;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsContextFactory;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +28,8 @@ final class AnalysisController extends AbstractController
         private readonly AnalysisDefinitionRegistry $analysisDefinitionRegistry,
         private readonly ComparisonScopeResolver $comparisonScopeResolver,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
+        private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
+        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
     ) {
     }
 
@@ -57,20 +60,26 @@ final class AnalysisController extends AbstractController
         }
         $analysisRequest = $this->analysisRequestModelFactory->fromRequest($request);
         $comparisonFilter = $this->comparisonScopeResolver->resolve($request, $user, $filter);
-        if (!$request->query->has('comparison_scope') && $comparisonFilter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortType) {
+        if (
+            !$request->query->has(StatisticsQueryKeys::COMPARISON_SCOPE)
+            && $comparisonFilter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortType
+        ) {
             $query = $request->query->all();
-            $query['comparison_scope'] = StatisticsFilterScope::HospitalCohort->value.':'.$comparisonFilter->cohortType->value;
+            $query[StatisticsQueryKeys::COMPARISON_SCOPE] = StatisticsFilterScope::HospitalCohort->value.':'.$comparisonFilter->cohortType->value;
 
             return $this->redirectToRoute('app_stats_analysis', $query);
         }
-        if ('allocations_comparison_over_time' === $analysisRequest->analysisKey && !$request->query->has('comparison_period')) {
+        if (
+            'allocations_comparison_over_time' === $analysisRequest->analysisKey
+            && !$request->query->has(StatisticsQueryKeys::COMPARISON_PERIOD)
+        ) {
             $query = $request->query->all();
-            $query['comparison_period'] = $comparisonFilter->period->value;
+            $query[StatisticsQueryKeys::COMPARISON_PERIOD] = $comparisonFilter->period->value;
             if (null !== $comparisonFilter->referenceYear) {
-                $query['comparison_year'] = $comparisonFilter->referenceYear;
+                $query[StatisticsQueryKeys::COMPARISON_YEAR] = $comparisonFilter->referenceYear;
             }
             if (null !== $comparisonFilter->referenceMonth) {
-                $query['comparison_month'] = $comparisonFilter->referenceMonth;
+                $query[StatisticsQueryKeys::COMPARISON_MONTH] = $comparisonFilter->referenceMonth;
             }
 
             return $this->redirectToRoute('app_stats_analysis', $query);
@@ -105,6 +114,7 @@ final class AnalysisController extends AbstractController
             $comparisonFilter,
             $this->analysisDefinitionRegistry->all(),
         );
+        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
 
         return $this->render('@Statistics/analysis/index.html.twig', [
             'statisticsFilter' => $pageViewModel->filter,
@@ -119,6 +129,10 @@ final class AnalysisController extends AbstractController
             'statisticsHeadingScope' => $pageViewModel->headingScope,
             'statisticsHeadingPeriod' => $pageViewModel->headingPeriod,
             'analysisPage' => $analysisPage,
+            'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'analysis', $analysisKey),
+            'statsFilterDrawerValues' => $drawerState['values'],
+            'statsActiveFilterCount' => $drawerState['activeCount'],
+            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_analysis'),
         ]);
     }
 }

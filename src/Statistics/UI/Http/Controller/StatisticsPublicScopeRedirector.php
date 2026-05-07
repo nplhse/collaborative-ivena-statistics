@@ -7,6 +7,7 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterNotice;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 
 final class StatisticsPublicScopeRedirector
@@ -23,8 +24,10 @@ final class StatisticsPublicScopeRedirector
         }
 
         $query = $request->query->all();
-        $query['scope'] = StatisticsFilterScope::Public->value;
-        unset($query['cohort'], $query['hospital']);
+        $query[StatisticsQueryKeys::SCOPE] = StatisticsFilterScope::Public->value;
+        foreach (StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT as $key) {
+            unset($query[$key]);
+        }
 
         return [
             'notice' => $filter->notice instanceof StatisticsFilterNotice ? $filter->notice : null,

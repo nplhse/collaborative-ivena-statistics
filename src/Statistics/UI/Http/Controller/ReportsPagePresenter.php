@@ -55,6 +55,8 @@ final readonly class ReportsPagePresenter
             $currentDefinition->key(),
             $reportSelectUrls,
             $currentLimit,
+            $currentDefinition->labelTranslationKey(),
+            $currentDefinition->descriptionTranslationKey(),
         );
     }
 

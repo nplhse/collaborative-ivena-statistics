@@ -59,9 +59,8 @@ class ReportsControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-filter-bar"]');
+        $this->assertSelectorExists('[data-testid="stats-explorer-sidebar"]');
         $this->assertSelectorExists('[data-testid="stats-reports-widget"]');
-        $this->assertSelectorExists('[data-testid="stats-reports-description"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-table-card"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Rank');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Diagnosis');
@@ -116,7 +115,7 @@ class ReportsControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('[data-testid="stats-heading-scope"]', 'Public');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-period"]', 'All time');
+        $this->assertSelectorExists('[data-testid="stats-heading-title"]');
+        $this->assertSelectorExists('[data-testid="stats-heading-subtitle"]');
     }
 }
