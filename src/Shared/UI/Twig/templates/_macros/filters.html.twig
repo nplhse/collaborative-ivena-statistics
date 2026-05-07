@@ -1,4 +1,4 @@
-{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports) %}
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections) %}
     {% set rawFilters = [] %}
 
     {# --- Simple string filters --- #}
@@ -34,6 +34,30 @@
 
     {% if filters.requiresCathlab is not null %}
         {% set rawFilters = rawFilters|merge([{key: 'label.requires_cathlab', value: filters.requiresCathlab ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.isVentilated is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_ventilated', value: filters.isVentilated ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.isShock is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_shock', value: filters.isShock ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.isCPR is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_cpr', value: filters.isCPR ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.isPregnant is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_pregnant', value: filters.isPregnant ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.isWorkAccident is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_work_accident', value: filters.isWorkAccident ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.isInfectious is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_infectious', value: filters.isInfectious ? 'Yes' : 'No'}]) %}
     {% endif %}
 
     {# --- Lookup: State (id → name) --- #}
@@ -85,6 +109,19 @@
         {% endfor %}
         {% if secondaryTransportName is not null %}
             {% set rawFilters = rawFilters|merge([{key: 'label.secondary_transport', value: secondaryTransportName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Infection (id → name) --- #}
+    {% if filters.infection is not null and infections is defined %}
+        {% set infectionName = null %}
+        {% for inf in infections %}
+            {% if infectionName is null and inf.id == filters.infection %}
+                {% set infectionName = inf.name %}
+            {% endif %}
+        {% endfor %}
+        {% if infectionName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: infectionName}]) %}
         {% endif %}
     {% endif %}
 

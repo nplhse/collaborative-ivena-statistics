@@ -11,6 +11,7 @@ use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
+use App\Allocation\Infrastructure\Repository\InfectionRepository;
 use App\Allocation\Infrastructure\Repository\SecondaryTransportRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
@@ -28,6 +29,7 @@ final class ListAllocationsController extends AbstractController
         private readonly StateRepository $stateRepository,
         private readonly IndicationNormalizedRepository $normalizedRepository,
         private readonly SecondaryTransportRepository $secondaryTransportRepository,
+        private readonly InfectionRepository $infectionRepository,
     ) {
     }
 
@@ -51,6 +53,7 @@ final class ListAllocationsController extends AbstractController
             'dispatchAreas' => $this->dispatchAreaRepository->findAll(),
             'indications' => $this->normalizedRepository->findAll(),
             'secondaryTransports' => $this->secondaryTransportRepository->findBy([], ['name' => 'ASC']),
+            'infections' => $this->infectionRepository->findBy([], ['name' => 'ASC']),
         ]);
     }
 
@@ -69,6 +72,13 @@ final class ListAllocationsController extends AbstractController
             'state',
             'requiresResus',
             'requiresCathlab',
+            'isVentilated',
+            'isShock',
+            'isCPR',
+            'isPregnant',
+            'isWorkAccident',
+            'isInfectious',
+            'infection',
         ];
 
         foreach ($filterFields as $field) {

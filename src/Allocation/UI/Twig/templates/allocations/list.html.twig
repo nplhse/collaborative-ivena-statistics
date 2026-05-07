@@ -127,7 +127,7 @@
         {% if activeFilterCount > 0 %}
             <div class="alert alert-info" role="alert">
                 <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
-                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports) }}
+                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections) }}
             </div>
         {% endif %}
 
@@ -409,44 +409,6 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">{{ 'label.requires_resus'|trans }}</label>
-                    <select name="requiresResus" class="form-select">
-                        <option value="">{{ 'label.all_modes'|trans }}</option>
-                        <option
-                            value="1"
-                            {{ filters.requiresResus == '1' ? 'selected' }}
-                        >
-                            {{ 'label.resus.is_required'|trans }}
-                        </option>
-                        <option
-                            value="0"
-                            {{ filters.requiresResus == '0' ? 'selected' }}
-                        >
-                            {{ 'label.resus.not_required'|trans }}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">{{ 'label.requires_cathlab'|trans }}</label>
-                    <select name="requiresCathlab" class="form-select">
-                        <option value="">{{ 'label.all_modes'|trans }}</option>
-                        <option
-                            value="1"
-                            {{ filters.requiresCathlab == '1' ? 'selected' }}
-                        >
-                            {{ 'label.cathlab.is_required'|trans }}
-                        </option>
-                        <option
-                            value="0"
-                            {{ filters.requiresCathlab == '0' ? 'selected' }}
-                        >
-                            {{ 'label.cathlab.not_required'|trans }}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
                     <label class="form-label">{{ 'label.dispatch_area'|trans }}</label>
                     <select name="dispatchArea" class="form-select">
                         <option value="">{{ 'label.all_dispatch_areas'|trans }}</option>
@@ -474,6 +436,139 @@
                             </option>
                         {% endfor %}
                     </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="requiresResus"
+                            value="1"
+                            {{ filters.requiresResus ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.requires_resus'|trans }}</span>
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="requiresCathlab"
+                            value="1"
+                            {{ filters.requiresCathlab ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.requires_cathlab'|trans }}</span>
+                    </label>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="mb-2 fw-semibold">{{ 'label.features'|trans }}</div>
+
+                <div class="mb-3">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="isVentilated"
+                            value="1"
+                            {{ filters.isVentilated ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.is_ventilated'|trans }}</span>
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="isShock"
+                            value="1"
+                            {{ filters.isShock ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.is_shock'|trans }}</span>
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="isCPR"
+                            value="1"
+                            {{ filters.isCPR ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.is_cpr'|trans }}</span>
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="isPregnant"
+                            value="1"
+                            {{ filters.isPregnant ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.is_pregnant'|trans }}</span>
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="isWorkAccident"
+                            value="1"
+                            {{ filters.isWorkAccident ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.is_work_accident'|trans }}</span>
+                    </label>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="mb-3" data-controller="infection-filter">
+                    <label class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="isInfectious"
+                            value="1"
+                            data-infection-filter-target="toggle"
+                            data-action="change->infection-filter#sync"
+                            {{ filters.isInfectious ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.is_infectious'|trans }}</span>
+                    </label>
+
+                    <div class="mt-2 {{ filters.isInfectious ? '' : 'd-none' }}" data-infection-filter-target="panel">
+                        <label class="form-label" for="allocation-filter-infection">{{ 'label.infection'|trans }}</label>
+                        <select
+                            id="allocation-filter-infection"
+                            name="infection"
+                            class="form-select"
+                            data-infection-filter-target="select"
+                            {{ filters.isInfectious ? '' : 'disabled' }}
+                        >
+                            <option value="">{{ 'label.all_infections'|trans }}</option>
+                            {% for infection in infections %}
+                                <option
+                                    value="{{ infection.id }}"
+                                    {{ filters.infection == infection.id ? 'selected' }}
+                                >
+                                    {{ infection.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
 
                 <div class="d-flex gap-2 mt-4">

@@ -46,6 +46,20 @@ final readonly class AllocationQueryParametersDTO
         public ?int $indication = null,
 
         public ?int $secondaryTransport = null,
+
+        public ?int $isVentilated = null,
+
+        public ?int $isShock = null,
+
+        public ?int $isCPR = null,
+
+        public ?int $isPregnant = null,
+
+        public ?int $isWorkAccident = null,
+
+        public ?int $isInfectious = null,
+
+        public ?int $infection = null,
     ) {
     }
 }
