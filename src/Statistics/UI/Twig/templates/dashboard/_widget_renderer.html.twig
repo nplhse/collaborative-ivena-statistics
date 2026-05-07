@@ -1,16 +1,5 @@
 {# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
-{% if widget.type.value == 'table' %}
-    {{ include('@Statistics/dashboard/components/_widget_table_component.html.twig', {widget: widget}) }}
-{% elseif widget.type.value == 'simple_chart' %}
-    {{ include('@Statistics/dashboard/components/_widget_simple_chart_component.html.twig', {
-        widget: widget,
-        analysisChartStyle: analysisChartStyle|default(null),
-    }) }}
-{% elseif widget.type.value == 'pivot_table' %}
-    {{ include('@Statistics/dashboard/components/_widget_pivot_component.html.twig', {widget: widget}) }}
-{% else %}
-    {{ include('@Statistics/dashboard/_statistic_widget.html.twig', {
-        widget: widget,
-        analysisChartStyle: analysisChartStyle|default(null),
-    }) }}
-{% endif %}
+{{ include(statistics_widget_template(widget.type, true), {
+    widget: widget,
+    analysisChartStyle: analysisChartStyle|default(null),
+}) }}

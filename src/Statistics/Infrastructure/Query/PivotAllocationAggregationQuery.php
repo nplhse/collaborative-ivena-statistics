@@ -6,7 +6,6 @@ namespace App\Statistics\Infrastructure\Query;
 
 use App\Statistics\Application\DTO\PivotColAxis;
 use App\Statistics\Application\DTO\PivotRowAxis;
-use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -18,13 +17,10 @@ use Doctrine\ORM\QueryBuilder;
  */
 final readonly class PivotAllocationAggregationQuery
 {
-    private const string AGE_BUCKET_CASE = <<<'DQL'
-CASE WHEN a.age IS NULL THEN 'unknown' WHEN a.age <= 18 THEN '0_18' WHEN a.age <= 29 THEN '19_29' WHEN a.age <= 39 THEN '30_39' WHEN a.age <= 49 THEN '40_49' WHEN a.age <= 59 THEN '50_59' WHEN a.age <= 69 THEN '60_69' WHEN a.age <= 79 THEN '70_79' WHEN a.age <= 89 THEN '80_89' WHEN a.age <= 99 THEN '90_99' ELSE '100p' END
-DQL;
-
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ProjectionFilterApplier $filterApplier,
+        private PivotValueMapper $pivotValueMapper,
     ) {
     }
 
@@ -77,7 +73,7 @@ DQL;
      */
     private function executeAgeBucketByGender(QueryBuilder $qb): array
     {
-        $ageExpr = trim(self::AGE_BUCKET_CASE);
+        $ageExpr = trim(PivotValueMapper::AGE_BUCKET_CASE);
         // DQL: GroupByItem disallows CASE — only paths or SELECT result aliases (Parser::GroupByItem).
         $qb->select("{$ageExpr} AS rk", 'a.genderCode AS gender', 'COUNT(a.id) AS cnt')
             ->groupBy('rk', 'gender');
@@ -137,12 +133,7 @@ DQL;
         $out = [];
         foreach ($rows as $row) {
             $gender = isset($row['gender']) ? (int) $row['gender'] : 0;
-            $colKey = match ($gender) {
-                AllocationStatsGenderProjectionCode::Male->value => 'M',
-                AllocationStatsGenderProjectionCode::Female->value => 'F',
-                AllocationStatsGenderProjectionCode::Other->value => 'X',
-                default => '',
-            };
+            $colKey = $this->pivotValueMapper->genderKeyFromCode($gender);
 
             $out[] = [
                 'row_key' => (string) ($row['rk'] ?? ''),
@@ -166,12 +157,7 @@ DQL;
             $urgency = isset($row['urgency']) ? (int) $row['urgency'] : 0;
             $gender = isset($row['gender']) ? (int) $row['gender'] : 0;
             $rk = (string) $urgency;
-            $colKey = match ($gender) {
-                AllocationStatsGenderProjectionCode::Male->value => 'M',
-                AllocationStatsGenderProjectionCode::Female->value => 'F',
-                AllocationStatsGenderProjectionCode::Other->value => 'X',
-                default => '',
-            };
+            $colKey = $this->pivotValueMapper->genderKeyFromCode($gender);
 
             $out[] = [
                 'row_key' => $rk,

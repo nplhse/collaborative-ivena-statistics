@@ -26,6 +26,7 @@ final class AnalysisController extends AbstractController
         private readonly AnalysisPagePresenter $analysisPagePresenter,
         private readonly AnalysisDefinitionRegistry $analysisDefinitionRegistry,
         private readonly ComparisonScopeResolver $comparisonScopeResolver,
+        private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
     ) {
     }
 
@@ -35,15 +36,13 @@ final class AnalysisController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if ($filter->requiresPublicRedirect) {
-            if ($filter->notice instanceof \App\Statistics\Application\DTO\StatisticsFilterNotice) {
-                $this->addFlash('error', $filter->notice->value);
+        $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
+        if (null !== $publicRedirect) {
+            if (null !== $publicRedirect['notice']) {
+                $this->addFlash('error', $publicRedirect['notice']->value);
             }
-            $query = $request->query->all();
-            $query['scope'] = StatisticsFilterScope::Public->value;
-            unset($query['cohort'], $query['hospital']);
 
-            return $this->redirectToRoute('app_stats_analysis', $query);
+            return $this->redirectToRoute('app_stats_analysis', $publicRedirect['query']);
         }
 
         $pageViewModel = $this->statisticsPageViewModelFactory->create(

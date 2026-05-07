@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Application;
 
+use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\StatisticsFilterFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\HttpFoundation\Request;
 
 final class StatisticsFilterFactoryTest extends KernelTestCase
 {
@@ -15,8 +15,17 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
         self::bootKernel();
         $factory = self::getContainer()->get(StatisticsFilterFactory::class);
 
-        $filter = $factory->createFromRequest(
-            new Request(query: ['scope' => 'hospital_cohort', 'cohort' => 'unknown_cohort']),
+        $filter = $factory->createFromInput(
+            new StatisticsFilterInput(
+                'hospital_cohort',
+                '',
+                'unknown_cohort',
+                '',
+                'all',
+                null,
+                null,
+                true,
+            ),
             null,
         );
 
@@ -30,8 +39,17 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
         self::bootKernel();
         $factory = self::getContainer()->get(StatisticsFilterFactory::class);
 
-        $filter = $factory->createFromRequest(
-            new Request(query: ['scope' => 'hospital_cohort']),
+        $filter = $factory->createFromInput(
+            new StatisticsFilterInput(
+                'hospital_cohort',
+                '',
+                '',
+                '',
+                'all',
+                null,
+                null,
+                true,
+            ),
             null,
         );
 
@@ -45,8 +63,17 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
         self::bootKernel();
         $factory = self::getContainer()->get(StatisticsFilterFactory::class);
 
-        $filter = $factory->createFromRequest(
-            new Request(query: ['scope' => 'hospital:12']),
+        $filter = $factory->createFromInput(
+            new StatisticsFilterInput(
+                'hospital:12',
+                '',
+                '',
+                '',
+                'all',
+                null,
+                null,
+                true,
+            ),
             null,
         );
 

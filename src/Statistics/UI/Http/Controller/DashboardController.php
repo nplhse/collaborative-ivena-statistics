@@ -6,7 +6,6 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\ClinicalFeaturesProvider;
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\HospitalSummaryProvider;
 use App\Statistics\Application\OverviewDashboardProvider;
@@ -27,6 +26,7 @@ final class DashboardController extends AbstractController
         private readonly ClinicalFeaturesProvider $clinicalFeaturesProvider,
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
+        private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
     ) {
     }
 
@@ -36,15 +36,13 @@ final class DashboardController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if ($filter->requiresPublicRedirect) {
-            if ($filter->notice instanceof \App\Statistics\Application\DTO\StatisticsFilterNotice) {
-                $this->addFlash('error', $filter->notice->value);
+        $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
+        if (null !== $publicRedirect) {
+            if (null !== $publicRedirect['notice']) {
+                $this->addFlash('error', $publicRedirect['notice']->value);
             }
-            $query = $request->query->all();
-            $query['scope'] = StatisticsFilterScope::Public->value;
-            unset($query['cohort'], $query['hospital']);
 
-            return $this->redirectToRoute('app_stats_dashboard', $query);
+            return $this->redirectToRoute('app_stats_dashboard', $publicRedirect['query']);
         }
 
         $context = $this->statisticsContextFactory->create($user, $filter);

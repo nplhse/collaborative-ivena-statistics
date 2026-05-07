@@ -16,6 +16,7 @@ final readonly class StatisticsFilterValueResolver implements ValueResolverInter
 {
     public function __construct(
         private StatisticsFilterFactory $statisticsFilterFactory,
+        private StatisticsFilterInputFactory $statisticsFilterInputFactory,
         private Security $security,
     ) {
     }
@@ -33,6 +34,9 @@ final readonly class StatisticsFilterValueResolver implements ValueResolverInter
         $user = $this->security->getUser();
         $domainUser = $user instanceof User ? $user : null;
 
-        yield $this->statisticsFilterFactory->createFromRequest($request, $domainUser);
+        yield $this->statisticsFilterFactory->createFromInput(
+            $this->statisticsFilterInputFactory->fromQuery($request->query),
+            $domainUser,
+        );
     }
 }

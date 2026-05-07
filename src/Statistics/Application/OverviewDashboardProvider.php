@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
-use App\Import\Infrastructure\Repository\ImportRepository;
+use App\Statistics\Application\Contract\ImportTimelineInterface;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticWidget;
@@ -16,9 +16,10 @@ use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 final readonly class OverviewDashboardProvider
 {
     public function __construct(
-        private ImportRepository $importRepository,
+        private ImportTimelineInterface $importTimeline,
         private ProjectionTimeSeriesQuery $timeSeriesQuery,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
+        private ChartBucketMapper $chartBucketMapper,
     ) {
     }
 
@@ -97,13 +98,13 @@ final readonly class OverviewDashboardProvider
         }
 
         $allocationRows = $this->timeSeriesQuery->countByMonthInPeriod(StatisticsPeriod::overviewPeriodStart(), null, null);
-        $importRows = $this->importRepository->countByMonthLast12Months();
+        $importRows = $this->importTimeline->countByMonthLast12Months();
 
         return $this->assembleChartPayload(
             $monthKeys,
             $labels,
-            $this->mapMonthRowsToBucketCounts($allocationRows),
-            $this->mapMonthRowsToBucketCounts($importRows),
+            $this->chartBucketMapper->monthRowsToBucketCounts($allocationRows),
+            $this->chartBucketMapper->monthRowsToBucketCounts($importRows),
             $start
         );
     }
@@ -136,13 +137,13 @@ final readonly class OverviewDashboardProvider
         }
 
         $allocationRows = $this->timeSeriesQuery->countByMonthInPeriod($start, $toExclusive, null);
-        $importRows = $this->importRepository->countImportsByMonthInRange($start, $toExclusive);
+        $importRows = $this->importTimeline->countByMonthInRange($start, $toExclusive);
 
         return $this->assembleChartPayload(
             $monthKeys,
             $labels,
-            $this->mapMonthRowsToBucketCounts($allocationRows),
-            $this->mapMonthRowsToBucketCounts($importRows),
+            $this->chartBucketMapper->monthRowsToBucketCounts($allocationRows),
+            $this->chartBucketMapper->monthRowsToBucketCounts($importRows),
             $start
         );
     }
@@ -189,13 +190,13 @@ final readonly class OverviewDashboardProvider
 
         $rangeStart = (new \DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $startYear)));
         $allocationRows = $this->timeSeriesQuery->countByYearInPeriod($rangeStart, null, null);
-        $importRows = $this->importRepository->countImportsByYearInRange($rangeStart, null);
+        $importRows = $this->importTimeline->countByYearInRange($rangeStart, null);
 
         return $this->assembleChartPayload(
             $yearKeys,
             $labels,
-            $this->mapYearRowsToBucketCounts($allocationRows),
-            $this->mapYearRowsToBucketCounts($importRows),
+            $this->chartBucketMapper->yearRowsToBucketCounts($allocationRows),
+            $this->chartBucketMapper->yearRowsToBucketCounts($importRows),
             $rangeStart
         );
     }
@@ -218,20 +219,8 @@ final readonly class OverviewDashboardProvider
         array $importBucketCounts,
         \DateTimeImmutable $rangeStartForCumulative,
     ): array {
-        $mapMonthlyCounts = function (array $bucketedCounts, array $keys): array {
-            $base = array_fill_keys($keys, 0);
-
-            foreach ($bucketedCounts as $key => $count) {
-                if (\array_key_exists($key, $base)) {
-                    $base[$key] = (int) $count;
-                }
-            }
-
-            return array_values($base);
-        };
-
-        $allocationMonthlyCounts = $mapMonthlyCounts($allocationBucketCounts, $bucketKeys);
-        $importMonthlyCounts = $mapMonthlyCounts($importBucketCounts, $bucketKeys);
+        $allocationMonthlyCounts = $this->chartBucketMapper->mapMonthlyCounts($bucketKeys, $allocationBucketCounts);
+        $importMonthlyCounts = $this->chartBucketMapper->mapMonthlyCounts($bucketKeys, $importBucketCounts);
         $initialAllocations = $this->timeSeriesQuery->countBefore($rangeStartForCumulative);
 
         $allocationCumulativeCounts = [];
@@ -252,35 +241,5 @@ final readonly class OverviewDashboardProvider
                 'monthlyCounts' => $importMonthlyCounts,
             ],
         ];
-    }
-
-    /**
-     * @param array<int, array{year: int, month: int, count: int}> $rows
-     *
-     * @return array<string,int>
-     */
-    private function mapMonthRowsToBucketCounts(array $rows): array
-    {
-        $counts = [];
-        foreach ($rows as $row) {
-            $counts[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['count'];
-        }
-
-        return $counts;
-    }
-
-    /**
-     * @param array<int, array{year: int, count: int}> $rows
-     *
-     * @return array<string,int>
-     */
-    private function mapYearRowsToBucketCounts(array $rows): array
-    {
-        $counts = [];
-        foreach ($rows as $row) {
-            $counts[(string) $row['year']] = $row['count'];
-        }
-
-        return $counts;
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\Report\ReportDefinitionRegistry;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\User\Domain\Entity\User;
@@ -24,6 +23,7 @@ final class ReportsController extends AbstractController
         private readonly ReportDefinitionRegistry $reportDefinitionRegistry,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly ReportsPagePresenter $reportsPagePresenter,
+        private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
     ) {
     }
 
@@ -33,15 +33,13 @@ final class ReportsController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if ($filter->requiresPublicRedirect) {
-            if ($filter->notice instanceof \App\Statistics\Application\DTO\StatisticsFilterNotice) {
-                $this->addFlash('error', $filter->notice->value);
+        $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
+        if (null !== $publicRedirect) {
+            if (null !== $publicRedirect['notice']) {
+                $this->addFlash('error', $publicRedirect['notice']->value);
             }
-            $query = $request->query->all();
-            $query['scope'] = StatisticsFilterScope::Public->value;
-            unset($query['cohort'], $query['hospital']);
 
-            return $this->redirectToRoute('app_stats_reports', $query);
+            return $this->redirectToRoute('app_stats_reports', $publicRedirect['query']);
         }
 
         $context = $this->statisticsContextFactory->create($user, $filter);
