@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}Analysis: {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
+{% block title %}Analysis: {{ analysisPage.headerTitleKey|trans }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -20,11 +20,11 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <div class="page-pretitle" data-testid="stats-heading-scope">
-                        {{ statisticsHeadingScope }}
+                    <div class="page-pretitle" data-testid="stats-heading-subtitle">
+                        {{ analysisPage.headerSubtitleKey|trans }}
                     </div>
-                    <h2 class="page-title" data-testid="stats-heading-period">
-                        {{ statisticsHeadingPeriod }}
+                    <h2 class="page-title" data-testid="stats-heading-title">
+                        {{ analysisPage.headerTitleKey|trans }}
                     </h2>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}

@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Unit\Controller;
 
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
+use App\Statistics\UI\Http\Controller\AnalysisFilterFactory;
 use App\Statistics\UI\Http\Controller\AnalysisKeyAliasResolver;
 use App\Statistics\UI\Http\Controller\AnalysisRequestModelFactory;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,9 @@ final class AnalysisRequestModelFactoryTest extends TestCase
 {
     public function testNormalizesAliasesAndInvalidValues(): void
     {
-        $factory = new AnalysisRequestModelFactory(new AnalysisKeyAliasResolver());
+        $factory = new AnalysisRequestModelFactory(
+            new AnalysisFilterFactory(new AnalysisKeyAliasResolver())
+        );
         $request = new Request(query: [
             'analysis' => 'pivot',
             'view' => 'invalid',
@@ -37,14 +40,13 @@ final class AnalysisRequestModelFactoryTest extends TestCase
         self::assertSame('urgency', $model->rows);
         self::assertSame('gender', $model->cols);
         self::assertSame('row_percent', $model->measure);
-        self::assertSame('', $model->comparisonPeriod);
-        self::assertNull($model->comparisonYear);
-        self::assertNull($model->comparisonMonth);
     }
 
     public function testForcesAbsoluteMeasureForFeaturesDimension(): void
     {
-        $factory = new AnalysisRequestModelFactory(new AnalysisKeyAliasResolver());
+        $factory = new AnalysisRequestModelFactory(
+            new AnalysisFilterFactory(new AnalysisKeyAliasResolver())
+        );
         $request = new Request(query: [
             'analysis' => 'allocations_over_time',
             'dimension' => 'features',
@@ -56,24 +58,5 @@ final class AnalysisRequestModelFactoryTest extends TestCase
         self::assertSame('allocations_by_month', $model->analysisKey);
         self::assertSame(StatisticsAnalysisDimension::Features, $model->dimension);
         self::assertSame(StatisticsChartMeasure::Absolute, $model->chartMeasure);
-    }
-
-    public function testParsesComparisonPeriodAndAnchors(): void
-    {
-        $factory = new AnalysisRequestModelFactory(new AnalysisKeyAliasResolver());
-        $request = new Request(query: [
-            'analysis' => 'allocations_comparison_over_time',
-            'comparison_scope' => 'hospital_cohort:urban_basic',
-            'comparison_period' => 'month',
-            'comparison_year' => '2024',
-            'comparison_month' => '3',
-        ]);
-
-        $model = $factory->fromRequest($request);
-
-        self::assertSame('hospital_cohort:urban_basic', $model->comparisonScope);
-        self::assertSame('month', $model->comparisonPeriod);
-        self::assertSame(2024, $model->comparisonYear);
-        self::assertSame(3, $model->comparisonMonth);
     }
 }

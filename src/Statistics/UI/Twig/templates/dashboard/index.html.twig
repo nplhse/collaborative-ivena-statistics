@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}Overview: {{ statisticsHeadingScope }} · {{ statisticsHeadingPeriod }} – {{ parent() }}{% endblock %}
+{% block title %}Overview – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -20,11 +20,11 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <div class="page-pretitle" data-testid="stats-heading-scope">
-                        {{ statisticsHeadingScope }}
+                    <div class="page-pretitle" data-testid="stats-heading-subtitle">
+                        Dashboard view
                     </div>
-                    <h2 class="page-title" data-testid="stats-heading-period">
-                        {{ statisticsHeadingPeriod }}
+                    <h2 class="page-title" data-testid="stats-heading-title">
+                        {{ 'link.stats.dashboard'|trans }}
                     </h2>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}

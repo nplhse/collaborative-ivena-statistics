@@ -17,7 +17,7 @@ class AnalysisControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-filter-bar"]');
+        $this->assertSelectorExists('[data-testid="stats-explorer-sidebar"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-widget"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-chart-card"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-chart-style"]');
@@ -313,9 +313,9 @@ class AnalysisControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('#stats-analysis-select-trigger', 'Allocations over time');
-        $this->assertSelectorTextContains('.dropdown-menu', 'Allocation Pivot');
-        $this->assertSelectorTextContains('.dropdown-menu', 'Hospital Pivot');
+        $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Allocations over time');
+        $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Allocation Pivot');
+        $this->assertSelectorTextContains('[data-testid="stats-explorer-sidebar"]', 'Hospital Pivot');
     }
 
     public function testAllocationPivotShowsMeasureSelectorAndSupportsRowPercent(): void

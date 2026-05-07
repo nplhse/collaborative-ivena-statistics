@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\InputBag;
 
 final class ComparisonFilterInputFactory
 {
+    /**
+     * @param InputBag<string> $query
+     */
     public function fromQuery(
         InputBag $query,
         StatisticsFilter $primaryFilter,

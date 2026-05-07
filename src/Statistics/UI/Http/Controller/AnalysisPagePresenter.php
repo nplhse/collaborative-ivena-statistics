@@ -48,11 +48,19 @@ final readonly class AnalysisPagePresenter
             );
         }
 
+        $headerSubtitleKey = match (true) {
+            $activeDefinition->isPivotLike() => 'stats.analysis.pivot.label',
+            'table' === $analysisRequest->view => 'stats.analysis.view.table',
+            default => 'stats.analysis.view.chart',
+        };
+
         return new AnalysisPageViewModel(
             $analysisWidget,
             $options['definitions'],
             $analysisKey,
             $options['urls'],
+            $activeDefinition->labelTranslationKey(),
+            $headerSubtitleKey,
             $this->toolbarViewModelFactory->create($request, $activeDefinition, $analysisRequest),
             $this->analysisComparisonControlsFactory->build($request, $analysisKey, $comparisonFilter),
             $pivotChoices['rows'],

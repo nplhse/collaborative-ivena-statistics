@@ -21,6 +21,8 @@ final readonly class AnalysisPageViewModel
         public array $analysisDefinitions,
         public string $currentAnalysisKey,
         public array $analysisSelectUrls,
+        public string $headerTitleKey,
+        public string $headerSubtitleKey,
         public AnalysisToolbarViewModel $toolbar,
         public AnalysisComparisonControlsViewModel $comparisonControls,
         public array $pivotRowChoices,
