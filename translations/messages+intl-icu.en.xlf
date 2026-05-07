@@ -909,6 +909,42 @@
         <source>label.properties</source>
         <target>Properties</target>
       </trans-unit>
+      <trans-unit id="allocFeatFeatures" resname="label.features">
+        <source>label.features</source>
+        <target>Features</target>
+      </trans-unit>
+      <trans-unit id="allocFeatVent" resname="label.is_ventilated">
+        <source>label.is_ventilated</source>
+        <target>Ventilated</target>
+      </trans-unit>
+      <trans-unit id="allocFeatShock" resname="label.is_shock">
+        <source>label.is_shock</source>
+        <target>Shock</target>
+      </trans-unit>
+      <trans-unit id="allocFeatCpr" resname="label.is_cpr">
+        <source>label.is_cpr</source>
+        <target>CPR</target>
+      </trans-unit>
+      <trans-unit id="allocFeatPreg" resname="label.is_pregnant">
+        <source>label.is_pregnant</source>
+        <target>Pregnant</target>
+      </trans-unit>
+      <trans-unit id="allocFeatWork" resname="label.is_work_accident">
+        <source>label.is_work_accident</source>
+        <target>Work Accident</target>
+      </trans-unit>
+      <trans-unit id="allocFeatInfect" resname="label.is_infectious">
+        <source>label.is_infectious</source>
+        <target>Infectious</target>
+      </trans-unit>
+      <trans-unit id="allocFeatInfection" resname="label.infection">
+        <source>label.infection</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="allocFeatAllInf" resname="label.all_infections">
+        <source>label.all_infections</source>
+        <target>All Infections</target>
+      </trans-unit>
       <trans-unit id="Cn7F.4b" resname="label.register">
         <source>label.register</source>
         <target>Register</target>

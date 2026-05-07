@@ -134,6 +134,49 @@ class ListAllocationsControllerTest extends WebTestCase
         self::assertSelectorExists('ul.pagination li.page-item.disabled');
     }
 
+    public function testIsInfectiousAndInfectionFiltersOnlyReturnMatchingAllocations(): void
+    {
+        $client = static::createClient();
+        $this->seedDependencies();
+
+        $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
+        $otherInfection = InfectionFactory::createOne(['name' => 'Norovirus']);
+
+        $matchingAllocation = AllocationFactory::createOne(['infection' => $targetInfection]);
+        AllocationFactory::createOne(['infection' => $otherInfection]);
+        AllocationFactory::createOne(['infection' => null]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf(
+                '/explore/allocation?isInfectious=1&infection=%d&limit=50',
+                $targetInfection->getId()
+            )
+        );
+
+        self::assertResponseIsSuccessful();
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([(int) $matchingAllocation->getId()], $ids);
+    }
+
+    public function testIsVentilatedFilterOnlyReturnsVentilatedAllocations(): void
+    {
+        $client = static::createClient();
+        $this->seedDependencies();
+
+        $ventilatedAllocation = AllocationFactory::createOne(['isVentilated' => true]);
+        AllocationFactory::createOne(['isVentilated' => false]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?isVentilated=1&limit=50'
+        );
+
+        self::assertResponseIsSuccessful();
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([(int) $ventilatedAllocation->getId()], $ids);
+    }
+
     private function seedDependencies(): void
     {
         UserFactory::createOne(['username' => 'area-user']);

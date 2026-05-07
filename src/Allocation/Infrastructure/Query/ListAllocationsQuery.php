@@ -101,7 +101,7 @@ final readonly class ListAllocationsQuery
             ->setParameter('importId', $queryParametersDTO->importId);
         }
 
-        $field = match ($queryParametersDTO->sortBy) {
+        $sortField = match ($queryParametersDTO->sortBy) {
             'arrivalAt' => 'a.arrivalAt',
             'age' => 'a.age',
             default => 'h.'.$queryParametersDTO->sortBy,
@@ -153,6 +153,32 @@ final readonly class ListAllocationsQuery
                 );
         }
 
+        foreach ([
+            'isVentilated' => 'a.isVentilated',
+            'isShock' => 'a.isShock',
+            'isCPR' => 'a.isCPR',
+            'isPregnant' => 'a.isPregnant',
+            'isWorkAccident' => 'a.isWorkAccident',
+        ] as $param => $booleanField) {
+            if (null !== $queryParametersDTO->{$param}) {
+                $qb->andWhere($booleanField.' = :'.$param)
+                    ->setParameter(
+                        $param,
+                        filter_var($queryParametersDTO->{$param}, FILTER_VALIDATE_BOOLEAN)
+                    );
+            }
+        }
+
+        if (null !== $queryParametersDTO->isInfectious) {
+            $isInfectious = filter_var($queryParametersDTO->isInfectious, FILTER_VALIDATE_BOOLEAN);
+            $qb->andWhere($isInfectious ? 'a.infection IS NOT NULL' : 'a.infection IS NULL');
+        }
+
+        if (null !== $queryParametersDTO->infection) {
+            $qb->andWhere('i.id = :infectionId')
+                ->setParameter('infectionId', $queryParametersDTO->infection);
+        }
+
         if (null !== $queryParametersDTO->indication) {
             $qb->andWhere('inor.code = :indication')
                 ->setParameter('indication', $queryParametersDTO->indication);
@@ -187,14 +213,14 @@ final readonly class ListAllocationsQuery
 
             $isDescending = 'desc' === $queryParametersDTO->orderBy;
             $mainComparison = $isDescending
-                ? $qb->expr()->lt($field, ':cursorSortValue')
-                : $qb->expr()->gt($field, ':cursorSortValue');
+                ? $qb->expr()->lt($sortField, ':cursorSortValue')
+                : $qb->expr()->gt($sortField, ':cursorSortValue');
 
             $qb->andWhere(
                 $qb->expr()->orX(
                     $mainComparison,
                     $qb->expr()->andX(
-                        $qb->expr()->eq($field, ':cursorSortValue'),
+                        $qb->expr()->eq($sortField, ':cursorSortValue'),
                         $isDescending
                             ? $qb->expr()->lt('a.id', ':cursorId')
                             : $qb->expr()->gt('a.id', ':cursorId')
@@ -210,7 +236,7 @@ final readonly class ListAllocationsQuery
         }
 
         $qb
-            ->orderBy($field, $queryParametersDTO->orderBy)
+            ->orderBy($sortField, $queryParametersDTO->orderBy)
             ->addOrderBy('a.id', $queryParametersDTO->orderBy)
             ->setMaxResults($queryParametersDTO->limit + 1);
 
