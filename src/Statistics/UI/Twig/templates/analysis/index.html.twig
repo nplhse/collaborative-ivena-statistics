@@ -27,6 +27,7 @@
                         {{ statisticsHeadingPeriod }}
                     </h2>
                 </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
             </div>
         </div>
     </div>
@@ -34,22 +35,15 @@
 
 {% block page_content %}
     <div class="row g-4 align-items-start">
-        <aside class="col-12 col-lg-3 col-xl-2">
+        <aside class="col-12 col-lg-4 col-xl-3">
             <div class="position-lg-sticky" style="top: 1rem;">
-                {{ include('@Statistics/dashboard/_statistics_filter_bar.html.twig') }}
+                {{ include('@Statistics/_explorer_sidebar.html.twig') }}
             </div>
         </aside>
-        <div class="col-12 col-lg-9 col-xl-10 min-w-0">
+        <div class="col-12 col-lg-8 col-xl-9 min-w-0">
             <div class="card mb-3">
                 <div class="card-body py-3">
                     <div class="row g-3 align-items-end flex-wrap">
-                        {{ include('@Statistics/_definition_select_control.html.twig', {
-                            triggerId: 'stats-analysis-select-trigger',
-                            labelKey: 'stats.analysis.select_label',
-                            definitions: analysisPage.analysisDefinitions,
-                            currentKey: analysisPage.currentAnalysisKey,
-                            selectUrls: analysisPage.analysisSelectUrls,
-                        }) }}
                         <div class="col-12 col-sm-auto">
                             <span class="form-label d-block mb-1">{{ 'stats.analysis.presentation_label'|trans }}</span>
                             {{ include('@Statistics/analysis/_view_toggle.html.twig', {toolbar: analysisPage.toolbar}) }}
@@ -120,4 +114,5 @@
             </div>
         </div>
     </div>
+    {{ include('@Statistics/_filter_drawer.html.twig') }}
 {% endblock %}

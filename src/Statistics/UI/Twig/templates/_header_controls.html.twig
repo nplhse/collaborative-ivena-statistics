@@ -1,0 +1,98 @@
+{% set noHospitalsForUser = isLoggedIn and accessibleHospitals is empty %}
+{% set scopePublicActive = statisticsFilter.scope.value == 'public' or (noHospitalsForUser and statisticsFilter.scope.value == 'my_hospitals') %}
+{% set isMyHospitalsGroupActive = statisticsFilter.scope.value == 'my_hospitals' or statisticsFilter.scope.value == 'hospital' %}
+{% set activeScopeLabel = scopePublicActive
+    ? ('stats.filter.scope.public'|trans)
+    : (isMyHospitalsGroupActive
+        ? ('stats.filter.scope.my_hospitals'|trans)
+        : (statisticsFilter.scope.value == 'hospital_cohort' and statsCohortDropdownSelectedName ? statsCohortDropdownSelectedName : statisticsHeadingScope)
+    )
+%}
+{% set activePeriodLabel = statisticsHeadingPeriod %}
+{% set showHospitalButtonGroup = isLoggedIn and accessibleHospitals|length > 1 and isMyHospitalsGroupActive %}
+
+<div class="col-auto ms-auto d-print-none">
+    <div class="btn-list">
+        {% if showHospitalButtonGroup %}
+            <div class="btn-group" role="group" aria-label="Scope and hospital selection">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ activeScopeLabel }}
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item{% if scopePublicActive %} active{% endif %}" href="{{ statsScopeUrls.public }}">{{ 'stats.filter.scope.public'|trans }}</a>
+                        <a class="dropdown-item{% if isMyHospitalsGroupActive %} active{% endif %}" href="{{ statsScopeUrls.my_hospitals }}">
+                            {{ 'stats.filter.scope.my_hospitals'|trans }}
+                        </a>
+                        {% if cohortScopeChoices is not empty %}
+                            <div class="dropdown-divider"></div>
+                            {% for cohortChoice in cohortScopeChoices %}
+                                <a class="dropdown-item{% if cohortChoice.active %} active{% endif %}" href="{{ cohortChoice.url }}">{{ cohortChoice.label }}</a>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ statsHospitalDropdownSelectedName ?: ('stats.filter.hospital.all_hospitals'|trans) }}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item{% if statisticsFilter.scope.value == 'my_hospitals' %} active{% endif %}" href="{{ statsScopeUrls.my_hospitals }}">
+                            {{ 'stats.filter.hospital.all_hospitals'|trans }}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        {% for hospital in accessibleHospitals %}
+                            <a class="dropdown-item{% if statisticsFilter.scope.value == 'hospital' and statisticsFilter.hospitalId == hospital.id %} active{% endif %}" href="{{ statsHospitalUrls[hospital.id] }}">
+                                {{ hospital.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ activeScopeLabel }}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item{% if scopePublicActive %} active{% endif %}" href="{{ statsScopeUrls.public }}">{{ 'stats.filter.scope.public'|trans }}</a>
+                    {% if isLoggedIn and accessibleHospitals is not empty %}
+                        <a class="dropdown-item{% if isMyHospitalsGroupActive %} active{% endif %}" href="{{ statsScopeUrls.my_hospitals }}">
+                            {{ 'stats.filter.scope.my_hospitals'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if cohortScopeChoices is not empty %}
+                        <div class="dropdown-divider"></div>
+                        {% for cohortChoice in cohortScopeChoices %}
+                            <a class="dropdown-item{% if cohortChoice.active %} active{% endif %}" href="{{ cohortChoice.url }}">{{ cohortChoice.label }}</a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="btn-group">
+            <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ activePeriodLabel }}
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+                <a class="dropdown-item{% if statisticsFilter.period.value == 'all' %} active{% endif %}" href="{{ statsPeriodUrls.all }}">{{ 'stats.filter.period.all'|trans }}</a>
+                <a class="dropdown-item{% if statisticsFilter.period.value == 'all_time' %} active{% endif %}" href="{{ statsPeriodUrls.all_time }}">{{ 'stats.filter.period.all_time'|trans }}</a>
+                <a class="dropdown-item{% if statisticsFilter.period.value == 'year' %} active{% endif %}" href="{{ statsPeriodUrls.year }}">{{ 'stats.filter.period.year'|trans }}</a>
+                <a class="dropdown-item{% if statisticsFilter.period.value == 'month' %} active{% endif %}" href="{{ statsPeriodUrls.month }}">{{ 'stats.filter.period.month'|trans }}</a>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#statistics-filters-drawer" aria-controls="statistics-filters-drawer">
+                {{ 'label.filters'|trans }}
+                {% if statsActiveFilterCount > 0 %}
+                    <span class="badge text-primary ms-2">{{ statsActiveFilterCount }}</span>
+                {% endif %}
+            </button>
+            {% if statsActiveFilterCount > 0 %}
+                <a href="{{ statsFilterDrawerResetUrl }}" class="btn btn-icon btn-outline" title="Reset filters" aria-label="Reset filters">×</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

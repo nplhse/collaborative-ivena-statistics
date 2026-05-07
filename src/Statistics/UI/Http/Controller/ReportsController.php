@@ -24,6 +24,8 @@ final class ReportsController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly ReportsPagePresenter $reportsPagePresenter,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
+        private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
+        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
     ) {
     }
 
@@ -64,6 +66,7 @@ final class ReportsController extends AbstractController
             $reportWidget,
             $this->reportDefinitionRegistry->all(),
         );
+        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
 
         return $this->render('@Statistics/reports/index.html.twig', [
             'statisticsFilter' => $pageViewModel->filter,
@@ -78,6 +81,10 @@ final class ReportsController extends AbstractController
             'statisticsHeadingScope' => $pageViewModel->headingScope,
             'statisticsHeadingPeriod' => $pageViewModel->headingPeriod,
             'reportsPage' => $reportsPage,
+            'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'reports', null, $definition->key()),
+            'statsFilterDrawerValues' => $drawerState['values'],
+            'statsActiveFilterCount' => $drawerState['activeCount'],
+            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_reports'),
         ]);
     }
 }

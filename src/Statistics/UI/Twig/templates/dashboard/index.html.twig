@@ -27,6 +27,7 @@
                         {{ statisticsHeadingPeriod }}
                     </h2>
                 </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
             </div>
         </div>
     </div>
@@ -34,12 +35,7 @@
 
 {% block page_content %}
     <div class="row g-4 align-items-start">
-        <aside class="col-12 col-lg-3 col-xl-2">
-            <div class="position-lg-sticky" style="top: 1rem;">
-                {{ include('@Statistics/dashboard/_statistics_filter_bar.html.twig') }}
-            </div>
-        </aside>
-        <div class="col-12 col-lg-9 col-xl-10 min-w-0">
+        <div class="col-12 min-w-0">
             <div data-testid="stats-hospital-summary">
                 {% for widget in hospitalSummaryWidgets %}
                     {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: widget}) }}
@@ -91,4 +87,5 @@
             {% endif %}
         </div>
     </div>
+    {{ include('@Statistics/_filter_drawer.html.twig') }}
 {% endblock %}

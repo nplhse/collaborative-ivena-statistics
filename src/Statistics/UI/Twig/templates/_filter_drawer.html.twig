@@ -1,0 +1,58 @@
+{% set drawerFilterKeys = ['gender', 'urgency', 'age_range', 'feature', 'department', 'speciality', 'dispatch_area', 'hospital_attribute'] %}
+<div class="offcanvas offcanvas-end" tabindex="-1" id="statistics-filters-drawer" aria-labelledby="statistics-filters-drawer-label">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="statistics-filters-drawer-label">{{ 'label.filter.results'|trans }}</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form method="get" action="{{ path(app.request.attributes.get('_route')) }}">
+            {% for key, value in app.request.query.all %}
+                    {% if key not in drawerFilterKeys and value is not iterable %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+
+            <div class="mb-3">
+                <label class="form-label">Gender</label>
+                <select name="gender" class="form-select">
+                    <option value="">All</option>
+                    <option value="female" {{ statsFilterDrawerValues.gender == 'female' ? 'selected' }}>{{ 'label.gender.female'|trans }}</option>
+                    <option value="male" {{ statsFilterDrawerValues.gender == 'male' ? 'selected' }}>{{ 'label.gender.male'|trans }}</option>
+                    <option value="diverse" {{ statsFilterDrawerValues.gender == 'diverse' ? 'selected' }}>{{ 'label.gender.other'|trans }}</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ 'label.urgency'|trans }}</label>
+                <input type="text" name="urgency" class="form-control" value="{{ statsFilterDrawerValues.urgency }}" placeholder="z. B. high">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ 'label.age'|trans }}</label>
+                <input type="text" name="age_range" class="form-control" value="{{ statsFilterDrawerValues.age_range }}" placeholder="z. B. 18-64">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ 'label.features'|trans }}</label>
+                <input type="text" name="feature" class="form-control" value="{{ statsFilterDrawerValues.feature }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ 'label.department'|trans }}</label>
+                <input type="text" name="department" class="form-control" value="{{ statsFilterDrawerValues.department }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ 'label.speciality'|trans }}</label>
+                <input type="text" name="speciality" class="form-control" value="{{ statsFilterDrawerValues.speciality }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ 'label.dispatch_area'|trans }}</label>
+                <input type="text" name="dispatch_area" class="form-control" value="{{ statsFilterDrawerValues.dispatch_area }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Hospital attributes</label>
+                <input type="text" name="hospital_attribute" class="form-control" value="{{ statsFilterDrawerValues.hospital_attribute }}">
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Apply filters</button>
+                <a href="{{ statsFilterDrawerResetUrl }}" class="btn btn-outline-secondary">Reset filters</a>
+            </div>
+        </form>
+    </div>
+</div>
