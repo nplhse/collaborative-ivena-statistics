@@ -89,6 +89,30 @@ final readonly class ProjectionTimeSeriesQuery
     /**
      * @param list<int>|null $hospitalIds
      *
+     * @return list<array{year:int,count:int}>
+     */
+    public function countByYearInPeriod(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    {
+        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
+            ->select('p.createdYear AS year', 'COUNT(p.id) AS count')
+            ->groupBy('year')
+            ->orderBy('year', 'ASC');
+
+        /** @var list<array{year:numeric-string|int,count:numeric-string|int}> $raw */
+        $raw = $qb->getQuery()->getArrayResult();
+
+        return array_map(
+            static fn (array $row): array => [
+                'year' => (int) $row['year'],
+                'count' => (int) $row['count'],
+            ],
+            $raw,
+        );
+    }
+
+    /**
+     * @param list<int>|null $hospitalIds
+     *
      * @return array<string,int>
      */
     public function countByDayInPeriod(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array

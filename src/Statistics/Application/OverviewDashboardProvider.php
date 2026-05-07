@@ -96,10 +96,16 @@ final readonly class OverviewDashboardProvider
             $cursor = $cursor->modify('+1 month');
         }
 
-        $allocationRaw = $this->timeSeriesQuery->countByMonthInPeriod(StatisticsPeriod::overviewPeriodStart(), null, null);
-        $importRaw = $this->importRepository->countByMonthLast12Months();
+        $allocationRows = $this->timeSeriesQuery->countByMonthInPeriod(StatisticsPeriod::overviewPeriodStart(), null, null);
+        $importRows = $this->importRepository->countByMonthLast12Months();
 
-        return $this->assembleChartPayload($monthKeys, $labels, $allocationRaw, $importRaw, $start);
+        return $this->assembleChartPayload(
+            $monthKeys,
+            $labels,
+            $this->mapMonthRowsToBucketCounts($allocationRows),
+            $this->mapMonthRowsToBucketCounts($importRows),
+            $start
+        );
     }
 
     /**
@@ -129,10 +135,16 @@ final readonly class OverviewDashboardProvider
             $labels[] = $start->format('M');
         }
 
-        $allocationRaw = $this->timeSeriesQuery->countByMonthInPeriod($start, $toExclusive, null);
-        $importRaw = $this->importRepository->countImportsByMonthInRange($start, $toExclusive);
+        $allocationRows = $this->timeSeriesQuery->countByMonthInPeriod($start, $toExclusive, null);
+        $importRows = $this->importRepository->countImportsByMonthInRange($start, $toExclusive);
 
-        return $this->assembleChartPayload($monthKeys, $labels, $allocationRaw, $importRaw, $start);
+        return $this->assembleChartPayload(
+            $monthKeys,
+            $labels,
+            $this->mapMonthRowsToBucketCounts($allocationRows),
+            $this->mapMonthRowsToBucketCounts($importRows),
+            $start
+        );
     }
 
     /**
@@ -159,35 +171,40 @@ final readonly class OverviewDashboardProvider
             }
         }
 
-        $currentMonth = new \DateTimeImmutable('first day of this month 00:00:00');
-        $monthKeys = [];
+        $currentYear = (int) new \DateTimeImmutable('now')->format('Y');
+        $startYear = (int) $start->format('Y');
+        $yearKeys = [];
         $labels = [];
-        $cursor = $start->modify('first day of this month')->setTime(0, 0, 0);
-        $endExclusive = $currentMonth->modify('+1 month');
-        $guard = 0;
-        while ($cursor < $endExclusive && $guard < 600) {
-            ++$guard;
-            $monthKeys[] = $cursor->format('Y-m');
-            $labels[] = $cursor->format('M');
-            $cursor = $cursor->modify('+1 month');
+        for ($year = $startYear; $year <= $currentYear; ++$year) {
+            $key = (string) $year;
+            $yearKeys[] = $key;
+            $labels[] = $key;
         }
 
-        if ([] === $monthKeys) {
-            $monthKeys[] = $start->format('Y-m');
-            $labels[] = $start->format('M');
+        if ([] === $yearKeys) {
+            $key = (string) $startYear;
+            $yearKeys[] = $key;
+            $labels[] = $key;
         }
 
-        $allocationRaw = $this->timeSeriesQuery->countByMonthInPeriod($start, null, null);
-        $importRaw = $this->importRepository->countImportsByMonthInRange($start, null);
+        $rangeStart = (new \DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $startYear)));
+        $allocationRows = $this->timeSeriesQuery->countByYearInPeriod($rangeStart, null, null);
+        $importRows = $this->importRepository->countImportsByYearInRange($rangeStart, null);
 
-        return $this->assembleChartPayload($monthKeys, $labels, $allocationRaw, $importRaw, $start);
+        return $this->assembleChartPayload(
+            $yearKeys,
+            $labels,
+            $this->mapYearRowsToBucketCounts($allocationRows),
+            $this->mapYearRowsToBucketCounts($importRows),
+            $rangeStart
+        );
     }
 
     /**
-     * @param list<string>                                         $monthKeys
-     * @param list<string>                                         $labels
-     * @param array<int, array{year: int, month: int, count: int}> $allocationRaw
-     * @param array<int, array{year: int, month: int, count: int}> $importRaw
+     * @param list<string>      $bucketKeys
+     * @param list<string>      $labels
+     * @param array<string,int> $allocationBucketCounts
+     * @param array<string,int> $importBucketCounts
      *
      * @return array{
      *     allocationChart: array{labels: string[], monthlyCounts: int[], cumulativeCounts: int[]},
@@ -195,27 +212,26 @@ final readonly class OverviewDashboardProvider
      * }
      */
     private function assembleChartPayload(
-        array $monthKeys,
+        array $bucketKeys,
         array $labels,
-        array $allocationRaw,
-        array $importRaw,
+        array $allocationBucketCounts,
+        array $importBucketCounts,
         \DateTimeImmutable $rangeStartForCumulative,
     ): array {
-        $mapMonthlyCounts = function (array $rawRows, array $keys): array {
+        $mapMonthlyCounts = function (array $bucketedCounts, array $keys): array {
             $base = array_fill_keys($keys, 0);
 
-            foreach ($rawRows as $row) {
-                $key = sprintf('%04d-%02d', $row['year'], $row['month']);
+            foreach ($bucketedCounts as $key => $count) {
                 if (\array_key_exists($key, $base)) {
-                    $base[$key] = (int) $row['count'];
+                    $base[$key] = (int) $count;
                 }
             }
 
             return array_values($base);
         };
 
-        $allocationMonthlyCounts = $mapMonthlyCounts($allocationRaw, $monthKeys);
-        $importMonthlyCounts = $mapMonthlyCounts($importRaw, $monthKeys);
+        $allocationMonthlyCounts = $mapMonthlyCounts($allocationBucketCounts, $bucketKeys);
+        $importMonthlyCounts = $mapMonthlyCounts($importBucketCounts, $bucketKeys);
         $initialAllocations = $this->timeSeriesQuery->countBefore($rangeStartForCumulative);
 
         $allocationCumulativeCounts = [];
@@ -236,5 +252,35 @@ final readonly class OverviewDashboardProvider
                 'monthlyCounts' => $importMonthlyCounts,
             ],
         ];
+    }
+
+    /**
+     * @param array<int, array{year: int, month: int, count: int}> $rows
+     *
+     * @return array<string,int>
+     */
+    private function mapMonthRowsToBucketCounts(array $rows): array
+    {
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['count'];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param array<int, array{year: int, count: int}> $rows
+     *
+     * @return array<string,int>
+     */
+    private function mapYearRowsToBucketCounts(array $rows): array
+    {
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(string) $row['year']] = $row['count'];
+        }
+
+        return $counts;
     }
 }

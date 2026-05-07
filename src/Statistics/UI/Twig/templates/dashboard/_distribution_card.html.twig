@@ -1,6 +1,6 @@
 {# @var widget \App\Statistics\Application\DTO\StatisticWidget #}
 {% set p = widget.payload %}
-<div class="card mt-3" data-testid="{{ p.testId|default('stats-overview-indicators') }}">
+<div class="card" data-testid="{{ p.testId|default('stats-overview-indicators') }}">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
         <h3 class="card-title mb-0">{{ p.titleTranslationKey|trans }}</h3>
         {% if widget.actions is not empty %}

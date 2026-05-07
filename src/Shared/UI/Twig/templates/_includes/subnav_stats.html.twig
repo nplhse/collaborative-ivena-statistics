@@ -8,6 +8,7 @@
                     <li class="nav-item {{ route == 'app_stats_dashboard' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_dashboard') }}">
                             <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:dashboard" style="height: 1.2em;" />
                                 {{ 'link.stats.dashboard'|trans }}
                             </span>
                         </a>
@@ -15,6 +16,7 @@
                     <li class="nav-item {{ route == 'app_stats_analysis' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_analysis') }}">
                             <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:chart-histogram" style="height: 1.2em;" />
                                 {{ 'link.stats.analysis'|trans }}
                             </span>
                         </a>
@@ -22,6 +24,7 @@
                     <li class="nav-item {{ route == 'app_stats_reports' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_reports') }}">
                             <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:report-search" style="height: 1.2em;" />
                                 {{ 'link.stats.reports'|trans }}
                             </span>
                         </a>

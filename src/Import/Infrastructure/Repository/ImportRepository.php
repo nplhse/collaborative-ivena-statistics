@@ -145,4 +145,42 @@ final class ImportRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /**
+     * @return array<int, array{year: int, count: int}>
+     */
+    public function countImportsByYearInRange(\DateTimeInterface $from, ?\DateTimeInterface $toExclusive): array
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->select('i.createdAt AS createdAt')
+            ->where('i.createdAt >= :from')
+            ->setParameter('from', $from)
+            ->orderBy('i.createdAt', 'ASC');
+
+        if ($toExclusive instanceof \DateTimeInterface) {
+            $qb->andWhere('i.createdAt < :toExclusive')
+                ->setParameter('toExclusive', $toExclusive);
+        }
+
+        /** @var list<array{createdAt:\DateTimeInterface}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+        $bucketed = [];
+        foreach ($rows as $row) {
+            $year = (int) $row['createdAt']->format('Y');
+            if (!isset($bucketed[$year])) {
+                $bucketed[$year] = 0;
+            }
+            ++$bucketed[$year];
+        }
+
+        $result = [];
+        foreach ($bucketed as $year => $count) {
+            $result[] = [
+                'year' => $year,
+                'count' => $count,
+            ];
+        }
+
+        return $result;
+    }
 }
