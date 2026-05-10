@@ -583,7 +583,7 @@
       </trans-unit>
       <trans-unit id="ejRSahY" resname="label.backend">
         <source>label.backend</source>
-        <target>Backend</target>
+        <target>Management</target>
       </trans-unit>
       <trans-unit id="LsBidrc" resname="label.background">
         <source>label.background</source>
@@ -3014,6 +3014,106 @@
       <trans-unit id="menuBlgTg" resname="menu.blog.tags">
         <source>menu.blog.tags</source>
         <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="fb001" resname="feedback.widget.open">
+        <source>feedback.widget.open</source>
+        <target>Send feedback</target>
+      </trans-unit>
+      <trans-unit id="fb002" resname="feedback.widget.title">
+        <source>feedback.widget.title</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="fb003" resname="feedback.widget.submit">
+        <source>feedback.widget.submit</source>
+        <target>Submit</target>
+      </trans-unit>
+      <trans-unit id="fb004" resname="feedback.form.category">
+        <source>feedback.form.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="fb005" resname="feedback.form.message">
+        <source>feedback.form.message</source>
+        <target>Message</target>
+      </trans-unit>
+      <trans-unit id="fb006" resname="feedback.form.guest_email">
+        <source>feedback.form.guest_email</source>
+        <target>Your email address</target>
+      </trans-unit>
+      <trans-unit id="fb007" resname="feedback.category.bug">
+        <source>feedback.category.bug</source>
+        <target>Bug</target>
+      </trans-unit>
+      <trans-unit id="fb008" resname="feedback.category.improvement">
+        <source>feedback.category.improvement</source>
+        <target>Improvement</target>
+      </trans-unit>
+      <trans-unit id="fb009" resname="feedback.category.question">
+        <source>feedback.category.question</source>
+        <target>Question</target>
+      </trans-unit>
+      <trans-unit id="fb010" resname="feedback.category.other">
+        <source>feedback.category.other</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="fb011" resname="feedback.flash.success">
+        <source>feedback.flash.success</source>
+        <target>Thank you — your feedback has been saved.</target>
+      </trans-unit>
+      <trans-unit id="fb012" resname="feedback.flash.validation_error">
+        <source>feedback.flash.validation_error</source>
+        <target>Please correct your feedback form and try again.</target>
+      </trans-unit>
+      <trans-unit id="fb013" resname="feedback.flash.rate_limited">
+        <source>feedback.flash.rate_limited</source>
+        <target>You’ve sent too much feedback in a short time — please try again later.</target>
+      </trans-unit>
+      <trans-unit id="fb014" resname="feedback.validation.extra_context_json">
+        <source>feedback.validation.extra_context_json</source>
+        <target>Context must be valid JSON.</target>
+      </trans-unit>
+      <trans-unit id="fb015" resname="feedback.email.title">
+        <source>feedback.email.title</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="fb016" resname="feedback.email.heading">
+        <source>feedback.email.heading</source>
+        <target>New feedback</target>
+      </trans-unit>
+      <trans-unit id="fb017" resname="feedback.email.label.category">
+        <source>feedback.email.label.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="fb018" resname="feedback.email.label.from">
+        <source>feedback.email.label.from</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="fb019" resname="feedback.email.actor.user">
+        <source>feedback.email.actor.user</source>
+        <target>User %username%</target>
+      </trans-unit>
+      <trans-unit id="fb020" resname="feedback.email.label.url">
+        <source>feedback.email.label.url</source>
+        <target>Page URL</target>
+      </trans-unit>
+      <trans-unit id="fb020b" resname="feedback.email.label.page">
+        <source>feedback.email.label.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="fb021" resname="feedback.email.label.route">
+        <source>feedback.email.label.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="fb022" resname="feedback.email.label.time">
+        <source>feedback.email.label.time</source>
+        <target>Submitted at</target>
+      </trans-unit>
+      <trans-unit id="fb023" resname="feedback.email.label.app_version">
+        <source>feedback.email.label.app_version</source>
+        <target>App version</target>
+      </trans-unit>
+      <trans-unit id="fb024" resname="feedback.email.label.message">
+        <source>feedback.email.label.message</source>
+        <target>Message</target>
       </trans-unit>
     </body>
   </file>
