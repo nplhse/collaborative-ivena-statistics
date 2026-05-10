@@ -1,0 +1,29 @@
+{# Tabler offcanvas + FAB; form posts to app_feedback_submit #}
+<div class="dropup position-fixed bottom-0 end-0 p-3" style="z-index: 1030;">
+        <button type="button" class="btn btn-primary btn-lg rounded-circle shadow" data-bs-toggle="offcanvas" data-bs-target="#feedbackOffcanvas" aria-controls="feedbackOffcanvas" title="{{ 'feedback.widget.open'|trans }}">
+        <twig:ux:icon name="tabler:message-circle" class="icon icon-md"/>
+    </button>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="feedbackOffcanvas" aria-labelledby="feedbackOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="feedbackOffcanvasLabel">{{ 'feedback.widget.title'|trans }}</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="{{ 'btn.cancel'|trans }}"></button>
+    </div>
+    <div class="offcanvas-body">
+        {{ form_start(form, {attr: {'data-turbo': 'false', novalidate: 'novalidate'}}) }}
+        {{ form_widget(form._redirect_target) }}
+        {{ form_widget(form._source_route) }}
+        {{ form_widget(form._source_route_params) }}
+        {% if form.guestEmail is defined %}
+            {{ form_row(form.guestEmail) }}
+        {% endif %}
+        {{ form_row(form.category) }}
+        {{ form_row(form.message) }}
+        {{ form_widget(form.extraContext) }}
+        <div class="d-grid gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">{{ 'feedback.widget.submit'|trans }}</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>

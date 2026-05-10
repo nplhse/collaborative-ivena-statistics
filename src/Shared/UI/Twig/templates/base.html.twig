@@ -43,5 +43,17 @@
 {% if cookie_consent is not null and not cookie_consent.decided %}
     {{ include('@Shared/_includes/cookie_banner.html.twig') }}
 {% endif %}
+{% if 'html' == app.request.getRequestFormat() %}
+    {% set feedback_extra = app.request.attributes.get('feedback_extra_context') %}
+    {% set feedback_extra_str = feedback_extra is iterable ? feedback_extra|json_encode : (feedback_extra|default('{}')) %}
+    {% set return_route = app.request.attributes.get('_route') ?? '' %}
+    {% set return_route_params = app.request.attributes.get('_route_params') ?? {} %}
+    {{ render(path('app_feedback_widget', {
+        return_path: app.request.pathinfo,
+        return_route: return_route,
+        return_route_params: return_route_params|json_encode,
+        feedback_extra_context: feedback_extra_str,
+    })) }}
+{% endif %}
 </body>
 </html>
