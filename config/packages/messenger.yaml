@@ -36,6 +36,13 @@ framework:
             App\Import\Application\Message\ImportAllocationsMessage: async_priority_high
             App\Statistics\Application\Message\RebuildAllocationStatsProjection: async_priority_low
 
+when@dev:
+    framework:
+        messenger:
+            routing:
+                # Sofortiger Versand lokal (Mailpit o. Ä.); ohne Worker nötig
+                Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+
 when@test:
     framework:
         messenger:
