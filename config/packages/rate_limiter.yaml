@@ -4,3 +4,15 @@ framework:
             policy: fixed_window
             limit: 3
             interval: '15 minutes'
+        feedback_submit:
+            policy: fixed_window
+            limit: 5
+            interval: '1 hour'
+
+when@test:
+    framework:
+        rate_limiter:
+            feedback_submit:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'

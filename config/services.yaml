@@ -8,6 +8,10 @@ parameters:
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
     app.mailer_from: 'no-reply@localhost'
+    env(FEEDBACK_ADMIN_EMAIL): ''
+    env(APP_VERSION): ''
+    app.feedback.admin_notification_email: '%env(FEEDBACK_ADMIN_EMAIL)%'
+    app.feedback.app_version: '%env(APP_VERSION)%'
 
 services:
     # default configuration for services in *this* file
