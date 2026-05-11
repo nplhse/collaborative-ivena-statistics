@@ -83,4 +83,33 @@ final class ComparisonScopeResolverTest extends KernelTestCase
         self::assertSame(2024, $comparisonFilter->referenceYear);
         self::assertSame(2, $comparisonFilter->referenceMonth);
     }
+
+    public function testParsesPublicComparisonScope(): void
+    {
+        self::bootKernel();
+        $resolver = self::getContainer()->get(ComparisonScopeResolver::class);
+
+        $comparisonFilter = $resolver->resolve(
+            new Request(query: ['comparison_scope' => 'public']),
+            null,
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+        );
+
+        self::assertSame(StatisticsFilterScope::Public, $comparisonFilter->scope);
+    }
+
+    public function testParsesStateComparisonScopeColonSyntax(): void
+    {
+        self::bootKernel();
+        $resolver = self::getContainer()->get(ComparisonScopeResolver::class);
+
+        $comparisonFilter = $resolver->resolve(
+            new Request(query: ['comparison_scope' => 'state:999999']),
+            null,
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+        );
+
+        self::assertSame(StatisticsFilterScope::Public, $comparisonFilter->scope);
+        self::assertNull($comparisonFilter->stateId);
+    }
 }

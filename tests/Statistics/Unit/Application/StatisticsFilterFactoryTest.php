@@ -83,4 +83,52 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
         self::assertSame('hospital', $filter->scope->value);
         self::assertSame(12, $filter->hospitalId);
     }
+
+    public function testInvalidStateScopeFallsBackToPublic(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(StatisticsFilterFactory::class);
+
+        $filter = $factory->createFromInput(
+            new StatisticsFilterInput(
+                'state:999999',
+                '',
+                '',
+                '',
+                '',
+                'all',
+                null,
+                null,
+                true,
+            ),
+            null,
+        );
+
+        self::assertSame('public', $filter->scope->value);
+        self::assertNull($filter->stateId);
+    }
+
+    public function testInvalidDispatchAreaScopeFallsBackToPublic(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(StatisticsFilterFactory::class);
+
+        $filter = $factory->createFromInput(
+            new StatisticsFilterInput(
+                'dispatch_area:999999',
+                '',
+                '',
+                '',
+                '',
+                'all',
+                null,
+                null,
+                true,
+            ),
+            null,
+        );
+
+        self::assertSame('public', $filter->scope->value);
+        self::assertNull($filter->dispatchAreaId);
+    }
 }

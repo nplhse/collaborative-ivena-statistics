@@ -429,4 +429,17 @@ class AnalysisControllerTest extends WebTestCase
         $this->assertStringContainsString('comparison_period=year', $location);
         $this->assertStringContainsString('comparison_year=2025', $location);
     }
+
+    public function testComparisonAnalysisSupportsPublicComparisonScope(): void
+    {
+        $client = static::createClient();
+        $client->followRedirects(true);
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all&analysis=allocations_comparison_over_time&comparison_scope=public&view=table',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-comparison-scope-menu"]');
+    }
 }
