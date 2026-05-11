@@ -76,6 +76,40 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         self::assertSame(0, $repo->count([]));
     }
 
+    public function testSubmitRedirectsBackToPathWithQueryAndStoresContext(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+        $client->followRedirects(false);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/explore/hospital?search=clinic');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+        $target = '/explore/hospital?search=clinic';
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => $target,
+            '_source_route' => 'app_explore_hospital_list',
+            '_source_route_params' => '{}',
+            'guestEmail' => 'alpha-tester@example.test',
+            'category' => 'bug',
+            'message' => 'List filters break after refresh.',
+            'extraContext' => '',
+        ]);
+
+        self::assertResponseRedirects($target);
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        $feedback = $repo->findOneBy(['message' => 'List filters break after refresh.']);
+        self::assertNotNull($feedback);
+        self::assertSame('app_explore_hospital_list', $feedback->getRouteName());
+        self::assertStringEndsWith($target, $feedback->getPageUrl());
+        self::assertSame('/explore/hospital', $feedback->getPagePath());
+    }
+
     public function testAuthenticatedUserCanSubmitWithoutGuestEmail(): void
     {
         UserFactory::new([
