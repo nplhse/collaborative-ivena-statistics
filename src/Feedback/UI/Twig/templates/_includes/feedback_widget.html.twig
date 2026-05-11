@@ -1,8 +1,16 @@
 {# Tabler offcanvas + FAB; form posts to app_feedback_submit #}
 <div class="dropup position-fixed bottom-0 end-0 p-3" style="z-index: 1030;">
-        <button type="button" class="btn btn-primary btn-lg rounded-circle shadow" data-bs-toggle="offcanvas" data-bs-target="#feedbackOffcanvas" aria-controls="feedbackOffcanvas" title="{{ 'feedback.widget.open'|trans }}">
-        <twig:ux:icon name="tabler:message-circle" class="icon icon-md"/>
-    </button>
+        <button
+            type="button"
+            class="btn btn-primary rounded-circle shadow d-inline-flex align-items-center justify-content-center p-0"
+            style="width: 3.5rem; height: 3.5rem;"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#feedbackOffcanvas"
+            aria-controls="feedbackOffcanvas"
+            title="{{ 'feedback.widget.open'|trans }}"
+        >
+            <twig:ux:icon name="tabler:message-circle" width="1.25rem" height="1.25rem" class="flex-shrink-0"/>
+        </button>
 </div>
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="feedbackOffcanvas" aria-labelledby="feedbackOffcanvasLabel">
