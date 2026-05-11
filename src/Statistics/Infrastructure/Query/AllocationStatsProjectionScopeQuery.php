@@ -99,4 +99,81 @@ final readonly class AllocationStatsProjectionScopeQuery
 
         return array_map(static fn (int|string $id): int => (int) $id, $raw);
     }
+
+    public function countDistinctHospitalsForState(int $stateId): int
+    {
+        return (int) $this->entityManager->createQueryBuilder()
+            ->from(AllocationStatsProjection::class, 'p')
+            ->select('COUNT(DISTINCT p.hospitalId)')
+            ->andWhere('p.stateId = :stateId')
+            ->setParameter('stateId', $stateId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function distinctHospitalIdsForDispatchArea(int $dispatchAreaId): array
+    {
+        /** @var list<int|string> $raw */
+        $raw = $this->entityManager->createQueryBuilder()
+            ->from(AllocationStatsProjection::class, 'p')
+            ->select('DISTINCT p.hospitalId')
+            ->andWhere('p.dispatchAreaId = :dispatchAreaId')
+            ->setParameter('dispatchAreaId', $dispatchAreaId)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(static fn (int|string $id): int => (int) $id, $raw);
+    }
+
+    public function countDistinctHospitalsForDispatchArea(int $dispatchAreaId): int
+    {
+        return (int) $this->entityManager->createQueryBuilder()
+            ->from(AllocationStatsProjection::class, 'p')
+            ->select('COUNT(DISTINCT p.hospitalId)')
+            ->andWhere('p.dispatchAreaId = :dispatchAreaId')
+            ->setParameter('dispatchAreaId', $dispatchAreaId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function stateIdsWithAtLeastDistinctHospitals(int $minimumParticipants = 2): array
+    {
+        /** @var list<int|string> $raw */
+        $raw = $this->entityManager->createQueryBuilder()
+            ->from(AllocationStatsProjection::class, 'p')
+            ->select('p.stateId')
+            ->groupBy('p.stateId')
+            ->having('COUNT(DISTINCT p.hospitalId) >= :min')
+            ->orderBy('p.stateId', 'ASC')
+            ->setParameter('min', $minimumParticipants)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(static fn (int|string $id): int => (int) $id, $raw);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function dispatchAreaIdsWithAtLeastDistinctHospitals(int $minimumParticipants = 2): array
+    {
+        /** @var list<int|string> $raw */
+        $raw = $this->entityManager->createQueryBuilder()
+            ->from(AllocationStatsProjection::class, 'p')
+            ->select('p.dispatchAreaId')
+            ->groupBy('p.dispatchAreaId')
+            ->having('COUNT(DISTINCT p.hospitalId) >= :min')
+            ->orderBy('p.dispatchAreaId', 'ASC')
+            ->setParameter('min', $minimumParticipants)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(static fn (int|string $id): int => (int) $id, $raw);
+    }
 }

@@ -10,6 +10,7 @@ final class StatisticsQueryKeys
     public const string HOSPITAL = 'hospital';
     public const string COHORT = 'cohort';
     public const string STATE = 'state';
+    public const string DISPATCH_AREA = 'dispatch_area';
     public const string PERIOD = 'period';
     public const string YEAR = 'year';
     public const string MONTH = 'month';
@@ -26,6 +27,7 @@ final class StatisticsQueryKeys
     public const string COMPARISON_SCOPE = 'comparison_scope';
     public const string COMPARISON_COHORT = 'comparison_cohort';
     public const string COMPARISON_STATE = 'comparison_state';
+    public const string COMPARISON_DISPATCH_AREA = 'comparison_dispatch_area';
     public const string COMPARISON_PERIOD = 'comparison_period';
     public const string COMPARISON_YEAR = 'comparison_year';
     public const string COMPARISON_MONTH = 'comparison_month';
@@ -38,6 +40,7 @@ final class StatisticsQueryKeys
         self::HOSPITAL,
         self::COHORT,
         self::STATE,
+        self::DISPATCH_AREA,
     ];
 
     /** @var list<string> */

@@ -23,7 +23,13 @@ final class ComparisonFilterInputFactory
         $scopeRaw = $query->getString('comparison_scope');
         $cohortRaw = $query->getString('comparison_cohort');
         $stateRaw = $query->getString('comparison_state');
-        [$normalizedScope, $normalizedCohort, $normalizedState] = $this->normalizeScope($scopeRaw, $cohortRaw, $stateRaw);
+        $dispatchAreaRaw = $query->getString('comparison_dispatch_area');
+        [$normalizedScope, $normalizedCohort, $normalizedState, $normalizedDispatchArea] = $this->normalizeScope(
+            $scopeRaw,
+            $cohortRaw,
+            $stateRaw,
+            $dispatchAreaRaw,
+        );
 
         $period = StatisticsFilterPeriod::tryFrom($query->getString('comparison_period')) ?? $primaryFilter->period;
         $year = $query->has('comparison_year') ? $query->getInt('comparison_year') : $primaryFilter->referenceYear;
@@ -32,6 +38,7 @@ final class ComparisonFilterInputFactory
         if (StatisticsFilterScope::Public === $normalizedScope) {
             return new StatisticsFilterInput(
                 StatisticsFilterScope::Public->value,
+                '',
                 '',
                 '',
                 '',
@@ -48,6 +55,21 @@ final class ComparisonFilterInputFactory
                 '',
                 '',
                 (string) $normalizedState,
+                '',
+                $period->value,
+                $year,
+                $month,
+                true,
+            );
+        }
+
+        if (StatisticsFilterScope::DispatchArea === $normalizedScope && null !== $normalizedDispatchArea) {
+            return new StatisticsFilterInput(
+                StatisticsFilterScope::DispatchArea->value,
+                '',
+                '',
+                '',
+                (string) $normalizedDispatchArea,
                 $period->value,
                 $year,
                 $month,
@@ -60,6 +82,7 @@ final class ComparisonFilterInputFactory
             '',
             $normalizedCohort ?? $defaultCohort,
             '',
+            '',
             $period->value,
             $year,
             $month,
@@ -68,16 +91,17 @@ final class ComparisonFilterInputFactory
     }
 
     /**
-     * @return array{0: StatisticsFilterScope, 1: string|null, 2: int|null}
+     * @return array{0: StatisticsFilterScope, 1: string|null, 2: int|null, 3: int|null}
      */
-    private function normalizeScope(string $scopeRaw, string $cohortRaw, string $stateRaw): array
+    private function normalizeScope(string $scopeRaw, string $cohortRaw, string $stateRaw, string $dispatchAreaRaw): array
     {
         $normalizedScope = StatisticsFilterScope::tryFrom($scopeRaw) ?? StatisticsFilterScope::HospitalCohort;
         $normalizedCohort = '' !== $cohortRaw ? $cohortRaw : null;
         $normalizedState = '' !== $stateRaw ? (int) $stateRaw : null;
+        $normalizedDispatchArea = '' !== $dispatchAreaRaw ? (int) $dispatchAreaRaw : null;
 
         if (!str_contains($scopeRaw, ':')) {
-            return [$normalizedScope, $normalizedCohort, $normalizedState];
+            return [$normalizedScope, $normalizedCohort, $normalizedState, $normalizedDispatchArea];
         }
 
         [$token, $operand] = array_pad(explode(':', $scopeRaw, 2), 2, '');
@@ -85,15 +109,18 @@ final class ComparisonFilterInputFactory
         $operand = trim($operand);
 
         if (StatisticsFilterScope::HospitalCohort->value === $token && '' !== $operand && null === $normalizedCohort) {
-            return [StatisticsFilterScope::HospitalCohort, $operand, $normalizedState];
+            return [StatisticsFilterScope::HospitalCohort, $operand, $normalizedState, $normalizedDispatchArea];
         }
         if (StatisticsFilterScope::State->value === $token && '' !== $operand) {
-            return [StatisticsFilterScope::State, $normalizedCohort, (int) $operand];
+            return [StatisticsFilterScope::State, $normalizedCohort, (int) $operand, $normalizedDispatchArea];
+        }
+        if (StatisticsFilterScope::DispatchArea->value === $token && '' !== $operand) {
+            return [StatisticsFilterScope::DispatchArea, $normalizedCohort, $normalizedState, (int) $operand];
         }
         if (StatisticsFilterScope::Public->value === $token) {
-            return [StatisticsFilterScope::Public, $normalizedCohort, $normalizedState];
+            return [StatisticsFilterScope::Public, $normalizedCohort, $normalizedState, $normalizedDispatchArea];
         }
 
-        return [$normalizedScope, $normalizedCohort, $normalizedState];
+        return [$normalizedScope, $normalizedCohort, $normalizedState, $normalizedDispatchArea];
     }
 }

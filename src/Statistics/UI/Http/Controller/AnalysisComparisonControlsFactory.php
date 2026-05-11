@@ -4,20 +4,32 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Application\Cohort\HospitalCohortType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AnalysisComparisonControlsFactory
 {
+    /** @var list<string> */
+    private const array COMPARISON_SCOPE_REMOVE = [
+        'comparison_cohort',
+        'comparison_state',
+        StatisticsQueryKeys::COMPARISON_DISPATCH_AREA,
+    ];
+
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
-        private ?StateRepository $stateRepository,
+        private StateRepository $stateRepository,
+        private DispatchAreaRepository $dispatchAreaRepository,
+        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
         private TranslatorInterface $translator,
     ) {
     }
@@ -35,32 +47,68 @@ final readonly class AnalysisComparisonControlsFactory
                     $request,
                     'app_stats_analysis',
                     ['comparison_scope' => StatisticsFilterScope::Public->value],
-                    ['comparison_cohort', 'comparison_state'],
+                    self::COMPARISON_SCOPE_REMOVE,
                 ),
                 'active' => StatisticsFilterScope::Public === $comparisonFilter->scope,
             ],
         ];
-        if ($this->stateRepository instanceof StateRepository) {
-            foreach ($this->stateRepository->findBy([], ['name' => 'ASC']) as $state) {
-                $stateId = $state->getId();
-                $stateName = $state->getName();
-                if (null === $stateId || null === $stateName) {
-                    continue;
-                }
-                $stateKey = sprintf('state:%d', $stateId);
-                $scopeChoices[$stateKey] = [
-                    'label' => $stateName,
-                    'url' => $this->statisticsNavigationUrlBuilder->build(
-                        $request,
-                        'app_stats_analysis',
-                        ['comparison_scope' => $stateKey],
-                        ['comparison_cohort', 'comparison_state'],
-                    ),
-                    'active' => StatisticsFilterScope::State === $comparisonFilter->scope
-                        && $comparisonFilter->stateId === $stateId,
-                ];
+
+        $eligibleStateIds = $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(2);
+        $stateRows = [];
+        foreach ($eligibleStateIds as $stateId) {
+            $state = $this->stateRepository->findById($stateId);
+            $name = $state?->getName();
+            if (null === $name || '' === $name) {
+                continue;
             }
+            $stateRows[] = ['id' => $stateId, 'name' => $name];
         }
+        usort($stateRows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
+
+        foreach ($stateRows as $row) {
+            $stateId = $row['id'];
+            $stateKey = sprintf('state:%d', $stateId);
+            $scopeChoices[$stateKey] = [
+                'label' => $row['name'],
+                'url' => $this->statisticsNavigationUrlBuilder->build(
+                    $request,
+                    'app_stats_analysis',
+                    ['comparison_scope' => $stateKey],
+                    self::COMPARISON_SCOPE_REMOVE,
+                ),
+                'active' => StatisticsFilterScope::State === $comparisonFilter->scope
+                    && $comparisonFilter->stateId === $stateId,
+            ];
+        }
+
+        $eligibleDispatchIds = $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(2);
+        $dispatchRows = [];
+        foreach ($eligibleDispatchIds as $dispatchAreaId) {
+            $area = $this->dispatchAreaRepository->findById($dispatchAreaId);
+            $name = $area?->getName();
+            if (null === $name || '' === $name) {
+                continue;
+            }
+            $dispatchRows[] = ['id' => $dispatchAreaId, 'name' => $name];
+        }
+        usort($dispatchRows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
+
+        foreach ($dispatchRows as $row) {
+            $dispatchAreaId = $row['id'];
+            $dispatchKey = StatisticsFilterScope::DispatchArea->value.':'.$dispatchAreaId;
+            $scopeChoices[$dispatchKey] = [
+                'label' => $row['name'],
+                'url' => $this->statisticsNavigationUrlBuilder->build(
+                    $request,
+                    'app_stats_analysis',
+                    ['comparison_scope' => $dispatchKey],
+                    self::COMPARISON_SCOPE_REMOVE,
+                ),
+                'active' => StatisticsFilterScope::DispatchArea === $comparisonFilter->scope
+                    && $comparisonFilter->dispatchAreaId === $dispatchAreaId,
+            ];
+        }
+
         foreach (HospitalCohortType::cases() as $cohortType) {
             $scopeKey = StatisticsFilterScope::HospitalCohort->value.':'.$cohortType->value;
             $scopeChoices[$scopeKey] = [
@@ -69,15 +117,21 @@ final readonly class AnalysisComparisonControlsFactory
                     $request,
                     'app_stats_analysis',
                     ['comparison_scope' => $scopeKey],
-                    ['comparison_state'],
+                    ['comparison_state', StatisticsQueryKeys::COMPARISON_DISPATCH_AREA],
                 ),
                 'active' => StatisticsFilterScope::HospitalCohort === $comparisonFilter->scope
                     && $comparisonFilter->cohortType === $cohortType,
             ];
         }
+
         $activeScope = match ($comparisonFilter->scope) {
             StatisticsFilterScope::Public => StatisticsFilterScope::Public->value,
-            StatisticsFilterScope::State => null !== $comparisonFilter->stateId ? sprintf('state:%d', $comparisonFilter->stateId) : StatisticsFilterScope::Public->value,
+            StatisticsFilterScope::State => null !== $comparisonFilter->stateId
+                ? sprintf('state:%d', $comparisonFilter->stateId)
+                : StatisticsFilterScope::Public->value,
+            StatisticsFilterScope::DispatchArea => null !== $comparisonFilter->dispatchAreaId
+                ? StatisticsFilterScope::DispatchArea->value.':'.$comparisonFilter->dispatchAreaId
+                : StatisticsFilterScope::Public->value,
             default => StatisticsFilterScope::HospitalCohort->value.':'.($comparisonFilter->cohortType ?? HospitalCohortType::cases()[0])->value,
         };
         $activeScopeLabel = $scopeChoices[$activeScope]['label'] ?? $this->translator->trans('stats.filter.scope.public');

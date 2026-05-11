@@ -17,15 +17,15 @@ use App\Statistics\UI\Http\Controller\AnalysisPivotChoicesFactory;
 use App\Statistics\UI\Http\Controller\AnalysisRequestModel;
 use App\Statistics\UI\Http\Controller\AnalysisToolbarViewModelFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class AnalysisPagePresenterTest extends TestCase
+final class AnalysisPagePresenterTest extends KernelTestCase
 {
     public function testBuildsAnalysisNavigationAndPivotChoices(): void
     {
+        self::bootKernel();
         $router = $this->createMock(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
@@ -35,7 +35,7 @@ final class AnalysisPagePresenterTest extends TestCase
             new AnalysisDefinitionOptionsBuilder($urlBuilder),
             new AnalysisPivotChoicesFactory($urlBuilder),
             new AnalysisToolbarViewModelFactory($urlBuilder),
-            new AnalysisComparisonControlsFactory($urlBuilder, null, $this->translator()),
+            self::getContainer()->get(AnalysisComparisonControlsFactory::class),
         );
 
         $request = new Request(query: [
@@ -89,14 +89,6 @@ final class AnalysisPagePresenterTest extends TestCase
         $definition->method('supportsChartMeasureSelector')->willReturn(false);
 
         return $definition;
-    }
-
-    private function translator(): TranslatorInterface
-    {
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
-
-        return $translator;
     }
 }
 
