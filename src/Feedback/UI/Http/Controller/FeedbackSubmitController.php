@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Feedback\UI\Http\Controller;
 
 use App\Feedback\Application\RecordFeedbackHandler;
+use App\Feedback\UI\Http\FeedbackRedirectTargetResolver;
 use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\Feedback\UI\Form\FeedbackSubmitFormType;
 use App\User\Domain\Entity\User;
@@ -17,8 +18,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class FeedbackSubmitController extends AbstractController
 {
-    public function __construct(private readonly RecordFeedbackHandler $recordFeedbackHandler)
-    {
+    public function __construct(
+        private readonly RecordFeedbackHandler $recordFeedbackHandler,
+        private readonly FeedbackRedirectTargetResolver $redirectTargetResolver,
+    ) {
     }
 
     #[Route('/feedback', name: 'app_feedback_submit', methods: ['POST'])]
@@ -38,7 +41,7 @@ final class FeedbackSubmitController extends AbstractController
         $form->handleRequest($request);
 
         $redirectRaw = $form->get('_redirect_target')->getData();
-        $target = $this->resolveSafeLocalPath(\is_scalar($redirectRaw) ? (string) $redirectRaw : '/');
+        $target = $this->redirectTargetResolver->resolve(\is_scalar($redirectRaw) ? (string) $redirectRaw : '/');
 
         if (!$form->isSubmitted() || !$form->isValid()) {
             $this->addFlash('danger', 'feedback.flash.validation_error');
@@ -107,7 +110,7 @@ final class FeedbackSubmitController extends AbstractController
         if (\is_string($paramsRaw) && '' !== trim($paramsRaw)) {
             try {
                 $decoded = json_decode($paramsRaw, true, 512, JSON_THROW_ON_ERROR);
-                $routeParams = \is_array($decoded) ? $decoded : [];
+                $routeParams = \is_array($decoded) ? $this->filterRouteParams($decoded) : [];
             } catch (\JsonException) {
                 $routeParams = [];
             }
@@ -139,13 +142,22 @@ final class FeedbackSubmitController extends AbstractController
         return $this->redirect($target);
     }
 
-    private function resolveSafeLocalPath(string $target): string
+    /**
+     * @param array<mixed> $params
+     *
+     * @return array<string, mixed>
+     */
+    private function filterRouteParams(array $params): array
     {
-        $target = trim($target);
-        if ('' === $target || !str_starts_with($target, '/') || str_starts_with($target, '//')) {
-            return '/';
+        $filtered = [];
+        foreach ($params as $key => $value) {
+            if (!\is_string($key) || str_starts_with($key, '_')) {
+                continue;
+            }
+
+            $filtered[$key] = $value;
         }
 
-        return $target;
+        return $filtered;
     }
 }

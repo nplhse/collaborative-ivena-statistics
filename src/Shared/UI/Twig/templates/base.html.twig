@@ -8,6 +8,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>{% block title %}{{ app_title }}{% endblock %}</title>
 
+    {% if 'html' == app.request.getRequestFormat() %}
+        {% set feedback_return_route = app.request.attributes.get('_route') ?? '' %}
+        {% set feedback_return_route_params = (app.request.attributes.get('_route_params') ?? {})|filter((value, key) => key|first != '_') %}
+        <meta name="feedback-return-route" content="{{ feedback_return_route|e('html_attr') }}">
+        <meta name="feedback-return-route-params" content="{{ feedback_return_route_params|json_encode|e('html_attr') }}">
+    {% endif %}
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
     {% block stylesheets %}
     {% endblock %}
@@ -46,12 +53,16 @@
 {% if 'html' == app.request.getRequestFormat() %}
     {% set feedback_extra = app.request.attributes.get('feedback_extra_context') %}
     {% set feedback_extra_str = feedback_extra is iterable ? feedback_extra|json_encode : (feedback_extra|default('{}')) %}
-    {% set return_route = app.request.attributes.get('_route') ?? '' %}
-    {% set return_route_params = app.request.attributes.get('_route_params') ?? {} %}
+    {% set feedback_return_route = app.request.attributes.get('_route') ?? '' %}
+    {% set feedback_return_route_params = (app.request.attributes.get('_route_params') ?? {})|filter((value, key) => key|first != '_') %}
+    {% set feedback_return_path = app.request.pathInfo %}
+    {% if app.request.queryString %}
+        {% set feedback_return_path = feedback_return_path ~ '?' ~ app.request.queryString %}
+    {% endif %}
     {{ render(path('app_feedback_widget', {
-        return_path: app.request.pathinfo,
-        return_route: return_route,
-        return_route_params: return_route_params|json_encode,
+        return_path: feedback_return_path,
+        return_route: feedback_return_route,
+        return_route_params: feedback_return_route_params|json_encode,
         feedback_extra_context: feedback_extra_str,
     })) }}
 {% endif %}

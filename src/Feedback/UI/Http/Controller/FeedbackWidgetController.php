@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Feedback\UI\Http\Controller;
 
+use App\Feedback\UI\Http\FeedbackRedirectTargetResolver;
 use App\Feedback\UI\Form\FeedbackSubmitFormType;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,6 +14,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class FeedbackWidgetController extends AbstractController
 {
+    public function __construct(private readonly FeedbackRedirectTargetResolver $redirectTargetResolver)
+    {
+    }
+
     #[Route('/_ui/feedback/widget', name: 'app_feedback_widget', methods: ['GET'])]
     public function __invoke(Request $request): Response
     {
@@ -25,7 +30,7 @@ final class FeedbackWidgetController extends AbstractController
             'method' => 'POST',
         ]);
 
-        $form->get('_redirect_target')->setData($this->resolveSafeLocalPath($returnPathRaw));
+        $form->get('_redirect_target')->setData($this->redirectTargetResolver->resolve($returnPathRaw));
 
         $route = $request->query->getString('return_route', '');
         $form->get('_source_route')->setData($route);
@@ -43,13 +48,4 @@ final class FeedbackWidgetController extends AbstractController
         ]);
     }
 
-    private function resolveSafeLocalPath(string $target): string
-    {
-        $target = trim($target);
-        if ('' === $target || !str_starts_with($target, '/') || str_starts_with($target, '//')) {
-            return '/';
-        }
-
-        return $target;
-    }
 }

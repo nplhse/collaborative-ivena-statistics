@@ -118,11 +118,19 @@ final class FeedbackCrudController extends AbstractCrudController
                 ->hideOnForm();
             yield TextField::new('pagePathDisplay', 'Path')
                 ->setVirtual(true)
+                ->setValue('')
                 ->formatValue(static fn (mixed $_, Feedback $f): string => $f->getPagePath());
         }
 
         yield TextField::new('routeName', 'Route')
-            ->hideOnForm();
+            ->hideOnForm()
+            ->formatValue(static function (?string $value): string {
+                if (!\is_string($value) || '' === trim($value)) {
+                    return '—';
+                }
+
+                return $value;
+            });
 
         yield CodeEditorField::new('context', 'Context')
             ->onlyOnDetail()
