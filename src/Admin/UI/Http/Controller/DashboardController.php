@@ -14,6 +14,7 @@ use App\Admin\UI\Http\Controller\Blog\PostTagCrudController;
 use App\Admin\UI\Http\Controller\Consent\CookieConsentCrudController;
 use App\Admin\UI\Http\Controller\Department\DepartmentCrudController;
 use App\Admin\UI\Http\Controller\DispatchArea\DispatchAreaCrudController;
+use App\Admin\UI\Http\Controller\Feedback\FeedbackCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportCrudController;
 use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
@@ -27,6 +28,7 @@ use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudContro
 use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
+use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -39,6 +41,7 @@ final class DashboardController extends AbstractDashboardController
 {
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly FeedbackRepository $feedbackRepository,
     ) {
     }
 
@@ -66,6 +69,10 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToRoute('Back to frontend', 'fas fa-backward-fast', 'app_default');
         yield MenuItem::section('Management');
         yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fas fa-users');
+
+        $openFeedbackCount = $this->feedbackRepository->countOpen();
+        yield MenuItem::linkTo(FeedbackCrudController::class, 'Feedback', 'fas fa-comment-dots')
+            ->setBadge($openFeedbackCount, $openFeedbackCount > 0 ? 'info' : 'primary');
 
         yield MenuItem::section('Data');
         yield MenuItem::subMenu('Data', 'fas fa-layer-group')->setSubItems([
