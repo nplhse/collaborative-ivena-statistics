@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Request;
 
 final class ComparisonFilterInputFactoryTest extends TestCase
 {
@@ -32,7 +33,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         );
 
         $input = $this->factory->fromQuery(
-            new InputBag(['comparison_scope' => 'public']),
+            $this->queryBag(['comparison_scope' => 'public']),
             $primaryFilter,
             'urban_basic',
         );
@@ -54,7 +55,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         );
 
         $input = $this->factory->fromQuery(
-            new InputBag(['comparison_scope' => 'state:7']),
+            $this->queryBag(['comparison_scope' => 'state:7']),
             $primaryFilter,
             'urban_basic',
         );
@@ -73,7 +74,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         );
 
         $input = $this->factory->fromQuery(
-            new InputBag(['comparison_scope' => 'dispatch_area:11']),
+            $this->queryBag(['comparison_scope' => 'dispatch_area:11']),
             $primaryFilter,
             'urban_basic',
         );
@@ -92,7 +93,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         );
 
         $input = $this->factory->fromQuery(
-            new InputBag(['comparison_scope' => 'hospital_cohort:rural_basic']),
+            $this->queryBag(['comparison_scope' => 'hospital_cohort:rural_basic']),
             $primaryFilter,
             'urban_basic',
         );
@@ -112,7 +113,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         );
 
         $input = $this->factory->fromQuery(
-            new InputBag([
+            $this->queryBag([
                 'comparison_scope' => 'public',
                 'comparison_period' => 'month',
                 'comparison_year' => '2024',
@@ -125,5 +126,15 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         self::assertSame('month', $input->period);
         self::assertSame(2024, $input->year);
         self::assertSame(2, $input->month);
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     *
+     * @return InputBag<string>
+     */
+    private function queryBag(array $parameters): InputBag
+    {
+        return (new Request($parameters))->query;
     }
 }
