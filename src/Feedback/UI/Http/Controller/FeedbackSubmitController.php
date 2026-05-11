@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Feedback\UI\Http\Controller;
 
 use App\Feedback\Application\RecordFeedbackHandler;
-use App\Feedback\UI\Http\FeedbackRedirectTargetResolver;
 use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\Feedback\UI\Form\FeedbackSubmitFormType;
+use App\Feedback\UI\Http\FeedbackRedirectTargetResolver;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
