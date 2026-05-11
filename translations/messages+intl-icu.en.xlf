@@ -3089,7 +3089,7 @@
       </trans-unit>
       <trans-unit id="fb019" resname="feedback.email.actor.user">
         <source>feedback.email.actor.user</source>
-        <target>User %username%</target>
+        <target>User {username}</target>
       </trans-unit>
       <trans-unit id="fb020" resname="feedback.email.label.url">
         <source>feedback.email.label.url</source>

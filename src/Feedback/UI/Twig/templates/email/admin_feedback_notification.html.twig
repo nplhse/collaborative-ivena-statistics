@@ -41,7 +41,7 @@
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.from'|trans }}:</strong>
                                     {% set u = feedback.submittedBy %}
                                     {% if u is not null %}
-                                        {{ 'feedback.email.actor.user'|trans({'%username%': u.userIdentifier|e('html')}) }}
+                                        {{ 'feedback.email.actor.user'|trans({username: u.userIdentifier}) }}
                                         {% if u.email %} &lt;{{ u.email }}&gt;{% endif %}
                                     {% else %}
                                         {{ feedback.guestEmail|default('—') }}
@@ -52,7 +52,7 @@
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.route'|trans }}:</strong>
                                     {{ feedback.routeName|default('—') }}<br/>
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.time'|trans }}:</strong>
-                                    {{ feedback.createdAt|format_datetime('medium', 'medium', 'Europe/Berlin') }}
+                                    {{ feedback.createdAt|date('d.m.Y H:i', 'Europe/Berlin') }}
                                     {% if feedback.appVersion %}<br/>
                                         <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.app_version'|trans }}:</strong>
                                         {{ feedback.appVersion }}
