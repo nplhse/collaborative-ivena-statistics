@@ -10,6 +10,9 @@ parameters:
     app.mailer_from: 'no-reply@localhost'
     env(FEEDBACK_ADMIN_EMAIL): ''
     env(APP_VERSION): ''
+    env(SENTRY_DSN): ''
+    env(SENTRY_TRACES_SAMPLE_RATE): '0'
+    env(SENTRY_ENABLE_LOGS): 'true'
     app.feedback.admin_notification_email: '%env(FEEDBACK_ADMIN_EMAIL)%'
     app.feedback.app_version: '%env(APP_VERSION)%'
 
@@ -95,3 +98,29 @@ services:
     App\Import\Infrastructure\Adapter\DoctrineRejectWriter:
         tags:
             - { name: 'import.reject_writer' }
+
+    sentry.callback.before_send:
+        class: App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback
+        factory: ['@App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback', 'getBeforeSend']
+
+    sentry.callback.before_send_transaction:
+        class: App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback
+        factory: ['@App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback', 'getBeforeSendTransaction']
+
+    sentry.callback.before_breadcrumb:
+        class: App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback
+        factory: ['@App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback', 'getBeforeBreadcrumb']
+
+    sentry.callback.before_send_log:
+        class: App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback
+        factory: ['@App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback', 'getBeforeSendLog']
+
+    app.monolog.sentry_logs_import:
+        class: Sentry\SentryBundle\Monolog\LogsHandler
+        arguments:
+            - !php/const Monolog\Logger::INFO
+
+    app.monolog.sentry_logs_main:
+        class: Sentry\SentryBundle\Monolog\LogsHandler
+        arguments:
+            - !php/const Monolog\Logger::WARNING

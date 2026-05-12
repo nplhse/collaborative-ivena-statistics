@@ -28,6 +28,16 @@ when@dev:
                 path: "%kernel.logs_dir%/import.dev.log"
                 level: info
                 channels: ["import"]
+            sentry_logs_import:
+                type: service
+                id: app.monolog.sentry_logs_import
+                level: info
+                channels: ["import"]
+            sentry_logs_main:
+                type: service
+                id: app.monolog.sentry_logs_main
+                level: warning
+                channels: ["!event", "!import"]
 
 when@test:
     monolog:
@@ -47,6 +57,16 @@ when@test:
                 path: "%kernel.logs_dir%/import.test.log"
                 level: info
                 channels: ["import"]
+            sentry_logs_import:
+                type: service
+                id: app.monolog.sentry_logs_import
+                level: info
+                channels: ["import"]
+            sentry_logs_main:
+                type: service
+                id: app.monolog.sentry_logs_main
+                level: warning
+                channels: ["!event", "!import"]
 
 when@prod:
     monolog:
@@ -77,3 +97,13 @@ when@prod:
                 level: info
                 formatter: monolog.formatter.json
                 channels: ["import"]
+            sentry_logs_import:
+                type: service
+                id: app.monolog.sentry_logs_import
+                level: info
+                channels: ["import"]
+            sentry_logs_main:
+                type: service
+                id: app.monolog.sentry_logs_main
+                level: warning
+                channels: ["!event", "!import"]

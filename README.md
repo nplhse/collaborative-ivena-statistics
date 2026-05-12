@@ -59,6 +59,44 @@ to make query and presentation layers testable:
 This separation keeps URLs and UI stable while allowing internal query and
 presentation refactors with focused unit tests.
 
+## Configuration
+
+Runtime settings live in `.env` (and environment-specific overrides). The
+sections below cover the in-app feedback widget and server-side Sentry
+monitoring.
+
+### Feedback widget
+
+Submissions are stored in the database. When `FEEDBACK_ADMIN_EMAIL` is set, the
+application sends an admin notification via Symfony Mailer.
+
+| Variable | Purpose |
+|----------|---------|
+| `FEEDBACK_ADMIN_EMAIL` | Recipient for feedback notifications; leave empty to skip email |
+| `APP_VERSION` | Release label stored with feedback and used as the default Sentry release |
+| `MAILER_DSN` | Mail transport (for example `smtp://user:pass@smtp.example:587`); required for outbound mail |
+
+The default sender address is configured in `config/services.yaml` as
+`app.mailer_from`. Submissions are rate-limited to five per hour per client
+(`feedback_submit` in `config/packages/rate_limiter.yaml`; relaxed in `test`).
+
+### Sentry monitoring
+
+Sentry is optional: leave `SENTRY_DSN` empty to disable it. When enabled, the
+bundle reports errors, structured logs, and automatic HTTP/Messenger/Doctrine
+tracing.
+
+| Variable | Purpose |
+|----------|---------|
+| `SENTRY_DSN` | Sentry project DSN |
+| `SENTRY_ENVIRONMENT` | Optional; falls back to `APP_ENV` |
+| `SENTRY_RELEASE` | Optional; falls back to `APP_VERSION` |
+| `SENTRY_TRACES_SAMPLE_RATE` | Tracing sample rate (`0.0`–`1.0`) |
+| `SENTRY_ENABLE_LOGS` | Structured logs (`true` / `false`; disabled in `test`) |
+
+See [docs/observability/sentry.md](docs/observability/sentry.md) for import log
+allowlists, scrubbing, and local smoke tests.
+
 # Contributing
 Any contribution to this project is appreciated, whether it is related to
 fixing bugs, suggestions or improvements. Feel free to take your part in the
