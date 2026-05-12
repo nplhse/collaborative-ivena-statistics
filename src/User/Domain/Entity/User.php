@@ -55,6 +55,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     #[ORM\Column(options: ['default' => false])]
     private bool $credentialsExpired = false;
 
+    #[ORM\Column(options: ['default' => true])]
+    private bool $isEnabled = true;
+
     /**
      * @var Collection<int, Hospital>
      */
@@ -172,6 +175,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function setCredentialsExpired(bool $credentialsExpired): static
     {
         $this->credentialsExpired = $credentialsExpired;
+
+        return $this;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->isEnabled;
+    }
+
+    public function setIsEnabled(bool $isEnabled): static
+    {
+        $this->isEnabled = $isEnabled;
 
         return $this;
     }
