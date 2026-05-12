@@ -96,6 +96,12 @@ final class ResetPasswordController extends AbstractController
             throw new \LogicException('Unsupported user returned by reset password helper.');
         }
 
+        if (!$user->isEnabled()) {
+            $this->addFlash('danger', 'flash.reset_password.validation_failed');
+
+            return $this->redirectToRoute('app_forgot_password_request');
+        }
+
         $form = $this->createForm(ResetPasswordFormType::class);
         $form->handleRequest($request);
 
@@ -130,7 +136,7 @@ final class ResetPasswordController extends AbstractController
     private function processSendingPasswordResetEmail(string $emailFormData): RedirectResponse
     {
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => mb_strtolower(trim($emailFormData))]);
-        if (!$user instanceof User || !$user->isVerified()) {
+        if (!$user instanceof User || !$user->isVerified() || !$user->isEnabled()) {
             return $this->redirectToRoute('app_check_email');
         }
 
