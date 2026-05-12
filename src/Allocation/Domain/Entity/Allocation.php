@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[Audit\Audited]
@@ -121,6 +122,14 @@ class Allocation
 
     #[ORM\OneToOne(Assessment::class, cascade: ['persist', 'remove'])]
     private ?Assessment $assessment = null;
+
+    #[Audit\AuditIgnore]
+    #[ORM\Column(type: Types::BINARY, length: 32, nullable: true)]
+    private ?string $caseIdHash = null;
+
+    #[Audit\AuditIgnore]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $notes = null;
 
     public function getId(): ?int
     {
@@ -491,5 +500,29 @@ class Allocation
     public function setAssessment(?Assessment $assessment): void
     {
         $this->assessment = $assessment;
+    }
+
+    public function getCaseIdHash(): ?string
+    {
+        return $this->caseIdHash;
+    }
+
+    public function setCaseIdHash(?string $caseIdHash): static
+    {
+        $this->caseIdHash = $caseIdHash;
+
+        return $this;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?string $notes): static
+    {
+        $this->notes = $notes;
+
+        return $this;
     }
 }

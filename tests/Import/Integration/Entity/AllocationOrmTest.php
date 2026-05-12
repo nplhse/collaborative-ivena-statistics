@@ -31,6 +31,7 @@ use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
+use App\Import\Infrastructure\CaseId\CaseIdHasher;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -162,6 +163,76 @@ final class AllocationOrmTest extends KernelTestCase
         self::assertSame('Test Infection', $object->getInfection()->getName());
         self::assertSame('Test IndicationRaw', $object->getIndicationRaw()->getName());
         self::assertSame('Test IndicationNormalized', $object->getIndicationNormalized()->getName());
+    }
+
+    public function testCaseIdHashAndNotesPersistAndHydrate(): void
+    {
+        UserFactory::createOne(['username' => 'allocation-orm-supplementary-'.bin2hex(random_bytes(6))]);
+
+        $state = StateFactory::createOne();
+        $area = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $area]);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        $speciality = SpecialityFactory::createOne(['name' => 'Speciality']);
+        $department = DepartmentFactory::createOne(['name' => 'Department']);
+        $assignment = AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        $occasion = OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test IndicationRaw']);
+
+        $state = $this->em->getRepository(State::class)->find($state->getId());
+        $area = $this->em->getRepository(DispatchArea::class)->find($area->getId());
+        $hospital = $this->em->getRepository(Hospital::class)->find($hospital->getId());
+        $import = $this->em->getRepository(Import::class)->find($import->getId());
+        $speciality = $this->em->getRepository(Speciality::class)->find($speciality->getId());
+        $department = $this->em->getRepository(Department::class)->find($department->getId());
+        $assignment = $this->em->getRepository(Assignment::class)->find($assignment->getId());
+        $occasion = $this->em->getRepository(Occasion::class)->find($occasion->getId());
+        $indicationRaw = $this->em->getRepository(IndicationRaw::class)->find($indicationRaw->getId());
+
+        $hasher = self::getContainer()->get(CaseIdHasher::class);
+        $caseIdHash = $hasher->hashFrom('987654');
+        $notes = 'Follow-up requested';
+
+        $allocation = new Allocation()
+            ->setHospital($hospital)
+            ->setDispatchArea($area)
+            ->setState($state)
+            ->setImport($import)
+            ->setCreatedAt(new \DateTimeImmutable('now'))
+            ->setArrivalAt(new \DateTimeImmutable('+10 minutes'))
+            ->setGender(AllocationGender::MALE)
+            ->setAge(45)
+            ->setRequiresResus(false)
+            ->setRequiresCathlab(false)
+            ->setIsCPR(false)
+            ->setIsVentilated(false)
+            ->setIsShock(false)
+            ->setIsPregnant(false)
+            ->setIsWorkAccident(false)
+            ->setIsWithPhysician(false)
+            ->setTransportType(AllocationTransportType::GROUND)
+            ->setUrgency(AllocationUrgency::EMERGENCY)
+            ->setSpeciality($speciality)
+            ->setDepartment($department)
+            ->setDepartmentWasClosed(false)
+            ->setAssignment($assignment)
+            ->setOccasion($occasion)
+            ->setIndicationRaw($indicationRaw)
+            ->setCaseIdHash($caseIdHash)
+            ->setNotes($notes)
+        ;
+
+        $this->em->persist($allocation);
+        $this->em->flush();
+        $id = $allocation->getId();
+
+        $this->em->clear();
+
+        /** @var Allocation $object */
+        $object = $this->em->getRepository(Allocation::class)->find($id);
+
+        self::assertSame($caseIdHash, $object->getCaseIdHash());
+        self::assertSame($notes, $object->getNotes());
     }
 
     public function testTransportTypeAndInfectionCanBeNull(): void

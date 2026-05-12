@@ -19,6 +19,7 @@ use App\Import\Application\Exception\InvalidDateException;
 use App\Import\Application\Exception\InvalidEnumException;
 use App\Import\Application\Exception\ReferenceNotFoundException;
 use App\Import\Domain\Entity\Import;
+use App\Import\Infrastructure\CaseId\CaseIdHasher;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Mapping\AllocationImportFactory;
 use App\User\Domain\Factory\UserFactory;
@@ -119,6 +120,26 @@ final class AllocationImportFactoryTest extends KernelTestCase
         self::assertSame('Test Indication', $allocation->getIndicationRaw()->getName());
         self::assertNotNull($allocation->getSecondaryTransport());
         self::assertSame('Kapazitätsengpass', $allocation->getSecondaryTransport()->getName());
+    }
+
+    public function testSupplementaryFieldsAreMappedFromDto(): void
+    {
+        $allocation = $this->factory->fromDto($this->makeDto([
+            'caseId' => '123456',
+            'notes' => 'Unstructured note',
+        ]), $this->import);
+
+        $hasher = self::getContainer()->get(CaseIdHasher::class);
+        self::assertSame($hasher->hashFrom('123456'), $allocation->getCaseIdHash());
+        self::assertSame('Unstructured note', $allocation->getNotes());
+    }
+
+    public function testSupplementaryFieldsRemainNullWhenOmitted(): void
+    {
+        $allocation = $this->factory->fromDto($this->makeDto(), $this->import);
+
+        self::assertNull($allocation->getCaseIdHash());
+        self::assertNull($allocation->getNotes());
     }
 
     public function testUnknownDispatchAreaThrows(): void
