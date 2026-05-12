@@ -104,6 +104,9 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
             self::getStringOrNull($row, 'disability')
         );
 
+        $dto->caseId = self::getStringOrNull($row, 'enr');
+        $dto->notes = self::getStringOrNull($row, 'freitext');
+
         return $dto;
     }
 }

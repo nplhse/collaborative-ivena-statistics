@@ -119,4 +119,9 @@ final class AllocationRowDTO
     public ?string $assessmentCirculation = null;
 
     public ?string $assessmentDisability = null;
+
+    public ?string $caseId = null;
+
+    #[Assert\Length(max: 255)]
+    public ?string $notes = null;
 }
