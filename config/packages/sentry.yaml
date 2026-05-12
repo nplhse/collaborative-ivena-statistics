@@ -1,0 +1,27 @@
+sentry:
+    dsn: '%env(default::SENTRY_DSN)%'
+    register_error_listener: true
+    register_error_handler: true
+    options:
+        environment: '%env(default:kernel.environment:SENTRY_ENVIRONMENT)%'
+        release: '%env(default:app.feedback.app_version:SENTRY_RELEASE)%'
+        sample_rate: 1.0
+        traces_sample_rate: '%env(float:SENTRY_TRACES_SAMPLE_RATE)%'
+        enable_logs: '%env(bool:SENTRY_ENABLE_LOGS)%'
+        send_default_pii: false
+        max_request_body_size: none
+        before_send: 'sentry.callback.before_send'
+        before_send_transaction: 'sentry.callback.before_send_transaction'
+        before_breadcrumb: 'sentry.callback.before_breadcrumb'
+        before_send_log: 'sentry.callback.before_send_log'
+        ignore_exceptions:
+            - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+            - Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+            - Symfony\Component\ErrorHandler\Error\FatalError
+            - Symfony\Component\Debug\Exception\FatalErrorException
+
+when@test:
+    sentry:
+        options:
+            traces_sample_rate: 0.0
+            enable_logs: false
