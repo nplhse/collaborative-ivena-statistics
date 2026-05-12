@@ -199,6 +199,24 @@ final class AllocationRowDTOTest extends TestCase
         self::assertCount(0, $this->validator->validate($dto));
     }
 
+    public function testCaseIdAndNotesAreOptional(): void
+    {
+        $dto = $this->makeValidDto();
+
+        self::assertCount(0, $this->validator->validate($dto));
+    }
+
+    public function testNotesMaxLengthIsValidated(): void
+    {
+        $dto = $this->makeValidDto();
+        $dto->notes = str_repeat('a', 256);
+
+        $violations = $this->validator->validate($dto);
+        $paths = array_map(static fn (ConstraintViolationInterface $v): string => $v->getPropertyPath(), iterator_to_array($violations));
+
+        self::assertContains('notes', $paths);
+    }
+
     public function testSecondaryIndicationCodeOutOfRangeFails(): void
     {
         $dto = $this->makeValidDto();
