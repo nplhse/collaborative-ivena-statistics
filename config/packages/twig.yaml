@@ -11,6 +11,7 @@ twig:
         'app_short_title': '%app.short_title%'
         'app_blog_title': '%app.blog.title%'
         'app_blog_description': '%app.blog.description%'
+        'app_mailer_from': '%app.mailer_from%'
 
     paths:
         '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin
