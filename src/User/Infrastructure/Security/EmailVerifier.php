@@ -40,7 +40,7 @@ final readonly class EmailVerifier
         $this->mailer->send(new TemplatedEmail()
             ->from(new Address($this->mailerFrom, 'Collaborative IVENA statistics'))
             ->to($email)
-            ->subject('Bitte E-Mail-Adresse bestaetigen')
+            ->subject('Please confirm your email address')
             ->htmlTemplate('@User/registration/confirmation_email.html.twig')
             ->context([
                 'signedUrl' => $signatureComponents->getSignedUrl(),
