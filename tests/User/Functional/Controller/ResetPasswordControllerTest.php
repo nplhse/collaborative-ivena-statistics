@@ -61,6 +61,28 @@ final class ResetPasswordControllerTest extends WebTestCase
         self::assertSame(1, $this->getResetPasswordRequestRepository()->count(['user' => $user]));
     }
 
+    public function testResetRequestIsBlockedForDisabledEmail(): void
+    {
+        UserFactory::new([
+            'email' => 'disabled@example.test',
+            'isEnabled' => false,
+            'isVerified' => true,
+            'username' => 'disabled',
+        ])->create();
+
+        $this->browser()
+            ->visit('/reset-password')
+            ->fillField('Email', 'disabled@example.test')
+            ->click('Send reset email')
+            ->assertSuccessful()
+            ->assertSee('Check your email')
+        ;
+
+        $user = $this->getUserRepository()->findOneBy(['email' => 'disabled@example.test']);
+        self::assertInstanceOf(User::class, $user);
+        self::assertSame(0, $this->getResetPasswordRequestRepository()->count(['user' => $user]));
+    }
+
     private function getUserRepository(): UserRepository
     {
         return self::getContainer()->get(UserRepository::class);

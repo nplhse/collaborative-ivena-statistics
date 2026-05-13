@@ -15,17 +15,21 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * @extends AbstractCrudController<User>
  */
+#[IsGranted('ROLE_ADMIN')]
 final class UserCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
+        private readonly Security $security,
     ) {
     }
 
@@ -62,6 +66,8 @@ final class UserCrudController extends AbstractCrudController
         yield TextField::new('email');
         yield BooleanField::new('isVerified');
         yield BooleanField::new('credentialsExpired');
+        yield BooleanField::new('isEnabled')
+            ->renderAsSwitch();
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => 'ROLE_ADMIN',
@@ -87,6 +93,7 @@ final class UserCrudController extends AbstractCrudController
     {
         $user = new User();
         $user->setCredentialsExpired(true);
+        $user->setIsEnabled(true);
 
         return $user;
     }
@@ -122,6 +129,15 @@ final class UserCrudController extends AbstractCrudController
 
         $this->auditContext->beginIntent('user.admin.updated', ['source' => 'easyadmin']);
         try {
+            $currentUser = $this->security->getUser();
+            if (
+                $currentUser instanceof User
+                && $entityInstance->getId() === $currentUser->getId()
+                && !$entityInstance->isEnabled()
+            ) {
+                throw new \LogicException('You cannot disable your own account.');
+            }
+
             $plainPassword = $entityInstance->getPassword() ?? '';
             if ('' === $plainPassword) {
                 $originalData = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);

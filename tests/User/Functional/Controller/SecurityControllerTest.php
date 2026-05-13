@@ -44,4 +44,40 @@ class SecurityControllerTest extends WebTestCase
             ->assertNotSee('foo')
         ;
     }
+
+    public function testDisabledUserCannotLogin(): void
+    {
+        UserFactory::new([
+            'isEnabled' => false,
+            'username' => 'disabled-user',
+        ])->create();
+
+        $this->acceptEssentialCookies($this->browser())
+            ->visit('/login')
+            ->fillField('Username', 'disabled-user')
+            ->fillField('Password', 'password')
+            ->click('Sign in')
+            ->assertSuccessful()
+            ->assertSeeIn('.alert.alert-danger', 'Account is disabled.')
+            ->assertSee('Login')
+        ;
+    }
+
+    public function testDisabledUserIsLoggedOutOnNextRequest(): void
+    {
+        $user = UserFactory::new(['username' => 'session-user'])->create();
+
+        $this->loginWithConsent($this->browser(), 'session-user')
+            ->assertSeeIn('#user_name', 'session-user')
+        ;
+
+        $user->setIsEnabled(false);
+        $user->_save();
+
+        $this->browser()
+            ->visit('/settings')
+            ->assertSuccessful()
+            ->assertSee('Login')
+        ;
+    }
 }

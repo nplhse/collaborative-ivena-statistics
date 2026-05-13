@@ -29,6 +29,7 @@ final class UserFixtures extends Fixture
             $user->setEmail($email);
             $user->setIsVerified($isVerified);
             $user->setCredentialsExpired(false);
+            $user->setIsEnabled(true);
 
             $manager->persist($user);
 
