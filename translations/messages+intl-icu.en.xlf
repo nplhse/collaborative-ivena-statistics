@@ -121,13 +121,53 @@
         <source>cookie.preferences.title</source>
         <target>Cookie preferences</target>
       </trans-unit>
-      <trans-unit id="WbCJOyn" resname="dashboard.empty.description">
-        <source>dashboard.empty.description</source>
-        <target>This is your personal workspace. Use the navigation above to explore data, statistics, and imports.</target>
+      <trans-unit id="dshNxtHospOwnTit" resname="dashboard.next_steps.hospitals.owned.title">
+        <source>dashboard.next_steps.hospitals.owned.title</source>
+        <target>View your Hospitals</target>
       </trans-unit>
-      <trans-unit id="DZA3KTc" resname="dashboard.empty.title">
-        <source>dashboard.empty.title</source>
-        <target>Your dashboard is ready</target>
+      <trans-unit id="dshNxtHospOwnDesc" resname="dashboard.next_steps.hospitals.owned.description">
+        <source>dashboard.next_steps.hospitals.owned.description</source>
+        <target>Review participating hospitals and jump into their latest allocation details.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtHospAllTit" resname="dashboard.next_steps.hospitals.all.title">
+        <source>dashboard.next_steps.hospitals.all.title</source>
+        <target>View all Hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshNxtHospAllDesc" resname="dashboard.next_steps.hospitals.all.description">
+        <source>dashboard.next_steps.hospitals.all.description</source>
+        <target>Browse the full hospital directory and discover participating facilities.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtExplTit" resname="dashboard.next_steps.explore.title">
+        <source>dashboard.next_steps.explore.title</source>
+        <target>Explore our Data</target>
+      </trans-unit>
+      <trans-unit id="dshNxtExplDesc" resname="dashboard.next_steps.explore.description">
+        <source>dashboard.next_steps.explore.description</source>
+        <target>Browse allocations, indications, transports, and other source data in one place.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtAnlyTit" resname="dashboard.next_steps.analysis.title">
+        <source>dashboard.next_steps.analysis.title</source>
+        <target>Analyze your Data</target>
+      </trans-unit>
+      <trans-unit id="dshNxtAnlyDesc" resname="dashboard.next_steps.analysis.description">
+        <source>dashboard.next_steps.analysis.description</source>
+        <target>Start with the statistics overview before diving into detailed analyses.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtImptTit" resname="dashboard.next_steps.import.title">
+        <source>dashboard.next_steps.import.title</source>
+        <target>Import new Allocations</target>
+      </trans-unit>
+      <trans-unit id="dshNxtImptDesc" resname="dashboard.next_steps.import.description">
+        <source>dashboard.next_steps.import.description</source>
+        <target>Upload a new allocation import and keep your dataset up to date.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtBlogTit" resname="dashboard.next_steps.blog.title">
+        <source>dashboard.next_steps.blog.title</source>
+        <target>Read the Blog</target>
+      </trans-unit>
+      <trans-unit id="dshNxtBlogDesc" resname="dashboard.next_steps.blog.description">
+        <source>dashboard.next_steps.blog.description</source>
+        <target>Follow updates, guidance, and background stories from the project team.</target>
       </trans-unit>
       <trans-unit id="dshPgTit" resname="dashboard.pages.card_title">
         <source>dashboard.pages.card_title</source>

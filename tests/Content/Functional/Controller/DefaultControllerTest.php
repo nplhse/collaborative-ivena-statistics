@@ -64,10 +64,46 @@ final class DefaultControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'This is your personal workspace.');
+        self::assertSelectorTextContains('body', 'View all Hospitals');
+        self::assertSelectorTextContains('body', 'Explore our Data');
+        self::assertSelectorTextContains('body', 'Analyze your Data');
+        self::assertSelectorTextContains('body', 'Read the Blog');
+        self::assertSelectorExists('a[href="/explore/hospital"]');
+        self::assertSelectorExists('a[href="/explore"]');
+        self::assertSelectorExists('a[href="/statistics/"]');
+        self::assertSelectorExists('a[href="/blog"]');
         self::assertSelectorTextContains('body', 'Latest blog posts');
         self::assertSelectorTextContains('body', 'Pages');
         self::assertSelectorTextContains('body', 'No published posts yet.');
         self::assertSelectorTextContains('body', 'No pages available.');
+    }
+
+    public function testParticipantUsersWithHospitalsSeeOwnedHospitalsAndImportActions(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'participant-dashboard-user',
+        ]);
+        $state = StateFactory::createOne(['createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne([
+            'createdBy' => $user,
+            'state' => $state,
+        ]);
+        HospitalFactory::createOne([
+            'createdBy' => $user,
+            'dispatchArea' => $dispatchArea,
+            'owner' => $user,
+            'state' => $state,
+        ]);
+
+        $client->loginUser($user->_real());
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'View your Hospitals');
+        self::assertSelectorTextContains('body', 'Import new Allocations');
+        self::assertSelectorExists('a[href="/hospitals"]');
+        self::assertSelectorExists('a[href="/import/new"]');
     }
 }
