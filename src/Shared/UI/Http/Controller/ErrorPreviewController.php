@@ -15,7 +15,7 @@ use Twig\Environment;
 
 /**
  * Renders TwigBundle error templates with the same context as {@see \Symfony\Component\HttpKernel\Controller\ErrorController}.
- * Only wired from {@code config/routes/error_preview.yaml} (when@dev).
+ * Wired from {@code config/routes/error_preview.yaml} (when@dev and when@test for automated tests).
  */
 #[AsController]
 final readonly class ErrorPreviewController
