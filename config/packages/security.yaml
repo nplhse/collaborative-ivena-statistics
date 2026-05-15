@@ -45,6 +45,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/_error_preview, roles: PUBLIC_ACCESS }
+        - { path: ^/_error/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/hospitals, roles: ROLE_PARTICIPANT }
         - { path: ^/settings, roles: IS_AUTHENTICATED_FULLY }

@@ -1,0 +1,15 @@
+when@dev:
+    app_error_preview:
+        path: /_error_preview/{code}
+        controller: App\Shared\UI\Http\Controller\ErrorPreviewController
+        methods: [GET]
+        requirements:
+            code: \d{3}
+
+when@test:
+    app_error_preview:
+        path: /_error_preview/{code}
+        controller: App\Shared\UI\Http\Controller\ErrorPreviewController
+        methods: [GET]
+        requirements:
+            code: \d{3}
