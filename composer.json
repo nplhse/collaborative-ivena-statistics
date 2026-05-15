@@ -137,7 +137,8 @@
         }
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^4.3.1",
+        "deployer/deployer": "^8.0.3",
+        "doctrine/doctrine-fixtures-bundle": "^4.3",
         "friendsofphp/php-cs-fixer": "^3.95.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.1.51",

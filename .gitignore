@@ -37,3 +37,7 @@ phpstan.neon
 
 # macOS
 .DS_Store
+
+###> deployer/deployer ###
+/hosts.yaml
+###< deployer/deployer ###
