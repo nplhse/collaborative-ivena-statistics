@@ -11,6 +11,9 @@ set('env', [
     'APP_DEBUG' => '0',
 ]);
 
+set('messenger_systemd_service', 'messenger.service');
+set('messenger_restart_on_deploy', true);
+
 add('shared_files', [
     '.env.local',
 ]);
@@ -41,7 +44,31 @@ task('deploy:cache:warmup', function () {
 after('deploy:vendors', 'deploy:assets');
 after('deploy:assets', 'deploy:cache:warmup');
 
+desc('Gracefully stop Messenger workers on the previous release');
+task('messenger:stop', function () {
+    if (!get('messenger_restart_on_deploy')) {
+        return;
+    }
+    if (!has('previous_release')) {
+        writeln('<comment>No previous release; skipping messenger:stop-workers</comment>');
+
+        return;
+    }
+    run('cd {{previous_release}} && {{bin/console}} messenger:stop-workers {{console_options}}');
+});
+
+desc('Restart Messenger systemd user service');
+task('messenger:restart', function () {
+    if (!get('messenger_restart_on_deploy')) {
+        return;
+    }
+    $service = get('messenger_systemd_service');
+    run('systemctl --user restart '.escapeshellarg($service));
+});
+
 // Attach tasks from recipes& contrib to default workflow
+before('deploy:symlink', 'messenger:stop');
 before('deploy:publish', 'database:migrate');
+after('deploy:publish', 'messenger:restart');
 
 after('deploy:failed', 'deploy:unlock');
