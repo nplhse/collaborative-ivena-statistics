@@ -1,0 +1,18 @@
+# Foundry model factories: excluded from the main App\ scan in services.yaml,
+# registered here for dev/test only (ZenstruckFoundryBundle tags them foundry.factory).
+when@dev: &foundry_factories
+    services:
+        _defaults:
+            autowire: true
+            autoconfigure: true
+
+        App\DataFixtures\:
+            resource: '../../src/DataFixtures/'
+
+        App\:
+            resource: '../../src/**/Infrastructure/Factory/'
+
+        App\User\Domain\Factory\:
+            resource: '../../src/User/Domain/Factory/'
+
+when@test: *foundry_factories
