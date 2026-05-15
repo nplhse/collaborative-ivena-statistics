@@ -97,6 +97,13 @@ tracing.
 See [docs/observability/sentry.md](docs/observability/sentry.md) for import log
 allowlists, scrubbing, and local smoke tests.
 
+### Deployment
+
+Production deploys use [Deployer](https://deployer.org/) with optional Messenger
+worker management via systemd (Uberspace user services). See
+[docs/deployment.md](docs/deployment.md) for host inventory, `dep deploy`, and
+one-time worker setup.
+
 # Contributing
 Any contribution to this project is appreciated, whether it is related to
 fixing bugs, suggestions or improvements. Feel free to take your part in the

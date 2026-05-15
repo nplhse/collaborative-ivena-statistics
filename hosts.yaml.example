@@ -1,0 +1,10 @@
+# Copy to hosts.yaml and adjust hostnames, users, and paths.
+# See docs/deployment.md for full setup instructions.
+
+hosts:
+  prod:
+    hostname: "asteroid.uberspace.de"
+    remote_user: "your-username"
+    deploy_path: "~/html"
+    messenger_systemd_service: "messenger.service"
+    messenger_restart_on_deploy: "true"
