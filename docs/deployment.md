@@ -52,7 +52,7 @@ StartLimitBurst=5
 
 [Service]
 Type=simple
-WorkingDirectory=/home/YOUR_USERNAME/html/current
+WorkingDirectory=/home/YOUR_USERNAME/www/current
 Environment=APP_ENV=prod
 Environment=APP_DEBUG=0
 
