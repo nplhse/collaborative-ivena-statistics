@@ -8,6 +8,7 @@ SYMFONY       = symfony
 
 # Alias
 CONSOLE       = $(SYMFONY) console
+PROD_ENV      = APP_ENV=prod APP_DEBUG=0
 
 # Vendor executables
 PHPUNIT       = ./vendor/bin/phpunit
@@ -37,6 +38,16 @@ warmup: ## Warmup the dev environment (e.g. after purge)
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 vendor: composer.lock ## Install vendors according to the current composer.lock file
 	@$(COMPOSER) install --prefer-dist --no-dev --no-progress --no-interaction
+
+prod: ## Prod-like local install (no fixtures; requires .env.local)
+	@$(PROD_ENV) $(COMPOSER) install --prefer-dist --no-dev --no-progress --no-interaction --no-scripts
+	rm -rf var/cache/* public/assets/*
+	@$(PROD_ENV) $(CONSOLE) importmap:install
+	@$(PROD_ENV) $(CONSOLE) assets:install public
+	@$(PROD_ENV) $(CONSOLE) asset-map:compile
+	@$(PROD_ENV) $(CONSOLE) cache:clear
+	@$(PROD_ENV) $(CONSOLE) cache:warmup
+	@$(PROD_ENV) $(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 
 ## —— Docker 🐳 ————————————————————————————————————————————————————————————————
 start: build up ## Build and start the containers
