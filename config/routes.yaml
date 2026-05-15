@@ -2,4 +2,7 @@ controllers:
     resource:
         path: ../src/
         namespace: App
+        exclude:
+            - '../src/**/Infrastructure/Factory/'
+            - '../src/User/Domain/Factory/'
     type: attribute
