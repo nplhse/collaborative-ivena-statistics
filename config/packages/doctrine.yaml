@@ -23,12 +23,46 @@ doctrine:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
         mappings:
-            App:
+            Allocation:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src'
-                prefix: 'App'
-                alias: App
+                dir: '%kernel.project_dir%/src/Allocation/Domain/Entity'
+                prefix: 'App\Allocation\Domain\Entity'
+            Content:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Content/Domain/Entity'
+                prefix: 'App\Content\Domain\Entity'
+            Import:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Import/Domain/Entity'
+                prefix: 'App\Import\Domain\Entity'
+            User:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/User/Domain/Entity'
+                prefix: 'App\User\Domain\Entity'
+            Feedback:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Feedback/Domain/Entity'
+                prefix: 'App\Feedback\Domain\Entity'
+            Shared:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Shared/Domain/Entity'
+                prefix: 'App\Shared\Domain\Entity'
+            SharedAudit:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Shared/Infrastructure/Audit/Entity'
+                prefix: 'App\Shared\Infrastructure\Audit\Entity'
+            Statistics:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Statistics/Infrastructure/Entity'
+                prefix: 'App\Statistics\Infrastructure\Entity'
         controller_resolver:
             auto_mapping: false
 
