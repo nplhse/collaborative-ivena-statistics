@@ -1,8 +1,2 @@
-controllers:
-    resource:
-        path: ../src/
-        namespace: App
-        exclude:
-            - '../src/**/Infrastructure/Factory/'
-            - '../src/User/Domain/Factory/'
-    type: attribute
+# Controller routes are imported via config/routes/attributes.php
+# This is required to explicitly exclude Foundry/Faker directories
