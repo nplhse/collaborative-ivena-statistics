@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="errors.title.error" resname="title.error">
+        <source>title.error</source>
+        <target>Something went wrong</target>
+      </trans-unit>
+      <trans-unit id="errors.msg403.title" resname="messages.403.title">
+        <source>messages.403.title</source>
+        <target>Access denied</target>
+      </trans-unit>
+      <trans-unit id="errors.msg403.desc" resname="messages.403.description">
+        <source>messages.403.description</source>
+        <target>Sorry! You do not have permission to view this page.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg404.title" resname="messages.404.title">
+        <source>messages.404.title</source>
+        <target>Page not found</target>
+      </trans-unit>
+      <trans-unit id="errors.msg404.desc" resname="messages.404.description">
+        <source>messages.404.description</source>
+        <target>No content was found at this address. You may have followed an outdated or incorrect link. If you typed the URL yourself, check for typos.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg405.title" resname="messages.405.title">
+        <source>messages.405.title</source>
+        <target>Method not allowed</target>
+      </trans-unit>
+      <trans-unit id="errors.msg405.desc" resname="messages.405.description">
+        <source>messages.405.description</source>
+        <target>The HTTP method used for this request is not supported on this page.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg500.title" resname="messages.500.title">
+        <source>messages.500.title</source>
+        <target>Internal error</target>
+      </trans-unit>
+      <trans-unit id="errors.msg500.desc" resname="messages.500.description">
+        <source>messages.500.description</source>
+        <target>Something went wrong while loading this page. The team has been notified and we will try to fix the problem as soon as possible.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg.default.title" resname="messages.default.title">
+        <source>messages.default.title</source>
+        <target>Error</target>
+      </trans-unit>
+      <trans-unit id="errors.msg.default.desc" resname="messages.default.description">
+        <source>messages.default.description</source>
+        <target>An unexpected error occurred. Please try again or use the buttons below.</target>
+      </trans-unit>
+      <trans-unit id="errors.cta.home" resname="cta.home">
+        <source>cta.home</source>
+        <target>Visit Homepage</target>
+      </trans-unit>
+      <trans-unit id="errors.cta.back" resname="cta.back">
+        <source>cta.back</source>
+        <target>Go back</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

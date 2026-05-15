@@ -1,0 +1,42 @@
+{% extends '@Twig/Exception/error_base.html.twig' %}
+
+{% trans_default_domain 'errors' %}
+
+{% set code = status_code %}
+
+{% if code == 403 %}
+    {% set error_title = 'messages.403.title'|trans %}
+    {% set error_description = 'messages.403.description'|trans %}
+{% elseif code == 404 %}
+    {% set error_title = 'messages.404.title'|trans %}
+    {% set error_description = 'messages.404.description'|trans %}
+{% elseif code == 405 %}
+    {% set error_title = 'messages.405.title'|trans %}
+    {% set error_description = 'messages.405.description'|trans %}
+{% elseif code == 500 %}
+    {% set error_title = 'messages.500.title'|trans %}
+    {% set error_description = 'messages.500.description'|trans %}
+{% else %}
+    {% set error_title = 'messages.default.title'|trans %}
+    {% set error_description = 'messages.default.description'|trans %}
+{% endif %}
+
+{% block title %}{{ error_title }} — {{ app_title }}{% endblock %}
+
+{% block error_content %}
+    <div class="empty">
+        <div class="empty-header">{{ code }}</div>
+        <p class="empty-title">{{ error_title }}</p>
+        <p class="empty-subtitle text-secondary">{{ error_description }}</p>
+        <div class="empty-action d-flex flex-wrap gap-2 justify-content-center align-items-center">
+            <a href="javascript:history.back()" class="btn btn-primary d-inline-flex align-items-center">
+                <twig:ux:icon name="tabler:arrow-left" class="icon icon-2" />
+                {{ 'cta.back'|trans }}
+            </a>
+            <a href="{{ path('app_default') }}" class="btn btn-outline-secondary d-inline-flex align-items-center">
+                <twig:ux:icon name="tabler:home" class="icon icon-2" />
+                {{ 'cta.home'|trans }}
+            </a>
+        </div>
+    </div>
+{% endblock %}

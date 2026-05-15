@@ -16,6 +16,10 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+    'error_page' => [
+        'path' => './assets/error-page.js',
+        'entrypoint' => true,
+    ],
     'monitoring' => [
         'path' => './assets/monitoring.js',
         'entrypoint' => true,
