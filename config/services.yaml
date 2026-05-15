@@ -30,6 +30,9 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/**/Infrastructure/Factory/'
+            - '../src/User/Domain/Factory/'
 
     Doctrine\DBAL\Connection: '@doctrine.dbal.default_connection'
     App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface: '@App\LegacyMigration\Infrastructure\Doctrine\LegacyMigrationStateRepository'
