@@ -22,7 +22,6 @@ return [
     ],
     'monitoring' => [
         'path' => './assets/monitoring.js',
-        'entrypoint' => true,
     ],
     '@symfony/stimulus-bundle' => [
         'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
