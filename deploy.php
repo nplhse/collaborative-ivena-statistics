@@ -3,6 +3,7 @@
 namespace Deployer;
 
 require 'recipe/symfony.php';
+require 'contrib/cachetool.php';
 
 set('repository', 'https://github.com/nplhse/collaborative-ivena-statistics.git');
 set('writable_mode', 'chmod');
@@ -13,6 +14,8 @@ set('env', [
 
 set('messenger_systemd_service', 'messenger.service');
 set('messenger_restart_on_deploy', true);
+
+set('cachetool_args', '--web --web-path={{release_or_current_path}}/public --web-url={{web_url}}');
 
 add('shared_files', [
     '.env.local',
@@ -68,6 +71,8 @@ task('messenger:restart', function () {
 
 // Attach tasks from recipes& contrib to default workflow
 before('deploy:symlink', 'messenger:stop');
+after('deploy:symlink', 'cachetool:clear:opcache');
+
 before('deploy:publish', 'database:migrate');
 after('deploy:publish', 'messenger:restart');
 
