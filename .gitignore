@@ -21,6 +21,7 @@
 ###< symfony/asset-mapper ###
 
 /.idea/
+/.cursor/
 
 ###> phpstan/phpstan ###
 phpstan.neon
