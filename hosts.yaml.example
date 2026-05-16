@@ -5,6 +5,7 @@ hosts:
   prod:
     hostname: "asteroid.uberspace.de"
     remote_user: "your-username"
-    deploy_path: "~/html"
+    deploy_path: "/home/your-username/www"
+    web_url: https://your-username.uberspace.de
     messenger_systemd_service: "messenger.service"
     messenger_restart_on_deploy: "true"

@@ -113,7 +113,7 @@ journalctl --user -u messenger -f
    cp hosts.yaml.example hosts.yaml
    ```
 
-   Edit `hosts.yaml` with your hostname, `remote_user`, and `deploy_path`. The real `hosts.yaml` is gitignored.
+   Edit `hosts.yaml` with your hostname, `remote_user`, `deploy_path` and `web_url`. The real `hosts.yaml` is gitignored.
 
 3. Deploy:
 
