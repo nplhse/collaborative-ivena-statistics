@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import ApexCharts from 'apexcharts';
+import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
@@ -13,12 +13,12 @@ export default class extends Controller {
     connect() {
         this.allocationsChartInstance = null;
         this.importsChartInstance = null;
-
-        this.renderAllocationsChart();
-        this.renderImportsChart();
+        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
+        void this.renderCharts(this._renderGeneration);
     }
 
     disconnect() {
+        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         if (this.allocationsChartInstance) {
             this.allocationsChartInstance.destroy();
             this.allocationsChartInstance = null;
@@ -29,8 +29,19 @@ export default class extends Controller {
         }
     }
 
-    renderAllocationsChart() {
-        if (!this.hasAllocationsChartTarget || !this.allocationsValue) {
+    async renderCharts(generation) {
+        const ApexCharts = await loadApexCharts();
+
+        if (generation !== this._renderGeneration) {
+            return;
+        }
+
+        this.renderAllocationsChart(ApexCharts, generation);
+        this.renderImportsChart(ApexCharts, generation);
+    }
+
+    renderAllocationsChart(ApexCharts, generation) {
+        if (generation !== this._renderGeneration || !this.hasAllocationsChartTarget || !this.allocationsValue) {
             return;
         }
 
@@ -51,7 +62,6 @@ export default class extends Controller {
             yMax = maxVal * 1.01;
         } else {
             const range = maxVal - minVal;
-            // 10 % Puffer nach unten und oben
             yMin = minVal - range * 0.5;
             yMax = maxVal + range * 0.25;
         }
@@ -113,6 +123,10 @@ export default class extends Controller {
             },
         };
 
+        if (generation !== this._renderGeneration || !this.hasAllocationsChartTarget) {
+            return;
+        }
+
         if (this.allocationsChartInstance) {
             this.allocationsChartInstance.updateOptions(options, true, true);
         } else {
@@ -124,8 +138,8 @@ export default class extends Controller {
         }
     }
 
-    renderImportsChart() {
-        if (!this.hasImportsChartTarget || !this.importsValue) {
+    renderImportsChart(ApexCharts, generation) {
+        if (generation !== this._renderGeneration || !this.hasImportsChartTarget || !this.importsValue) {
             return;
         }
 
@@ -188,6 +202,10 @@ export default class extends Controller {
                 intersect: false,
             },
         };
+
+        if (generation !== this._renderGeneration || !this.hasImportsChartTarget) {
+            return;
+        }
 
         if (this.importsChartInstance) {
             this.importsChartInstance.updateOptions(options, true, true);
