@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import ApexCharts from 'apexcharts';
 
+/* stimulusFetch: 'lazy' */
 export default class extends Controller {
     static values = {
         allocations: Object, // { labels, monthlyCounts, cumulativeCounts }

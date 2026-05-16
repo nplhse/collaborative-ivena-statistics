@@ -2,8 +2,8 @@
     "controllers": {
         "@symfony/ux-live-component": {
             "live": {
-                "enabled": true,
-                "fetch": "eager",
+                "enabled": false,
+                "fetch": "lazy",
                 "autoimport": {
                     "@symfony/ux-live-component/dist/live.min.css": true
                 }
