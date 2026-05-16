@@ -7,8 +7,7 @@ export function initMonitoring() {
 
     monitoringInitialized = true;
 
-    // The concrete monitoring provider integration (e.g. Sentry init)
-    // is intentionally isolated here and only loaded after consent.
+    // Provider integration (e.g. Sentry) belongs here and loads only after consent.
     window.dispatchEvent(new CustomEvent('monitoring:enabled'));
 }
 

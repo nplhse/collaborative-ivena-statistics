@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
-import ApexCharts from 'apexcharts';
+import { loadApexCharts } from '../lib/load-apexcharts.js';
 
+/* stimulusFetch: 'lazy' */
 export default class extends Controller {
     static values = {
         spec: Object,
@@ -10,19 +11,32 @@ export default class extends Controller {
 
     connect() {
         this.instance = null;
-        this.render();
+        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
+        void this.render(this._renderGeneration);
     }
 
     disconnect() {
+        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         if (this.instance) {
             this.instance.destroy();
             this.instance = null;
         }
     }
 
-    render() {
+    async render(generation) {
         if (!this.hasChartTarget || !this.specValue) {
             return;
+        }
+
+        const ApexCharts = await loadApexCharts();
+
+        if (generation !== this._renderGeneration || !this.hasChartTarget) {
+            return;
+        }
+
+        if (this.instance) {
+            this.instance.destroy();
+            this.instance = null;
         }
 
         const data = this.specValue;
@@ -222,6 +236,10 @@ export default class extends Controller {
                     : {}),
             },
         };
+
+        if (generation !== this._renderGeneration || !this.hasChartTarget) {
+            return;
+        }
 
         this.instance = new ApexCharts(this.chartTarget, options);
         this.instance.render().catch((err) => console.error('[analysis-chart]', err));

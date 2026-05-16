@@ -24,7 +24,9 @@
             {{ importmap('app') }}
 
             {% if cookie_consent is not null and cookie_consent.preferences.monitoring|default(false) %}
-                {{ importmap('monitoring') }}
+                <script type="module">
+                    import 'monitoring';
+                </script>
             {% endif %}
         {% endblock %}
     {% endblock %}
