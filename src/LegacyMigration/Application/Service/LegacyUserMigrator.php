@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\LegacyMigration\Application\Service;
 
+use App\LegacyMigration\Application\Contract\LegacyMigrationProgressInterface;
 use App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
@@ -23,19 +24,25 @@ final readonly class LegacyUserMigrator
     ) {
     }
 
-    public function migrate(bool $dryRun = false): int
+    public function migrate(bool $dryRun, LegacyMigrationProgressInterface $progress, LegacyMigrationRunControl $runControl): int
     {
         $rows = $this->legacyConnection->fetchAllAssociative('SELECT id, username, email FROM user ORDER BY id ASC');
         $migrated = 0;
         $slugger = new AsciiSlugger();
+        $processed = 0;
+        $total = \count($rows);
 
         foreach ($rows as $row) {
+            $runControl->throwIfStopRequested();
+            ++$processed;
+            $progress->setMessage(sprintf('User %d/%d', $processed, $total));
             $legacyUserId = (int) $row['id'];
             $exists = (int) $this->defaultConnection->fetchOne(
                 'SELECT COUNT(*) FROM legacy_migration_user_mapping WHERE legacy_user_id = :legacyId',
                 ['legacyId' => $legacyUserId]
             );
             if ($exists > 0) {
+                $progress->advance();
                 continue;
             }
 
@@ -70,6 +77,7 @@ final readonly class LegacyUserMigrator
 
             if ($dryRun) {
                 ++$migrated;
+                $progress->advance();
                 continue;
             }
 
@@ -81,6 +89,7 @@ final readonly class LegacyUserMigrator
                 'migrated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
             ]);
             ++$migrated;
+            $progress->advance();
         }
 
         $this->stateRepository->log('users', 'info', 'users phase finished', null, ['migrated' => $migrated, 'dryRun' => $dryRun]);

@@ -5,29 +5,22 @@ declare(strict_types=1);
 namespace App\LegacyMigration\Application\Service;
 
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 
-/** @psalm-suppress UnusedClass */
 final class LegacyMigrationProgressReporter
 {
     private ?ProgressBar $progressBar = null;
-    private int $startedAt = 0;
 
-    public function startPhase(SymfonyStyle $io, string $name, ?int $max, bool $enabled): void
+    public function startPhase(OutputInterface $output, int $max): void
     {
-        $io->section($name);
-        $this->startedAt = time();
         $this->finish();
-        if (!$enabled) {
-            return;
-        }
-
-        $this->progressBar = new ProgressBar($io, $max ?? 0);
-        if (null === $max) {
-            $this->progressBar->setFormat('%current% [%bar%] %elapsed:6s%');
+        $this->progressBar = new ProgressBar($output, max(0, $max));
+        if (0 === $max) {
+            $this->progressBar->setFormat('%current% [%bar%] %elapsed:6s% %message%');
         } else {
-            $this->progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%');
+            $this->progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% %elapsed:6s% | %message%');
         }
+        $this->progressBar->setMessage('');
         $this->progressBar->start();
     }
 
@@ -36,19 +29,10 @@ final class LegacyMigrationProgressReporter
         $this->progressBar?->advance($step);
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function writeBatch(SymfonyStyle $io, int $legacyImportId, int $batchSize, ?int $lastAllocationId, int $migratedCount): void
+    public function setMessage(string $message): void
     {
-        $elapsedMinutes = max((time() - $this->startedAt) / 60, 0.1);
-        $speed = (int) round((float) $migratedCount / (float) $elapsedMinutes);
-        $io->writeln(sprintf(
-            'Import %d | Batch %d | Last legacy allocation %s | Migrated %d | %d/min',
-            $legacyImportId,
-            $batchSize,
-            null === $lastAllocationId ? '-' : (string) $lastAllocationId,
-            $migratedCount,
-            $speed
-        ));
+        $this->progressBar?->setMessage($message);
+        $this->progressBar?->display();
     }
 
     public function finish(): void
@@ -56,6 +40,15 @@ final class LegacyMigrationProgressReporter
         if ($this->progressBar instanceof ProgressBar) {
             $this->progressBar->finish();
             $this->progressBar = null;
+        }
+    }
+
+    public function clear(OutputInterface $output): void
+    {
+        if ($this->progressBar instanceof ProgressBar) {
+            $this->progressBar->clear();
+        } else {
+            $output->write("\r\033[K");
         }
     }
 }

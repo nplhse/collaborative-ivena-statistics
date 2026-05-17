@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
+use App\LegacyMigration\Application\Contract\LegacyMigrationProgressInterface;
 use App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
@@ -24,7 +25,7 @@ final readonly class LegacyImportMigrator
     ) {
     }
 
-    public function migrate(bool $dryRun = false, ?int $legacyImportId = null): int
+    public function migrate(bool $dryRun, LegacyMigrationProgressInterface $progress, LegacyMigrationRunControl $runControl, ?int $legacyImportId = null): int
     {
         $sql = 'SELECT id, user_id, hospital_id, name, status, created_at, updated_at, file_path, file_extension, file_mime_type, file_size, row_count, run_count, runtime FROM import';
         $params = [];
@@ -35,14 +36,20 @@ final readonly class LegacyImportMigrator
         $sql .= ' ORDER BY id ASC';
         $rows = $this->legacyConnection->fetchAllAssociative($sql, $params);
         $migrated = 0;
+        $processed = 0;
+        $total = \count($rows);
 
         foreach ($rows as $row) {
+            $runControl->throwIfStopRequested();
+            ++$processed;
             $legacyId = (int) $row['id'];
+            $progress->setMessage(sprintf('Import %d/%d (Legacy #%d)', $processed, $total, $legacyId));
             $existingMapping = $this->defaultConnection->fetchAssociative(
                 'SELECT id FROM legacy_migration_import_mapping WHERE legacy_import_id = :id',
                 ['id' => $legacyId]
             );
             if (false !== $existingMapping) {
+                $progress->advance();
                 continue;
             }
 
@@ -63,6 +70,7 @@ final readonly class LegacyImportMigrator
 
             if ($dryRun) {
                 ++$migrated;
+                $progress->advance();
                 continue;
             }
 
@@ -110,6 +118,7 @@ final readonly class LegacyImportMigrator
                 'updated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
             ]);
             ++$migrated;
+            $progress->advance();
         }
 
         $this->stateRepository->log('imports', 'info', 'imports phase finished', $legacyImportId, ['migrated' => $migrated, 'dryRun' => $dryRun]);
