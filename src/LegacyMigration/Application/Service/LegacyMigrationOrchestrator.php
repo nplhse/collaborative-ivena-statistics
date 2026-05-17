@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\LegacyMigration\Application\Service;
 
+use App\LegacyMigration\Application\Contract\LegacyMigrationProgressInterface;
 use App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface;
 use Doctrine\DBAL\Connection;
 
@@ -37,7 +38,10 @@ final readonly class LegacyMigrationOrchestrator
         string $only,
         ?int $legacyImportId,
         bool $resume,
-        bool $withProgress,
+        LegacyMigrationProgressInterface $progress,
+        LegacyMigrationRunControl $runControl,
+        bool $skipProjection = false,
+        bool $force = false,
     ): array {
         /** @var array{users:int, hospitals:int, imports:int, allocations:int} $results */
         $results = [
@@ -48,20 +52,52 @@ final readonly class LegacyMigrationOrchestrator
         ];
 
         if (\in_array($only, ['users', 'all'], true)) {
-            $results['users'] = $this->userMigrator->migrate($dryRun);
+            $runControl->throwIfStopRequested();
+            $userTotal = (int) $this->legacyConnection->fetchOne('SELECT COUNT(*) FROM user');
+            $progress->startPhase('Users', $userTotal);
+            $results['users'] = $this->userMigrator->migrate($dryRun, $progress, $runControl);
+            $progress->finishPhase();
         }
         if (\in_array($only, ['hospitals', 'all'], true)) {
-            $results['hospitals'] = $this->hospitalMigrator->migrate($dryRun);
+            $runControl->throwIfStopRequested();
+            $hospitalTotal = (int) $this->legacyConnection->fetchOne('SELECT COUNT(*) FROM hospital');
+            $progress->startPhase('Hospitals', $hospitalTotal);
+            $results['hospitals'] = $this->hospitalMigrator->migrate($dryRun, $progress, $runControl);
+            $progress->finishPhase();
         }
         if (\in_array($only, ['imports', 'all'], true)) {
-            $results['imports'] = $this->importMigrator->migrate($dryRun, $legacyImportId);
+            $runControl->throwIfStopRequested();
+            $importTotal = $this->countLegacyImports($legacyImportId);
+            $progress->startPhase('Imports', $importTotal);
+            $results['imports'] = $this->importMigrator->migrate($dryRun, $progress, $runControl, $legacyImportId);
+            $progress->finishPhase();
         }
         if (\in_array($only, ['allocations', 'all'], true)) {
-            $results['allocations'] = $this->allocationMigrator->migrate($dryRun, $batchSize, $resume, $withProgress, $legacyImportId);
+            $runControl->throwIfStopRequested();
+            $results['allocations'] = $this->allocationMigrator->migrate(
+                $dryRun,
+                $batchSize,
+                $resume,
+                $progress,
+                $runControl,
+                $legacyImportId,
+                $skipProjection,
+                $force,
+            );
         }
 
+        $runControl->throwIfStopRequested();
         $this->stateRepository->log('orchestrator', 'info', 'legacy migration completed', null, $results);
 
         return $results;
+    }
+
+    private function countLegacyImports(?int $legacyImportId): int
+    {
+        if (null !== $legacyImportId) {
+            return 1;
+        }
+
+        return (int) $this->legacyConnection->fetchOne('SELECT COUNT(*) FROM import');
     }
 }
