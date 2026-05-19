@@ -27,6 +27,7 @@ final readonly class GetDistinctHospitalIdsByStateQuery
             ->from(ProjectionHospitalDimension::class, 'h')
             ->select('h.hospitalId')
             ->andWhere('h.stateId = :stateId')
+            ->orderBy('h.hospitalId', 'ASC')
             ->setParameter('stateId', $stateId)
             ->getQuery()
             ->getSingleColumnResult();

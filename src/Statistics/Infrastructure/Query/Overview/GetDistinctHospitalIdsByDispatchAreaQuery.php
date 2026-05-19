@@ -27,6 +27,7 @@ final readonly class GetDistinctHospitalIdsByDispatchAreaQuery
             ->from(ProjectionHospitalDimension::class, 'h')
             ->select('h.hospitalId')
             ->andWhere('h.dispatchAreaId = :dispatchAreaId')
+            ->orderBy('h.hospitalId', 'ASC')
             ->setParameter('dispatchAreaId', $dispatchAreaId)
             ->getQuery()
             ->getSingleColumnResult();
