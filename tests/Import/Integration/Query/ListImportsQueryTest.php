@@ -71,7 +71,7 @@ final class ListImportsQueryTest extends KernelTestCase
         $this->createImport('Import A', $hospitalA, $createdBy);
         $this->createImport('Import B', $hospitalB, $createdBy);
 
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(hospitalId: $hospitalA->getId()));
+        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(hospitalId: $hospitalA->_real()->getId()));
         $names = $this->extractImportNames($paginator);
 
         self::assertSame(['Import A'], $names);
@@ -220,6 +220,7 @@ final class ListImportsQueryTest extends KernelTestCase
             'rowsRejected' => 1,
             'runCount' => 0,
             'runTime' => 0,
+            'createdAt' => new \DateTimeImmutable('now'),
             'createdBy' => $createdBy,
         ], $extra))->_real();
     }
