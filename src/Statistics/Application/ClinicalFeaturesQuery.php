@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Application;
 
 use App\Statistics\Application\DTO\StatisticsContext;
-use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
-use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
+use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 
 final readonly class ClinicalFeaturesQuery
 {
@@ -27,20 +26,13 @@ final readonly class ClinicalFeaturesQuery
         ['key' => 'resus_required', 'labelTranslationKey' => 'statistics.distribution.dim.requires_resus'],
     ];
 
-    public function __construct(
-        private StatisticsScopeResolver $scopeResolver,
-        private ProjectionTimeSeriesQuery $timeSeriesQuery,
-        private ProjectionFeatureQuery $featureQuery,
-    ) {
-    }
-
     /**
      * @return list<array{labelTranslationKey: string, count: int, percent: float}>
      */
-    public function fetchClinicalRows(StatisticsContext $context): array
+    public function fetchClinicalRows(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): array
     {
-        [$totalAllocations, $clinicalCounts] = $this->loadCounts($context);
-        $totalAllocationsFloat = (float) $totalAllocations;
+        $clinicalCounts = $metrics->clinicalCounts();
+        $totalAllocationsFloat = (float) $metrics->scopedTotal;
 
         $rows = [];
         foreach (self::CLINICAL_FEATURE_DEFINITIONS as $definition) {
@@ -48,7 +40,7 @@ final readonly class ClinicalFeaturesQuery
             $rows[] = [
                 'labelTranslationKey' => $definition['labelTranslationKey'],
                 'count' => $count,
-                'percent' => $totalAllocations > 0 ? round(((float) $count / $totalAllocationsFloat) * 100.0, 1) : 0.0,
+                'percent' => $metrics->scopedTotal > 0 ? round(((float) $count / $totalAllocationsFloat) * 100.0, 1) : 0.0,
             ];
         }
 
@@ -58,10 +50,10 @@ final readonly class ClinicalFeaturesQuery
     /**
      * @return list<array{labelTranslationKey: string, count: int, percent: float}>
      */
-    public function fetchResourceRows(StatisticsContext $context): array
+    public function fetchResourceRows(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): array
     {
-        [$totalAllocations, , $resourceCounts] = $this->loadCounts($context);
-        $totalAllocationsFloat = (float) $totalAllocations;
+        $resourceCounts = $metrics->resourceCounts();
+        $totalAllocationsFloat = (float) $metrics->scopedTotal;
         $resourceCountByDefinitionKey = [
             'cathlab_required' => $resourceCounts['cathlab'] ?? 0,
             'resus_required' => $resourceCounts['resus'] ?? 0,
@@ -73,25 +65,10 @@ final readonly class ClinicalFeaturesQuery
             $rows[] = [
                 'labelTranslationKey' => $definition['labelTranslationKey'],
                 'count' => $count,
-                'percent' => $totalAllocations > 0 ? round(((float) $count / $totalAllocationsFloat) * 100.0, 1) : 0.0,
+                'percent' => $metrics->scopedTotal > 0 ? round(((float) $count / $totalAllocationsFloat) * 100.0, 1) : 0.0,
             ];
         }
 
         return $rows;
-    }
-
-    /**
-     * @return array{0:int,1:array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int},2:array{cathlab:int,resus:int}}
-     */
-    private function loadCounts(StatisticsContext $context): array
-    {
-        $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
-        $hospitalIds = $scopeCriteria->hospitalIds;
-        $totalAllocations = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $hospitalIds);
-        $clinicalCounts = $this->featureQuery->clinicalFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);
-        $resourceCounts = $this->featureQuery->resourceFeatureCounts($bounds->from, $bounds->toExclusive, $hospitalIds);
-
-        return [$totalAllocations, $clinicalCounts, $resourceCounts];
     }
 }

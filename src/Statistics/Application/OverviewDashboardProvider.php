@@ -120,6 +120,7 @@ final readonly class OverviewDashboardProvider
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $start = $bounds->from;
         $toExclusive = $bounds->toExclusive;
+        \assert($start instanceof \DateTimeImmutable);
         \assert($toExclusive instanceof \DateTimeImmutable);
 
         $monthKeys = [];
@@ -159,17 +160,20 @@ final readonly class OverviewDashboardProvider
     private function buildAllTimeCharts(StatisticsContext $context): array
     {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $start = $bounds->from;
         if ($bounds->toExclusive instanceof \DateTimeImmutable) {
             throw new \LogicException('all_time charts expect an open-ended upper bound.');
         }
 
+        $start = $bounds->from;
         $earliest = $this->timeSeriesQuery->getEarliestCreatedAt();
         if ($earliest instanceof \DateTimeImmutable) {
             $firstMonth = $earliest->modify('first day of this month')->setTime(0, 0, 0);
-            if ($firstMonth > $start) {
+            if (!$start instanceof \DateTimeImmutable || $firstMonth > $start) {
                 $start = $firstMonth;
             }
+        }
+        if (!$start instanceof \DateTimeImmutable) {
+            $start = new \DateTimeImmutable('first day of this month')->setTime(0, 0, 0);
         }
 
         $currentYear = (int) new \DateTimeImmutable('now')->format('Y');
@@ -188,8 +192,8 @@ final readonly class OverviewDashboardProvider
             $labels[] = $key;
         }
 
-        $rangeStart = (new \DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $startYear)));
-        $allocationRows = $this->timeSeriesQuery->countByYearInPeriod($rangeStart, null, null);
+        $rangeStart = new \DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $startYear));
+        $allocationRows = $this->timeSeriesQuery->countGroupedByCreatedYear($startYear, null, null);
         $importRows = $this->importTimeline->countByYearInRange($rangeStart, null);
 
         return $this->assembleChartPayload(
@@ -197,7 +201,7 @@ final readonly class OverviewDashboardProvider
             $labels,
             $this->chartBucketMapper->yearRowsToBucketCounts($allocationRows),
             $this->chartBucketMapper->yearRowsToBucketCounts($importRows),
-            $rangeStart
+            $this->timeSeriesQuery->countWithCreatedYearBefore($startYear),
         );
     }
 
@@ -217,11 +221,13 @@ final readonly class OverviewDashboardProvider
         array $labels,
         array $allocationBucketCounts,
         array $importBucketCounts,
-        \DateTimeImmutable $rangeStartForCumulative,
+        \DateTimeImmutable|int $cumulativeBaseline,
     ): array {
         $allocationMonthlyCounts = $this->chartBucketMapper->mapMonthlyCounts($bucketKeys, $allocationBucketCounts);
         $importMonthlyCounts = $this->chartBucketMapper->mapMonthlyCounts($bucketKeys, $importBucketCounts);
-        $initialAllocations = $this->timeSeriesQuery->countBefore($rangeStartForCumulative);
+        $initialAllocations = \is_int($cumulativeBaseline)
+            ? $cumulativeBaseline
+            : $this->timeSeriesQuery->countBefore($cumulativeBaseline);
 
         $allocationCumulativeCounts = [];
         $runningTotal = $initialAllocations;

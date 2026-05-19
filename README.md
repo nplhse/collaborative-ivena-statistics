@@ -52,6 +52,9 @@ to make query and presentation layers testable:
    `AnalysisRequestModelFactory`, `ReportsRequestModelFactory`).
 2. Application definitions/queries build widget domain data from
    `allocation_stats_projection`.
+   After bulk projection rebuilds, refresh materialized views with
+   `php bin/console app:statistics:refresh-mviews` (all groups)
+   or `php bin/console app:statistics:refresh-mviews --overview`.
 3. Page presenters map domain output to Twig view models
    (`StatisticsPageViewModel`, `AnalysisPageViewModel`, `ReportsPageViewModel`).
 4. Twig templates render view models only; no SQL, no business logic.
