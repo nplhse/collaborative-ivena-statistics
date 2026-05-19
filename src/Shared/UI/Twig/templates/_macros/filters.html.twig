@@ -192,6 +192,85 @@
     {% endif %}
 {% endmacro %}
 
+{% macro import_filter_badges(filters, hospitals, owners) %}
+    {% set rawFilters = [] %}
+
+    {% if filters.search is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.search',
+            value: filters.search,
+        }]) %}
+    {% endif %}
+
+    {% if filters.hospitalId is not null %}
+        {% set hospitalName = null %}
+        {% for hospital in hospitals %}
+            {% if hospitalName is null and hospital.id == filters.hospitalId %}
+                {% set hospitalName = hospital.name %}
+            {% endif %}
+        {% endfor %}
+        {% if hospitalName is not null %}
+            {% set rawFilters = rawFilters|merge([{
+                key: 'label.hospital',
+                value: hospitalName,
+            }]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.ownerId is not null %}
+        {% set ownerName = null %}
+        {% for owner in owners %}
+            {% if ownerName is null and owner.id == filters.ownerId %}
+                {% set ownerName = owner.username %}
+            {% endif %}
+        {% endfor %}
+        {% if ownerName is not null %}
+            {% set rawFilters = rawFilters|merge([{
+                key: 'label.import.filter.owner',
+                value: ownerName,
+            }]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.status is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.status',
+            value: filters.status,
+        }]) %}
+    {% endif %}
+
+    {% if filters.createdFrom is not empty and not filters.isDefaultCreatedFrom %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.import.filter.created_from',
+            value: filters.createdFrom|date('d.m.Y'),
+        }]) %}
+    {% endif %}
+
+    {% if filters.createdUntil is not empty and not filters.isDefaultCreatedUntil %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.import.filter.created_until',
+            value: filters.createdUntil|date('d.m.Y'),
+        }]) %}
+    {% endif %}
+
+    {% set byKey = {} %}
+    {% for f in rawFilters %}
+        {% set byKey = byKey|merge({(f.key): f.value}) %}
+    {% endfor %}
+
+    {% set sortedKeys = byKey|keys|sort %}
+
+    {% if sortedKeys is not empty %}
+        <div class="d-flex flex-wrap gap-1">
+            {% for key in sortedKeys %}
+                <span class="badge bg-blue-lt">
+                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
 {% macro hospital_filter_badges(filters, states, dispatchAreas) %}
     {% set rawFilters = [] %}
 
