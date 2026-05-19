@@ -905,6 +905,18 @@
         <source>label.logout</source>
         <target>Logout</target>
       </trans-unit>
+      <trans-unit id="imp001" resname="label.impersonate">
+        <source>label.impersonate</source>
+        <target>Impersonate user</target>
+      </trans-unit>
+      <trans-unit id="imp002" resname="label.exit_impersonation">
+        <source>label.exit_impersonation</source>
+        <target>End impersonation</target>
+      </trans-unit>
+      <trans-unit id="imp003" resname="label.impersonation_active">
+        <source>label.impersonation_active</source>
+        <target>As:</target>
+      </trans-unit>
       <trans-unit id="IDIV8Sp" resname="label.my_hospitals">
         <source>label.my_hospitals</source>
         <target>My hospitals</target>
