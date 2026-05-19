@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -119,6 +120,395 @@ final class ListImportControllerTest extends WebTestCase
             });
     }
 
+    public function testEmptyFilterQueryParamsAreAccepted(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+
+        ImportFactory::createOne([
+            'name' => 'Filtered Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/filtered.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit(\sprintf(
+                '/import?hospitalId=%d&ownerId=&status=&createdFrom=&createdUntil=',
+                $hospital->getId(),
+            ))
+            ->assertSuccessful()
+            ->assertSee('Filtered Import')
+            ->assertSeeElement('.alert-info .badge');
+    }
+
+    public function testDefaultDateFiltersAreApplied(): void
+    {
+        [$owner] = $this->seedImportsWithFactory(1);
+
+        $crawler = $this->browser()
+            ->actingAs($owner)
+            ->visit('/import')
+            ->assertSuccessful()
+            ->use(function (Crawler $crawler): void {
+                self::assertSame(
+                    ListImportQueryParametersDTO::DEFAULT_CREATED_FROM,
+                    $crawler->filter('#import-filter-created-from')->attr('value'),
+                );
+                self::assertSame(
+                    new \DateTimeImmutable('today')->format('Y-m-d'),
+                    $crawler->filter('#import-filter-created-until')->attr('value'),
+                );
+            })
+            ->crawler();
+
+        self::assertNotNull($crawler);
+    }
+
+    public function testActiveFilterBadgesShowHospitalName(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+
+        ImportFactory::createOne([
+            'name' => 'Hospital Filtered Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/hospital-filtered.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit(\sprintf('/import?hospitalId=%d', $hospital->getId()))
+            ->assertSuccessful()
+            ->assertSee('Active filters')
+            ->assertSee('St. Test Hospital');
+    }
+
+    public function testParticipantDoesNotSeeForeignHospitalImports(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+        $other = UserFactory::createOne(['username' => 'other-'.bin2hex(random_bytes(3))]);
+        $foreignHospital = HospitalFactory::createOne([
+            'name' => 'Foreign Hospital',
+            'owner' => $other,
+            'createdBy' => $createdBy,
+            'state' => StateFactory::createOne(),
+            'dispatchArea' => DispatchAreaFactory::createOne(),
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Visible Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/visible.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Secret Foreign Import',
+            'hospital' => $foreignHospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/secret.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import')
+            ->assertSuccessful()
+            ->assertSee('Visible Import')
+            ->assertNotSee('Secret Foreign Import');
+    }
+
+    public function testAdminSeesImportsFromAllOwners(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+        $other = UserFactory::createOne(['username' => 'other-'.bin2hex(random_bytes(3))]);
+        $foreignHospital = HospitalFactory::createOne([
+            'name' => 'Foreign Hospital',
+            'owner' => $other,
+            'createdBy' => $createdBy,
+            'state' => StateFactory::createOne(),
+            'dispatchArea' => DispatchAreaFactory::createOne(),
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Own Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/own.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Foreign Import',
+            'hospital' => $foreignHospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/foreign.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $admin = UserFactory::createOne([
+            'roles' => ['ROLE_ADMIN'],
+            'username' => 'admin-'.bin2hex(random_bytes(4)),
+        ]);
+
+        $this->browser()
+            ->actingAs($admin)
+            ->visit('/import')
+            ->assertSuccessful()
+            ->assertSee('Own Import')
+            ->assertSee('Foreign Import');
+    }
+
+    public function testStatusFilterShowsOnlyMatchingImports(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+
+        ImportFactory::createOne([
+            'name' => 'Completed Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::COMPLETED,
+            'filePath' => '/tmp/completed.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Pending Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/pending.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import?status='.urlencode(ImportStatus::COMPLETED->value))
+            ->assertSuccessful()
+            ->assertSee('Completed Import')
+            ->assertNotSee('Pending Import');
+    }
+
+    public function testDateRangeFilterWorks(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+
+        ImportFactory::createOne([
+            'name' => 'In Range Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'createdAt' => new \DateTimeImmutable('2025-04-01 10:00:00'),
+            'filePath' => '/tmp/in-range.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Out Of Range Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'createdAt' => new \DateTimeImmutable('2025-05-01 10:00:00'),
+            'filePath' => '/tmp/out-of-range.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import?createdFrom=2025-04-01&createdUntil=2025-04-30')
+            ->assertSuccessful()
+            ->assertSee('In Range Import')
+            ->assertNotSee('Out Of Range Import');
+    }
+
+    public function testSortByRowCountDesc(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+
+        ImportFactory::createOne([
+            'name' => 'Small Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/small.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 10,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Large Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/large.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 100,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import?sortBy=rowCount&orderBy=desc')
+            ->assertSuccessful()
+            ->use(function (Crawler $crawler): void {
+                $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1)->text(''));
+                self::assertSame('Large Import', $firstName);
+            });
+    }
+
+    public function testSortByCreatedAtDesc(): void
+    {
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+
+        ImportFactory::createOne([
+            'name' => 'Older Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'createdAt' => new \DateTimeImmutable('2025-01-01 10:00:00'),
+            'filePath' => '/tmp/older.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        ImportFactory::createOne([
+            'name' => 'Newer Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'createdAt' => new \DateTimeImmutable('2025-06-01 10:00:00'),
+            'filePath' => '/tmp/newer.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import?sortBy=createdAt&orderBy=desc')
+            ->assertSuccessful()
+            ->use(function (Crawler $crawler): void {
+                $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1)->text(''));
+                self::assertSame('Newer Import', $firstName);
+            });
+    }
+
     /**
      * @return array{
      *      0: User&\Zenstruck\Foundry\Persistence\Proxy<User>,
@@ -157,6 +547,7 @@ final class ListImportControllerTest extends WebTestCase
                 'hospital' => $hospital,
                 'type' => ImportType::ALLOCATION,
                 'status' => ImportStatus::PENDING,
+                'createdAt' => new \DateTimeImmutable('2024-01-01 12:00:00')->modify(\sprintf('+%d months', $i % 12)),
                 'filePath' => \sprintf('/tmp/import_%02d.csv', $i + 1),
                 'fileExtension' => 'csv',
                 'fileMimeType' => 'text/csv',
