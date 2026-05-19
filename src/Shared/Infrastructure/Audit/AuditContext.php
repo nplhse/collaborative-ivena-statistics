@@ -6,6 +6,7 @@ namespace App\Shared\Infrastructure\Audit;
 
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class AuditContext
@@ -73,7 +74,12 @@ final class AuditContext
 
     public function applySecurityUser(Security $security): void
     {
-        $user = $security->getUser();
+        $token = $security->getToken();
+        if ($token instanceof SwitchUserToken) {
+            $user = $token->getOriginalToken()->getUser();
+        } else {
+            $user = $security->getUser();
+        }
 
         if (!$user instanceof User) {
             return;
