@@ -26,6 +26,12 @@ final readonly class PagePathResolver
         return $slug;
     }
 
+    public function synchronize(Page $page): void
+    {
+        $page->setSlug($this->normalizeSlug($page->getSlug()));
+        $page->setPath($this->buildPath($page));
+    }
+
     public function buildPath(Page $page): string
     {
         $slug = $this->normalizeSlug($page->getSlug());

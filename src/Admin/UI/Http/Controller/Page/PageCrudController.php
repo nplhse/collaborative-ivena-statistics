@@ -7,6 +7,7 @@ namespace App\Admin\UI\Http\Controller\Page;
 use App\Admin\UI\Form\PageContentBlockType;
 use App\Content\Application\Page\PageContentSanitizer;
 use App\Content\Application\Page\PageContentValidator;
+use App\Content\Application\Page\PagePathResolver;
 use App\Content\Domain\Entity\Page;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -14,7 +15,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
@@ -23,6 +27,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -35,6 +42,7 @@ final class PageCrudController extends AbstractCrudController
     public function __construct(
         private readonly PageContentValidator $pageContentValidator,
         private readonly PageContentSanitizer $pageContentSanitizer,
+        private readonly PagePathResolver $pagePathResolver,
     ) {
     }
 
@@ -131,6 +139,32 @@ final class PageCrudController extends AbstractCrudController
         yield DateTimeField::new('updatedAt', 'label.updated')->hideOnForm();
     }
 
+    /**
+     * @return FormBuilderInterface<Page>
+     */
+    #[\Override]
+    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
+        $this->addPathSynchronizationListener($builder);
+
+        return $builder;
+    }
+
+    /**
+     * @return FormBuilderInterface<Page>
+     */
+    #[\Override]
+    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
+        $this->addPathSynchronizationListener($builder);
+
+        return $builder;
+    }
+
     #[\Override]
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
@@ -158,5 +192,20 @@ final class PageCrudController extends AbstractCrudController
         $content = $page->getContent();
         $this->pageContentValidator->assertValid($content);
         $page->setContent($this->pageContentSanitizer->sanitize($content));
+    }
+
+    /**
+     * @param FormBuilderInterface<Page> $builder
+     */
+    private function addPathSynchronizationListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
+            $page = $event->getData();
+            if (!$page instanceof Page) {
+                return;
+            }
+
+            $this->pagePathResolver->synchronize($page);
+        });
     }
 }

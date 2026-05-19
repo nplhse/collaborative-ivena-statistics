@@ -38,4 +38,18 @@ final class PagePathResolverTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $resolver->buildPath($first);
     }
+
+    public function testSynchronizeNormalizesSlugAndSetsPath(): void
+    {
+        $resolver = new PagePathResolver(new AsciiSlugger());
+
+        $page = new Page()
+            ->setTitle('Test 123')
+            ->setSlug('Test-123');
+
+        $resolver->synchronize($page);
+
+        self::assertSame('test-123', $page->getSlug());
+        self::assertSame('/test-123', $page->getPath());
+    }
 }
