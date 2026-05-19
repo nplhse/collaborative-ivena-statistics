@@ -53,8 +53,7 @@ final readonly class PagePathSubscriber
         }
 
         foreach ($pagesToUpdate as $page) {
-            $page->setSlug($this->pathResolver->normalizeSlug($page->getSlug()));
-            $page->setPath($this->pathResolver->buildPath($page));
+            $this->pathResolver->synchronize($page);
             $uow->recomputeSingleEntityChangeSet($metadata, $page);
         }
     }
