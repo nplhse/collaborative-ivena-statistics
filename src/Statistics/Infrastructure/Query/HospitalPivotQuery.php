@@ -24,7 +24,7 @@ final readonly class HospitalPivotQuery
      * @return list<array{row_key: string, col_key: string, value: float}>
      */
     public function fetchCells(
-        \DateTimeImmutable $from,
+        ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         HospitalPivotDimension $rows,
@@ -41,13 +41,23 @@ final readonly class HospitalPivotQuery
         $this->filterApplier->applyHospitalScope($qb, 'h.id', $hospitalIds);
 
         $qb->leftJoin('h.state', 's')
-            ->leftJoin('h.dispatchArea', 'da')
-            ->leftJoin(\App\Statistics\Infrastructure\Entity\AllocationStatsProjection::class, 'a', 'WITH', 'a.hospitalId = h.id AND a.createdAt >= :from');
-        $qb->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
-        if ($toExclusive instanceof \DateTimeImmutable) {
-            $qb->andWhere('a.createdAt < :toExclusive OR a.id IS NULL')
-                ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
+            ->leftJoin('h.dispatchArea', 'da');
+
+        $allocationJoinConditions = ['a.hospitalId = h.id'];
+        if ($from instanceof \DateTimeImmutable) {
+            $allocationJoinConditions[] = 'a.createdAt >= :from';
+            $qb->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
         }
+        if ($toExclusive instanceof \DateTimeImmutable) {
+            $allocationJoinConditions[] = 'a.createdAt < :toExclusive';
+            $qb->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
+        }
+        $qb->leftJoin(
+            \App\Statistics\Infrastructure\Entity\AllocationStatsProjection::class,
+            'a',
+            'WITH',
+            implode(' AND ', $allocationJoinConditions),
+        );
 
         $rowExpr = $this->dimensionExpression($rows);
         $colExpr = $this->dimensionExpression($cols);
@@ -74,7 +84,7 @@ final readonly class HospitalPivotQuery
      * @return list<array<string,mixed>>
      */
     private function fetchLegacyAllocationRows(
-        \DateTimeImmutable $from,
+        ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         HospitalPivotDimension $rows,
@@ -83,9 +93,18 @@ final readonly class HospitalPivotQuery
         $qb = $this->entityManager->createQueryBuilder()
             ->from(Hospital::class, 'h')
             ->leftJoin('h.state', 's')
-            ->leftJoin('h.dispatchArea', 'da')
-            ->leftJoin(\App\Allocation\Domain\Entity\Allocation::class, 'a', 'WITH', 'a.hospital = h AND a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
+            ->leftJoin('h.dispatchArea', 'da');
+
+        $legacyJoinConditions = ['a.hospital = h'];
+        if ($from instanceof \DateTimeImmutable) {
+            $legacyJoinConditions[] = 'a.createdAt >= :from';
+            $qb->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
+        }
+        if ($toExclusive instanceof \DateTimeImmutable) {
+            $legacyJoinConditions[] = 'a.createdAt < :toExclusive';
+            $qb->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
+        }
+        $qb->leftJoin(\App\Allocation\Domain\Entity\Allocation::class, 'a', 'WITH', implode(' AND ', $legacyJoinConditions));
 
         $this->filterApplier->applyHospitalScope($qb, 'h.id', $hospitalIds);
         if ($toExclusive instanceof \DateTimeImmutable) {

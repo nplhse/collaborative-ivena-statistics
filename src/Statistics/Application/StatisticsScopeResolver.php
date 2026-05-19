@@ -9,15 +9,23 @@ use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
-use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
+use App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByCohortQuery;
+use App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByDispatchAreaQuery;
+use App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery;
 use App\User\Domain\Entity\User;
 
-final readonly class StatisticsScopeResolver
+final class StatisticsScopeResolver
 {
+    private ?string $resolvedCacheKey = null;
+
+    private ?StatisticsScopeCriteria $resolvedCriteria = null;
+
     public function __construct(
-        private HospitalRepository $hospitalRepository,
-        private HospitalCohortResolver $hospitalCohortResolver,
-        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
+        private readonly HospitalRepository $hospitalRepository,
+        private readonly HospitalCohortResolver $hospitalCohortResolver,
+        private readonly GetDistinctHospitalIdsByStateQuery $distinctHospitalIdsByStateQuery,
+        private readonly GetDistinctHospitalIdsByDispatchAreaQuery $distinctHospitalIdsByDispatchAreaQuery,
+        private readonly GetDistinctHospitalIdsByCohortQuery $distinctHospitalIdsByCohortQuery,
     ) {
     }
 
@@ -35,42 +43,60 @@ final readonly class StatisticsScopeResolver
 
     public function resolveCriteria(StatisticsContext $context): StatisticsScopeCriteria
     {
+        $cacheKey = $this->cacheKey($context);
+        if ($cacheKey === $this->resolvedCacheKey && $this->resolvedCriteria instanceof StatisticsScopeCriteria) {
+            return $this->resolvedCriteria;
+        }
+
         $filter = $context->filter;
 
         if (StatisticsFilterScope::Public === $filter->scope) {
-            return StatisticsScopeCriteria::public();
-        }
+            $criteria = StatisticsScopeCriteria::public();
+        } elseif (StatisticsFilterScope::Hospital === $filter->scope && null !== $filter->hospitalId) {
+            $criteria = new StatisticsScopeCriteria([$filter->hospitalId]);
+        } elseif (StatisticsFilterScope::State === $filter->scope && null !== $filter->stateId) {
+            $hospitalIds = ($this->distinctHospitalIdsByStateQuery)($filter->stateId);
 
-        if (StatisticsFilterScope::Hospital === $filter->scope && null !== $filter->hospitalId) {
-            return new StatisticsScopeCriteria([$filter->hospitalId]);
-        }
-        if (StatisticsFilterScope::State === $filter->scope && null !== $filter->stateId) {
-            $hospitalIds = $this->projectionScopeQuery->distinctHospitalIdsForState($filter->stateId);
+            $criteria = new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
+        } elseif (StatisticsFilterScope::DispatchArea === $filter->scope && null !== $filter->dispatchAreaId) {
+            $hospitalIds = ($this->distinctHospitalIdsByDispatchAreaQuery)($filter->dispatchAreaId);
 
-            return new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
-        }
-
-        if (StatisticsFilterScope::DispatchArea === $filter->scope && null !== $filter->dispatchAreaId) {
-            $hospitalIds = $this->projectionScopeQuery->distinctHospitalIdsForDispatchArea($filter->dispatchAreaId);
-
-            return new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
-        }
-
-        if (StatisticsFilterScope::HospitalCohort === $filter->scope && $filter->cohortType instanceof Cohort\HospitalCohortType) {
+            $criteria = new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
+        } elseif (StatisticsFilterScope::HospitalCohort === $filter->scope && $filter->cohortType instanceof Cohort\HospitalCohortType) {
             $cohort = $this->hospitalCohortResolver->resolve($filter->cohortType);
-            $hospitalIds = $this->projectionScopeQuery->distinctHospitalIdsForCohort($cohort);
+            $hospitalIds = ($this->distinctHospitalIdsByCohortQuery)($cohort);
 
-            return new StatisticsScopeCriteria(
+            $criteria = new StatisticsScopeCriteria(
                 [] === $hospitalIds ? null : $hospitalIds,
                 $cohort->locationCodeValues(),
                 $cohort->tierCodeValues(),
                 $filter->cohortType,
             );
+        } else {
+            $ids = $this->resolveMyHospitalIds($context->user);
+
+            $criteria = [] === $ids ? StatisticsScopeCriteria::public() : new StatisticsScopeCriteria($ids);
         }
 
-        $ids = $this->resolveMyHospitalIds($context->user);
+        $this->resolvedCacheKey = $cacheKey;
+        $this->resolvedCriteria = $criteria;
 
-        return [] === $ids ? StatisticsScopeCriteria::public() : new StatisticsScopeCriteria($ids);
+        return $criteria;
+    }
+
+    private function cacheKey(StatisticsContext $context): string
+    {
+        $filter = $context->filter;
+        $userId = $context->user?->getId();
+
+        return implode('|', [
+            $filter->scope->value,
+            (string) ($filter->hospitalId ?? ''),
+            $filter->cohortType instanceof Cohort\HospitalCohortType ? $filter->cohortType->value : '',
+            (string) ($filter->stateId ?? ''),
+            (string) ($filter->dispatchAreaId ?? ''),
+            null === $userId ? 'anon' : (string) $userId,
+        ]);
     }
 
     /**

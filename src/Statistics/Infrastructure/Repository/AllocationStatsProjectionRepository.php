@@ -28,7 +28,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
     /**
      * @param list<int>|null $hospitalIds
      */
-    public function countCreatedInPeriod(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): int
+    public function countCreatedInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): int
     {
         return $this->timeSeriesQuery->countCreatedInPeriod($from, $toExclusive, $hospitalIds);
     }
@@ -48,7 +48,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return list<array{year:int,month:int,count:int}>
      */
-    public function countByMonthInPeriod(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function countByMonthInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->countByMonthInPeriod($from, $toExclusive, $hospitalIds);
     }
@@ -58,7 +58,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,int>
      */
-    public function countByDayInPeriod(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function countByDayInPeriod(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->countByDayInPeriod($from, $toExclusive, $hospitalIds);
     }
@@ -68,7 +68,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,int>
      */
-    public function countByCalendarMonthInPeriod(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function countByCalendarMonthInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->countByCalendarMonthInPeriod($from, $toExclusive, $hospitalIds);
     }
@@ -78,7 +78,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,int>
      */
-    public function countGroupedByGenderInPeriod(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function countGroupedByGenderInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->countGroupedByGenderInPeriod($from, $toExclusive, $hospitalIds);
     }
@@ -88,7 +88,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<int,int>
      */
-    public function countGroupedByUrgencyInPeriod(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function countGroupedByUrgencyInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->countGroupedByUrgencyInPeriod($from, $toExclusive, $hospitalIds);
     }
@@ -98,7 +98,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string, array<string,int>>
      */
-    public function bucketByMonthAndGender(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketByMonthAndGender(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->bucketByMonthAndGender($from, $toExclusive, $hospitalIds);
     }
@@ -108,7 +108,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string, array<string,int>>
      */
-    public function bucketByMonthAndUrgency(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketByMonthAndUrgency(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->bucketByMonthAndUrgency($from, $toExclusive, $hospitalIds);
     }
@@ -118,7 +118,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string, array<string,int>>
      */
-    public function bucketByDayAndGender(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketByDayAndGender(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->bucketByDayAndGender($from, $toExclusive, $hospitalIds);
     }
@@ -128,7 +128,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string, array<string,int>>
      */
-    public function bucketByDayAndUrgency(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketByDayAndUrgency(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->bucketByDayAndUrgency($from, $toExclusive, $hospitalIds);
     }
@@ -138,7 +138,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string, array<string,int>>
      */
-    public function bucketByCalendarMonthAndGender(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketByCalendarMonthAndGender(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->bucketByCalendarMonthAndGender($from, $toExclusive, $hospitalIds);
     }
@@ -148,7 +148,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string, array<string,int>>
      */
-    public function bucketByCalendarMonthAndUrgency(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketByCalendarMonthAndUrgency(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->bucketByCalendarMonthAndUrgency($from, $toExclusive, $hospitalIds);
     }
@@ -158,7 +158,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int}
      */
-    public function clinicalFeatureCounts(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function clinicalFeatureCounts(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->clinicalFeatureCounts($from, $toExclusive, $hospitalIds);
     }
@@ -168,7 +168,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array{cathlab:int,resus:int}
      */
-    public function resourceFeatureCounts(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function resourceFeatureCounts(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->resourceFeatureCounts($from, $toExclusive, $hospitalIds);
     }
@@ -178,7 +178,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
      */
-    public function bucketClinicalFeaturesByMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketClinicalFeaturesByMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->bucketClinicalFeaturesByMonth($from, $toExclusive, $hospitalIds);
     }
@@ -188,7 +188,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
      */
-    public function bucketClinicalFeaturesByDay(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketClinicalFeaturesByDay(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->bucketClinicalFeaturesByDay($from, $toExclusive, $hospitalIds);
     }
@@ -198,7 +198,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
      */
-    public function bucketClinicalFeaturesByCalendarMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketClinicalFeaturesByCalendarMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->bucketClinicalFeaturesByCalendarMonth($from, $toExclusive, $hospitalIds);
     }
@@ -208,7 +208,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,array{cathlab:int,resus:int,with_any:int}>
      */
-    public function bucketResourcesByMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketResourcesByMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->bucketResourcesByMonth($from, $toExclusive, $hospitalIds);
     }
@@ -218,7 +218,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,array{cathlab:int,resus:int,with_any:int}>
      */
-    public function bucketResourcesByDay(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketResourcesByDay(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->bucketResourcesByDay($from, $toExclusive, $hospitalIds);
     }
@@ -228,7 +228,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return array<string,array{cathlab:int,resus:int,with_any:int}>
      */
-    public function bucketResourcesByCalendarMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketResourcesByCalendarMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->featureQuery->bucketResourcesByCalendarMonth($from, $toExclusive, $hospitalIds);
     }
@@ -238,7 +238,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository
      *
      * @return list<array{label:string,count:int}>
      */
-    public function fetchTopDiagnosisAggregates(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
+    public function fetchTopDiagnosisAggregates(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
     {
         return $this->diagnosisQuery->fetchTopDiagnosisAggregates($from, $toExclusive, $hospitalIds, $limit);
     }

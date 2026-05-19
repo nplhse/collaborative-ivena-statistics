@@ -13,11 +13,13 @@ final class ProjectionFilterApplier
     public function applyCreatedAtRange(
         QueryBuilder $qb,
         string $field,
-        \DateTimeImmutable $from,
+        ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
     ): void {
-        $qb->andWhere(sprintf('%s >= :from', $field))
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
+        if ($from instanceof \DateTimeImmutable) {
+            $qb->andWhere(sprintf('%s >= :from', $field))
+                ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
+        }
 
         if ($toExclusive instanceof \DateTimeImmutable) {
             $qb->andWhere(sprintf('%s < :toExclusive', $field))

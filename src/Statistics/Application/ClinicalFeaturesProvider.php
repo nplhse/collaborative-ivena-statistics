@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\DistributionWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
+use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 
 final readonly class ClinicalFeaturesProvider
 {
@@ -25,7 +26,7 @@ final readonly class ClinicalFeaturesProvider
     /**
      * @return list<StatisticWidget>
      */
-    public function build(StatisticsContext $context): array
+    public function build(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): array
     {
         return [
             new StatisticWidget(
@@ -33,7 +34,7 @@ final readonly class ClinicalFeaturesProvider
                 'clinical_resources_distribution',
                 $this->widgetPayloadNormalizer->normalize(new DistributionWidgetPayload(
                     'stats.analysis.dimension.resources',
-                    $this->clinicalFeaturesQuery->fetchResourceRows($context),
+                    $this->clinicalFeaturesQuery->fetchResourceRows($context, $metrics),
                     [
                         'testId' => 'stats-overview-resources',
                         'actionTestId' => 'stats-cross-nav-overview-resources',
@@ -56,7 +57,7 @@ final readonly class ClinicalFeaturesProvider
                 'clinical_features_distribution',
                 $this->widgetPayloadNormalizer->normalize(new DistributionWidgetPayload(
                     'stats.analysis.dimension.features',
-                    $this->clinicalFeaturesQuery->fetchClinicalRows($context),
+                    $this->clinicalFeaturesQuery->fetchClinicalRows($context, $metrics),
                     [
                         'testId' => 'stats-overview-features',
                         'actionTestId' => 'stats-cross-nav-overview-features',

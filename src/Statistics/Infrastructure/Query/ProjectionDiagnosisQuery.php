@@ -21,7 +21,7 @@ final readonly class ProjectionDiagnosisQuery
      *
      * @return list<array{label:string,count:int}>
      */
-    public function fetchTopDiagnosisAggregates(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
+    public function fetchTopDiagnosisAggregates(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
     {
         $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds)
             ->leftJoin(\App\Allocation\Domain\Entity\IndicationNormalized::class, 'inorm', 'WITH', 'inorm.id = p.indicationNormalizedId')
@@ -43,7 +43,7 @@ final readonly class ProjectionDiagnosisQuery
     /**
      * @param list<int>|null $hospitalIds
      */
-    private function createBaseQb(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): QueryBuilder
+    private function createBaseQb(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): QueryBuilder
     {
         $qb = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p');

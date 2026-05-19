@@ -9,93 +9,26 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\HospitalSummaryData;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
+use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 
 final readonly class HospitalSummaryQuery
 {
     public function __construct(
         private StatisticsScopeResolver $scopeResolver,
-        private ProjectionTimeSeriesQuery $timeSeriesQuery,
     ) {
     }
 
-    public function summarize(StatisticsContext $context): HospitalSummaryData
+    public function summarize(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): HospitalSummaryData
     {
-        $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $from = $bounds->from;
-        $to = $bounds->toExclusive;
-
-        $totalAllocations = $this->timeSeriesQuery->countCreatedInPeriod($from, $to, null);
-
         $scope = $context->filter->scope;
+        $usedUnscopedFallback = StatisticsFilterScope::Public !== $scope
+            && null === $this->scopeResolver->resolveCriteria($context)->hospitalIds;
 
-        if (StatisticsFilterScope::Public === $scope) {
-            return $this->buildDataForPublicSlice($totalAllocations, $from, $to);
-        }
-
-        if (StatisticsFilterScope::Hospital === $scope && null !== $context->filter->hospitalId) {
-            $ids = [$context->filter->hospitalId];
-
-            return $this->buildDataForHospitalIds(
-                $totalAllocations,
-                $from,
-                $to,
-                $ids,
-                usedUnscopedFallback: false,
-            );
-        }
-
-        $hospitalIds = $this->scopeResolver->resolveCriteria($context)->hospitalIds;
-        if (null === $hospitalIds) {
-            return $this->buildDataForPublicSlice($totalAllocations, $from, $to, usedUnscopedFallback: true);
-        }
-
-        return $this->buildDataForHospitalIds(
-            $totalAllocations,
-            $from,
-            $to,
-            $hospitalIds,
-            usedUnscopedFallback: false,
-        );
-    }
-
-    /**
-     * @param list<int> $ids
-     */
-    private function buildDataForHospitalIds(
-        int $totalAllocations,
-        \DateTimeImmutable $from,
-        ?\DateTimeImmutable $to,
-        array $ids,
-        bool $usedUnscopedFallback,
-    ): HospitalSummaryData {
-        $userAllocations = $this->timeSeriesQuery->countCreatedInPeriod($from, $to, $ids);
-        $genderRaw = $this->timeSeriesQuery->countGroupedByGenderInPeriod($from, $to, $ids);
-        $urgencyRaw = $this->timeSeriesQuery->countGroupedByUrgencyInPeriod($from, $to, $ids);
-
-        return $this->assembleHospitalSummaryData(
-            $totalAllocations,
-            $userAllocations,
-            $genderRaw,
-            $urgencyRaw,
-            $usedUnscopedFallback,
-        );
-    }
-
-    private function buildDataForPublicSlice(
-        int $totalAllocations,
-        \DateTimeImmutable $from,
-        ?\DateTimeImmutable $to,
-        bool $usedUnscopedFallback = false,
-    ): HospitalSummaryData {
-        $genderRaw = $this->timeSeriesQuery->countGroupedByGenderInPeriod($from, $to, null);
-        $urgencyRaw = $this->timeSeriesQuery->countGroupedByUrgencyInPeriod($from, $to, null);
-
-        return $this->assembleHospitalSummaryData(
-            $totalAllocations,
-            $totalAllocations,
-            $genderRaw,
-            $urgencyRaw,
+        return $this->buildDataFromDistributions(
+            $metrics->platformTotal,
+            $metrics->scopedTotal,
+            $metrics->genderCounts,
+            $metrics->urgencyCounts,
             $usedUnscopedFallback,
         );
     }
@@ -104,7 +37,7 @@ final readonly class HospitalSummaryQuery
      * @param array<string, int> $genderRaw
      * @param array<int, int>    $urgencyRaw
      */
-    private function assembleHospitalSummaryData(
+    private function buildDataFromDistributions(
         int $totalAllocations,
         int $userAllocations,
         array $genderRaw,

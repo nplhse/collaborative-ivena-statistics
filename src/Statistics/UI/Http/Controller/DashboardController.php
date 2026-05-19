@@ -10,6 +10,10 @@ use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\HospitalSummaryProvider;
 use App\Statistics\Application\OverviewDashboardProvider;
 use App\Statistics\Application\StatisticsContextFactory;
+use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery;
+use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +33,8 @@ final class DashboardController extends AbstractController
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
+        private readonly StatisticsScopeResolver $statisticsScopeResolver,
+        private readonly GetOverviewDashboardMetricsQuery $overviewDashboardMetricsQuery,
     ) {
     }
 
@@ -48,6 +54,10 @@ final class DashboardController extends AbstractController
         }
 
         $context = $this->statisticsContextFactory->create($user, $filter);
+        $overviewMetrics = ($this->overviewDashboardMetricsQuery)(OverviewQueryCriteria::fromPeriodBounds(
+            StatisticsPeriodResolver::resolve($filter),
+            $this->statisticsScopeResolver->resolveCriteria($context)->hospitalIds,
+        ));
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
             'app_stats_dashboard',
@@ -63,8 +73,8 @@ final class DashboardController extends AbstractController
 
         return $this->render('@Statistics/dashboard/index.html.twig', [
             'chartPairWidget' => $chartPairWidget,
-            'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context),
-            'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context),
+            'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context, $overviewMetrics),
+            'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context, $overviewMetrics),
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,

@@ -4,6 +4,7 @@
 
 imports:
     - { resource: services/foundry.yaml }
+    - { resource: services/foundry_test.yaml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
@@ -45,6 +46,11 @@ services:
     App\LegacyMigration\Application\Contract\LegacyAllocationImportFactoryInterface: '@App\LegacyMigration\Infrastructure\Adapter\AllocationImportFactoryAdapter'
     App\Statistics\Application\Contract\HospitalAccessInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineHospitalAccess'
     App\Statistics\Application\Contract\ImportTimelineInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineImportTimeline'
+
+    App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller:
+        public: true
+        arguments:
+            $kernelEnvironment: '%kernel.environment%'
     _instanceof:
         App\Statistics\Application\Analysis\AnalysisDefinitionInterface:
             tags: ['app.statistics.analysis_definition']

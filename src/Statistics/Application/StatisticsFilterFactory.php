@@ -13,7 +13,8 @@ use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\DTO\StatisticsFilterNotice;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
+use App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForDispatchAreaQuery;
+use App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForStateQuery;
 use App\User\Domain\Entity\User;
 
 final readonly class StatisticsFilterFactory
@@ -22,7 +23,8 @@ final readonly class StatisticsFilterFactory
         private HospitalAccessInterface $hospitalAccess,
         private HospitalCohortResolver $hospitalCohortResolver,
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
-        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
+        private CountDistinctHospitalsForStateQuery $countDistinctHospitalsForStateQuery,
+        private CountDistinctHospitalsForDispatchAreaQuery $countDistinctHospitalsForDispatchAreaQuery,
     ) {
     }
 
@@ -84,14 +86,14 @@ final readonly class StatisticsFilterFactory
             }
         }
 
-        if (StatisticsFilterScope::State === $scope && (null === $stateId || $this->projectionScopeQuery->countDistinctHospitalsForState($stateId) < 2)) {
+        if (StatisticsFilterScope::State === $scope && (null === $stateId || ($this->countDistinctHospitalsForStateQuery)($stateId) < 2)) {
             $scope = StatisticsFilterScope::Public;
             $stateId = null;
             $notice = StatisticsFilterNotice::StateInvalid;
             $requiresPublicRedirect = true;
         }
 
-        if (StatisticsFilterScope::DispatchArea === $scope && (null === $dispatchAreaId || $this->projectionScopeQuery->countDistinctHospitalsForDispatchArea($dispatchAreaId) < 2)) {
+        if (StatisticsFilterScope::DispatchArea === $scope && (null === $dispatchAreaId || ($this->countDistinctHospitalsForDispatchAreaQuery)($dispatchAreaId) < 2)) {
             $scope = StatisticsFilterScope::Public;
             $dispatchAreaId = null;
             $notice = StatisticsFilterNotice::DispatchAreaInvalid;

@@ -14,6 +14,7 @@ use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\SummaryDeckWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
+use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 
 final readonly class HospitalSummaryProvider
 {
@@ -50,9 +51,9 @@ final readonly class HospitalSummaryProvider
     /**
      * @return list<StatisticWidget>
      */
-    public function build(StatisticsContext $context): array
+    public function build(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): array
     {
-        $data = $this->hospitalSummaryQuery->summarize($context);
+        $data = $this->hospitalSummaryQuery->summarize($context, $metrics);
 
         return [
             $this->summaryDeckWidget($data),
