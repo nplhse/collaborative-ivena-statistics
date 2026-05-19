@@ -18,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -30,6 +31,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
         private readonly Security $security,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -54,7 +56,33 @@ final class UserCrudController extends AbstractCrudController
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $this->createImpersonateAction())
+            ->add(Crud::PAGE_DETAIL, $this->createImpersonateAction())
             ->add(Crud::PAGE_EDIT, Action::INDEX);
+    }
+
+    private function createImpersonateAction(): Action
+    {
+        return Action::new('impersonate', 'label.impersonate', 'fas fa-user-secret')
+            ->linkToUrl(fn (User $user): string => $this->urlGenerator->generate('app_default', [
+                '_switch_user' => $user->getUserIdentifier(),
+            ]))
+            ->displayIf(function (User $user): bool {
+                if (!$user->isEnabled()) {
+                    return false;
+                }
+
+                if (\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+                    return false;
+                }
+
+                $currentUser = $this->security->getUser();
+                if (!$currentUser instanceof User) {
+                    return false;
+                }
+
+                return $user->getId() !== $currentUser->getId();
+            });
     }
 
     #[\Override]
