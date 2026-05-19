@@ -1,0 +1,10 @@
+{% if is_granted('IS_IMPERSONATOR') %}
+    <div class="d-none d-xl-block ps-2">
+        <div class="text-warning small">{{ 'label.impersonation_active'|trans }}</div>
+        <div id="user_name" class="fw-bold text-warning">{{ app.user.userIdentifier }}</div>
+    </div>
+{% else %}
+    <div class="d-none d-xl-block ps-2">
+        <div id="user_name">{{ app.user.userIdentifier }}</div>
+    </div>
+{% endif %}
