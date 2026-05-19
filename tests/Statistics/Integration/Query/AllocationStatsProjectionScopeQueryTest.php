@@ -33,6 +33,7 @@ use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
+use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +43,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
 {
     use Factories;
+    use RefreshesStatisticsMaterializedViewsTrait;
     use ResetDatabase;
 
     public function testResolvesDistinctHospitalsForStateAndDispatchArea(): void
@@ -105,6 +107,8 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
 
+        $this->refreshStatisticsMaterializedViews();
+
         $query = self::getContainer()->get(AllocationStatsProjectionScopeQuery::class);
         $stateId = $state->getId();
         $dispatchAreaId = $dispatchArea->getId();
@@ -154,7 +158,10 @@ final class AllocationStatsProjectionScopeQueryTest extends KernelTestCase
             ),
         );
 
-        self::assertSame([$hospitalA->getId(), $hospitalB->getId()], $scopeCriteria->hospitalIds);
+        self::assertEqualsCanonicalizing(
+            [$hospitalA->getId(), $hospitalB->getId()],
+            $scopeCriteria->hospitalIds,
+        );
 
         $pageModel = self::getContainer()->get(StatisticsPageViewModelFactory::class)->create(
             new Request(query: ['scope' => sprintf('state:%d', $stateId), 'period' => 'all']),

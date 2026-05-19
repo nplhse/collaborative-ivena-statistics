@@ -28,7 +28,7 @@ use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForStateQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetEligibleStateIdsQuery;
-use App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller;
+use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -38,6 +38,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 final class OverviewMaterializedViewQueryTest extends KernelTestCase
 {
     use Factories;
+    use RefreshesStatisticsMaterializedViewsTrait;
     use ResetDatabase;
 
     public function testMaterializedViewQueriesMatchProjectionScopeAfterRefresh(): void
@@ -101,7 +102,7 @@ final class OverviewMaterializedViewQueryTest extends KernelTestCase
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
 
-        self::getContainer()->get(OverviewMaterializedViewsInstaller::class)->refreshIfInstalled();
+        $this->refreshStatisticsMaterializedViews();
 
         $legacy = self::getContainer()->get(AllocationStatsProjectionScopeQuery::class);
         $stateId = $state->getId();
