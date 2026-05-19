@@ -30,10 +30,10 @@ final class LegacyMigrationRunControl
 
     public function throwIfStopRequested(): void
     {
-        if (!$this->stopRequested) {
+        if (!$this->isStopRequested()) {
             return;
         }
 
-        throw new LegacyMigrationInterruptedException($this->signal ?? 0, sprintf('Legacy migration interrupted by signal %d.', $this->signal ?? 0));
+        throw new LegacyMigrationInterruptedException($this->getSignal() ?? 0, sprintf('Legacy migration interrupted by signal %d.', $this->getSignal() ?? 0));
     }
 }
