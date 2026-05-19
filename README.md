@@ -45,6 +45,8 @@ $ php bin/console app:seed:projection
 
 ## Statistics architecture overview
 
+For projection tables, materialized views, Foundry test resets, and refresh commands, see [docs/statistics/projection-and-materialized-views.md](docs/statistics/projection-and-materialized-views.md).
+
 The statistics pages follow a strict read path to keep controller code slim and
 to make query and presentation layers testable:
 
