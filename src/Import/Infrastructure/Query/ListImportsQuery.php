@@ -88,7 +88,6 @@ final readonly class ListImportsQuery
             'lastChange' => 'sortDate',
             'status' => 'i.status',
             'createdAt' => 'i.createdAt',
-            'rowCount' => 'i.rowCount',
             default => 'i.'.$query->sortBy,
         };
 

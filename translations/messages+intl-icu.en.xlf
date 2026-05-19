@@ -789,10 +789,6 @@
         <source>label.import.filter.owner</source>
         <target>Hospital owner</target>
       </trans-unit>
-      <trans-unit id="impRowCount" resname="label.import.row_count">
-        <source>label.import.row_count</source>
-        <target>Rows</target>
-      </trans-unit>
       <trans-unit id="UcOVbOd" resname="label.indication">
         <source>label.indication</source>
         <target>Indication</target>

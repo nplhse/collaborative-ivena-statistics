@@ -185,15 +185,6 @@
                             {{ 'label.hospital'|trans }} {{ pagination.sortArrow('hospital', sortBy, orderBy) }}
                         </a>
                     </th>
-                    <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_import_index', {
-                            ...app.request.query.all(),
-                            sortBy: 'rowCount',
-                            orderBy: sortBy == 'rowCount' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.import.row_count'|trans }} {{ pagination.sortArrow('rowCount', sortBy, orderBy) }}
-                        </a>
-                    </th>
                     <th class="col-2">
                         <a class="text-muted" href="{{ path('app_import_index', {
                             ...app.request.query.all(),
@@ -233,7 +224,6 @@
                         <td>
                             <a href="{{ path('app_explore_hospital_show', {id: import.hospital.id}) }}" target="_top">{{ import.hospital }}</a>
                         </td>
-                        <td>{{ import.rowCount }}</td>
                         <td>{{ import.createdAt|date('d.m.Y H:i') }}</td>
                         <td>
                             {{ import.updatedAt ? import.updatedAt|date('d.m.Y H:i') : import.createdAt|date('d.m.Y H:i') }}
@@ -244,7 +234,7 @@
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="8">
+                        <td colspan="7">
                             <div class="empty">
                                 <div class="empty-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">

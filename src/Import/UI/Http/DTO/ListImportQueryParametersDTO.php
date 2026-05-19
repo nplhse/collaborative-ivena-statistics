@@ -53,7 +53,7 @@ final readonly class ListImportQueryParametersDTO
         #[Assert\Choice(choices: ['asc', 'desc'])]
         public string $orderBy = 'desc',
 
-        #[Assert\Choice(choices: ['id', 'type', 'name', 'status', 'hospital', 'lastChange', 'createdAt', 'rowCount'])]
+        #[Assert\Choice(choices: ['id', 'type', 'name', 'status', 'hospital', 'lastChange', 'createdAt'])]
         public string $sortBy = 'createdAt',
 
         ?string $search = null,

@@ -145,29 +145,6 @@ final class ListImportsQueryTest extends KernelTestCase
         self::assertSame(['Completed import'], $names);
     }
 
-    public function testSortByRowCountDesc(): void
-    {
-        $owner = UserFactory::createOne(['username' => 'owner-'.bin2hex(random_bytes(4))]);
-        $createdBy = UserFactory::createOne(['username' => 'creator-'.bin2hex(random_bytes(4))]);
-        $hospital = HospitalFactory::createOne([
-            'owner' => $owner,
-            'createdBy' => $createdBy,
-            'state' => StateFactory::createOne(),
-            'dispatchArea' => DispatchAreaFactory::createOne(),
-        ]);
-
-        $this->createImport('Small', $hospital, $createdBy, ['rowCount' => 10]);
-        $this->createImport('Large', $hospital, $createdBy, ['rowCount' => 100]);
-
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(
-            orderBy: 'desc',
-            sortBy: 'rowCount',
-        ));
-
-        $names = $this->extractImportNames($paginator);
-        self::assertSame(['Large', 'Small'], $names);
-    }
-
     public function testSortByCreatedAtAsc(): void
     {
         $owner = UserFactory::createOne(['username' => 'owner-'.bin2hex(random_bytes(4))]);

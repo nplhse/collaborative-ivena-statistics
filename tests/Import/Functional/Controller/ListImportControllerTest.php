@@ -411,54 +411,6 @@ final class ListImportControllerTest extends WebTestCase
             ->assertNotSee('Out Of Range Import');
     }
 
-    public function testSortByRowCountDesc(): void
-    {
-        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
-
-        ImportFactory::createOne([
-            'name' => 'Small Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/small.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 10,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
-
-        ImportFactory::createOne([
-            'name' => 'Large Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/large.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 100,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
-
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import?sortBy=rowCount&orderBy=desc')
-            ->assertSuccessful()
-            ->use(function (Crawler $crawler): void {
-                $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1)->text(''));
-                self::assertSame('Large Import', $firstName);
-            });
-    }
-
     public function testSortByCreatedAtDesc(): void
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
