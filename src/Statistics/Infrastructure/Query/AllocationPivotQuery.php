@@ -23,7 +23,7 @@ final readonly class AllocationPivotQuery
      * @return list<array{row_key: string, col_key: string, value: float, row_label?: string, col_label?: string}>
      */
     public function fetchCells(
-        \DateTimeImmutable $from,
+        ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         AllocationPivotDimension $rows,

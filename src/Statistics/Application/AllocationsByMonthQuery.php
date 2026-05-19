@@ -224,6 +224,7 @@ final readonly class AllocationsByMonthQuery
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $start = $bounds->from;
         $toExclusive = $bounds->toExclusive;
+        \assert($start instanceof \DateTimeImmutable);
         \assert($toExclusive instanceof \DateTimeImmutable);
 
         $monthKeys = [];
@@ -266,6 +267,7 @@ final readonly class AllocationsByMonthQuery
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $start = $bounds->from;
         $toExclusive = $bounds->toExclusive;
+        \assert($start instanceof \DateTimeImmutable);
         \assert($toExclusive instanceof \DateTimeImmutable);
 
         $monthKeys = [];
@@ -286,17 +288,20 @@ final readonly class AllocationsByMonthQuery
     private function effectiveAllTimeQueryStart(StatisticsContext $context): \DateTimeImmutable
     {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $start = $bounds->from;
         if ($bounds->toExclusive instanceof \DateTimeImmutable) {
             throw new \LogicException('all_time expects open-ended upper bound.');
         }
 
+        $start = $bounds->from;
         $earliest = $this->timeSeriesQuery->getEarliestCreatedAt();
         if ($earliest instanceof \DateTimeImmutable) {
             $firstMonth = $earliest->modify('first day of this month')->setTime(0, 0, 0);
-            if ($firstMonth > $start) {
+            if (!$start instanceof \DateTimeImmutable || $firstMonth > $start) {
                 $start = $firstMonth;
             }
+        }
+        if (!$start instanceof \DateTimeImmutable) {
+            $start = new \DateTimeImmutable('first day of this month')->setTime(0, 0, 0);
         }
 
         return $start;
@@ -395,6 +400,7 @@ final readonly class AllocationsByMonthQuery
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $start = $bounds->from;
         $toExclusive = $bounds->toExclusive;
+        \assert($start instanceof \DateTimeImmutable);
         \assert($toExclusive instanceof \DateTimeImmutable);
 
         $monthKeys = [];

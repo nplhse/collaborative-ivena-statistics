@@ -23,7 +23,7 @@ final class ProjectionFeatureQuery
      *
      * @return array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int}
      */
-    public function clinicalFeatureCounts(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function clinicalFeatureCounts(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         $hasExtendedClinicalFeatures = $this->hasExtendedClinicalFeatureColumns();
         $shockExpr = $hasExtendedClinicalFeatures ? 'SUM(CASE WHEN p.isShock = true THEN 1 ELSE 0 END) AS shock' : '0 AS shock';
@@ -59,7 +59,7 @@ final class ProjectionFeatureQuery
      *
      * @return array{cathlab:int,resus:int}
      */
-    public function resourceFeatureCounts(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function resourceFeatureCounts(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
             ->select(
@@ -81,7 +81,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
-    public function bucketClinicalFeaturesByMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketClinicalFeaturesByMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->bucketClinicalFeatures('month', $from, $toExclusive, $hospitalIds);
     }
@@ -91,7 +91,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
-    public function bucketClinicalFeaturesByDay(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketClinicalFeaturesByDay(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->bucketClinicalFeatures('day', $from, $toExclusive, $hospitalIds);
     }
@@ -101,7 +101,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
-    public function bucketClinicalFeaturesByCalendarMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketClinicalFeaturesByCalendarMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->bucketClinicalFeatures('calendar', $from, $toExclusive, $hospitalIds);
     }
@@ -111,7 +111,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{cathlab:int,resus:int,with_any:int}>
      */
-    public function bucketResourcesByMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketResourcesByMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->bucketResources('month', $from, $toExclusive, $hospitalIds);
     }
@@ -121,7 +121,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{cathlab:int,resus:int,with_any:int}>
      */
-    public function bucketResourcesByDay(\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketResourcesByDay(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->bucketResources('day', $from, $toExclusive, $hospitalIds);
     }
@@ -131,7 +131,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{cathlab:int,resus:int,with_any:int}>
      */
-    public function bucketResourcesByCalendarMonth(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    public function bucketResourcesByCalendarMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->bucketResources('calendar', $from, $toExclusive, $hospitalIds);
     }
@@ -139,7 +139,7 @@ final class ProjectionFeatureQuery
     /**
      * @param list<int>|null $hospitalIds
      */
-    private function createBaseCountQb(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): QueryBuilder
+    private function createBaseCountQb(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): QueryBuilder
     {
         $qb = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p');
@@ -154,7 +154,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,work_accident:int,infectious:int,with_any:int}>
      */
-    private function bucketClinicalFeatures(string $mode, \DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    private function bucketClinicalFeatures(string $mode, ?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         $hasExtendedClinicalFeatures = $this->hasExtendedClinicalFeatureColumns();
         [$bucketFields, $bucketGroupBy, $bucketKeyFromRow] = $this->bucketSpec($mode);
@@ -199,7 +199,7 @@ final class ProjectionFeatureQuery
      *
      * @return array<string,array{cathlab:int,resus:int,with_any:int}>
      */
-    private function bucketResources(string $mode, \DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
+    private function bucketResources(string $mode, ?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         [$bucketFields, $bucketGroupBy, $bucketKeyFromRow] = $this->bucketSpec($mode);
         $select = array_merge($bucketFields, [
@@ -254,7 +254,7 @@ final class ProjectionFeatureQuery
         };
     }
 
-    private function hasExtendedClinicalFeatureColumns(): bool
+    public function hasExtendedClinicalFeatureColumns(): bool
     {
         if (\is_bool($this->hasExtendedClinicalFeatureColumns)) {
             return $this->hasExtendedClinicalFeatureColumns;

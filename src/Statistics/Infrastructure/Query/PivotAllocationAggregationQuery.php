@@ -30,7 +30,7 @@ final readonly class PivotAllocationAggregationQuery
      * @return list<PivotCell>
      */
     public function fetchCells(
-        \DateTimeImmutable $from,
+        ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         PivotRowAxis $row,

@@ -14,12 +14,10 @@ use App\Statistics\Application\DTO\StatisticsPeriodBounds;
  * period=all matches the overview: rolling 12 months from {@see StatisticsPeriod::overviewPeriodStart()},
  * with no explicit upper bound (only createdAt >= from).
  *
- * period=all_time: half-open interval from a fixed early lower bound until now (no upper bound in queries).
+ * period=all_time: no created_at lower bound in queries; callers use earliest row when a start label is needed.
  */
 final class StatisticsPeriodResolver
 {
-    private const string ALL_TIME_LOWER_BOUND = '1970-01-01 00:00:00';
-
     public static function resolve(StatisticsFilter $filter): StatisticsPeriodBounds
     {
         $now = new \DateTimeImmutable('now');
@@ -28,9 +26,7 @@ final class StatisticsPeriodResolver
             StatisticsFilterPeriod::All => new StatisticsPeriodBounds(
                 StatisticsPeriod::overviewPeriodStart(),
             ),
-            StatisticsFilterPeriod::AllTime => new StatisticsPeriodBounds(
-                new \DateTimeImmutable(self::ALL_TIME_LOWER_BOUND),
-            ),
+            StatisticsFilterPeriod::AllTime => new StatisticsPeriodBounds(null),
             StatisticsFilterPeriod::Year => self::resolveYear($filter, $now),
             StatisticsFilterPeriod::Month => self::resolveMonth($filter, $now),
         };
