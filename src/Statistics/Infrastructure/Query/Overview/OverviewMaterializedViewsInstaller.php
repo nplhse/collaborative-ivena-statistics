@@ -22,6 +22,11 @@ final class OverviewMaterializedViewsInstaller
     ) {
     }
 
+    public function resetInstallationState(): void
+    {
+        self::$ensured = false;
+    }
+
     public function ensureInstalled(): void
     {
         if (self::$ensured) {

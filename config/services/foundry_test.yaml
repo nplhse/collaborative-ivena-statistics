@@ -1,0 +1,9 @@
+# Foundry database reset: drop statistics materialized views before doctrine:schema:drop (test only).
+when@test:
+    services:
+        App\Tests\Support\Foundry\MaterializedViewAwareOrmResetter:
+            decorates: Zenstruck\Foundry\ORM\ResetDatabase\OrmResetter
+            arguments:
+                $decorated: '@.inner'
+                $materializedViewDropper: '@App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper'
+                $materializedViewsInstaller: '@App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller'
