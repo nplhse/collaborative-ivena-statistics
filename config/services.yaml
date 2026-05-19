@@ -45,6 +45,11 @@ services:
     App\LegacyMigration\Application\Contract\LegacyAllocationImportFactoryInterface: '@App\LegacyMigration\Infrastructure\Adapter\AllocationImportFactoryAdapter'
     App\Statistics\Application\Contract\HospitalAccessInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineHospitalAccess'
     App\Statistics\Application\Contract\ImportTimelineInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineImportTimeline'
+
+    App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller:
+        public: true
+        arguments:
+            $kernelEnvironment: '%kernel.environment%'
     _instanceof:
         App\Statistics\Application\Analysis\AnalysisDefinitionInterface:
             tags: ['app.statistics.analysis_definition']

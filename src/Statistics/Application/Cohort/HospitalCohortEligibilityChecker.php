@@ -4,17 +4,28 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Cohort;
 
-use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
+use App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsByCohortQuery;
 
-final readonly class HospitalCohortEligibilityChecker
+final class HospitalCohortEligibilityChecker
 {
+    /** @var array<string, bool> */
+    private array $memo = [];
+
     public function __construct(
-        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
+        private readonly CountDistinctHospitalsByCohortQuery $countDistinctHospitalsByCohortQuery,
     ) {
     }
 
     public function hasMinimumParticipants(HospitalCohort $cohort, int $minimumParticipants = 2): bool
     {
-        return $this->projectionScopeQuery->countDistinctHospitalsForCohort($cohort) >= $minimumParticipants;
+        $cacheKey = $cohort->type->value.'|'.$minimumParticipants;
+        if (\array_key_exists($cacheKey, $this->memo)) {
+            return $this->memo[$cacheKey];
+        }
+
+        $eligible = ($this->countDistinctHospitalsByCohortQuery)($cohort) >= $minimumParticipants;
+        $this->memo[$cacheKey] = $eligible;
+
+        return $eligible;
     }
 }

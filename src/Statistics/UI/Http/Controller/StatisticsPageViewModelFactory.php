@@ -13,7 +13,8 @@ use App\Statistics\Application\Cohort\HospitalCohortType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
+use App\Statistics\Infrastructure\Query\Overview\GetEligibleDispatchAreaIdsQuery;
+use App\Statistics\Infrastructure\Query\Overview\GetEligibleStateIdsQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
@@ -28,7 +29,8 @@ final readonly class StatisticsPageViewModelFactory
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
         private TranslatorInterface $translator,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
-        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
+        private GetEligibleStateIdsQuery $eligibleStateIdsQuery,
+        private GetEligibleDispatchAreaIdsQuery $eligibleDispatchAreaIdsQuery,
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
     ) {
@@ -236,7 +238,7 @@ final readonly class StatisticsPageViewModelFactory
      */
     private function eligibleStateRows(): array
     {
-        $ids = $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(2);
+        $ids = ($this->eligibleStateIdsQuery)(2);
         $rows = [];
         foreach ($ids as $stateId) {
             $state = $this->stateRepository->findById($stateId);
@@ -256,7 +258,7 @@ final readonly class StatisticsPageViewModelFactory
      */
     private function eligibleDispatchAreaRows(): array
     {
-        $ids = $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(2);
+        $ids = ($this->eligibleDispatchAreaIdsQuery)(2);
         $rows = [];
         foreach ($ids as $dispatchAreaId) {
             $area = $this->dispatchAreaRepository->findById($dispatchAreaId);

@@ -65,6 +65,10 @@ doctrine:
                 prefix: 'App\Statistics\Infrastructure\Entity'
         controller_resolver:
             auto_mapping: false
+        schema_ignore_classes:
+            - App\Statistics\Infrastructure\Entity\ProjectionStateHospitalCount
+            - App\Statistics\Infrastructure\Entity\ProjectionDispatchAreaHospitalCount
+            - App\Statistics\Infrastructure\Entity\ProjectionHospitalDimension
 
 when@test:
     doctrine:
