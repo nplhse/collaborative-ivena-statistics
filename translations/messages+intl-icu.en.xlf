@@ -765,6 +765,30 @@
         <source>label.import.section.source_file</source>
         <target>Source file</target>
       </trans-unit>
+      <trans-unit id="impFltAllHosp" resname="label.import.filter.all_hospitals">
+        <source>label.import.filter.all_hospitals</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="impFltAllOwn" resname="label.import.filter.all_owners">
+        <source>label.import.filter.all_owners</source>
+        <target>All owners</target>
+      </trans-unit>
+      <trans-unit id="impFltAllStat" resname="label.import.filter.all_statuses">
+        <source>label.import.filter.all_statuses</source>
+        <target>All statuses</target>
+      </trans-unit>
+      <trans-unit id="impFltCrtFrm" resname="label.import.filter.created_from">
+        <source>label.import.filter.created_from</source>
+        <target>Created from</target>
+      </trans-unit>
+      <trans-unit id="impFltCrtTil" resname="label.import.filter.created_until">
+        <source>label.import.filter.created_until</source>
+        <target>Created until</target>
+      </trans-unit>
+      <trans-unit id="impFltOwner" resname="label.import.filter.owner">
+        <source>label.import.filter.owner</source>
+        <target>Hospital owner</target>
+      </trans-unit>
       <trans-unit id="UcOVbOd" resname="label.indication">
         <source>label.indication</source>
         <target>Indication</target>

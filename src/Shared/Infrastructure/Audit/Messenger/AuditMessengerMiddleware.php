@@ -32,10 +32,13 @@ final readonly class AuditMessengerMiddleware implements MiddlewareInterface
     {
         $received = $envelope->last(ReceivedStamp::class) instanceof \Symfony\Component\Messenger\Stamp\StampInterface;
 
+        $previousToken = null;
+
         if (!$received) {
             $envelope = $this->stampFromContext($envelope);
         } else {
             $this->hydrateContextFromEnvelope($envelope);
+            $previousToken = $this->tokenStorage->getToken();
             $this->authenticateActorIfPossible($envelope);
         }
 
@@ -43,7 +46,7 @@ final readonly class AuditMessengerMiddleware implements MiddlewareInterface
             return $stack->next()->handle($envelope, $stack);
         } finally {
             if ($received) {
-                $this->tokenStorage->setToken(null);
+                $this->tokenStorage->setToken($previousToken);
                 $this->auditContext->reset();
             }
         }

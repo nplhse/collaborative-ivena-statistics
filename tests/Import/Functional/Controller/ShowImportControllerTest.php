@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
+use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,6 +49,44 @@ final class ShowImportControllerTest extends WebTestCase
             ->assertSee('0 ms')
             ->assertSee('4')
             ->assertSee('1');
+    }
+
+    public function testForeignImportIsNotAccessible(): void
+    {
+        $owner = UserFactory::createOne(['username' => 'owner-'.bin2hex(random_bytes(4))]);
+        $intruder = UserFactory::createOne(['username' => 'intruder-'.bin2hex(random_bytes(4))]);
+        $createdBy = UserFactory::createOne(['username' => 'creator-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne();
+
+        $hospital = HospitalFactory::createOne([
+            'owner' => $owner,
+            'createdBy' => $createdBy,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        $import = ImportFactory::createOne([
+            'name' => 'Protected Import',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'filePath' => '/tmp/protected.csv',
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ]);
+
+        $this->browser()
+            ->actingAs($intruder)
+            ->visit(\sprintf('/import/%d', $import->getId()))
+            ->assertStatus(403);
     }
 
     /**

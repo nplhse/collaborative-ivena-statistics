@@ -34,8 +34,6 @@ final class LegacyMigrationRunControl
             return;
         }
 
-        $signal = $this->getSignal() ?? 0;
-
-        throw new LegacyMigrationInterruptedException($signal, sprintf('Legacy migration interrupted by signal %d.', $signal));
+        throw new LegacyMigrationInterruptedException($this->getSignal() ?? 0, sprintf('Legacy migration interrupted by signal %d.', $this->getSignal() ?? 0));
     }
 }
