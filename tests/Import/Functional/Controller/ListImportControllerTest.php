@@ -56,41 +56,8 @@ final class ListImportControllerTest extends WebTestCase
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
-        ImportFactory::createOne([
-            'name' => 'ACME Hospital Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'createdAt' => new \DateTimeImmutable('now'),
-            'filePath' => '/tmp/acme.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
-
-        ImportFactory::createOne([
-            'name' => 'XYZ Hospital Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'createdAt' => new \DateTimeImmutable('now'),
-            'filePath' => '/tmp/xyz.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
+        $this->createImportForList('ACME Hospital Import', $hospital, $createdBy, ['filePath' => '/tmp/acme.csv']);
+        $this->createImportForList('XYZ Hospital Import', $hospital, $createdBy, ['filePath' => '/tmp/xyz.csv']);
 
         $this->browser()
             ->actingAs($owner)
@@ -126,22 +93,7 @@ final class ListImportControllerTest extends WebTestCase
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
-        ImportFactory::createOne([
-            'name' => 'Filtered Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/filtered.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
+        $this->createImportForList('Filtered Import', $hospital, $createdBy, ['filePath' => '/tmp/filtered.csv']);
 
         $this->browser()
             ->actingAs($owner)
@@ -181,22 +133,7 @@ final class ListImportControllerTest extends WebTestCase
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
-        ImportFactory::createOne([
-            'name' => 'Hospital Filtered Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/hospital-filtered.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
+        $this->createImportForList('Hospital Filtered Import', $hospital, $createdBy, ['filePath' => '/tmp/hospital-filtered.csv']);
 
         $this->browser()
             ->actingAs($owner)
@@ -218,39 +155,8 @@ final class ListImportControllerTest extends WebTestCase
             'dispatchArea' => DispatchAreaFactory::createOne(),
         ]);
 
-        ImportFactory::createOne([
-            'name' => 'Visible Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/visible.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
-
-        ImportFactory::createOne([
-            'name' => 'Secret Foreign Import',
-            'hospital' => $foreignHospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/secret.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
+        $this->createImportForList('Visible Import', $hospital, $createdBy, ['filePath' => '/tmp/visible.csv']);
+        $this->createImportForList('Secret Foreign Import', $foreignHospital, $createdBy, ['filePath' => '/tmp/secret.csv']);
 
         $this->browser()
             ->actingAs($owner)
@@ -272,39 +178,8 @@ final class ListImportControllerTest extends WebTestCase
             'dispatchArea' => DispatchAreaFactory::createOne(),
         ]);
 
-        ImportFactory::createOne([
-            'name' => 'Own Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/own.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
-
-        ImportFactory::createOne([
-            'name' => 'Foreign Import',
-            'hospital' => $foreignHospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/foreign.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
+        $this->createImportForList('Own Import', $hospital, $createdBy, ['filePath' => '/tmp/own.csv']);
+        $this->createImportForList('Foreign Import', $foreignHospital, $createdBy, ['filePath' => '/tmp/foreign.csv']);
 
         $admin = UserFactory::createOne([
             'roles' => ['ROLE_ADMIN'],
@@ -323,39 +198,11 @@ final class ListImportControllerTest extends WebTestCase
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
-        ImportFactory::createOne([
-            'name' => 'Completed Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
+        $this->createImportForList('Completed Import', $hospital, $createdBy, [
             'status' => ImportStatus::COMPLETED,
             'filePath' => '/tmp/completed.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
         ]);
-
-        ImportFactory::createOne([
-            'name' => 'Pending Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/pending.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
-        ]);
+        $this->createImportForList('Pending Import', $hospital, $createdBy, ['filePath' => '/tmp/pending.csv']);
 
         $this->browser()
             ->actingAs($owner)
@@ -369,40 +216,13 @@ final class ListImportControllerTest extends WebTestCase
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
-        ImportFactory::createOne([
-            'name' => 'In Range Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
+        $this->createImportForList('In Range Import', $hospital, $createdBy, [
             'createdAt' => new \DateTimeImmutable('2025-04-01 10:00:00'),
             'filePath' => '/tmp/in-range.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
         ]);
-
-        ImportFactory::createOne([
-            'name' => 'Out Of Range Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
+        $this->createImportForList('Out Of Range Import', $hospital, $createdBy, [
             'createdAt' => new \DateTimeImmutable('2025-05-01 10:00:00'),
             'filePath' => '/tmp/out-of-range.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
         ]);
 
         $this->browser()
@@ -417,40 +237,13 @@ final class ListImportControllerTest extends WebTestCase
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
-        ImportFactory::createOne([
-            'name' => 'Older Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
+        $this->createImportForList('Older Import', $hospital, $createdBy, [
             'createdAt' => new \DateTimeImmutable('2025-01-01 10:00:00'),
             'filePath' => '/tmp/older.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
         ]);
-
-        ImportFactory::createOne([
-            'name' => 'Newer Import',
-            'hospital' => $hospital,
-            'type' => ImportType::ALLOCATION,
-            'status' => ImportStatus::PENDING,
+        $this->createImportForList('Newer Import', $hospital, $createdBy, [
             'createdAt' => new \DateTimeImmutable('2025-06-01 10:00:00'),
             'filePath' => '/tmp/newer.csv',
-            'fileExtension' => 'csv',
-            'fileMimeType' => 'text/csv',
-            'fileSize' => 12,
-            'rowCount' => 5,
-            'rowsPassed' => 4,
-            'rowsRejected' => 1,
-            'runCount' => 0,
-            'runTime' => 0,
-            'createdBy' => $createdBy,
         ]);
 
         $this->browser()
@@ -461,6 +254,29 @@ final class ListImportControllerTest extends WebTestCase
                 $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1)->text(''));
                 self::assertSame('Newer Import', $firstName);
             });
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function createImportForList(string $name, object $hospital, User $createdBy, array $overrides = []): void
+    {
+        ImportFactory::createOne(array_merge([
+            'name' => $name,
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::PENDING,
+            'createdAt' => new \DateTimeImmutable('now'),
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => 12,
+            'rowCount' => 5,
+            'rowsPassed' => 4,
+            'rowsRejected' => 1,
+            'runCount' => 0,
+            'runTime' => 0,
+            'createdBy' => $createdBy,
+        ], $overrides));
     }
 
     /**
