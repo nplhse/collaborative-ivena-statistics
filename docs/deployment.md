@@ -24,6 +24,7 @@ On the server:
 | `DATABASE_URL` | PostgreSQL connection |
 | `MAILER_DSN` | Outbound mail transport (SMTP or provider API); see [Transactional mail](#transactional-mail) |
 | `MAILER_FROM` | Default sender address for verification, password reset, and feedback notifications |
+| `APP_URL` | Public HTTPS base URL of the app (e.g. `https://your-username.uberspace.de`); required for correct mail links and embedded images |
 | `MESSENGER_TRANSPORT_DSN` | Queue backend for async jobs and mail (default: `doctrine://default?auto_setup=0`) |
 
 Optional but recommended:
@@ -47,8 +48,76 @@ unchanged; only transport and configuration are unified.
 |----------|---------|-------|
 | `MAILER_DSN` | `smtp://user:pass@smtp.example.com:587` | **Required in production.** Without a real DSN, no mail leaves the server. Use your provider’s SMTP or native DSN (Mailgun, Brevo, Amazon SES, etc.). |
 | `MAILER_FROM` | `no-reply@your-domain.example` | Sender address on all transactional mail. Defaults to `no-reply@localhost` if unset — set an address your provider allows. |
+| `APP_URL` | `https://your-username.uberspace.de` | **Required in production.** Base URL for password-reset links, verification assets in mail (`absolute_url(asset(...))`), and any route generated without an HTTP request (Messenger worker). Use the same value as Deployer `web_url`. |
 
 The **display name** in the From header comes from `app.title` in [`config/packages/app.yaml`](../config/packages/app.yaml), not from an environment variable.
+
+### Configuring `APP_URL`
+
+In production, transactional mail is rendered by the **Messenger worker**, not during a browser request. Symfony therefore cannot infer your public hostname from PHP automatically — you must set **`APP_URL`** to the same address users type in the browser.
+
+**Use the public HTTPS base URL of the site:**
+
+| Do | Don't |
+|----|--------|
+| `https://your-username.uberspace.de` | `http://localhost` |
+| `https://statistics.example.org` | `https://example.org/app/` (no path suffix) |
+| Scheme `https://` in production | Trailing slash (`https://example.org/`) |
+
+**Keep it in sync with Deployer:** the value should match `web_url` in [`hosts.yaml.example`](../hosts.yaml.example) (your real `hosts.yaml` is gitignored):
+
+```yaml
+# hosts.yaml
+web_url: https://your-username.uberspace.de
+```
+
+```env
+# shared/.env.local on the server (Deployer shared file)
+APP_URL=https://your-username.uberspace.de
+```
+
+Deployer keeps `.env.local` as a shared file (see [`deploy.php`](../deploy.php)) across releases — edit it once on the server under `{deploy_path}/shared/.env.local`, not inside a single `releases/N` directory.
+
+**First-time setup on the server:**
+
+```bash
+# SSH to the host, then (adjust deploy_path if needed):
+nano ~/www/shared/.env.local
+```
+
+Add or update:
+
+```env
+APP_URL=https://your-username.uberspace.de
+MAILER_DSN=smtp://...
+MAILER_FROM=no-reply@your-domain.example
+```
+
+After saving, clear the prod cache and restart the Messenger worker so queued mail picks up the new base URL:
+
+```bash
+cd ~/www/current
+php bin/console cache:clear --env=prod
+systemctl --user restart messenger
+```
+
+**Verify `APP_URL` is active:**
+
+```bash
+cd ~/www/current
+php bin/console debug:config framework router --env=prod | grep default_uri
+```
+
+The output should show your HTTPS URL, not `localhost`.
+
+**Smoke-test mail content:**
+
+1. Request a password reset for a verified user.
+2. Open the message (or inspect it in your mail catcher).
+3. Confirm the reset link starts with `https://your-username.uberspace.de/reset-password/...`.
+4. Confirm header images load from `https://your-username.uberspace.de/email/tabler/...` (not `http://localhost/...`).
+
+If links or images still show `localhost`, `APP_URL` is missing, wrong, or the worker was not restarted after the change.
 
 ### Optional environment variables
 
@@ -90,7 +159,7 @@ authorizes; otherwise messages often land in spam folders.
 
 ### Post-deploy mail checklist
 
-1. Set `MAILER_DSN` and `MAILER_FROM` in server `.env.local`.
+1. Set `MAILER_DSN`, `MAILER_FROM`, and `APP_URL` in server `.env.local`.
 2. Confirm the Messenger worker is active (`systemctl --user status messenger`).
 3. Assign **Receives Feedback** to at least one verified admin (for feedback notifications).
 4. Smoke-test: register a user (verification mail), request a password reset, submit feedback.
@@ -184,7 +253,9 @@ journalctl --user -u messenger -f
    cp hosts.yaml.example hosts.yaml
    ```
 
-   Edit `hosts.yaml` with your hostname, `remote_user`, `deploy_path` and `web_url`. The real `hosts.yaml` is gitignored.
+   Edit `hosts.yaml` with your hostname, `remote_user`, `deploy_path`, and `web_url`. The real `hosts.yaml` is gitignored.
+
+   Set `web_url` to the same public HTTPS URL you will use for **`APP_URL`** in server `shared/.env.local` (see [Configuring `APP_URL`](#configuring-app_url)).
 
 3. Deploy:
 
@@ -235,6 +306,7 @@ requires the worker for queued mail.
 | Deploy fails at `messenger:restart` | Unit missing or wrong name; check `messenger_systemd_service` |
 | Messages stuck in `messenger_messages` | Worker not running; check `systemctl --user status messenger` |
 | No verification / reset / feedback mail | `MAILER_DSN` missing or worker not consuming `async_priority_low` |
+| Reset link or mail images use `http://localhost` | `APP_URL` unset or wrong in `shared/.env.local`; must match public `web_url`; restart Messenger worker after change |
 | Feedback saved but no admin email | No user with Admin + Receives Feedback (enabled, verified); see logs for `feedback.admin_mail_skipped` |
 | Mail in spam | SPF/DKIM/DMARC or `MAILER_FROM` not aligned with SMTP provider |
 | Worker runs old code after deploy | `WorkingDirectory` points at a fixed `releases/N` instead of `current` |
