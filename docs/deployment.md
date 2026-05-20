@@ -22,8 +22,79 @@ On the server:
 | `APP_DEBUG` | `0` |
 | `APP_SECRET` | Non-empty secret for Symfony |
 | `DATABASE_URL` | PostgreSQL connection |
+| `MAILER_DSN` | Outbound mail transport (SMTP or provider API); see [Transactional mail](#transactional-mail) |
+| `MAILER_FROM` | Default sender address for verification, password reset, and feedback notifications |
+| `MESSENGER_TRANSPORT_DSN` | Queue backend for async jobs and mail (default: `doctrine://default?auto_setup=0`) |
+
+Optional but recommended:
+
+| Variable | Purpose |
+|----------|---------|
+| `MAILER_REPLY_TO` | Reply-to address on transactional mail (leave empty to omit) |
+| `APP_VERSION` | Release label stored with feedback and used as the default Sentry release |
 
 Run database migrations so the `messenger_messages` table exists (included in the default deploy workflow).
+
+## Transactional mail
+
+Registration verification, password reset, and feedback admin notifications are sent through a central mail layer 
+([`TransactionalMailer`](../src/Shared/Infrastructure/Mail/TransactionalMailer.php)). Templates and business logic are 
+unchanged; only transport and configuration are unified.
+
+### Required environment variables
+
+| Variable | Example | Notes |
+|----------|---------|-------|
+| `MAILER_DSN` | `smtp://user:pass@smtp.example.com:587` | **Required in production.** Without a real DSN, no mail leaves the server. Use your provider’s SMTP or native DSN (Mailgun, Brevo, Amazon SES, etc.). |
+| `MAILER_FROM` | `no-reply@your-domain.example` | Sender address on all transactional mail. Defaults to `no-reply@localhost` if unset — set an address your provider allows. |
+
+The **display name** in the From header comes from `app.title` in [`config/packages/app.yaml`](../config/packages/app.yaml), not from an environment variable.
+
+### Optional environment variables
+
+| Variable | Purpose |
+|----------|---------|
+| `MAILER_REPLY_TO` | If set, added as Reply-To on all transactional mail |
+
+### Feedback notifications (role-based recipients)
+
+`FEEDBACK_ADMIN_EMAIL` is **no longer used**. Feedback admin mail is sent to application users who have **both**:
+
+- `ROLE_ADMIN`
+- `ROLE_FEEDBACK_RECIPIENT` (shown in EasyAdmin as **“Receives Feedback”**)
+
+Additional requirements: account enabled, email verified, non-empty email address.
+
+If no matching user exists, feedback is still stored but no email is sent. Check application logs for 
+`feedback.admin_mail_skipped` with reason `no_feedback_recipients`.
+
+**After each deploy (or when onboarding admins):** open **Admin → Users**, edit the relevant admin accounts, and assign 
+**Receives Feedback**. Existing admins do not receive this role automatically.
+
+### Async delivery in production
+
+In `prod`, Symfony Mailer dispatches `SendEmailMessage` to the **`async_priority_low`** queue (see 
+[`config/packages/messenger.yaml`](../config/packages/messenger.yaml)). In `dev`, mail is sent synchronously.
+
+That means:
+
+1. **`MESSENGER_TRANSPORT_DSN`** must be configured (Doctrine transport is fine if migrations created `messenger_messages`).
+2. The **Messenger worker** must be running — see [Messenger worker](#messenger-worker-one-time-server-setup) below.
+
+Without a worker, verification, password reset, and feedback emails are queued but never delivered.
+
+### DNS and deliverability
+
+Configure SPF, DKIM, and DMARC for the domain used in `MAILER_FROM`. Use an address and domain your SMTP provider 
+authorizes; otherwise messages often land in spam folders.
+
+### Post-deploy mail checklist
+
+1. Set `MAILER_DSN` and `MAILER_FROM` in server `.env.local`.
+2. Confirm the Messenger worker is active (`systemctl --user status messenger`).
+3. Assign **Receives Feedback** to at least one verified admin (for feedback notifications).
+4. Smoke-test: register a user (verification mail), request a password reset, submit feedback.
+5. If mail does not arrive, check `messenger:stats`, `messenger:failed:show`, and `journalctl --user -u messenger -f`.
 
 ## Messenger worker (one-time server setup)
 
@@ -163,6 +234,9 @@ requires the worker for queued mail.
 |---------|----------------|
 | Deploy fails at `messenger:restart` | Unit missing or wrong name; check `messenger_systemd_service` |
 | Messages stuck in `messenger_messages` | Worker not running; check `systemctl --user status messenger` |
+| No verification / reset / feedback mail | `MAILER_DSN` missing or worker not consuming `async_priority_low` |
+| Feedback saved but no admin email | No user with Admin + Receives Feedback (enabled, verified); see logs for `feedback.admin_mail_skipped` |
+| Mail in spam | SPF/DKIM/DMARC or `MAILER_FROM` not aligned with SMTP provider |
 | Worker runs old code after deploy | `WorkingDirectory` points at a fixed `releases/N` instead of `current` |
 | `too many redirects` / 500 on web | Unrelated to Messenger; ensure `public/.htaccess` exists and `APP_SECRET` is set in `.env.local` |
 | Stop hook skipped | First deploy has no `previous_release`; normal |

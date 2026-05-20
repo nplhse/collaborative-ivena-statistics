@@ -12,13 +12,14 @@ parameters:
     app.imports_max_size: '15M'
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
-    app.mailer_from: 'no-reply@localhost'
-    env(FEEDBACK_ADMIN_EMAIL): ''
+    env(MAILER_FROM): 'no-reply@localhost'
+    env(MAILER_REPLY_TO): ''
+    app.mailer_from: '%env(MAILER_FROM)%'
+    app.mailer_reply_to: '%env(MAILER_REPLY_TO)%'
     env(APP_VERSION): ''
     env(SENTRY_DSN): ''
     env(SENTRY_TRACES_SAMPLE_RATE): '0'
     env(SENTRY_ENABLE_LOGS): 'true'
-    app.feedback.admin_notification_email: '%env(FEEDBACK_ADMIN_EMAIL)%'
     app.feedback.app_version: '%env(APP_VERSION)%'
 
 services:
@@ -98,13 +99,11 @@ services:
         arguments:
             $logger: '@monolog.logger.import'
 
-    App\User\Infrastructure\Security\EmailVerifier:
-        arguments:
-            $mailerFrom: '%app.mailer_from%'
+    App\Shared\Infrastructure\Mail\TransactionalMailer:
+        alias: App\Shared\Infrastructure\Mail\SymfonyTransactionalMailer
 
-    App\User\UI\Http\Controller\ResetPasswordController:
-        arguments:
-            $mailerFrom: '%app.mailer_from%'
+    App\User\Infrastructure\Security\FeedbackRecipientEmailResolver:
+        alias: App\User\Infrastructure\Security\FeedbackRecipientResolver
 
     App\Import\Infrastructure\Adapter\SplCsvRejectWriter:
         arguments:
