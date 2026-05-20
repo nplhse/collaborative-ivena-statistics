@@ -18,6 +18,7 @@ use App\Statistics\Application\DTO\WidgetPayload\SimpleChartWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Application\StatisticsContextFactory;
+use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements AnalysisDefinitionInterface
@@ -29,6 +30,7 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
         private TranslatorInterface $translator,
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
+        private StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
     ) {
     }
 
@@ -69,7 +71,7 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
         $primarySeries = $this->allocationsByMonthQuery->fetch($context, StatisticsAnalysisDimension::Total);
         $primaryLabel = sprintf(
             '%s (%s)',
-            $this->scopeLabel($context->filter),
+            $this->scopeLabel($context->filter, $context->user),
             $this->periodLabel($context->filter),
         );
         $comparisonContext = $this->statisticsContextFactory->create(
@@ -79,7 +81,7 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
         $comparisonFilter = $context->comparisonFilter ?? $context->filter;
         $comparisonLabel = sprintf(
             '%s (%s)',
-            $this->scopeLabel($comparisonFilter),
+            $this->scopeLabel($comparisonFilter, $context->user),
             $this->periodLabel($comparisonFilter),
         );
         $comparisonSeries = $this->allocationsByMonthQuery->fetch($comparisonContext, StatisticsAnalysisDimension::Total);
@@ -212,11 +214,11 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
         };
     }
 
-    private function scopeLabel(StatisticsFilter $filter): string
+    private function scopeLabel(StatisticsFilter $filter, ?\App\User\Domain\Entity\User $user): string
     {
         return match ($filter->scope) {
             \App\Statistics\Application\DTO\StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public'),
-            \App\Statistics\Application\DTO\StatisticsFilterScope::MyHospitals => $this->translator->trans('stats.filter.scope.my_hospitals'),
+            \App\Statistics\Application\DTO\StatisticsFilterScope::MyHospitals => $this->hospitalScopeLabelResolver->groupLabel($user),
             \App\Statistics\Application\DTO\StatisticsFilterScope::Hospital => null !== $filter->hospitalId
                 ? sprintf('Hospital %d', $filter->hospitalId)
                 : $this->translator->trans('stats.filter.hospital.choose'),
