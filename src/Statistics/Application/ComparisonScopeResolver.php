@@ -82,7 +82,7 @@ final readonly class ComparisonScopeResolver
      */
     private function accessibleHospitalIds(?User $user): array
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof User || !$this->hospitalAccess->canUseMyHospitalsScope($user)) {
             return [];
         }
 

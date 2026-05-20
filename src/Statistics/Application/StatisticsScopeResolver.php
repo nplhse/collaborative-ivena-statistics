@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
+use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
@@ -21,7 +21,7 @@ final class StatisticsScopeResolver
     private ?StatisticsScopeCriteria $resolvedCriteria = null;
 
     public function __construct(
-        private readonly HospitalRepository $hospitalRepository,
+        private readonly HospitalAccessInterface $hospitalAccess,
         private readonly HospitalCohortResolver $hospitalCohortResolver,
         private readonly GetDistinctHospitalIdsByStateQuery $distinctHospitalIdsByStateQuery,
         private readonly GetDistinctHospitalIdsByDispatchAreaQuery $distinctHospitalIdsByDispatchAreaQuery,
@@ -104,17 +104,10 @@ final class StatisticsScopeResolver
      */
     private function resolveMyHospitalIds(?User $user): array
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof User || !$this->hospitalAccess->canUseMyHospitalsScope($user)) {
             return [];
         }
 
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
+        return $this->hospitalAccess->accessibleHospitalIds($user);
     }
 }

@@ -57,8 +57,13 @@ final readonly class StatisticsFilterFactory
             $hospitalId = null;
         }
 
-        if (StatisticsFilterScope::Hospital === $scope && $user instanceof User && null !== $hospitalId && !$this->userMayUseHospital($user, $hospitalId)) {
-            $scope = StatisticsFilterScope::MyHospitals;
+        if (StatisticsFilterScope::Hospital === $scope && $user instanceof User && null !== $hospitalId && !$this->hospitalAccess->canSelectHospitalScope($user, $hospitalId)) {
+            if ($this->hospitalAccess->canUseMyHospitalsScope($user)) {
+                $scope = StatisticsFilterScope::MyHospitals;
+            } else {
+                $scope = StatisticsFilterScope::Public;
+                $requiresPublicRedirect = true;
+            }
             $hospitalId = null;
         }
 
@@ -75,7 +80,9 @@ final readonly class StatisticsFilterFactory
         if (StatisticsFilterScope::HospitalCohort !== $scope) {
             $cohortType = null;
         } elseif (!$cohortType instanceof HospitalCohortType) {
-            $scope = StatisticsFilterScope::MyHospitals;
+            $scope = $user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)
+                ? StatisticsFilterScope::MyHospitals
+                : StatisticsFilterScope::Public;
         } else {
             $cohort = $this->hospitalCohortResolver->resolve($cohortType);
             if (!$this->hospitalCohortEligibilityChecker->hasMinimumParticipants($cohort)) {
@@ -116,8 +123,22 @@ final readonly class StatisticsFilterFactory
             $referenceMonth = null;
         }
 
-        if ($user instanceof User && StatisticsFilterScope::MyHospitals === $scope && !$this->userHasAnyAccessibleHospital($user) && !$explicitMyHospitalsInUrl) {
+        if (StatisticsFilterScope::MyHospitals === $scope && (!$user instanceof User || !$this->hospitalAccess->canUseMyHospitalsScope($user))) {
             $scope = StatisticsFilterScope::Public;
+            if ($explicitMyHospitalsInUrl) {
+                $requiresPublicRedirect = true;
+            }
+        }
+
+        if (StatisticsFilterScope::Hospital === $scope && $user instanceof User && null !== $hospitalId && !$this->hospitalAccess->canSelectHospitalScope($user, $hospitalId)) {
+            $scope = StatisticsFilterScope::Public;
+            $hospitalId = null;
+            $requiresPublicRedirect = true;
+        }
+
+        if (!$user instanceof User && StatisticsFilterScope::Hospital === $scope) {
+            $scope = StatisticsFilterScope::Public;
+            $hospitalId = null;
         }
 
         return new StatisticsFilter(
@@ -198,7 +219,7 @@ final readonly class StatisticsFilterFactory
 
     private function parseScope(string $raw): StatisticsFilterScope
     {
-        return StatisticsFilterScope::tryFrom($raw) ?? StatisticsFilterScope::MyHospitals;
+        return StatisticsFilterScope::tryFrom($raw) ?? StatisticsFilterScope::Public;
     }
 
     private function parsePeriod(string $raw): StatisticsFilterPeriod
@@ -224,17 +245,5 @@ final readonly class StatisticsFilterFactory
         $int = (int) $value;
 
         return $int > 0 ? $int : null;
-    }
-
-    private function userHasAnyAccessibleHospital(User $user): bool
-    {
-        return $this->hospitalAccess->countAccessibleHospitals($user) > 0;
-    }
-
-    private function userMayUseHospital(User $user, int $hospitalId): bool
-    {
-        $allowedIds = $this->hospitalAccess->accessibleHospitalIds($user);
-
-        return array_any($allowedIds, static fn (int $id): bool => $id === $hospitalId);
     }
 }
