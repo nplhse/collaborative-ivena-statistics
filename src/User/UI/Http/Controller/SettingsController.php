@@ -21,7 +21,7 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('IS_AUTHENTICATED_FULLY')]
+#[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 final class SettingsController extends AbstractController
 {
     public function __construct(
@@ -76,6 +76,7 @@ final class SettingsController extends AbstractController
     }
 
     #[Route('/settings/email', name: 'app_settings_email')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function email(Request $request): Response
     {
         $user = $this->requireUser();
