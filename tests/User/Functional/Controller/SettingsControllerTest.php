@@ -7,6 +7,7 @@ namespace App\Tests\User\Functional\Controller;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -69,6 +70,28 @@ final class SettingsControllerTest extends WebTestCase
         $browser->click('Resend verification email')->assertSee('Verification email sent.');
         $browser->click('Resend verification email')->assertSee('Verification email sent.');
         $browser->click('Resend verification email')->assertSee('Please wait before requesting another verification email.');
+    }
+
+    public function testRememberMeUserCanOpenSettingsOverviewAndPasswordPage(): void
+    {
+        UserFactory::new([
+            'email' => 'remember-settings@example.test',
+            'isVerified' => true,
+            'username' => 'remember-settings-user',
+        ])->create();
+
+        $client = $this->browser()->client();
+        $this->loginWithRememberMe($client, 'remember-settings-user');
+        $cookies = $this->extractRememberMeSessionCookies($client);
+        $this->useRememberMeSessionOnly($client, $cookies['rememberMe'], $cookies['consentSubject']);
+
+        $client->request(Request::METHOD_GET, '/settings');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h2', 'Account Settings');
+
+        $client->request(Request::METHOD_GET, '/settings/password');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h2', 'Change password');
     }
 
     public function testAuthenticatedUserCanOpenChangeEmailPage(): void
