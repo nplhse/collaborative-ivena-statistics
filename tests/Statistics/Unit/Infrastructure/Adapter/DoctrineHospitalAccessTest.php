@@ -40,13 +40,15 @@ final class DoctrineHospitalAccessTest extends KernelTestCase
     public function testParticipantWithOwnedHospitalsCanUseScope(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $otherOwner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         StateFactory::createOne();
         DispatchAreaFactory::createOne();
         $owned = HospitalFactory::createOne(['owner' => $user]);
-        HospitalFactory::createOne();
+        HospitalFactory::createOne(['owner' => $otherOwner]);
 
         self::assertTrue($this->access->canUseMyHospitalsScope($user));
-        self::assertTrue($this->access->canSelectHospitalScope($user, $owned->getId() ?? 0));
+        self::assertNotNull($owned->getId());
+        self::assertTrue($this->access->canSelectHospitalScope($user, $owned->getId()));
         self::assertSame([$owned->getId()], $this->access->accessibleHospitalIds($user));
     }
 
@@ -56,8 +58,9 @@ final class DoctrineHospitalAccessTest extends KernelTestCase
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         StateFactory::createOne();
         DispatchAreaFactory::createOne();
+        $foreignOwner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $owned = HospitalFactory::createOne(['owner' => $owner]);
-        $other = HospitalFactory::createOne();
+        $other = HospitalFactory::createOne(['owner' => $foreignOwner]);
 
         self::assertTrue($this->access->isAdminHospitalScopeUser($admin));
         self::assertTrue($this->access->canUseMyHospitalsScope($admin));
