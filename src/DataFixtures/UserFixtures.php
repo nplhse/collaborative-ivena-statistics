@@ -45,7 +45,7 @@ final class UserFixtures extends Fixture
     public static function getUserData(): array
     {
         return [
-            ['admin', 'password', ['ROLE_ADMIN', 'ROLE_USER'], 'admin@test.local', true],
+            ['admin', 'password', ['ROLE_ADMIN', 'ROLE_FEEDBACK_RECIPIENT', 'ROLE_USER'], 'admin@test.local', true],
             ['foo', 'bar', ['ROLE_USER'], 'foo@bar.local', true],
         ];
     }

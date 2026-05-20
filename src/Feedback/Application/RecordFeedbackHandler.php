@@ -6,27 +6,16 @@ namespace App\Feedback\Application;
 
 use App\Feedback\Domain\Entity\Feedback;
 use App\Feedback\Domain\Enum\FeedbackCategory;
+use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 
 final readonly class RecordFeedbackHandler
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private MailerInterface $mailer,
-        #[Autowire('%app.mailer_from%')]
-        private string $mailerFrom,
-        #[Autowire('%app.feedback.admin_notification_email%')]
-        private string $adminNotificationEmail,
-        private LoggerInterface $logger,
-        #[Autowire('%app.title%')]
-        private string $appTitle,
+        private TransactionalMailer $transactionalMailer,
     ) {
     }
 
@@ -62,32 +51,11 @@ final readonly class RecordFeedbackHandler
         $this->entityManager->persist($feedback);
         $this->entityManager->flush();
 
-        $recipient = trim($this->adminNotificationEmail);
-        if ('' !== $recipient) {
-            $subject = sprintf('[%s] Feedback (%s)', $this->appTitle, $category->value);
-            $this->mailer->send(
-                new TemplatedEmail()
-                    ->from($this->fromAddress())
-                    ->to($recipient)
-                    ->subject($subject)
-                    ->htmlTemplate('@Feedback/email/admin_feedback_notification.html.twig')
-                    ->context([
-                        'feedback' => $feedback,
-                        'categoryLabel' => $category->value,
-                        'contextJson' => $this->encodeContextPreview($feedback->getContext()),
-                    ])
-            );
-        } else {
-            $this->logger->info('feedback.admin_mail_skipped', [
-                'reason' => 'empty FEEDBACK_ADMIN_EMAIL',
-                'feedback_id' => $feedback->getId(),
-            ]);
-        }
-    }
-
-    private function fromAddress(): Address
-    {
-        return new Address($this->mailerFrom, $this->appTitle);
+        $this->transactionalMailer->sendAdminFeedbackEmail(
+            $feedback,
+            $category,
+            $this->encodeContextPreview($feedback->getContext()),
+        );
     }
 
     /** @param array<string, mixed>|null $context */

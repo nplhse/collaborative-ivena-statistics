@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security;
 
+use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
@@ -17,9 +15,8 @@ final readonly class EmailVerifier
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private VerifyEmailHelperInterface $verifyEmailHelper,
-        private MailerInterface $mailer,
+        private TransactionalMailer $transactionalMailer,
         private UrlGeneratorInterface $urlGenerator,
-        private string $mailerFrom,
     ) {
     }
 
@@ -37,17 +34,13 @@ final readonly class EmailVerifier
             ['id' => (string) $user->getId()]
         );
 
-        $this->mailer->send(new TemplatedEmail()
-            ->from(new Address($this->mailerFrom, 'Collaborative IVENA statistics'))
-            ->to($email)
-            ->subject('Please confirm your email address')
-            ->htmlTemplate('@User/registration/confirmation_email.html.twig')
-            ->context([
-                'signedUrl' => $signatureComponents->getSignedUrl(),
-                'expiresAtMessageKey' => $signatureComponents->getExpirationMessageKey(),
-                'expiresAtMessageData' => $signatureComponents->getExpirationMessageData(),
-                'homepageUrl' => $this->urlGenerator->generate('app_default', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            ]));
+        $this->transactionalMailer->sendVerificationEmail(
+            $email,
+            $signatureComponents->getSignedUrl(),
+            $signatureComponents->getExpirationMessageKey(),
+            $signatureComponents->getExpirationMessageData(),
+            $this->urlGenerator->generate('app_default', [], UrlGeneratorInterface::ABSOLUTE_URL),
+        );
     }
 
     public function handleEmailConfirmation(Request $request, User $user): void

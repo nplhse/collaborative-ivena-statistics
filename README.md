@@ -72,17 +72,19 @@ monitoring.
 
 ### Feedback widget
 
-Submissions are stored in the database. When `FEEDBACK_ADMIN_EMAIL` is set, the
-application sends an admin notification via Symfony Mailer.
+Submissions are stored in the database. Admin notifications are sent via
+Symfony Mailer to users who have both `ROLE_ADMIN` and `ROLE_FEEDBACK_RECIPIENT`
+(assign the latter in the admin user UI as “Receives Feedback”). If no such
+user exists, no email is sent (see application logs: `feedback.admin_mail_skipped`).
 
 | Variable | Purpose |
 |----------|---------|
-| `FEEDBACK_ADMIN_EMAIL` | Recipient for feedback notifications; leave empty to skip email |
+| `MAILER_FROM` | Default sender address for transactional mail |
+| `MAILER_REPLY_TO` | Optional reply-to address |
 | `APP_VERSION` | Release label stored with feedback and used as the default Sentry release |
 | `MAILER_DSN` | Mail transport (for example `smtp://user:pass@smtp.example:587`); required for outbound mail |
 
-The default sender address is configured in `config/services.yaml` as
-`app.mailer_from`. Submissions are rate-limited to five per hour per client
+Submissions are rate-limited to five per hour per client
 (`feedback_submit` in `config/packages/rate_limiter.yaml`; relaxed in `test`).
 
 ### Sentry monitoring

@@ -70,4 +70,10 @@ final class UserFactory extends PersistentProxyObjectFactory
     {
         return $this->with(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
     }
+
+    /** @psalm-suppress PossiblyUnusedMethod */
+    public function asFeedbackRecipient(): self
+    {
+        return $this->with(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_FEEDBACK_RECIPIENT']]);
+    }
 }

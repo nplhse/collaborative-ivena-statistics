@@ -6,6 +6,7 @@ namespace App\Admin\UI\Http\Controller\User;
 
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -72,7 +73,7 @@ final class UserCrudController extends AbstractCrudController
                     return false;
                 }
 
-                if (\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+                if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
                     return false;
                 }
 
@@ -98,15 +99,17 @@ final class UserCrudController extends AbstractCrudController
             ->renderAsSwitch();
         yield ChoiceField::new('roles')
             ->setChoices([
-                'Admin' => 'ROLE_ADMIN',
-                'Participant' => 'ROLE_PARTICIPANT',
-                'User' => 'ROLE_USER',
+                'Admin' => UserRole::ADMIN,
+                'Participant' => UserRole::PARTICIPANT,
+                'User' => UserRole::USER,
+                'Receives Feedback' => UserRole::FEEDBACK_RECIPIENT,
             ])
             ->allowMultipleChoices()
             ->renderAsBadges([
-                'ROLE_ADMIN' => 'danger',
-                'ROLE_PARTICIPANT' => 'warning',
-                'ROLE_USER' => 'primary',
+                UserRole::ADMIN => 'danger',
+                UserRole::PARTICIPANT => 'warning',
+                UserRole::USER => 'primary',
+                UserRole::FEEDBACK_RECIPIENT => 'success',
             ]);
         yield TextField::new('password')
             ->setFormType(PasswordType::class)

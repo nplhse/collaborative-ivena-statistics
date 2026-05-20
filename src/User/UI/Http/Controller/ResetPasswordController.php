@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace App\User\UI\Http\Controller;
 
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
 use App\User\UI\Form\ResetPasswordFormType;
 use App\User\UI\Form\ResetPasswordRequestFormType;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
@@ -30,9 +28,8 @@ final class ResetPasswordController extends AbstractController
     public function __construct(
         private readonly ResetPasswordHelperInterface $resetPasswordHelper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly MailerInterface $mailer,
+        private readonly TransactionalMailer $transactionalMailer,
         private readonly UserPasswordHasherInterface $passwordHasher,
-        private readonly string $mailerFrom,
         private readonly AuditContext $auditContext,
     ) {
     }
@@ -146,16 +143,7 @@ final class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_check_email');
         }
 
-        $email = new TemplatedEmail()
-            ->from(new Address($this->mailerFrom, 'Collaborative IVENA statistics'))
-            ->to((string) $user->getEmail())
-            ->subject('Your password reset request')
-            ->htmlTemplate('@User/reset_password/email.html.twig')
-            ->context([
-                'resetToken' => $resetToken,
-            ]);
-
-        $this->mailer->send($email);
+        $this->transactionalMailer->sendPasswordResetEmail((string) $user->getEmail(), $resetToken);
 
         $this->setTokenObjectInSession($resetToken);
 
