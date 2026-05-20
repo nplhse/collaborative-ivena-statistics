@@ -10,9 +10,11 @@ use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\Statistics\Infrastructure\Query\Overview\GetEligibleDispatchAreaIdsQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetEligibleStateIdsQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
@@ -25,9 +27,11 @@ final readonly class StatisticsPageViewModelFactory
 {
     public function __construct(
         private HospitalRepository $hospitalRepository,
+        private HospitalAccessInterface $hospitalAccess,
         private HospitalCohortResolver $hospitalCohortResolver,
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
         private TranslatorInterface $translator,
+        private StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private GetEligibleStateIdsQuery $eligibleStateIdsQuery,
         private GetEligibleDispatchAreaIdsQuery $eligibleDispatchAreaIdsQuery,
@@ -60,7 +64,7 @@ final readonly class StatisticsPageViewModelFactory
 
         $accessibleHospitals = [];
         $hospitalUrls = [];
-        if ($user instanceof User) {
+        if ($user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)) {
             $accessibleHospitals = $this->hospitalRepository->findAccessibleHospitalSummaries($user);
             foreach ($accessibleHospitals as $row) {
                 $hospitalUrls[(string) $row['id']] = $this->statisticsNavigationUrlBuilder->build(
@@ -148,7 +152,6 @@ final readonly class StatisticsPageViewModelFactory
             $eligibleDispatchRows,
             $cohortScopeChoices,
             $user,
-            $accessibleHospitals,
             $locale,
         );
 
@@ -165,7 +168,9 @@ final readonly class StatisticsPageViewModelFactory
             $accessibleHospitals,
         );
 
-        $myHospitalsDual = $user instanceof User && \count($accessibleHospitals) > 1
+        $myHospitalsDual = $user instanceof User
+            && $this->hospitalAccess->canUseMyHospitalsScope($user)
+            && \count($accessibleHospitals) > 1
             && (StatisticsFilterScope::MyHospitals === $filter->scope || StatisticsFilterScope::Hospital === $filter->scope);
         $stateDual = StatisticsFilterScope::State === $filter->scope && [] !== $eligibleStateRows;
         $dispatchDual = StatisticsFilterScope::DispatchArea === $filter->scope && [] !== $eligibleDispatchRows;
@@ -188,6 +193,7 @@ final readonly class StatisticsPageViewModelFactory
 
         [$scopePrimaryDropdownLabel, $scopeSecondaryDropdownLabel] = $this->scopeDropdownLabels(
             $filter,
+            $user,
             $accessibleHospitals,
             $locale,
             $showScopeSecondaryPicker,
@@ -216,6 +222,7 @@ final readonly class StatisticsPageViewModelFactory
             $user instanceof User,
             $this->statisticsHeadingScope(
                 $filter,
+                $user,
                 $hospitalDropdownSelectedName,
                 $locale,
                 $showUnscopedHint,
@@ -278,7 +285,6 @@ final readonly class StatisticsPageViewModelFactory
      * @param list<array{id: int, name: string}>                                 $eligibleStateRows
      * @param list<array{id: int, name: string}>                                 $eligibleDispatchRows
      * @param list<array{key: string, label: string, url: string, active: bool}> $cohortScopeChoices
-     * @param list<array{id: int, name: string}>                                 $accessibleHospitals
      *
      * @return list<array{key: string, label: string, url: string, active: bool}>
      */
@@ -291,7 +297,6 @@ final readonly class StatisticsPageViewModelFactory
         array $eligibleDispatchRows,
         array $cohortScopeChoices,
         ?User $user,
-        array $accessibleHospitals,
         string $locale,
     ): array {
         $menu = [];
@@ -332,10 +337,10 @@ final readonly class StatisticsPageViewModelFactory
             ];
         }
 
-        if ($user instanceof User && [] !== $accessibleHospitals) {
+        if ($user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)) {
             $menu[] = [
                 'key' => 'my_hospitals_group',
-                'label' => $this->translator->trans('stats.filter.scope.my_hospitals', [], null, $locale),
+                'label' => $this->hospitalScopeLabelResolver->groupLabel($user, $locale),
                 'url' => $scopeUrls['my_hospitals'],
                 'active' => StatisticsFilterScope::MyHospitals === $filter->scope
                     || StatisticsFilterScope::Hospital === $filter->scope,
@@ -407,6 +412,7 @@ final readonly class StatisticsPageViewModelFactory
         }
 
         if ($user instanceof User
+            && $this->hospitalAccess->canUseMyHospitalsScope($user)
             && \count($accessibleHospitals) > 1
             && (StatisticsFilterScope::MyHospitals === $filter->scope || StatisticsFilterScope::Hospital === $filter->scope)
         ) {
@@ -436,6 +442,7 @@ final readonly class StatisticsPageViewModelFactory
      */
     private function scopeDropdownLabels(
         StatisticsFilter $filter,
+        ?User $user,
         array $accessibleHospitals,
         string $locale,
         bool $showScopeSecondaryPicker,
@@ -446,6 +453,7 @@ final readonly class StatisticsPageViewModelFactory
             return [
                 $this->statisticsHeadingScope(
                     $filter,
+                    $user,
                     $hospitalDropdownSelectedName,
                     $locale,
                     $showUnscopedHint,
@@ -457,13 +465,15 @@ final readonly class StatisticsPageViewModelFactory
             ];
         }
 
+        $hospitalGroupLabel = $this->hospitalScopeLabelResolver->groupLabel($user, $locale);
+
         $primary = match ($filter->scope) {
             StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
             StatisticsFilterScope::State => $this->translator->trans('stats.filter.scope.state', [], null, $locale),
             StatisticsFilterScope::DispatchArea => $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale),
             StatisticsFilterScope::HospitalCohort => $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
             StatisticsFilterScope::MyHospitals,
-            StatisticsFilterScope::Hospital => $this->translator->trans('stats.filter.scope.my_hospitals', [], null, $locale),
+            StatisticsFilterScope::Hospital => $hospitalGroupLabel,
         };
 
         $secondary = match ($filter->scope) {
@@ -527,6 +537,7 @@ final readonly class StatisticsPageViewModelFactory
 
     private function statisticsHeadingScope(
         StatisticsFilter $filter,
+        ?User $user,
         ?string $hospitalDisplayName,
         string $locale,
         bool $loggedInUserHasNoAccessibleHospitals,
@@ -534,17 +545,19 @@ final readonly class StatisticsPageViewModelFactory
         ?string $stateDisplayName,
         ?string $dispatchDisplayName,
     ): string {
+        $hospitalGroupLabel = $this->hospitalScopeLabelResolver->groupLabel($user, $locale);
+
         if (StatisticsFilterScope::MyHospitals === $filter->scope && $loggedInUserHasNoAccessibleHospitals) {
             return $this->translator->trans('stats.filter.scope.public', [], null, $locale);
         }
 
         if (1 === $accessibleHospitalCount && StatisticsFilterScope::Hospital === $filter->scope) {
-            return $this->translator->trans('stats.filter.scope.my_hospitals', [], null, $locale);
+            return $hospitalGroupLabel;
         }
 
         return match ($filter->scope) {
             StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
-            StatisticsFilterScope::MyHospitals => $this->translator->trans('stats.filter.scope.my_hospitals', [], null, $locale),
+            StatisticsFilterScope::MyHospitals => $hospitalGroupLabel,
             StatisticsFilterScope::Hospital => (null !== $hospitalDisplayName && '' !== $hospitalDisplayName)
                 ? $this->translator->trans('stats.filter.hospital.named_line', ['name' => $hospitalDisplayName], null, $locale)
                 : $this->translator->trans('stats.filter.hospital.choose', [], null, $locale),

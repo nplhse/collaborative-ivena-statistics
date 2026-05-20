@@ -8,6 +8,12 @@ use App\User\Domain\Entity\User;
 
 interface HospitalAccessInterface
 {
+    public function isAdminHospitalScopeUser(User $user): bool;
+
+    public function canUseMyHospitalsScope(User $user): bool;
+
+    public function canSelectHospitalScope(User $user, int $hospitalId): bool;
+
     public function countAccessibleHospitals(User $user): int;
 
     /**

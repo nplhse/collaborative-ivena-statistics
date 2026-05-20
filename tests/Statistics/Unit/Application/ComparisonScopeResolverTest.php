@@ -8,6 +8,7 @@ use App\Statistics\Application\ComparisonScopeResolver;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -111,5 +112,20 @@ final class ComparisonScopeResolverTest extends KernelTestCase
 
         self::assertSame(StatisticsFilterScope::Public, $comparisonFilter->scope);
         self::assertNull($comparisonFilter->stateId);
+    }
+
+    public function testPrimaryMyHospitalsWithoutAccessStillResolvesComparisonFilter(): void
+    {
+        self::bootKernel();
+        $resolver = self::getContainer()->get(ComparisonScopeResolver::class);
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+
+        $comparisonFilter = $resolver->resolve(
+            new Request(query: ['comparison_scope' => 'public']),
+            $user,
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+        );
+
+        self::assertSame(StatisticsFilterScope::Public, $comparisonFilter->scope);
     }
 }

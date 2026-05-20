@@ -2187,6 +2187,10 @@
         <source>stats.filter.scope.my_hospitals</source>
         <target>My hospitals</target>
       </trans-unit>
+      <trans-unit id="statsFlt03a" resname="stats.filter.scope.hospitals">
+        <source>stats.filter.scope.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
       <trans-unit id="statsFlt03b" resname="stats.filter.scope.hospital_cohort">
         <source>stats.filter.scope.hospital_cohort</source>
         <target>Hospital cohort</target>
