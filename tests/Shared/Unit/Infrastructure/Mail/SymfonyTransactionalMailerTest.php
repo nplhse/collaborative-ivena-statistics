@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
 final class SymfonyTransactionalMailerTest extends TestCase
@@ -44,13 +45,23 @@ final class SymfonyTransactionalMailerTest extends TestCase
         );
     }
 
-    public function testSendPasswordResetEmailUsesConfiguredSender(): void
+    public function testSendPasswordResetEmailUsesConfiguredSenderAndAbsoluteResetUrl(): void
     {
         $resetToken = new ResetPasswordToken(
             'selector_verifier',
             new \DateTimeImmutable('+1 hour'),
             time(),
         );
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with(
+                'app_reset_password',
+                ['token' => 'selector_verifier'],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            )
+            ->willReturn('https://example.test/reset-password/reset/selector_verifier');
 
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
@@ -64,11 +75,15 @@ final class SymfonyTransactionalMailerTest extends TestCase
                 self::assertSame('Your password reset request', $email->getSubject());
                 self::assertSame('@User/reset_password/email.html.twig', $email->getHtmlTemplate());
                 self::assertInstanceOf(ResetPasswordToken::class, $email->getContext()['resetToken'] ?? null);
+                self::assertSame(
+                    'https://example.test/reset-password/reset/selector_verifier',
+                    $email->getContext()['resetUrl'] ?? null,
+                );
 
                 return true;
             }));
 
-        $this->createMailer($mailer)->sendPasswordResetEmail('reset@example.test', $resetToken);
+        $this->createMailer($mailer, urlGenerator: $urlGenerator)->sendPasswordResetEmail('reset@example.test', $resetToken);
     }
 
     public function testSendAdminFeedbackEmailUsesAllResolvedRecipients(): void
@@ -158,6 +173,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
             $mailer,
             $mailConfig,
             $this->createMock(FeedbackRecipientEmailResolver::class),
+            $this->createMock(UrlGeneratorInterface::class),
             $this->createMock(LoggerInterface::class),
         )->sendVerificationEmail(
             'user@example.test',
@@ -172,6 +188,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
         MailerInterface $mailer,
         ?FeedbackRecipientEmailResolver $recipientResolver = null,
         ?LoggerInterface $logger = null,
+        ?UrlGeneratorInterface $urlGenerator = null,
     ): SymfonyTransactionalMailer {
         return new SymfonyTransactionalMailer(
             $mailer,
@@ -182,6 +199,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
                 replyTo: '',
             ),
             $recipientResolver ?? $this->createMock(FeedbackRecipientEmailResolver::class),
+            $urlGenerator ?? $this->createMock(UrlGeneratorInterface::class),
             $logger ?? $this->createMock(LoggerInterface::class),
         );
     }

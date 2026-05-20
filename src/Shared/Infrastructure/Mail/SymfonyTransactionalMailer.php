@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
 /** @psalm-suppress UnusedClass Wired via services.yaml alias to TransactionalMailer. */
@@ -25,6 +26,7 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
         private MailerInterface $mailer,
         private MailConfig $mailConfig,
         private FeedbackRecipientEmailResolver $feedbackRecipientResolver,
+        private UrlGeneratorInterface $urlGenerator,
         private LoggerInterface $logger,
     ) {
     }
@@ -65,6 +67,11 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
             ->htmlTemplate('@User/reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,
+                'resetUrl' => $this->urlGenerator->generate(
+                    'app_reset_password',
+                    ['token' => $resetToken->getToken()],
+                    UrlGeneratorInterface::ABSOLUTE_URL,
+                ),
             ]);
 
         $this->mailer->send($email);
