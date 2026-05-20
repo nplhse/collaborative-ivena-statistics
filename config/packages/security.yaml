@@ -17,7 +17,10 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\User\Infrastructure\Security\LoginFormAuthenticator
+            entry_point: App\User\Infrastructure\Security\AuthenticationEntryPoint
+            custom_authenticators:
+                - App\User\Infrastructure\Security\LoginFormAuthenticator
+                - App\User\Infrastructure\Security\ConfirmPasswordAuthenticator
             user_checker: App\User\Infrastructure\Security\UserAccountStatusChecker
 
             logout:
@@ -51,7 +54,7 @@ security:
         - { path: ^/_error/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/hospitals, roles: ROLE_PARTICIPANT }
-        - { path: ^/settings, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/login/confirm, roles: IS_AUTHENTICATED_REMEMBERED }
         # - { path: ^/profile, roles: ROLE_USER }
 
     role_hierarchy:
@@ -59,6 +62,10 @@ security:
 
 when@test:
     security:
+        firewalls:
+            main:
+                remember_me:
+                    always_remember_me: true
         password_hashers:
             # By default, password hashers are resource intensive and take time. This is
             # important to generate secure password hashes. In tests however, secure hashes
