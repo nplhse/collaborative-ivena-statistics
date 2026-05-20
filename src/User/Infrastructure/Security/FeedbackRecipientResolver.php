@@ -8,6 +8,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Repository\UserRepository;
 
+/** @psalm-suppress UnusedClass */
 final readonly class FeedbackRecipientResolver implements FeedbackRecipientEmailResolver
 {
     /** @psalm-suppress PossiblyUnusedMethod */

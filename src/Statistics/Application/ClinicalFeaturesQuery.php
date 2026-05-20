@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
-use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 
 final readonly class ClinicalFeaturesQuery
@@ -29,7 +28,7 @@ final readonly class ClinicalFeaturesQuery
     /**
      * @return list<array{labelTranslationKey: string, count: int, percent: float}>
      */
-    public function fetchClinicalRows(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): array
+    public function fetchClinicalRows(OverviewDashboardMetricsResult $metrics): array
     {
         $clinicalCounts = $metrics->clinicalCounts();
         $totalAllocationsFloat = (float) $metrics->scopedTotal;
@@ -50,7 +49,7 @@ final readonly class ClinicalFeaturesQuery
     /**
      * @return list<array{labelTranslationKey: string, count: int, percent: float}>
      */
-    public function fetchResourceRows(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): array
+    public function fetchResourceRows(OverviewDashboardMetricsResult $metrics): array
     {
         $resourceCounts = $metrics->resourceCounts();
         $totalAllocationsFloat = (float) $metrics->scopedTotal;

@@ -34,7 +34,7 @@ final readonly class ClinicalFeaturesProvider
                 'clinical_resources_distribution',
                 $this->widgetPayloadNormalizer->normalize(new DistributionWidgetPayload(
                     'stats.analysis.dimension.resources',
-                    $this->clinicalFeaturesQuery->fetchResourceRows($context, $metrics),
+                    $this->clinicalFeaturesQuery->fetchResourceRows($metrics),
                     [
                         'testId' => 'stats-overview-resources',
                         'actionTestId' => 'stats-cross-nav-overview-resources',
@@ -57,7 +57,7 @@ final readonly class ClinicalFeaturesProvider
                 'clinical_features_distribution',
                 $this->widgetPayloadNormalizer->normalize(new DistributionWidgetPayload(
                     'stats.analysis.dimension.features',
-                    $this->clinicalFeaturesQuery->fetchClinicalRows($context, $metrics),
+                    $this->clinicalFeaturesQuery->fetchClinicalRows($metrics),
                     [
                         'testId' => 'stats-overview-features',
                         'actionTestId' => 'stats-cross-nav-overview-features',
