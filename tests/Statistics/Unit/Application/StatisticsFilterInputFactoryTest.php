@@ -11,6 +11,7 @@ use App\Statistics\UI\Http\Controller\StatisticsFilterInputFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Request;
 
 final class StatisticsFilterInputFactoryTest extends KernelTestCase
 {
@@ -26,7 +27,7 @@ final class StatisticsFilterInputFactoryTest extends KernelTestCase
     public function testDefaultScopeIsPublicForUserWithoutHospitalAccess(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
-        $input = $this->factory->fromQuery(new InputBag([]), $user);
+        $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('public', $input->scope);
         self::assertFalse($input->hasScopeQueryParameter);
@@ -39,8 +40,18 @@ final class StatisticsFilterInputFactoryTest extends KernelTestCase
         DispatchAreaFactory::createOne();
         HospitalFactory::createOne(['owner' => $user]);
 
-        $input = $this->factory->fromQuery(new InputBag([]), $user);
+        $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('my_hospitals', $input->scope);
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     *
+     * @return InputBag<string>
+     */
+    private function queryBag(array $parameters): InputBag
+    {
+        return (new Request($parameters))->query;
     }
 }
