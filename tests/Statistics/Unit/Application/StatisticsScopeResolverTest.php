@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class StatisticsScopeResolverTest extends KernelTestCase
@@ -77,5 +78,19 @@ final class StatisticsScopeResolverTest extends KernelTestCase
         self::assertSame(HospitalCohortType::UrbanBasic, $criteria->cohortType);
         self::assertNotEmpty($criteria->locationCodes);
         self::assertNotEmpty($criteria->tierCodes);
+    }
+
+    public function testMyHospitalsScopeWithoutAccessFallsBackToPublicCriteria(): void
+    {
+        self::bootKernel();
+        $resolver = self::getContainer()->get(StatisticsScopeResolver::class);
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+
+        $criteria = $resolver->resolveCriteria(new StatisticsContext(
+            $user,
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+        ));
+
+        self::assertNull($criteria->hospitalIds);
     }
 }
