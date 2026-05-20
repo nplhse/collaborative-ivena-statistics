@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\User\UI\Http\Controller;
 
 use App\Shared\Infrastructure\Consent\CookieConsentService;
+use App\User\UI\Form\ConfirmPasswordType;
 use App\User\UI\Form\LoginType;
+use App\User\UI\Http\DTO\ConfirmPasswordTypeDTO;
 use App\User\UI\Http\DTO\LoginTypeDTO;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +30,10 @@ final class SecurityController extends AbstractController
     {
         $user = $this->getUser();
         if ($user instanceof UserInterface) {
+            if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+                return $this->redirectToRoute('app_confirm_password');
+            }
+
             return $this->redirectToRoute('app_default');
         }
 
@@ -46,6 +52,26 @@ final class SecurityController extends AbstractController
             'error' => $error,
             'hasConsentDecision' => $hasConsentDecision,
             'showConsentHint' => $showConsentHint,
+        ]);
+    }
+
+    #[Route(path: '/login/confirm', name: 'app_confirm_password')]
+    public function confirmPassword(): Response
+    {
+        if (!$this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_default');
+        }
+
+        $error = $this->authenticationUtils->getLastAuthenticationError();
+        $form = $this->createForm(ConfirmPasswordType::class, new ConfirmPasswordTypeDTO());
+
+        return $this->render('@User/security/confirm_password.html.twig', [
+            'form' => $form,
+            'error' => $error,
         ]);
     }
 

@@ -2087,6 +2087,22 @@
         <source>title.infection.list</source>
         <target>Listing Infections</target>
       </trans-unit>
+      <trans-unit id="cPw1Ttl" resname="title.confirm_password">
+        <source>title.confirm_password</source>
+        <target>Confirm your password</target>
+      </trans-unit>
+      <trans-unit id="cPw1Txt" resname="text.confirm_password.intro">
+        <source>text.confirm_password.intro</source>
+        <target>For security, please enter your password again before changing your email address.</target>
+      </trans-unit>
+      <trans-unit id="cPw1Lbl" resname="label.confirm_password">
+        <source>label.confirm_password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="cPw1Sub" resname="label.confirm_password.submit">
+        <source>label.confirm_password.submit</source>
+        <target>Continue</target>
+      </trans-unit>
       <trans-unit id="Q.Y20KD" resname="title.login">
         <source>title.login</source>
         <target>Login</target>
