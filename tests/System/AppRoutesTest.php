@@ -55,7 +55,6 @@ class AppRoutesTest extends WebTestCase
     {
         yield 'app_default' => ['/'];
         yield 'app_login' => ['/login'];
-        yield 'app_confirm_password' => ['/login/confirm'];
         yield 'app_register' => ['/register'];
         yield 'app_forgot_password_request' => ['/reset-password'];
         yield 'app_check_email' => ['/reset-password/check-email'];
@@ -67,6 +66,7 @@ class AppRoutesTest extends WebTestCase
     public static function getSecureUrls(): \Generator
     {
         yield 'app_admin_dashboard' => ['/admin/'];
+        yield 'app_confirm_password' => ['/login/confirm'];
         yield 'app_settings_index' => ['/settings'];
         yield 'app_settings_email' => ['/settings/email'];
         yield 'app_settings_password' => ['/settings/password'];
