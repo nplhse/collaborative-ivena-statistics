@@ -20,7 +20,7 @@ On the server:
 |----------|---------|
 | `APP_ENV` | `prod` |
 | `APP_DEBUG` | `0` |
-| `APP_SECRET` | Non-empty secret for Symfony |
+| `APP_SECRET` | Non-empty secret for Symfony (unique per environment; never commit to Git). If a previous value was exposed, generate a new secret, update `shared/.env.local`, clear the Symfony cache, and restart the Messenger worker so sessions and signed URLs use the new key. |
 | `DATABASE_URL` | PostgreSQL connection |
 | `MAILER_DSN` | Outbound mail transport (SMTP or provider API); see [Transactional mail](#transactional-mail) |
 | `MAILER_FROM` | Default sender address for verification, password reset, and feedback notifications |

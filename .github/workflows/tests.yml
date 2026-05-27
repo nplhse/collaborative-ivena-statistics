@@ -13,6 +13,9 @@ jobs:
     tests:
         name: Tests (PHP ${{ matrix.php-versions }})
         runs-on: ubuntu-latest
+        env:
+            # Console steps run before PHPUnit boot (dev env from .env). Not a production secret.
+            APP_SECRET: ci-test-placeholder-not-for-production
         services:
             postgres:
                 image: postgres:16

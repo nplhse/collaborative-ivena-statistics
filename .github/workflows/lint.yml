@@ -13,6 +13,9 @@ jobs:
     linters:
         name: Linters
         runs-on: ubuntu-latest
+        env:
+            # Required for Symfony console/PHPStan (no .env.local in CI). Not a production secret.
+            APP_SECRET: ci-lint-placeholder-not-for-production
         strategy:
             fail-fast: true
             matrix:
