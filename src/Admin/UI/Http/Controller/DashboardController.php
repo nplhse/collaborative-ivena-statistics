@@ -34,7 +34,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'app_admin_dashboard')]
@@ -48,13 +48,137 @@ final class DashboardController extends AbstractDashboardController
     }
 
     #[\Override]
-    public function index(): RedirectResponse
+    public function index(): Response
     {
-        $url = $this->adminUrlGenerator
-            ->setController(UserCrudController::class)
-            ->generateUrl();
+        return $this->render('@Admin/dashboard/index.html.twig', [
+            'dashboard_sections' => $this->buildDashboardSections(),
+        ]);
+    }
 
-        return $this->redirect($url);
+    /**
+     * @return list<array{title: string, tiles: list<array{label: string, description: string|null, icon: string, url: string, badge: array{value: int, style: string}|null}>}>
+     */
+    private function buildDashboardSections(): array
+    {
+        $openFeedbackCount = $this->feedbackRepository->countOpen();
+
+        $sections = $this->dashboardSections();
+        $built = [];
+
+        foreach ($sections as $section) {
+            $tiles = [];
+
+            foreach ($section['tiles'] as $tile) {
+                $badge = null;
+                if (isset($tile['badge_key']) && 'feedback' === $tile['badge_key']) {
+                    $badge = [
+                        'value' => $openFeedbackCount,
+                        'style' => $openFeedbackCount > 0 ? 'info' : 'primary',
+                    ];
+                }
+
+                $tiles[] = [
+                    'label' => $tile['label'],
+                    'description' => $tile['description'] ?? null,
+                    'icon' => $tile['icon'],
+                    'url' => $this->adminUrlGenerator
+                        ->setController($tile['controller'])
+                        ->generateUrl(),
+                    'badge' => $badge,
+                ];
+            }
+
+            $built[] = [
+                'title' => $section['title'],
+                'tiles' => $tiles,
+            ];
+        }
+
+        return $built;
+    }
+
+    /**
+     * @return list<array{title: string, tiles: list<array{label: string, description?: string, icon: string, controller: class-string, badge_key?: string}>}>
+     */
+    private function dashboardSections(): array
+    {
+        return [
+            [
+                'title' => 'Management',
+                'tiles' => [
+                    [
+                        'label' => 'Users',
+                        'description' => 'Manage user accounts and permissions',
+                        'icon' => 'fas fa-users',
+                        'controller' => UserCrudController::class,
+                    ],
+                    [
+                        'label' => 'Feedback',
+                        'description' => 'Review and respond to user feedback',
+                        'icon' => 'fas fa-comment-dots',
+                        'controller' => FeedbackCrudController::class,
+                        'badge_key' => 'feedback',
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Data',
+                'tiles' => [
+                    [
+                        'label' => 'Data',
+                        'description' => 'Reference data and allocations',
+                        'icon' => 'fas fa-layer-group',
+                        'controller' => AllocationCrudController::class,
+                    ],
+                    [
+                        'label' => 'Import Rejects',
+                        'description' => 'Review failed import records',
+                        'icon' => 'fas fa-triangle-exclamation',
+                        'controller' => ImportRejectCrudController::class,
+                    ],
+                    [
+                        'label' => 'Imports',
+                        'description' => 'View import history and status',
+                        'icon' => 'fa fa-database',
+                        'controller' => ImportCrudController::class,
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Content',
+                'tiles' => [
+                    [
+                        'label' => 'Blog',
+                        'description' => 'Manage blog posts and related content',
+                        'icon' => 'fas fa-book',
+                        'controller' => PostCrudController::class,
+                    ],
+                    [
+                        'label' => 'Pages',
+                        'description' => 'Edit static pages and site content',
+                        'icon' => 'fas fa-file',
+                        'controller' => PageCrudController::class,
+                    ],
+                ],
+            ],
+            [
+                'title' => 'System',
+                'tiles' => [
+                    [
+                        'label' => 'Audit log',
+                        'description' => 'Browse system audit entries',
+                        'icon' => 'fas fa-clipboard-list',
+                        'controller' => AuditLogCrudController::class,
+                    ],
+                    [
+                        'label' => 'Cookie consents',
+                        'description' => 'View recorded cookie consent choices',
+                        'icon' => 'fas fa-cookie-bite',
+                        'controller' => CookieConsentCrudController::class,
+                    ],
+                ],
+            ],
+        ];
     }
 
     #[\Override]
