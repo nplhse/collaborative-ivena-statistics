@@ -1,15 +1,35 @@
-{% extends '@Admin/base.html.twig' %}
+{% extends '@EasyAdmin/page/content.html.twig' %}
 
-{% block title %}{{ 'title.dashboard'|trans({}, 'admin') }} - {{ parent() }}{% endblock %}
+{% block content_title %}{{ 'title.dashboard'|trans({}, 'admin') }}{% endblock %}
 
-{% block header_title %}
-    <h2 class="page-title">
-        {{ 'title.dashboard'|trans({}, 'admin') }}
-    </h2>
-{% endblock %}
-
-{% block header_breadcrumb %}
-    <li class="breadcrumb-item active">
-        <a href="{{ path('app_admin_dashboard') }}">{{ 'link.backend'|trans({}, 'admin') }}</a>
-    </li>
+{% block main %}
+    {% for section in dashboard_sections %}
+        <h3 class="h5 text-muted text-uppercase mb-3">{{ section.title }}</h3>
+        <div class="row mb-4">
+            {% for tile in section.tiles %}
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
+                    <a href="{{ tile.url }}" class="text-decoration-none text-body">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if tile.icon %}
+                                            <i class="{{ tile.icon }} fa-lg text-secondary" aria-hidden="true"></i>
+                                        {% endif %}
+                                        <h4 class="card-title h5 mb-0">{{ tile.label }}</h4>
+                                    </div>
+                                    {% if tile.badge %}
+                                        <span class="badge rounded-pill bg-{{ tile.badge.style }}">{{ tile.badge.value }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if tile.description %}
+                                    <p class="card-text text-muted small mb-0">{{ tile.description }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
 {% endblock %}
