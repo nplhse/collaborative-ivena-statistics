@@ -7,6 +7,7 @@ namespace App\Tests\Allocation\Functional\Controller\Indications;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
@@ -17,10 +18,32 @@ final class AssignIndicationRawControllerTest extends WebTestCase
     use ResetDatabase;
     use Factories;
 
+    public function testAssignRedirectsWhenNotAuthenticated(): void
+    {
+        $client = self::createClient();
+        $raw = IndicationRawFactory::createOne();
+        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%d', $raw->getId()));
+
+        self::assertResponseRedirects('/login');
+    }
+
+    public function testAssignIsForbiddenForNonAdminUser(): void
+    {
+        $client = self::createClient();
+        $raw = IndicationRawFactory::createOne();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+        $client->loginUser($user->_real());
+
+        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%d', $raw->getId()));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     public function testAssignLinksRawWithNormalized(): void
     {
-        // Arrange
         $client = self::createClient();
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $client->loginUser($admin->_real());
 
         $normalized = IndicationNormalizedFactory::createOne([
             'code' => '123',
@@ -32,7 +55,6 @@ final class AssignIndicationRawControllerTest extends WebTestCase
             'name' => 'Raw Indication',
         ]);
 
-        // Act& Assert
         $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%d', $raw->getId()));
         self::assertResponseIsSuccessful();
 
