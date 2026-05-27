@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Hospitals;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
 use App\Allocation\UI\Form\HospitalParticipantAddressEditType;
 use App\Allocation\UI\Form\HospitalParticipantEditType;
 use App\Shared\Infrastructure\Audit\AuditContext;
-use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormTypeInterface;
@@ -55,7 +55,7 @@ final class EditOwnedHospitalController extends AbstractController
      */
     private function handleEdit(Request $request, Hospital $hospital, string $formType, string $section): Response
     {
-        $this->assertHospitalOwnership($hospital);
+        $this->denyAccessUnlessGranted(HospitalVoter::EDIT, $hospital);
 
         $form = $this->createForm($formType, $hospital);
         $form->handleRequest($request);
@@ -78,17 +78,5 @@ final class EditOwnedHospitalController extends AbstractController
             'form' => $form,
             'activeSection' => $section,
         ]);
-    }
-
-    private function assertHospitalOwnership(Hospital $hospital): void
-    {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            throw $this->createAccessDeniedException('Authenticated user required.');
-        }
-
-        if ($hospital->getOwner()?->getId() !== $user->getId()) {
-            throw $this->createAccessDeniedException('Only owners can edit this hospital.');
-        }
     }
 }
