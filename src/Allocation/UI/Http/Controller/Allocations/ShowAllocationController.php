@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ShowAllocationController extends AbstractController
 {
-    #[Route('/explore/allocation/{id}', name: 'app_explore_allocation_show')]
+    #[Route('/explore/allocation/{id}', name: 'app_explore_allocation_show', methods: ['GET'])]
     public function index(Allocation $allocation): Response
     {
         return $this->render('@Allocation/allocations/show.html.twig', [

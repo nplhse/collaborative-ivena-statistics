@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ShowHospitalController extends AbstractController
 {
-    #[Route('/explore/hospital/{id}', name: 'app_explore_hospital_show')]
+    #[Route('/explore/hospital/{id}', name: 'app_explore_hospital_show', methods: ['GET'])]
     public function index(Hospital $hospital): Response
     {
         return $this->render('@Allocation/hospitals/show.html.twig', [

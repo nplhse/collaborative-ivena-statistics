@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/department', name: 'app_explore_department_list')]
+#[Route('/explore/department', name: 'app_explore_department_list', methods: ['GET'])]
 final class ListDepartmentController extends AbstractController
 {
     public function __construct(

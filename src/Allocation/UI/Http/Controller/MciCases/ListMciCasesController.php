@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/mci_case', name: 'app_explore_mci_case_list')]
+#[Route('/explore/mci_case', name: 'app_explore_mci_case_list', methods: ['GET'])]
 final class ListMciCasesController extends AbstractController
 {
     public function __construct(

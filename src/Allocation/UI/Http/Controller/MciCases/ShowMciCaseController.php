@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ShowMciCaseController extends AbstractController
 {
-    #[Route('/explore/mci_case/{id}', name: 'app_explore_mci_case_show')]
+    #[Route('/explore/mci_case/{id}', name: 'app_explore_mci_case_show', methods: ['GET'])]
     public function index(MciCase $mciCase): Response
     {
         return $this->render('@Allocation/mci_cases/show.html.twig', [

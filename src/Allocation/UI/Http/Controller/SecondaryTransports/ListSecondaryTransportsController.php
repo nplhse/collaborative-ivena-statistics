@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/secondary_transport', name: 'app_explore_secondary_transport_list')]
+#[Route('/explore/secondary_transport', name: 'app_explore_secondary_transport_list', methods: ['GET'])]
 final class ListSecondaryTransportsController extends AbstractController
 {
     public function __construct(

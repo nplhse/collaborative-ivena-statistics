@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/occasion', name: 'app_explore_occasion_list')]
+#[Route('/explore/occasion', name: 'app_explore_occasion_list', methods: ['GET'])]
 final class ListOccasionsController extends AbstractController
 {
     public function __construct(

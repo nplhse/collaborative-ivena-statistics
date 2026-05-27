@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/hospital', name: 'app_explore_hospital_list')]
+#[Route('/explore/hospital', name: 'app_explore_hospital_list', methods: ['GET'])]
 final class ListHospitalsController extends AbstractController
 {
     public function __construct(

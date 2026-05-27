@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/allocation', name: 'app_explore_allocation_list')]
+#[Route('/explore/allocation', name: 'app_explore_allocation_list', methods: ['GET'])]
 final class ListAllocationsController extends AbstractController
 {
     public function __construct(
