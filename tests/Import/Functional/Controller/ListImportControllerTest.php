@@ -146,7 +146,10 @@ final class ListImportControllerTest extends WebTestCase
     public function testParticipantDoesNotSeeForeignHospitalImports(): void
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
-        $other = UserFactory::createOne(['username' => 'other-'.bin2hex(random_bytes(3))]);
+        $other = UserFactory::createOne([
+            'username' => 'other-'.bin2hex(random_bytes(3)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
         $foreignHospital = HospitalFactory::createOne([
             'name' => 'Foreign Hospital',
             'owner' => $other,
@@ -169,7 +172,10 @@ final class ListImportControllerTest extends WebTestCase
     public function testAdminSeesImportsFromAllOwners(): void
     {
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
-        $other = UserFactory::createOne(['username' => 'other-'.bin2hex(random_bytes(3))]);
+        $other = UserFactory::createOne([
+            'username' => 'other-'.bin2hex(random_bytes(3)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
         $foreignHospital = HospitalFactory::createOne([
             'name' => 'Foreign Hospital',
             'owner' => $other,
@@ -288,7 +294,10 @@ final class ListImportControllerTest extends WebTestCase
      */
     private function seedBaseActors(): array
     {
-        $owner = UserFactory::createOne(['username' => 'owner-'.\bin2hex(random_bytes(3))]);
+        $owner = UserFactory::createOne([
+            'username' => 'owner-'.\bin2hex(random_bytes(3)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
         $createdBy = UserFactory::findOrCreate(['username' => 'area-user']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);

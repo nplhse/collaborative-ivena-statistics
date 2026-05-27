@@ -53,8 +53,14 @@ final class ShowImportControllerTest extends WebTestCase
 
     public function testForeignImportIsNotAccessible(): void
     {
-        $owner = UserFactory::createOne(['username' => 'owner-'.bin2hex(random_bytes(4))]);
-        $intruder = UserFactory::createOne(['username' => 'intruder-'.bin2hex(random_bytes(4))]);
+        $owner = UserFactory::createOne([
+            'username' => 'owner-'.bin2hex(random_bytes(4)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $intruder = UserFactory::createOne([
+            'username' => 'intruder-'.bin2hex(random_bytes(4)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
         $createdBy = UserFactory::createOne(['username' => 'creator-'.bin2hex(random_bytes(4))]);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne();
@@ -94,7 +100,10 @@ final class ShowImportControllerTest extends WebTestCase
      */
     private function createImportWithRelations(): array
     {
-        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $owner = UserFactory::createOne([
+            'username' => 'owner-user',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);

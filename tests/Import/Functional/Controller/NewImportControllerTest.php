@@ -89,7 +89,10 @@ final class NewImportControllerTest extends WebTestCase
      */
     private function createOwnerWithHospital(): array
     {
-        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $owner = UserFactory::createOne([
+            'username' => 'owner-user',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
