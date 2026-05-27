@@ -42,3 +42,8 @@ phpstan.neon
 ###> deployer/deployer ###
 /hosts.yaml
 ###< deployer/deployer ###
+
+# Security audit artifacts (local only)
+SECURITY_AUDIT_REPORT.md
+SECURITY_AUDIT*.md
+security-audit/
