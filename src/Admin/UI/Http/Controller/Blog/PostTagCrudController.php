@@ -13,11 +13,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
  * @extends AbstractCrudController<PostTag>
  */
+#[IsGranted('ROLE_ADMIN')]
 final class PostTagCrudController extends AbstractCrudController
 {
     #[\Override]
