@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ShowSecondaryTransportController extends AbstractController
 {
-    #[Route('/explore/secondary_transport/{id}', name: 'app_explore_secondary_transport_show')]
+    #[Route('/explore/secondary_transport/{id}', name: 'app_explore_secondary_transport_show', methods: ['GET'])]
     public function __invoke(SecondaryTransport $secondaryTransport): Response
     {
         return $this->render('@Allocation/secondary_transports/show.html.twig', [

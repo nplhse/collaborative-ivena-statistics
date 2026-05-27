@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/assignment', name: 'app_explore_assignment_list')]
+#[Route('/explore/assignment', name: 'app_explore_assignment_list', methods: ['GET'])]
 final class ListAssignmentController extends AbstractController
 {
     public function __construct(

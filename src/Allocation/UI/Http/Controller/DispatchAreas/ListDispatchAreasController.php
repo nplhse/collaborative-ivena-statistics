@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/explore/dispatch_area', name: 'app_explore_dispatch_area_list')]
+#[Route('/explore/dispatch_area', name: 'app_explore_dispatch_area_list', methods: ['GET'])]
 final class ListDispatchAreasController extends AbstractController
 {
     public function __construct(
