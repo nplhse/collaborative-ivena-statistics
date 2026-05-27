@@ -71,7 +71,7 @@
         "symfonycasts/verify-email-bundle": "^1.18",
         "twig/extra-bundle": "^2.12|^3.24",
         "twig/intl-extra": "^3.26",
-        "twig/twig": "^2.12|^3.26"
+        "twig/twig": "^2.12|^3.27"
     },
     "config": {
         "allow-plugins": {
@@ -146,7 +146,7 @@
         "phpstan/phpstan-mockery": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0.16",
         "phpstan/phpstan-symfony": "^2.0.18",
-        "phpunit/phpunit": "^12.5.27",
+        "phpunit/phpunit": "^12.5.28",
         "psalm/plugin-mockery": "^1.2.1",
         "psalm/plugin-phpunit": "^0.19.7",
         "psalm/plugin-symfony": "^5.3",
