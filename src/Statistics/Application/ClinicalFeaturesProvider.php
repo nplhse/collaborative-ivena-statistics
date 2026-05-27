@@ -26,7 +26,7 @@ final readonly class ClinicalFeaturesProvider
     /**
      * @return list<StatisticWidget>
      */
-    public function build(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): array
+    public function build(StatisticsContext $_context, OverviewDashboardMetricsResult $metrics): array
     {
         return [
             new StatisticWidget(
