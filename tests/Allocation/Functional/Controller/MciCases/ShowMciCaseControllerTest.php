@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\MciCases;
 
 use App\Allocation\Domain\Entity\MciCase;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
-use App\Allocation\Infrastructure\Factory\MciCaseFactory;
-use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\MciCaseFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
@@ -71,6 +71,7 @@ final class ShowMciCaseControllerTest extends WebTestCase
             'hospital' => $hospital,
             'createdBy' => $user,
         ]);
+
         return MciCaseFactory::createOne([
             'mciTitle' => $title,
             'state' => $state,
