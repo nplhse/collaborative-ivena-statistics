@@ -66,8 +66,16 @@ presentation refactors with focused unit tests.
 
 ## Configuration
 
-Runtime settings live in `.env` (and environment-specific overrides). The
-sections below cover the in-app feedback widget and server-side Sentry
+Runtime settings live in `.env` (and environment-specific overrides).
+
+**Local setup:** use [`.env.local`](.env.local) for secrets and overrides (not
+committed). If you do not have one yet, copy [`.env.example`](.env.example) and set
+at least `APP_SECRET` (generate with `openssl rand -hex 16` or
+`php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"`). This project does not use
+`.env.dev`; production secrets belong in server `shared/.env.local` (see
+[docs/deployment.md](docs/deployment.md)).
+
+The sections below cover the in-app feedback widget and server-side Sentry
 monitoring.
 
 ### Feedback widget
