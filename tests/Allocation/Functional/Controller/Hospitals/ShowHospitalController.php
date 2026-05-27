@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Factory\AddressFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,12 +19,14 @@ use Zenstruck\Foundry\Test\Factories;
 
 final class ShowHospitalController extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use Factories;
 
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = self::createClient();
+        $client = $this->createClientAsRoleUser();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -70,7 +73,7 @@ final class ShowHospitalController extends WebTestCase
 
     public function testShow404ForUnknownHospital(): void
     {
-        $client = self::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(Request::METHOD_GET, '/explore/hospital/999999');
         self::assertResponseStatusCodeSame(404);
     }

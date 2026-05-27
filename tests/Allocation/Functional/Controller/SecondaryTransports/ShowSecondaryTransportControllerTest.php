@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\SecondaryTransports;
 
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
-use App\User\Domain\Factory\UserFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
@@ -13,13 +13,14 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ShowSecondaryTransportControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testDetailPageShowsSecondaryTransport(): void
     {
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         $st = SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
         $id = $st->getId();
         self::assertNotNull($id);

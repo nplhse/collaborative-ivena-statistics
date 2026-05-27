@@ -17,6 +17,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -26,12 +27,14 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ReportsControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use Factories;
     use ResetDatabase;
 
     public function testReportsPageIsDisplayedWithTable(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
 
         UserFactory::createOne(['username' => 'stats-report-test']);
         StateFactory::createOne(['name' => 'Hessen']);
@@ -83,7 +86,7 @@ class ReportsControllerTest extends WebTestCase
 
     public function testLimitParameterTenIsAccepted(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/reports?scope=public&period=all&limit=10',
@@ -96,7 +99,7 @@ class ReportsControllerTest extends WebTestCase
 
     public function testInvalidLimitFallsBackToTwentyFive(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
             '/statistics/reports?scope=public&period=all&limit=invalid',
@@ -108,7 +111,7 @@ class ReportsControllerTest extends WebTestCase
 
     public function testReportsPageAcceptsScopeAndPeriodParameters(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
             '/statistics/reports?scope=public&period=all_time',

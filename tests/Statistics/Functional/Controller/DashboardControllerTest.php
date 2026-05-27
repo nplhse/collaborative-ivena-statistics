@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
 class DashboardControllerTest extends WebTestCase
 {
+    use Factories;
+    use InteractsWithAuthenticatedUser;
+    use ResetDatabase;
+
     public function testStatisticsOverviewIsDisplayed(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(Request::METHOD_GET, '/statistics/');
 
         $this->assertResponseIsSuccessful();
@@ -34,7 +41,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testStatisticsOverviewAcceptsScopeAndPeriodQueryParameters(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
             '/statistics/?scope=public&period=all',
@@ -47,7 +54,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testStatisticsOverviewAcceptsMonthPeriodWithYearAndMonth(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
             '/statistics/?period=month&year=2024&month=3&scope=public',
@@ -59,7 +66,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testStatisticsOverviewAcceptsAllTimePeriod(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
             '/statistics/?scope=public&period=all_time',
@@ -72,7 +79,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testHospitalCohortWithTooFewHospitalsRedirectsToPublic(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->followRedirects(false);
 
         $client->request(
@@ -88,7 +95,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testStateScopeWithoutStateIdRedirectsToPublic(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->followRedirects(false);
 
         $client->request(Request::METHOD_GET, '/statistics/?scope=state&period=all');
@@ -100,7 +107,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testUnknownStateIdRedirectsToPublic(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->followRedirects(false);
 
         $client->request(Request::METHOD_GET, '/statistics/?scope=state&state=999999&period=all');
@@ -112,7 +119,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testScopeSidebarShowsHospitalCohortGroup(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
@@ -126,7 +133,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testStatisticsOverviewAcceptsYearPeriodWithYear(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
             '/statistics/?scope=public&period=year&year=2024',
@@ -138,7 +145,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewHospitalSummaryLinksToAnalysisPreservesFilter(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
@@ -152,7 +159,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewGenderCardLinksToAnalysisWithGenderDimension(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
@@ -164,7 +171,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewUrgencyCardLinksToAnalysisWithUrgencyDimension(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
@@ -176,7 +183,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewKpiHasOnlyOneCrossNavLink(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
@@ -185,7 +192,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewKpiLinksToAnalysisWithFeaturesDimension(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
@@ -197,7 +204,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewFeatureAndResourceCardsHaveRowsAndCrossNavPreservesFilter(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=month&year=2025&month=6');
 
         $this->assertResponseIsSuccessful();
@@ -223,7 +230,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testAnalysisTableMonthRowLinksToMonthPeriod(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=table',

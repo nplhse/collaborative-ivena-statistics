@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Infections;
 
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
-use App\User\Domain\Factory\UserFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
@@ -13,14 +13,15 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ListInfectionsControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testTableWithResultsIsShown(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         InfectionFactory::createOne(['name' => 'Test Infection']);
         InfectionFactory::createMany(34, ['name' => 'Test Infection']);
 
@@ -52,8 +53,7 @@ class ListInfectionsControllerTest extends WebTestCase
     public function testTableCanBeSorted(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         InfectionFactory::createOne(['name' => 'ABC']);
         InfectionFactory::createOne(['name' => 'XYZ']);
 
@@ -72,8 +72,7 @@ class ListInfectionsControllerTest extends WebTestCase
     public function testTableCanBePaginated(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         InfectionFactory::createMany(35);
 
         // Act

@@ -7,6 +7,7 @@ namespace App\Tests\Allocation\Functional\Controller\Hospitals;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,14 +16,15 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ListHospitalsControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testTableWithResultsIsShown(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         StateFactory::createOne(['name' => 'Hessen']);
         DispatchAreaFactory::createMany(5);
         HospitalFactory::createMany(10);
@@ -58,7 +60,7 @@ class ListHospitalsControllerTest extends WebTestCase
     public function testTableCanBeSorted(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createOne();
@@ -80,7 +82,7 @@ class ListHospitalsControllerTest extends WebTestCase
     public function testTableCanBePaginated(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createOne();

@@ -6,6 +6,7 @@ namespace App\Tests\Feedback\Functional;
 
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -16,6 +17,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 final class FeedbackSubmitControllerTest extends WebTestCase
 {
     use CookieConsentTestHelper;
+    use InteractsWithAuthenticatedUser;
     use Factories;
     use HasBrowser;
     use ResetDatabase;
@@ -78,7 +80,7 @@ final class FeedbackSubmitControllerTest extends WebTestCase
 
     public function testSubmitRedirectsBackToPathWithQueryAndStoresContext(): void
     {
-        $client = self::createClient();
+        $client = $this->createClientAsRoleUser();
         $this->acceptEssentialCookiesOnly($client);
         $client->followRedirects(false);
 
@@ -93,7 +95,6 @@ final class FeedbackSubmitControllerTest extends WebTestCase
             '_redirect_target' => $target,
             '_source_route' => 'app_explore_hospital_list',
             '_source_route_params' => '{}',
-            'guestEmail' => 'alpha-tester@example.test',
             'category' => 'bug',
             'message' => 'List filters break after refresh.',
             'extraContext' => '',

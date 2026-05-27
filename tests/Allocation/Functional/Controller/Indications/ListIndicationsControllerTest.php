@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Indications;
 
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
-use App\User\Domain\Factory\UserFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
@@ -13,14 +13,15 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ListIndicationsControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testTableWithResultsIsShown(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         IndicationNormalizedFactory::createOne([
             'code' => '232',
             'name' => 'Test Indication',
@@ -58,8 +59,7 @@ class ListIndicationsControllerTest extends WebTestCase
     public function testTableCanBeSorted(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         IndicationNormalizedFactory::createOne(['name' => 'ABC']);
         IndicationNormalizedFactory::createOne(['name' => 'XYZ']);
 
@@ -78,8 +78,7 @@ class ListIndicationsControllerTest extends WebTestCase
     public function testTableCanBePaginated(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         IndicationNormalizedFactory::createMany(35);
 
         // Act
