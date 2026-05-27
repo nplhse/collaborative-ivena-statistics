@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Assignments;
 
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
-use App\User\Domain\Factory\UserFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
@@ -13,14 +13,15 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ListAssignmentsControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testTableWithResultsIsShown(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         AssignmentFactory::createOne(['name' => 'Test Assignment']);
         AssignmentFactory::createMany(34, ['name' => 'Test Assignment']);
 
@@ -52,8 +53,7 @@ class ListAssignmentsControllerTest extends WebTestCase
     public function testTableCanBeSorted(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         AssignmentFactory::createOne(['name' => 'ABC']);
         AssignmentFactory::createOne(['name' => 'XYZ']);
 
@@ -72,8 +72,7 @@ class ListAssignmentsControllerTest extends WebTestCase
     public function testTableCanBePaginated(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         AssignmentFactory::createMany(35);
 
         // Act

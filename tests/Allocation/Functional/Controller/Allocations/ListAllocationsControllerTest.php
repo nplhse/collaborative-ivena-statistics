@@ -17,6 +17,7 @@ use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -26,12 +27,14 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ListAllocationsControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testFirstPageAndNextCursorWork(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $this->seedDependencies();
         $base = new \DateTimeImmutable('2026-01-01 12:00:00');
         AllocationFactory::createMany(5, static fn (): array => [
@@ -60,7 +63,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testStableTieBreakerWithSameArrivalAtAvoidsDuplicates(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $this->seedDependencies();
         $arrival = new \DateTimeImmutable('2026-02-01 10:00:00');
 
@@ -93,7 +96,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testInvalidCursorFallsBackToFirstPage(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $this->seedDependencies();
         AllocationFactory::createMany(4);
 
@@ -109,7 +112,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testLimitPlusOneBehaviourAndFilterPersistence(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $this->seedDependencies();
         $importOne = ImportFactory::createOne(['name' => 'Filtered Import']);
         $importTwo = ImportFactory::createOne(['name' => 'Other Import']);
@@ -136,7 +139,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testIsInfectiousAndInfectionFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $this->seedDependencies();
 
         $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
@@ -161,7 +164,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testIsVentilatedFilterOnlyReturnsVentilatedAllocations(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $this->seedDependencies();
 
         $ventilatedAllocation = AllocationFactory::createOne(['isVentilated' => true]);

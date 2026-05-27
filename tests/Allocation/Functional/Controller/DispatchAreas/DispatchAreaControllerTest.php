@@ -6,6 +6,7 @@ namespace App\Tests\Allocation\Functional\Controller\DispatchAreas;
 
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,14 +15,15 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class DispatchAreaControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testTableWithResultsIsShown(): void
     {
         // Arrange
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         StateFactory::createOne(['name' => 'Hessen']);
         DispatchAreaFactory::createMany(50);
 
@@ -56,7 +58,7 @@ class DispatchAreaControllerTest extends WebTestCase
     public function testTableCanBeSorted(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createOne(['name' => 'ABC']);
@@ -77,7 +79,7 @@ class DispatchAreaControllerTest extends WebTestCase
     public function testTableCanBePaginated(): void
     {
         // Arrange
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createMany(35);

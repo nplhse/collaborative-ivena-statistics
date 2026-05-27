@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,12 +24,14 @@ use Zenstruck\Foundry\Test\Factories;
 
 final class ShowAllocationController extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use Factories;
 
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = self::createClient();
+        $client = $this->createClientAsRoleUser();
 
         UserFactory::createOne(['username' => 'owner-user']);
         UserFactory::createOne(['username' => 'area-user']);
@@ -88,7 +91,7 @@ final class ShowAllocationController extends WebTestCase
 
     public function testShow404ForUnknownHospital(): void
     {
-        $client = self::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(Request::METHOD_GET, '/explore/hospital/999999');
         self::assertResponseStatusCodeSame(404);
     }

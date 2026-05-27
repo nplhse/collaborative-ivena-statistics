@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\SecondaryTransports;
 
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
-use App\User\Domain\Factory\UserFactory;
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
@@ -13,13 +13,14 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ListSecondaryTransportsControllerTest extends WebTestCase
 {
+    use InteractsWithAuthenticatedUser;
+
     use ResetDatabase;
     use Factories;
 
     public function testTableWithResultsIsShown(): void
     {
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
         SecondaryTransportFactory::createMany(34, ['name' => 'Test Secondary Transport']);
 
@@ -41,8 +42,7 @@ class ListSecondaryTransportsControllerTest extends WebTestCase
 
     public function testTableCanBeSorted(): void
     {
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         SecondaryTransportFactory::createOne(['name' => 'ABC']);
         SecondaryTransportFactory::createOne(['name' => 'XYZ']);
 
@@ -57,8 +57,7 @@ class ListSecondaryTransportsControllerTest extends WebTestCase
 
     public function testTableCanBePaginated(): void
     {
-        $client = static::createClient();
-        UserFactory::createOne(['username' => 'area-user']);
+        $client = $this->createClientAsAreaUser();
         SecondaryTransportFactory::createMany(35);
 
         $crawler = $client->request(Request::METHOD_GET, '/explore/secondary_transport?page=2');
