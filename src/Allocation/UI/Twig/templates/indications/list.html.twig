@@ -155,9 +155,13 @@
                         </td>
                         {% if active_type == 'raw' %}
                             <td>
-                                <a href="{{ path('app_explore_indication_raw_assign', {id: indication.id}) }}" target="_top">
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_explore_indication_raw_assign', {id: indication.id}) }}" target="_top">
+                                        {{ indication.name }}
+                                    </a>
+                                {% else %}
                                     {{ indication.name }}
-                                </a>
+                                {% endif %}
                             </td>
                             <td>
                                 {% if indication.target is not null %}
