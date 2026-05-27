@@ -16,12 +16,13 @@ use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
 final class ShowHospitalController extends WebTestCase
 {
-    use InteractsWithAuthenticatedUser;
-
     use Factories;
+    use InteractsWithAuthenticatedUser;
+    use ResetDatabase;
 
     public function testShowDisplaysHospitalDetails(): void
     {
@@ -69,6 +70,16 @@ final class ShowHospitalController extends WebTestCase
         self::assertSelectorTextContains('#hospital-beds', '321');
         self::assertSelectorTextContains('#hospital-location', HospitalLocation::cases()[0]->value);
         self::assertSelectorTextContains('#hospital-tier', HospitalTier::cases()[0]->value);
+    }
+
+    public function testShowRejectsPostMethod(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $hospital = HospitalFactory::createOne(['name' => 'Post guard hospital']);
+
+        $client->request(Request::METHOD_POST, '/explore/hospital/'.$hospital->getId());
+
+        self::assertResponseStatusCodeSame(405);
     }
 
     public function testShow404ForUnknownHospital(): void

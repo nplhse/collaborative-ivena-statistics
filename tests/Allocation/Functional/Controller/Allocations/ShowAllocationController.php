@@ -21,12 +21,13 @@ use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
 final class ShowAllocationController extends WebTestCase
 {
-    use InteractsWithAuthenticatedUser;
-
     use Factories;
+    use InteractsWithAuthenticatedUser;
+    use ResetDatabase;
 
     public function testShowDisplaysHospitalDetails(): void
     {
@@ -89,10 +90,20 @@ final class ShowAllocationController extends WebTestCase
         self::assertSelectorTextContains('#department-line', 'Test Speciality');
     }
 
-    public function testShow404ForUnknownHospital(): void
+    public function testShowRejectsPostMethod(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/explore/hospital/999999');
+        $allocation = AllocationFactory::createOne();
+
+        $client->request(Request::METHOD_POST, '/explore/allocation/'.$allocation->getId());
+
+        self::assertResponseStatusCodeSame(405);
+    }
+
+    public function testShow404ForUnknownAllocation(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(Request::METHOD_GET, '/explore/allocation/999999');
         self::assertResponseStatusCodeSame(404);
     }
 }
