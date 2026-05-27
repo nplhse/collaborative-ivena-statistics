@@ -18,7 +18,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/import', name: 'app_import_index')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_PARTICIPANT')]
 final class ListImportController extends AbstractController
 {
     public function __construct(
