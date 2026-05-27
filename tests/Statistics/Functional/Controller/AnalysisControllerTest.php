@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
 class AnalysisControllerTest extends WebTestCase
 {
+    use Factories;
+    use InteractsWithAuthenticatedUser;
+    use ResetDatabase;
+
     public function testAnalysisPageIsDisplayedWithChart(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=chart',
@@ -28,7 +35,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisPageTableView(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=table',
@@ -47,7 +54,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisGenderDimensionChartEmbedsSeriesPayload(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=chart&dimension=gender',
@@ -62,7 +69,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisUrgencyDimensionTableShowsShortUrgencyHeaders(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=table&dimension=urgency',
@@ -84,7 +91,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisResourcesDimensionTableShowsResourceColumns(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=table&dimension=resources',
@@ -105,7 +112,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisFeaturesDimensionTableShowsClinicalColumns(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=table&dimension=features',
@@ -125,7 +132,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisResourcesDimensionChartGroupedBarsAndBarLayoutToggle(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=chart&dimension=resources',
@@ -145,7 +152,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisFeaturesDimensionChartGroupedBars(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=chart&dimension=features',
@@ -162,7 +169,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisFeaturesChartIgnoresChartMeasureShareQuery(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=chart&dimension=features&chart=bar&chart_measure=share',
@@ -178,7 +185,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisAliasAllocationsOverTimeResolvesToAllocationsByMonth(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&analysis=allocations_over_time&view=chart&dimension=features',
@@ -191,7 +198,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisResourcesChartShareMeasureUsesPercentScale(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=chart&dimension=resources&chart_measure=share',
@@ -208,7 +215,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisAllTimeTotalChartUsesTwelveCalendarMonthBuckets(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all_time&view=chart&dimension=total',
@@ -227,7 +234,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisMonthPeriodTotalChartUsesDailyBuckets(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=month&year=2025&month=6&view=chart&dimension=total',
@@ -244,7 +251,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisResourcesShareChartUsesPercentScaleAndOptionalVirtualRemainder(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&view=chart&dimension=resources&chart_measure=share',
@@ -265,7 +272,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testPivotAnalysisShowsPivotTable(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&analysis=pivot&view=table',
@@ -280,7 +287,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testPivotAnalysisInvalidRowsColsFallsBackToDefaultUrgencyByGender(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&analysis=pivot&rows=department&cols=gender',
@@ -294,7 +301,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testPivotAnalysisDepartmentByUrgencyShowsDepartmentHeader(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&analysis=pivot&rows=department&cols=urgency',
@@ -306,7 +313,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAnalysisDropdownContainsAllocationAndHospitalPivotEntries(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all',
@@ -320,7 +327,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testAllocationPivotShowsMeasureSelectorAndSupportsRowPercent(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&analysis=allocation_pivot&rows=urgency&cols=gender&measure=row_percent',
@@ -335,7 +342,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testHospitalPivotSupportsConfiguredDimensionsAndMeasures(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&analysis=hospital_pivot&rows=state&cols=tier&measure=hospital_count',
@@ -351,7 +358,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testHospitalPivotSupportsMinMaxMeasuresAndRowPercent(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
 
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
@@ -378,7 +385,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testComparisonAnalysisIsReachableAndShowsComparisonColumns(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=all&analysis=allocations_comparison_over_time&view=table&comparison_scope=hospital_cohort:urban_basic&comparison_period=all',
@@ -391,7 +398,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testComparisonAnalysisDefaultsComparisonScopeWhenMissing(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->followRedirects(true);
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
@@ -404,7 +411,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testComparisonAnalysisSupportsDifferentComparisonPeriod(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
             '/statistics/analysis?scope=public&period=year&year=2025&analysis=allocations_comparison_over_time&comparison_scope=hospital_cohort:urban_basic&comparison_period=year&comparison_year=2024&view=table',
@@ -417,7 +424,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testComparisonAnalysisDefaultsComparisonPeriodToPrimaryPeriodWhenMissing(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->followRedirects(false);
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
@@ -432,7 +439,7 @@ class AnalysisControllerTest extends WebTestCase
 
     public function testComparisonAnalysisSupportsPublicComparisonScope(): void
     {
-        $client = static::createClient();
+        $client = $this->createClientAsRoleUser();
         $client->followRedirects(true);
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
