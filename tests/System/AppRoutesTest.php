@@ -56,6 +56,7 @@ class AppRoutesTest extends WebTestCase
         yield 'app_default' => ['/'];
         yield 'app_login' => ['/login'];
         yield 'app_register' => ['/register'];
+        yield 'app_register_check_email' => ['/register/check-email'];
         yield 'app_forgot_password_request' => ['/reset-password'];
         yield 'app_check_email' => ['/reset-password/check-email'];
         yield 'app_cookie_preferences' => ['/cookies/preferences'];
