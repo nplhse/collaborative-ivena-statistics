@@ -14,8 +14,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class OverviewPeriodViewModelFactory
 {
-    private const string ROUTE = 'app_stats_dashboard';
-
     public function __construct(
         private StatisticsPeriodNavigation $periodNavigation,
         private StatisticsNavigationUrlBuilder $urlBuilder,
@@ -23,13 +21,13 @@ final readonly class OverviewPeriodViewModelFactory
     ) {
     }
 
-    public function create(Request $request, StatisticsFilter $filter): OverviewPeriodViewModel
+    public function create(Request $request, string $routeName, StatisticsFilter $filter): OverviewPeriodViewModel
     {
         $locale = $request->getLocale();
         $now = new \DateTimeImmutable();
 
-        $primaryMenu = $this->buildPrimaryMenu($request, $filter, $locale, $now);
-        [$secondaryMenu, $showSecondary] = $this->buildSecondaryMenu($request, $filter, $locale);
+        $primaryMenu = $this->buildPrimaryMenu($request, $routeName, $filter, $locale, $now);
+        [$secondaryMenu, $showSecondary] = $this->buildSecondaryMenu($request, $routeName, $filter, $locale);
 
         $showNavigation = $this->showsStepNavigation($filter);
         $previousFilter = $showNavigation ? $this->periodNavigation->previous($filter) : null;
@@ -42,8 +40,8 @@ final readonly class OverviewPeriodViewModelFactory
             $showSecondary,
             $primaryMenu,
             $secondaryMenu,
-            $previousFilter instanceof StatisticsFilter ? $this->urlForFilter($request, $previousFilter) : null,
-            $nextFilter instanceof StatisticsFilter ? $this->urlForFilter($request, $nextFilter) : null,
+            $previousFilter instanceof StatisticsFilter ? $this->urlForFilter($request, $routeName, $previousFilter) : null,
+            $nextFilter instanceof StatisticsFilter ? $this->urlForFilter($request, $routeName, $nextFilter) : null,
             $previousFilter instanceof StatisticsFilter ? $this->periodLabel($previousFilter, $locale) : null,
             $nextFilter instanceof StatisticsFilter ? $this->periodLabel($nextFilter, $locale) : null,
             $showNavigation && $this->periodNavigation->isPreviousEnabled($filter),
@@ -57,6 +55,7 @@ final readonly class OverviewPeriodViewModelFactory
      */
     private function buildPrimaryMenu(
         Request $request,
+        string $routeName,
         StatisticsFilter $filter,
         string $locale,
         \DateTimeImmutable $now,
@@ -99,7 +98,7 @@ final readonly class OverviewPeriodViewModelFactory
             $items[] = [
                 'key' => $period->value,
                 'label' => $this->translator->trans($translationKey, [], null, $locale),
-                'url' => $this->urlForFilter($request, $target),
+                'url' => $this->urlForFilter($request, $routeName, $target),
                 'active' => $filter->period === $period,
             ];
         }
@@ -112,13 +111,14 @@ final readonly class OverviewPeriodViewModelFactory
      */
     private function buildSecondaryMenu(
         Request $request,
+        string $routeName,
         StatisticsFilter $filter,
         string $locale,
     ): array {
         return match ($filter->period) {
-            StatisticsFilterPeriod::Year => [$this->buildYearSecondaryMenu($request, $filter), true],
-            StatisticsFilterPeriod::Quarter => [$this->buildQuarterSecondaryMenu($request, $filter, $locale), true],
-            StatisticsFilterPeriod::Month => [$this->buildMonthSecondaryMenu($request, $filter, $locale), true],
+            StatisticsFilterPeriod::Year => [$this->buildYearSecondaryMenu($request, $routeName, $filter), true],
+            StatisticsFilterPeriod::Quarter => [$this->buildQuarterSecondaryMenu($request, $routeName, $filter, $locale), true],
+            StatisticsFilterPeriod::Month => [$this->buildMonthSecondaryMenu($request, $routeName, $filter, $locale), true],
             default => [[], false],
         };
     }
@@ -126,7 +126,7 @@ final readonly class OverviewPeriodViewModelFactory
     /**
      * @return list<array{label: string, url: string, active: bool, divider?: bool}>
      */
-    private function buildYearSecondaryMenu(Request $request, StatisticsFilter $filter): array
+    private function buildYearSecondaryMenu(Request $request, string $routeName, StatisticsFilter $filter): array
     {
         $referenceYear = $filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y');
         $items = [];
@@ -135,7 +135,7 @@ final readonly class OverviewPeriodViewModelFactory
             $target = $this->filterWithPeriod($filter, StatisticsFilterPeriod::Year, $year, null, null);
             $items[] = [
                 'label' => (string) $year,
-                'url' => $this->urlForFilter($request, $target),
+                'url' => $this->urlForFilter($request, $routeName, $target),
                 'active' => $referenceYear === $year,
             ];
         }
@@ -146,7 +146,7 @@ final readonly class OverviewPeriodViewModelFactory
     /**
      * @return list<array{label: string, url: string, active: bool, divider?: bool}>
      */
-    private function buildQuarterSecondaryMenu(Request $request, StatisticsFilter $filter, string $locale): array
+    private function buildQuarterSecondaryMenu(Request $request, string $routeName, StatisticsFilter $filter, string $locale): array
     {
         $referenceYear = $filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y');
         $referenceQuarter = $filter->referenceQuarter ?? 1;
@@ -159,7 +159,7 @@ final readonly class OverviewPeriodViewModelFactory
                     'quarter' => (string) $quarter,
                     'year' => (string) $referenceYear,
                 ], null, $locale),
-                'url' => $this->urlForFilter($request, $target),
+                'url' => $this->urlForFilter($request, $routeName, $target),
                 'active' => $referenceQuarter === $quarter,
             ];
         }
@@ -170,7 +170,7 @@ final readonly class OverviewPeriodViewModelFactory
     /**
      * @return list<array{label: string, url: string, active: bool, divider?: bool}>
      */
-    private function buildMonthSecondaryMenu(Request $request, StatisticsFilter $filter, string $locale): array
+    private function buildMonthSecondaryMenu(Request $request, string $routeName, StatisticsFilter $filter, string $locale): array
     {
         $referenceYear = $filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y');
         $referenceMonth = $filter->referenceMonth ?? 1;
@@ -180,7 +180,7 @@ final readonly class OverviewPeriodViewModelFactory
             $target = $this->filterWithPeriod($filter, StatisticsFilterPeriod::Month, $referenceYear, $month, null);
             $items[] = [
                 'label' => $this->monthLabel($referenceYear, $month, $locale),
-                'url' => $this->urlForFilter($request, $target),
+                'url' => $this->urlForFilter($request, $routeName, $target),
                 'active' => $referenceMonth === $month,
             ];
         }
@@ -188,11 +188,11 @@ final readonly class OverviewPeriodViewModelFactory
         return $items;
     }
 
-    private function urlForFilter(Request $request, StatisticsFilter $filter): string
+    private function urlForFilter(Request $request, string $routeName, StatisticsFilter $filter): string
     {
         return $this->urlBuilder->build(
             $request,
-            self::ROUTE,
+            $routeName,
             $this->periodReplaceParams($filter),
             $this->periodRemoveKeys($filter),
         );

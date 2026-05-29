@@ -121,4 +121,33 @@ class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
         $this->assertSelectorExists('[data-testid="stats-heading-subtitle"]');
     }
+
+    public function testReportsShowsPeriodNavigationWithYearPeriod(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/reports?scope=public&period=year&year=2021',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-period-navigation"]');
+        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+        $previousHref = $crawler->filter('[data-testid="stats-period-nav-previous"] a.page-link[href]')->attr('href');
+        $this->assertStringContainsString('/statistics/reports', $previousHref);
+        $this->assertStringContainsString('year=2020', $previousHref);
+    }
+
+    public function testReportsLast12MonthsHidesPeriodNavigation(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/reports?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
+        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+    }
 }
