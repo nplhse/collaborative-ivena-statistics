@@ -202,14 +202,23 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
 
     private function periodLabel(StatisticsFilter $filter): string
     {
+        $now = new \DateTimeImmutable();
+
         return match ($filter->period) {
             StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all'),
             StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time'),
-            StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y')),
+            StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? (int) $now->format('Y')),
+            StatisticsFilterPeriod::Quarter => $this->translator->trans(
+                'stats.dashboard.heading.quarter',
+                [
+                    'quarter' => (string) ($filter->referenceQuarter ?? (int) ceil((int) $now->format('n') / 3)),
+                    'year' => (string) ($filter->referenceYear ?? $now->format('Y')),
+                ],
+            ),
             StatisticsFilterPeriod::Month => sprintf(
                 '%04d-%02d',
-                $filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y'),
-                $filter->referenceMonth ?? (int) new \DateTimeImmutable()->format('n'),
+                $filter->referenceYear ?? (int) $now->format('Y'),
+                $filter->referenceMonth ?? (int) $now->format('n'),
             ),
         };
     }

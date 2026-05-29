@@ -47,7 +47,7 @@ final readonly class AllocationsByMonthQuery
         return match ($period) {
             StatisticsFilterPeriod::All => $this->fetchRolling12Months($context, $dimension),
             StatisticsFilterPeriod::AllTime => $this->fetchAllTime($context, $dimension),
-            StatisticsFilterPeriod::Year => $this->fetchBoundedYearMonths($context, $dimension),
+            StatisticsFilterPeriod::Year, StatisticsFilterPeriod::Quarter => $this->fetchBoundedYearMonths($context, $dimension),
             StatisticsFilterPeriod::Month => $this->fetchBoundedDailyInMonth($context, $dimension),
         };
     }
@@ -105,7 +105,7 @@ final readonly class AllocationsByMonthQuery
         return match ($period) {
             StatisticsFilterPeriod::All => $this->fetchResourcesRequiredRolling12Months($context),
             StatisticsFilterPeriod::AllTime => $this->fetchResourcesRequiredAllTimeSeasonality($context),
-            StatisticsFilterPeriod::Year => $this->fetchResourcesRequiredBoundedPeriod($context),
+            StatisticsFilterPeriod::Year, StatisticsFilterPeriod::Quarter => $this->fetchResourcesRequiredBoundedPeriod($context),
             StatisticsFilterPeriod::Month => $this->fetchResourcesRequiredDailyInMonth($context),
         };
     }
@@ -117,7 +117,7 @@ final readonly class AllocationsByMonthQuery
         return match ($period) {
             StatisticsFilterPeriod::All => $this->fetchClinicalFeaturesRolling12Months($context),
             StatisticsFilterPeriod::AllTime => $this->fetchClinicalFeaturesAllTimeSeasonality($context),
-            StatisticsFilterPeriod::Year => $this->fetchClinicalFeaturesBoundedPeriod($context),
+            StatisticsFilterPeriod::Year, StatisticsFilterPeriod::Quarter => $this->fetchClinicalFeaturesBoundedPeriod($context),
             StatisticsFilterPeriod::Month => $this->fetchClinicalFeaturesDailyInMonth($context),
         };
     }
