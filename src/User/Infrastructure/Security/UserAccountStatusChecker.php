@@ -16,12 +16,14 @@ final class UserAccountStatusChecker implements UserCheckerInterface
     public function checkPreAuth(UserInterface $user): void
     {
         $this->assertAccountEnabled($user);
+        $this->assertEmailVerified($user);
     }
 
     #[\Override]
     public function checkPostAuth(UserInterface $user): void
     {
         $this->assertAccountEnabled($user);
+        $this->assertEmailVerified($user);
     }
 
     private function assertAccountEnabled(UserInterface $user): void
@@ -31,5 +33,14 @@ final class UserAccountStatusChecker implements UserCheckerInterface
         }
 
         throw new CustomUserMessageAccountStatusException('Account is disabled.');
+    }
+
+    private function assertEmailVerified(UserInterface $user): void
+    {
+        if (!$user instanceof User || $user->isVerified()) {
+            return;
+        }
+
+        throw new CustomUserMessageAccountStatusException('flash.security.email_not_verified');
     }
 }
