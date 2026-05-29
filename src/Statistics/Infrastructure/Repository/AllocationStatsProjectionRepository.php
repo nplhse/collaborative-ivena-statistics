@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Repository;
 
+use App\Statistics\Application\Contract\ProjectionEarliestDateProviderInterface;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use App\Statistics\Infrastructure\Query\ProjectionDiagnosisQuery;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
@@ -14,7 +15,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<AllocationStatsProjection>
  */
-final class AllocationStatsProjectionRepository extends ServiceEntityRepository
+final class AllocationStatsProjectionRepository extends ServiceEntityRepository implements ProjectionEarliestDateProviderInterface
 {
     public function __construct(
         ManagerRegistry $registry,

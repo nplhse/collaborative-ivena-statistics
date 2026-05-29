@@ -28,6 +28,7 @@ final class StatisticsPeriodResolver
             ),
             StatisticsFilterPeriod::AllTime => new StatisticsPeriodBounds(null),
             StatisticsFilterPeriod::Year => self::resolveYear($filter, $now),
+            StatisticsFilterPeriod::Quarter => self::resolveQuarter($filter, $now),
             StatisticsFilterPeriod::Month => self::resolveMonth($filter, $now),
         };
     }
@@ -37,6 +38,18 @@ final class StatisticsPeriodResolver
         $year = $filter->referenceYear ?? (int) $now->format('Y');
         $from = new \DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $year));
         $toExclusive = $from->modify('+1 year');
+
+        return new StatisticsPeriodBounds($from, $toExclusive);
+    }
+
+    private static function resolveQuarter(StatisticsFilter $filter, \DateTimeImmutable $now): StatisticsPeriodBounds
+    {
+        $year = $filter->referenceYear ?? (int) $now->format('Y');
+        $quarter = $filter->referenceQuarter ?? (int) ceil((int) $now->format('n') / 3);
+        $quarter = max(1, min(4, $quarter));
+        $startMonth = ($quarter - 1) * 3 + 1;
+        $from = new \DateTimeImmutable(sprintf('%04d-%02d-01 00:00:00', $year, $startMonth));
+        $toExclusive = $from->modify('+3 months');
 
         return new StatisticsPeriodBounds($from, $toExclusive);
     }

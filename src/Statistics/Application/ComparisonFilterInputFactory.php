@@ -34,6 +34,7 @@ final class ComparisonFilterInputFactory
         $period = StatisticsFilterPeriod::tryFrom($query->getString('comparison_period')) ?? $primaryFilter->period;
         $year = $query->has('comparison_year') ? $query->getInt('comparison_year') : $primaryFilter->referenceYear;
         $month = $query->has('comparison_month') ? $query->getInt('comparison_month') : $primaryFilter->referenceMonth;
+        $quarter = $query->has('comparison_quarter') ? $query->getInt('comparison_quarter') : $primaryFilter->referenceQuarter;
 
         if (StatisticsFilterScope::Public === $normalizedScope) {
             return new StatisticsFilterInput(
@@ -45,6 +46,7 @@ final class ComparisonFilterInputFactory
                 $period->value,
                 $year,
                 $month,
+                $quarter,
                 true,
             );
         }
@@ -59,6 +61,7 @@ final class ComparisonFilterInputFactory
                 $period->value,
                 $year,
                 $month,
+                $quarter,
                 true,
             );
         }
@@ -73,6 +76,7 @@ final class ComparisonFilterInputFactory
                 $period->value,
                 $year,
                 $month,
+                $quarter,
                 true,
             );
         }
@@ -86,6 +90,7 @@ final class ComparisonFilterInputFactory
             $period->value,
             $year,
             $month,
+            $quarter,
             true,
         );
     }
