@@ -1,0 +1,53 @@
+{% set periodVm = overviewPeriodViewModel %}
+
+<div class="btn-group" role="group" aria-label="{{ 'stats.filter.period_label'|trans }}">
+    {% if periodVm.showSecondaryPicker %}
+        <div class="btn-group" role="group">
+            <button type="button"
+                    class="btn dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-testid="stats-period-primary">
+                {{ periodVm.primaryDropdownLabel }}
+            </button>
+            <div class="dropdown-menu">
+                {% for item in periodVm.primaryMenu %}
+                    <a class="dropdown-item{% if item.active %} active{% endif %}" href="{{ item.url }}">{{ item.label }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button"
+                    class="btn dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-testid="stats-period-secondary">
+                {{ periodVm.secondaryDropdownLabel }}
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" style="max-height: 20rem; overflow-y: auto;">
+                {% for row in periodVm.secondaryMenu %}
+                    {% if row.divider|default(false) %}
+                        <div class="dropdown-divider"></div>
+                    {% else %}
+                        <a class="dropdown-item{% if row.active %} active{% endif %}" href="{{ row.url }}">{{ row.label }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="btn-group">
+            <button type="button"
+                    class="btn dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-testid="stats-period-primary">
+                {{ periodVm.primaryDropdownLabel }}
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+                {% for item in periodVm.primaryMenu %}
+                    <a class="dropdown-item{% if item.active %} active{% endif %}" href="{{ item.url }}">{{ item.label }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>

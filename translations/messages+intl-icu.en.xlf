@@ -2177,7 +2177,35 @@
       </trans-unit>
       <trans-unit id="statsHdrYr01" resname="stats.dashboard.heading.year">
         <source>stats.dashboard.heading.year</source>
-        <target>Year {year}</target>
+        <target>{year}</target>
+      </trans-unit>
+      <trans-unit id="statsPerNav05" resname="stats.period.navigation.back">
+        <source>stats.period.navigation.back</source>
+        <target>previous</target>
+      </trans-unit>
+      <trans-unit id="statsPerNav06" resname="stats.period.navigation.forward">
+        <source>stats.period.navigation.forward</source>
+        <target>next</target>
+      </trans-unit>
+      <trans-unit id="statsHdrQtr01" resname="stats.dashboard.heading.quarter">
+        <source>stats.dashboard.heading.quarter</source>
+        <target>Q{quarter} {year}</target>
+      </trans-unit>
+      <trans-unit id="statsPerNav01" resname="stats.period.navigation.label">
+        <source>stats.period.navigation.label</source>
+        <target>Time period navigation</target>
+      </trans-unit>
+      <trans-unit id="statsPerNav02" resname="stats.period.navigation.previous">
+        <source>stats.period.navigation.previous</source>
+        <target>Previous period</target>
+      </trans-unit>
+      <trans-unit id="statsPerNav03" resname="stats.period.navigation.next">
+        <source>stats.period.navigation.next</source>
+        <target>Next period</target>
+      </trans-unit>
+      <trans-unit id="statsPerNav04" resname="stats.period.navigation.parent">
+        <source>stats.period.navigation.parent</source>
+        <target>up</target>
       </trans-unit>
       <trans-unit id="statsFlt01" resname="stats.filter.scope_label">
         <source>stats.filter.scope_label</source>
@@ -2270,6 +2298,10 @@
       <trans-unit id="statsFlt08" resname="stats.filter.period.month">
         <source>stats.filter.period.month</source>
         <target>Month</target>
+      </trans-unit>
+      <trans-unit id="statsFlt08b" resname="stats.filter.period.quarter">
+        <source>stats.filter.period.quarter</source>
+        <target>Quarter</target>
       </trans-unit>
       <trans-unit id="statsFlt09" resname="stats.filter.hospital.all_hospitals">
         <source>stats.filter.hospital.all_hospitals</source>

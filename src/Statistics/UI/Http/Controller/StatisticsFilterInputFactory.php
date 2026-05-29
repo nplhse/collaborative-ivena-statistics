@@ -29,15 +29,16 @@ final readonly class StatisticsFilterInputFactory
             : StatisticsFilterScope::Public->value;
 
         return new StatisticsFilterInput(
-            $query->getString('scope', $defaultScope),
-            $query->getString('hospital'),
-            $query->getString('cohort'),
-            $query->getString('state'),
-            $query->getString(StatisticsQueryKeys::DISPATCH_AREA),
-            $query->getString('period', StatisticsFilterPeriod::AllTime->value),
-            $query->get('year'),
-            $query->get('month'),
-            $query->has('scope'),
+            scope: $query->getString('scope', $defaultScope),
+            hospital: $query->getString('hospital'),
+            cohort: $query->getString('cohort'),
+            state: $query->getString('state'),
+            dispatchArea: $query->getString(StatisticsQueryKeys::DISPATCH_AREA),
+            period: $query->getString('period', StatisticsFilterPeriod::AllTime->value),
+            year: $query->get('year'),
+            month: $query->get('month'),
+            quarter: $query->get(StatisticsQueryKeys::QUARTER),
+            hasScopeQueryParameter: $query->has('scope'),
         );
     }
 }

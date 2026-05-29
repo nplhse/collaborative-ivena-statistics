@@ -8,6 +8,7 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\Application\DTO\StatisticsFilterInput;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -27,6 +28,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
                 '',
                 '',
                 'all',
+                null,
                 null,
                 null,
                 true,
@@ -52,6 +54,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
                 '',
                 '',
                 'all',
+                null,
                 null,
                 null,
                 true,
@@ -85,6 +88,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
                 'all',
                 null,
                 null,
+                null,
                 true,
             ),
             $user,
@@ -107,6 +111,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
                 '',
                 '',
                 'all',
+                null,
                 null,
                 null,
                 true,
@@ -133,6 +138,7 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
                 'all',
                 null,
                 null,
+                null,
                 true,
             ),
             null,
@@ -140,5 +146,32 @@ final class StatisticsFilterFactoryTest extends KernelTestCase
 
         self::assertSame('public', $filter->scope->value);
         self::assertNull($filter->dispatchAreaId);
+    }
+
+    public function testQuarterPeriodParsesAndClampsQuarter(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(StatisticsFilterFactory::class);
+
+        $filter = $factory->createFromInput(
+            new StatisticsFilterInput(
+                'public',
+                '',
+                '',
+                '',
+                '',
+                'quarter',
+                '2021',
+                null,
+                '9',
+                false,
+            ),
+            null,
+        );
+
+        self::assertSame(StatisticsFilterPeriod::Quarter, $filter->period);
+        self::assertSame(2021, $filter->referenceYear);
+        self::assertSame(4, $filter->referenceQuarter);
+        self::assertNull($filter->referenceMonth);
     }
 }

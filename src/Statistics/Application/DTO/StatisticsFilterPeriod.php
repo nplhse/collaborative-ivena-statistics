@@ -13,5 +13,6 @@ enum StatisticsFilterPeriod: string
     case AllTime = 'all_time';
 
     case Year = 'year';
+    case Quarter = 'quarter';
     case Month = 'month';
 }

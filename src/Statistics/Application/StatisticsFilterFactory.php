@@ -109,18 +109,28 @@ final readonly class StatisticsFilterFactory
 
         $referenceYear = $this->parsePositiveInt($input->year);
         $referenceMonth = $this->parsePositiveInt($input->month);
+        $referenceQuarter = $this->parseQuarter($input->quarter);
 
         if (StatisticsFilterPeriod::Year === $period) {
             $referenceYear ??= (int) new \DateTimeImmutable()->format('Y');
+            $referenceMonth = null;
+            $referenceQuarter = null;
+        } elseif (StatisticsFilterPeriod::Quarter === $period) {
+            $now = new \DateTimeImmutable();
+            $referenceYear ??= (int) $now->format('Y');
+            $referenceQuarter ??= (int) ceil((int) $now->format('n') / 3);
+            $referenceQuarter = max(1, min(4, $referenceQuarter));
             $referenceMonth = null;
         } elseif (StatisticsFilterPeriod::Month === $period) {
             $now = new \DateTimeImmutable();
             $referenceYear ??= (int) $now->format('Y');
             $referenceMonth ??= (int) $now->format('n');
             $referenceMonth = max(1, min(12, $referenceMonth));
+            $referenceQuarter = null;
         } else {
             $referenceYear = null;
             $referenceMonth = null;
+            $referenceQuarter = null;
         }
 
         if (StatisticsFilterScope::MyHospitals === $scope && (!$user instanceof User || !$this->hospitalAccess->canUseMyHospitalsScope($user))) {
@@ -148,6 +158,7 @@ final readonly class StatisticsFilterFactory
             $period,
             $referenceYear,
             $referenceMonth,
+            $referenceQuarter,
             $notice,
             $requiresPublicRedirect,
             $stateId,
@@ -245,5 +256,15 @@ final readonly class StatisticsFilterFactory
         $int = (int) $value;
 
         return $int > 0 ? $int : null;
+    }
+
+    private function parseQuarter(mixed $value): ?int
+    {
+        $parsed = $this->parsePositiveInt($value);
+        if (null === $parsed) {
+            return null;
+        }
+
+        return max(1, min(4, $parsed));
     }
 }

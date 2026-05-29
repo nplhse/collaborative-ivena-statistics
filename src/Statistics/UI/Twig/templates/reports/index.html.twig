@@ -44,6 +44,10 @@
             <div data-testid="stats-reports-widget">
                 {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: reportsPage.reportWidget}) }}
             </div>
+
+            {% if overviewPeriodViewModel is defined %}
+                {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+            {% endif %}
         </div>
     </div>
 {% endblock %}

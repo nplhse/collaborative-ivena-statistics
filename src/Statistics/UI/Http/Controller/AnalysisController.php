@@ -30,6 +30,7 @@ final class AnalysisController extends AbstractController
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
+        private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
     ) {
     }
 
@@ -120,6 +121,7 @@ final class AnalysisController extends AbstractController
             $this->analysisDefinitionRegistry->all(),
         );
         $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
+        $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create($request, 'app_stats_analysis', $filter);
 
         return $this->render('@Statistics/analysis/index.html.twig', [
             'statisticsFilter' => $pageViewModel->filter,
@@ -137,7 +139,9 @@ final class AnalysisController extends AbstractController
             'statsHospitalDropdownSelectedName' => $pageViewModel->hospitalDropdownSelectedName,
             'isLoggedIn' => $pageViewModel->isLoggedIn,
             'statisticsHeadingScope' => $pageViewModel->headingScope,
-            'statisticsHeadingPeriod' => $pageViewModel->headingPeriod,
+            'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
+            'overviewPeriodViewModel' => $overviewPeriodViewModel,
+            'statsUseOverviewPeriodControls' => true,
             'analysisPage' => $analysisPage,
             'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'analysis', $analysisKey),
             'statsFilterDrawerValues' => $drawerState['values'],

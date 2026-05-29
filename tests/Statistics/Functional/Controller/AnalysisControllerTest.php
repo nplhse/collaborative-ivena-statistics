@@ -449,4 +449,35 @@ class AnalysisControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-comparison-scope-menu"]');
     }
+
+    public function testAnalysisShowsPeriodNavigationWithYearPeriod(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=year&year=2021&view=chart',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-period-navigation"]');
+        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorTextContains('[data-testid="stats-period-secondary"]', '2021');
+        $previousHref = $crawler->filter('[data-testid="stats-period-nav-previous"] a.page-link[href]')->attr('href');
+        $this->assertStringContainsString('/statistics/analysis', $previousHref);
+        $this->assertStringContainsString('view=chart', $previousHref);
+        $this->assertStringContainsString('year=2020', $previousHref);
+    }
+
+    public function testAnalysisAllTimeHidesPeriodNavigation(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            \Symfony\Component\HttpFoundation\Request::METHOD_GET,
+            '/statistics/analysis?scope=public&period=all_time&view=chart',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
+        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+    }
 }

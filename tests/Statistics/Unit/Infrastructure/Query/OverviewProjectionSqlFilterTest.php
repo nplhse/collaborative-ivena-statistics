@@ -31,4 +31,18 @@ final class OverviewProjectionSqlFilterTest extends TestCase
         self::assertSame('2025-01-01 00:00:00', $params['from']);
         self::assertStringNotContainsString('1970', $params['from']);
     }
+
+    public function testAddsUpperBoundForQuarterPeriod(): void
+    {
+        $from = new \DateTimeImmutable('2021-04-01 00:00:00');
+        $toExclusive = new \DateTimeImmutable('2021-07-01 00:00:00');
+        [$where, $params] = OverviewProjectionSqlFilter::buildWhereClause(
+            new OverviewQueryCriteria($from, $toExclusive, null),
+        );
+
+        self::assertStringContainsString('created_at >= :from', $where);
+        self::assertStringContainsString('created_at < :to_exclusive', $where);
+        self::assertSame('2021-04-01 00:00:00', $params['from']);
+        self::assertSame('2021-07-01 00:00:00', $params['to_exclusive']);
+    }
 }

@@ -15,6 +15,7 @@ final readonly class StatisticsFilterInput
         public string $period,
         public mixed $year,
         public mixed $month,
+        public mixed $quarter,
         public bool $hasScopeQueryParameter,
     ) {
     }

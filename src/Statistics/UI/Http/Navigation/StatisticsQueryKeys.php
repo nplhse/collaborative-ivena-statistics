@@ -14,6 +14,7 @@ final class StatisticsQueryKeys
     public const string PERIOD = 'period';
     public const string YEAR = 'year';
     public const string MONTH = 'month';
+    public const string QUARTER = 'quarter';
 
     public const string ANALYSIS = 'analysis';
     public const string VIEW = 'view';
@@ -47,10 +48,17 @@ final class StatisticsQueryKeys
     public const array REMOVE_PERIOD_DEPENDENT = [
         self::YEAR,
         self::MONTH,
+        self::QUARTER,
     ];
 
     /** @var list<string> */
     public const array REMOVE_MONTH_DEPENDENT = [
+        self::MONTH,
+    ];
+
+    /** @var list<string> */
+    public const array REMOVE_QUARTER_DEPENDENT = [
+        self::QUARTER,
         self::MONTH,
     ];
 

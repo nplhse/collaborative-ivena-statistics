@@ -85,6 +85,10 @@
                     </div>
                 </div>
             {% endif %}
+
+            {% if overviewPeriodViewModel is defined %}
+                {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+            {% endif %}
         </div>
     </div>
 {% endblock %}
