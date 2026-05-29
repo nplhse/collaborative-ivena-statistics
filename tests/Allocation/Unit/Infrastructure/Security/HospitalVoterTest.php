@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Unit\Infrastructure\Security;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
+use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -96,6 +98,24 @@ final class HospitalVoterTest extends KernelTestCase
             Voter::ACCESS_DENIED,
             $this->voter->vote($token, $hospital->_real(), [HospitalVoter::EDIT]),
         );
+    }
+
+    public function testAccessDeniedWhenHospitalHasNoId(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospital = $this->createMock(Hospital::class);
+        $hospital->method('getId')->willReturn(null);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($owner->_real()), $hospital, [HospitalVoter::ACCESS]),
+        );
+    }
+
+    public function testSupportsTypeForHospitalOnly(): void
+    {
+        self::assertTrue($this->voter->supportsType(Hospital::class));
+        self::assertFalse($this->voter->supportsType(Import::class));
     }
 
     /**

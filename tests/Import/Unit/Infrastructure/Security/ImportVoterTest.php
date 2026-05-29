@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Infrastructure\Security;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -14,6 +16,7 @@ use App\Import\Infrastructure\Security\Voter\ImportVoter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Zenstruck\Foundry\Test\Factories;
@@ -54,6 +57,36 @@ final class ImportVoterTest extends KernelTestCase
             Voter::ACCESS_DENIED,
             $this->voter->vote($this->createToken($intruder->_real()), $import->_real(), [ImportVoter::VIEW]),
         );
+    }
+
+    public function testViewDeniedForAnonymousUser(): void
+    {
+        $import = $this->createMock(Import::class);
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn(null);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($token, $import, [ImportVoter::VIEW]),
+        );
+    }
+
+    public function testViewDeniedWhenImportHasNoHospital(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createMock(Import::class);
+        $import->method('getHospital')->willReturn(null);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($owner->_real()), $import, [ImportVoter::VIEW]),
+        );
+    }
+
+    public function testSupportsTypeForImportOnly(): void
+    {
+        self::assertTrue($this->voter->supportsType(Import::class));
+        self::assertFalse($this->voter->supportsType(Hospital::class));
     }
 
     private function createImportForOwner(object $owner): object
