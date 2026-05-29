@@ -36,13 +36,18 @@ final class SettingsControllerTest extends WebTestCase
 
     public function testUnverifiedUserSeesResendVerificationAction(): void
     {
-        UserFactory::new([
+        $user = UserFactory::new([
             'email' => 'unverified-settings@example.test',
-            'isVerified' => false,
+            'isVerified' => true,
             'username' => 'unverified-settings-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'unverified-settings-user')
+        $browser = $this->loginWithConsent($this->browser(), 'unverified-settings-user');
+
+        $user->setIsVerified(false);
+        $user->_save();
+
+        $browser
             ->visit('/settings')
             ->assertSuccessful()
             ->assertSee('Resend verification email')
@@ -55,13 +60,18 @@ final class SettingsControllerTest extends WebTestCase
         $username = sprintf('limited-settings-user-%s', $suffix);
         $email = sprintf('limited-settings-%s@example.test', $suffix);
 
-        UserFactory::new([
+        $user = UserFactory::new([
             'email' => $email,
-            'isVerified' => false,
+            'isVerified' => true,
             'username' => $username,
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), $username)
+        $browser = $this->loginWithConsent($this->browser(), $username);
+
+        $user->setIsVerified(false);
+        $user->_save();
+
+        $browser
             ->visit('/settings')
             ->assertSuccessful()
         ;

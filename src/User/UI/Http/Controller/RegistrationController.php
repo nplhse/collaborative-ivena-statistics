@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\User\UI\Http\Controller;
 
 use App\Shared\Infrastructure\Audit\AuditContext;
-use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
-use App\User\Infrastructure\Security\LoginFormAuthenticator;
 use App\User\UI\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 final class RegistrationController extends AbstractController
@@ -27,10 +24,7 @@ final class RegistrationController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly EmailVerifier $emailVerifier,
-        private readonly UserAuthenticatorInterface $userAuthenticator,
-        private readonly LoginFormAuthenticator $loginFormAuthenticator,
         private readonly AuditContext $auditContext,
-        private readonly CookieConsentService $cookieConsentService,
     ) {
     }
 
@@ -69,21 +63,23 @@ final class RegistrationController extends AbstractController
             }
 
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
-            $this->addFlash('success', 'flash.registration.success_verify_required');
 
-            $consent = $this->cookieConsentService->resolveForRequest($request, $user);
-            if (!$consent->getDecidedAt() instanceof \DateTimeImmutable) {
-                return $this->redirectToRoute('app_login', ['showConsentHint' => '0']);
-            }
-
-            $authenticatedResponse = $this->userAuthenticator->authenticateUser($user, $this->loginFormAuthenticator, $request);
-
-            return $authenticatedResponse ?? $this->redirectToRoute('app_default');
+            return $this->redirectToRoute('app_register_check_email');
         }
 
         return $this->render('@User/registration/register.html.twig', [
             'registrationForm' => $form,
         ]);
+    }
+
+    #[Route('/register/check-email', name: 'app_register_check_email')]
+    public function checkEmail(): Response
+    {
+        if ($this->getUser() instanceof UserInterface) {
+            return $this->redirectToRoute('app_default');
+        }
+
+        return $this->render('@User/registration/check_email.html.twig');
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]

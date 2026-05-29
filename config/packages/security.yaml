@@ -23,6 +23,12 @@ security:
                 - App\User\Infrastructure\Security\ConfirmPasswordAuthenticator
             user_checker: App\User\Infrastructure\Security\UserAccountStatusChecker
 
+            # Limits failed login attempts per IP + username (Symfony default key).
+            # 5 attempts / 15 minutes balances brute-force protection with typo tolerance.
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
+
             logout:
                 path: app_logout
                 target: app_default

@@ -85,6 +85,10 @@
         <source>flash.security.cookie_consent_required</source>
         <target>Please confirm your cookie settings before signing in.</target>
       </trans-unit>
+      <trans-unit id="emailNotVerified" resname="flash.security.email_not_verified">
+        <source>flash.security.email_not_verified</source>
+        <target>Please confirm your email address before signing in.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

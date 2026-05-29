@@ -20,19 +20,20 @@ final class UserAccountStatusCheckerTest extends TestCase
         $this->checker = new UserAccountStatusChecker();
     }
 
-    public function testEnabledUserPassesPreAndPostAuthChecks(): void
+    public function testEnabledVerifiedUserPassesPreAndPostAuthChecks(): void
     {
-        $user = $this->createUser(true);
+        $user = $this->createUser(true, true);
 
         $this->checker->checkPreAuth($user);
         $this->checker->checkPostAuth($user);
 
         self::assertTrue($user->isEnabled());
+        self::assertTrue($user->isVerified());
     }
 
     public function testDisabledUserFailsPreAuthCheck(): void
     {
-        $user = $this->createUser(false);
+        $user = $this->createUser(false, true);
 
         $this->expectException(CustomUserMessageAccountStatusException::class);
         $this->expectExceptionMessage('Account is disabled.');
@@ -42,12 +43,31 @@ final class UserAccountStatusCheckerTest extends TestCase
 
     public function testDisabledUserFailsPostAuthCheck(): void
     {
-        $user = $this->createUser(false);
+        $user = $this->createUser(false, true);
 
         $this->expectException(CustomUserMessageAccountStatusException::class);
         $this->expectExceptionMessage('Account is disabled.');
 
         $this->checker->checkPostAuth($user);
+    }
+
+    public function testUnverifiedUserFailsPreAuthCheck(): void
+    {
+        $user = $this->createUser(true, false);
+
+        $this->expectException(CustomUserMessageAccountStatusException::class);
+        $this->expectExceptionMessage('flash.security.email_not_verified');
+
+        $this->checker->checkPreAuth($user);
+    }
+
+    public function testUnverifiedUserPassesPostAuthCheckForExistingSession(): void
+    {
+        $user = $this->createUser(true, false);
+
+        $this->checker->checkPostAuth($user);
+
+        self::assertFalse($user->isVerified());
     }
 
     public function testNonAppUserIsIgnored(): void
@@ -60,13 +80,14 @@ final class UserAccountStatusCheckerTest extends TestCase
         self::assertSame('other', $user->getUserIdentifier());
     }
 
-    private function createUser(bool $enabled): User
+    private function createUser(bool $enabled, bool $verified): User
     {
         $user = new User();
         $user->setUsername('status-user');
         $user->setEmail('status-user@example.test');
         $user->setPassword('hashed-password');
         $user->setIsEnabled($enabled);
+        $user->setIsVerified($verified);
 
         return $user;
     }
