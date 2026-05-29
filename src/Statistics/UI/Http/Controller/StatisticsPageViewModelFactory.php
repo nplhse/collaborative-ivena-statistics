@@ -109,6 +109,16 @@ final readonly class StatisticsPageViewModelFactory
                     StatisticsQueryKeys::MONTH => $defaultMonth,
                 ],
             ),
+            'quarter' => $this->statisticsNavigationUrlBuilder->build(
+                $request,
+                $routeName,
+                [
+                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Quarter->value,
+                    StatisticsQueryKeys::YEAR => $defaultYear,
+                    StatisticsQueryKeys::QUARTER => (int) ceil($defaultMonth / 3),
+                ],
+                StatisticsQueryKeys::REMOVE_MONTH_DEPENDENT,
+            ),
         ];
 
         $cohortScopeChoices = [];
@@ -580,9 +590,13 @@ final readonly class StatisticsPageViewModelFactory
         return match ($filter->period) {
             StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], null, $locale),
             StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], null, $locale),
-            StatisticsFilterPeriod::Year => $this->translator->trans(
-                'stats.dashboard.heading.year',
-                ['year' => (string) ($filter->referenceYear ?? $now->format('Y'))],
+            StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? $now->format('Y')),
+            StatisticsFilterPeriod::Quarter => $this->translator->trans(
+                'stats.dashboard.heading.quarter',
+                [
+                    'quarter' => (string) ($filter->referenceQuarter ?? (int) ceil((int) $now->format('n') / 3)),
+                    'year' => (string) ($filter->referenceYear ?? $now->format('Y')),
+                ],
                 null,
                 $locale,
             ),

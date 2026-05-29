@@ -247,4 +247,98 @@ class DashboardControllerTest extends WebTestCase
         $this->assertMatchesRegularExpression('/[?&]year=\d+/', $uri);
         $this->assertMatchesRegularExpression('/[?&]month=\d+/', $uri);
     }
+
+    public function testOverviewShowsPeriodNavigation(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=year&year=2021');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-period-navigation"]');
+        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorTextContains('[data-testid="stats-period-secondary"]', '2021');
+        $this->assertSelectorTextContains('[data-testid="stats-period-nav-previous"] .page-item-title', '2020');
+        $this->assertSelectorTextContains('[data-testid="stats-period-nav-next"] .page-item-title', '2022');
+    }
+
+    public function testOverviewQuarterPeriodIsAccepted(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=public&period=quarter&year=2021&quarter=2',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-period-secondary"]');
+    }
+
+    public function testOverviewYearModeSecondaryListsYearsOnly(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=public&period=year&year=2021',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-period-secondary"]');
+        $this->assertCount(
+            0,
+            $crawler->filter('[data-testid="stats-period-secondary"] + .dropdown-menu a[href*="period=month"]'),
+        );
+    }
+
+    public function testOverviewAllTimeHidesPeriodNavigation(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=public&period=all_time',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
+    }
+
+    public function testOverviewLast12MonthsHidesPeriodNavigation(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
+    }
+
+    public function testOverviewMonthPeriodShowsPreviousAndNextOnly(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=public&period=month&year=2021&month=1',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-period-nav-previous"]');
+        $this->assertSelectorExists('[data-testid="stats-period-nav-next"]');
+        $this->assertSelectorNotExists('[data-testid="stats-period-nav-parent"]');
+    }
+
+    public function testOverviewLast12MonthsAppearsInPeriodPrimaryMenu(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=public&period=year&year=2021',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-period-primary"] + .dropdown-menu a[href*="period=all"]')->count(),
+        );
+    }
 }
