@@ -277,21 +277,13 @@
         <source>flash.indication.assigned</source>
         <target>Normalized indication has been assigned.</target>
       </trans-unit>
-      <trans-unit id="3gHiL0q" resname="flash.registration.logged_in_verify_hint">
-        <source>flash.registration.logged_in_verify_hint</source>
-        <target>You are now signed in. Please verify your email address to unlock all account features.</target>
-      </trans-unit>
-      <trans-unit id="jxMi62X" resname="flash.registration.success_verify_required">
-        <source>flash.registration.success_verify_required</source>
-        <target>Registration successful. Please verify your email address.</target>
-      </trans-unit>
       <trans-unit id="81QuWtI" resname="flash.registration.verify.missing_id">
         <source>flash.registration.verify.missing_id</source>
         <target>Missing verification id.</target>
       </trans-unit>
       <trans-unit id="UQ4qXjW" resname="flash.registration.verify.success">
         <source>flash.registration.verify.success</source>
-        <target>Your email address has been verified.</target>
+        <target>Your email address has been confirmed. You can sign in now.</target>
       </trans-unit>
       <trans-unit id="f..ne_w" resname="flash.registration.verify.user_not_found">
         <source>flash.registration.verify.user_not_found</source>
@@ -1987,6 +1979,14 @@
                     standardized list. By selecting the appropriate normalized indication, you help ensure consistent data
                     classification and make further analysis and reporting more accurate.</target>
       </trans-unit>
+      <trans-unit id="regCheckEmailIntro" resname="text.registration.check_email_intro">
+        <source>text.registration.check_email_intro</source>
+        <target>Your registration was almost successful. Please check your inbox and click the verification link to activate your account. You can sign in afterwards.</target>
+      </trans-unit>
+      <trans-unit id="regNoEmail" resname="text.registration.no_email">
+        <source>text.registration.no_email</source>
+        <target>Didn't receive an email?</target>
+      </trans-unit>
       <trans-unit id="8P9KH0y" resname="text.reset_password.check_email_intro">
         <source>text.reset_password.check_email_intro</source>
         <target>If your account exists and your email is verified, a password reset link was sent.</target>
@@ -2118,6 +2118,10 @@
       <trans-unit id="x2zBU9m" resname="title.occasion.list">
         <source>title.occasion.list</source>
         <target>Listing Occasions</target>
+      </trans-unit>
+      <trans-unit id="titleRegisterCheckEmail" resname="title.register_check_email">
+        <source>title.register_check_email</source>
+        <target>Check your email</target>
       </trans-unit>
       <trans-unit id="C0SBwTU" resname="title.register">
         <source>title.register</source>
