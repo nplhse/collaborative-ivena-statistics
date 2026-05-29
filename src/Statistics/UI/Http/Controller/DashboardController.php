@@ -65,7 +65,7 @@ final class DashboardController extends AbstractController
             $user,
             $filter,
         );
-        $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create($request, $filter);
+        $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create($request, 'app_stats_dashboard', $filter);
 
         if ($pageViewModel->showUnscopedHint) {
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
