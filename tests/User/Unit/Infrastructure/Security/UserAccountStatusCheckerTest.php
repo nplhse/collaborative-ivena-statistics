@@ -61,14 +61,13 @@ final class UserAccountStatusCheckerTest extends TestCase
         $this->checker->checkPreAuth($user);
     }
 
-    public function testUnverifiedUserFailsPostAuthCheck(): void
+    public function testUnverifiedUserPassesPostAuthCheckForExistingSession(): void
     {
         $user = $this->createUser(true, false);
 
-        $this->expectException(CustomUserMessageAccountStatusException::class);
-        $this->expectExceptionMessage('flash.security.email_not_verified');
-
         $this->checker->checkPostAuth($user);
+
+        self::assertFalse($user->isVerified());
     }
 
     public function testNonAppUserIsIgnored(): void

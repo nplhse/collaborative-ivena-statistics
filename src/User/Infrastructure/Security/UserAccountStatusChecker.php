@@ -23,7 +23,6 @@ final class UserAccountStatusChecker implements UserCheckerInterface
     public function checkPostAuth(UserInterface $user): void
     {
         $this->assertAccountEnabled($user);
-        $this->assertEmailVerified($user);
     }
 
     private function assertAccountEnabled(UserInterface $user): void
