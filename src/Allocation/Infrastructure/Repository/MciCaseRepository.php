@@ -12,6 +12,7 @@ use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO;
+use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -24,6 +25,16 @@ final class MciCaseRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, MciCase::class);
+    }
+
+    public function deleteByImport(Import $import): int
+    {
+        return $this->createQueryBuilder('m')
+            ->delete()
+            ->where('m.import = :import')
+            ->setParameter('import', $import)
+            ->getQuery()
+            ->execute();
     }
 
     public function getListPaginator(MciCaseQueryParametersDTO $queryParametersDTO): Paginator

@@ -26,20 +26,28 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
     }
 
     #[\Override]
+    public function deleteForImport(int $importId): int
+    {
+        $deleted = $this->connection->executeStatement(
+            'DELETE FROM allocation_stats_projection WHERE import_id = :importId',
+            ['importId' => $importId],
+        );
+
+        $this->logger->info('allocation_stats_projection.deleted', [
+            'import_id' => $importId,
+            'rows' => $deleted,
+        ]);
+
+        return $deleted;
+    }
+
+    #[\Override]
     public function rebuildForImport(int $importId): void
     {
         $this->connection->beginTransaction();
 
         try {
-            $deleted = $this->connection->executeStatement(
-                'DELETE FROM allocation_stats_projection WHERE import_id = :importId',
-                ['importId' => $importId]
-            );
-
-            $this->logger->info('allocation_stats_projection.deleted', [
-                'import_id' => $importId,
-                'rows' => $deleted,
-            ]);
+            $this->deleteForImport($importId);
 
             $result = $this->connection->executeQuery(
                 <<<'SQL'

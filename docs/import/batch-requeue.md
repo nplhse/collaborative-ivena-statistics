@@ -71,6 +71,17 @@ Progress is stored in `import_batch_run` and `import_batch_run_item`:
 
 Item status `queued` means the message was handed to Messenger, not that the CSV import finished.
 
+## Reimport cleanup
+
+When an import is processed again (`runCount > 0`), `ImportAllocationsMessageHandler` deletes all data from the previous run before reading the CSV again:
+
+- `allocation_stats_projection` rows for that import
+- `import_reject` rows and the reject CSV file on disk
+- `assessment` records linked to previous allocations
+- `allocation` and `mci_case` rows for that import
+
+The `import` record and source CSV file are kept; only import-scoped result data is removed. Shared reference data (specialities, departments, indication catalog entries, etc.) is not deleted.
+
 ## Related
 
 - Handler: `src/Import/Application/MessageHandler/ImportAllocationsMessageHandler.php`
