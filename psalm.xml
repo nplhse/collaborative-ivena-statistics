@@ -45,7 +45,10 @@
                 <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/DataFixtures"/>
                 <directory name="src/Import/Application/Factory" />
+                <directory name="src/Import/Application/Service/" />
+                <directory name="src/Import/Application/Analysis/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
+                <directory name="src/Import/Infrastructure/Analysis/" />
                 <directory name="src/Import/Infrastructure/Indication/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
@@ -73,6 +76,7 @@
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
                 <directory name="src/Import/Infrastructure/Repository/" />
+                <directory name="src/Import/Infrastructure/Analysis/" />
                 <directory name="src/Seed/Infrastructure/Provider/" />
                 <directory name="src/Statistics/" />
             </errorLevel>
@@ -96,5 +100,15 @@
                 <directory name="src/Shared/Domain/Entity/" />
             </errorLevel>
         </UnusedProperty>
+        <UnusedConstructor>
+            <errorLevel type="suppress">
+                <file name="src/Import/Application/ImportDispatchExitCode.php" />
+            </errorLevel>
+        </UnusedConstructor>
+        <RedundantCast>
+            <errorLevel type="suppress">
+                <directory name="src/*/UI/Console/Command/" />
+            </errorLevel>
+        </RedundantCast>
     </issueHandlers>
 </psalm>
