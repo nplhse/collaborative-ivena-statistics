@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Repository;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Import\Domain\Entity\Import;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,6 +19,16 @@ final class AllocationRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Allocation::class);
+    }
+
+    public function deleteByImport(Import $import): int
+    {
+        return $this->createQueryBuilder('a')
+            ->delete()
+            ->where('a.import = :import')
+            ->setParameter('import', $import)
+            ->getQuery()
+            ->execute();
     }
 
     /**

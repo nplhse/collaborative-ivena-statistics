@@ -43,6 +43,19 @@ current `allocation` table, run:
 $ php bin/console app:seed:projection
 ```
 
+## Batch import requeue
+
+To re-dispatch allocation import jobs for all (or filtered) imports with resume
+checkpoints, see [docs/import/batch-requeue.md](docs/import/batch-requeue.md).
+
+Quick examples:
+
+```
+$ php bin/console app:import:requeue-all --dry-run
+$ php bin/console app:import:requeue-all --resume
+$ ./scripts/import/requeue-all-until-done.sh
+```
+
 ## Statistics architecture overview
 
 For projection tables, materialized views, Foundry test resets, and refresh commands, see [docs/statistics/projection-and-materialized-views.md](docs/statistics/projection-and-materialized-views.md).

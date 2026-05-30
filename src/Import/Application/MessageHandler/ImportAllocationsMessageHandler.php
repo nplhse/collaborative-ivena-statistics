@@ -13,10 +13,10 @@ use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
+use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Service\ImportEvaluation;
-use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,7 +38,7 @@ final readonly class ImportAllocationsMessageHandler
         private RejectWriterFactory $rejectWriterFactory,
         private LoggerInterface $importLogger,
         private EventDispatcherInterface $dispatcher,
-        private ImportRejectRepository $importRejectRepository,
+        private ImportPreviousRunCleanupService $previousRunCleanupService,
         private AuditContext $auditContext,
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
@@ -165,29 +165,7 @@ final readonly class ImportAllocationsMessageHandler
 
     private function cleanupPreviousRun(Import $import): void
     {
-        $deleted = $this->importRejectRepository->deleteByImport($import);
-
-        if ($deleted > 0) {
-            $this->importLogger->info('import.rejects.cleared', [
-                'import_id' => $import->getId(),
-                'deleted' => $deleted,
-            ]);
-        }
-
-        $rejectPath = $import->getRejectFilePath();
-        if (null !== $rejectPath) {
-            $absPath = $this->resolvePath($rejectPath);
-
-            if (\is_file($absPath)) {
-                @\unlink($absPath);
-                $this->importLogger->info('import.reject_file.deleted', [
-                    'import_id' => $import->getId(),
-                    'path' => $absPath,
-                ]);
-            }
-        }
-
-        $import->resetForReimport();
+        $this->previousRunCleanupService->cleanup($import);
     }
 
     private function resolvePath(string $stored): string

@@ -225,6 +225,29 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         self::assertNotSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
+    public function testReimportDeletesPreviousAllocationsBeforeImportingAgain(): void
+    {
+        ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
+
+        try {
+            $this->handler->__invoke(new ImportAllocationsMessage($id));
+
+            self::assertSame(1, $this->countAllocationsForImport($id));
+
+            $this->handler->__invoke(new ImportAllocationsMessage($id));
+
+            self::assertSame(1, $this->countAllocationsForImport($id));
+
+            $fresh = $this->imports->find($id);
+            self::assertNotNull($fresh);
+            self::assertSame(2, $fresh->getRunCount());
+        } finally {
+            if (is_file($csvPath)) {
+                @unlink($csvPath);
+            }
+        }
+    }
+
     public function testDispatchViaMessageBusRunsImportWithSuppressedAllocationAudits(): void
     {
         ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
@@ -342,6 +365,17 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $this->em->flush();
 
         return ['id' => (int) $import->getId(), 'csvPath' => $csvPath];
+    }
+
+    private function countAllocationsForImport(int $importId): int
+    {
+        return (int) $this->em->createQueryBuilder()
+            ->select('COUNT(a.id)')
+            ->from(Allocation::class, 'a')
+            ->where('a.import = :importId')
+            ->setParameter('importId', $importId)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     private function countAuditEntriesForEntityClass(string $entityClass): int

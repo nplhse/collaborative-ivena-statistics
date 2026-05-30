@@ -151,4 +151,31 @@ final class ImportRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /**
+     * @return list<array{id: int, name: ?string, filePath: ?string}>
+     */
+    public function findIdsForRequeue(int $fromId = 1, ?int $onlyId = null, ?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->select('i.id AS id', 'i.name AS name', 'i.filePath AS filePath')
+            ->orderBy('i.id', 'ASC');
+
+        if (null !== $onlyId) {
+            $qb->andWhere('i.id = :onlyId')
+                ->setParameter('onlyId', $onlyId);
+        } else {
+            $qb->andWhere('i.id >= :fromId')
+                ->setParameter('fromId', $fromId);
+        }
+
+        if (null !== $limit && $limit > 0) {
+            $qb->setMaxResults($limit);
+        }
+
+        /** @var list<array{id: int, name: ?string, filePath: ?string}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+
+        return $rows;
+    }
 }
