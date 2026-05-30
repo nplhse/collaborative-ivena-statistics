@@ -147,7 +147,6 @@
         "phpstan/phpstan-phpunit": "^2.0.16",
         "phpstan/phpstan-symfony": "^2.0.19",
         "phpunit/phpunit": "^12.5.28",
-        "psalm/plugin-mockery": "^1.2.1",
         "psalm/plugin-phpunit": "^0.19.7",
         "psalm/plugin-symfony": "^5.3",
         "rector/rector": "^2.4.5",
