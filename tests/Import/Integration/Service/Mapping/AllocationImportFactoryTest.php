@@ -159,4 +159,33 @@ final class AllocationImportFactoryTest extends KernelTestCase
         $this->expectException(InvalidDateException::class);
         $this->factory->fromDto($this->makeDto(['arrivalAt' => '31.02.2025 25:61']), $this->import);
     }
+
+    public function testValidAssessmentFieldsAreMappedFromDto(): void
+    {
+        $allocation = $this->factory->fromDto($this->makeDto([
+            'assessmentAirway' => 'free',
+            'assessmentBreathing' => 'spontaneous',
+            'assessmentCirculation' => 'stable',
+            'assessmentDisability' => 'awake',
+        ]), $this->import);
+
+        $assessment = $allocation->getAssessment();
+        self::assertNotNull($assessment);
+        self::assertSame(\App\Allocation\Domain\Enum\AssessmentAirway::FREE, $assessment->getAirway());
+        self::assertSame(\App\Allocation\Domain\Enum\AssessmentBreathing::SPONTANEOUS, $assessment->getBreathing());
+        self::assertSame(\App\Allocation\Domain\Enum\AssessmentCirculation::STABLE, $assessment->getCirculation());
+        self::assertSame(\App\Allocation\Domain\Enum\AssessmentDisability::AWAKE, $assessment->getDisability());
+    }
+
+    public function testPlaceholderAssessmentFieldsDoNotCreateAssessment(): void
+    {
+        $allocation = $this->factory->fromDto($this->makeDto([
+            'assessmentAirway' => 'A-',
+            'assessmentBreathing' => 'B-',
+            'assessmentCirculation' => 'C-',
+            'assessmentDisability' => 'D-',
+        ]), $this->import);
+
+        self::assertNull($allocation->getAssessment());
+    }
 }

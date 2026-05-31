@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace App\Tests\Import\Integration\MessageHandler;
 
 use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Assessment;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -134,6 +135,100 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $firstReject = $rejectWriter->all()[0];
         self::assertArrayHasKey('messages', $firstReject);
         self::assertNotEmpty($firstReject['messages']);
+    }
+
+    public function testImportWithPlaceholderAbcdColumnsDoesNotPersistAssessmentOrAudit(): void
+    {
+        $owner = UserFactory::createOne(['username' => 'import-abcd-empty-'.bin2hex(random_bytes(6))]);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Testkrankenhaus Musterstadt',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+
+        AssignmentFactory::createOne(['name' => 'Patient']);
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        InfectionFactory::createOne(['name' => 'Noro']);
+        IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
+
+        $header = [
+            'Versorgungsbereich', 'KHS-Versorgungsgebiet', 'Krankenhaus', 'Krankenhaus-Kurzname',
+            'Datum', 'Uhrzeit', 'Datum (Eintreffzeit)', 'Uhrzeit (Eintreffzeit)',
+            'Geschlecht', 'Alter', 'Schockraum', 'Herzkatheter', 'Reanimation', 'Beatmet',
+            'Schwanger', 'Arztbegleitet', 'Transportmittel', 'Datum (Erstellungsdatum)', 'Uhrzeit (Erstellungsdatum)',
+            'PZC', 'Fachgebiet', 'Fachbereich', 'Fachbereich war abgemeldet?', 'Anlass', 'Grund', 'Ansteckungsfähig',
+            'PZC und Text', 'Airway', 'Breathing', 'Circulation', 'Disability',
+        ];
+
+        $rows = [
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', '123741', 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', '123 Test Indication', 'A-', 'B-', 'C-', 'D-'],
+        ];
+
+        $import = $this->createInMemoryImport($owner, $hospital);
+        $reader = new InMemoryRowReader($header, $rows);
+        $rejectWriter = new InMemoryRejectWriter();
+
+        $assessmentsBefore = $this->countAssessments();
+        $assessmentAuditsBefore = $this->countAuditEntriesForEntityClass(Assessment::class);
+
+        $this->handler->run($import, $reader, $rejectWriter);
+
+        self::assertSame($assessmentsBefore, $this->countAssessments());
+        self::assertSame($assessmentAuditsBefore, $this->countAuditEntriesForEntityClass(Assessment::class));
+    }
+
+    public function testImportWithValidAbcdColumnsPersistsAssessment(): void
+    {
+        $owner = UserFactory::createOne(['username' => 'import-abcd-valid-'.bin2hex(random_bytes(6))]);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Testkrankenhaus Musterstadt',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+
+        AssignmentFactory::createOne(['name' => 'Patient']);
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        InfectionFactory::createOne(['name' => 'Noro']);
+        IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
+
+        $header = [
+            'Versorgungsbereich', 'KHS-Versorgungsgebiet', 'Krankenhaus', 'Krankenhaus-Kurzname',
+            'Datum', 'Uhrzeit', 'Datum (Eintreffzeit)', 'Uhrzeit (Eintreffzeit)',
+            'Geschlecht', 'Alter', 'Schockraum', 'Herzkatheter', 'Reanimation', 'Beatmet',
+            'Schwanger', 'Arztbegleitet', 'Transportmittel', 'Datum (Erstellungsdatum)', 'Uhrzeit (Erstellungsdatum)',
+            'PZC', 'Fachgebiet', 'Fachbereich', 'Fachbereich war abgemeldet?', 'Anlass', 'Grund', 'Ansteckungsfähig',
+            'PZC und Text', 'Airway', 'Breathing', 'Circulation', 'Disability',
+        ];
+
+        $rows = [
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', '123741', 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', '123 Test Indication', 'A-Frei', 'B-Spontan', 'C-Stabil', 'D-Wach'],
+        ];
+
+        $import = $this->createInMemoryImport($owner, $hospital);
+        $reader = new InMemoryRowReader($header, $rows);
+        $rejectWriter = new InMemoryRejectWriter();
+
+        $assessmentsBefore = $this->countAssessments();
+        $importId = (int) $import->getId();
+
+        $this->handler->run($import, $reader, $rejectWriter);
+
+        self::assertSame($assessmentsBefore + 1, $this->countAssessments());
+
+        $this->em->clear();
+        $allocation = $this->em->getRepository(Allocation::class)->findOneBy(['import' => $importId]);
+        self::assertNotNull($allocation);
+        self::assertNotNull($allocation->getAssessment());
     }
 
     public function testInvokeWithUnknownImportIdDoesNotThrow(): void
@@ -365,6 +460,42 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $this->em->flush();
 
         return ['id' => (int) $import->getId(), 'csvPath' => $csvPath];
+    }
+
+    private function countAssessments(): int
+    {
+        return (int) $this->em->createQueryBuilder()
+            ->select('COUNT(a.id)')
+            ->from(Assessment::class, 'a')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function createInMemoryImport(
+        \App\User\Domain\Entity\User $owner,
+        \App\Allocation\Domain\Entity\Hospital $hospital,
+    ): Import {
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
+        $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
+
+        $import = new Import()
+            ->setName('Handler IT (in-memory assessment)')
+            ->setHospital($hospitalRef)
+            ->setCreatedBy($userRef)
+            ->setType(ImportType::ALLOCATION)
+            ->setStatus(ImportStatus::PENDING)
+            ->setFilePath('in-memory://allocations.csv')
+            ->setFileExtension('csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize(0)
+            ->setRunCount(0)
+            ->setRunTime(0)
+            ->setRowCount(0);
+
+        $this->em->persist($import);
+        $this->em->flush();
+
+        return $import;
     }
 
     private function countAllocationsForImport(int $importId): int

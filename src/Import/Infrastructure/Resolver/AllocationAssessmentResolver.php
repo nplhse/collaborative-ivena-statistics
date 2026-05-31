@@ -29,61 +29,111 @@ final readonly class AllocationAssessmentResolver implements AllocationEntityRes
     #[\Override]
     public function supports(Allocation $entity, AllocationRowDTO $dto): bool
     {
-        return null !== $dto->assessmentAirway
-            || null !== $dto->assessmentBreathing
-            || null !== $dto->assessmentCirculation
-            || null !== $dto->assessmentDisability;
+        return $this->hasAnyAssessmentData($dto);
     }
 
     #[\Override]
     public function apply(Allocation $entity, AllocationRowDTO $dto): void
     {
+        $airway = $this->mapAirway($dto, $entity);
+        $breathing = $this->mapBreathing($dto, $entity);
+        $circulation = $this->mapCirculation($dto, $entity);
+        $disability = $this->mapDisability($dto, $entity);
+
+        if (in_array(null, [$airway, $breathing, $circulation, $disability], true)) {
+            return;
+        }
+
         $assessment = new Assessment();
         $assessment->setCreatedAt(new \DateTimeImmutable());
+        $assessment->setAirway($airway);
+        $assessment->setBreathing($breathing);
+        $assessment->setCirculation($circulation);
+        $assessment->setDisability($disability);
 
-        if (null !== $dto->assessmentAirway) {
-            $enum = AssessmentAirway::tryFrom($dto->assessmentAirway);
+        $entity->setAssessment($assessment);
+    }
 
-            if (null === $enum) {
-                $this->logEnumFailure('airway', $dto->assessmentAirway, $entity);
-            } else {
-                $assessment->setAirway($enum);
-            }
+    private function hasAnyAssessmentData(AllocationRowDTO $dto): bool
+    {
+        return $this->isNonEmptyAssessmentField($dto->assessmentAirway)
+            || $this->isNonEmptyAssessmentField($dto->assessmentBreathing)
+            || $this->isNonEmptyAssessmentField($dto->assessmentCirculation)
+            || $this->isNonEmptyAssessmentField($dto->assessmentDisability);
+    }
+
+    private function isNonEmptyAssessmentField(?string $value): bool
+    {
+        return null !== $value && '' !== trim($value);
+    }
+
+    private function nonEmptyAssessmentField(?string $value): ?string
+    {
+        if (!$this->isNonEmptyAssessmentField($value)) {
+            return null;
         }
 
-        if (null !== $dto->assessmentBreathing) {
-            $enum = AssessmentBreathing::tryFrom($dto->assessmentBreathing);
+        return $value;
+    }
 
-            if (null === $enum) {
-                $this->logEnumFailure('breathing', $dto->assessmentBreathing, $entity);
-            } else {
-                $assessment->setBreathing($enum);
-            }
+    private function mapAirway(AllocationRowDTO $dto, Allocation $entity): ?AssessmentAirway
+    {
+        $raw = $this->nonEmptyAssessmentField($dto->assessmentAirway);
+        if (null === $raw) {
+            return null;
         }
 
-        if (null !== $dto->assessmentCirculation) {
-            $enum = AssessmentCirculation::tryFrom($dto->assessmentCirculation);
-
-            if (null === $enum) {
-                $this->logEnumFailure('circulation', $dto->assessmentCirculation, $entity);
-            } else {
-                $assessment->setCirculation($enum);
-            }
+        $enum = AssessmentAirway::tryFrom($raw);
+        if (null === $enum) {
+            $this->logEnumFailure('airway', $raw, $entity);
         }
 
-        if (null !== $dto->assessmentDisability) {
-            $enum = AssessmentDisability::tryFrom($dto->assessmentDisability);
+        return $enum;
+    }
 
-            if (null === $enum) {
-                $this->logEnumFailure('disability', $dto->assessmentDisability, $entity);
-            } else {
-                $assessment->setDisability($enum);
-            }
+    private function mapBreathing(AllocationRowDTO $dto, Allocation $entity): ?AssessmentBreathing
+    {
+        $raw = $this->nonEmptyAssessmentField($dto->assessmentBreathing);
+        if (null === $raw) {
+            return null;
         }
 
-        if ($assessment->isValid()) {
-            $entity->setAssessment($assessment);
+        $enum = AssessmentBreathing::tryFrom($raw);
+        if (null === $enum) {
+            $this->logEnumFailure('breathing', $raw, $entity);
         }
+
+        return $enum;
+    }
+
+    private function mapCirculation(AllocationRowDTO $dto, Allocation $entity): ?AssessmentCirculation
+    {
+        $raw = $this->nonEmptyAssessmentField($dto->assessmentCirculation);
+        if (null === $raw) {
+            return null;
+        }
+
+        $enum = AssessmentCirculation::tryFrom($raw);
+        if (null === $enum) {
+            $this->logEnumFailure('circulation', $raw, $entity);
+        }
+
+        return $enum;
+    }
+
+    private function mapDisability(AllocationRowDTO $dto, Allocation $entity): ?AssessmentDisability
+    {
+        $raw = $this->nonEmptyAssessmentField($dto->assessmentDisability);
+        if (null === $raw) {
+            return null;
+        }
+
+        $enum = AssessmentDisability::tryFrom($raw);
+        if (null === $enum) {
+            $this->logEnumFailure('disability', $raw, $entity);
+        }
+
+        return $enum;
     }
 
     private function logEnumFailure(string $field, string $rawValue, Allocation $entity): void

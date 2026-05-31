@@ -286,14 +286,25 @@ trait AllocationRowNormalizationTrait
         return $value;
     }
 
-    private static function normalizeAssessmentAirway(?string $value): ?string
+    private static function stripAssessmentPrefix(?string $value): ?string
     {
         if (null === $value) {
             return null;
         }
 
-        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
-        $normalized = mb_strtolower(trim($value));
+        $value = trim(preg_replace('/^[A-D]-/i', '', $value) ?? '');
+
+        return '' === $value ? null : $value;
+    }
+
+    private static function normalizeAssessmentAirway(?string $value): ?string
+    {
+        $value = self::stripAssessmentPrefix($value);
+        if (null === $value) {
+            return null;
+        }
+
+        $normalized = mb_strtolower($value);
 
         return match ($normalized) {
             'frei' => 'free',
@@ -306,12 +317,12 @@ trait AllocationRowNormalizationTrait
 
     private static function normalizeAssessmentBreathing(?string $value): ?string
     {
+        $value = self::stripAssessmentPrefix($value);
         if (null === $value) {
             return null;
         }
 
-        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
-        $normalized = mb_strtolower(trim($value));
+        $normalized = mb_strtolower($value);
 
         return match ($normalized) {
             'spontan' => 'spontaneous',
@@ -325,12 +336,12 @@ trait AllocationRowNormalizationTrait
 
     private static function normalizeAssessmentCirculation(?string $value): ?string
     {
+        $value = self::stripAssessmentPrefix($value);
         if (null === $value) {
             return null;
         }
 
-        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
-        $normalized = mb_strtolower(trim($value));
+        $normalized = mb_strtolower($value);
 
         return match ($normalized) {
             'stabil' => 'stable',
@@ -343,12 +354,12 @@ trait AllocationRowNormalizationTrait
 
     private static function normalizeAssessmentDisability(?string $value): ?string
     {
+        $value = self::stripAssessmentPrefix($value);
         if (null === $value) {
             return null;
         }
 
-        $value = preg_replace('/^[A-D]-/i', '', $value) ?? '';
-        $normalized = mb_strtolower(trim($value));
+        $normalized = mb_strtolower($value);
 
         return match ($normalized) {
             'wach' => 'awake',
