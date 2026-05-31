@@ -13,6 +13,13 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class SpecialityDepartmentReferenceStrategy
 {
+    /** @var array<string,string> normalized import value => normalized canonical department name */
+    private const array DEPARTMENT_ALIASES = [
+        'perinatalzentrum level 1' => 'geburtshilfe',
+        'perinataler schwerpunkt' => 'geburtshilfe',
+        'geburtsklinik' => 'geburtshilfe',
+    ];
+
     /** @var array<string,int> */
     private array $specialityIdByKey = [];
 
@@ -80,7 +87,7 @@ final class SpecialityDepartmentReferenceStrategy
             $entity->setSpeciality($specialityRef);
         }
 
-        $departmentKey = $this->key((string) $departmentName);
+        $departmentKey = $this->resolveDepartmentKey((string) $departmentName);
         if ('' !== $departmentKey) {
             $departmentId = $this->departmentIdByKey[$departmentKey] ?? null;
             if (null === $departmentId) {
@@ -93,6 +100,16 @@ final class SpecialityDepartmentReferenceStrategy
         }
 
         $entity->setDepartmentWasClosed($departmentWasClosedPolicy($departmentWasClosed));
+    }
+
+    private function resolveDepartmentKey(string $departmentName): string
+    {
+        $key = $this->key($departmentName);
+        if ('' === $key) {
+            return '';
+        }
+
+        return self::DEPARTMENT_ALIASES[$key] ?? $key;
     }
 
     private function key(string $name): string
