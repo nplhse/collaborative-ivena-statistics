@@ -16,6 +16,7 @@ final class TraitHelper
         normalizeUrgencyFromPZC as private traitNormalizeUrgencyFromPZC;
         combineDateAndTime as private traitCombineDateAndTime;
         getStringOrNull as private traitGetStringOrNull;
+        normalizeDispatchArea as private traitNormalizeDispatchArea;
     }
 
     public static function normalizeGender(?string $value): string
@@ -54,5 +55,10 @@ final class TraitHelper
     public static function getStringOrNull(array $row, string $key): ?string
     {
         return self::traitGetStringOrNull($row, $key);
+    }
+
+    public static function normalizeDispatchArea(?string $value): ?string
+    {
+        return self::traitNormalizeDispatchArea($value);
     }
 }
