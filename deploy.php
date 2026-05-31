@@ -17,6 +17,29 @@ set('messenger_restart_on_deploy', true);
 
 set('cachetool_args', '--web --web-path={{release_or_current_path}}/public --web-url={{web_url}}');
 
+desc('Point Uberspace u8 DocumentRoot symlinks at current/public');
+task('deploy:uberspace:webroot', function () {
+    if (!test('command -v uberspace >/dev/null 2>&1')) {
+        return;
+    }
+
+    $deployPath = get('deploy_path');
+    $domain = parse_url(get('web_url'), PHP_URL_HOST) ?: '';
+    $linkNames = array_values(array_unique(array_filter(['html', $domain])));
+
+    foreach ($linkNames as $linkName) {
+        $linkPath = $deployPath.'/'.$linkName;
+        $before = trim(run('if [ -L '.escapeshellarg($linkPath).' ]; then readlink '.escapeshellarg($linkPath).'; elif [ -e '.escapeshellarg($linkPath).' ]; then echo directory; else echo missing; fi'));
+        if ($before === 'current/public') {
+            continue;
+        }
+
+        run('cd '.escapeshellarg($deployPath).' && rm -f html/nocontent.html 2>/dev/null || true');
+        run('cd '.escapeshellarg($deployPath).' && if [ -d '.escapeshellarg($linkName).' ] && [ ! -L '.escapeshellarg($linkName).' ]; then rm -rf '.escapeshellarg($linkName).'; fi');
+        run('cd '.escapeshellarg($deployPath).' && ln -sfn current/public '.escapeshellarg($linkName));
+    }
+});
+
 add('shared_files', [
     '.env.local',
 ]);
@@ -71,7 +94,8 @@ task('messenger:restart', function () {
 
 // Attach tasks from recipes& contrib to default workflow
 before('deploy:symlink', 'messenger:stop');
-after('deploy:symlink', 'cachetool:clear:opcache');
+after('deploy:symlink', 'deploy:uberspace:webroot');
+after('deploy:uberspace:webroot', 'cachetool:clear:opcache');
 
 before('deploy:publish', 'database:migrate');
 after('deploy:publish', 'messenger:restart');
