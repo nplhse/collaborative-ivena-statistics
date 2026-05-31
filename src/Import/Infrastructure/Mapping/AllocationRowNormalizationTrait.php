@@ -276,6 +276,13 @@ trait AllocationRowNormalizationTrait
             return null;
         }
 
+        $knownTypos = [
+            'Groá-Gerau' => 'Groß-Gerau',
+        ];
+        if (isset($knownTypos[$value])) {
+            $value = $knownTypos[$value];
+        }
+
         return $value;
     }
 
