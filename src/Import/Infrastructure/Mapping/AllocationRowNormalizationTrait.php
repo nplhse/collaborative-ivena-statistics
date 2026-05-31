@@ -48,9 +48,48 @@ trait AllocationRowNormalizationTrait
             return null;
         }
 
+        $date = self::normalizeImportDatePart($date);
+        if (null === $date) {
+            return null;
+        }
+
         $time = substr($time, 0, 5);
 
         return sprintf('%s %s', $date, $time);
+    }
+
+    protected static function normalizeImportDatePart(?string $date): ?string
+    {
+        if (null === $date) {
+            return null;
+        }
+
+        $date = trim($date);
+        if ('' === $date) {
+            return null;
+        }
+
+        $parts = explode('.', $date);
+        if (3 !== \count($parts)) {
+            return $date;
+        }
+
+        $format = match (\strlen($parts[2])) {
+            2 => '!d.m.y',
+            4 => '!d.m.Y',
+            default => null,
+        };
+
+        if (null === $format) {
+            return $date;
+        }
+
+        $parsed = \DateTimeImmutable::createFromFormat($format, $date);
+        if (!$parsed instanceof \DateTimeImmutable) {
+            return $date;
+        }
+
+        return $parsed->format('d.m.Y');
     }
 
     protected static function normalizeAge(?string $value): ?int
