@@ -20,6 +20,7 @@ final class AllocationRowMapperDispatchAreaTest extends TestCase
      */
     public static function dispatchAreaProvider(): iterable
     {
+        yield 'issue 126 Groá-Gerau typo' => ['Groá-Gerau', 'Groß-Gerau'];
         yield 'issue 122 trailing Kreis without dash' => ['Rheingau Taunus Kreis', 'Rheingau Taunus'];
         yield 'unchanged canonical name' => ['Rheingau Taunus', 'Rheingau Taunus'];
         yield 'leading Leitstelle prefix' => ['Leitstelle Nord', 'Nord'];
