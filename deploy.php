@@ -15,7 +15,7 @@ set('env', [
 set('messenger_systemd_service', 'messenger.service');
 set('messenger_restart_on_deploy', true);
 
-set('cachetool_args', '--web --web-path={{release_or_current_path}}/public --web-url={{web_url}}');
+set('cachetool_args', '--web --web-path={{deploy_path}}/current/public --web-url={{web_url}}');
 
 desc('Point Uberspace u8 DocumentRoot symlinks at current/public');
 task('deploy:uberspace:webroot', function () {
@@ -92,10 +92,21 @@ task('messenger:restart', function () {
     run('systemctl --user restart '.escapeshellarg($service));
 });
 
+desc('Reset OPcache after deploy');
+task('deploy:cache:opcache', function () {
+    if (test('command -v uberspace >/dev/null 2>&1')) {
+        run('uberspace web php reload');
+
+        return;
+    }
+
+    invoke('cachetool:clear:opcache');
+});
+
 // Attach tasks from recipes& contrib to default workflow
 before('deploy:symlink', 'messenger:stop');
 after('deploy:symlink', 'deploy:uberspace:webroot');
-after('deploy:uberspace:webroot', 'cachetool:clear:opcache');
+after('deploy:uberspace:webroot', 'deploy:cache:opcache');
 
 before('deploy:publish', 'database:migrate');
 after('deploy:publish', 'messenger:restart');
