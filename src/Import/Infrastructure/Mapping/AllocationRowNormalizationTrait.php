@@ -225,6 +225,7 @@ trait AllocationRowNormalizationTrait
             '/^Kreis\s+/u',
             '/\s*\(.+$/u',
             '/\s*-\s*Kreis$/u',
+            '/\s*Kreis$/u',
         ], ['', ''], $value);
 
         if (null === $value) {
