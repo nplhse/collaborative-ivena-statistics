@@ -21,6 +21,8 @@ final class AllocationRowMapperDateTest extends TestCase
     public static function dateTimeCombineProvider(): iterable
     {
         yield 'ok HH:MM' => ['01.01.2025', '12:34', '01.01.2025 12:34'];
+        yield 'four-digit year issue 124 example' => ['16.04.2022', '19:36', '16.04.2022 19:36'];
+        yield 'two-digit year normalized to four-digit' => ['16.04.22', '19:36', '16.04.2022 19:36'];
         yield 'trim seconds' => ['01.01.2025', '12:34:56', '01.01.2025 12:34'];
         yield 'missing time' => ['01.01.2025', null, null];
         yield 'missing date' => [null, '12:34', null];
