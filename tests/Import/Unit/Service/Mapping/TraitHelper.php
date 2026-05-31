@@ -15,6 +15,7 @@ final class TraitHelper
         normalizeAge as private traitNormalizeAge;
         normalizeUrgencyFromPZC as private traitNormalizeUrgencyFromPZC;
         combineDateAndTime as private traitCombineDateAndTime;
+        normalizeImportDatePart as private traitNormalizeImportDatePart;
         getStringOrNull as private traitGetStringOrNull;
         normalizeDispatchArea as private traitNormalizeDispatchArea;
     }
@@ -47,6 +48,11 @@ final class TraitHelper
     public static function combineDateAndTime(?string $date, ?string $time): ?string
     {
         return self::traitCombineDateAndTime($date, $time);
+    }
+
+    public static function normalizeImportDatePart(?string $date): ?string
+    {
+        return self::traitNormalizeImportDatePart($date);
     }
 
     /**
