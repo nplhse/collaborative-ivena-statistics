@@ -30,6 +30,27 @@ final class ImportStatusTest extends TestCase
         self::assertNull(ImportStatus::tryFrom('Unknown'));
     }
 
+    #[DataProvider('isFinalProvider')]
+    public function testIsFinal(ImportStatus $case, bool $expected): void
+    {
+        self::assertSame($expected, $case->isFinal());
+    }
+
+    /**
+     * @return array<string, array{case: ImportStatus, expected: bool}>
+     */
+    public static function isFinalProvider(): array
+    {
+        return [
+            'PENDING' => ['case' => ImportStatus::PENDING, 'expected' => false],
+            'RUNNING' => ['case' => ImportStatus::RUNNING, 'expected' => false],
+            'COMPLETED' => ['case' => ImportStatus::COMPLETED, 'expected' => true],
+            'FAILED' => ['case' => ImportStatus::FAILED, 'expected' => true],
+            'CANCELLED' => ['case' => ImportStatus::CANCELLED, 'expected' => true],
+            'PARTIAL' => ['case' => ImportStatus::PARTIAL, 'expected' => true],
+        ];
+    }
+
     /**
      * @return array<string, array{case: ImportStatus, value: string}>
      */

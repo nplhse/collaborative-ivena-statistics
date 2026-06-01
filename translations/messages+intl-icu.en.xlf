@@ -2071,6 +2071,106 @@
         <source>title.import.show</source>
         <target>Showing Import detail</target>
       </trans-unit>
+      <trans-unit id="impProcTitle" resname="title.import.processing">
+        <source>title.import.processing</source>
+        <target>Processing import</target>
+      </trans-unit>
+      <trans-unit id="impProcHint" resname="import.processing.hint">
+        <source>import.processing.hint</source>
+        <target>Your file is being processed in the background. This page updates automatically.</target>
+      </trans-unit>
+      <trans-unit id="impProcDetail" resname="import.processing.view_detail">
+        <source>import.processing.view_detail</source>
+        <target>View import details</target>
+      </trans-unit>
+      <trans-unit id="impProcErr" resname="import.processing.error">
+        <source>import.processing.error</source>
+        <target>Could not refresh status. Retrying…</target>
+      </trans-unit>
+      <trans-unit id="impStLblPend" resname="import.status.label.pending">
+        <source>import.status.label.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="impStLblRun" resname="import.status.label.running">
+        <source>import.status.label.running</source>
+        <target>Running</target>
+      </trans-unit>
+      <trans-unit id="impStLblComp" resname="import.status.label.completed">
+        <source>import.status.label.completed</source>
+        <target>Completed</target>
+      </trans-unit>
+      <trans-unit id="impStLblFail" resname="import.status.label.failed">
+        <source>import.status.label.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="impStLblCanc" resname="import.status.label.cancelled">
+        <source>import.status.label.cancelled</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="impStLblPart" resname="import.status.label.partial">
+        <source>import.status.label.partial</source>
+        <target>Partial</target>
+      </trans-unit>
+      <trans-unit id="impStMsgPend" resname="import.status.message.pending">
+        <source>import.status.message.pending</source>
+        <target>The import is queued and will start shortly.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgRun" resname="import.status.message.running">
+        <source>import.status.message.running</source>
+        <target>Rows are being processed.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgComp" resname="import.status.message.completed">
+        <source>import.status.message.completed</source>
+        <target>The import finished successfully.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgFail" resname="import.status.message.failed">
+        <source>import.status.message.failed</source>
+        <target>The import failed.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgCanc" resname="import.status.message.cancelled">
+        <source>import.status.message.cancelled</source>
+        <target>The import was cancelled.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgPart" resname="import.status.message.partial">
+        <source>import.status.message.partial</source>
+        <target>The import finished with some rejected rows.</target>
+      </trans-unit>
+      <trans-unit id="impStpUp" resname="import.processing.step.uploaded">
+        <source>import.processing.step.uploaded</source>
+        <target>File uploaded</target>
+      </trans-unit>
+      <trans-unit id="impStpUpD" resname="import.processing.step.uploaded_desc">
+        <source>import.processing.step.uploaded_desc</source>
+        <target>Your CSV file has been received and queued.</target>
+      </trans-unit>
+      <trans-unit id="impStpPr" resname="import.processing.step.processing">
+        <source>import.processing.step.processing</source>
+        <target>Processing data</target>
+      </trans-unit>
+      <trans-unit id="impStpPrD" resname="import.processing.step.processing_desc">
+        <source>import.processing.step.processing_desc</source>
+        <target>Rows are being validated and imported.</target>
+      </trans-unit>
+      <trans-unit id="impStpRs" resname="import.processing.step.result">
+        <source>import.processing.step.result</source>
+        <target>Result</target>
+      </trans-unit>
+      <trans-unit id="impStpRsC" resname="import.processing.step.result.completed">
+        <source>import.processing.step.result.completed</source>
+        <target>Finished</target>
+      </trans-unit>
+      <trans-unit id="impStpRsP" resname="import.processing.step.result.partial">
+        <source>import.processing.step.result.partial</source>
+        <target>Import completed with rejections</target>
+      </trans-unit>
+      <trans-unit id="impStpRsF" resname="import.processing.step.result.failed">
+        <source>import.processing.step.result.failed</source>
+        <target>Import failed</target>
+      </trans-unit>
+      <trans-unit id="impStpRsX" resname="import.processing.step.result.cancelled">
+        <source>import.processing.step.result.cancelled</source>
+        <target>Import cancelled</target>
+      </trans-unit>
       <trans-unit id="njXB7xf" resname="title.indication.assign">
         <source>title.indication.assign</source>
         <target>Assign Indications</target>
