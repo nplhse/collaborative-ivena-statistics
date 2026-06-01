@@ -50,7 +50,7 @@ unchanged; only transport and configuration are unified.
 | `MAILER_FROM` | `no-reply@your-domain.example` | Sender address on all transactional mail. Defaults to `no-reply@localhost` if unset — set an address your provider allows. |
 | `APP_URL` | `https://your-username.uberspace.de` | **Required in production.** Base URL for password-reset links, verification assets in mail (`absolute_url(asset(...))`), and any route generated without an HTTP request (Messenger worker). Use the same value as Deployer `web_url`. |
 
-The **display name** in the From header comes from `app.title` in [`config/packages/app.yaml`](../config/packages/app.yaml), not from an environment variable.
+The **display name** in the From header (and the browser tab / navbar title) comes from `app.title`. By default this is `Collaborative IVENA statistics` in [`config/packages/app.yaml`](../config/packages/app.yaml). Set optional **`APP_TITLE`** to override it per environment (e.g. a hospital-specific name). The short brand label in the sidebar and admin UI remains `app.short_title` (`COIS` by default) in `app.yaml` — it is not controlled by an environment variable.
 
 ### Configuring `APP_URL`
 

@@ -1,5 +1,8 @@
+parameters:
+    app.default.title: 'Collaborative IVENA statistics'
+
 app:
-    title: 'Collaborative IVENA statistics'
+    title: '%env(default:app.default.title:APP_TITLE)%'
     short_title: 'COIS'
     blog:
         title: 'Our Blog'
