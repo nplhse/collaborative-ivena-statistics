@@ -44,7 +44,7 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSeeElement('input[type="file"][name="import_create[file]"]');
     }
 
-    public function testSubmitWithCsvRedirectsToShowAndPersists(): void
+    public function testSubmitWithCsvRedirectsToProcessingAndPersists(): void
     {
         [$owner, $hospitalId] = $this->createOwnerWithHospital();
 
@@ -65,6 +65,8 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSuccessful()
             ->assertSee('Test Allocations')
             ->assertSee('New Import has been created successfully!')
+            ->assertSee('Your file is being processed in the background')
+            ->assertSeeElement('ul.steps.steps-vertical')
             ->use(function (): void {
                 /** @var EntityManagerInterface $em */
                 $em = self::getContainer()->get(EntityManagerInterface::class);

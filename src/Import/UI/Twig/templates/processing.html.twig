@@ -1,0 +1,136 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.import.processing'|trans }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.import.index', path: path('app_import_index') },
+                { label: 'title.import.processing' }
+            ]"
+        />
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="page-body">
+        <div class="container-xl">
+            <twig:Card>
+                <div
+                    data-controller="import-status"
+                    data-import-status-url-value="{{ path('app_import_status', {id: import.id}) }}"
+                    data-import-status-initial-interval-value="1000"
+                    data-import-status-max-interval-value="15000"
+                    data-import-status-start-polling-value="{{ startPolling ? 'true' : 'false' }}"
+                    data-import-status-processing-hint-value="{{ 'import.processing.hint'|trans }}"
+                    data-import-status-status-payload-value="{{ statusView|json_encode|e('html_attr') }}"
+                >
+                    <div class="row g-3 g-md-4 align-items-start">
+                        <div class="col-md-8" data-import-status-target="importMeta">
+                            <div class="d-flex align-items-start gap-3">
+                                <span
+                                    data-import-status-target="heroAvatar"
+                                    class="avatar avatar-lg bg-{{ statusView.iconTone }}-lt text-{{ statusView.iconTone }} flex-shrink-0 import-processing-hero"
+                                >
+                                    {% set heroIcons = {
+                                        pending: 'tabler:clock',
+                                        running: 'tabler:loader-2',
+                                        completed: 'tabler:circle-check',
+                                        failed: 'tabler:alert-triangle',
+                                        cancelled: 'tabler:circle-x',
+                                        partial: 'tabler:circle-half',
+                                    } %}
+                                    {% for key, iconName in heroIcons %}
+                                        <span
+                                            data-import-status-target="heroIcon"
+                                            data-status-key="{{ key }}"
+                                            class="{{ statusView.status == key ? '' : 'd-none' }}"
+                                        >
+                                            <twig:ux:icon name="{{ iconName }}" style="height: 1.75em;" />
+                                        </span>
+                                    {% endfor %}
+                                </span>
+                                <div class="flex-fill">
+                                    <h2 class="import-processing-name fw-bold mb-2">{{ import.name ?? ('#' ~ import.id) }}</h2>
+                                    <div class="list-inline list-inline-dots text-muted mb-2">
+                                        <span class="list-inline-item">
+                                            <twig:ux:icon name="tabler:building-hospital" width="1em" height="1em" />
+                                            {{ import.hospital.name }}
+                                        </span>
+                                        {% if import.hospital.dispatchArea or import.hospital.state %}
+                                            <span class="list-inline-item">
+                                                <twig:ux:icon name="tabler:map" width="1em" height="1em" />
+                                                {{ import.hospital.dispatchArea }}{% if import.hospital.state %}, {{ import.hospital.state }}{% endif %}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <p data-import-status-target="hint" class="text-muted mb-3">
+                                        {{ import.isFinalStatus ? statusView.message : 'import.processing.hint'|trans }}
+                                    </p>
+                                    <div
+                                        data-import-status-target="activityBlock"
+                                        class="import-processing-activity mb-3{{ import.isFinalStatus ? ' d-none' : '' }}"
+                                    >
+                                        <div data-import-status-target="activitySpinner" class="import-processing-spinner mb-2">
+                                            <twig:ux:icon name="tabler:loader-2" class="icon text-lime import-processing-spinner-icon" />
+                                        </div>
+                                        <p data-import-status-target="message" class="import-processing-status-message mb-0">{{ statusView.message }}</p>
+                                    </div>
+
+                                    <div
+                                        data-import-status-target="progressWrapper"
+                                        class="mb-3 {{ statusView.progress is null ? 'd-none' : '' }}"
+                                    >
+                                        <div class="progress">
+                                            <div
+                                                data-import-status-target="progressBar"
+                                                class="progress-bar"
+                                                role="progressbar"
+                                                style="width: {{ statusView.progress ?? 0 }}%"
+                                                aria-valuenow="{{ statusView.progress ?? 0 }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100"
+                                            ></div>
+                                        </div>
+                                    </div>
+
+                                    <div data-import-status-target="error" class="alert alert-warning d-none mb-3" role="alert">
+                                        {{ 'import.processing.error'|trans }}
+                                    </div>
+
+                                    <a
+                                        data-import-status-target="detailLink"
+                                        href="{{ statusView.detailUrl }}"
+                                        class="btn btn-primary {{ startPolling ? 'd-none' : '' }}"
+                                    >
+                                        <twig:ux:icon name="tabler:eye" class="w-3 h-3" />&nbsp;
+                                        {{ 'import.processing.view_detail'|trans }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 ps-md-3 pt-3 pt-md-0">
+                            <ul
+                                data-import-status-target="stepsList"
+                                class="steps steps-vertical steps-{{ statusView.stepsModifier }} import-processing-steps my-0"
+                            >
+                                {% for step in statusView.steps %}
+                                    <li
+                                        class="step-item{{ step.state == 'active' ? ' active' : '' }}"
+                                        data-import-status-target="stepItem"
+                                        data-step-key="{{ step.key }}"
+                                    >
+                                        <div class="import-processing-step-title import-step-label mb-1">{{ step.label }}</div>
+                                        <div class="text-secondary import-processing-step-desc import-step-description">{{ step.description }}</div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </twig:Card>
+        </div>
+    </div>
+{% endblock %}
