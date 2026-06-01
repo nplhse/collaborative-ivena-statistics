@@ -9,7 +9,6 @@ use App\Allocation\Infrastructure\Repository\MciCaseRepository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -84,10 +83,11 @@ SQL,
             return 0;
         }
 
+        $placeholders = implode(', ', array_fill(0, \count($assessmentIds), '?'));
+
         return $this->connection->executeStatement(
-            'DELETE FROM assessment WHERE id IN (:ids)',
-            ['ids' => $assessmentIds],
-            ['ids' => ArrayParameterType::INTEGER],
+            'DELETE FROM assessment WHERE id IN ('.$placeholders.')',
+            $assessmentIds,
         );
     }
 
