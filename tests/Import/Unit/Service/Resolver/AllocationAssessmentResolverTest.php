@@ -79,4 +79,23 @@ final class AllocationAssessmentResolverTest extends TestCase
         self::assertSame(AssessmentCirculation::STABLE, $assessment->getCirculation());
         self::assertSame(AssessmentDisability::AWAKE, $assessment->getDisability());
     }
+
+    public function testApplyAttachesAssessmentForPreviouslyUnmappedNormalizedValues(): void
+    {
+        $dto = new AllocationRowDTO();
+        $dto->assessmentAirway = 'critical';
+        $dto->assessmentBreathing = 'insufficient';
+        $dto->assessmentCirculation = 'unstable';
+        $dto->assessmentDisability = 'gcs_below_15';
+
+        $allocation = new Allocation();
+        $this->resolver->apply($allocation, $dto);
+
+        $assessment = $allocation->getAssessment();
+        self::assertNotNull($assessment);
+        self::assertSame(AssessmentAirway::CRITICAL_AIRWAY, $assessment->getAirway());
+        self::assertSame(AssessmentBreathing::INSUFFICIENT, $assessment->getBreathing());
+        self::assertSame(AssessmentCirculation::UNSTABLE, $assessment->getCirculation());
+        self::assertSame(AssessmentDisability::GCS_BELOW_15, $assessment->getDisability());
+    }
 }
