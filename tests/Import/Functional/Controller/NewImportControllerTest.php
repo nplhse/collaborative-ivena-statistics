@@ -65,8 +65,11 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSuccessful()
             ->assertSee('Test Allocations')
             ->assertSee('New Import has been created successfully!')
-            ->assertSee('Your file is being processed in the background')
             ->assertSeeElement('ul.steps.steps-vertical')
+            ->assertSeeElement('[data-controller="import-status"]')
+            ->assertSee('File uploaded')
+            ->assertSee('View import details')
+            ->assertSeeElement('[data-import-status-target="detailLink"]:not(.d-none)')
             ->use(function (): void {
                 /** @var EntityManagerInterface $em */
                 $em = self::getContainer()->get(EntityManagerInterface::class);
@@ -74,6 +77,7 @@ final class NewImportControllerTest extends WebTestCase
                 /** @var Import|null $import */
                 $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Test Allocations']);
                 self::assertNotNull($import, 'Import has been persisted.');
+                self::assertTrue($import->isFinalStatus(), 'Import is processed synchronously in the test environment.');
 
                 self::assertNotEmpty($import->getFileMimeType());
                 self::assertTrue(
