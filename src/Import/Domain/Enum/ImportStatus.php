@@ -39,4 +39,12 @@ enum ImportStatus: string
             self::PARTIAL->value,
         ];
     }
+
+    public function isFinal(): bool
+    {
+        return match ($this) {
+            self::COMPLETED, self::PARTIAL, self::FAILED, self::CANCELLED => true,
+            self::PENDING, self::RUNNING => false,
+        };
+    }
 }

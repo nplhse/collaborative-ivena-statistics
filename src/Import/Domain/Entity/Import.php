@@ -132,6 +132,11 @@ class Import implements \Stringable
         return $this;
     }
 
+    public function isFinalStatus(): bool
+    {
+        return $this->status?->isFinal() ?? false;
+    }
+
     public function getType(): ?ImportType
     {
         return $this->type;
