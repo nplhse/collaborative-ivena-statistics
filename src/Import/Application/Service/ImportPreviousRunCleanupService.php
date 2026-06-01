@@ -9,6 +9,7 @@ use App\Allocation\Infrastructure\Repository\MciCaseRepository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -34,13 +35,17 @@ final readonly class ImportPreviousRunCleanupService
     {
         $importId = (int) $import->getId();
 
-        $counts = $this->em->wrapInTransaction(fn (): array => [
-            'projection' => $this->statsProjectionRebuilder->deleteForImport($importId),
-            'rejects' => $this->importRejectRepository->deleteByImport($import),
-            'assessments' => $this->deleteAssessmentsForImport($importId),
-            'allocations' => $this->allocationRepository->deleteByImport($import),
-            'mci_cases' => $this->mciCaseRepository->deleteByImport($import),
-        ]);
+        $counts = $this->em->wrapInTransaction(function () use ($import, $importId): array {
+            $assessmentIds = $this->collectAssessmentIdsForImport($importId);
+
+            return [
+                'projection' => $this->statsProjectionRebuilder->deleteForImport($importId),
+                'rejects' => $this->importRejectRepository->deleteByImport($import),
+                'allocations' => $this->allocationRepository->deleteByImport($import),
+                'assessments' => $this->deleteAssessmentsByIds($assessmentIds),
+                'mci_cases' => $this->mciCaseRepository->deleteByImport($import),
+            ];
+        });
 
         $this->logCleanup(
             $importId,
@@ -56,19 +61,33 @@ final readonly class ImportPreviousRunCleanupService
         $this->em->flush();
     }
 
-    private function deleteAssessmentsForImport(int $importId): int
+    /** @return list<int> */
+    private function collectAssessmentIdsForImport(int $importId): array
     {
-        return $this->connection->executeStatement(
+        $ids = $this->connection->fetchFirstColumn(
             <<<'SQL'
-DELETE FROM assessment
-WHERE id IN (
-    SELECT assessment_id
-    FROM allocation
-    WHERE import_id = :importId
-      AND assessment_id IS NOT NULL
-)
+SELECT DISTINCT assessment_id
+FROM allocation
+WHERE import_id = :importId
+  AND assessment_id IS NOT NULL
 SQL,
             ['importId' => $importId],
+        );
+
+        return array_map(static fn (mixed $id): int => (int) $id, $ids);
+    }
+
+    /** @param list<int> $assessmentIds */
+    private function deleteAssessmentsByIds(array $assessmentIds): int
+    {
+        if ([] === $assessmentIds) {
+            return 0;
+        }
+
+        return $this->connection->executeStatement(
+            'DELETE FROM assessment WHERE id IN (:ids)',
+            ['ids' => $assessmentIds],
+            ['ids' => ArrayParameterType::INTEGER],
         );
     }
 

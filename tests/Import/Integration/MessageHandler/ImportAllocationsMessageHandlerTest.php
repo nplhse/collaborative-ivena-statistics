@@ -320,6 +320,27 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         self::assertNotSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
+    public function testReimportWithAssessmentSucceedsAfterCleanup(): void
+    {
+        ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport(withAssessment: true);
+
+        try {
+            $this->handler->__invoke(new ImportAllocationsMessage($id));
+
+            self::assertSame(1, $this->countAllocationsForImport($id));
+            self::assertGreaterThan(0, $this->countAssessmentsForImport($id));
+
+            $this->handler->__invoke(new ImportAllocationsMessage($id));
+
+            self::assertSame(1, $this->countAllocationsForImport($id));
+            self::assertGreaterThan(0, $this->countAssessmentsForImport($id));
+        } finally {
+            if (is_file($csvPath)) {
+                @unlink($csvPath);
+            }
+        }
+    }
+
     public function testReimportDeletesPreviousAllocationsBeforeImportingAgain(): void
     {
         ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
@@ -377,7 +398,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
     /**
      * @return array{id: int, csvPath: string}
      */
-    private function arrangeSingleRowSuccessfulCsvImport(): array
+    private function arrangeSingleRowSuccessfulCsvImport(bool $withAssessment = false): array
     {
         $suffix = bin2hex(random_bytes(5));
 
@@ -420,12 +441,19 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
             'PZC und Text',
         ];
 
+        if ($withAssessment) {
+            $header = array_merge($header, ['Airway', 'Breathing', 'Circulation', 'Disability']);
+        }
+
         $pzcCol = '456741';
         $pzTextCol = '456 Evt Indication '.$suffix;
 
-        $rows = [
-            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', $pzcCol, 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', $pzTextCol],
-        ];
+        $row = ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', $pzcCol, 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', $pzTextCol];
+        if ($withAssessment) {
+            $row = array_merge($row, ['A-Frei', 'B-Spontan', 'C-Stabil', 'D-Wach']);
+        }
+
+        $rows = [$row];
 
         $csvPath = sys_get_temp_dir().'/ivena-import-evt-'.bin2hex(random_bytes(8)).'.csv';
         $fh = fopen($csvPath, 'wb');
@@ -467,6 +495,18 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         return (int) $this->em->createQueryBuilder()
             ->select('COUNT(a.id)')
             ->from(Assessment::class, 'a')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function countAssessmentsForImport(int $importId): int
+    {
+        return (int) $this->em->createQueryBuilder()
+            ->select('COUNT(DISTINCT ass.id)')
+            ->from(Allocation::class, 'a')
+            ->join('a.assessment', 'ass')
+            ->where('a.import = :importId')
+            ->setParameter('importId', $importId)
             ->getQuery()
             ->getSingleScalarResult();
     }
