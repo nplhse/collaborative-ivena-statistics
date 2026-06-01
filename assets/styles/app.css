@@ -8,3 +8,51 @@
 .apexcharts-menu-item.exportCSV {
     display: none;
 }
+
+.import-processing-name {
+    font-size: 1.5rem;
+    line-height: 1.3;
+}
+
+.import-processing-hero {
+    --tblr-avatar-size: 3.5rem;
+}
+
+.import-processing-step-title {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.import-processing-step-desc {
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+.import-processing-steps.steps-vertical .step-item {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+}
+
+.import-processing-steps.steps-vertical .step-item:not(:first-child) {
+    margin-top: 0.75rem;
+}
+
+.import-processing-status-message {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--tblr-body-color);
+}
+
+.import-processing-spinner-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    animation: import-processing-spin 0.9s linear infinite;
+}
+
+@keyframes import-processing-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
