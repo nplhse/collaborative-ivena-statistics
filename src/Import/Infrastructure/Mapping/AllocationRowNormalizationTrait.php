@@ -310,7 +310,7 @@ trait AllocationRowNormalizationTrait
             'frei' => 'free',
             'gefährdet', 'gefaehrdet' => 'risk',
             'intubiert' => 'intubated',
-            'krit. atemweg', 'kritischer atemweg', 'krit atemweg' => 'critical',
+            'krit. atemweg', 'kritischer atemweg', 'krit atemweg', 'kritisch', 'krit.', 'krit' => 'critical',
             default => $value,
         };
     }
@@ -326,8 +326,8 @@ trait AllocationRowNormalizationTrait
 
         return match ($normalized) {
             'spontan' => 'spontaneous',
-            'resp. insuff.', 'resp insuff.', 'resp. insuff', 'resp insuff', 'respiratorische insuffizienz' => 'insufficient',
-            'cpap' => 'cpap',
+            'resp. insuff.', 'resp insuff.', 'resp. insuff', 'resp insuff', 'respiratorische insuffizienz', 'kritisch', 'krit.', 'krit' => 'insufficient',
+            'cpap', 'flow-cpap', 'flow cpap' => 'cpap',
             'niv' => 'niv',
             'invasiv' => 'invasive',
             default => $value,
@@ -345,9 +345,9 @@ trait AllocationRowNormalizationTrait
 
         return match ($normalized) {
             'stabil' => 'stable',
-            'stabil unter med.', 'stabil u. med.', 'stabil unter med' => 'medication',
-            'instabil' => 'unstable',
-            'laufende rea', 'rea laufend' => 'cpr',
+            'stabil unter med.', 'stabil u. med.', 'stabil unter med', 'katecholamin', 'katecholamine' => 'medication',
+            'instabil', 'kritisch', 'krit.', 'krit' => 'unstable',
+            'laufende rea', 'rea laufend', 'laufende reanimation' => 'cpr',
             default => $value,
         };
     }
@@ -361,13 +361,29 @@ trait AllocationRowNormalizationTrait
 
         $normalized = mb_strtolower($value);
 
+        $gcs = self::normalizeAssessmentGcsDisability($normalized);
+        if (null !== $gcs) {
+            return $gcs;
+        }
+
         return match ($normalized) {
             'wach' => 'awake',
-            'gcs < 15', 'gcs<15' => 'gcs_below_15',
-            'gcs < 9', 'gcs<9' => 'gcs_below_9',
             'sediert' => 'sedated',
             'narkotisiert' => 'anesthetized',
             default => $value,
         };
+    }
+
+    private static function normalizeAssessmentGcsDisability(string $normalized): ?string
+    {
+        if (preg_match('/^gcs\s*<\s*15$/', $normalized)) {
+            return 'gcs_below_15';
+        }
+
+        if (preg_match('/^gcs\s*<\s*9$/', $normalized)) {
+            return 'gcs_below_9';
+        }
+
+        return null;
     }
 }

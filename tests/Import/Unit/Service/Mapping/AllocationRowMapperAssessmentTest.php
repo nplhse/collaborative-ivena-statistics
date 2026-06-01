@@ -70,4 +70,60 @@ final class AllocationRowMapperAssessmentTest extends TestCase
         self::assertSame('stable', $dto->assessmentCirculation);
         self::assertSame('awake', $dto->assessmentDisability);
     }
+
+    /**
+     * @param array<string, string> $row
+     */
+    #[DataProvider('frequentLogCombinationProvider')]
+    public function testFrequentLogCombinationValuesAreMapped(
+        array $row,
+        string $dtoProperty,
+        string $expected,
+    ): void {
+        $dto = $this->mapper->mapAssoc($row);
+
+        self::assertSame($expected, $dto->{$dtoProperty});
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>, string, string}>
+     */
+    public static function frequentLogCombinationProvider(): iterable
+    {
+        yield 'disability GCS <15' => [
+            ['disability' => 'D-GCS <15'],
+            'assessmentDisability',
+            'gcs_below_15',
+        ];
+        yield 'circulation Kritisch' => [
+            ['circulation' => 'C-Kritisch'],
+            'assessmentCirculation',
+            'unstable',
+        ];
+        yield 'breathing Kritisch' => [
+            ['breathing' => 'B-Kritisch'],
+            'assessmentBreathing',
+            'insufficient',
+        ];
+        yield 'circulation Katecholamin' => [
+            ['circulation' => 'C-Katecholamin'],
+            'assessmentCirculation',
+            'medication',
+        ];
+        yield 'breathing Flow-CPAP' => [
+            ['breathing' => 'B-Flow-CPAP'],
+            'assessmentBreathing',
+            'cpap',
+        ];
+        yield 'airway Kritisch' => [
+            ['airway' => 'A-Kritisch'],
+            'assessmentAirway',
+            'critical',
+        ];
+        yield 'circulation Laufende Reanimation' => [
+            ['circulation' => 'C-Laufende Reanimation'],
+            'assessmentCirculation',
+            'cpr',
+        ];
+    }
 }

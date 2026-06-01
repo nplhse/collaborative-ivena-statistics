@@ -77,8 +77,8 @@ When an import is processed again (`runCount > 0`), `ImportAllocationsMessageHan
 
 - `allocation_stats_projection` rows for that import
 - `import_reject` rows and the reject CSV file on disk
-- `assessment` records linked to previous allocations
 - `allocation` and `mci_case` rows for that import
+- `assessment` records that were linked to those allocations (IDs collected before allocations are removed)
 
 The `import` record and source CSV file are kept; only import-scoped result data is removed. Shared reference data (specialities, departments, indication catalog entries, etc.) is not deleted.
 
