@@ -1,6 +1,6 @@
 # Materialized views in tests
 
-See the full guide: [docs/statistics/projection-and-materialized-views.md](../../../docs/statistics/projection-and-materialized-views.md).
+See the full guide: [docs/Statistics-projection-materialized-views.md](../../../docs/Statistics-projection-materialized-views.md).
 
 Quick reminders:
 
