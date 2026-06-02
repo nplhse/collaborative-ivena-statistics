@@ -36,7 +36,7 @@ final class PageContentValidatorTest extends TestCase
 
         self::assertNotEmpty($errors);
         self::assertStringContainsString('unknown block type "unknown"', implode(' ', $errors));
-        self::assertStringContainsString('data.alt is required', implode(' ', $errors));
+        self::assertStringContainsString('image src or media required', implode(' ', $errors));
         self::assertStringContainsString('data.html is required', implode(' ', $errors));
     }
 
@@ -81,6 +81,7 @@ final class PageContentValidatorTest extends TestCase
                     'page.validation.block_data_must_be_object' => 'field "data" must be an object.',
                     'page.validation.block_enabled_must_be_bool' => 'field "enabled" must be true or false.',
                     'page.validation.block_required_field' => 'data.{field} is required.',
+                    'page.validation.image_src_or_media_required' => 'image src or media required.',
                 ];
 
                 $message = $messages[$id] ?? $id;

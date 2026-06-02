@@ -43,4 +43,20 @@ HTML;
         self::assertStringContainsString('Fett', $html);
         self::assertStringContainsString('<div>', $html);
     }
+
+    public function testSanitizerKeepsImageTagsFromMediaSnippets(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PageContentSanitizer::class);
+
+        $raw = '<p>Text</p><img src="/uploads/media/sample.png" alt="Sample">';
+
+        $out = $sut->sanitize([['type' => 'richtext', 'data' => ['html' => $raw]]]);
+        $html = (string) ($out[0]['data']['html'] ?? '');
+
+        self::assertStringContainsString('<img', $html);
+        self::assertStringContainsString('/uploads/media/sample.png', $html);
+        self::assertStringContainsString('alt="Sample"', $html);
+    }
 }

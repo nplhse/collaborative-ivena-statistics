@@ -3175,6 +3175,30 @@
         <source>label.content_blocks</source>
         <target>Content blocks</target>
       </trans-unit>
+      <trans-unit id="page00ab1" resname="label.add_content_block">
+        <source>label.add_content_block</source>
+        <target>Add content block</target>
+      </trans-unit>
+      <trans-unit id="page00ab2" resname="label.append_content_block">
+        <source>label.append_content_block</source>
+        <target>Add block to page</target>
+      </trans-unit>
+      <trans-unit id="page00ab3" resname="label.block_type">
+        <source>label.block_type</source>
+        <target>Block type</target>
+      </trans-unit>
+      <trans-unit id="page00ab4" resname="flash.page.content_block_appended">
+        <source>flash.page.content_block_appended</source>
+        <target>Content block added.</target>
+      </trans-unit>
+      <trans-unit id="page00ab5" resname="flash.page.append_block_failed">
+        <source>flash.page.append_block_failed</source>
+        <target>Could not add the content block.</target>
+      </trans-unit>
+      <trans-unit id="page00ab6" resname="flash.page.append_block_type_required">
+        <source>flash.page.append_block_type_required</source>
+        <target>Please choose a block type before adding.</target>
+      </trans-unit>
       <trans-unit id="page00k10" resname="label.page_key">
         <source>label.page_key</source>
         <target>Page key</target>
@@ -3249,7 +3273,7 @@
       </trans-unit>
       <trans-unit id="page0019" resname="help.page.richtext_allowed_tags">
         <source>help.page.richtext_allowed_tags</source>
-        <target>Allowed tags: p, br, h2-h4, strong, em, ul, ol, li, a, blockquote</target>
+        <target>Allowed tags: p, br, h2-h4, strong, em, ul, ol, li, a, blockquote, img</target>
       </trans-unit>
       <trans-unit id="page0020" resname="label.image_url">
         <source>label.image_url</source>
@@ -3486,6 +3510,126 @@
       <trans-unit id="em.verifyFbAfter" resname="email.verify.fallback_after_link">
         <source>email.verify.fallback_after_link</source>
         <target> If you did not request this email, you can ignore it.</target>
+      </trans-unit>
+      <trans-unit id="media001" resname="label.media">
+        <source>label.media</source>
+        <target>Media file</target>
+      </trans-unit>
+      <trans-unit id="media002" resname="label.media_library">
+        <source>label.media_library</source>
+        <target>Media library</target>
+      </trans-unit>
+      <trans-unit id="media003" resname="label.media_file">
+        <source>label.media_file</source>
+        <target>Upload file</target>
+      </trans-unit>
+      <trans-unit id="media004" resname="label.original_filename">
+        <source>label.original_filename</source>
+        <target>Original filename</target>
+      </trans-unit>
+      <trans-unit id="media005" resname="label.filename">
+        <source>label.filename</source>
+        <target>Stored filename</target>
+      </trans-unit>
+      <trans-unit id="media006" resname="label.mime_type">
+        <source>label.mime_type</source>
+        <target>MIME type</target>
+      </trans-unit>
+      <trans-unit id="media007" resname="label.file_size">
+        <source>label.file_size</source>
+        <target>File size (bytes)</target>
+      </trans-unit>
+      <trans-unit id="media008" resname="label.media_type">
+        <source>label.media_type</source>
+        <target>Media type</target>
+      </trans-unit>
+      <trans-unit id="media028" resname="label.media_type.image">
+        <source>label.media_type.image</source>
+        <target>Image</target>
+      </trans-unit>
+      <trans-unit id="media029" resname="label.media_type.pdf">
+        <source>label.media_type.pdf</source>
+        <target>PDF</target>
+      </trans-unit>
+      <trans-unit id="media030" resname="label.media_type.document">
+        <source>label.media_type.document</source>
+        <target>Document</target>
+      </trans-unit>
+      <trans-unit id="media009" resname="label.preview">
+        <source>label.preview</source>
+        <target>Preview</target>
+      </trans-unit>
+      <trans-unit id="media010" resname="label.uploaded_by">
+        <source>label.uploaded_by</source>
+        <target>Uploaded by</target>
+      </trans-unit>
+      <trans-unit id="media011" resname="label.html_snippet">
+        <source>label.html_snippet</source>
+        <target>HTML snippet</target>
+      </trans-unit>
+      <trans-unit id="media012" resname="label.public_url">
+        <source>label.public_url</source>
+        <target>Public URL</target>
+      </trans-unit>
+      <trans-unit id="media013" resname="label.media_usage">
+        <source>label.media_usage</source>
+        <target>Usage in content</target>
+      </trans-unit>
+      <trans-unit id="media014" resname="action.copy_snippet">
+        <source>action.copy_snippet</source>
+        <target>Copy snippet</target>
+      </trans-unit>
+      <trans-unit id="media015" resname="help.media.alt_text">
+        <source>help.media.alt_text</source>
+        <target>Used as alt text when inserting images into pages or blog posts.</target>
+      </trans-unit>
+      <trans-unit id="media016" resname="help.blog.media_library">
+        <source>help.blog.media_library</source>
+        <target>Upload images or PDFs in the media library, then copy the HTML snippet into the editor.</target>
+      </trans-unit>
+      <trans-unit id="media017" resname="help.page.media_library">
+        <source>help.page.media_library</source>
+        <target>Image and CTA blocks can reference the media library. For rich text, copy snippets from media details.</target>
+      </trans-unit>
+      <trans-unit id="media018" resname="label.media_image">
+        <source>label.media_image</source>
+        <target>Image from library</target>
+      </trans-unit>
+      <trans-unit id="media019" resname="label.media_pdf">
+        <source>label.media_pdf</source>
+        <target>PDF from library</target>
+      </trans-unit>
+      <trans-unit id="media020" resname="help.page.image_media">
+        <source>help.page.image_media</source>
+        <target>Select an uploaded image or use a legacy URL below.</target>
+      </trans-unit>
+      <trans-unit id="media021" resname="help.page.image_url_legacy">
+        <source>help.page.image_url_legacy</source>
+        <target>Optional if a library image is selected. Relative paths such as /uploads/media/… are supported.</target>
+      </trans-unit>
+      <trans-unit id="media022" resname="label.cta_link_type">
+        <source>label.cta_link_type</source>
+        <target>Button link type</target>
+      </trans-unit>
+      <trans-unit id="media023" resname="label.cta_link_type.url">
+        <source>label.cta_link_type.url</source>
+        <target>URL</target>
+      </trans-unit>
+      <trans-unit id="media024" resname="label.cta_link_type.media">
+        <source>label.cta_link_type.media</source>
+        <target>PDF from media library</target>
+      </trans-unit>
+      <trans-unit id="media025" resname="help.page.cta_button_url">
+        <source>help.page.cta_button_url</source>
+        <target>Used when link type is URL. Internal paths or absolute URLs.</target>
+      </trans-unit>
+      <trans-unit id="media026" resname="help.page.cta_media_pdf">
+        <source>help.page.cta_media_pdf</source>
+        <target>Select a PDF uploaded in the media library.</target>
+      </trans-unit>
+      <trans-unit id="media027" resname="label.open_in_new_tab">
+        <source>label.open_in_new_tab</source>
+        <target>Open in new tab</target>
       </trans-unit>
     </body>
   </file>

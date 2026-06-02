@@ -757,6 +757,14 @@
         <source>page.validation.block_required_field</source>
         <target>data.{field} is required.</target>
       </trans-unit>
+      <trans-unit id="pagev014" resname="page.validation.image_src_or_media_required">
+        <source>page.validation.image_src_or_media_required</source>
+        <target>Either select a media image or provide an image URL.</target>
+      </trans-unit>
+      <trans-unit id="pagev015" resname="page.validation.cta_media_required">
+        <source>page.validation.cta_media_required</source>
+        <target>Select a PDF from the media library for this button.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
