@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Functional\Controller;
 
+use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Enum\PageKey;
+use App\Content\Infrastructure\Factory\PageFactory;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -30,11 +33,74 @@ final class RegistrationControllerTest extends WebTestCase
             ->fillField('Username', $username)
             ->fillField('Email', $email)
             ->fillField('Plain password', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
             ->click('Register')
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Check your email')
             ->assertSee('Your registration was almost successful.')
             ->assertNotSee($username)
+        ;
+    }
+
+    public function testRegistrationFailsWithoutAcceptingTerms(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('register-no-terms-%s', $suffix);
+        $email = sprintf('register-no-terms-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('Username', $username)
+            ->fillField('Email', $email)
+            ->fillField('Plain password', 'super-secret-password')
+            ->click('Register')
+            ->assertStatus(422)
+            ->assertSeeIn('h2', 'Register')
+            ->assertSee('You must accept the terms and conditions to register.')
+        ;
+    }
+
+    public function testRegistrationShowsTermsLinkWhenPublishedTermsPageExists(): void
+    {
+        $parent = PageFactory::createOne([
+            'slug' => 'legal',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ])->_real();
+
+        PageFactory::createOne([
+            'parent' => $parent,
+            'slug' => 'terms-of-service',
+            'key' => PageKey::Terms,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        $this->browser()
+            ->visit('/register')
+            ->assertSuccessful()
+            ->assertSeeElement('label[for="registration_form_acceptTerms"] a[href="/legal/terms-of-service"]')
+            ->assertSee('terms and conditions')
+        ;
+    }
+
+    public function testRegistrationWorksWithoutTermsPageLink(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('register-no-terms-page-%s', $suffix);
+        $email = sprintf('register-no-terms-page-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->assertSuccessful()
+            ->assertNotSee('href="/legal/terms-of-service"')
+            ->fillField('Username', $username)
+            ->fillField('Email', $email)
+            ->fillField('Plain password', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Check your email')
         ;
     }
 
@@ -49,6 +115,7 @@ final class RegistrationControllerTest extends WebTestCase
             ->fillField('Username', $username)
             ->fillField('Email', $email)
             ->fillField('Plain password', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
             ->click('Register')
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Check your email')
