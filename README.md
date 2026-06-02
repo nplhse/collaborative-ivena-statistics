@@ -1,145 +1,97 @@
-# A space for collaborative IVENA statistics
+# Collaborative IVENA Statistics
 
 [![Testsuite](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/tests.yml) [![Linting](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml/badge.svg)](https://github.com/nplhse/collaborative-ivena-statistics/actions/workflows/lint.yml) [![codecov](https://codecov.io/gh/nplhse/collaborative-ivena-statistics/graph/badge.svg?token=0MQSZG4OTM)](https://codecov.io/gh/nplhse/collaborative-ivena-statistics)
 
-# Requirements
-- Webserver (Apache, Nginx, LiteSpeed, IIS, etc.) with PHP 8.4 or higher
-- PostgreSQL with Version 16 or higher
+## Project overview
 
-# Setup
-This project expects you to have local webserver (see requirements) running,
-preferably with the symfony binary in your development environment.
+This application provides a collaborative platform for analysing IVENA allocation data from multiple hospitals.
 
-## Install from GitHub
-1. Launch a **terminal** or **console** and navigate to the webroot folder.
-   Clone [this repository from GitHub](https://github.com/nplhse/collaborative-ivena-statistics) to
-   a folder in the webroot of your server, e.g. `~/webroot/collaborative-ivena-statistics`.
+IVENA is used across Germany to digitally register emergency medical service (EMS) patients at acute care hospitals. For 
+each allocation, an anonymised dataset is generated containing information about patient characteristics, urgency, 
+suspected diagnosis, requested resources, and other relevant clinical data.
 
-    ```
-    $ cd ~/webroot
-    $ git clone https://github.com/nplhse/collaborative-ivena-statistics.git
-    ```
+The platform was initiated by members of the DGINA working group in Hesse to combine these datasets across institutions 
+and enable shared statistics, benchmarking, and research in emergency care. It supports the complete workflow from data 
+import and validation to statistical analysis and reporting.
 
-2. Install the project with all dependencies by using **make**.
+Key capabilities
+* Import and processing of IVENA allocation data
+* Centralised storage of anonymised multi-centre datasets
+* Interactive statistics and analysis views
+* Monitoring and operational support for data processing workflows
 
-    ```
-    $ cd ~/webroot/collaborative-ivena-statistics
-    $ make install
-    ```
+## Quick start
 
-3. You are ready to go, just open the site with your favorite browser!
+### Requirements
 
-> [!NOTE]
-> Please note that with this instruction you'll get a ready to use development
-  application that is populated with some reasonable default data. Due to the 
-  very early development state, there is no way to install an empty application.
+- PHP `>=8.4`
+- PostgreSQL `>=16`
+- A running web server or Symfony CLI
+- Optional Docker for local infrastructure
 
-## Seed helpers
+### Installation
 
-If you work with fixtures and need to rebuild analytics projection data from the
-current `allocation` table, run:
-
-```
-$ php bin/console app:seed:projection
+```bash
+git clone https://github.com/nplhse/collaborative-ivena-statistics.git
+cd collaborative-ivena-statistics
+make install
 ```
 
-## Batch import requeue
+### `.env` / configuration
 
-To re-dispatch allocation import jobs for all (or filtered) imports with resume
-checkpoints, see [docs/import/batch-requeue.md](docs/import/batch-requeue.md).
-
-Quick examples:
-
-```
-$ php bin/console app:import:requeue-all --dry-run
-$ php bin/console app:import:requeue-all --resume
-$ ./scripts/import/requeue-all-until-done.sh
+```bash
+cp .env.example .env.local
+php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
 ```
 
-## Statistics architecture overview
+Set at least: `APP_SECRET` and `DATABASE_URL`, find more about the configuration here: [docs/Configuration.md](docs/Configuration.md)
 
-For projection tables, materialized views, Foundry test resets, and refresh commands, see [docs/statistics/projection-and-materialized-views.md](docs/statistics/projection-and-materialized-views.md).
+### Prepare the database
 
-The statistics pages follow a strict read path to keep controller code slim and
-to make query and presentation layers testable:
+`make install` runs the default initialization. If needed:
 
-1. HTTP controllers create filter/request models (`StatisticsFilterFactory`,
-   `AnalysisRequestModelFactory`, `ReportsRequestModelFactory`).
-2. Application definitions/queries build widget domain data from
-   `allocation_stats_projection`.
-   After bulk projection rebuilds, refresh materialized views with
-   `php bin/console app:statistics:refresh-mviews` (all groups)
-   or `php bin/console app:statistics:refresh-mviews --overview`.
-3. Page presenters map domain output to Twig view models
-   (`StatisticsPageViewModel`, `AnalysisPageViewModel`, `ReportsPageViewModel`).
-4. Twig templates render view models only; no SQL, no business logic.
+```bash
+symfony composer setup-env
+symfony composer setup-test-env
+```
 
-This separation keeps URLs and UI stable while allowing internal query and
-presentation refactors with focused unit tests.
+### Run locally
 
-## Configuration
+```bash
+make start
+symfony serve -d
+```
 
-Runtime settings live in `.env` (and environment-specific overrides).
+## Documentation index
 
-**Local setup:** use [`.env.local`](.env.local) for secrets and overrides (not
-committed). If you do not have one yet, copy [`.env.example`](.env.example) and set
-at least `APP_SECRET` (generate with `openssl rand -hex 16` or
-`php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"`). This project does not use
-`.env.dev`; production secrets belong in server `shared/.env.local` (see
-[docs/deployment.md](docs/deployment.md)).
+For a full overview of the documentation, look at [docs/Overview.md](docs/Overview.md)
 
-The sections below cover the in-app feedback widget and server-side Sentry
-monitoring.
+- Setup: [docs/Setup.md](docs/Setup.md)
+- Configuration: [docs/Configuration.md](docs/Configuration.md)
+- Import: [docs/Import-workflow.md](docs/Import-workflow.md)
+- Development: [docs/Development-Workflow.md](docs/Development-Workflow.md)
+- Testing: [docs/Testing.md](docs/Testing.md)
+- Deployment / operations: [docs/Deployment.md](docs/Deployment.md)
+- Troubleshooting: [docs/Troubleshooting.md](docs/Troubleshooting.md)
+- Glossary: [docs/Glossary.md](docs/Glossary.md)
 
-### Feedback widget
+### Deep dives:
+- [docs/Import-batch-requeue.md](docs/Import-batch-requeue.md)
+- [docs/Import-reject-analysis.md](docs/Import-reject-analysis.md)
+- [docs/Statistics-projection-materialized-views.md](docs/Statistics-projection-materialized-views.md)
+- [docs/Observability-sentry.md](docs/Observability-sentry.md)
 
-Submissions are stored in the database. Admin notifications are sent via
-Symfony Mailer to users who have both `ROLE_ADMIN` and `ROLE_FEEDBACK_RECIPIENT`
-(assign the latter in the admin user UI as “Receives Feedback”). If no such
-user exists, no email is sent (see application logs: `feedback.admin_mail_skipped`).
+## Contributing
 
-| Variable | Purpose |
-|----------|---------|
-| `MAILER_FROM` | Default sender address for transactional mail |
-| `MAILER_REPLY_TO` | Optional reply-to address |
-| `APP_VERSION` | Release label stored with feedback and used as the default Sentry release |
-| `MAILER_DSN` | Mail transport (for example `smtp://user:pass@smtp.example:587`); required for outbound mail |
+This project thrives on collaboration between developers, clinicians, researchers, and participating hospitals. Contributions that improve data quality, usability, documentation, analysis capabilities, or system reliability are highly appreciated.
 
-Submissions are rate-limited to five per hour per client
-(`feedback_submit` in `config/packages/rate_limiter.yaml`; relaxed in `test`).
+Before contributing, please review the following documents:
 
-### Sentry monitoring
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
-Sentry is optional: leave `SENTRY_DSN` empty to disable it. When enabled, the
-bundle reports errors, structured logs, and automatic HTTP/Messenger/Doctrine
-tracing.
+Thank you for helping us build a platform that supports collaborative research and quality improvement in emergency care.
 
-| Variable | Purpose |
-|----------|---------|
-| `SENTRY_DSN` | Sentry project DSN |
-| `SENTRY_ENVIRONMENT` | Optional; falls back to `APP_ENV` |
-| `SENTRY_RELEASE` | Optional; falls back to `APP_VERSION` |
-| `SENTRY_TRACES_SAMPLE_RATE` | Tracing sample rate (`0.0`–`1.0`) |
-| `SENTRY_ENABLE_LOGS` | Structured logs (`true` / `false`; disabled in `test`) |
+## License
 
-See [docs/observability/sentry.md](docs/observability/sentry.md) for import log
-allowlists, scrubbing, and local smoke tests.
-
-### Deployment
-
-Production deploys use [Deployer](https://deployer.org/) with optional Messenger
-worker management via systemd (Uberspace user services). See
-[docs/deployment.md](docs/deployment.md) for host inventory, `dep deploy`, and
-one-time worker setup.
-
-# Contributing
-Any contribution to this project is appreciated, whether it is related to
-fixing bugs, suggestions or improvements. Feel free to take your part in the
-development of this project!
-
-However, you should follow some simple guidelines which you can find in the
-[CONTRIBUTING](CONTRIBUTING.md) file. Also, you must agree to the
-[Code of Conduct](CODE_OF_CONDUCT.md).
-
-# License
-See [LICENSE](LICENSE.md).
+See [LICENSE.md](LICENSE.md).

@@ -1,7 +1,23 @@
 # Deployment
 
-This application is deployed with [Deployer](https://deployer.org/) using the Symfony recipe. Production runs on [Uberspace](https://uberspace.de/) with a 
-**user systemd** service for the Symfony Messenger worker.
+This application is deployed with [Deployer](https://deployer.org/) using the Symfony recipe. Production runs on [Uberspace](https://uberspace.de/) with a **user systemd** service for the Symfony Messenger worker.
+
+## Quick operations
+
+Most common commands:
+
+```bash
+vendor/bin/dep deploy
+systemctl --user status messenger
+systemctl --user restart messenger
+cd ~/www/current && php bin/console messenger:stats
+cd ~/www/current && php bin/console messenger:failed:show
+```
+
+Related docs:
+- Configuration details: [Configuration.md](Configuration.md)
+- Runtime issues and diagnostics: [Troubleshooting.md](Troubleshooting.md)
+- Import-specific operations: [Import-workflow.md](Import-workflow.md), [Import-batch-requeue.md](Import-batch-requeue.md)
 
 Further reading:
 
