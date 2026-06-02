@@ -33,6 +33,7 @@
                 <file name="src/Shared/Infrastructure/Pagination/CursorPaginator.php" />
                 <directory name="src/*/Application/Contracts/" />
                 <directory name="src/*/Application/DTO/" />
+                <directory name="src/*/Application/Page/" />
                 <directory name="src/*/Application/Exception/" />
                 <directory name="src/*/Domain/Entity/" />
                 <directory name="src/*/Domain/Enum/" />
@@ -57,6 +58,7 @@
         <PossiblyUnusedProperty>
             <errorLevel type="suppress">
                 <directory name="src/*/Application/DTO/" />
+                <directory name="src/*/Application/Page/DTO/" />
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Statistics/" />
@@ -68,6 +70,7 @@
                 <directory name="src/*/Application/MessageHandler/" />
                 <directory name="src/*/Infrastructure/EventSubscriber/" />
                 <directory name="src/*/UI/Twig/Components" />
+                <directory name="src/*/UI/Twig" />
                 <directory name="src/*/UI/Http/Controller" />
                 <directory name="src/*/UI/Console/Command" />
                 <directory name="src/DataFixtures" />

@@ -3175,6 +3175,42 @@
         <source>label.content_blocks</source>
         <target>Content blocks</target>
       </trans-unit>
+      <trans-unit id="page00k10" resname="label.page_key">
+        <source>label.page_key</source>
+        <target>Page key</target>
+      </trans-unit>
+      <trans-unit id="page00k11" resname="page.key.imprint">
+        <source>page.key.imprint</source>
+        <target>Imprint</target>
+      </trans-unit>
+      <trans-unit id="page00k12" resname="page.key.privacy">
+        <source>page.key.privacy</source>
+        <target>Privacy policy</target>
+      </trans-unit>
+      <trans-unit id="page00k13" resname="page.key.terms">
+        <source>page.key.terms</source>
+        <target>Terms and conditions</target>
+      </trans-unit>
+      <trans-unit id="page00k14" resname="page.key.about">
+        <source>page.key.about</source>
+        <target>About us</target>
+      </trans-unit>
+      <trans-unit id="page00k15" resname="page.key.features">
+        <source>page.key.features</source>
+        <target>Features</target>
+      </trans-unit>
+      <trans-unit id="page00k16" resname="page.key.faq">
+        <source>page.key.faq</source>
+        <target>FAQ</target>
+      </trans-unit>
+      <trans-unit id="regterms01" resname="label.registration.accept_terms_prefix">
+        <source>label.registration.accept_terms_prefix</source>
+        <target>I accept the </target>
+      </trans-unit>
+      <trans-unit id="regterms03" resname="link.terms">
+        <source>link.terms</source>
+        <target>terms and conditions</target>
+      </trans-unit>
       <trans-unit id="page0010" resname="label.block">
         <source>label.block</source>
         <target>Block</target>

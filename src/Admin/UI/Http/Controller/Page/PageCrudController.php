@@ -9,6 +9,7 @@ use App\Content\Application\Page\PageContentSanitizer;
 use App\Content\Application\Page\PageContentValidator;
 use App\Content\Application\Page\PagePathResolver;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Enum\PageKey;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -58,7 +59,7 @@ final class PageCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('label.page')
             ->setEntityLabelInPlural('label.pages')
-            ->setSearchFields(['id', 'title', 'slug', 'path'])
+            ->setSearchFields(['id', 'title', 'slug', 'path', 'key'])
             ->setDefaultSort(['path' => 'ASC']);
     }
 
@@ -104,6 +105,11 @@ final class PageCrudController extends AbstractCrudController
         yield IdField::new('id')->onlyOnDetail();
         yield TextField::new('title', 'label.title');
         yield SlugField::new('slug', 'label.slug')->setTargetFieldName('title');
+        yield ChoiceField::new('key', 'label.page_key')
+            ->setChoices($this->buildPageKeyChoices())
+            ->setRequired(false)
+            ->allowMultipleChoices(false)
+            ->setFormTypeOption('placeholder', '—');
         yield AssociationField::new('parent', 'label.parent_page')->autocomplete();
         yield ChoiceField::new('status', 'label.status')
             ->setChoices([
@@ -192,6 +198,19 @@ final class PageCrudController extends AbstractCrudController
         $content = $page->getContent();
         $this->pageContentValidator->assertValid($content);
         $page->setContent($this->pageContentSanitizer->sanitize($content));
+    }
+
+    /**
+     * @return array<string, PageKey>
+     */
+    private function buildPageKeyChoices(): array
+    {
+        $choices = [];
+        foreach (PageKey::cases() as $pageKey) {
+            $choices[$pageKey->translationKey()] = $pageKey;
+        }
+
+        return $choices;
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Infrastructure\Repository;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Enum\PageKey;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -31,6 +32,37 @@ final class PageRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
 
         return $page;
+    }
+
+    public function findOnePublishedByKey(PageKey $key): ?Page
+    {
+        /** @var ?Page $page */
+        $page = $this->createQueryBuilder('p')
+            ->andWhere('p.key = :key')
+            ->andWhere('p.status = :status')
+            ->setParameter('key', $key)
+            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $page;
+    }
+
+    /**
+     * @return list<Page>
+     */
+    public function findAllPublishedWithKey(): array
+    {
+        /** @var list<Page> $pages */
+        $pages = $this->createQueryBuilder('p')
+            ->andWhere('p.key IS NOT NULL')
+            ->andWhere('p.status = :status')
+            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->getQuery()
+            ->getResult();
+
+        return $pages;
     }
 
     /**
