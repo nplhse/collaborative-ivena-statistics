@@ -22,6 +22,7 @@ use App\Admin\UI\Http\Controller\IndicationNormalized\IndicationNormalizedCrudCo
 use App\Admin\UI\Http\Controller\IndicationRaw\IndicationRawCrudController;
 use App\Admin\UI\Http\Controller\Infection\InfectionCrudController;
 use App\Admin\UI\Http\Controller\MciCase\MciCaseCrudController;
+use App\Admin\UI\Http\Controller\Media\MediaCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
 use App\Admin\UI\Http\Controller\Page\PageCrudController;
 use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
@@ -159,6 +160,12 @@ final class DashboardController extends AbstractDashboardController
                         'icon' => 'fas fa-file',
                         'controller' => PageCrudController::class,
                     ],
+                    [
+                        'label' => 'Media',
+                        'description' => 'Upload images and PDFs for pages and blog',
+                        'icon' => 'fas fa-photo-film',
+                        'controller' => MediaCrudController::class,
+                    ],
                 ],
             ],
             [
@@ -227,6 +234,7 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkTo(PostTagCrudController::class, 'menu.blog.tags', 'fas fa-tags'),
         ]);
         yield MenuItem::linkTo(PageCrudController::class, 'Pages', 'fas fa-file');
+        yield MenuItem::linkTo(MediaCrudController::class, 'label.media_library', 'fas fa-photo-film');
 
         yield MenuItem::section('System');
         yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');

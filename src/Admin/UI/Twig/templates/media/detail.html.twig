@@ -1,0 +1,37 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {{ parent() }}
+
+    {% if media_public_url is defined and media_public_url is not empty %}
+        <div class="field-group mt-4">
+            <h3 class="h5">{{ 'label.media_usage'|trans }}</h3>
+
+            {% set media = entity.instance %}
+            {% if media.type.value == 'image' %}
+                <p class="mb-2">
+                    <img src="{{ media_public_url }}" alt="{{ media.altText|default(media.title|default('')) }}" class="img-fluid rounded" style="max-height: 240px;">
+                </p>
+            {% else %}
+                <p class="mb-2">
+                    <a href="{{ media_public_url }}" target="_blank" rel="noopener">{{ media_public_url }}</a>
+                </p>
+            {% endif %}
+
+            <label class="form-label" for="media-snippet">{{ 'label.html_snippet'|trans }}</label>
+            <textarea id="media-snippet" class="form-control font-monospace" rows="4" readonly>{{ media_snippet }}</textarea>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" data-copy-target="media-snippet">
+                {{ 'action.copy_snippet'|trans }}
+            </button>
+        </div>
+
+        <script>
+            document.querySelector('[data-copy-target="media-snippet"]')?.addEventListener('click', function () {
+                const el = document.getElementById('media-snippet');
+                if (!el) return;
+                el.select();
+                navigator.clipboard?.writeText(el.value);
+            });
+        </script>
+    {% endif %}
+{% endblock %}
