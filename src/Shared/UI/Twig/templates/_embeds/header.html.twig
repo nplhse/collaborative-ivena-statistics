@@ -51,6 +51,13 @@
                                     </span>
                                 </a>
                             </li>
+                            {% for item in page_nav_header_items() %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ item.url }}">
+                                        <span class="nav-link-title">{{ item.label }}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
                         {% endblock %}
                     </ul>
                 </div>

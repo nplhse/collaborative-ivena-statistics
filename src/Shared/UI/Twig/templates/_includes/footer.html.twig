@@ -6,6 +6,11 @@
                     <li class="list-inline-item">
                         &copy; 2025 <a href="https://github.com/nplhse/collaborative-ivena-statistics" class="link-secondary">collaborative-ivena-statistics</a>
                     </li>
+                    {% for item in page_nav_footer_items() %}
+                        <li class="list-inline-item">
+                            <a href="{{ item.url }}" class="link-secondary">{{ item.label }}</a>
+                        </li>
+                    {% endfor %}
                     <li class="list-inline-item">
                         <a href="{{ path('app_cookie_preferences') }}" class="link-secondary">{{ 'link.cookie_preferences'|trans }}</a>
                     </li>
