@@ -74,5 +74,7 @@ final class AssignIndicationRawControllerTest extends WebTestCase
         self::assertNotNull($reloadedRaw, 'Raw entity should exist.');
         self::assertNotNull($reloadedRaw->getTarget(), 'Raw Indication should be assigned to a normalized Indication.');
         self::assertSame($normalized->getId(), $reloadedRaw->getTarget()->getId(), 'Assignment should match expected ID.');
+        self::assertNotNull($reloadedRaw->getNormalized(), 'Raw Indication should mirror normalized for import and statistics.');
+        self::assertSame($normalized->getId(), $reloadedRaw->getNormalized()->getId());
     }
 }
