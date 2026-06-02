@@ -3,7 +3,7 @@ set -euo pipefail
 
 MAX_RETRIES_PER_IMPORT="${MAX_RETRIES_PER_IMPORT:-3}"
 SLEEP_SECONDS="${SLEEP_SECONDS:-10}"
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cd "$PROJECT_DIR"
 

@@ -90,9 +90,6 @@ services:
 
     Symfony\Component\Lock\LockFactory: '@app.lock.factory'
 
-    App\Import\Infrastructure\Adapter\SplCsvRowReader: ~
-    App\Import\Infrastructure\Mapping\AllocationRowMapper: ~
-    App\Import\Infrastructure\Mapping\AllocationImportFactory: ~
     App\Import\Infrastructure\Adapter\DoctrineAllocationPersister:
         arguments:
             $batchSize: 250

@@ -57,7 +57,7 @@ Exit `2` stops the loop (e.g. permanent dispatch failure or max retries):
 
 ```bash
 export MAX_RETRIES_PER_IMPORT=3
-./scripts/import/requeue-all-until-done.sh
+./bin/requeue-all-until-done
 ```
 
 ## Checkpoints
