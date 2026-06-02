@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Blog;
 
+use App\Admin\UI\Http\Controller\Media\MediaCrudController;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Repository\PostRepository;
@@ -18,8 +19,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @extends AbstractCrudController<Post>
@@ -29,6 +32,8 @@ final class PostCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly PostRepository $postRepository,
+        private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -61,9 +66,9 @@ final class PostCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->onlyOnDetail();
         yield TextField::new('title', 'label.title');
-        yield TextField::new('slug', 'label.slug')->setDisabled();
+        yield TextField::new('slug', 'label.slug')->setDisabled()->hideOnIndex();
         yield AssociationField::new('category', 'label.category');
-        yield AssociationField::new('tags', 'label.tags')->autocomplete();
+        yield AssociationField::new('tags', 'label.tags')->autocomplete()->hideOnIndex();
         yield ChoiceField::new('status', 'label.status')
             ->setChoices([
                 'label.draft' => PostStatus::DRAFT,
@@ -73,7 +78,10 @@ final class PostCrudController extends AbstractCrudController
         yield DateTimeField::new('publishedAt', 'label.published_at')
             ->setHelp('help.blog.published_at');
         yield TextEditorField::new('content', 'label.content')
-            ->setNumOfRows(20);
+            ->setNumOfRows(20)
+            ->setHelp($this->buildMediaLibraryHelp())
+            ->setFormTypeOption('help_html', true)
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt', 'label.created')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
         yield DateTimeField::new('updatedAt', 'label.updated')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
     }
@@ -124,5 +132,18 @@ final class PostCrudController extends AbstractCrudController
         }
 
         return $candidate;
+    }
+
+    private function buildMediaLibraryHelp(): string
+    {
+        $url = htmlspecialchars(
+            $this->adminUrlGenerator
+                ->setController(MediaCrudController::class)
+                ->generateUrl(),
+            ENT_QUOTES | ENT_HTML5,
+        );
+
+        return $this->translator->trans('help.blog.media_library')
+            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library'));
     }
 }
