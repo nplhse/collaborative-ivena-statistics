@@ -53,7 +53,7 @@ Quick examples:
 ```
 $ php bin/console app:import:requeue-all --dry-run
 $ php bin/console app:import:requeue-all --resume
-$ ./scripts/import/requeue-all-until-done.sh
+$ ./bin/requeue-all-until-done
 ```
 
 ## Statistics architecture overview
