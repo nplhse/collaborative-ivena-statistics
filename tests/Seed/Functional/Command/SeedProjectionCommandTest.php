@@ -88,6 +88,39 @@ final class SeedProjectionCommandTest extends KernelTestCase
         self::assertStringContainsString('No allocations found. Projection table remains empty.', $tester->getDisplay());
     }
 
+    public function testCommandRunsGarbageCollectionAfterTwentyFiveImports(): void
+    {
+        self::bootKernel();
+        $connection = self::getContainer()->get(Connection::class);
+        $seed = $this->seedReferenceGraph();
+
+        for ($i = 0; $i < 25; ++$i) {
+            $import = ImportFactory::createOne([
+                'name' => 'GC Projection Import '.$i,
+                'hospital' => $seed['hospital'],
+                'createdBy' => $seed['user'],
+            ]);
+            AllocationFactory::createOne($this->allocationDefaults(
+                $seed,
+                $import,
+                20 + $i,
+                '2025-04-01 08:00:00',
+                '2025-04-01 08:30:00',
+            ));
+        }
+
+        $command = self::getContainer()->get(SeedProjectionCommand::class);
+        $tester = new CommandTester($command);
+        $exitCode = $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
+        self::assertSame(0, $exitCode);
+
+        $allocationCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM allocation');
+        $projectionCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection');
+        self::assertSame($allocationCount, $projectionCount);
+        self::assertStringContainsString('Projection rebuild finished. Imports processed: 25', $tester->getDisplay());
+    }
+
     /**
      * @return array{
      *     user: object,
