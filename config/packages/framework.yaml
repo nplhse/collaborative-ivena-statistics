@@ -12,6 +12,8 @@ framework:
         sanitizers:
             page_richtext:
                 allow_safe_elements: true
+                allow_relative_links: true
+                allow_relative_medias: true
                 allow_elements:
                     - p
                     - br
@@ -25,12 +27,17 @@ framework:
                     - li
                     - a
                     - blockquote
+                    - img
                 allow_attributes:
                     a:
                         - href
                         - title
                         - target
                         - rel
+                    img:
+                        - src
+                        - alt
+                        - loading
                 force_attributes:
                     a:
                         rel: 'noopener noreferrer'

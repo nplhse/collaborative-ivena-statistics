@@ -36,6 +36,11 @@ phpstan.neon
 /.twig-cs-fixer.cache
 ###< vincentlanglet/twig-cs-fixer ###
 
+# Uploaded media files (keep directory structure)
+/public/uploads/media/*
+!/public/uploads/media/.gitkeep
+!/public/uploads/media/.htaccess
+
 # macOS
 .DS_Store
 

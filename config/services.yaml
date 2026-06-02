@@ -11,6 +11,8 @@ imports:
 parameters:
     app.imports_max_size: '15M'
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
+    app.media_max_size: '10M'
+    app.media_upload_dir: '%kernel.project_dir%/public/uploads/media'
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
     env(APP_URL): ''
     env(MAILER_FROM): 'no-reply@localhost'

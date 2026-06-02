@@ -1,0 +1,7 @@
+# Prevent execution of uploaded scripts
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>
