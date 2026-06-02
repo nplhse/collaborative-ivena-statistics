@@ -5,20 +5,12 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query;
 
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
-use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
-use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
-use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
-use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
-use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Types;
 use Psr\Log\LoggerInterface;
 
 /** @psalm-suppress UnusedClass */
 final readonly class AllocationStatsProjectionRebuilder implements AllocationStatsProjectionRebuildInterface
 {
-    private const int BATCH_SIZE = 250;
-
     public function __construct(
         private Connection $connection,
         private LoggerInterface $logger,
@@ -49,60 +41,10 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
         try {
             $this->deleteForImport($importId);
 
-            $result = $this->connection->executeQuery(
-                <<<'SQL'
-SELECT
-  a.id,
-  a.import_id,
-  a.hospital_id,
-  a.state_id,
-  a.dispatch_area_id,
-  a.speciality_id,
-  a.department_id,
-  a.occasion_id,
-  a.assignment_id,
-  a.infection_id,
-  a.indication_normalized_id,
-  a.secondary_indication_normalized_id,
-  a.created_at,
-  a.arrival_at,
-  a.age,
-  a.gender,
-  a.urgency,
-  a.transport_type,
-  a.requires_resus,
-  a.requires_cathlab,
-  a.is_cpr,
-  a.is_ventilated,
-  a.is_shock,
-  a.is_pregnant,
-  a.is_work_accident,
-  a.is_with_physician,
-  h.tier AS hospital_tier,
-  h.location AS hospital_location
-FROM allocation a
-INNER JOIN hospital h ON h.id = a.hospital_id
-WHERE a.import_id = :importId
-ORDER BY a.id ASC
-SQL,
-                ['importId' => $importId]
+            $insertedRows = $this->connection->executeStatement(
+                $this->insertSelectSql(),
+                ['importId' => $importId],
             );
-
-            $chunk = [];
-            $insertedRows = 0;
-            foreach ($result->iterateAssociative() as $row) {
-                $chunk[] = $row;
-                if (\count($chunk) < self::BATCH_SIZE) {
-                    continue;
-                }
-                $this->insertChunk($chunk);
-                $insertedRows += \count($chunk);
-                $chunk = [];
-            }
-            if ([] !== $chunk) {
-                $this->insertChunk($chunk);
-                $insertedRows += \count($chunk);
-            }
 
             $this->connection->commit();
 
@@ -123,187 +65,108 @@ SQL,
     }
 
     /**
-     * @param list<array<string,mixed>> $chunk
+     * Rebuilds projection rows in the database without loading allocations into PHP (memory-safe for large imports).
      */
-    private function insertChunk(array $chunk): void
+    private function insertSelectSql(): string
     {
-        if ([] === $chunk) {
-            return;
-        }
-
-        $columns = [
-            'id', 'import_id', 'hospital_id', 'state_id', 'dispatch_area_id',
-            'speciality_id', 'department_id', 'occasion_id', 'assignment_id',
-            'infection_id', 'indication_normalized_id', 'secondary_indication_normalized_id',
-            'created_at', 'arrival_at',
-            'created_year', 'created_quarter', 'created_month', 'created_week',
-            'created_day', 'created_weekday', 'created_hour',
-            'transport_time_minutes',
-            'age', 'gender_code', 'urgency_code', 'transport_type_code', 'hospital_tier_code', 'hospital_location_code',
-            'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant', 'is_work_accident', 'is_with_physician',
-        ];
-
-        $params = [];
-        $types = [];
-        $valueTuples = [];
-        $rowIndex = 0;
-
-        foreach ($chunk as $row) {
-            $mapped = $this->mapRow($row);
-            $placeholders = [];
-
-            foreach ($columns as $col) {
-                $param = $col.'_'.$rowIndex;
-                $placeholders[] = ':'.$param;
-                $params[$param] = $mapped[$col];
-                $types[$param] = $this->doctrineTypeNameForProjectionColumn($col);
-            }
-
-            $valueTuples[] = '('.implode(', ', $placeholders).')';
-            ++$rowIndex;
-        }
-
-        $sql = sprintf(
-            'INSERT INTO allocation_stats_projection (%s) VALUES %s',
-            implode(', ', $columns),
-            implode(', ', $valueTuples)
-        );
-
-        $this->connection->executeStatement($sql, $params, $types);
-    }
-
-    /**
-     * DBAL resolves these names to {@see \Doctrine\DBAL\Types\Type} instances (Psalm-compatible $types array).
-     */
-    private function doctrineTypeNameForProjectionColumn(string $column): string
-    {
-        return match ($column) {
-            'created_at', 'arrival_at' => Types::STRING,
-            'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant', 'is_work_accident', 'is_with_physician' => Types::BOOLEAN,
-            default => Types::INTEGER,
-        };
-    }
-
-    /**
-     * @param array<string,mixed> $row
-     *
-     * @return array<string,mixed>
-     */
-    private function mapRow(array $row): array
-    {
-        $createdAt = $this->parseDateTimeImmutable($row['created_at'] ?? null);
-        $arrivalAt = $this->parseDateTimeImmutable($row['arrival_at'] ?? null);
-
-        if (!$createdAt instanceof \DateTimeImmutable || !$arrivalAt instanceof \DateTimeImmutable) {
-            throw new \InvalidArgumentException('allocation row missing created_at or arrival_at');
-        }
-
-        $transportMinutes = (int) round(($arrivalAt->getTimestamp() - $createdAt->getTimestamp()) / 60);
-
-        $year = (int) $createdAt->format('Y');
-        $month = (int) $createdAt->format('n');
-        $quarter = (int) ceil($month / 3);
-
-        $urgency = AllocationStatsUrgencyProjectionCode::tryFromDbValue($row['urgency'] ?? null);
-        if (!$urgency instanceof AllocationStatsUrgencyProjectionCode) {
-            throw new \InvalidArgumentException('allocation row has invalid urgency: '.var_export($row['urgency'] ?? null, true));
-        }
-
-        return [
-            'id' => (int) $row['id'],
-            'import_id' => (int) $row['import_id'],
-            'hospital_id' => (int) $row['hospital_id'],
-            'state_id' => (int) $row['state_id'],
-            'dispatch_area_id' => (int) $row['dispatch_area_id'],
-            'speciality_id' => (int) $row['speciality_id'],
-            'department_id' => (int) $row['department_id'],
-            'occasion_id' => null !== ($row['occasion_id'] ?? null) ? (int) $row['occasion_id'] : null,
-            'assignment_id' => (int) $row['assignment_id'],
-            'infection_id' => null !== ($row['infection_id'] ?? null) ? (int) $row['infection_id'] : null,
-            'indication_normalized_id' => null !== ($row['indication_normalized_id'] ?? null) ? (int) $row['indication_normalized_id'] : null,
-            'secondary_indication_normalized_id' => null !== ($row['secondary_indication_normalized_id'] ?? null) ? (int) $row['secondary_indication_normalized_id'] : null,
-            'created_at' => $createdAt->format('Y-m-d H:i:s'),
-            'arrival_at' => $arrivalAt->format('Y-m-d H:i:s'),
-            'created_year' => $year,
-            'created_quarter' => $quarter,
-            'created_month' => $month,
-            'created_week' => (int) $createdAt->format('W'),
-            'created_day' => (int) $createdAt->format('j'),
-            'created_weekday' => (int) $createdAt->format('N'),
-            'created_hour' => (int) $createdAt->format('G'),
-            'transport_time_minutes' => $transportMinutes,
-            'age' => \array_key_exists('age', $row)
-                ? (null === $row['age'] ? null : (int) $row['age'])
-                : null,
-            'gender_code' => AllocationStatsGenderProjectionCode::tryFromDbLetter(
-                isset($row['gender']) && \is_string($row['gender']) ? $row['gender'] : null
-            )?->value,
-            'urgency_code' => $urgency->value,
-            'transport_type_code' => AllocationStatsTransportTypeProjectionCode::tryFromDbLetter(
-                isset($row['transport_type']) && \is_string($row['transport_type']) ? $row['transport_type'] : null
-            )?->value,
-            'hospital_tier_code' => AllocationStatsHospitalTierProjectionCode::tryFromTierDbValue($row['hospital_tier'] ?? null)?->value,
-            'hospital_location_code' => AllocationStatsHospitalLocationProjectionCode::tryFromLocationDbValue($row['hospital_location'] ?? null)?->value,
-            'requires_resus' => $this->nullableBool($row['requires_resus'] ?? null),
-            'requires_cathlab' => $this->nullableBool($row['requires_cathlab'] ?? null),
-            'is_cpr' => $this->nullableBool($row['is_cpr'] ?? null),
-            'is_ventilated' => $this->nullableBool($row['is_ventilated'] ?? null),
-            'is_shock' => $this->nullableBool($row['is_shock'] ?? null),
-            'is_pregnant' => $this->nullableBool($row['is_pregnant'] ?? null),
-            'is_work_accident' => $this->nullableBool($row['is_work_accident'] ?? null),
-            'is_with_physician' => $this->nullableBool($row['is_with_physician'] ?? null),
-        ];
-    }
-
-    private function nullableBool(mixed $value): ?bool
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        if (\is_bool($value)) {
-            return $value;
-        }
-
-        if (\is_int($value) || \is_float($value)) {
-            return 0 !== (int) $value;
-        }
-
-        if ($value instanceof \Stringable) {
-            $value = (string) $value;
-        }
-
-        if (\is_string($value)) {
-            $v = strtolower(trim($value, " \t\n\r\0\x0B"));
-
-            return match ($v) {
-                '', 'null' => null,
-                '1', 't', 'true', 'yes', 'on' => true,
-                '0', 'f', 'false', 'no', 'off' => false,
-                default => filter_var($v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
-            };
-        }
-
-        return (bool) $value;
-    }
-
-    private function parseDateTimeImmutable(mixed $value): ?\DateTimeImmutable
-    {
-        if ($value instanceof \DateTimeImmutable) {
-            return $value;
-        }
-
-        if ($value instanceof \DateTimeInterface) {
-            return \DateTimeImmutable::createFromInterface($value);
-        }
-
-        if (\is_string($value) && '' !== $value) {
-            $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $value)
-                ?: \DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $value);
-
-            return $dt ?: new \DateTimeImmutable($value);
-        }
-
-        return null;
+        return <<<'SQL'
+INSERT INTO allocation_stats_projection (
+    id,
+    import_id,
+    hospital_id,
+    state_id,
+    dispatch_area_id,
+    speciality_id,
+    department_id,
+    occasion_id,
+    assignment_id,
+    infection_id,
+    indication_normalized_id,
+    secondary_indication_normalized_id,
+    created_at,
+    arrival_at,
+    created_year,
+    created_quarter,
+    created_month,
+    created_week,
+    created_day,
+    created_weekday,
+    created_hour,
+    transport_time_minutes,
+    age,
+    gender_code,
+    urgency_code,
+    transport_type_code,
+    hospital_tier_code,
+    hospital_location_code,
+    requires_resus,
+    requires_cathlab,
+    is_cpr,
+    is_ventilated,
+    is_shock,
+    is_pregnant,
+    is_work_accident,
+    is_with_physician
+)
+SELECT
+    a.id,
+    a.import_id,
+    a.hospital_id,
+    a.state_id,
+    a.dispatch_area_id,
+    a.speciality_id,
+    a.department_id,
+    a.occasion_id,
+    a.assignment_id,
+    a.infection_id,
+    a.indication_normalized_id,
+    a.secondary_indication_normalized_id,
+    a.created_at,
+    a.arrival_at,
+    EXTRACT(YEAR FROM a.created_at)::SMALLINT,
+    CEIL(EXTRACT(MONTH FROM a.created_at) / 3.0)::SMALLINT,
+    EXTRACT(MONTH FROM a.created_at)::SMALLINT,
+    TO_CHAR(a.created_at, 'IW')::SMALLINT,
+    EXTRACT(DAY FROM a.created_at)::SMALLINT,
+    EXTRACT(ISODOW FROM a.created_at)::SMALLINT,
+    EXTRACT(HOUR FROM a.created_at)::SMALLINT,
+    ROUND(EXTRACT(EPOCH FROM (a.arrival_at - a.created_at)) / 60)::INT,
+    a.age,
+    CASE UPPER(a.gender)
+        WHEN 'M' THEN 1
+        WHEN 'F' THEN 2
+        WHEN 'X' THEN 3
+        ELSE NULL
+    END,
+    a.urgency::SMALLINT,
+    CASE UPPER(a.transport_type)
+        WHEN 'G' THEN 1
+        WHEN 'A' THEN 2
+        ELSE NULL
+    END,
+    CASE h.tier
+        WHEN 'Basic' THEN 1
+        WHEN 'Extended' THEN 2
+        WHEN 'Full' THEN 3
+        ELSE NULL
+    END,
+    CASE h.location
+        WHEN 'Urban' THEN 1
+        WHEN 'Mixed' THEN 2
+        WHEN 'Rural' THEN 3
+        ELSE NULL
+    END,
+    a.requires_resus,
+    a.requires_cathlab,
+    a.is_cpr,
+    a.is_ventilated,
+    a.is_shock,
+    a.is_pregnant,
+    a.is_work_accident,
+    a.is_with_physician
+FROM allocation a
+INNER JOIN hospital h ON h.id = a.hospital_id
+WHERE a.import_id = :importId
+SQL;
     }
 }

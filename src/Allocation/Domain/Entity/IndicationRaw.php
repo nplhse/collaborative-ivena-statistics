@@ -154,6 +154,9 @@ class IndicationRaw implements \Stringable
     public function setTarget(?IndicationNormalized $target): static
     {
         $this->target = $target;
+        if ($target instanceof IndicationNormalized) {
+            $this->normalized = $target;
+        }
 
         return $this;
     }

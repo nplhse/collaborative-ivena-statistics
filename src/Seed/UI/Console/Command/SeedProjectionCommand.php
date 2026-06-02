@@ -20,6 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class SeedProjectionCommand extends Command
 {
+    private const int GC_EVERY_N_IMPORTS = 25;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly EntityManagerInterface $entityManager,
@@ -50,9 +52,13 @@ final class SeedProjectionCommand extends Command
             $progress = new ProgressBar($output, \count($importIds));
             $progress->start();
 
-            foreach ($importIds as $importId) {
+            foreach ($importIds as $index => $importId) {
                 $this->rebuilder->rebuildForImport($importId);
                 $progress->advance();
+
+                if (0 === (($index + 1) % self::GC_EVERY_N_IMPORTS)) {
+                    gc_collect_cycles();
+                }
             }
 
             $progress->finish();
