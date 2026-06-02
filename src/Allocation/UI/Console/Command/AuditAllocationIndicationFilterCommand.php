@@ -25,7 +25,6 @@ final class AuditAllocationIndicationFilterCommand extends Command
     public function __construct(
         private readonly ListAllocationsQuery $listAllocationsQuery,
         private readonly EntityManagerInterface $entityManager,
-        private readonly string $projectDir,
     ) {
         parent::__construct();
     }
@@ -62,17 +61,6 @@ final class AuditAllocationIndicationFilterCommand extends Command
             $estimated = $paginator->getEstimatedNumResults();
             $actualNormalized = $this->countByNormalizedCode($code);
             $actualRaw = $this->countByRawCode($code);
-
-            // #region agent log
-            $this->debugLog('audit-indication', [
-                'hypothesisId' => 'A',
-                'code' => $code,
-                'estimated' => $estimated,
-                'pageRows' => \count($pageRows),
-                'actualNormalized' => $actualNormalized,
-                'actualRaw' => $actualRaw,
-            ]);
-            // #endregion
 
             $estimateForCompare = $estimated ?? 0;
             if ($estimateForCompare >= $minEstimate && 0 === \count($pageRows) && 0 === $actualNormalized) {
@@ -156,24 +144,5 @@ final class AuditAllocationIndicationFilterCommand extends Command
             ->setParameter('code', $code)
             ->getQuery()
             ->getSingleScalarResult();
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function debugLog(string $message, array $data): void
-    {
-        $payload = json_encode([
-            'sessionId' => '281c06',
-            'runId' => 'audit-command',
-            'hypothesisId' => $data['hypothesisId'] ?? 'A',
-            'location' => self::class,
-            'message' => $message,
-            'data' => $data,
-            'timestamp' => (int) round(microtime(true) * 1000.0),
-        ], JSON_THROW_ON_ERROR);
-
-        $logPath = $this->projectDir.'/.cursor/debug-281c06.log';
-        file_put_contents($logPath, $payload."\n", FILE_APPEND);
     }
 }
