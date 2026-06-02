@@ -26,5 +26,14 @@ final class AppExtension extends Extension
         $importConfig = $config['import'];
         $container->setParameter('app.import.reject_writer', $importConfig['reject_writer']);
         $container->setParameter('app.import.csv_reject_dir', $importConfig['csv_reject_dir']);
+
+        // Feedback spam settings
+        $spamConfig = $config['feedback']['spam'];
+        $container->setParameter('app.feedback.spam.min_submission_seconds', $spamConfig['min_submission_seconds']);
+        $container->setParameter('app.feedback.spam.long_message_threshold', $spamConfig['long_message_threshold']);
+        $container->setParameter('app.feedback.spam.anonymous_threshold', $spamConfig['anonymous_threshold']);
+        $container->setParameter('app.feedback.spam.authenticated_threshold', $spamConfig['authenticated_threshold']);
+        $container->setParameter('app.feedback.spam.authenticated_score_bonus', $spamConfig['authenticated_score_bonus']);
+        $container->setParameter('app.feedback.spam.keywords', $spamConfig['keywords']);
     }
 }

@@ -147,6 +147,138 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         self::assertSame(1, $repo->count([]));
     }
 
+    public function testHoneypotFilledSubmissionIsSilentlyDropped(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            'guestEmail' => 'honeypot@example.test',
+            'category' => 'bug',
+            'message' => 'This should be discarded as spam.',
+            'website' => 'https://spammer.example',
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        self::assertSame(0, $repo->count([]));
+    }
+
+    public function testVeryFastSubmissionIsSilentlyDropped(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            'guestEmail' => 'fast@example.test',
+            'category' => 'question',
+            'message' => 'Fast bot-like submission.',
+            'renderedAt' => (string) time(),
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        self::assertSame(0, $repo->count([]));
+    }
+
+    public function testInvalidExtraContextAndRouteAreSanitized(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            '_source_route' => 'invalid/route!',
+            '_source_route_params' => '{"id":1,"_locale":"de"}',
+            'guestEmail' => 'sanitize@example.test',
+            'category' => 'question',
+            'message' => 'Please sanitize route and context.',
+            'extraContext' => '{bad-json',
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        $feedback = $repo->findOneBy(['message' => 'Please sanitize route and context.']);
+        self::assertNotNull($feedback);
+        self::assertNull($feedback->getRouteName());
+        self::assertSame(
+            [
+                'route_params' => ['id' => 1],
+                'extra' => [],
+            ],
+            $feedback->getContext(),
+        );
+    }
+
+    public function testInvalidRouteParamsJsonFallsBackToEmptyRouteParams(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            '_source_route' => 'app_home',
+            '_source_route_params' => '{oops',
+            'guestEmail' => 'params@example.test',
+            'category' => 'bug',
+            'message' => 'Broken route params json.',
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        $feedback = $repo->findOneBy(['message' => 'Broken route params json.']);
+        self::assertNotNull($feedback);
+        self::assertSame(
+            [
+                'route_params' => [],
+                'extra' => [],
+            ],
+            $feedback->getContext(),
+        );
+    }
+
     /**
      * @param array<string, string> $fields keys without feedback_submit prefix (e.g. _token, category, …)
      */
@@ -155,7 +287,10 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         $formNode = $client->getCrawler()->filter('#feedbackOffcanvas form')->first();
         self::assertGreaterThan(0, $formNode->count(), 'Feedback form not found in rendered page.');
 
-        $values = [];
+        $values = [
+            'feedback_submit[website]' => '',
+            'feedback_submit[renderedAt]' => (string) (time() - 10),
+        ];
         foreach ($fields as $name => $value) {
             $values[\sprintf('feedback_submit[%s]', $name)] = $value;
         }

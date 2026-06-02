@@ -43,6 +43,8 @@ final class FeedbackWidgetController extends AbstractController
             $form->get('extraContext')->setData($extra);
         }
 
+        $form->get('renderedAt')->setData((string) time());
+
         return $this->render('@Feedback/_includes/feedback_widget.html.twig', [
             'form' => $form->createView(),
         ]);
