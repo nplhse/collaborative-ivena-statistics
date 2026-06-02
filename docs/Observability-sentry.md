@@ -16,10 +16,10 @@ For alpha deployments, set a DSN, `SENTRY_ENVIRONMENT=alpha`, and `SENTRY_TRACES
 
 ## Integration
 
-- **Bundle:** [`config/packages/sentry.yaml`](../../config/packages/sentry.yaml) — errors, HTTP/Messenger/Doctrine tracing, and structured logs.
-- **Monolog:** [`config/packages/monolog.yaml`](../../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
-- **Scrubbing:** [`SentryEventScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryEventScrubber.php) and [`SentryLogScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryLogScrubber.php) filter events, breadcrumbs, and log attributes before send.
-- **Request context:** [`SentryRequestContextSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets user (ID/username), `route`, `bounded_context`, `origin`, and `request_id`.
+- **Bundle:** [`config/packages/sentry.yaml`](../config/packages/sentry.yaml) — errors, HTTP/Messenger/Doctrine tracing, and structured logs.
+- **Monolog:** [`config/packages/monolog.yaml`](../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
+- **Scrubbing:** [`SentryEventScrubber`](../src/Shared/Infrastructure/Monitoring/Sentry/SentryEventScrubber.php) and [`SentryLogScrubber`](../src/Shared/Infrastructure/Monitoring/Sentry/SentryLogScrubber.php) filter events, breadcrumbs, and log attributes before send.
+- **Request context:** [`SentryRequestContextSubscriber`](../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets user (ID/username), `route`, `bounded_context`, `origin`, and `request_id`.
 
 ## Issues vs. logs
 
@@ -54,6 +54,6 @@ In `dev` or `staging`, with a DSN configured, `GET /_debug/sentry/test` triggers
 ## Verifying in Sentry
 
 1. **Errors:** after the smoke test, expect a new issue with environment, release, and tags `route` / `bounded_context`.
-2. **Logs:** Explore → Logs with filters such as `message:import.summary` or `level:error`.
+2. **Logs:** Explore -> Logs with filters such as `message:import.summary` or `level:error`.
 3. **Performance:** HTTP requests, Messenger jobs, and Doctrine queries appear as automatic transactions and spans.
 4. **Privacy:** event and log details should not include request bodies or unnecessary personal data.

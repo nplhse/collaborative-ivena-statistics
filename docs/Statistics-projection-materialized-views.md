@@ -101,7 +101,7 @@ Registered only when `APP_ENV=test` (`config/services/foundry_test.yaml`):
 
 3. **After reset** — `OverviewMaterializedViewsInstaller::ensureInstalled()` recreates the overview views (same SQL as migrations) if they are absent.
 
-This wiring does **not** run in `prod` or `dev`; it does not change runtime behaviour outside tests.
+This wiring does **not** run in `prod` or `dev`; it does not change runtime behavior outside tests.
 
 ### Refresh after test fixtures
 
@@ -157,5 +157,4 @@ self::getContainer()
 
 ## Related documentation
 
-- [Statistics architecture (README)](../../README.md#statistics-architecture-overview) — controller and query overview
-- [Distribution panel reference](distribution-panel-reference.md) — UI-facing statistics concepts
+- [Architecture.md](Architecture.md) — controller and query overview
