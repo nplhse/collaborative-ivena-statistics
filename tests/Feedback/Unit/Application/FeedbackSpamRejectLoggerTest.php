@@ -68,4 +68,50 @@ final class FeedbackSpamRejectLoggerTest extends TestCase
             rateLimiterHit: 'anonymous_ip',
         );
     }
+
+    public function testLogsGuestUnknownWhenGuestEmailIsBlank(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
+            ->method('info')
+            ->with(
+                'feedback submission rejected as spam',
+                self::callback(static fn (array $context): bool => 'guest:unknown' === $context['submitter']
+                    && sha1('unknown') === $context['client_ip_hash']),
+            );
+
+        $rejectLogger = new FeedbackSpamRejectLogger($logger);
+        $rejectLogger->logRejected(
+            user: null,
+            guestEmail: '   ',
+            clientIp: null,
+            spamDecision: null,
+            rateLimiterHit: '',
+        );
+    }
+
+    public function testLogsUserUnknownWhenAuthenticatedUserHasNoId(): void
+    {
+        $user = new User();
+        $user->setEmail('no-id@example.test');
+        $user->setUsername('no-id');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
+            ->method('info')
+            ->with(
+                'feedback submission rejected as spam',
+                self::callback(static fn (array $context): bool => 'user:unknown' === $context['submitter']
+                    && true === $context['is_authenticated']),
+            );
+
+        $rejectLogger = new FeedbackSpamRejectLogger($logger);
+        $rejectLogger->logRejected(
+            user: $user,
+            guestEmail: null,
+            clientIp: '127.0.0.2',
+            spamDecision: null,
+            rateLimiterHit: '',
+        );
+    }
 }

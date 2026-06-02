@@ -103,4 +103,58 @@ final class FeedbackSpamCheckerTest extends TestCase
         self::assertGreaterThan(0, $authenticatedResult->getScore());
         self::assertGreaterThan($authenticatedResult->getScore(), $anonymousResult->getScore());
     }
+
+    public function testMissingRenderedTimestampAddsReasonForAnonymous(): void
+    {
+        $result = $this->createChecker()->check(
+            message: 'No rendered timestamp provided.',
+            honeypotValue: '',
+            renderedAtTimestamp: null,
+            submittedAtTimestamp: time(),
+            isAuthenticated: false,
+        );
+
+        self::assertContains('missing_render_timestamp', $result->getReasons());
+        self::assertGreaterThanOrEqual(1, $result->getScore());
+    }
+
+    public function testMissingRenderedTimestampDoesNotPenalizeAuthenticated(): void
+    {
+        $result = $this->createChecker()->check(
+            message: 'No rendered timestamp provided.',
+            honeypotValue: '',
+            renderedAtTimestamp: null,
+            submittedAtTimestamp: time(),
+            isAuthenticated: true,
+        );
+
+        self::assertNotContains('missing_render_timestamp', $result->getReasons());
+    }
+
+    public function testKeywordScoreIsCappedAtThree(): void
+    {
+        $result = $this->createChecker()->check(
+            message: 'casino crypto loan viagra seo backlink guest post',
+            honeypotValue: '',
+            renderedAtTimestamp: time() - 20,
+            submittedAtTimestamp: time(),
+            isAuthenticated: false,
+        );
+
+        self::assertContains('spam_keywords', $result->getReasons());
+        self::assertSame(3, $result->getScore());
+    }
+
+    public function testVeryLongMessageAddsReason(): void
+    {
+        $result = $this->createChecker()->check(
+            message: str_repeat('a', 1801),
+            honeypotValue: '',
+            renderedAtTimestamp: time() - 20,
+            submittedAtTimestamp: time(),
+            isAuthenticated: false,
+        );
+
+        self::assertContains('very_long_message', $result->getReasons());
+    }
 }
