@@ -72,6 +72,16 @@ final class FeedbackSubmitFormType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'data' => '',
+            ])
+            ->add('website', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+                'data' => '',
+            ])
+            ->add('renderedAt', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+                'data' => '',
             ]);
 
         if ($guestRequired) {

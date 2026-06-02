@@ -8,11 +8,27 @@ framework:
             policy: fixed_window
             limit: 5
             interval: '1 hour'
+        feedback_submit_anonymous_ip:
+            policy: fixed_window
+            limit: 4
+            interval: '1 hour'
+        feedback_submit_anonymous_email:
+            policy: fixed_window
+            limit: 3
+            interval: '1 hour'
 
 when@test:
     framework:
         rate_limiter:
             feedback_submit:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            feedback_submit_anonymous_ip:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            feedback_submit_anonymous_email:
                 policy: fixed_window
                 limit: 10000
                 interval: '1 second'

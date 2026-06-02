@@ -147,6 +147,62 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         self::assertSame(1, $repo->count([]));
     }
 
+    public function testHoneypotFilledSubmissionIsSilentlyDropped(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            'guestEmail' => 'honeypot@example.test',
+            'category' => 'bug',
+            'message' => 'This should be discarded as spam.',
+            'website' => 'https://spammer.example',
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        self::assertSame(0, $repo->count([]));
+    }
+
+    public function testVeryFastSubmissionIsSilentlyDropped(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            'guestEmail' => 'fast@example.test',
+            'category' => 'question',
+            'message' => 'Fast bot-like submission.',
+            'renderedAt' => (string) time(),
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        self::assertSame(0, $repo->count([]));
+    }
+
     /**
      * @param array<string, string> $fields keys without feedback_submit prefix (e.g. _token, category, …)
      */
@@ -155,7 +211,10 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         $formNode = $client->getCrawler()->filter('#feedbackOffcanvas form')->first();
         self::assertGreaterThan(0, $formNode->count(), 'Feedback form not found in rendered page.');
 
-        $values = [];
+        $values = [
+            'feedback_submit[website]' => '',
+            'feedback_submit[renderedAt]' => (string) (time() - 10),
+        ];
         foreach ($fields as $name => $value) {
             $values[\sprintf('feedback_submit[%s]', $name)] = $value;
         }

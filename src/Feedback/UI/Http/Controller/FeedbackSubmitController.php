@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Feedback\UI\Http\Controller;
 
+use App\Feedback\Application\FeedbackSpamChecker;
+use App\Feedback\Application\FeedbackSpamCheckResult;
+use App\Feedback\Application\FeedbackSpamRejectLogger;
 use App\Feedback\Application\RecordFeedbackHandler;
 use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\Feedback\UI\Form\FeedbackSubmitFormType;
@@ -21,6 +24,8 @@ final class FeedbackSubmitController extends AbstractController
     public function __construct(
         private readonly RecordFeedbackHandler $recordFeedbackHandler,
         private readonly FeedbackRedirectTargetResolver $redirectTargetResolver,
+        private readonly FeedbackSpamChecker $feedbackSpamChecker,
+        private readonly FeedbackSpamRejectLogger $feedbackSpamRejectLogger,
     ) {
     }
 
@@ -29,6 +34,10 @@ final class FeedbackSubmitController extends AbstractController
         Request $request,
         #[Autowire(service: 'limiter.feedback_submit')]
         RateLimiterFactory $feedbackSubmitLimiter,
+        #[Autowire(service: 'limiter.feedback_submit_anonymous_ip')]
+        RateLimiterFactory $anonymousIpLimiter,
+        #[Autowire(service: 'limiter.feedback_submit_anonymous_email')]
+        RateLimiterFactory $anonymousEmailLimiter,
         #[Autowire('%app.feedback.app_version%')]
         string $appVersion,
     ): RedirectResponse {
@@ -63,6 +72,12 @@ final class FeedbackSubmitController extends AbstractController
         $limit = $feedbackSubmitLimiter->create($limiterKey)->consume(1);
 
         if (!$limit->isAccepted()) {
+            if ($guestRequired) {
+                $this->logSpamRejected($request, null, null, null, 'feedback_submit');
+
+                return $this->successRedirect($target);
+            }
+
             $this->addFlash('warning', 'feedback.flash.rate_limited');
 
             return $this->redirect($target);
@@ -85,6 +100,44 @@ final class FeedbackSubmitController extends AbstractController
             $guestEmail = \is_string($ge) && '' !== trim($ge) ? trim($ge) : null;
         } elseif ($user instanceof User) {
             $guestEmail = null;
+        }
+
+        if ($guestRequired) {
+            $anonymousIpKey = 'anon_ip_'.sha1($request->getClientIp() ?? 'unknown');
+            if (!$anonymousIpLimiter->create($anonymousIpKey)->consume(1)->isAccepted()) {
+                $this->logSpamRejected($request, null, $guestEmail, null, 'anonymous_ip');
+
+                return $this->successRedirect($target);
+            }
+
+            if (null !== $guestEmail) {
+                $anonymousEmailKey = 'anon_email_'.sha1(mb_strtolower($guestEmail));
+                if (!$anonymousEmailLimiter->create($anonymousEmailKey)->consume(1)->isAccepted()) {
+                    $this->logSpamRejected($request, null, $guestEmail, null, 'anonymous_email');
+
+                    return $this->successRedirect($target);
+                }
+            }
+        }
+
+        $honeypotRaw = $form->get('website')->getData();
+        $honeypotValue = \is_string($honeypotRaw) ? $honeypotRaw : null;
+        $renderedAtRaw = $form->get('renderedAt')->getData();
+        $renderedAtValue = \is_scalar($renderedAtRaw) ? (string) $renderedAtRaw : null;
+        $renderedAtTimestamp = (null !== $renderedAtValue && '' !== trim($renderedAtValue) && ctype_digit($renderedAtValue))
+            ? (int) $renderedAtValue
+            : null;
+        $spamDecision = $this->feedbackSpamChecker->check(
+            $message,
+            $honeypotValue,
+            $renderedAtTimestamp,
+            time(),
+            $user instanceof User,
+        );
+        if ($spamDecision->isSpam()) {
+            $this->logSpamRejected($request, $user instanceof User ? $user : null, $guestEmail, $spamDecision, '');
+
+            return $this->successRedirect($target);
         }
 
         $extraRaw = $form->get('extraContext')->getData();
@@ -137,9 +190,7 @@ final class FeedbackSubmitController extends AbstractController
             '' !== $appVersionTrim ? $appVersionTrim : null,
         );
 
-        $this->addFlash('success', 'feedback.flash.success');
-
-        return $this->redirect($target);
+        return $this->successRedirect($target);
     }
 
     /**
@@ -159,5 +210,28 @@ final class FeedbackSubmitController extends AbstractController
         }
 
         return $filtered;
+    }
+
+    private function successRedirect(string $target): RedirectResponse
+    {
+        $this->addFlash('success', 'feedback.flash.success');
+
+        return $this->redirect($target);
+    }
+
+    private function logSpamRejected(
+        Request $request,
+        ?User $user,
+        ?string $guestEmail,
+        ?FeedbackSpamCheckResult $spamDecision,
+        string $rateLimiterHit,
+    ): void {
+        $this->feedbackSpamRejectLogger->logRejected(
+            $user,
+            $guestEmail,
+            $request->getClientIp(),
+            $spamDecision,
+            $rateLimiterHit,
+        );
     }
 }
