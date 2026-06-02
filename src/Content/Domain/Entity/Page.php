@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\Domain\Entity;
 
+use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Repository\PageRepository;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -18,10 +19,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Table(name: 'page')]
 #[ORM\UniqueConstraint(name: 'uniq_page_path', columns: ['path'])]
 #[ORM\UniqueConstraint(name: 'uniq_page_parent_slug', columns: ['parent_id', 'slug'])]
+#[ORM\UniqueConstraint(name: 'uniq_page_key', columns: ['key'])]
 #[ORM\Index(name: 'idx_page_parent_sort', columns: ['parent_id', 'sort_order'])]
 #[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['path'], message: 'page.validation.path_unique')]
 #[UniqueEntity(fields: ['parent', 'slug'], message: 'page.validation.parent_slug_unique')]
+#[UniqueEntity(fields: ['key'], message: 'page.validation.key_unique')]
 class Page implements \Stringable
 {
     public const string STATUS_DRAFT = 'draft';
@@ -61,6 +64,9 @@ class Page implements \Stringable
     #[Assert\Length(max: 500)]
     #[ORM\Column(length: 500)]
     private ?string $path = null;
+
+    #[ORM\Column(nullable: true, enumType: PageKey::class)]
+    private ?PageKey $key = null;
 
     #[Assert\Choice(choices: [self::STATUS_DRAFT, self::STATUS_PUBLISHED])]
     #[ORM\Column(length: 32)]
@@ -169,6 +175,18 @@ class Page implements \Stringable
     public function setPath(string $path): self
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    public function getKey(): ?PageKey
+    {
+        return $this->key;
+    }
+
+    public function setKey(?PageKey $key): self
+    {
+        $this->key = $key;
 
         return $this;
     }
