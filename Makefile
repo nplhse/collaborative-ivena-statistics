@@ -11,7 +11,7 @@ CONSOLE       = $(SYMFONY) console
 PROD_ENV      = APP_ENV=prod APP_DEBUG=0
 
 # Vendor executables
-PHPUNIT       = ./vendor/bin/phpunit
+PHPUNIT       = ./bin/phpunit
 PHPSTAN       = ./vendor/bin/phpstan
 PHP_CS_FIXER  = ./vendor/bin/php-cs-fixer
 PSALM         = ./vendor/bin/psalm
