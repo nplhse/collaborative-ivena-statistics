@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Content\Integration\Repository;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Repository\PageRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -69,5 +70,44 @@ final class PageRepositoryQueryTest extends KernelTestCase
 
         self::assertContains('vis-public', $slugs);
         self::assertContains('vis-auth', $slugs);
+    }
+
+    public function testFindOnePublishedByKeyReturnsPublishedPage(): void
+    {
+        PageFactory::createOne([
+            'slug' => 'about-live',
+            'key' => PageKey::About,
+            'status' => Page::STATUS_PUBLISHED,
+        ]);
+
+        $page = $this->repo->findOnePublishedByKey(PageKey::About);
+
+        self::assertNotNull($page);
+        self::assertSame('about-live', $page->getSlug());
+        self::assertSame('/about-live', $page->getPath());
+    }
+
+    public function testFindOnePublishedByKeyReturnsNullWhenOnlyDraftExists(): void
+    {
+        PageFactory::createOne([
+            'slug' => 'faq-draft-only',
+            'path' => '/faq-draft-only',
+            'key' => PageKey::Faq,
+            'status' => Page::STATUS_DRAFT,
+        ]);
+
+        self::assertNull($this->repo->findOnePublishedByKey(PageKey::Faq));
+    }
+
+    public function testPageCanExistWithoutKey(): void
+    {
+        PageFactory::createOne([
+            'slug' => 'generic-page',
+            'path' => '/generic-page',
+            'key' => null,
+            'status' => Page::STATUS_PUBLISHED,
+        ]);
+
+        self::assertNull($this->repo->findOnePublishedByKey(PageKey::About));
     }
 }
