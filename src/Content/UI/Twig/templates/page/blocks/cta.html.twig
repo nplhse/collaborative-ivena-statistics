@@ -1,7 +1,9 @@
 <section class="card mb-3">
     <div class="card-body">
         <h3 class="h4">{{ block.data.headline|default('') }}</h3>
-        <a class="btn btn-primary" href="{{ block.data.buttonUrl|default('#') }}">
+        <a class="btn btn-primary"
+           href="{{ block.data.buttonUrl|default('#') }}"
+           {% if block.data.openInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}>
             {{ block.data.buttonLabel|default('Mehr erfahren') }}
         </a>
     </div>

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Page;
 
 use App\Admin\UI\Form\PageContentBlockType;
+use App\Admin\UI\Http\Controller\Media\MediaCrudController;
+use App\Content\Application\Page\PageContentBlockDataNormalizer;
+use App\Content\Application\Page\PageContentMediaResolver;
 use App\Content\Application\Page\PageContentSanitizer;
 use App\Content\Application\Page\PageContentValidator;
 use App\Content\Application\Page\PagePathResolver;
@@ -28,6 +31,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -41,9 +45,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class PageCrudController extends AbstractCrudController
 {
     public function __construct(
+        private readonly PageContentBlockDataNormalizer $pageContentBlockDataNormalizer,
         private readonly PageContentValidator $pageContentValidator,
+        private readonly PageContentMediaResolver $pageContentMediaResolver,
         private readonly PageContentSanitizer $pageContentSanitizer,
         private readonly PagePathResolver $pagePathResolver,
+        private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -104,7 +112,7 @@ final class PageCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->onlyOnDetail();
         yield TextField::new('title', 'label.title');
-        yield SlugField::new('slug', 'label.slug')->setTargetFieldName('title');
+        yield SlugField::new('slug', 'label.slug')->setTargetFieldName('title')->hideOnIndex();
         yield ChoiceField::new('key', 'label.page_key')
             ->setChoices($this->buildPageKeyChoices())
             ->setRequired(false)
@@ -122,22 +130,25 @@ final class PageCrudController extends AbstractCrudController
                 'label.public' => Page::VISIBILITY_PUBLIC,
                 'label.authenticated' => Page::VISIBILITY_AUTHENTICATED,
             ]);
-        yield IntegerField::new('sortOrder', 'label.sort_order');
+        yield IntegerField::new('sortOrder', 'label.sort_order')->hideOnIndex();
         yield TextField::new('path', 'label.path')
-            ->hideOnForm();
+            ->hideOnForm()
+            ->hideOnIndex();
         yield CollectionField::new('content', 'label.content_blocks')
+            ->setHelp($this->buildMediaLibraryHelp())
+            ->setFormTypeOption('help_html', true)
             ->setEntryType(PageContentBlockType::class)
             ->setEntryIsComplex()
-            ->setEntryToStringMethod(static function (mixed $value, TranslatorInterface $translator): string {
+            ->setEntryToStringMethod(function (mixed $value): string {
                 if (!is_array($value)) {
-                    return $translator->trans('label.block');
+                    return $this->translator->trans('label.block');
                 }
 
                 $type = (string) ($value['type'] ?? 'block');
                 $enabled = (bool) ($value['enabled'] ?? true);
-                $state = $translator->trans($enabled ? 'label.enabled' : 'label.disabled');
+                $state = $this->translator->trans($enabled ? 'label.enabled' : 'label.disabled');
 
-                return sprintf('%s (%s)', $type, $state);
+                return sprintf('%s (%s)', $this->formatBlockTypeLabel($type), $state);
             })
             ->showEntryLabel()
             ->onlyOnForms();
@@ -195,7 +206,12 @@ final class PageCrudController extends AbstractCrudController
 
     private function prepareContent(Page $page): void
     {
-        $content = $page->getContent();
+        if ($this->pageHasSlug($page)) {
+            $this->pagePathResolver->synchronize($page);
+        }
+
+        $content = $this->pageContentBlockDataNormalizer->normalize($page->getContent());
+        $content = $this->pageContentMediaResolver->resolve($content);
         $this->pageContentValidator->assertValid($content);
         $page->setContent($this->pageContentSanitizer->sanitize($content));
     }
@@ -218,13 +234,47 @@ final class PageCrudController extends AbstractCrudController
      */
     private function addPathSynchronizationListener(FormBuilderInterface $builder): void
     {
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
             $page = $event->getData();
             if (!$page instanceof Page) {
                 return;
             }
 
+            if (!$this->pageHasSlug($page)) {
+                return;
+            }
+
             $this->pagePathResolver->synchronize($page);
-        });
+        }, 512);
+    }
+
+    private function pageHasSlug(Page $page): bool
+    {
+        $slug = $page->getSlug();
+
+        return null !== $slug && '' !== trim($slug);
+    }
+
+    private function formatBlockTypeLabel(string $type): string
+    {
+        return match ($type) {
+            'image' => $this->translator->trans('label.block_type.image'),
+            'cta' => $this->translator->trans('label.block_type.cta'),
+            'quote' => $this->translator->trans('label.block_type.quote'),
+            default => $this->translator->trans('label.block_type.richtext'),
+        };
+    }
+
+    private function buildMediaLibraryHelp(): string
+    {
+        $url = htmlspecialchars(
+            $this->adminUrlGenerator
+                ->setController(MediaCrudController::class)
+                ->generateUrl(),
+            ENT_QUOTES | ENT_HTML5,
+        );
+
+        return $this->translator->trans('help.page.media_library')
+            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library'));
     }
 }
