@@ -43,14 +43,13 @@ final readonly class PageContentBlockDataNormalizer
                 ? []
                 : array_intersect_key($data, array_flip($allowed));
 
-            $normalizedBlock = [
-                'type' => $type,
-                'data' => $filteredData,
-            ];
+            $normalizedBlock = ['type' => $type];
 
             if (array_key_exists('enabled', $block)) {
                 $normalizedBlock['enabled'] = (bool) $block['enabled'];
             }
+
+            $normalizedBlock['data'] = $filteredData;
 
             $normalized[] = $normalizedBlock;
         }
