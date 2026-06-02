@@ -10,6 +10,31 @@
                 {{ form_row(registrationForm.username) }}
                 {{ form_row(registrationForm.email) }}
                 {{ form_row(registrationForm.plainPassword) }}
+                {% set termsPageUrl = page_url_by_key('terms') %}
+                {% set acceptTerms = registrationForm.acceptTerms %}
+                <div class="mb-3">
+                    <label class="d-flex align-items-center gap-2 mb-0" for="{{ acceptTerms.vars.id }}">
+                        <input
+                            type="checkbox"
+                            id="{{ acceptTerms.vars.id }}"
+                            name="{{ acceptTerms.vars.full_name }}"
+                            class="form-check-input m-0 flex-shrink-0{{ acceptTerms.vars.valid ? '' : ' is-invalid' }}"
+                            value="1"
+                            {% if acceptTerms.vars.checked %}checked="checked"{% endif %}
+                            {% if acceptTerms.vars.required %}required="required"{% endif %}
+                        />
+                        <span class="form-check-label required mb-0">
+                            {{- 'label.registration.accept_terms_prefix'|trans -}}
+                            {%- if termsPageUrl -%}
+                                <a href="{{ termsPageUrl }}" class="link-primary">{{ 'link.terms'|trans }}</a>
+                            {%- else -%}
+                                {{- 'link.terms'|trans -}}
+                            {%- endif -%}
+                        </span>
+                    </label>
+                    {{ form_errors(acceptTerms) }}
+                </div>
+                {% do acceptTerms.setRendered %}
                 <div class="form-footer">
                     <button class="btn btn-primary w-100" type="submit">{{ 'label.register'|trans }}</button>
                 </div>
