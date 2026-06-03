@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\UI\Http\Controller;
 
 use App\Content\Application\Page\PageAccessChecker;
+use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Domain\Entity\Page;
 use App\Content\Infrastructure\Repository\PageRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +18,7 @@ final class PageController extends AbstractController
     public function __construct(
         private readonly PageRepository $pageRepository,
         private readonly PageAccessChecker $pageAccessChecker,
+        private readonly PageSidebarDataProvider $pageSidebarDataProvider,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -38,6 +40,8 @@ final class PageController extends AbstractController
         return $this->render('@Content/page/show.html.twig', [
             'page' => $page,
             'breadcrumbItems' => $this->buildBreadcrumbItems($page),
+            'currentPage' => $page,
+            ...$this->pageSidebarDataProvider->getData(),
         ]);
     }
 

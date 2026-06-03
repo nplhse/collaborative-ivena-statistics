@@ -83,6 +83,23 @@ final class PageRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return list<Page>
+     */
+    public function findAllPublished(): array
+    {
+        /** @var list<Page> $pages */
+        $pages = $this->createQueryBuilder('p')
+            ->addSelect('parent')
+            ->leftJoin('p.parent', 'parent')
+            ->andWhere('p.status = :status')
+            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->getQuery()
+            ->getResult();
+
+        return $pages;
+    }
+
+    /**
      * Published pages visible to authenticated users (public + authenticated visibility).
      *
      * @return list<Page>
