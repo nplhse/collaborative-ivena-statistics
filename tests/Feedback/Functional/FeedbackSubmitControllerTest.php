@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Feedback\Functional;
 
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
+use App\Kernel;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
@@ -49,6 +50,10 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         /** @var FeedbackRepository $repo */
         $repo = self::getContainer()->get(FeedbackRepository::class);
         self::assertSame(1, $repo->count([]));
+
+        $feedback = $repo->findOneBy([]);
+        self::assertNotNull($feedback);
+        self::assertSame(Kernel::APP_VERSION, $feedback->getAppVersion());
     }
 
     public function testGuestWithoutEmailGetsValidationFlash(): void
