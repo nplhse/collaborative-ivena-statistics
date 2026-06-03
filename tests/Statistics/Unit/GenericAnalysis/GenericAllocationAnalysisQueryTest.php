@@ -11,6 +11,7 @@ use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysi
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisSqlBuilder;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
@@ -23,10 +24,8 @@ final class GenericAllocationAnalysisQueryTest extends TestCase
 
         $query = new GenericAllocationAnalysisQuery(
             $connection,
-            new GenericAllocationAnalysisSqlBuilder(
-                new DimensionRegistry(),
-                new GenericAnalysisScopeSqlFilter(),
-            ),
+            $this->createSqlBuilder(),
+            new MetricRegistry(),
         );
 
         $result = $query->execute(new AnalysisQuery(
@@ -37,6 +36,7 @@ final class GenericAllocationAnalysisQueryTest extends TestCase
 
         self::assertSame([], $result->rows);
         self::assertSame(0, $result->grandTotal);
+        self::assertSame(['count'], $result->metricKeys);
     }
 
     public function testExecuteMapsRowsAndGrandTotal(): void
@@ -44,12 +44,12 @@ final class GenericAllocationAnalysisQueryTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
         $result->method('fetchAllAssociative')->willReturn([
-            ['bucket' => '1', 'value' => '3', 'series' => '2'],
-            ['bucket' => '2', 'value' => 7],
+            ['bucket' => '1', 'count' => '3', 'series' => '2'],
+            ['bucket' => '2', 'count' => 7],
         ]);
         $connection->expects(self::once())->method('executeQuery')->willReturn($result);
 
-        $query = new GenericAllocationAnalysisQuery($connection, $this->createSqlBuilder());
+        $query = new GenericAllocationAnalysisQuery($connection, $this->createSqlBuilder(), new MetricRegistry());
 
         $analysisResult = $query->execute(new AnalysisQuery(
             primaryDimensionKey: 'month',
@@ -61,9 +61,10 @@ final class GenericAllocationAnalysisQueryTest extends TestCase
         self::assertSame(10, $analysisResult->grandTotal);
         self::assertCount(2, $analysisResult->rows);
         self::assertSame(1, $analysisResult->rows[0]->bucket);
-        self::assertSame(3, $analysisResult->rows[0]->value);
+        self::assertSame(3, $analysisResult->rows[0]->countValue());
+        self::assertSame(3, $analysisResult->rows[0]->metrics['count']);
         self::assertSame(2, $analysisResult->rows[0]->series);
-        self::assertSame(7, $analysisResult->rows[1]->value);
+        self::assertSame(7, $analysisResult->rows[1]->countValue());
         self::assertNull($analysisResult->rows[1]->series);
     }
 
@@ -72,17 +73,19 @@ final class GenericAllocationAnalysisQueryTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
         $result->method('fetchAllAssociative')->willReturn([
-            ['bucket' => '12.5', 'value' => 1],
+            ['bucket' => '12.5', 'count' => 1],
         ]);
         $connection->method('executeQuery')->willReturn($result);
 
-        $analysisResult = new GenericAllocationAnalysisQuery($connection, $this->createSqlBuilder())->execute(
-            new AnalysisQuery(
-                primaryDimensionKey: 'month',
-                scopeCriteria: StatisticsScopeCriteria::public(),
-                periodBounds: new StatisticsPeriodBounds(null),
-            ),
-        );
+        $analysisResult = new GenericAllocationAnalysisQuery(
+            $connection,
+            $this->createSqlBuilder(),
+            new MetricRegistry(),
+        )->execute(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
 
         self::assertSame(12.5, $analysisResult->rows[0]->bucket);
     }
@@ -91,6 +94,7 @@ final class GenericAllocationAnalysisQueryTest extends TestCase
     {
         return new GenericAllocationAnalysisSqlBuilder(
             new DimensionRegistry(),
+            new MetricRegistry(),
             new GenericAnalysisScopeSqlFilter(),
         );
     }

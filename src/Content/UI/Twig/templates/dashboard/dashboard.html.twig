@@ -106,7 +106,7 @@
                         <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans }}</p>
                     {% else %}
                         <ul class="list-unstyled mb-0">
-                            {{ include('@Content/dashboard/_dashboard_page_tree_nodes.html.twig', {nodes: pageTree}, false) }}
+                            {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree}, false) }}
                         </ul>
                     {% endif %}
                 </div>

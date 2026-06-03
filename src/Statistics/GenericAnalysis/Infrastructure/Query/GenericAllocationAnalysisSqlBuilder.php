@@ -8,8 +8,10 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator;
+use App\Statistics\GenericAnalysis\Domain\Enum\MetricComputationKind;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Doctrine\DBAL\ArrayParameterType;
 
 /**
@@ -21,6 +23,7 @@ final readonly class GenericAllocationAnalysisSqlBuilder
 {
     public function __construct(
         private DimensionRegistry $dimensionRegistry,
+        private MetricRegistry $metricRegistry,
         private GenericAnalysisScopeSqlFilter $scopeSqlFilter,
     ) {
     }
@@ -48,7 +51,12 @@ final readonly class GenericAllocationAnalysisSqlBuilder
             $groupParts[] = 'series';
         }
 
-        $selectParts[] = 'COUNT(*)::INT AS value';
+        foreach ($this->sqlAggregateMetricKeys($query) as $metricKey) {
+            $metric = $this->metricRegistry->get($metricKey);
+            if (null !== $metric->sqlSelectExpression) {
+                $selectParts[] = $metric->sqlSelectExpression;
+            }
+        }
 
         [$conditions, $params] = $this->scopeSqlFilter->applyScopeAndPeriod(
             $query->scopeCriteria,
@@ -82,6 +90,22 @@ final readonly class GenericAllocationAnalysisSqlBuilder
         );
 
         return [$sql, $params, $types];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function sqlAggregateMetricKeys(AnalysisQuery $query): array
+    {
+        $keys = [];
+        foreach ($query->resolvedMetricKeys() as $metricKey) {
+            $metric = $this->metricRegistry->get($metricKey);
+            if (MetricComputationKind::SqlAggregate === $metric->computationKind) {
+                $keys[] = $metricKey;
+            }
+        }
+
+        return $keys;
     }
 
     /**

@@ -12,13 +12,20 @@
 {% block page_body %}
     <div class="page-body">
         <div class="container-xl">
-            {% for block in page.content %}
-                {% if block.enabled is not defined or block.enabled %}
-                    {% if block.type in ['richtext', 'image', 'cta', 'quote'] %}
-                        {{ include('@Content/page/blocks/' ~ block.type ~ '.html.twig', {block: block}) }}
-                    {% endif %}
-                {% endif %}
-            {% endfor %}
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    {% for block in page.content %}
+                        {% if block.enabled is not defined or block.enabled %}
+                            {% if block.type in ['richtext', 'image', 'cta', 'quote'] %}
+                                {{ include('@Content/page/blocks/' ~ block.type ~ '.html.twig', {block: block}) }}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="col-lg-4">
+                    {{ include('@Content/page/_sidebar.html.twig') }}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

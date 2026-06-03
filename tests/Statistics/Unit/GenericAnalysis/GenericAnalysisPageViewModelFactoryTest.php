@@ -14,7 +14,10 @@ use App\Statistics\GenericAnalysis\Application\AnalysisPresetRegistry;
 use App\Statistics\GenericAnalysis\Application\DTO\ResolvedGenericAnalysisConfig;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisConfigResolver;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\Statistics\GenericAnalysis\Application\GenericAnalysisMetricRequestResolver;
+use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Controller\GenericAnalysisPageViewModelFactory;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
@@ -46,9 +49,13 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
         $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
         $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
 
+        $metricRegistry = new MetricRegistry();
+        $dimensionRegistry = new DimensionRegistry();
         $this->factory = new GenericAnalysisPageViewModelFactory(
             new AnalysisPresetRegistry(),
-            new DimensionRegistry(),
+            $dimensionRegistry,
+            $metricRegistry,
+            new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
             new GenericAnalysisDimensionPolicy($hospitalAccess),
             new StatisticsNavigationUrlBuilder($router),
             $router,
@@ -96,7 +103,7 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
         self::assertStringContainsString('scope=public', $monthItem['url']);
     }
 
-    public function testCustomFormActionUsesCustomRoute(): void
+    public function testFormActionUsesCurrentPresetRoute(): void
     {
         $request = Request::create(
             '/statistics/generic-analysis/allocations_by_month',
@@ -108,25 +115,74 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
             ],
         );
 
+        $config = $this->resolvedPresetConfig('allocations_by_month');
+        $viewModel = $this->factory->create($request, 'allocations_by_month', $config, $this->publicFilter(), null);
+
+        self::assertSame('/statistics/generic-analysis/allocations_by_month', $viewModel->formAction);
+    }
+
+    public function testPreservesMetricQueryFieldsInForm(): void
+    {
+        $request = Request::create(
+            '/statistics/generic-analysis/allocations_by_month',
+            Request::METHOD_GET,
+            [
+                'scope' => 'public',
+                'ga_metrics' => ['count', 'percent_of_total'],
+                'ga_visual_metric' => 'percent_of_total',
+            ],
+            [
+                'presetKey' => 'allocations_by_month',
+                '_route_params' => ['presetKey' => 'allocations_by_month'],
+            ],
+        );
+
         $config = $this->resolvedConfig('month', null);
         $viewModel = $this->factory->create($request, 'allocations_by_month', $config, $this->publicFilter(), null);
 
-        self::assertSame('/statistics/generic-analysis/custom', $viewModel->customFormAction);
+        $keys = array_column($viewModel->preservedQueryFields, 'key');
+        self::assertContains('ga_metrics[]', $keys);
+        self::assertContains('ga_visual_metric', $keys);
+    }
+
+    private function resolvedPresetConfig(string $presetKey): ResolvedGenericAnalysisConfig
+    {
+        return $this->configResolver()->resolve(
+            $presetKey,
+            Request::create('/statistics/generic-analysis/'.$presetKey, Request::METHOD_GET, ['scope' => 'public']),
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            $this->publicFilter(),
+            null,
+        );
+    }
+
+    private function configResolver(): GenericAnalysisConfigResolver
+    {
+        $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
+        $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
+
+        $metricRegistry = new MetricRegistry();
+        $dimensionRegistry = new DimensionRegistry();
+
+        return new GenericAnalysisConfigResolver(
+            new AnalysisPresetRegistry(),
+            $dimensionRegistry,
+            new GenericAnalysisDimensionPolicy($hospitalAccess),
+            new GenericAnalysisMetricRequestResolver(
+                $metricRegistry,
+                $dimensionRegistry,
+                new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
+            ),
+            $this->createMock(TranslatorInterface::class),
+        );
     }
 
     private function resolvedConfig(
         string $primary,
         ?string $series,
     ): ResolvedGenericAnalysisConfig {
-        $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
-        $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
-
-        $resolver = new GenericAnalysisConfigResolver(
-            new AnalysisPresetRegistry(),
-            new DimensionRegistry(),
-            new GenericAnalysisDimensionPolicy($hospitalAccess),
-            $this->createMock(TranslatorInterface::class),
-        );
+        $resolver = $this->configResolver();
 
         $request = Request::create('/statistics/generic-analysis/custom', Request::METHOD_GET, array_filter([
             GenericAnalysisQueryKeys::PRIMARY => $primary,

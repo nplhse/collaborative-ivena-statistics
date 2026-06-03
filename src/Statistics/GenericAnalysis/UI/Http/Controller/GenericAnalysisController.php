@@ -110,8 +110,13 @@ final class GenericAnalysisController extends AbstractController
         return $this->render('@Statistics/generic_analysis/show.html.twig', [
             'presetKey' => $presetKey,
             'analysisResult' => $result,
-            'genericAnalysisTable' => $this->tableViewModelFactory->create($request, $presetKey, $result),
-            'genericAnalysisChart' => $this->chartViewModelFactory->create($config->query, $result),
+            'genericAnalysisTable' => $this->tableViewModelFactory->create(
+                $request,
+                $presetKey,
+                $result,
+                $config->primaryDimensionKey,
+            ),
+            'genericAnalysisChart' => $this->chartViewModelFactory->create($request, $presetKey, $config->query, $result),
             'genericAnalysisPage' => $this->genericAnalysisPageViewModelFactory->create(
                 $request,
                 $presetKey,

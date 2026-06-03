@@ -60,7 +60,7 @@ CASE
     WHEN age <= 79 THEN '70_79'
     WHEN age <= 89 THEN '80_89'
     WHEN age <= 99 THEN '90_99'
-    ELSE '100p'
+    ELSE 'unknown'
 END
 SQL;
 
@@ -115,7 +115,7 @@ SQL;
             type: AnalysisDimensionType::Categorical,
             recommendedChartType: 'bar',
             sqlExpression: $ageBucketSql,
-            fixedBuckets: ['0_18', '19_29', '30_39', '40_49', '50_59', '60_69', '70_79', '80_89', '90_99', '100p', 'unknown'],
+            fixedBuckets: ['0_18', '19_29', '30_39', '40_49', '50_59', '60_69', '70_79', '80_89', '90_99', 'unknown'],
             valueLabels: [
                 '0_18' => '0–18',
                 '19_29' => '19–29',
@@ -126,7 +126,6 @@ SQL;
                 '70_79' => '70–79',
                 '80_89' => '80–89',
                 '90_99' => '90–99',
-                '100p' => '100+',
                 'unknown' => 'Unknown',
             ],
             nullBucketKeys: ['unknown'],

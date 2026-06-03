@@ -8,27 +8,41 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow;
 
 /**
- * Adds relative distribution fields to absolute aggregation rows.
+ * Adds relative distribution metrics to absolute aggregation rows.
  */
 final class RelativeDistributionCalculator
 {
     /**
-     * @return list<array{row: AnalysisResultRow, percent_of_total: float, percent_of_bucket: float}>
+     * @param list<string> $metricKeys
+     *
+     * @return list<array{row: AnalysisResultRow, derivedMetrics: array<string, float>}>
      */
-    public function enrich(AnalysisResult $result): array
+    public function enrich(AnalysisResult $result, array $metricKeys): array
     {
+        $includePercentOfTotal = \in_array('percent_of_total', $metricKeys, true);
+        $includePercentOfBucket = \in_array('percent_of_bucket', $metricKeys, true);
+
         $grandTotal = $result->grandTotal;
-        $bucketTotals = $this->bucketTotals($result->rows);
+        $bucketTotals = $includePercentOfBucket ? $this->bucketTotals($result->rows) : [];
 
         $enriched = [];
         foreach ($result->rows as $row) {
-            $bucketKey = $this->key($row->bucket);
-            $bucketTotal = $bucketTotals[$bucketKey] ?? 0;
+            $derivedMetrics = [];
+            $count = $row->countValue();
+
+            if ($includePercentOfTotal) {
+                $derivedMetrics['percent_of_total'] = $this->percent($count, $grandTotal);
+            }
+
+            if ($includePercentOfBucket) {
+                $bucketKey = $this->key($row->bucket);
+                $bucketTotal = $bucketTotals[$bucketKey] ?? 0;
+                $derivedMetrics['percent_of_bucket'] = $this->percent($count, $bucketTotal);
+            }
 
             $enriched[] = [
                 'row' => $row,
-                'percent_of_total' => $this->percent($row->value, $grandTotal),
-                'percent_of_bucket' => $this->percent($row->value, $bucketTotal),
+                'derivedMetrics' => $derivedMetrics,
             ];
         }
 
@@ -45,7 +59,7 @@ final class RelativeDistributionCalculator
         $totals = [];
         foreach ($rows as $row) {
             $key = $this->key($row->bucket);
-            $totals[$key] = ($totals[$key] ?? 0) + $row->value;
+            $totals[$key] = ($totals[$key] ?? 0) + $row->countValue();
         }
 
         return $totals;

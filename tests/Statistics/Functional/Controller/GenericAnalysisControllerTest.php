@@ -78,6 +78,54 @@ final class GenericAnalysisControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
+    public function testConfigFormShowsMetricSelection(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/generic-analysis/allocations_by_month?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metrics"]');
+        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metric-count"]');
+        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metric-percent_of_total"]');
+        $this->assertSelectorExists('[data-testid="stats-generic-analysis-visual-metric"]');
+        $this->assertSelectorExists('[data-controller="generic-analysis-metrics"]');
+    }
+
+    public function testMetricOverridesShowMultipleTableColumns(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithAllocation();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/generic-analysis/allocations_by_month?scope=public&period=all&'
+            .'ga_metrics[]=count&ga_metrics[]=percent_of_total&ga_visual_metric=count',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $headers = $crawler->filter('[data-testid="stats-generic-analysis-table-stacked"] thead th')
+            ->each(static fn ($node): string => trim((string) $node->text()));
+        self::assertGreaterThanOrEqual(2, \count($headers));
+        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metric-percent_of_total"][checked]');
+    }
+
+    public function testAgeGroupDistributionShowsRowLimitControl(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithAllocation();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/generic-analysis/age_group_distribution?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-generic-analysis-chart-row-limit"]');
+        $this->assertSelectorNotExists('[data-testid="stats-generic-analysis-table-row-limit"]');
+        $this->assertSelectorExists('[data-testid="stats-generic-analysis-row-limit-5"]');
+    }
+
     public function testCustomQueryMatchingPresetRedirectsToCanonicalUrl(): void
     {
         $client = $this->createClientAsRoleUser();

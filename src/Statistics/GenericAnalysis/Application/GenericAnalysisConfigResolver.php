@@ -24,6 +24,7 @@ final readonly class GenericAnalysisConfigResolver
         private AnalysisPresetRegistry $presetRegistry,
         private DimensionRegistry $dimensionRegistry,
         private GenericAnalysisDimensionPolicy $dimensionPolicy,
+        private GenericAnalysisMetricRequestResolver $metricRequestResolver,
         private TranslatorInterface $translator,
     ) {
     }
@@ -66,6 +67,7 @@ final readonly class GenericAnalysisConfigResolver
                 $isCustomRoute,
                 $filter,
                 $user,
+                $request,
             );
         }
 
@@ -74,8 +76,18 @@ final readonly class GenericAnalysisConfigResolver
             $this->assertDimensionKey($routePreset->seriesDimensionKey, $filter, $user);
         }
 
+        $query = $this->buildQuery(
+            $request,
+            $routePreset,
+            $routePreset->primaryDimensionKey,
+            $routePreset->seriesDimensionKey,
+            $routePreset->includeNullBuckets,
+            $scopeCriteria,
+            $periodBounds,
+        );
+
         return new ResolvedGenericAnalysisConfig(
-            query: $routePreset->toQuery($scopeCriteria, $periodBounds),
+            query: $query,
             displayTitle: $routePreset->title,
             isCustom: false,
             routePresetKey: $routePreset->key,
@@ -111,6 +123,7 @@ final readonly class GenericAnalysisConfigResolver
         bool $isCustomRoute,
         StatisticsFilter $filter,
         ?User $user,
+        Request $request,
     ): ResolvedGenericAnalysisConfig {
         $basePreset = $this->resolveBasePreset($routePreset, $referencePresetKey);
 
@@ -127,12 +140,14 @@ final readonly class GenericAnalysisConfigResolver
 
         $referenceKey = $this->normalizeReferencePresetKey($referencePresetKey, $routePreset, $isCustomRoute);
 
-        $query = new AnalysisQuery(
-            primaryDimensionKey: $primaryKey,
-            scopeCriteria: $scopeCriteria,
-            periodBounds: $periodBounds,
-            seriesDimensionKey: $seriesKey,
-            includeNullBuckets: $includeNull,
+        $query = $this->buildQuery(
+            $request,
+            $basePreset,
+            $primaryKey,
+            $seriesKey,
+            $includeNull,
+            $scopeCriteria,
+            $periodBounds,
         );
 
         return new ResolvedGenericAnalysisConfig(
@@ -143,6 +158,41 @@ final readonly class GenericAnalysisConfigResolver
             referencePresetKey: $referenceKey,
             primaryDimensionKey: $primaryKey,
             seriesDimensionKey: $seriesKey,
+            includeNullBuckets: $includeNull,
+        );
+    }
+
+    private function buildQuery(
+        Request $request,
+        AnalysisPreset $metricPreset,
+        string $primaryKey,
+        ?string $seriesKey,
+        bool $includeNull,
+        StatisticsScopeCriteria $scopeCriteria,
+        StatisticsPeriodBounds $periodBounds,
+    ): AnalysisQuery {
+        $draftQuery = new AnalysisQuery(
+            primaryDimensionKey: $primaryKey,
+            scopeCriteria: $scopeCriteria,
+            periodBounds: $periodBounds,
+            seriesDimensionKey: $seriesKey,
+            includeNullBuckets: $includeNull,
+        );
+
+        $metricKeys = $this->metricRequestResolver->resolveMetricKeys($request, $draftQuery, $metricPreset);
+        $visualMetricKey = $this->metricRequestResolver->resolveVisualMetricKey(
+            $request,
+            $metricKeys,
+            $metricPreset->visualMetricKey,
+        );
+
+        return new AnalysisQuery(
+            primaryDimensionKey: $primaryKey,
+            scopeCriteria: $scopeCriteria,
+            periodBounds: $periodBounds,
+            seriesDimensionKey: $seriesKey,
+            metricKeys: $metricKeys,
+            visualMetricKey: $visualMetricKey,
             includeNullBuckets: $includeNull,
         );
     }

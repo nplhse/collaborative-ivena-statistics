@@ -35,6 +35,20 @@ final class AnalysisPresetRegistryTest extends TestCase
         self::assertSame('urgency', $urgencyByCohort->seriesDimensionKey);
     }
 
+    public function testMultiMetricPresetsAreRegistered(): void
+    {
+        $preset = $this->registry->get('allocations_by_month_with_share');
+
+        self::assertSame(['count', 'percent_of_total'], $preset->metricKeys);
+    }
+
+    public function testLegacyPresetsDefaultToEmptyMetrics(): void
+    {
+        $preset = $this->registry->get('allocations_by_month');
+
+        self::assertSame([], $preset->metricKeys);
+    }
+
     public function testUnknownPresetThrows(): void
     {
         $this->expectException(UnknownAnalysisPresetException::class);

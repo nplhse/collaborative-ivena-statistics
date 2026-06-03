@@ -1,0 +1,41 @@
+<div class="row row-cards" data-testid="page-sidebar">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h3 class="card-title d-flex align-items-center gap-2">
+                    <twig:ux:icon name="tabler:sitemap" class="w-4 h-4" />
+                    {{ 'dashboard.pages.card_title'|trans }}
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if pageTree is empty %}
+                    <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans }}</p>
+                {% else %}
+                    <ul class="list-unstyled mb-0">
+                        {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree, currentPage: currentPage|default(null)}, false) }}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h3 class="card-title d-flex align-items-center gap-2">
+                    <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
+                    {{ 'blog.sidebar.latest_posts'|trans }}
+                </h3>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for latest in latest_posts %}
+                    <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action">
+                        {{ latest.title }}
+                    </a>
+                {% else %}
+                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

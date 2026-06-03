@@ -14,7 +14,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class GenericAnalysisChartDataReducer
 {
-    public const int TOP_LIMIT = 5;
+    public const int TOP_SERIES_LIMIT = 5;
 
     public function __construct(
         private DimensionRegistry $dimensionRegistry,
@@ -22,24 +22,32 @@ final readonly class GenericAnalysisChartDataReducer
     ) {
     }
 
-    public function reduce(AnalysisQuery $query, NormalizedAnalysisResult $result): GenericAnalysisReducedChartData
-    {
+    public function reduce(
+        AnalysisQuery $query,
+        NormalizedAnalysisResult $result,
+        ?int $primaryBucketCap = 5,
+    ): GenericAnalysisReducedChartData {
         $primary = $this->dimensionRegistry->get($query->primaryDimensionKey);
 
         $labels = $this->extractLabels($result);
-        $counts = $this->extractCounts($result, $labels);
+        $counts = $this->extractVisualValues($result, $labels);
         $series = $this->extractSeries($result);
 
         $limitedSeries = false;
         $limitedBuckets = false;
 
-        if (\count($series) > self::TOP_LIMIT) {
-            $series = $this->limitSeries($series, $labels);
+        if (\count($series) > self::TOP_SERIES_LIMIT) {
+            $series = $this->limitSeries($series, $labels, self::TOP_SERIES_LIMIT);
             $limitedSeries = true;
         }
 
-        if ($this->shouldLimitPrimaryBuckets($primary, \count($labels))) {
-            [$labels, $counts, $series] = $this->limitPrimaryBuckets($labels, $counts, $series);
+        if (null !== $primaryBucketCap && $this->shouldLimitPrimaryBuckets($primary, \count($labels), $primaryBucketCap)) {
+            [$labels, $counts, $series] = $this->limitPrimaryBuckets(
+                $labels,
+                $this->toIntCounts($counts),
+                $series,
+                $primaryBucketCap,
+            );
             $limitedBuckets = true;
         }
 
@@ -52,9 +60,9 @@ final readonly class GenericAnalysisChartDataReducer
         );
     }
 
-    private function shouldLimitPrimaryBuckets(AnalysisDimension $primary, int $labelCount): bool
+    private function shouldLimitPrimaryBuckets(AnalysisDimension $primary, int $labelCount, ?int $cap): bool
     {
-        if ($labelCount <= self::TOP_LIMIT) {
+        if (null === $cap || $labelCount <= $cap) {
             return false;
         }
 
@@ -67,7 +75,7 @@ final readonly class GenericAnalysisChartDataReducer
      *
      * @return list<array{name: string, data: list<int>}>
      */
-    private function limitSeries(array $series, array $labels): array
+    private function limitSeries(array $series, array $labels, int $cap): array
     {
         $labelCount = \count($labels);
         $totals = [];
@@ -76,7 +84,7 @@ final readonly class GenericAnalysisChartDataReducer
         }
 
         arsort($totals);
-        $topIndices = array_slice(array_keys($totals), 0, self::TOP_LIMIT);
+        $topIndices = array_slice(array_keys($totals), 0, $cap);
 
         $restData = array_fill(0, $labelCount, 0);
         foreach ($series as $index => $item) {
@@ -110,7 +118,7 @@ final readonly class GenericAnalysisChartDataReducer
      *
      * @return array{0: list<string>, 1: list<int>, 2: list<array{name: string, data: list<int>}>}
      */
-    private function limitPrimaryBuckets(array $labels, array $counts, array $series): array
+    private function limitPrimaryBuckets(array $labels, array $counts, array $series, int $cap): array
     {
         $bucketTotals = [];
 
@@ -129,7 +137,7 @@ final readonly class GenericAnalysisChartDataReducer
         }
 
         arsort($bucketTotals);
-        $topLabels = array_slice(array_keys($bucketTotals), 0, self::TOP_LIMIT);
+        $topLabels = array_slice(array_keys($bucketTotals), 0, $cap);
 
         $restTotal = 0;
         foreach ($bucketTotals as $label => $total) {
@@ -210,13 +218,17 @@ final readonly class GenericAnalysisChartDataReducer
     /**
      * @param list<string> $labels
      *
-     * @return list<int>
+     * @return list<int|float>
      */
-    private function extractCounts(NormalizedAnalysisResult $result, array $labels): array
+    private function extractVisualValues(NormalizedAnalysisResult $result, array $labels): array
     {
+        $visualKey = $result->visualMetricKey;
         $values = $result->chartData['values'] ?? null;
         if (\is_array($values)) {
-            return array_values(array_map(static fn (mixed $v): int => (int) $v, $values));
+            return array_values(array_map(
+                fn (mixed $v): int|float => $this->chartScalar($v, $visualKey),
+                $values,
+            ));
         }
 
         $counts = array_fill(0, \count($labels), 0);
@@ -226,11 +238,37 @@ final readonly class GenericAnalysisChartDataReducer
             }
             $index = array_search($row->bucketLabel, $labels, true);
             if (false !== $index) {
-                $counts[$index] = $row->value;
+                $counts[$index] = $this->chartScalar($row->metrics[$visualKey] ?? 0, $visualKey);
             }
         }
 
         return array_values($counts);
+    }
+
+    private function chartScalar(mixed $value, string $visualKey): int|float
+    {
+        if (!\is_int($value) && !\is_float($value)) {
+            return 0;
+        }
+
+        if (str_starts_with($visualKey, 'percent_')) {
+            return (float) $value;
+        }
+
+        return (int) round((float) $value);
+    }
+
+    /**
+     * @param list<int|float> $counts
+     *
+     * @return list<int>
+     */
+    private function toIntCounts(array $counts): array
+    {
+        return array_map(
+            static fn (int|float $value): int => (int) round((float) $value),
+            $counts,
+        );
     }
 
     /**

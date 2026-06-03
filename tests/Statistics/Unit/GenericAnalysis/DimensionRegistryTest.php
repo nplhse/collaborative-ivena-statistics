@@ -33,7 +33,10 @@ final class DimensionRegistryTest extends TestCase
 
         self::assertNotNull($ageGroup->sqlExpression);
         self::assertStringContainsString('CASE', $ageGroup->sqlExpression);
+        self::assertStringNotContainsString('100p', $ageGroup->sqlExpression);
         self::assertSame('age', $ageGroup->column);
+        self::assertNotContains('100p', $ageGroup->fixedBuckets);
+        self::assertArrayNotHasKey('100p', $ageGroup->valueLabels);
     }
 
     public function testHospitalCohortUsesCaseExpression(): void
