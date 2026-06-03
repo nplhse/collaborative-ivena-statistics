@@ -1,0 +1,32 @@
+.accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.accordion-header .accordion-button {
+    flex: 1 1 auto;
+    width: auto;
+}
+
+.collection-reorder-toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.collection-reorder-button {
+    line-height: 1;
+    min-width: 1.75rem;
+}
+
+.collection-reorder-button:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.accordion-header .field-collection-delete-button {
+    flex-shrink: 0;
+}

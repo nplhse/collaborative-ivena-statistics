@@ -82,6 +82,70 @@ final class PageControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    public function testPageRendersNewBlockTypesInSharedCard(): void
+    {
+        $client = self::createClient();
+
+        PageFactory::createOne([
+            'title' => 'Demo Blocks',
+            'slug' => 'demo-blocks',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [
+                [
+                    'type' => 'headline',
+                    'data' => [
+                        'text' => 'Demo Headline',
+                        'level' => 'h2',
+                    ],
+                ],
+                [
+                    'type' => 'highlight',
+                    'data' => [
+                        'variant' => 'warning',
+                        'title' => 'Important',
+                        'html' => '<p>Warning content</p>',
+                    ],
+                ],
+                [
+                    'type' => 'image',
+                    'data' => [
+                        'src' => '/uploads/demo.jpg',
+                        'alt' => 'Demo',
+                        'size' => 'md',
+                        'float' => 'left',
+                    ],
+                ],
+                [
+                    'type' => 'richtext',
+                    'data' => ['html' => '<p>Wrapped text</p>'],
+                ],
+                [
+                    'type' => 'accordion',
+                    'data' => [
+                        'items' => [
+                            [
+                                'title' => 'FAQ question',
+                                'html' => '<p>FAQ answer</p>',
+                                'openByDefault' => false,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/demo-blocks');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('article.card .page-content-blocks');
+        self::assertSelectorTextContains('h2.page-content-headline', 'Demo Headline');
+        self::assertSelectorExists('.page-content-highlight.alert-warning');
+        self::assertSelectorExists('.page-content-image--size-md');
+        self::assertSelectorExists('.page-content-image--float-left');
+        self::assertSelectorExists('.page-content-accordion .accordion-button');
+    }
+
     public function testSidebarShowsOnlyPublicPagesForGuest(): void
     {
         $client = self::createClient();

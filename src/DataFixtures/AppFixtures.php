@@ -97,10 +97,31 @@ final class AppFixtures extends Fixture
             'sortOrder' => 10,
             'content' => [
                 [
+                    'type' => 'headline',
+                    'enabled' => true,
+                    'data' => [
+                        'text' => 'About our platform',
+                        'level' => 'h2',
+                        'align' => 'left',
+                        'spacingBefore' => 'none',
+                        'spacingAfter' => 'md',
+                    ],
+                ],
+                [
                     'type' => 'richtext',
                     'enabled' => true,
                     'data' => [
-                        'html' => '<h2>Lorem Ipsum</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
+                        'html' => '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
+                    ],
+                ],
+                [
+                    'type' => 'highlight',
+                    'enabled' => true,
+                    'data' => [
+                        'variant' => 'info',
+                        'title' => 'Did you know?',
+                        'html' => '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                        'iconMode' => 'auto',
                     ],
                 ],
                 [
@@ -108,6 +129,24 @@ final class AppFixtures extends Fixture
                     'enabled' => true,
                     'data' => [
                         'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                    ],
+                ],
+                [
+                    'type' => 'accordion',
+                    'enabled' => true,
+                    'data' => [
+                        'items' => [
+                            [
+                                'title' => 'What is Lorem Ipsum?',
+                                'html' => '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                                'openByDefault' => true,
+                            ],
+                            [
+                                'title' => 'Why do we use it?',
+                                'html' => '<p>It is a long established fact that a reader will be distracted.</p>',
+                                'openByDefault' => false,
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -178,6 +217,15 @@ final class AppFixtures extends Fixture
                         'src' => '/uploads/example-hosting.jpg',
                         'alt' => 'Server Rack',
                         'caption' => 'Lorem ipsum caption',
+                        'size' => 'md',
+                        'float' => 'left',
+                    ],
+                ],
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<p>Additional hosting details wrap around the floated image on larger screens. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
                     ],
                 ],
             ],

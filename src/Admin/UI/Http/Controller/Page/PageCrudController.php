@@ -104,7 +104,8 @@ final class PageCrudController extends AbstractCrudController
     {
         return $assets
             ->addCssFile(Asset::fromEasyAdminAssetPackage('field-text-editor.css')->onlyOnForms())
-            ->addJsFile(Asset::fromEasyAdminAssetPackage('field-text-editor.js')->onlyOnForms());
+            ->addJsFile(Asset::fromEasyAdminAssetPackage('field-text-editor.js')->onlyOnForms())
+            ->addAssetMapperEntry(Asset::new('admin-page-form')->onlyOnForms());
     }
 
     #[\Override]
@@ -135,10 +136,15 @@ final class PageCrudController extends AbstractCrudController
             ->hideOnForm()
             ->hideOnIndex();
         yield CollectionField::new('content', 'label.content_blocks')
-            ->setHelp($this->buildMediaLibraryHelp())
+            ->setHelp($this->buildMediaLibraryHelp().' '.$this->translator->trans('help.page.content_blocks_reorder'))
             ->setFormTypeOption('help_html', true)
             ->setEntryType(PageContentBlockType::class)
             ->setEntryIsComplex()
+            ->setFormTypeOption('row_attr', [
+                'data-controller' => 'collection-reorder',
+                'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up'),
+                'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down'),
+            ])
             ->setEntryToStringMethod(function (mixed $value): string {
                 if (!is_array($value)) {
                     return $this->translator->trans('label.block');
@@ -257,12 +263,13 @@ final class PageCrudController extends AbstractCrudController
 
     private function formatBlockTypeLabel(string $type): string
     {
-        return match ($type) {
-            'image' => $this->translator->trans('label.block_type.image'),
-            'cta' => $this->translator->trans('label.block_type.cta'),
-            'quote' => $this->translator->trans('label.block_type.quote'),
-            default => $this->translator->trans('label.block_type.richtext'),
-        };
+        $blockType = \App\Content\Domain\Enum\PageContentBlockType::tryFromString($type);
+
+        if ($blockType instanceof \App\Content\Domain\Enum\PageContentBlockType) {
+            return $this->translator->trans($blockType->translationKey());
+        }
+
+        return $this->translator->trans('label.block_type.richtext');
     }
 
     private function buildMediaLibraryHelp(): string

@@ -1,0 +1,25 @@
+{% set level = block.data.level|default('h2') %}
+{% if level not in ['h1', 'h2', 'h3', 'h4'] %}
+    {% set level = 'h2' %}
+{% endif %}
+{% set align = block.data.align|default('left') %}
+{% set alignClass = {
+    left: 'text-start',
+    center: 'text-center',
+    right: 'text-end',
+}[align] ?? 'text-start' %}
+{% set spacingBefore = block.data.spacingBefore|default('none') %}
+{% set spacingAfter = block.data.spacingAfter|default('md') %}
+{% set spacingBeforeClass = {
+    none: '',
+    sm: 'mt-2',
+    md: 'mt-3',
+    lg: 'mt-4',
+}[spacingBefore] ?? '' %}
+{% set spacingAfterClass = {
+    none: 'mb-0',
+    sm: 'mb-2',
+    md: 'mb-3',
+    lg: 'mb-4',
+}[spacingAfter] ?? 'mb-3' %}
+<{{ level }} class="page-content-headline fw-bold {{ alignClass }} {{ spacingBeforeClass }} {{ spacingAfterClass }}">{{ block.data.text|default('') }}</{{ level }}>

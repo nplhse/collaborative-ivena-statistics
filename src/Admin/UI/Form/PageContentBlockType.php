@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Form;
 
+use App\Content\Domain\Enum\PageContentBlockType as ContentBlockTypeEnum;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -30,12 +31,7 @@ final class PageContentBlockType extends AbstractType
         $builder
             ->add('type', ChoiceType::class, [
                 'label' => 'label.block_type',
-                'choices' => [
-                    'label.block_type.richtext' => 'richtext',
-                    'label.block_type.image' => 'image',
-                    'label.block_type.cta' => 'cta',
-                    'label.block_type.quote' => 'quote',
-                ],
+                'choices' => ContentBlockTypeEnum::formChoices(),
             ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'label.enabled',
@@ -70,7 +66,7 @@ final class PageContentBlockType extends AbstractType
         $resolver->setDefaults([
             'data_class' => null,
             'empty_data' => static fn (): array => [
-                'type' => 'richtext',
+                'type' => ContentBlockTypeEnum::Richtext->value,
                 'enabled' => true,
                 'data' => [],
             ],

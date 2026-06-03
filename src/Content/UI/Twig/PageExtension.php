@@ -7,6 +7,7 @@ namespace App\Content\UI\Twig;
 use App\Content\Application\Page\DTO\PageNavigationLink;
 use App\Content\Application\Page\PageNavigationProvider;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Enum\PageContentBlockType;
 use App\Content\Domain\Enum\PageKey;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -26,6 +27,7 @@ final class PageExtension extends AbstractExtension
             new TwigFunction('page_url_by_key', $this->pageUrlByKey(...)),
             new TwigFunction('page_nav_header_items', $this->pageNavHeaderItems(...)),
             new TwigFunction('page_nav_footer_items', $this->pageNavFooterItems(...)),
+            new TwigFunction('page_content_block_types', $this->pageContentBlockTypes(...)),
         ];
     }
 
@@ -63,5 +65,13 @@ final class PageExtension extends AbstractExtension
     public function pageNavFooterItems(): array
     {
         return $this->pageNavigationProvider->getFooterPages();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function pageContentBlockTypes(): array
+    {
+        return PageContentBlockType::values();
     }
 }

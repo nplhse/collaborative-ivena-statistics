@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Application\Page;
 
 use App\Content\Domain\Entity\Media;
+use App\Content\Domain\Enum\PageContentBlockType;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class PageContentValidator
@@ -17,9 +18,32 @@ final readonly class PageContentValidator
 
     /** @var array<string, list<string>> */
     private const array REQUIRED_FIELDS = [
-        'richtext' => ['html'],
-        'quote' => ['text'],
+        PageContentBlockType::Richtext->value => ['html'],
+        PageContentBlockType::Quote->value => ['text'],
+        PageContentBlockType::Headline->value => ['text'],
+        PageContentBlockType::Highlight->value => ['html'],
     ];
+
+    /** @var list<string> */
+    private const array HEADLINE_LEVELS = ['h1', 'h2', 'h3', 'h4'];
+
+    /** @var list<string> */
+    private const array HEADLINE_ALIGNS = ['left', 'center', 'right'];
+
+    /** @var list<string> */
+    private const array SPACING_OPTIONS = ['none', 'sm', 'md', 'lg'];
+
+    /** @var list<string> */
+    private const array HIGHLIGHT_VARIANTS = ['info', 'success', 'warning', 'danger', 'note'];
+
+    /** @var list<string> */
+    private const array HIGHLIGHT_ICON_MODES = ['auto', 'custom', 'none'];
+
+    /** @var list<string> */
+    private const array IMAGE_SIZES = ['sm', 'md', 'lg'];
+
+    /** @var list<string> */
+    private const array IMAGE_FLOATS = ['none', 'left', 'right'];
 
     /**
      * @return list<string>
@@ -69,12 +93,24 @@ final readonly class PageContentValidator
      */
     private function validateBlock(string $prefix, string $type, array $data): array
     {
-        if ('image' === $type) {
+        if (PageContentBlockType::Image->value === $type) {
             return $this->validateImageBlock($prefix, $data);
         }
 
-        if ('cta' === $type) {
+        if (PageContentBlockType::Cta->value === $type) {
             return $this->validateCtaBlock($prefix, $data);
+        }
+
+        if (PageContentBlockType::Headline->value === $type) {
+            return $this->validateHeadlineBlock($prefix, $data);
+        }
+
+        if (PageContentBlockType::Highlight->value === $type) {
+            return $this->validateHighlightBlock($prefix, $data);
+        }
+
+        if (PageContentBlockType::Accordion->value === $type) {
+            return $this->validateAccordionBlock($prefix, $data);
         }
 
         if (!array_key_exists($type, self::REQUIRED_FIELDS)) {
@@ -111,7 +147,35 @@ final readonly class PageContentValidator
             $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.image_src_or_media_required', [], 'validators'));
         }
 
+        $size = (string) ($data['size'] ?? $this->resolveLegacyImageSize($data));
+        if ('' !== $size && !in_array($size, self::IMAGE_SIZES, true)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.image_invalid_size', [], 'validators'));
+        }
+
+        $float = (string) ($data['float'] ?? 'none');
+        if ('' !== $float && !in_array($float, self::IMAGE_FLOATS, true)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.image_invalid_float', [], 'validators'));
+        }
+
+        if (in_array($float, ['left', 'right'], true) && 'lg' === $size) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.image_float_requires_non_full_width', [], 'validators'));
+        }
+
         return $errors;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function resolveLegacyImageSize(array $data): string
+    {
+        $preset = (string) ($data['widthPreset'] ?? 'lg');
+
+        return match ($preset) {
+            'sm' => 'sm',
+            'md' => 'md',
+            default => 'lg',
+        };
     }
 
     /**
@@ -137,6 +201,105 @@ final readonly class PageContentValidator
             }
         } elseif (!$this->isNonEmptyString($data['buttonUrl'] ?? null)) {
             $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'buttonUrl'], 'validators'));
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return list<string>
+     */
+    private function validateHeadlineBlock(string $prefix, array $data): array
+    {
+        $errors = [];
+
+        if (!$this->isNonEmptyString($data['text'] ?? null)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'text'], 'validators'));
+        }
+
+        $level = (string) ($data['level'] ?? 'h2');
+        if ('' !== $level && !in_array($level, self::HEADLINE_LEVELS, true)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.headline_invalid_level', [], 'validators'));
+        }
+
+        $align = (string) ($data['align'] ?? 'left');
+        if ('' !== $align && !in_array($align, self::HEADLINE_ALIGNS, true)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.headline_invalid_align', [], 'validators'));
+        }
+
+        foreach (['spacingBefore', 'spacingAfter'] as $field) {
+            $value = (string) ($data[$field] ?? '');
+            if ('' !== $value && !in_array($value, self::SPACING_OPTIONS, true)) {
+                $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.headline_invalid_spacing', ['{field}' => $field], 'validators'));
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return list<string>
+     */
+    private function validateHighlightBlock(string $prefix, array $data): array
+    {
+        $errors = [];
+
+        if (!$this->isNonEmptyString($data['html'] ?? null)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'html'], 'validators'));
+        }
+
+        $variant = (string) ($data['variant'] ?? 'info');
+        if ('' !== $variant && !in_array($variant, self::HIGHLIGHT_VARIANTS, true)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.highlight_invalid_variant', [], 'validators'));
+        }
+
+        $iconMode = (string) ($data['iconMode'] ?? 'auto');
+        if ('' !== $iconMode && !in_array($iconMode, self::HIGHLIGHT_ICON_MODES, true)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.highlight_invalid_icon_mode', [], 'validators'));
+        }
+
+        if ('custom' === $iconMode && !$this->isNonEmptyString($data['icon'] ?? null)) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.highlight_icon_required', [], 'validators'));
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return list<string>
+     */
+    private function validateAccordionBlock(string $prefix, array $data): array
+    {
+        $errors = [];
+        $items = $data['items'] ?? null;
+
+        if (!is_array($items) || [] === $items) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.accordion_items_required', [], 'validators'));
+
+            return $errors;
+        }
+
+        foreach ($items as $itemIndex => $item) {
+            $itemPrefix = sprintf('%s item %d', $prefix, (int) $itemIndex + 1);
+
+            if (!is_array($item)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.accordion_item_must_be_object', [], 'validators'));
+                continue;
+            }
+
+            if (!$this->isNonEmptyString($item['title'] ?? null)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'title'], 'validators'));
+            }
+
+            if (!$this->isNonEmptyString($item['html'] ?? null)) {
+                $errors[] = sprintf('%s: %s', $itemPrefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'html'], 'validators'));
+            }
         }
 
         return $errors;
