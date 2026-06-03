@@ -6,8 +6,7 @@ namespace App\Content\UI\Http\Controller;
 
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
-use App\Content\Application\Page\PageNavigationTreeBuilder;
-use App\Content\Infrastructure\Repository\PageRepository;
+use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\User\Infrastructure\Repository\UserRepository;
@@ -23,8 +22,7 @@ final class DefaultController extends AbstractController
         private readonly ImportRepository $importRepository,
         private readonly AllocationRepository $allocationRepository,
         private readonly PostRepository $postRepository,
-        private readonly PageRepository $pageRepository,
-        private readonly PageNavigationTreeBuilder $pageNavigationTreeBuilder,
+        private readonly PageSidebarDataProvider $pageSidebarDataProvider,
     ) {
     }
 
@@ -32,11 +30,9 @@ final class DefaultController extends AbstractController
     public function index(): Response
     {
         if ($this->isGranted('ROLE_USER')) {
-            $pages = $this->pageRepository->findAllPublishedVisibleToAuthenticatedUser();
-
             return $this->render('@Content/dashboard/dashboard.html.twig', [
                 'recentPosts' => $this->postRepository->findPublishedForIndex(5),
-                'pageTree' => $this->pageNavigationTreeBuilder->build($pages),
+                ...$this->pageSidebarDataProvider->getData(),
             ]);
         }
 

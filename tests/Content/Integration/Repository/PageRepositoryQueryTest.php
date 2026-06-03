@@ -26,6 +26,29 @@ final class PageRepositoryQueryTest extends KernelTestCase
         $this->repo = self::getContainer()->get(PageRepository::class);
     }
 
+    public function testFindAllPublishedExcludesDraft(): void
+    {
+        PageFactory::createOne([
+            'slug' => 'all-draft',
+            'status' => Page::STATUS_DRAFT,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageFactory::createOne([
+            'slug' => 'all-published',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+        ]);
+
+        $slugs = array_map(
+            static fn (Page $p): ?string => $p->getSlug(),
+            $this->repo->findAllPublished(),
+        );
+
+        self::assertContains('all-published', $slugs);
+        self::assertNotContains('all-draft', $slugs);
+    }
+
     public function testFindAllPublishedVisibleToAuthenticatedUserExcludesDraft(): void
     {
         PageFactory::createOne([
