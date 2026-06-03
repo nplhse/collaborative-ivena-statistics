@@ -13,23 +13,36 @@
 ```bash
 git clone https://github.com/nplhse/collaborative-ivena-statistics.git
 cd collaborative-ivena-statistics
-make install
+cp .env.example .env.local
+# configure APP_SECRET and DATABASE_URL
+make setup-dev
 ```
 
-`make install` installs dependencies, initializes databases, and compiles assets.
+`make install` is an alias for `make setup-dev`.
+
+### Make targets
+
+| Target | Use when |
+|--------|----------|
+| `setup-dev` | New machine: dev dependencies, fresh DB, fixtures, test DB |
+| `setup-prod` | Prod-like local run: `--no-dev`, empty DB, no fixtures |
+| `upgrade-dev` | Pull/update: keep existing DB, migrate, refresh assets |
+| `upgrade-prod` | Same as upgrade-dev with prod env and `--no-dev` |
+| `purge` | Remove assets, uploads, `var/imports`, logs, cache; empty DB; no fixtures |
+| `reset` | Like `purge`, then load fixtures |
+| `warmup` | Recompile assets and warm cache only (no DB changes) |
+
+All variables: [Configuration.md](Configuration.md)
 
 ## Create `.env.local`
 
 ```bash
-cp .env.example .env.local
 php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
 ```
 
 Set at least:
 - `APP_SECRET`
 - `DATABASE_URL`
-
-All variables: [Configuration.md](Configuration.md)
 
 ## Start the application
 
@@ -48,8 +61,10 @@ make start
 ## Prepare the database manually (optional)
 
 ```bash
-symfony composer setup-env
-symfony composer setup-test-env
+symfony composer setup-database
+symfony composer load-fixtures      # optional demo data
+symfony composer setup-test-env     # fresh test DB (setup-dev only)
+symfony composer upgrade-test-env   # migrate test DB (after upgrade-dev)
 ```
 
 ## Quick smoke test

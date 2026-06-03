@@ -5,7 +5,15 @@
 ### Initialize the environment
 
 ```bash
-make install
+make setup-dev    # greenfield with fixtures (alias: make install)
+make upgrade-dev  # update deps/schema; keeps existing DB (e.g. mirror DB)
+```
+
+### Reset local runtime data
+
+```bash
+make purge   # clear assets, uploads, imports, logs; empty DB; no fixtures
+make reset   # like purge, then load demo fixtures
 ```
 
 ### Start the local worker
@@ -32,14 +40,16 @@ make cs
 ### Refresh cache and assets
 
 ```bash
-make warmup
-php bin/console cache:clear
-php bin/console asset-map:compile
+make warmup   # does not touch the database
 ```
+
+For schema changes on an existing database, prefer `make upgrade-dev` over `purge` or `reset`.
 
 ### Migrations
 
 ```bash
+make upgrade-dev
+# or manually:
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
 

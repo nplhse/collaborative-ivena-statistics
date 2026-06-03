@@ -47,6 +47,7 @@ php bin/console app:analyze-import-rejects --format=md
 - Cache not cleared after configuration changes
 - Missing or inconsistently changed `APP_SECRET`
 - Different Messenger routing between `dev`, `test`, and `prod`
+- Database wiped unexpectedly: `make warmup` no longer runs `setup-env`. Avoid `make purge`, `make reset`, `symfony composer setup-database`, and `make setup-dev` if you need to keep an existing mirror DB; use `make upgrade-dev` instead.
 
 ## Further reading
 
