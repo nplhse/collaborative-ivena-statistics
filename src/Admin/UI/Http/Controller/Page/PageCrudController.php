@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Page;
 
 use App\Admin\UI\Form\PageContentBlockType;
-use App\Admin\UI\Http\Controller\Media\MediaCrudController;
+use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
 use App\Content\Application\Page\PageContentBlockDataNormalizer;
 use App\Content\Application\Page\PageContentMediaResolver;
 use App\Content\Application\Page\PageContentSanitizer;
@@ -31,7 +31,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -50,7 +49,7 @@ final class PageCrudController extends AbstractCrudController
         private readonly PageContentMediaResolver $pageContentMediaResolver,
         private readonly PageContentSanitizer $pageContentSanitizer,
         private readonly PagePathResolver $pagePathResolver,
-        private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly MediaLibraryAdminUrlProvider $mediaLibraryAdminUrlProvider,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -275,9 +274,7 @@ final class PageCrudController extends AbstractCrudController
     private function buildMediaLibraryHelp(): string
     {
         $url = htmlspecialchars(
-            $this->adminUrlGenerator
-                ->setController(MediaCrudController::class)
-                ->generateUrl(),
+            $this->mediaLibraryAdminUrlProvider->getIndexUrl(),
             ENT_QUOTES | ENT_HTML5,
         );
 
