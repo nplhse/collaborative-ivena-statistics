@@ -18,6 +18,8 @@ make reset   # like purge, then load demo fixtures
 
 ### Start the local worker
 
+Required for async import jobs and scheduled KPI aggregation (`scheduler_default`):
+
 ```bash
 make consume
 ```
@@ -43,19 +45,34 @@ Daily metrics for the EasyAdmin dashboard are written to `kpi_daily` by a consol
 
 ```bash
 php bin/console app:kpi:aggregate              # last 30 days ending yesterday (dashboard window)
-php bin/console app:kpi:aggregate --days=1     # cron: yesterday only
+php bin/console app:kpi:aggregate --days=1     # yesterday only
 php bin/console app:kpi:aggregate --date=2026-06-01
 ```
 
 Only imports with final status (Completed, Partial, Failed, Cancelled) are counted; Pending/Running are ignored.
 
-Example cron (production):
+#### Scheduled aggregation (Symfony Scheduler)
 
-```cron
-15 2 * * * cd /var/www/app && php bin/console app:kpi:aggregate --days=1 --env=prod >> var/log/kpi-aggregate.log 2>&1
+During the alpha phase, KPIs are refreshed automatically every 6 hours (00:00, 06:00, 12:00, 18:00 Europe/Berlin) via Symfony Scheduler. Each run aggregates **yesterday and today** so same-day issues appear on the dashboard without waiting until the next calendar day.
+
+The schedule is defined in [`KpiScheduleProvider`](../src/Kpi/Infrastructure/Scheduler/KpiScheduleProvider.php) and dispatches `GenerateDailyKpisMessage` to the `scheduler_default` transport.
+
+**Local:** the worker must consume the scheduler transport (included in `make consume`):
+
+```bash
+make consume
+# or scheduler only:
+php bin/console messenger:consume scheduler_default -vv
 ```
 
-On a new environment, run `app:kpi:aggregate` once (default covers the same 30-day window as the dashboard).
+**Diagnostics:**
+
+```bash
+php bin/console debug:scheduler
+php bin/console messenger:stats
+```
+
+On a new environment, run `app:kpi:aggregate` once (default covers the same 30-day window as the dashboard) before relying on the scheduler for historical days.
 
 ### Refresh cache and assets
 

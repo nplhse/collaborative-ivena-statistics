@@ -73,6 +73,7 @@ symfony composer setup-test-env   # fresh test database
 ```bash
 make start
 symfony serve -d
+make consume   # async jobs + scheduled KPIs (see docs/Development-Workflow.md)
 ```
 
 ## Documentation index
