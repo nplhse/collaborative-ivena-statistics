@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Registry;
 
-use App\Statistics\Application\Cohort\HospitalCohortType;
-use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
@@ -204,40 +204,29 @@ SQL;
 
     private function hospitalCohortDimension(): AnalysisDimension
     {
-        $urban = AllocationStatsHospitalLocationProjectionCode::Urban->value;
-        $rural = AllocationStatsHospitalLocationProjectionCode::Rural->value;
-        $basic = AllocationStatsHospitalTierProjectionCode::Basic->value;
-        $extended = AllocationStatsHospitalTierProjectionCode::Extended->value;
-        $full = AllocationStatsHospitalTierProjectionCode::Full->value;
+        $branches = [];
+        foreach (HospitalCohortKey::all() as $cohortKey) {
+            $locationCode = AllocationStatsHospitalLocationProjectionCode::tryFromHospitalLocation($cohortKey->location);
+            $tierCode = AllocationStatsHospitalTierProjectionCode::tryFromHospitalTier($cohortKey->tier);
+            if (!$locationCode instanceof AllocationStatsHospitalLocationProjectionCode
+                || !$tierCode instanceof AllocationStatsHospitalTierProjectionCode) {
+                continue;
+            }
 
-        $cohortSql = sprintf(
-            <<<'SQL'
-CASE
-    WHEN hospital_location_code = %1$d AND hospital_tier_code = %2$d THEN '%5$s'
-    WHEN hospital_location_code = %1$d AND hospital_tier_code IN (%3$d, %4$d) THEN '%6$s'
-    WHEN hospital_location_code = %7$d AND hospital_tier_code = %2$d THEN '%8$s'
-    WHEN hospital_location_code = %7$d AND hospital_tier_code = %4$d THEN '%9$s'
-    ELSE NULL
-END
-SQL,
-            $urban,
-            $basic,
-            $extended,
-            $full,
-            HospitalCohortType::UrbanBasic->value,
-            HospitalCohortType::UrbanAdvanced->value,
-            $rural,
-            HospitalCohortType::RuralBasic->value,
-            HospitalCohortType::RuralMaximum->value,
-        );
+            $branches[] = sprintf(
+                'WHEN hospital_location_code = %d AND hospital_tier_code = %d THEN \'%s\'',
+                $locationCode->value,
+                $tierCode->value,
+                $cohortKey->value(),
+            );
+        }
 
-        /** @var array<string, string> $cohortLabelKeys */
-        $cohortLabelKeys = [];
+        $cohortSql = 'CASE '.implode(' ', $branches).' ELSE NULL END';
+
         /** @var list<string> $cohortBuckets */
         $cohortBuckets = [];
-        foreach (HospitalCohortType::cases() as $cohortType) {
-            $cohortBuckets[] = $cohortType->value;
-            $cohortLabelKeys[$cohortType->value] = $cohortType->labelTranslationKey();
+        foreach (HospitalCohortKey::all() as $cohortKey) {
+            $cohortBuckets[] = $cohortKey->value();
         }
 
         return new AnalysisDimension(
@@ -248,7 +237,6 @@ SQL,
             recommendedChartType: 'bar',
             sqlExpression: $cohortSql,
             fixedBuckets: $cohortBuckets,
-            valueLabelTranslationKeys: $cohortLabelKeys,
         );
     }
 }

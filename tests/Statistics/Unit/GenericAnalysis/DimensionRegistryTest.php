@@ -45,8 +45,8 @@ final class DimensionRegistryTest extends TestCase
 
         self::assertNotNull($cohort->sqlExpression);
         self::assertStringContainsString('urban_basic', $cohort->sqlExpression);
-        self::assertStringContainsString('rural_maximum', $cohort->sqlExpression);
-        self::assertCount(4, $cohort->fixedBuckets);
+        self::assertStringContainsString('mixed_extended', $cohort->sqlExpression);
+        self::assertCount(9, $cohort->fixedBuckets);
     }
 
     public function testUnknownDimensionThrows(): void

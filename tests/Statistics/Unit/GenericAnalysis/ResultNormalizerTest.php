@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
+use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 use App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
@@ -22,6 +23,26 @@ final class ResultNormalizerTest extends TestCase
     protected function setUp(): void
     {
         $this->normalizer = $this->createNormalizer();
+    }
+
+    public function testHospitalCohortDimensionUsesLabelResolver(): void
+    {
+        $result = new AnalysisResult(
+            rows: [GenericAnalysisTestFixtures::resultRow('urban_basic', 4)],
+            grandTotal: 4,
+            primaryDimensionKey: 'hospital_cohort',
+            metricKeys: ['count'],
+        );
+
+        $normalized = $this->normalizer->normalize(
+            $result,
+            'By cohort',
+            $this->enrich($result),
+            GenericAnalysisTestFixtures::defaultQuery('hospital_cohort'),
+        );
+
+        self::assertSame('Urban Location Basic Tier', $normalized->rows[0]->bucketLabel);
+        self::assertStringNotContainsString('stats.filter.cohort.', $normalized->rows[0]->bucketLabel);
     }
 
     public function testHospitalDimensionUsesLookupNames(): void
@@ -220,7 +241,27 @@ final class ResultNormalizerTest extends TestCase
             new MetricValueFormatter(new MetricRegistry()),
             $translator,
             $entityLabelResolver,
+            $this->createCohortLabelResolver(),
         );
+    }
+
+    private function createCohortLabelResolver(): HospitalCohortLabelResolver
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id, array $params = []): string => match ($id) {
+                'hospital.location.Urban' => 'Urban Location',
+                'hospital.location.Mixed' => 'Mixed Location',
+                'hospital.location.Rural' => 'Rural Location',
+                'hospital.tier.Basic' => 'Basic Tier',
+                'hospital.tier.Extended' => 'Extended Tier',
+                'hospital.tier.Full' => 'Full Tier',
+                'stats.filter.cohort.label' => ($params['location'] ?? '').' '.($params['tier'] ?? ''),
+                default => $id,
+            },
+        );
+
+        return new HospitalCohortLabelResolver($translator);
     }
 
     /**
