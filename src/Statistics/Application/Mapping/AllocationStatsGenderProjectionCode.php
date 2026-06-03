@@ -31,4 +31,16 @@ enum AllocationStatsGenderProjectionCode: int
             default => null,
         };
     }
+
+    /**
+     * Translation key aligned with {@see \App\Allocation\Domain\Enum\AllocationGender::label()}.
+     */
+    public function labelTranslationKey(): string
+    {
+        return match ($this) {
+            self::Male => 'label.gender.male',
+            self::Female => 'label.gender.female',
+            self::Other => 'label.gender.other',
+        };
+    }
 }

@@ -1,0 +1,132 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Statistics\Unit\GenericAnalysis;
+
+use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\DTO\StatisticsPeriodBounds;
+use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
+use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisSqlBuilder;
+use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
+use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use PHPUnit\Framework\TestCase;
+
+final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
+{
+    private GenericAllocationAnalysisSqlBuilder $builder;
+
+    protected function setUp(): void
+    {
+        $this->builder = new GenericAllocationAnalysisSqlBuilder(
+            new DimensionRegistry(),
+            new GenericAnalysisScopeSqlFilter(),
+        );
+    }
+
+    public function testBuildsParameterizedCountByMonth(): void
+    {
+        $from = new \DateTimeImmutable('2024-01-01 00:00:00');
+        $to = new \DateTimeImmutable('2025-01-01 00:00:00');
+
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: new StatisticsScopeCriteria([10, 20]),
+            periodBounds: new StatisticsPeriodBounds($from, $to),
+        ));
+
+        self::assertStringContainsString('created_month AS bucket', $sql);
+        self::assertStringContainsString('COUNT(*)::INT AS value', $sql);
+        self::assertStringContainsString('FROM allocation_stats_projection', $sql);
+        self::assertStringContainsString('hospital_id IN (:scope_hospital_ids)', $sql);
+        self::assertStringContainsString('created_at >= :period_from', $sql);
+        self::assertStringContainsString('created_at < :period_to_exclusive', $sql);
+        self::assertStringNotContainsString(';', $sql);
+        self::assertSame([10, 20], $params['scope_hospital_ids']);
+    }
+
+    public function testRejectsUnknownDimensionKey(): void
+    {
+        $this->expectException(UnknownAnalysisDimensionException::class);
+
+        $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'evil_column',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+    }
+
+    public function testSeriesDimensionAddsGroupBy(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            seriesDimensionKey: 'urgency',
+        ));
+
+        self::assertStringContainsString('urgency_code AS series', $sql);
+        self::assertStringContainsString('GROUP BY bucket, series', $sql);
+    }
+
+    public function testHospitalCohortDimensionUsesCaseExpression(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'hospital_cohort',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+
+        self::assertStringContainsString('CASE', $sql);
+        self::assertStringContainsString("'urban_basic'", $sql);
+        self::assertStringContainsString("'rural_basic'", $sql);
+        self::assertStringContainsString('hospital_location_code', $sql);
+        self::assertStringContainsString('hospital_tier_code', $sql);
+    }
+
+    public function testCohortScopeCriteriaAddsLocationAndTierFilters(): void
+    {
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: new StatisticsScopeCriteria(
+                [1, 2, 3],
+                [AllocationStatsHospitalLocationProjectionCode::Rural->value],
+                [AllocationStatsHospitalTierProjectionCode::Basic->value],
+                HospitalCohortType::RuralBasic,
+            ),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+
+        self::assertStringContainsString('hospital_id IN (:scope_hospital_ids)', $sql);
+        self::assertStringContainsString('hospital_location_code IN (:scope_location_codes)', $sql);
+        self::assertStringContainsString('hospital_tier_code IN (:scope_tier_codes)', $sql);
+        self::assertSame([1, 2, 3], $params['scope_hospital_ids']);
+        self::assertSame(
+            [AllocationStatsHospitalLocationProjectionCode::Rural->value],
+            $params['scope_location_codes'],
+        );
+        self::assertSame(
+            [AllocationStatsHospitalTierProjectionCode::Basic->value],
+            $params['scope_tier_codes'],
+        );
+    }
+
+    public function testExcludesAgeGroupUnknownWhenNullBucketsDisabled(): void
+    {
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            seriesDimensionKey: 'age_group',
+            includeNullBuckets: false,
+        ));
+
+        self::assertStringContainsString('age IS NOT NULL', $sql);
+        self::assertStringContainsString('NOT IN (:exclude_null_bucket_age_group)', $sql);
+        self::assertSame(['unknown'], $params['exclude_null_bucket_age_group']);
+    }
+}

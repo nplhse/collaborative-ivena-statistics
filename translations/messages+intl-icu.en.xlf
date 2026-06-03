@@ -1265,6 +1265,10 @@
         <source>link.stats.analysis</source>
         <target>Analysis</target>
       </trans-unit>
+      <trans-unit id="statsLnkAe01" resname="link.stats.analysis_explorer">
+        <source>link.stats.analysis_explorer</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
       <trans-unit id="statsLnkRp01" resname="link.stats.reports">
         <source>link.stats.reports</source>
         <target>Reports</target>
@@ -3630,6 +3634,234 @@
       <trans-unit id="media027" resname="label.open_in_new_tab">
         <source>label.open_in_new_tab</source>
         <target>Open in new tab</target>
+      </trans-unit>
+      <trans-unit id="statsGa01" resname="stats.generic_analysis.preset_label">
+        <source>stats.generic_analysis.preset_label</source>
+        <target>Predefined analysis</target>
+      </trans-unit>
+      <trans-unit id="statsGa01a" resname="stats.generic_analysis.config_card_title">
+        <source>stats.generic_analysis.config_card_title</source>
+        <target>Analysis configuration</target>
+      </trans-unit>
+      <trans-unit id="statsGa01f" resname="stats.generic_analysis.restricted_dimensions_hint">
+        <source>stats.generic_analysis.restricted_dimensions_hint</source>
+        <target>Some dimensions (hospital, state, dispatch area) are only available in the matching scope filter above.</target>
+      </trans-unit>
+      <trans-unit id="statsGa02" resname="stats.generic_analysis.custom_title">
+        <source>stats.generic_analysis.custom_title</source>
+        <target>Custom analysis</target>
+      </trans-unit>
+      <trans-unit id="statsGa03" resname="stats.generic_analysis.custom_section">
+        <source>stats.generic_analysis.custom_section</source>
+        <target>Custom configuration</target>
+      </trans-unit>
+      <trans-unit id="statsGa04" resname="stats.generic_analysis.based_on_preset">
+        <source>stats.generic_analysis.based_on_preset</source>
+        <target>Based on {preset}</target>
+      </trans-unit>
+      <trans-unit id="statsGa05" resname="stats.generic_analysis.primary_dimension">
+        <source>stats.generic_analysis.primary_dimension</source>
+        <target>Primary dimension</target>
+      </trans-unit>
+      <trans-unit id="statsGa06" resname="stats.generic_analysis.series_dimension">
+        <source>stats.generic_analysis.series_dimension</source>
+        <target>Series dimension</target>
+      </trans-unit>
+      <trans-unit id="statsGa07" resname="stats.generic_analysis.series_none">
+        <source>stats.generic_analysis.series_none</source>
+        <target>— no series —</target>
+      </trans-unit>
+      <trans-unit id="statsGa08" resname="stats.generic_analysis.include_null_buckets">
+        <source>stats.generic_analysis.include_null_buckets</source>
+        <target>Include unknown values</target>
+      </trans-unit>
+      <trans-unit id="statsGa09" resname="stats.generic_analysis.apply">
+        <source>stats.generic_analysis.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="statsGa10" resname="stats.generic_analysis.reset_to_preset">
+        <source>stats.generic_analysis.reset_to_preset</source>
+        <target>Reset to predefined analysis</target>
+      </trans-unit>
+      <trans-unit id="statsGa11" resname="stats.generic_analysis.page_pretitle">
+        <source>stats.generic_analysis.page_pretitle</source>
+        <target>Generic analysis</target>
+      </trans-unit>
+      <trans-unit id="statsGa12" resname="stats.generic_analysis.dimension_type.temporal">
+        <source>stats.generic_analysis.dimension_type.temporal</source>
+        <target>Time</target>
+      </trans-unit>
+      <trans-unit id="statsGa13" resname="stats.generic_analysis.dimension_type.categorical">
+        <source>stats.generic_analysis.dimension_type.categorical</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="statsGa14" resname="stats.generic_analysis.dimension_type.boolean">
+        <source>stats.generic_analysis.dimension_type.boolean</source>
+        <target>Yes / No</target>
+      </trans-unit>
+      <trans-unit id="statsGa15" resname="stats.generic_analysis.dimension_type.numeric">
+        <source>stats.generic_analysis.dimension_type.numeric</source>
+        <target>Numeric</target>
+      </trans-unit>
+      <trans-unit id="statsGa16" resname="stats.generic_analysis.meta.dimension">
+        <source>stats.generic_analysis.meta.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsGa17" resname="stats.generic_analysis.meta.series">
+        <source>stats.generic_analysis.meta.series</source>
+        <target>Series</target>
+      </trans-unit>
+      <trans-unit id="statsGa18" resname="stats.generic_analysis.meta.total">
+        <source>stats.generic_analysis.meta.total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsGa19" resname="stats.generic_analysis.table.count">
+        <source>stats.generic_analysis.table.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsGa19a" resname="stats.generic_analysis.results_table_title">
+        <source>stats.generic_analysis.results_table_title</source>
+        <target>Results</target>
+      </trans-unit>
+      <trans-unit id="statsGa19a2" resname="stats.generic_analysis.results_count">
+        <source>stats.generic_analysis.results_count</source>
+        <target>{count} results</target>
+      </trans-unit>
+      <trans-unit id="statsGa19f" resname="stats.generic_analysis.table.footer_total">
+        <source>stats.generic_analysis.table.footer_total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsGa19b" resname="stats.generic_analysis.table_layout_label">
+        <source>stats.generic_analysis.table_layout_label</source>
+        <target>Table layout</target>
+      </trans-unit>
+      <trans-unit id="statsGa19c" resname="stats.generic_analysis.table_layout_stacked">
+        <source>stats.generic_analysis.table_layout_stacked</source>
+        <target>One row per series</target>
+      </trans-unit>
+      <trans-unit id="statsGa19d" resname="stats.generic_analysis.table_layout_grouped">
+        <source>stats.generic_analysis.table_layout_grouped</source>
+        <target>Grouped by bucket</target>
+      </trans-unit>
+      <trans-unit id="statsGa19e" resname="stats.generic_analysis.table.bucket_total">
+        <source>stats.generic_analysis.table.bucket_total</source>
+        <target>Bucket total</target>
+      </trans-unit>
+      <trans-unit id="statsGa20" resname="stats.generic_analysis.table.percent_total">
+        <source>stats.generic_analysis.table.percent_total</source>
+        <target>% of total</target>
+      </trans-unit>
+      <trans-unit id="statsGa21" resname="stats.generic_analysis.table.percent_bucket">
+        <source>stats.generic_analysis.table.percent_bucket</source>
+        <target>% of bucket</target>
+      </trans-unit>
+      <trans-unit id="statsGa21a" resname="stats.generic_analysis.table.percent_total_tooltip">
+        <source>stats.generic_analysis.table.percent_total_tooltip</source>
+        <target>% of total: {percent}%</target>
+      </trans-unit>
+      <trans-unit id="statsGa22" resname="stats.generic_analysis.no_data">
+        <source>stats.generic_analysis.no_data</source>
+        <target>No data for the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsGa23" resname="stats.generic_analysis.chart_json_title">
+        <source>stats.generic_analysis.chart_json_title</source>
+        <target>Chart data (JSON)</target>
+      </trans-unit>
+      <trans-unit id="statsGa24" resname="stats.generic_analysis.chart.empty">
+        <source>stats.generic_analysis.chart.empty</source>
+        <target>No chart data for the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsGa25" resname="stats.generic_analysis.chart.subtitle_with_series">
+        <source>stats.generic_analysis.chart.subtitle_with_series</source>
+        <target>{primary} by {series}</target>
+      </trans-unit>
+      <trans-unit id="statsGa26" resname="stats.generic_analysis.chart.y_axis_allocations">
+        <source>stats.generic_analysis.chart.y_axis_allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsGa27" resname="stats.generic_analysis.chart.value_allocations">
+        <source>stats.generic_analysis.chart.value_allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsGa28" resname="stats.generic_analysis.chart.type_selector_label">
+        <source>stats.generic_analysis.chart.type_selector_label</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsGa29" resname="stats.generic_analysis.chart.type.bar">
+        <source>stats.generic_analysis.chart.type.bar</source>
+        <target>Bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa30" resname="stats.generic_analysis.chart.type.line">
+        <source>stats.generic_analysis.chart.type.line</source>
+        <target>Line</target>
+      </trans-unit>
+      <trans-unit id="statsGa31" resname="stats.generic_analysis.chart.type.stacked_bar">
+        <source>stats.generic_analysis.chart.type.stacked_bar</source>
+        <target>Stacked bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa32" resname="stats.generic_analysis.chart.type.grouped_bar">
+        <source>stats.generic_analysis.chart.type.grouped_bar</source>
+        <target>Grouped bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa33" resname="stats.generic_analysis.chart.type.horizontal_bar">
+        <source>stats.generic_analysis.chart.type.horizontal_bar</source>
+        <target>Horizontal bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa34" resname="stats.generic_analysis.chart.type.percent_stacked_bar">
+        <source>stats.generic_analysis.chart.type.percent_stacked_bar</source>
+        <target>100% stacked</target>
+      </trans-unit>
+      <trans-unit id="statsGa35" resname="stats.generic_analysis.chart.type.pie">
+        <source>stats.generic_analysis.chart.type.pie</source>
+        <target>Pie</target>
+      </trans-unit>
+      <trans-unit id="statsGa36" resname="stats.generic_analysis.chart.type.heatmap">
+        <source>stats.generic_analysis.chart.type.heatmap</source>
+        <target>Heatmap</target>
+      </trans-unit>
+      <trans-unit id="statsGa37" resname="stats.generic_analysis.chart.type.table">
+        <source>stats.generic_analysis.chart.type.table</source>
+        <target>Table</target>
+      </trans-unit>
+      <trans-unit id="statsGa38" resname="stats.generic_analysis.chart.warning.numeric_dimension">
+        <source>stats.generic_analysis.chart.warning.numeric_dimension</source>
+        <target>Charts are not available for this numeric dimension. Use the table below.</target>
+      </trans-unit>
+      <trans-unit id="statsGa39" resname="stats.generic_analysis.chart.warning.histogram_not_supported">
+        <source>stats.generic_analysis.chart.warning.histogram_not_supported</source>
+        <target>Histogram charts are not yet supported. Use the table below.</target>
+      </trans-unit>
+      <trans-unit id="statsGa40" resname="stats.generic_analysis.chart.warning.heatmap_not_implemented">
+        <source>stats.generic_analysis.chart.warning.heatmap_not_implemented</source>
+        <target>Heatmap charts for hour and weekday are not yet available. Use the table below.</target>
+      </trans-unit>
+      <trans-unit id="statsGa41" resname="stats.generic_analysis.chart.warning.many_series">
+        <source>stats.generic_analysis.chart.warning.many_series</source>
+        <target>Many series — the legend may be hard to read.</target>
+      </trans-unit>
+      <trans-unit id="statsGa42" resname="stats.generic_analysis.chart.warning.many_buckets">
+        <source>stats.generic_analysis.chart.warning.many_buckets</source>
+        <target>Many categories — consider a horizontal bar chart.</target>
+      </trans-unit>
+      <trans-unit id="statsGa43" resname="stats.generic_analysis.chart.warning.pie_deferred">
+        <source>stats.generic_analysis.chart.warning.pie_deferred</source>
+        <target>Pie charts will be added later; showing a bar chart for now.</target>
+      </trans-unit>
+      <trans-unit id="statsGa44" resname="stats.generic_analysis.chart.export_planned">
+        <source>stats.generic_analysis.chart.export_planned</source>
+        <target>Chart export (PNG/CSV) is planned.</target>
+      </trans-unit>
+      <trans-unit id="statsGa45" resname="stats.generic_analysis.chart.remainder_bucket">
+        <source>stats.generic_analysis.chart.remainder_bucket</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="statsGa46" resname="stats.generic_analysis.chart.remainder_series">
+        <source>stats.generic_analysis.chart.remainder_series</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="statsGa47" resname="stats.generic_analysis.chart.warning.top_limited">
+        <source>stats.generic_analysis.chart.warning.top_limited</source>
+        <target>Chart shows the top {limit} values; remaining values are grouped as “Other”.</target>
       </trans-unit>
     </body>
   </file>

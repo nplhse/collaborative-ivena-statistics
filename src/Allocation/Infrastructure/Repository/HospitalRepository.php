@@ -36,6 +36,33 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         return $entity instanceof Hospital ? $entity : null;
     }
 
+    /**
+     * @param list<int> $ids
+     *
+     * @return array<int, string>
+     */
+    public function findNamesByIds(array $ids): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        /** @var list<array{id: int|string, name: string}> $rows */
+        $rows = $this->createQueryBuilder('h')
+            ->select('h.id', 'h.name')
+            ->andWhere('h.id IN (:ids)')
+            ->setParameter('ids', array_values(array_unique($ids)))
+            ->getQuery()
+            ->getArrayResult();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['id']] = $row['name'];
+        }
+
+        return $names;
+    }
+
     public function countParticipating(): int
     {
         return $this->createQueryBuilder('h')

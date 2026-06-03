@@ -1,0 +1,105 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Statistics\Unit\GenericAnalysis;
+
+use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Contract\HospitalAccessInterface;
+use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\User\Domain\Entity\User;
+use PHPUnit\Framework\TestCase;
+
+final class GenericAnalysisDimensionPolicyTest extends TestCase
+{
+    private GenericAnalysisDimensionPolicy $policy;
+
+    private \PHPUnit\Framework\MockObject\MockObject $hospitalAccess;
+
+    protected function setUp(): void
+    {
+        $this->hospitalAccess = $this->createMock(HospitalAccessInterface::class);
+        $this->policy = new GenericAnalysisDimensionPolicy($this->hospitalAccess);
+    }
+
+    public function testPublicScopeDisallowsHospitalForParticipant(): void
+    {
+        $user = $this->createMock(User::class);
+        $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
+
+        self::assertFalse($this->policy->isAllowed(
+            'hospital',
+            $this->filter(StatisticsFilterScope::Public),
+            $user,
+        ));
+    }
+
+    public function testCohortScopeAllowsHospitalForParticipant(): void
+    {
+        $user = $this->createMock(User::class);
+        $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
+
+        self::assertTrue($this->policy->isAllowed(
+            'hospital',
+            $this->filter(StatisticsFilterScope::HospitalCohort, cohortType: HospitalCohortType::RuralBasic),
+            $user,
+        ));
+    }
+
+    public function testAdminAllowsHospitalOnPublicScope(): void
+    {
+        $user = $this->createMock(User::class);
+        $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
+
+        self::assertTrue($this->policy->isAllowed(
+            'hospital',
+            $this->filter(StatisticsFilterScope::Public),
+            $user,
+        ));
+    }
+
+    public function testStateDimensionRequiresStateScope(): void
+    {
+        $user = $this->createMock(User::class);
+        $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
+
+        self::assertFalse($this->policy->isAllowed(
+            'state',
+            $this->filter(StatisticsFilterScope::Public),
+            $user,
+        ));
+        self::assertTrue($this->policy->isAllowed(
+            'state',
+            $this->filter(StatisticsFilterScope::State, stateId: 1),
+            $user,
+        ));
+    }
+
+    public function testHospitalCohortDimensionAlwaysAllowed(): void
+    {
+        self::assertTrue($this->policy->isAllowed(
+            'hospital_cohort',
+            $this->filter(StatisticsFilterScope::Public),
+            null,
+        ));
+    }
+
+    private function filter(
+        StatisticsFilterScope $scope,
+        ?HospitalCohortType $cohortType = null,
+        ?int $stateId = null,
+        ?int $dispatchAreaId = null,
+    ): StatisticsFilter {
+        return new StatisticsFilter(
+            $scope,
+            null,
+            $cohortType,
+            StatisticsFilterPeriod::All,
+            stateId: $stateId,
+            dispatchAreaId: $dispatchAreaId,
+        );
+    }
+}

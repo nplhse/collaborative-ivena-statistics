@@ -1,0 +1,94 @@
+{% set page = genericAnalysisPage %}
+
+<div class="card mb-4" data-testid="stats-generic-analysis-config">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <h3 class="card-title mb-0">{{ 'stats.generic_analysis.config_card_title'|trans }}</h3>
+        <div class="dropdown" data-testid="stats-generic-analysis-preset-select">
+            <button type="button"
+                    class="btn dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="{{ 'stats.generic_analysis.preset_label'|trans }}">
+                {{ page.selectedPresetLabel }}
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+                {% for item in page.presetMenu %}
+                    <a class="dropdown-item{% if item.active %} active{% endif %}"
+                       href="{{ item.url }}"
+                       data-testid="stats-generic-analysis-preset-{{ item.key }}">
+                        {{ item.title }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if page.showRestrictedDimensionsHint %}
+            <p class="text-secondary small mb-3">{{ 'stats.generic_analysis.restricted_dimensions_hint'|trans }}</p>
+        {% endif %}
+        {% if page.isCustom and page.referencePresetTitle %}
+            <p class="text-secondary small mb-3">
+                {{ 'stats.generic_analysis.based_on_preset'|trans({'%preset%': page.referencePresetTitle}) }}
+            </p>
+        {% endif %}
+
+        <form method="get" action="{{ page.customFormAction }}" class="row g-3 align-items-end">
+            {% for field in page.preservedQueryFields %}
+                <input type="hidden" name="{{ field.key }}" value="{{ field.value }}">
+            {% endfor %}
+            {% if page.formReferencePreset %}
+                <input type="hidden" name="ga_ref" value="{{ page.formReferencePreset }}">
+            {% endif %}
+
+            <div class="col-12 col-md-6 col-xl-4">
+                <label class="form-label" for="ga_primary">{{ 'stats.generic_analysis.primary_dimension'|trans }}</label>
+                <select class="form-select" id="ga_primary" name="ga_primary" required data-testid="stats-generic-analysis-primary">
+                    {% for group in page.dimensionGroups %}
+                        <optgroup label="{{ group.label }}">
+                            {% for option in group.options %}
+                                <option value="{{ option.key }}"{% if option.key == page.formPrimary %} selected{% endif %}>
+                                    {{ option.label }}
+                                </option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-4">
+                <label class="form-label" for="ga_series">{{ 'stats.generic_analysis.series_dimension'|trans }}</label>
+                <select class="form-select" id="ga_series" name="ga_series" data-testid="stats-generic-analysis-series">
+                    <option value="">{{ 'stats.generic_analysis.series_none'|trans }}</option>
+                    {% for group in page.dimensionGroups %}
+                        <optgroup label="{{ group.label }}">
+                            {% for option in group.options %}
+                                <option value="{{ option.key }}"{% if option.key == page.formSeries %} selected{% endif %}>
+                                    {{ option.label }}
+                                </option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="ga_include_null" name="ga_include_null" value="1"
+                           {% if page.formIncludeNull %}checked{% endif %}
+                           data-testid="stats-generic-analysis-include-null">
+                    <label class="form-check-label" for="ga_include_null">
+                        {{ 'stats.generic_analysis.include_null_buckets'|trans }}
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 w-xl-auto" data-testid="stats-generic-analysis-apply">
+                    {{ 'stats.generic_analysis.apply'|trans }}
+                </button>
+            </div>
+        </form>
+        {% if page.resetToPresetUrl %}
+            <p class="small text-secondary mt-3 mb-0">
+                <a href="{{ page.resetToPresetUrl }}">{{ 'stats.generic_analysis.reset_to_preset'|trans }}</a>
+            </p>
+        {% endif %}
+    </div>
+</div>

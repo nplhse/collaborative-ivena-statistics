@@ -1,0 +1,50 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ analysisResult.title }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: analysisResult.title }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle" data-testid="stats-heading-subtitle">
+                        {{ 'stats.generic_analysis.page_pretitle'|trans }}
+                    </div>
+                    <h2 class="page-title" data-testid="stats-heading-title">
+                        {{ analysisResult.title }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row g-4">
+        <div class="col-12 min-w-0">
+            {{ include('@Statistics/generic_analysis/_analysis_config.html.twig') }}
+
+            {{ include('@Statistics/generic_analysis/_chart_card.html.twig') }}
+
+            {{ include('@Statistics/generic_analysis/_results_table.html.twig') }}
+
+            {% if overviewPeriodViewModel is defined %}
+                {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
