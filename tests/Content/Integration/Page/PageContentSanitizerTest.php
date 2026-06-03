@@ -60,6 +60,23 @@ HTML;
         self::assertStringContainsString('alt="Sample"', $html);
     }
 
+    public function testSanitizerKeepsLightboxWrappedImageTagsFromMediaSnippets(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PageContentSanitizer::class);
+
+        $raw = '<p>Text</p><a href="/uploads/media/sample.png" data-fslightbox="content-gallery"><img src="/uploads/media/sample.png" alt="Sample"></a>';
+
+        $out = $sut->sanitize([['type' => 'richtext', 'data' => ['html' => $raw]]]);
+        $html = (string) ($out[0]['data']['html'] ?? '');
+
+        self::assertStringContainsString('data-fslightbox="content-gallery"', $html);
+        self::assertStringContainsString('<img', $html);
+        self::assertStringContainsString('/uploads/media/sample.png', $html);
+        self::assertStringContainsString('alt="Sample"', $html);
+    }
+
     public function testSanitizerSanitizesHighlightHtml(): void
     {
         self::bootKernel();

@@ -28,7 +28,15 @@ framework:
                     - a
                     - blockquote
                     - img
+                    - figure
+                    - figcaption
                 allow_attributes:
+                    data-fslightbox:
+                        - a
+                    class:
+                        - figure
+                        - a
+                        - img
                     a:
                         - href
                         - title
