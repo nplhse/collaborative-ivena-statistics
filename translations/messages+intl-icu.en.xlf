@@ -3563,6 +3563,18 @@
         <source>help.page.image_size</source>
         <target>Relative to the content card width, not the full page.</target>
       </trans-unit>
+      <trans-unit id="page0026bj" resname="label.move_block_up">
+        <source>label.move_block_up</source>
+        <target>Move block up</target>
+      </trans-unit>
+      <trans-unit id="page0026bk" resname="label.move_block_down">
+        <source>label.move_block_down</source>
+        <target>Move block down</target>
+      </trans-unit>
+      <trans-unit id="page0026bl" resname="help.page.content_blocks_reorder">
+        <source>help.page.content_blocks_reorder</source>
+        <target>Use the up and down arrows on each block to change the order.</target>
+      </trans-unit>
       <trans-unit id="page0027" resname="error.page.auth_required">
         <source>error.page.auth_required</source>
         <target>This page is only available to signed-in users.</target>

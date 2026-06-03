@@ -20,6 +20,10 @@ return [
         'path' => './assets/admin-kpi.js',
         'entrypoint' => true,
     ],
+    'admin-page-form' => [
+        'path' => './assets/admin-page-form.js',
+        'entrypoint' => true,
+    ],
     'error_page' => [
         'path' => './assets/error-page.js',
         'entrypoint' => true,
