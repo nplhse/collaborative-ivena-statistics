@@ -48,7 +48,8 @@ Optional but recommended:
 | Variable | Purpose |
 |----------|---------|
 | `MAILER_REPLY_TO` | Reply-to address on transactional mail (leave empty to omit) |
-| `APP_VERSION` | Release label stored with feedback and used as the default Sentry release |
+
+The application version label (`App\Kernel::APP_VERSION`, exposed as `app.version`) is stored with feedback submissions and used as the default Sentry release unless `SENTRY_RELEASE` is set.
 
 Run database migrations so the `messenger_messages` table exists (included in the default deploy workflow).
 

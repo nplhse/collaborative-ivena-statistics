@@ -24,10 +24,9 @@
 | `MAILER_FROM` | Sender address | transactional mail |
 | `MAILER_REPLY_TO` | Reply-to address | optional |
 | `APP_URL` | Public base URL | required in prod for correct links |
-| `APP_VERSION` | Version label | used for feedback / Sentry |
 | `SENTRY_DSN` | Sentry DSN | empty = disabled |
 | `SENTRY_ENVIRONMENT` | Sentry environment | falls back to `APP_ENV` |
-| `SENTRY_RELEASE` | Sentry release | falls back to `APP_VERSION` |
+| `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::APP_VERSION` (`app.version`) |
 | `SENTRY_TRACES_SAMPLE_RATE` | Trace sampling rate | `0.0`–`1.0` |
 | `SENTRY_ENABLE_LOGS` | Structured logs | `true` / `false` |
 

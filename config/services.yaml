@@ -19,11 +19,9 @@ parameters:
     env(MAILER_REPLY_TO): ''
     app.mailer_from: '%env(MAILER_FROM)%'
     app.mailer_reply_to: '%env(MAILER_REPLY_TO)%'
-    env(APP_VERSION): ''
     env(SENTRY_DSN): ''
     env(SENTRY_TRACES_SAMPLE_RATE): '0'
     env(SENTRY_ENABLE_LOGS): 'true'
-    app.feedback.app_version: '%env(APP_VERSION)%'
 
 services:
     # default configuration for services in *this* file

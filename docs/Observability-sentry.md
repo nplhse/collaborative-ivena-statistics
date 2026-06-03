@@ -8,7 +8,7 @@ This application uses `sentry/sentry-symfony` for error monitoring, structured l
 |----------|---------|
 | `SENTRY_DSN` | Sentry project DSN; leave empty to disable |
 | `SENTRY_ENVIRONMENT` | Optional; falls back to `APP_ENV` (`local`, `dev`, `staging`, `alpha`, `prod`) |
-| `SENTRY_RELEASE` | Optional; falls back to `APP_VERSION` |
+| `SENTRY_RELEASE` | Optional; falls back to `App\Kernel::APP_VERSION` (`app.version`) |
 | `SENTRY_TRACES_SAMPLE_RATE` | Share of transactions to trace (`0.0`–`1.0`) |
 | `SENTRY_ENABLE_LOGS` | Enable structured logs (`true` / `false`) |
 
