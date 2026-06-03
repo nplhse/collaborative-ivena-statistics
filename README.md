@@ -34,25 +34,38 @@ Key capabilities
 ```bash
 git clone https://github.com/nplhse/collaborative-ivena-statistics.git
 cd collaborative-ivena-statistics
-make install
+cp .env.example .env.local
+# set APP_SECRET and DATABASE_URL in .env.local
+make setup-dev
 ```
+
+`make install` is an alias for `make setup-dev` (fresh database with demo fixtures).
+
+If you already have a database (e.g. a mirror of production), use `make upgrade-dev` instead — it does not drop your data.
+
+| Goal | Command |
+|------|---------|
+| Greenfield dev (fixtures) | `make setup-dev` or `make install` |
+| Empty DB, prod-like locally | `make setup-prod` |
+| Update code/schema, keep data | `make upgrade-dev` or `make upgrade-prod` |
+| Clear files + empty DB | `make purge` |
+| Clear files + empty DB + fixtures | `make reset` |
 
 ### `.env` / configuration
 
 ```bash
-cp .env.example .env.local
 php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
 ```
 
 Set at least: `APP_SECRET` and `DATABASE_URL`, find more about the configuration here: [docs/Configuration.md](docs/Configuration.md)
 
-### Prepare the database
-
-`make install` runs the default initialization. If needed:
+### Prepare the database manually (optional)
 
 ```bash
-symfony composer setup-env
-symfony composer setup-test-env
+symfony composer setup-database   # drop, create, migrate (no fixtures)
+symfony composer load-fixtures    # demo data only
+symfony composer setup-env        # both (same as setup-database + load-fixtures)
+symfony composer setup-test-env   # fresh test database
 ```
 
 ### Run locally
