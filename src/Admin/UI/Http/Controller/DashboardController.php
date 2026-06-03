@@ -30,7 +30,10 @@ use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
+use App\Kpi\Application\Service\KpiDashboardService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -45,6 +48,7 @@ final class DashboardController extends AbstractDashboardController
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly FeedbackRepository $feedbackRepository,
+        private readonly KpiDashboardService $kpiDashboardService,
     ) {
     }
 
@@ -52,8 +56,18 @@ final class DashboardController extends AbstractDashboardController
     public function index(): Response
     {
         return $this->render('@Admin/dashboard/index.html.twig', [
+            'kpi_cards' => $this->kpiDashboardService->getCards(),
+            'kpi_chart' => $this->kpiDashboardService->getChart(),
+            'failed_imports' => $this->kpiDashboardService->getRecentFailedImports(),
             'dashboard_sections' => $this->buildDashboardSections(),
         ]);
+    }
+
+    #[\Override]
+    public function configureAssets(): Assets
+    {
+        return Assets::new()
+            ->addAssetMapperEntry(Asset::new('admin-kpi'));
     }
 
     /**
