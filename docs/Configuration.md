@@ -26,7 +26,7 @@
 | `APP_URL` | Public base URL | required in prod for correct links |
 | `SENTRY_DSN` | Sentry DSN | empty = disabled |
 | `SENTRY_ENVIRONMENT` | Sentry environment | falls back to `APP_ENV` |
-| `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::VERSION` (`app.version`) |
+| `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::APP_VERSION` (`app.version`) |
 | `SENTRY_TRACES_SAMPLE_RATE` | Trace sampling rate | `0.0`–`1.0` |
 | `SENTRY_ENABLE_LOGS` | Structured logs | `true` / `false` |
 
