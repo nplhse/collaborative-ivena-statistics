@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\DTO;
 
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 
 final readonly class StatisticsScopeCriteria
 {
@@ -17,7 +17,7 @@ final readonly class StatisticsScopeCriteria
         public ?array $hospitalIds,
         public ?array $locationCodes = null,
         public ?array $tierCodes = null,
-        public ?HospitalCohortType $cohortType = null,
+        public ?HospitalCohortKey $cohortType = null,
     ) {
     }
 

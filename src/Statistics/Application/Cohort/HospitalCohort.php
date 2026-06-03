@@ -14,7 +14,7 @@ final readonly class HospitalCohort
      * @param non-empty-list<AllocationStatsHospitalTierProjectionCode>     $tierCodes
      */
     public function __construct(
-        public HospitalCohortType $type,
+        public HospitalCohortKey $key,
         public array $locationCodes,
         public array $tierCodes,
     ) {

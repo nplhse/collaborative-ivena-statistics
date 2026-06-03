@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Application;
 
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
@@ -37,8 +37,8 @@ final readonly class ComparisonScopeResolver
 
     private function defaultComparisonCohort(StatisticsFilter $primaryFilter, ?User $user): string
     {
-        if (StatisticsFilterScope::HospitalCohort === $primaryFilter->scope && $primaryFilter->cohortType instanceof HospitalCohortType) {
-            return $primaryFilter->cohortType->value;
+        if (StatisticsFilterScope::HospitalCohort === $primaryFilter->scope && $primaryFilter->cohortType instanceof HospitalCohortKey) {
+            return $primaryFilter->cohortType->value();
         }
 
         $hospitalIds = match ($primaryFilter->scope) {
@@ -50,7 +50,7 @@ final readonly class ComparisonScopeResolver
             StatisticsFilterScope::DispatchArea => null !== $primaryFilter->dispatchAreaId
                 ? $this->projectionScopeQuery->distinctHospitalIdsForDispatchArea($primaryFilter->dispatchAreaId)
                 : [],
-            StatisticsFilterScope::HospitalCohort => $primaryFilter->cohortType instanceof HospitalCohortType
+            StatisticsFilterScope::HospitalCohort => $primaryFilter->cohortType instanceof HospitalCohortKey
                 ? $this->projectionScopeQuery->distinctHospitalIdsForCohort(
                     $this->hospitalCohortResolver->resolve($primaryFilter->cohortType),
                 )
@@ -59,22 +59,22 @@ final readonly class ComparisonScopeResolver
         };
 
         if ([] === $hospitalIds) {
-            return HospitalCohortType::cases()[0]->value;
+            return HospitalCohortKey::all()[0]->value();
         }
 
         $dominant = $this->projectionScopeQuery->dominantLocationTierForHospitalIds($hospitalIds);
         if (!\is_array($dominant)) {
-            return HospitalCohortType::cases()[0]->value;
+            return HospitalCohortKey::all()[0]->value();
         }
 
-        foreach (HospitalCohortType::cases() as $candidate) {
+        foreach (HospitalCohortKey::all() as $candidate) {
             $cohort = $this->hospitalCohortResolver->resolve($candidate);
             if (\in_array($dominant['location'], $cohort->locationCodeValues(), true) && \in_array($dominant['tier'], $cohort->tierCodeValues(), true)) {
-                return $candidate->value;
+                return $candidate->value();
             }
         }
 
-        return HospitalCohortType::cases()[0]->value;
+        return HospitalCohortKey::all()[0]->value();
     }
 
     /**

@@ -18,7 +18,7 @@ final class HospitalCohortEligibilityChecker
 
     public function hasMinimumParticipants(HospitalCohort $cohort, int $minimumParticipants = 2): bool
     {
-        $cacheKey = $cohort->type->value.'|'.$minimumParticipants;
+        $cacheKey = $cohort->key->value().'|'.$minimumParticipants;
         if (\array_key_exists($cacheKey, $this->memo)) {
             return $this->memo[$cacheKey];
         }

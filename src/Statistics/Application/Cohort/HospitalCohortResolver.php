@@ -9,29 +9,20 @@ use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode
 
 final class HospitalCohortResolver
 {
-    public function resolve(HospitalCohortType $type): HospitalCohort
+    public function resolve(HospitalCohortKey $key): HospitalCohort
     {
-        return match ($type) {
-            HospitalCohortType::UrbanBasic => new HospitalCohort(
-                $type,
-                [AllocationStatsHospitalLocationProjectionCode::Urban],
-                [AllocationStatsHospitalTierProjectionCode::Basic],
-            ),
-            HospitalCohortType::UrbanAdvanced => new HospitalCohort(
-                $type,
-                [AllocationStatsHospitalLocationProjectionCode::Urban],
-                [AllocationStatsHospitalTierProjectionCode::Extended, AllocationStatsHospitalTierProjectionCode::Full],
-            ),
-            HospitalCohortType::RuralBasic => new HospitalCohort(
-                $type,
-                [AllocationStatsHospitalLocationProjectionCode::Rural],
-                [AllocationStatsHospitalTierProjectionCode::Basic],
-            ),
-            HospitalCohortType::RuralMaximum => new HospitalCohort(
-                $type,
-                [AllocationStatsHospitalLocationProjectionCode::Rural],
-                [AllocationStatsHospitalTierProjectionCode::Full],
-            ),
-        };
+        $locationCode = AllocationStatsHospitalLocationProjectionCode::tryFromHospitalLocation($key->location);
+        $tierCode = AllocationStatsHospitalTierProjectionCode::tryFromHospitalTier($key->tier);
+
+        if (!$locationCode instanceof AllocationStatsHospitalLocationProjectionCode
+            || !$tierCode instanceof AllocationStatsHospitalTierProjectionCode) {
+            throw new \InvalidArgumentException(sprintf('Unsupported cohort key "%s".', $key->value()));
+        }
+
+        return new HospitalCohort(
+            $key,
+            [$locationCode],
+            [$tierCode],
+        );
     }
 }
