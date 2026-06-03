@@ -13,8 +13,11 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\AnalysisPresetRegistry;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisConfigResolver;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\Statistics\GenericAnalysis\Application\GenericAnalysisMetricRequestResolver;
+use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,10 +35,18 @@ final class GenericAnalysisConfigResolverTest extends TestCase
         $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
         $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
 
+        $metricRegistry = new MetricRegistry();
+        $dimensionRegistry = new DimensionRegistry();
+
         $this->resolver = new GenericAnalysisConfigResolver(
             new AnalysisPresetRegistry(),
-            new DimensionRegistry(),
+            $dimensionRegistry,
             new GenericAnalysisDimensionPolicy($hospitalAccess),
+            new GenericAnalysisMetricRequestResolver(
+                $metricRegistry,
+                $dimensionRegistry,
+                new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
+            ),
             $translator,
         );
     }
@@ -68,6 +79,26 @@ final class GenericAnalysisConfigResolverTest extends TestCase
         self::assertFalse($config->isCustom);
         self::assertSame('month', $config->primaryDimensionKey);
         self::assertSame('Allocations by month', $config->displayTitle);
+        self::assertSame(['count'], $config->query->resolvedMetricKeys());
+    }
+
+    public function testAppliesMetricOverridesOnPresetRoute(): void
+    {
+        $request = Request::create('/statistics/generic-analysis/allocations_by_month', Request::METHOD_GET, [
+            'ga_metrics' => ['count', 'percent_of_total'],
+        ]);
+
+        $config = $this->resolver->resolve(
+            'allocations_by_month',
+            $request,
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            $this->publicFilter(),
+            null,
+        );
+
+        self::assertFalse($config->isCustom);
+        self::assertSame(['count', 'percent_of_total'], $config->query->resolvedMetricKeys());
     }
 
     public function testResolvesCustomWhenOverridesDiffer(): void
@@ -134,10 +165,18 @@ final class GenericAnalysisConfigResolverTest extends TestCase
         $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
         $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
 
+        $metricRegistry = new MetricRegistry();
+        $dimensionRegistry = new DimensionRegistry();
+
         $resolver = new GenericAnalysisConfigResolver(
             new AnalysisPresetRegistry(),
-            new DimensionRegistry(),
+            $dimensionRegistry,
             new GenericAnalysisDimensionPolicy($hospitalAccess),
+            new GenericAnalysisMetricRequestResolver(
+                $metricRegistry,
+                $dimensionRegistry,
+                new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
+            ),
             $this->createMock(TranslatorInterface::class),
         );
 

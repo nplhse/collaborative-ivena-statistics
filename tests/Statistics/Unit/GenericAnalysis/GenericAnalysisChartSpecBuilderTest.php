@@ -6,8 +6,6 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
-use App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow;
-use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
@@ -33,12 +31,8 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
     public function testBarSpecMapsValuesToCounts(): void
     {
         $query = $this->query('month');
-        $result = new NormalizedAnalysisResult(
-            title: 'By month',
-            primaryDimensionLabel: 'Month',
-            seriesDimensionLabel: null,
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             grandTotal: 15,
-            rows: [],
             chartData: [
                 'type' => 'bar',
                 'labels' => ['Jan', 'Feb'],
@@ -57,12 +51,9 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
     public function testGroupedBarSpecSetsBarGrouped(): void
     {
         $query = $this->query('month', 'urgency');
-        $result = new NormalizedAnalysisResult(
-            title: 'Urgency by month',
-            primaryDimensionLabel: 'Month',
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             seriesDimensionLabel: 'Urgency',
             grandTotal: 8,
-            rows: [],
             chartData: [
                 'labels' => ['Jan'],
                 'series' => [['name' => 'U1', 'data' => [5]]],
@@ -78,15 +69,13 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
     public function testPercentStackedUsesReducedCounts(): void
     {
         $query = $this->query('month', 'urgency');
-        $result = new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Month',
+        $result = GenericAnalysisTestFixtures::normalizedResult(
+            rows: [
+                GenericAnalysisTestFixtures::enrichedRow('1', 'Jan', 5, 62.5, 62.5, '1', 'U1'),
+                GenericAnalysisTestFixtures::enrichedRow('1', 'Jan', 3, 37.5, 37.5, '2', 'U2'),
+            ],
             seriesDimensionLabel: 'Urgency',
             grandTotal: 8,
-            rows: [
-                new EnrichedAnalysisRow('1', 'Jan', 5, 62.5, 62.5, '1', 'U1'),
-                new EnrichedAnalysisRow('1', 'Jan', 3, 37.5, 37.5, '2', 'U2'),
-            ],
             chartData: [
                 'labels' => ['Jan'],
                 'series' => [
@@ -107,12 +96,9 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
     public function testBuildsStackedLineAndHorizontalSpecs(): void
     {
         $query = $this->query('month', 'urgency');
-        $result = new NormalizedAnalysisResult(
-            title: 'Urgency by month',
-            primaryDimensionLabel: 'Month',
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             seriesDimensionLabel: 'Urgency',
             grandTotal: 8,
-            rows: [],
             chartData: [
                 'labels' => ['Jan'],
                 'series' => [
@@ -134,12 +120,8 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
     public function testBuildSpecsForTypesSkipsUnsupported(): void
     {
         $query = $this->query('month');
-        $result = new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Month',
-            seriesDimensionLabel: null,
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             grandTotal: 5,
-            rows: [],
             chartData: ['labels' => ['Jan'], 'values' => [5]],
         );
 
@@ -161,12 +143,8 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
     public function testPercentStackedFallsBackToBarWithoutSeries(): void
     {
         $query = $this->query('month');
-        $result = new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Month',
-            seriesDimensionLabel: null,
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             grandTotal: 5,
-            rows: [],
             chartData: ['labels' => ['Jan'], 'values' => [5]],
         );
 
@@ -185,12 +163,8 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
             $labels[] = 'Hospital '.$i;
             $values[] = 100 - $i;
         }
-        $result = new NormalizedAnalysisResult(
-            title: 'By hospital',
-            primaryDimensionLabel: 'Hospital',
-            seriesDimensionLabel: null,
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             grandTotal: array_sum($values),
-            rows: [],
             chartData: ['labels' => $labels, 'values' => $values],
         );
 

@@ -6,7 +6,6 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
-use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
@@ -66,12 +65,9 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         for ($i = 1; $i <= 7; ++$i) {
             $series[] = ['name' => 'U'.$i, 'data' => [$i * 10, 0]];
         }
-        $result = new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Month',
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             seriesDimensionLabel: 'Urgency',
             grandTotal: 280,
-            rows: [],
             chartData: [
                 'labels' => ['Jan', 'Feb'],
                 'series' => $series,
@@ -96,12 +92,9 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
             ['name' => 'U1', 'data' => [10, 1, 1, 1, 1, 1]],
             ['name' => 'U2', 'data' => [1, 1, 1, 1, 1, 50]],
         ];
-        $result = new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Hospital',
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             seriesDimensionLabel: 'Urgency',
             grandTotal: 70,
-            rows: [],
             chartData: ['labels' => $labels, 'series' => $series],
         );
 
@@ -116,15 +109,12 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
     public function testExtractsCountsFromRowsWhenValuesMissing(): void
     {
         $query = $this->query('gender');
-        $result = new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Gender',
-            seriesDimensionLabel: null,
-            grandTotal: 8,
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             rows: [
-                new \App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow('1', 'Male', 5, 62.5, 100.0),
-                new \App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow('2', 'Female', 3, 37.5, 100.0),
+                GenericAnalysisTestFixtures::enrichedRow('1', 'Male', 5, 62.5, 100.0),
+                GenericAnalysisTestFixtures::enrichedRow('2', 'Female', 3, 37.5, 100.0),
             ],
+            grandTotal: 8,
             chartData: ['labels' => ['Male', 'Female']],
         );
 
@@ -133,15 +123,29 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         self::assertSame([5, 3], $reduced->counts);
     }
 
+    public function testUsesVisualMetricKeyFromResult(): void
+    {
+        $query = $this->query('gender', metricKeys: ['count', 'percent_of_total'], visualMetricKey: 'percent_of_total');
+        $result = GenericAnalysisTestFixtures::normalizedResult(
+            rows: [
+                GenericAnalysisTestFixtures::enrichedRow('1', 'Male', 5, 62.5, 100.0),
+                GenericAnalysisTestFixtures::enrichedRow('2', 'Female', 3, 37.5, 100.0),
+            ],
+            grandTotal: 8,
+            metricKeys: ['count', 'percent_of_total'],
+            chartData: ['labels' => ['Male', 'Female']],
+            visualMetricKey: 'percent_of_total',
+        );
+
+        $reduced = $this->reducer->reduce($query, $result);
+
+        self::assertSame([62.5, 37.5], $reduced->counts);
+    }
+
     public function testReturnsEmptyLabelsWhenChartDataInvalid(): void
     {
         $query = $this->query('month');
-        $result = new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Month',
-            seriesDimensionLabel: null,
-            grandTotal: 0,
-            rows: [],
+        $result = GenericAnalysisTestFixtures::normalizedResult(
             chartData: ['labels' => null],
         );
 
@@ -150,13 +154,22 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         self::assertSame([], $reduced->labels);
     }
 
-    private function query(string $primary, ?string $series = null): AnalysisQuery
-    {
+    /**
+     * @param list<string> $metricKeys
+     */
+    private function query(
+        string $primary,
+        ?string $series = null,
+        array $metricKeys = [],
+        ?string $visualMetricKey = null,
+    ): AnalysisQuery {
         return new AnalysisQuery(
             primaryDimensionKey: $primary,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
             seriesDimensionKey: $series,
+            metricKeys: $metricKeys,
+            visualMetricKey: $visualMetricKey,
         );
     }
 
@@ -164,14 +177,10 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
      * @param list<string> $labels
      * @param list<int>    $values
      */
-    private function normalizedResult(array $labels, array $values): NormalizedAnalysisResult
+    private function normalizedResult(array $labels, array $values): \App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult
     {
-        return new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Dim',
-            seriesDimensionLabel: null,
+        return GenericAnalysisTestFixtures::normalizedResult(
             grandTotal: array_sum($values),
-            rows: [],
             chartData: [
                 'labels' => $labels,
                 'values' => $values,

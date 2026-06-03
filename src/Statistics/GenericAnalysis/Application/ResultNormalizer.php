@@ -6,12 +6,15 @@ namespace App\Statistics\GenericAnalysis\Application;
 
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 use App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow;
+use App\Statistics\GenericAnalysis\Application\DTO\GenericAnalysisTableMetricColumn;
 use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ResultNormalizer
@@ -23,18 +26,21 @@ final class ResultNormalizer
 
     public function __construct(
         private readonly DimensionRegistry $dimensionRegistry,
+        private readonly MetricRegistry $metricRegistry,
+        private readonly MetricValueFormatter $metricValueFormatter,
         private readonly TranslatorInterface $translator,
         private readonly GenericAnalysisEntityLabelResolverInterface $entityLabelResolver,
     ) {
     }
 
     /**
-     * @param list<array{row: AnalysisResultRow, percent_of_total: float, percent_of_bucket: float}> $enrichedRows
+     * @param list<array{row: AnalysisResultRow, derivedMetrics: array<string, float>}> $enrichedRows
      */
     public function normalize(
         AnalysisResult $result,
         string $title,
         array $enrichedRows,
+        AnalysisQuery $query,
     ): NormalizedAnalysisResult {
         $primary = $this->dimensionRegistry->get($result->primaryDimensionKey);
         $series = null !== $result->seriesDimensionKey
@@ -42,6 +48,9 @@ final class ResultNormalizer
             : null;
 
         $this->entityLabelsByDimension = $this->resolveEntityLabels($result, $primary, $series);
+        $metricKeys = $result->metricKeys;
+        $metricColumns = $this->buildMetricColumns($metricKeys);
+        $visualMetricKey = $query->resolvedVisualMetricKey();
 
         $indexed = [];
         foreach ($enrichedRows as $item) {
@@ -60,13 +69,12 @@ final class ResultNormalizer
         foreach ($bucketKeys as $bucketKey) {
             foreach ($seriesKeys as $seriesKey) {
                 $item = $indexed[$this->compositeKey($bucketKey, $seriesKey)] ?? null;
-                $value = null !== $item ? $item['row']->value : 0;
+                $metrics = $this->buildRowMetrics($item, $metricKeys);
                 $normalizedRows[] = new EnrichedAnalysisRow(
                     bucketKey: $this->bucketKey($bucketKey),
                     bucketLabel: $this->labelFor($primary, $this->bucketKey($bucketKey)),
-                    value: $value,
-                    percentOfTotal: $item['percent_of_total'] ?? 0.0,
-                    percentOfBucket: $item['percent_of_bucket'] ?? 0.0,
+                    metrics: $metrics,
+                    formattedMetrics: $this->metricValueFormatter->formatMany($metrics),
                     seriesKey: null !== $seriesKey ? $this->bucketKey($seriesKey) : null,
                     seriesLabel: $series instanceof AnalysisDimension && null !== $seriesKey
                         ? $this->labelFor($series, $this->bucketKey($seriesKey))
@@ -75,19 +83,78 @@ final class ResultNormalizer
             }
         }
 
+        $hasSeries = $series instanceof AnalysisDimension;
+
         return new NormalizedAnalysisResult(
             title: $title,
             primaryDimensionLabel: $primary->label,
             seriesDimensionLabel: $series?->label,
             grandTotal: $result->grandTotal,
             rows: $normalizedRows,
-            chartData: $this->buildChartData($primary, $normalizedRows, $series instanceof AnalysisDimension),
+            chartData: $this->buildChartData($primary, $normalizedRows, $hasSeries, $visualMetricKey),
+            metricKeys: $metricKeys,
+            metricColumns: $metricColumns,
+            visualMetricKey: $visualMetricKey,
             recommendedChartType: $primary->recommendedChartType,
         );
     }
 
     /**
-     * @param array<string, array{row: AnalysisResultRow, percent_of_total: float, percent_of_bucket: float}> $indexed
+     * @param list<string> $metricKeys
+     *
+     * @return list<GenericAnalysisTableMetricColumn>
+     */
+    private function buildMetricColumns(array $metricKeys): array
+    {
+        $columns = [];
+        foreach ($metricKeys as $key) {
+            $metric = $this->metricRegistry->get($key);
+            $columns[] = new GenericAnalysisTableMetricColumn(
+                key: $key,
+                label: $metric->label,
+                format: $metric->defaultFormat,
+            );
+        }
+
+        usort(
+            $columns,
+            fn (GenericAnalysisTableMetricColumn $a, GenericAnalysisTableMetricColumn $b): int => $this->metricRegistry->get($a->key)->sortPriority
+                <=> $this->metricRegistry->get($b->key)->sortPriority,
+        );
+
+        return $columns;
+    }
+
+    /**
+     * @param list<string>                                                             $metricKeys
+     * @param array{row: AnalysisResultRow, derivedMetrics: array<string, float>}|null $item
+     *
+     * @return array<string, int|float|null>
+     */
+    private function buildRowMetrics(?array $item, array $metricKeys): array
+    {
+        $metrics = [];
+        foreach ($metricKeys as $key) {
+            if (null === $item) {
+                $metrics[$key] = 'count' === $key ? 0 : null;
+
+                continue;
+            }
+
+            if (isset($item['derivedMetrics'][$key])) {
+                $metrics[$key] = $item['derivedMetrics'][$key];
+
+                continue;
+            }
+
+            $metrics[$key] = $item['row']->metrics[$key] ?? ('count' === $key ? 0 : null);
+        }
+
+        return $metrics;
+    }
+
+    /**
+     * @param array<string, array{row: AnalysisResultRow, derivedMetrics: array<string, float>}> $indexed
      *
      * @return list<string>
      */
@@ -119,7 +186,7 @@ final class ResultNormalizer
     }
 
     /**
-     * @param array<string, array{row: AnalysisResultRow, percent_of_total: float, percent_of_bucket: float}> $indexed
+     * @param array<string, array{row: AnalysisResultRow, derivedMetrics: array<string, float>}> $indexed
      *
      * @return list<string|null>
      */
@@ -243,12 +310,17 @@ final class ResultNormalizer
         AnalysisDimension $primary,
         array $rows,
         bool $hasSeries,
+        string $visualMetricKey,
     ): array {
         if (!$hasSeries) {
             return [
                 'type' => $primary->recommendedChartType,
                 'labels' => array_map(static fn (EnrichedAnalysisRow $r): string => $r->bucketLabel, $rows),
-                'values' => array_map(static fn (EnrichedAnalysisRow $r): int => $r->value, $rows),
+                'values' => array_map(
+                    fn (EnrichedAnalysisRow $r): int|float => $this->visualMetricValue($r, $visualMetricKey),
+                    $rows,
+                ),
+                'visualMetricKey' => $visualMetricKey,
             ];
         }
 
@@ -260,7 +332,7 @@ final class ResultNormalizer
             }
             $seriesName = $row->seriesLabel ?? '—';
             $seriesMap[$seriesName] ??= [];
-            $seriesMap[$seriesName][$row->bucketLabel] = $row->value;
+            $seriesMap[$seriesName][$row->bucketLabel] = $this->visualMetricValue($row, $visualMetricKey);
         }
 
         $series = [];
@@ -276,7 +348,15 @@ final class ResultNormalizer
             'type' => $primary->recommendedChartType,
             'labels' => $labels,
             'series' => $series,
+            'visualMetricKey' => $visualMetricKey,
         ];
+    }
+
+    private function visualMetricValue(EnrichedAnalysisRow $row, string $visualMetricKey): int|float
+    {
+        $value = $row->metrics[$visualMetricKey] ?? null;
+
+        return $value ?? 0;
     }
 
     private function compositeKey(int|string|float|bool|null $bucketKey, int|string|float|bool|null $seriesKey): string

@@ -13,6 +13,7 @@ final readonly class GenericAnalysisService
 {
     public function __construct(
         private GenericAllocationAnalysisQuery $analysisQuery,
+        private MetricCompatibilityChecker $metricCompatibilityChecker,
         private RelativeDistributionCalculator $relativeDistributionCalculator,
         private ResultNormalizer $resultNormalizer,
     ) {
@@ -25,9 +26,10 @@ final readonly class GenericAnalysisService
 
     public function run(string $title, AnalysisQuery $query): NormalizedAnalysisResult
     {
+        $this->metricCompatibilityChecker->resolveAndValidate($query);
         $raw = $this->analysisQuery->execute($query);
-        $enriched = $this->relativeDistributionCalculator->enrich($raw);
+        $enriched = $this->relativeDistributionCalculator->enrich($raw, $raw->metricKeys);
 
-        return $this->resultNormalizer->normalize($raw, $title, $enriched);
+        return $this->resultNormalizer->normalize($raw, $title, $enriched, $query);
     }
 }

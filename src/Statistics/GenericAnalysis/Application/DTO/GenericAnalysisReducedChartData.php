@@ -7,9 +7,9 @@ namespace App\Statistics\GenericAnalysis\Application\DTO;
 final readonly class GenericAnalysisReducedChartData
 {
     /**
-     * @param list<string>                                    $labels
-     * @param list<int>|null                                  $counts
-     * @param list<array{name: string, data: list<int>}>|null $series
+     * @param list<string>                                          $labels
+     * @param list<int|float>|null                                  $counts
+     * @param list<array{name: string, data: list<int|float>}>|null $series
      */
     public function __construct(
         public array $labels,
