@@ -12,24 +12,31 @@
 {% block page_body %}
     <div class="page-body">
         <div class="container-xl">
-            <article class="card mb-4">
-                <div class="card-body">
-                    <div class="page-content-blocks content">
-                        {% for block in page.content %}
-                            {% if block.enabled is not defined or block.enabled %}
-                                {% if block.type in page_content_block_types() %}
-                                    <div class="page-content-block page-content-block--{{ block.type }}">
-                                        {{ include('@Content/page/blocks/' ~ block.type ~ '.html.twig', {
-                                            block: block,
-                                            blockIndex: loop.index,
-                                        }) }}
-                                    </div>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <article class="card mb-4">
+                        <div class="card-body">
+                            <div class="page-content-blocks content">
+                                {% for block in page.content %}
+                                    {% if block.enabled is not defined or block.enabled %}
+                                        {% if block.type in page_content_block_types() %}
+                                            <div class="page-content-block page-content-block--{{ block.type }}">
+                                                {{ include('@Content/page/blocks/' ~ block.type ~ '.html.twig', {
+                                                    block: block,
+                                                    blockIndex: loop.index,
+                                                }) }}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </article>
                 </div>
-            </article>
+                <div class="col-lg-4">
+                    {{ include('@Content/page/_sidebar.html.twig') }}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

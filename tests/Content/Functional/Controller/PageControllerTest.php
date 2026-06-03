@@ -145,4 +145,67 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorExists('.page-content-image--float-left');
         self::assertSelectorExists('.page-content-accordion .accordion-button');
     }
+
+    public function testSidebarShowsOnlyPublicPagesForGuest(): void
+    {
+        $client = self::createClient();
+
+        $parent = PageFactory::createOne([
+            'title' => 'Öffentlich',
+            'slug' => 'oeffentlich',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Öffentlich</p>']]],
+        ])->_real();
+
+        PageFactory::createOne([
+            'title' => 'Geschwister',
+            'slug' => 'geschwister',
+            'parent' => $parent,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Geschwister</p>']]],
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Nur Mitglieder',
+            'slug' => 'nur-mitglieder',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+        ]);
+
+        $client->request(Request::METHOD_GET, '/oeffentlich');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="page-sidebar"]');
+        self::assertSelectorTextContains('[data-testid="page-sidebar"]', 'Geschwister');
+        self::assertSelectorTextNotContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
+    }
+
+    public function testSidebarShowsAuthenticatedPagesForLoggedInUser(): void
+    {
+        $client = self::createClient();
+
+        PageFactory::createOne([
+            'title' => 'Start',
+            'slug' => 'start',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Start</p>']]],
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Nur Mitglieder',
+            'slug' => 'nur-mitglieder',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+        ]);
+
+        $user = UserFactory::createOne()->_real();
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/start');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
+    }
 }
