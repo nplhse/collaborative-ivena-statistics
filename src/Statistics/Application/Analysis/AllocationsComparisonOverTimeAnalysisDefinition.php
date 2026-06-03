@@ -7,6 +7,8 @@ namespace App\Statistics\Application\Analysis;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Application\AllocationsByMonthQuery;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsChartMeasure;
 use App\Statistics\Application\DTO\StatisticsContext;
@@ -19,8 +21,6 @@ use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
-use App\Statistics\Application\Cohort\HospitalCohortKey;
-use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements AnalysisDefinitionInterface

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\Application;
 
 use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
-use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterInput;

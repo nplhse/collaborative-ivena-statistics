@@ -42,7 +42,8 @@ final class HospitalCohortResolverTest extends TestCase
 
     public function testLegacyAdvancedAliasMapsToExtended(): void
     {
-        self::assertNotNull(HospitalCohortKey::tryFrom('urban_advanced'));
-        self::assertSame('urban_extended', HospitalCohortKey::tryFrom('urban_advanced')?->value());
+        $key = HospitalCohortKey::tryFrom('urban_advanced');
+        self::assertNotNull($key);
+        self::assertSame('urban_extended', $key->value());
     }
 }

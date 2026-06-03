@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Statistics\GenericAnalysis\Registry;
 
 use App\Statistics\Application\Cohort\HospitalCohortKey;
-use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
-use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
@@ -206,17 +204,10 @@ SQL;
     {
         $branches = [];
         foreach (HospitalCohortKey::all() as $cohortKey) {
-            $locationCode = AllocationStatsHospitalLocationProjectionCode::tryFromHospitalLocation($cohortKey->location);
-            $tierCode = AllocationStatsHospitalTierProjectionCode::tryFromHospitalTier($cohortKey->tier);
-            if (!$locationCode instanceof AllocationStatsHospitalLocationProjectionCode
-                || !$tierCode instanceof AllocationStatsHospitalTierProjectionCode) {
-                continue;
-            }
-
             $branches[] = sprintf(
                 'WHEN hospital_location_code = %d AND hospital_tier_code = %d THEN \'%s\'',
-                $locationCode->value,
-                $tierCode->value,
+                $cohortKey->locationProjectionCode()->value,
+                $cohortKey->tierProjectionCode()->value,
                 $cohortKey->value(),
             );
         }

@@ -6,10 +6,10 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
+use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
 use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
-use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
-use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,14 +69,17 @@ final readonly class ComparisonScopeResolver
             return HospitalCohortKey::all()[0]->value();
         }
 
-        foreach (HospitalCohortKey::all() as $candidate) {
-            $cohort = $this->hospitalCohortResolver->resolve($candidate);
-            if (\in_array($dominant['location'], $cohort->locationCodeValues(), true) && \in_array($dominant['tier'], $cohort->tierCodeValues(), true)) {
-                return $candidate->value();
-            }
+        $locationCode = AllocationStatsHospitalLocationProjectionCode::tryFrom($dominant['location']);
+        $tierCode = AllocationStatsHospitalTierProjectionCode::tryFrom($dominant['tier']);
+        if (!$locationCode instanceof AllocationStatsHospitalLocationProjectionCode
+            || !$tierCode instanceof AllocationStatsHospitalTierProjectionCode) {
+            return HospitalCohortKey::all()[0]->value();
         }
 
-        return HospitalCohortKey::all()[0]->value();
+        return new HospitalCohortKey(
+            $locationCode->toHospitalLocation(),
+            $tierCode->toHospitalTier(),
+        )->value();
     }
 
     /**
