@@ -14,22 +14,48 @@
                     <div class="text-secondary small mt-1">{{ genericAnalysisChart.subtitle }}</div>
                 {% endif %}
             </div>
-            {% if genericAnalysisChart.showChartTypeSelector %}
-                <div class="btn-group btn-group-sm flex-shrink-0"
-                     role="group"
-                     aria-label="{{ 'stats.generic_analysis.chart.type_selector_label'|trans }}"
-                     data-testid="stats-generic-analysis-chart-type">
-                    {% for option in genericAnalysisChart.chartTypeOptions %}
-                        <button type="button"
-                                class="btn btn-outline-secondary{% if option.value == genericAnalysisChart.defaultChartType %} active{% endif %}"
-                                data-generic-analysis-chart-target="typeButton"
-                                data-chart-type="{{ option.value }}"
-                                data-action="generic-analysis-chart#selectType"
-                                aria-pressed="{{ option.value == genericAnalysisChart.defaultChartType ? 'true' : 'false' }}"
-                                data-testid="stats-generic-analysis-chart-type-{{ option.value }}">
-                            {{ option.label }}
-                        </button>
-                    {% endfor %}
+            {% if genericAnalysisChart.showRowLimitControl or genericAnalysisChart.showChartTypeSelector %}
+                <div class="d-flex flex-wrap gap-2 align-items-center flex-shrink-0">
+                    {% if genericAnalysisChart.showRowLimitControl %}
+                        <div class="btn-group btn-group-sm"
+                             role="group"
+                             aria-label="{{ 'stats.generic_analysis.table.row_limit_label'|trans }}"
+                             data-testid="stats-generic-analysis-chart-row-limit">
+                            <a href="{{ genericAnalysisChart.rowLimitUrls['5'] }}"
+                               class="btn btn-outline-secondary{% if genericAnalysisChart.activeRowLimit.value == '5' %} active{% endif %}"
+                               data-testid="stats-generic-analysis-row-limit-5">
+                                {{ 'stats.generic_analysis.table.row_limit_top_5'|trans }}
+                            </a>
+                            <a href="{{ genericAnalysisChart.rowLimitUrls['10'] }}"
+                               class="btn btn-outline-secondary{% if genericAnalysisChart.activeRowLimit.value == '10' %} active{% endif %}"
+                               data-testid="stats-generic-analysis-row-limit-10">
+                                {{ 'stats.generic_analysis.table.row_limit_top_10'|trans }}
+                            </a>
+                            <a href="{{ genericAnalysisChart.rowLimitUrls['all'] }}"
+                               class="btn btn-outline-secondary{% if genericAnalysisChart.activeRowLimit.value == 'all' %} active{% endif %}"
+                               data-testid="stats-generic-analysis-row-limit-all">
+                                {{ 'stats.generic_analysis.table.row_limit_all'|trans }}
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if genericAnalysisChart.showChartTypeSelector %}
+                        <div class="btn-group btn-group-sm"
+                             role="group"
+                             aria-label="{{ 'stats.generic_analysis.chart.type_selector_label'|trans }}"
+                             data-testid="stats-generic-analysis-chart-type">
+                            {% for option in genericAnalysisChart.chartTypeOptions %}
+                                <button type="button"
+                                        class="btn btn-outline-secondary{% if option.value == genericAnalysisChart.defaultChartType %} active{% endif %}"
+                                        data-generic-analysis-chart-target="typeButton"
+                                        data-chart-type="{{ option.value }}"
+                                        data-action="generic-analysis-chart#selectType"
+                                        aria-pressed="{{ option.value == genericAnalysisChart.defaultChartType ? 'true' : 'false' }}"
+                                        data-testid="stats-generic-analysis-chart-type-{{ option.value }}">
+                                    {{ option.label }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
