@@ -99,4 +99,40 @@ HTML;
         self::assertStringContainsString('Answer', $html);
         self::assertStringNotContainsString('<script>', $html);
     }
+
+    public function testSanitizerSkipsInvalidAccordionItems(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PageContentSanitizer::class);
+
+        $out = $sut->sanitize([
+            [
+                'type' => 'accordion',
+                'data' => [
+                    'items' => [
+                        'invalid-item',
+                        ['title' => 'Q', 'html' => '<p>Answer</p>'],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertCount(1, $out[0]['data']['items']);
+        self::assertSame('Answer', strip_tags((string) $out[0]['data']['items'][0]['html']));
+    }
+
+    public function testSanitizerPassesThroughNonHtmlBlocks(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PageContentSanitizer::class);
+
+        $block = [
+            'type' => 'headline',
+            'data' => ['text' => 'Title', 'level' => 'h2'],
+        ];
+
+        self::assertSame([$block], $sut->sanitize([$block]));
+    }
 }

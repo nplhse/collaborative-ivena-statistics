@@ -156,4 +156,113 @@ final class PageContentBlockDataNormalizerTest extends TestCase
 
         self::assertSame('sm', $normalized[0]['data']['size']);
     }
+
+    public function testSkipsNonArrayBlocks(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            'invalid-block',
+            [
+                'type' => 'quote',
+                'data' => ['text' => 'Quote'],
+            ],
+        ]);
+
+        self::assertSame([
+            [
+                'type' => 'quote',
+                'data' => ['text' => 'Quote'],
+            ],
+        ], $normalized);
+    }
+
+    public function testDefaultsMissingTypeToRichtext(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            [
+                'data' => ['html' => '<p>Fallback</p>'],
+            ],
+        ]);
+
+        self::assertSame([
+            [
+                'type' => 'richtext',
+                'data' => ['html' => '<p>Fallback</p>'],
+            ],
+        ], $normalized);
+    }
+
+    public function testNormalizesInvalidImageFloatToNone(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/img.jpg',
+                    'alt' => 'Alt',
+                    'float' => 'center',
+                ],
+            ],
+        ]);
+
+        self::assertSame('none', $normalized[0]['data']['float']);
+    }
+
+    public function testNormalizesLegacyWidthPresetMdToSize(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/img.jpg',
+                    'alt' => 'Alt',
+                    'widthPreset' => 'md',
+                ],
+            ],
+        ]);
+
+        self::assertSame('md', $normalized[0]['data']['size']);
+    }
+
+    public function testNormalizesAccordionItemsToEmptyListWhenInvalid(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            [
+                'type' => 'accordion',
+                'data' => [
+                    'items' => 'invalid',
+                ],
+            ],
+        ]);
+
+        self::assertSame([], $normalized[0]['data']['items']);
+    }
+
+    public function testUnknownBlockTypeProducesEmptyData(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            [
+                'type' => 'unknown',
+                'data' => ['foo' => 'bar'],
+            ],
+        ]);
+
+        self::assertSame([
+            [
+                'type' => 'unknown',
+                'data' => [],
+            ],
+        ], $normalized);
+    }
 }
