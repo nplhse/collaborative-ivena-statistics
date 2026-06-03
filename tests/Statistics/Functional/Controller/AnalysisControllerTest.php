@@ -4,7 +4,25 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Infrastructure\Factory\AllocationFactory;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher;
+use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -399,6 +417,7 @@ class AnalysisControllerTest extends WebTestCase
     public function testComparisonAnalysisDefaultsComparisonScopeWhenMissing(): void
     {
         $client = $this->createClientAsRoleUser();
+        $this->seedEligibleUrbanBasicCohort($client);
         $client->followRedirects(true);
         $client->request(
             \Symfony\Component\HttpFoundation\Request::METHOD_GET,
@@ -406,7 +425,7 @@ class AnalysisControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-comparison-scope-menu"]', 'Urban Basic');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-comparison-scope-menu"]', 'Urban Location Basic Tier');
     }
 
     public function testComparisonAnalysisSupportsDifferentComparisonPeriod(): void
@@ -479,5 +498,52 @@ class AnalysisControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
         $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+    }
+
+    private function seedEligibleUrbanBasicCohort(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client): void
+    {
+        $user = UserFactory::createOne(['username' => 'analysis-cohort-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'Analysis Cohort State']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'Analysis Cohort Dispatch']);
+        $hospitalA = HospitalFactory::createOne([
+            'name' => 'Analysis Cohort Hospital A',
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::URBAN,
+        ]);
+        $hospitalB = HospitalFactory::createOne([
+            'name' => 'Analysis Cohort Hospital B',
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::URBAN,
+        ]);
+        SpecialityFactory::createOne(['name' => 'Analysis Cohort Spec']);
+        DepartmentFactory::createOne(['name' => 'Analysis Cohort Dept']);
+        AssignmentFactory::createOne(['name' => 'Analysis Cohort Assign']);
+        OccasionFactory::createOne(['name' => 'Analysis Cohort Occ']);
+        InfectionFactory::createOne(['name' => 'Analysis Cohort Inf']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Analysis Cohort Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Analysis Cohort Norm']);
+        $importA = ImportFactory::createOne(['name' => 'Analysis Cohort Import A', 'hospital' => $hospitalA, 'createdBy' => $user]);
+        $importB = ImportFactory::createOne(['name' => 'Analysis Cohort Import B', 'hospital' => $hospitalB, 'createdBy' => $user]);
+
+        foreach ([[$importA, $hospitalA], [$importB, $hospitalB]] as [$import, $hospital]) {
+            AllocationFactory::createOne([
+                'createdAt' => new \DateTimeImmutable('today'),
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'indicationRaw' => $raw,
+                'indicationNormalized' => $normalized,
+            ]);
+        }
+
+        $container = $client->getContainer();
+        $rebuilder = $container->get(AllocationStatsProjectionRebuildInterface::class);
+        $rebuilder->rebuildForImport($importA->getId());
+        $rebuilder->rebuildForImport($importB->getId());
+        $container->get(MaterializedViewRefresher::class)->refresh(
+            [StatisticsMaterializedViewGroups::OVERVIEW],
+            concurrently: false,
+        );
     }
 }

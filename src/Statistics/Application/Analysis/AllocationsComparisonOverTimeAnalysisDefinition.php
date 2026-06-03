@@ -19,6 +19,8 @@ use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements AnalysisDefinitionInterface
@@ -31,6 +33,7 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
         private StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
+        private HospitalCohortLabelResolver $hospitalCohortLabelResolver,
     ) {
     }
 
@@ -231,8 +234,8 @@ final readonly class AllocationsComparisonOverTimeAnalysisDefinition implements 
             \App\Statistics\Application\DTO\StatisticsFilterScope::Hospital => null !== $filter->hospitalId
                 ? sprintf('Hospital %d', $filter->hospitalId)
                 : $this->translator->trans('stats.filter.hospital.choose'),
-            \App\Statistics\Application\DTO\StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortType
-                ? $this->translator->trans($filter->cohortType->labelTranslationKey())
+            \App\Statistics\Application\DTO\StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortKey
+                ? $this->hospitalCohortLabelResolver->label($filter->cohortType)
                 : $this->translator->trans('stats.filter.scope.hospital_cohort'),
             \App\Statistics\Application\DTO\StatisticsFilterScope::State => $this->stateLabel($filter->stateId),
             \App\Statistics\Application\DTO\StatisticsFilterScope::DispatchArea => $this->dispatchAreaLabel($filter->dispatchAreaId),

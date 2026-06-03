@@ -9,7 +9,8 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -30,6 +31,7 @@ final readonly class StatisticsPageViewModelFactory
         private HospitalAccessInterface $hospitalAccess,
         private HospitalCohortResolver $hospitalCohortResolver,
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
+        private HospitalCohortLabelResolver $hospitalCohortLabelResolver,
         private TranslatorInterface $translator,
         private StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
@@ -122,24 +124,25 @@ final readonly class StatisticsPageViewModelFactory
         ];
 
         $cohortScopeChoices = [];
-        foreach (HospitalCohortType::cases() as $cohortType) {
-            $cohort = $this->hospitalCohortResolver->resolve($cohortType);
+        foreach (HospitalCohortKey::all() as $cohortKey) {
+            $cohort = $this->hospitalCohortResolver->resolve($cohortKey);
             if (!$this->hospitalCohortEligibilityChecker->hasMinimumParticipants($cohort)) {
                 continue;
             }
             $cohortScopeChoices[] = [
-                'key' => $cohortType->value,
-                'label' => $this->translator->trans($cohortType->labelTranslationKey(), [], null, $locale),
+                'key' => $cohortKey->value(),
+                'label' => $this->hospitalCohortLabelResolver->label($cohortKey, $locale),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
                     $routeName,
                     [
-                        StatisticsQueryKeys::SCOPE => StatisticsFilterScope::HospitalCohort->value.':'.$cohortType->value,
+                        StatisticsQueryKeys::SCOPE => StatisticsFilterScope::HospitalCohort->value.':'.$cohortKey->value(),
                     ],
                     StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT,
                 ),
                 'active' => StatisticsFilterScope::HospitalCohort === $filter->scope
-                    && $filter->cohortType === $cohortType,
+                    && $filter->cohortType instanceof HospitalCohortKey
+                    && $filter->cohortType->equals($cohortKey),
             ];
         }
         $cohortDropdownSelectedName = null;
@@ -491,8 +494,8 @@ final readonly class StatisticsPageViewModelFactory
                 ?? $this->translator->trans('stats.filter.scope.choose_region', [], null, $locale),
             StatisticsFilterScope::DispatchArea => $this->dispatchNameForFilter($filter)
                 ?? $this->translator->trans('stats.filter.scope.choose_dispatch_area', [], null, $locale),
-            StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortType
-                ? $this->translator->trans($filter->cohortType->labelTranslationKey(), [], null, $locale)
+            StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortKey
+                ? $this->hospitalCohortLabelResolver->label($filter->cohortType, $locale)
                 : $this->translator->trans('stats.filter.scope.choose_cohort', [], null, $locale),
             StatisticsFilterScope::MyHospitals => $this->translator->trans('stats.filter.hospital.all_hospitals', [], null, $locale),
             StatisticsFilterScope::Hospital => $hospitalDropdownSelectedName
@@ -571,8 +574,8 @@ final readonly class StatisticsPageViewModelFactory
             StatisticsFilterScope::Hospital => (null !== $hospitalDisplayName && '' !== $hospitalDisplayName)
                 ? $this->translator->trans('stats.filter.hospital.named_line', ['name' => $hospitalDisplayName], null, $locale)
                 : $this->translator->trans('stats.filter.hospital.choose', [], null, $locale),
-            StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortType
-                ? $this->translator->trans($filter->cohortType->labelTranslationKey(), [], null, $locale)
+            StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortKey
+                ? $this->hospitalCohortLabelResolver->label($filter->cohortType, $locale)
                 : $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
             StatisticsFilterScope::State => (null !== $stateDisplayName && '' !== $stateDisplayName)
                 ? $stateDisplayName

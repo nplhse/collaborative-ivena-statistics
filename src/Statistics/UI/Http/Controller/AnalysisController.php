@@ -63,9 +63,9 @@ final class AnalysisController extends AbstractController
         $comparisonFilter = $this->comparisonScopeResolver->resolve($request, $user, $filter);
         if (!$request->query->has(StatisticsQueryKeys::COMPARISON_SCOPE)) {
             $query = $request->query->all();
-            if ($comparisonFilter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortType
+            if ($comparisonFilter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortKey
                 && StatisticsFilterScope::HospitalCohort === $comparisonFilter->scope) {
-                $query[StatisticsQueryKeys::COMPARISON_SCOPE] = StatisticsFilterScope::HospitalCohort->value.':'.$comparisonFilter->cohortType->value;
+                $query[StatisticsQueryKeys::COMPARISON_SCOPE] = StatisticsFilterScope::HospitalCohort->value.':'.$comparisonFilter->cohortType->value();
             } elseif (StatisticsFilterScope::State === $comparisonFilter->scope && null !== $comparisonFilter->stateId) {
                 $query[StatisticsQueryKeys::COMPARISON_SCOPE] = 'state:'.$comparisonFilter->stateId;
             } elseif (StatisticsFilterScope::DispatchArea === $comparisonFilter->scope && null !== $comparisonFilter->dispatchAreaId) {

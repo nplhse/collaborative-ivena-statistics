@@ -2363,21 +2363,9 @@
         <source>stats.filter.scope.dispatch_area_invalid</source>
         <target>The selected dispatch area does not have enough hospitals in the statistics data. Showing public statistics instead.</target>
       </trans-unit>
-      <trans-unit id="statsCohort01" resname="stats.filter.cohort.urban_basic">
-        <source>stats.filter.cohort.urban_basic</source>
-        <target>Urban Basic</target>
-      </trans-unit>
-      <trans-unit id="statsCohort02" resname="stats.filter.cohort.urban_advanced">
-        <source>stats.filter.cohort.urban_advanced</source>
-        <target>Urban Advanced</target>
-      </trans-unit>
-      <trans-unit id="statsCohort03" resname="stats.filter.cohort.rural_basic">
-        <source>stats.filter.cohort.rural_basic</source>
-        <target>Rural Basic</target>
-      </trans-unit>
-      <trans-unit id="statsCohort04" resname="stats.filter.cohort.rural_maximum">
-        <source>stats.filter.cohort.rural_maximum</source>
-        <target>Rural Maximum</target>
+      <trans-unit id="statsCohortLabel" resname="stats.filter.cohort.label">
+        <source>stats.filter.cohort.label</source>
+        <target>{location} {tier}</target>
       </trans-unit>
       <trans-unit id="statsFlt04" resname="stats.filter.hospital_label">
         <source>stats.filter.hospital_label</source>

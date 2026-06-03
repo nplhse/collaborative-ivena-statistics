@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Controller;
 
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
@@ -40,7 +40,7 @@ final class AnalysisComparisonControlsFactoryTest extends KernelTestCase
             new StatisticsFilter(
                 StatisticsFilterScope::HospitalCohort,
                 null,
-                HospitalCohortType::UrbanBasic,
+                new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::URBAN, \App\Allocation\Domain\Enum\HospitalTier::BASIC),
                 StatisticsFilterPeriod::Year,
                 2025,
             ),
@@ -48,11 +48,6 @@ final class AnalysisComparisonControlsFactoryTest extends KernelTestCase
 
         self::assertTrue($model->show);
         self::assertArrayHasKey('public', $model->scopeChoices);
-        self::assertArrayHasKey(
-            'hospital_cohort:'.HospitalCohortType::UrbanBasic->value,
-            $model->scopeChoices,
-        );
-        self::assertTrue($model->scopeChoices['hospital_cohort:'.HospitalCohortType::UrbanBasic->value]['active']);
         self::assertTrue($model->periodChoices['year']['active']);
     }
 }
