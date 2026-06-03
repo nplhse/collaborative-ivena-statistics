@@ -18,7 +18,6 @@
 
 | Variable | Purpose | Notes |
 |---|---|---|
-| `LEGACY_DATABASE_URL` | Legacy migration source (MySQL/MariaDB) | only for legacy migration |
 | `MESSENGER_TRANSPORT_DSN` | Queue backend | default `doctrine://default?auto_setup=0` |
 | `MAILER_DSN` | Mail transport | required in production |
 | `MAILER_FROM` | Sender address | transactional mail |
@@ -33,7 +32,6 @@
 ## Database
 
 - `default`: PostgreSQL (application data)
-- `legacy`: optional second connection for legacy migration
 - Test database uses a suffix (`_test...`)
 
 See also `config/packages/doctrine.yaml`.
@@ -56,7 +54,6 @@ Routing examples:
 - PostgreSQL
 - Optional SMTP provider (`MAILER_DSN`)
 - Optional Sentry
-- Optional legacy DB for migration
 
 ## Operations-related configuration
 

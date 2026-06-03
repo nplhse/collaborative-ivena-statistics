@@ -19,14 +19,13 @@ Typical layering per context:
 | `User` | Authentication, registration, password reset |
 | `Feedback` | Feedback widget and notifications |
 | `Admin` | EasyAdmin back office |
-| `LegacyMigration` | Migrations from legacy data sources |
 | `Shared` | Cross-cutting concerns (audit, monitoring, infrastructure) |
 | `Content` | Content pages and blog |
 
 ## Core components
 
 - **Bundles / stack:** Symfony 7.4, Doctrine ORM/Migrations, Messenger, EasyAdmin, UX components, Sentry
-- **Persistence:** PostgreSQL (`default`) and optional legacy connection (`legacy`)
+- **Persistence:** PostgreSQL (`default`)
 - **Async:** Messenger with `async_priority_high`, `async_priority_low`, `failed`
 - **Admin:** CRUD controllers under `src/Admin/UI/Http/Controller`
 
@@ -53,5 +52,6 @@ For flow details: [Import-workflow.md](Import-workflow.md) and [Statistics-proje
 - `app:import:allocations`
 - `app:import:requeue-all`
 - `app:statistics:refresh-mviews`
+- `app:allocation:backfill-indications`
+- `app:seed:projection`
 - `app:install`
-- `app:legacy:migrate`

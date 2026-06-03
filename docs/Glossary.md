@@ -10,7 +10,6 @@
 | Projection | Denormalized statistics table (`allocation_stats_projection`) |
 | Materialized view | Pre-aggregated database view for fast reads |
 | Messenger worker | Process that consumes asynchronous messages |
-| Legacy migration | Data transfer from a legacy data source |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |
 | Audit context | Context for traceable changes and events |
 
@@ -21,4 +20,6 @@
 | `app:import:allocations` | Dispatch a single import |
 | `app:import:requeue-all` | Re-queue many imports |
 | `app:statistics:refresh-mviews` | Refresh materialized views |
+| `app:allocation:backfill-indications` | Backfill normalized indication fields on allocations |
+| `app:seed:projection` | Rebuild allocation statistics projection from allocations |
 | `app:analyze-import-rejects` | Aggregate and analyze rejects |
