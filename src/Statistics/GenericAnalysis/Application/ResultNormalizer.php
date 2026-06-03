@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Application;
 
+use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 use App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow;
 use App\Statistics\GenericAnalysis\Application\DTO\GenericAnalysisTableMetricColumn;
@@ -30,6 +32,7 @@ final class ResultNormalizer
         private readonly MetricValueFormatter $metricValueFormatter,
         private readonly TranslatorInterface $translator,
         private readonly GenericAnalysisEntityLabelResolverInterface $entityLabelResolver,
+        private readonly HospitalCohortLabelResolver $hospitalCohortLabelResolver,
     ) {
     }
 
@@ -381,6 +384,13 @@ final class ResultNormalizer
     {
         if ('__null__' === $bucketKey) {
             return 'Unknown';
+        }
+
+        if ('hospital_cohort' === $dimension->key) {
+            $cohortKey = HospitalCohortKey::tryFrom($bucketKey);
+            if ($cohortKey instanceof HospitalCohortKey) {
+                return $this->hospitalCohortLabelResolver->label($cohortKey);
+            }
         }
 
         $lookupKey = is_numeric($bucketKey) ? (int) $bucketKey : $bucketKey;

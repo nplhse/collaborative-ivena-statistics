@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
@@ -45,8 +46,10 @@ final class DimensionRegistryTest extends TestCase
 
         self::assertNotNull($cohort->sqlExpression);
         self::assertStringContainsString('urban_basic', $cohort->sqlExpression);
-        self::assertStringContainsString('rural_maximum', $cohort->sqlExpression);
-        self::assertCount(4, $cohort->fixedBuckets);
+        self::assertStringContainsString('mixed_extended', $cohort->sqlExpression);
+        self::assertStringContainsString('rural_full', $cohort->sqlExpression);
+        self::assertCount(9, $cohort->fixedBuckets);
+        self::assertSame(HospitalCohortKey::all()[0]->value(), $cohort->fixedBuckets[0]);
     }
 
     public function testUnknownDimensionThrows(): void

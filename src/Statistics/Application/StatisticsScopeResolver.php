@@ -62,7 +62,7 @@ final class StatisticsScopeResolver
             $hospitalIds = ($this->distinctHospitalIdsByDispatchAreaQuery)($filter->dispatchAreaId);
 
             $criteria = new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
-        } elseif (StatisticsFilterScope::HospitalCohort === $filter->scope && $filter->cohortType instanceof Cohort\HospitalCohortType) {
+        } elseif (StatisticsFilterScope::HospitalCohort === $filter->scope && $filter->cohortType instanceof Cohort\HospitalCohortKey) {
             $cohort = $this->hospitalCohortResolver->resolve($filter->cohortType);
             $hospitalIds = ($this->distinctHospitalIdsByCohortQuery)($cohort);
 
@@ -92,7 +92,7 @@ final class StatisticsScopeResolver
         return implode('|', [
             $filter->scope->value,
             (string) ($filter->hospitalId ?? ''),
-            $filter->cohortType instanceof Cohort\HospitalCohortType ? $filter->cohortType->value : '',
+            $filter->cohortType instanceof Cohort\HospitalCohortKey ? $filter->cohortType->value() : '',
             (string) ($filter->stateId ?? ''),
             (string) ($filter->dispatchAreaId ?? ''),
             null === $userId ? 'anon' : (string) $userId,

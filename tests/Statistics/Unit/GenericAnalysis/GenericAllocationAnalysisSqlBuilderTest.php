@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
@@ -99,7 +99,7 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
                 [1, 2, 3],
                 [AllocationStatsHospitalLocationProjectionCode::Rural->value],
                 [AllocationStatsHospitalTierProjectionCode::Basic->value],
-                HospitalCohortType::RuralBasic,
+                new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::RURAL, \App\Allocation\Domain\Enum\HospitalTier::BASIC),
             ),
             periodBounds: new StatisticsPeriodBounds(null),
         ));

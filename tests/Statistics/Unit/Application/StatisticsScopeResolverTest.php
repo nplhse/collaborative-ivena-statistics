@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Application;
 
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -70,12 +70,13 @@ final class StatisticsScopeResolverTest extends KernelTestCase
             new StatisticsFilter(
                 StatisticsFilterScope::HospitalCohort,
                 null,
-                HospitalCohortType::UrbanBasic,
+                new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::URBAN, \App\Allocation\Domain\Enum\HospitalTier::BASIC),
                 StatisticsFilterPeriod::All,
             ),
         ));
 
-        self::assertSame(HospitalCohortType::UrbanBasic, $criteria->cohortType);
+        self::assertInstanceOf(HospitalCohortKey::class, $criteria->cohortType);
+        self::assertSame('urban_basic', $criteria->cohortType->value());
         self::assertNotEmpty($criteria->locationCodes);
         self::assertNotEmpty($criteria->tierCodes);
     }

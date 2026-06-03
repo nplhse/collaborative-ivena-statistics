@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
+use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
@@ -100,12 +101,21 @@ final class GenericAnalysisServiceTest extends TestCase
         $entityLabelResolver = $this->createMock(GenericAnalysisEntityLabelResolverInterface::class);
         $entityLabelResolver->method('supports')->willReturn(false);
 
+        $cohortTranslator = $this->createMock(TranslatorInterface::class);
+        $cohortTranslator->method('trans')->willReturnCallback(
+            static fn (string $id, array $params = []): string => match ($id) {
+                'stats.filter.cohort.label' => ($params['location'] ?? '').' '.($params['tier'] ?? ''),
+                default => $id,
+            },
+        );
+
         return new ResultNormalizer(
             $dimensionRegistry,
             $metricRegistry,
             new MetricValueFormatter($metricRegistry),
             $translator,
             $entityLabelResolver,
+            new HospitalCohortLabelResolver($cohortTranslator),
         );
     }
 }

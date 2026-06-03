@@ -6,7 +6,10 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
+use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
@@ -30,6 +33,9 @@ final readonly class AnalysisComparisonControlsFactory
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
         private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
+        private HospitalCohortResolver $hospitalCohortResolver,
+        private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
+        private HospitalCohortLabelResolver $hospitalCohortLabelResolver,
         private TranslatorInterface $translator,
     ) {
     }
@@ -109,10 +115,15 @@ final readonly class AnalysisComparisonControlsFactory
             ];
         }
 
-        foreach (HospitalCohortType::cases() as $cohortType) {
-            $scopeKey = StatisticsFilterScope::HospitalCohort->value.':'.$cohortType->value;
+        foreach (HospitalCohortKey::all() as $cohortKey) {
+            $cohort = $this->hospitalCohortResolver->resolve($cohortKey);
+            if (!$this->hospitalCohortEligibilityChecker->hasMinimumParticipants($cohort)) {
+                continue;
+            }
+
+            $scopeKey = StatisticsFilterScope::HospitalCohort->value.':'.$cohortKey->value();
             $scopeChoices[$scopeKey] = [
-                'label' => $this->translator->trans($cohortType->labelTranslationKey()),
+                'label' => $this->hospitalCohortLabelResolver->label($cohortKey, $request->getLocale()),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
                     'app_stats_analysis',
@@ -120,7 +131,8 @@ final readonly class AnalysisComparisonControlsFactory
                     ['comparison_state', StatisticsQueryKeys::COMPARISON_DISPATCH_AREA],
                 ),
                 'active' => StatisticsFilterScope::HospitalCohort === $comparisonFilter->scope
-                    && $comparisonFilter->cohortType === $cohortType,
+                    && $comparisonFilter->cohortType instanceof HospitalCohortKey
+                    && $comparisonFilter->cohortType->equals($cohortKey),
             ];
         }
 
@@ -132,7 +144,7 @@ final readonly class AnalysisComparisonControlsFactory
             StatisticsFilterScope::DispatchArea => null !== $comparisonFilter->dispatchAreaId
                 ? StatisticsFilterScope::DispatchArea->value.':'.$comparisonFilter->dispatchAreaId
                 : StatisticsFilterScope::Public->value,
-            default => StatisticsFilterScope::HospitalCohort->value.':'.($comparisonFilter->cohortType ?? HospitalCohortType::cases()[0])->value,
+            default => StatisticsFilterScope::HospitalCohort->value.':'.($comparisonFilter->cohortType ?? HospitalCohortKey::all()[0])->value(),
         };
         $activeScopeLabel = $scopeChoices[$activeScope]['label'] ?? $this->translator->trans('stats.filter.scope.public');
         $periodChoices = $this->periodChoices($request, $comparisonFilter);

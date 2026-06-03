@@ -141,6 +141,61 @@ final class GenericAnalysisControllerTest extends WebTestCase
         );
     }
 
+    public function testAllocationsByHospitalCohortDoesNotExposeRawTranslationKeys(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithTwoUrbanBasicHospitals();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/generic-analysis/allocations_by_hospital_cohort?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $content = (string) $client->getResponse()->getContent();
+        self::assertStringNotContainsString('stats.filter.cohort.', $content);
+        self::assertStringContainsString('Urban Location Basic Tier', $content);
+    }
+
+    private function seedProjectionWithTwoUrbanBasicHospitals(): void
+    {
+        $user = UserFactory::createOne(['username' => 'generic-analysis-cohort-test']);
+        $state = StateFactory::createOne(['name' => 'GA Cohort State', 'createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'GA Cohort Dispatch']);
+        $hospitalA = HospitalFactory::createOne([
+            'name' => 'GA Cohort Hospital A',
+            'tier' => \App\Allocation\Domain\Enum\HospitalTier::BASIC,
+            'location' => \App\Allocation\Domain\Enum\HospitalLocation::URBAN,
+        ]);
+        $hospitalB = HospitalFactory::createOne([
+            'name' => 'GA Cohort Hospital B',
+            'tier' => \App\Allocation\Domain\Enum\HospitalTier::BASIC,
+            'location' => \App\Allocation\Domain\Enum\HospitalLocation::URBAN,
+        ]);
+        $importA = ImportFactory::createOne(['name' => 'GA Cohort Import A', 'hospital' => $hospitalA, 'createdBy' => $user]);
+        $importB = ImportFactory::createOne(['name' => 'GA Cohort Import B', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        SpecialityFactory::createOne(['name' => 'GA Cohort Speciality']);
+        DepartmentFactory::createOne(['name' => 'GA Cohort Department']);
+        AssignmentFactory::createOne(['name' => 'GA Cohort Assignment']);
+        OccasionFactory::createOne(['name' => 'GA Cohort Occasion']);
+        InfectionFactory::createOne(['name' => 'GA Cohort Infection']);
+        $raw = IndicationRawFactory::createOne(['name' => 'GA Cohort Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'GA Cohort Normalized']);
+
+        foreach ([[$importA, $hospitalA], [$importB, $hospitalB]] as [$import, $hospital]) {
+            AllocationFactory::createOne([
+                'createdAt' => new \DateTimeImmutable('today'),
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'indicationRaw' => $raw,
+                'indicationNormalized' => $normalized,
+            ]);
+        }
+
+        $this->rebuildProjection([(int) $importA->getId(), (int) $importB->getId()]);
+    }
+
     private function seedProjectionWithAllocation(): void
     {
         $user = UserFactory::createOne(['username' => 'generic-analysis-test']);

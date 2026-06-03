@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
-use App\Statistics\Application\Cohort\HospitalCohortType;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -44,7 +44,7 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
 
         self::assertTrue($this->policy->isAllowed(
             'hospital',
-            $this->filter(StatisticsFilterScope::HospitalCohort, cohortType: HospitalCohortType::RuralBasic),
+            $this->filter(StatisticsFilterScope::HospitalCohort, cohortType: new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::RURAL, \App\Allocation\Domain\Enum\HospitalTier::BASIC)),
             $user,
         ));
     }
@@ -89,7 +89,7 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
 
     private function filter(
         StatisticsFilterScope $scope,
-        ?HospitalCohortType $cohortType = null,
+        ?HospitalCohortKey $cohortType = null,
         ?int $stateId = null,
         ?int $dispatchAreaId = null,
     ): StatisticsFilter {

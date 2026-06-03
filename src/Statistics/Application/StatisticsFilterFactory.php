@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\Application;
 
 use App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker;
+use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
-use App\Statistics\Application\Cohort\HospitalCohortType;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterInput;
@@ -79,7 +79,7 @@ final readonly class StatisticsFilterFactory
 
         if (StatisticsFilterScope::HospitalCohort !== $scope) {
             $cohortType = null;
-        } elseif (!$cohortType instanceof HospitalCohortType) {
+        } elseif (!$cohortType instanceof HospitalCohortKey) {
             $scope = $user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)
                 ? StatisticsFilterScope::MyHospitals
                 : StatisticsFilterScope::Public;
@@ -238,13 +238,13 @@ final readonly class StatisticsFilterFactory
         return StatisticsFilterPeriod::tryFrom($raw) ?? StatisticsFilterPeriod::All;
     }
 
-    private function parseCohortType(string $raw): ?HospitalCohortType
+    private function parseCohortType(string $raw): ?HospitalCohortKey
     {
         if ('' === $raw) {
             return null;
         }
 
-        return HospitalCohortType::tryFrom($raw);
+        return HospitalCohortKey::tryFrom($raw);
     }
 
     private function parsePositiveInt(mixed $value): ?int
