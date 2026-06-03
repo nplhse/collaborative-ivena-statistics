@@ -51,12 +51,14 @@
                                     <td class="text-end text-nowrap">
                                         {% if cell %}
                                             <div class="fw-medium">{{ cell.value|number_format(0, ',', '.') }}</div>
-                                            <div class="small text-secondary"
-                                                 title="{{ 'stats.generic_analysis.table.percent_total_tooltip'|trans({
-                                                     percent: cell.percentOfTotal|number_format(1, ',', '.'),
-                                                 }) }}">
-                                                {{ cell.percentOfBucket|number_format(1, ',', '.') }}%
-                                            </div>
+                                            {% if table.showPercentOfBucket %}
+                                                <div class="small text-secondary"
+                                                     {% if table.showPercentOfTotal %}title="{{ 'stats.generic_analysis.table.percent_total_tooltip'|trans({
+                                                         percent: cell.percentOfTotal|number_format(1, ',', '.'),
+                                                     }) }}"{% endif %}>
+                                                    {{ cell.percentOfBucket|number_format(1, ',', '.') }}%
+                                                </div>
+                                            {% endif %}
                                         {% else %}
                                             <span class="text-muted">—</span>
                                         {% endif %}
@@ -85,6 +87,11 @@
                                     <td class="text-end text-nowrap">
                                         {% if footerCell %}
                                             <div>{{ footerCell.value|number_format(0, ',', '.') }}</div>
+                                            {% if table.showPercentOfTotal %}
+                                                <div class="small text-secondary">
+                                                    {{ footerCell.percentOfGrandTotal|number_format(1, ',', '.') }}%
+                                                </div>
+                                            {% endif %}
                                         {% else %}
                                             <span class="text-muted">—</span>
                                         {% endif %}
@@ -98,6 +105,7 @@
                     {% endif %}
                 </table>
             {% else %}
+                {% set stackedColspan = 1 + (table.seriesDimensionLabel ? 1 : 0) + table.metricColumns|length %}
                 <table class="table table-vcenter card-table table-striped mb-0"
                        data-testid="stats-generic-analysis-table-stacked">
                     <thead>
@@ -106,11 +114,9 @@
                             {% if table.seriesDimensionLabel %}
                                 <th>{{ table.seriesDimensionLabel }}</th>
                             {% endif %}
-                            <th class="text-end">{{ 'stats.generic_analysis.table.count'|trans }}</th>
-                            <th class="text-end">{{ 'stats.generic_analysis.table.percent_total'|trans }}</th>
-                            {% if table.seriesDimensionLabel %}
-                                <th class="text-end">{{ 'stats.generic_analysis.table.percent_bucket'|trans }}</th>
-                            {% endif %}
+                            {% for col in table.metricColumns %}
+                                <th class="text-end">{{ col.label }}</th>
+                            {% endfor %}
                         </tr>
                     </thead>
                     <tbody>
@@ -120,15 +126,13 @@
                                 {% if table.seriesDimensionLabel %}
                                     <td>{{ row.seriesLabel ?? '—' }}</td>
                                 {% endif %}
-                                <td class="text-end">{{ row.value|number_format(0, ',', '.') }}</td>
-                                <td class="text-end">{{ row.percentOfTotal|number_format(2, ',', '.') }}%</td>
-                                {% if table.seriesDimensionLabel %}
-                                    <td class="text-end">{{ row.percentOfBucket|number_format(2, ',', '.') }}%</td>
-                                {% endif %}
+                                {% for col in table.metricColumns %}
+                                    <td class="text-end">{{ row.formattedMetrics[col.key] ?? '—' }}</td>
+                                {% endfor %}
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="{{ table.seriesDimensionLabel ? 5 : 3 }}" class="text-muted p-3">
+                                <td colspan="{{ stackedColspan }}" class="text-muted p-3">
                                     {{ 'stats.generic_analysis.no_data'|trans }}
                                 </td>
                             </tr>
@@ -141,11 +145,17 @@
                                 {% if table.seriesDimensionLabel %}
                                     <td></td>
                                 {% endif %}
-                                <td class="text-end">{{ footer.totalValue|number_format(0, ',', '.') }}</td>
-                                <td class="text-end">{{ footer.percentOfGrandTotal|number_format(2, ',', '.') }}%</td>
-                                {% if table.seriesDimensionLabel %}
-                                    <td class="text-end text-muted">—</td>
-                                {% endif %}
+                                {% for col in table.metricColumns %}
+                                    <td class="text-end">
+                                        {% if col.key == 'count' %}
+                                            {{ footer.totalValue|number_format(0, ',', '.') }}
+                                        {% elseif col.key == 'percent_of_total' %}
+                                            {{ footer.percentOfGrandTotal|number_format(2, ',', '.') }}%
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
                             </tr>
                         </tfoot>
                     {% endif %}
