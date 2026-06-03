@@ -16,6 +16,12 @@ final class GenericAnalysisQueryKeys
 
     public const string LAYOUT = 'ga_layout';
 
+    public const string METRICS = 'ga_metrics';
+
+    public const string VISUAL_METRIC = 'ga_visual_metric';
+
+    public const string TOP = 'ga_top';
+
     public const string PRESET_CUSTOM = 'custom';
 
     /** @var list<string> */
@@ -24,5 +30,7 @@ final class GenericAnalysisQueryKeys
         self::SERIES,
         self::INCLUDE_NULL,
         self::REF_PRESET,
+        self::METRICS,
+        self::VISUAL_METRIC,
     ];
 }
