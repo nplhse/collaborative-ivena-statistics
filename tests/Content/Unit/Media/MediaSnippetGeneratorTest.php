@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Unit\Media;
 
+use App\Content\Application\Media\MediaImageFigureHtmlBuilder;
 use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Application\Media\MediaSnippetGenerator;
 use App\Content\Domain\Entity\Media;
@@ -18,7 +19,21 @@ final class MediaSnippetGeneratorTest extends TestCase
 
         $html = $this->generator()->generateHtml($media);
 
-        self::assertSame('<img src="/uploads/media/photo.webp" alt="A photo">', $html);
+        self::assertSame(
+            new MediaImageFigureHtmlBuilder()->build('/uploads/media/photo.webp', 'A photo'),
+            $html,
+        );
+    }
+
+    public function testImageFigureSnippetSupportsCustomLayout(): void
+    {
+        $media = $this->imageMedia('photo.webp', 'A photo');
+
+        $html = $this->generator()->generateImageFigureHtml($media, 'md', 'right');
+
+        self::assertStringContainsString('page-content-image--size-md', $html);
+        self::assertStringContainsString('page-content-image--float-right', $html);
+        self::assertStringContainsString('float-end', $html);
     }
 
     public function testPdfSnippetContainsNoopener(): void
@@ -35,7 +50,7 @@ final class MediaSnippetGeneratorTest extends TestCase
 
     private function generator(): MediaSnippetGenerator
     {
-        return new MediaSnippetGenerator(new MediaPublicUrlResolver());
+        return new MediaSnippetGenerator(new MediaPublicUrlResolver(), new MediaImageFigureHtmlBuilder());
     }
 
     private function imageMedia(string $filename, string $alt): Media

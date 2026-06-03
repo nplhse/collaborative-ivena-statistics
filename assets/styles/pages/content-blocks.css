@@ -22,6 +22,21 @@
     display: block;
 }
 
+.page-content-image__link {
+    cursor: zoom-in;
+}
+
+.page-content-image__link:hover .card-img-top,
+.page-content-image__link:hover img,
+[data-controller="lightbox"] img:hover {
+    opacity: 0.92;
+}
+
+[data-controller="lightbox"] img {
+    cursor: zoom-in;
+    transition: opacity 0.15s ease-in-out;
+}
+
 .page-content-image--size-sm {
     width: 33%;
 }

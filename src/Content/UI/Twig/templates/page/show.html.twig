@@ -16,7 +16,9 @@
                 <div class="col-lg-8">
                     <article class="card mb-4">
                         <div class="card-body">
-                            <div class="page-content-blocks content">
+                            <div class="page-content-blocks content"
+                                 data-controller="lightbox"
+                                 data-lightbox-gallery-value="content-gallery">
                                 {% for block in page.content %}
                                     {% if block.enabled is not defined or block.enabled %}
                                         {% if block.type in page_content_block_types() %}

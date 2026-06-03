@@ -1,37 +1,94 @@
 {% extends '@EasyAdmin/crud/detail.html.twig' %}
 
-{% block detail_fields %}
+{% block configured_stylesheets %}
+    {{ parent() }}
+    {% if media_public_url is defined and media_public_url is not empty %}
+        <link rel="stylesheet" href="{{ asset('styles/admin/media-detail.css') }}">
+    {% endif %}
+{% endblock %}
+
+{% block main %}
     {{ parent() }}
 
     {% if media_public_url is defined and media_public_url is not empty %}
-        <div class="field-group mt-4">
-            <h3 class="h5">{{ 'label.media_usage'|trans }}</h3>
+        {% set media = entity.instance %}
+        <section class="media-detail-usage">
+            <div class="form-fieldset">
+                <fieldset>
+                    <div class="form-fieldset-header">
+                        <div class="form-fieldset-title">
+                            <span class="not-collapsible form-fieldset-title-content">
+                                {{ 'label.media_usage'|trans }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-fieldset-body show">
+                        <div class="media-detail-usage__snippet">
+                            <div class="media-detail-usage__toolbar">
+                                <label for="media-snippet">{{ 'label.html_snippet'|trans }}</label>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary media-detail-usage__copy"
+                                        id="media-snippet-copy"
+                                        title="{{ 'action.copy_snippet'|trans }}"
+                                        aria-label="{{ 'action.copy_snippet'|trans }}">
+                                    <twig:ux:icon name="tabler:clipboard" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--default w-4 h-4" />
+                                    <twig:ux:icon name="tabler:check" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--success w-4 h-4 d-none" />
+                                </button>
+                            </div>
+                            <textarea id="media-snippet"
+                                      class="media-detail-usage__code form-control font-monospace"
+                                      rows="6"
+                                      readonly>{{ media_snippet }}</textarea>
+                        </div>
 
-            {% set media = entity.instance %}
-            {% if media.type.value == 'image' %}
-                <p class="mb-2">
-                    <img src="{{ media_public_url }}" alt="{{ media.altText|default(media.title|default('')) }}" class="img-fluid rounded" style="max-height: 240px;">
-                </p>
-            {% else %}
-                <p class="mb-2">
-                    <a href="{{ media_public_url }}" target="_blank" rel="noopener">{{ media_public_url }}</a>
-                </p>
-            {% endif %}
-
-            <label class="form-label" for="media-snippet">{{ 'label.html_snippet'|trans }}</label>
-            <textarea id="media-snippet" class="form-control font-monospace" rows="4" readonly>{{ media_snippet }}</textarea>
-            <button type="button" class="btn btn-secondary btn-sm mt-2" data-copy-target="media-snippet">
-                {{ 'action.copy_snippet'|trans }}
-            </button>
-        </div>
+                        {% if media.type.value == 'image' %}
+                            <div class="alert alert-secondary media-detail-usage__hint mt-3 mb-0">
+                                <p class="media-detail-usage__hint-title mb-2">{{ 'help.media.image_layout.title'|trans }}</p>
+                                <ul>
+                                    <li>{{ 'help.media.image_layout.size'|trans }}</li>
+                                    <li>{{ 'help.media.image_layout.float'|trans }}</li>
+                                    <li>{{ 'help.media.image_layout.mobile'|trans }}</li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                </fieldset>
+            </div>
+        </section>
 
         <script>
-            document.querySelector('[data-copy-target="media-snippet"]')?.addEventListener('click', function () {
-                const el = document.getElementById('media-snippet');
-                if (!el) return;
-                el.select();
-                navigator.clipboard?.writeText(el.value);
-            });
+            (function () {
+                const button = document.getElementById('media-snippet-copy');
+                const textarea = document.getElementById('media-snippet');
+                if (!button || !textarea) {
+                    return;
+                }
+
+                button.addEventListener('click', async function () {
+                    textarea.focus();
+                    textarea.select();
+
+                    try {
+                        await navigator.clipboard.writeText(textarea.value);
+                    } catch (error) {
+                        document.execCommand('copy');
+                    }
+
+                    const defaultIcon = button.querySelector('.media-detail-usage__copy-icon--default');
+                    const successIcon = button.querySelector('.media-detail-usage__copy-icon--success');
+                    defaultIcon?.classList.add('d-none');
+                    successIcon?.classList.remove('d-none');
+                    button.classList.remove('btn-outline-secondary');
+                    button.classList.add('btn-outline-success');
+
+                    window.setTimeout(function () {
+                        defaultIcon?.classList.remove('d-none');
+                        successIcon?.classList.add('d-none');
+                        button.classList.remove('btn-outline-success');
+                        button.classList.add('btn-outline-secondary');
+                    }, 1800);
+                });
+            })();
         </script>
     {% endif %}
 {% endblock %}

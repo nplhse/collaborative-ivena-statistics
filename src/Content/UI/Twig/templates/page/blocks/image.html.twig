@@ -12,10 +12,14 @@
 {% endif %}
 
 <figure class="{{ figureClasses|join(' ') }}">
-    <img class="card-img-top"
-         src="{{ block.data.src|default('') }}"
-         alt="{{ block.data.alt|default('') }}"
-         loading="lazy">
+    <a href="{{ block.data.src|default('') }}"
+       data-fslightbox="content-gallery"
+       class="d-block page-content-image__link">
+        <img class="card-img-top"
+             src="{{ block.data.src|default('') }}"
+             alt="{{ block.data.alt|default('') }}"
+             loading="lazy">
+    </a>
     {% if block.data.caption|default('') is not empty %}
         <figcaption class="card-body py-2">
             <p class="text-secondary small mb-0">{{ block.data.caption }}</p>

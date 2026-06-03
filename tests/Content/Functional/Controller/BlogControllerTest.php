@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Controller;
 
+use App\Content\Application\Media\MediaImageFigureHtmlBuilder;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Factory\PostCategoryFactory;
@@ -217,6 +218,49 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Mein Kommentar');
         self::assertSelectorTextContains('body', $user->getUserIdentifier());
         self::assertSelectorTextContains('body', (string) $post->getTitle());
+    }
+
+    public function testShowRendersEntityEncodedImageSnippet(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'Media', 'slug' => 'media']);
+
+        PostFactory::createOne([
+            'title' => 'Post With Image',
+            'slug' => 'post-with-image',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'category' => $category,
+            'content' => '<p>Intro</p>&lt;img src=&quot;/uploads/media/sample.png&quot; alt=&quot;Sample&quot;&gt;',
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog/post-with-image');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('img[src="/uploads/media/sample.png"]'));
+    }
+
+    public function testShowRendersFloatedFigureWithLayoutClasses(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'Layout', 'slug' => 'layout']);
+        $figure = new MediaImageFigureHtmlBuilder()->build('/uploads/media/sample.png', 'Sample', 'md', 'left');
+
+        PostFactory::createOne([
+            'title' => 'Post With Floated Image',
+            'slug' => 'post-with-floated-image',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'category' => $category,
+            'content' => '<p>Intro</p>'.$figure.'<p>More text</p>',
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog/post-with-floated-image');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.content.page-content-blocks');
+        self::assertSelectorExists('figure.page-content-image--size-md.page-content-image--float-left');
+        self::assertCount(1, $crawler->filter('img[src="/uploads/media/sample.png"]'));
     }
 
     public function testShowRendersPrevNextNavigation(): void

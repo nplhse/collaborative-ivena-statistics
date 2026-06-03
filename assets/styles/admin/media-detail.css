@@ -1,0 +1,61 @@
+.media-detail-usage {
+    margin-top: 1.5rem;
+}
+
+.media-detail-usage .form-fieldset-body {
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.media-detail-usage__toolbar {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.media-detail-usage__toolbar label {
+    color: var(--bs-secondary-color);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.media-detail-usage__copy {
+    align-items: center;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 2rem;
+    justify-content: center;
+    padding: 0;
+    width: 2rem;
+}
+
+.media-detail-usage__code {
+    background-color: var(--bs-secondary-bg);
+    border-radius: var(--bs-border-radius);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    min-height: 9rem;
+    resize: vertical;
+    width: 100%;
+}
+
+.media-detail-usage__hint {
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+
+.media-detail-usage__hint-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.media-detail-usage__hint ul {
+    margin-bottom: 0;
+    padding-left: 1.25rem;
+}
+
+.media-detail-usage__hint li + li {
+    margin-top: 0.35rem;
+}
