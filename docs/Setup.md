@@ -26,7 +26,7 @@ make setup-dev
 |--------|----------|
 | `setup-dev` | New machine: dev dependencies, fresh DB, fixtures, test DB |
 | `setup-prod` | Prod-like local run: `--no-dev`, empty DB, no fixtures |
-| `upgrade-dev` | Pull/update: keep existing DB, migrate, refresh assets |
+| `upgrade-dev` | Pull/update: keep existing dev DB, recreate test DB, migrate, refresh assets |
 | `upgrade-prod` | Same as upgrade-dev with prod env and `--no-dev` |
 | `purge` | Remove assets, uploads, `var/imports`, logs, cache; empty DB; no fixtures |
 | `reset` | Like `purge`, then load fixtures |
@@ -63,8 +63,8 @@ make start
 ```bash
 symfony composer setup-database
 symfony composer load-fixtures      # optional demo data
-symfony composer setup-test-env     # fresh test DB (setup-dev only)
-symfony composer upgrade-test-env   # migrate test DB (after upgrade-dev)
+symfony composer setup-test-env     # fresh test DB (drop/create/migrate)
+symfony composer upgrade-test-env   # same as setup-test-env; used by make upgrade-dev
 ```
 
 ## Quick smoke test

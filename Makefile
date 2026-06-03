@@ -40,17 +40,19 @@ setup-prod: ## Prod-like install (empty DB, no fixtures, requires .env.local)
 	@$(SYMFONY) composer setup-database
 
 upgrade-dev: ## Update deps and schema (dev, keeps existing DB data)
-	@$(COMPOSER) install --no-interaction
+	@$(COMPOSER) install --no-interaction --no-scripts
 	@$(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
+	@$(SYMFONY) composer upgrade-test-env
+	@$(CONSOLE) importmap:install
 	@$(CONSOLE) asset-map:compile
 	@$(CONSOLE) cache:clear
 	@$(CONSOLE) cache:warmup
-	@$(SYMFONY) composer upgrade-test-env
 
 upgrade-prod: ## Update deps and schema (prod-like, keeps existing DB data)
 	@$(PROD_ENV) $(COMPOSER) install --prefer-dist --no-dev --no-progress --no-interaction --no-scripts
 	@$(PROD_ENV) $(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 	rm -rf public/assets/*
+	@$(CONSOLE) importmap:install
 	@$(PROD_ENV) $(CONSOLE) asset-map:compile
 	@$(PROD_ENV) $(CONSOLE) cache:clear
 	@$(PROD_ENV) $(CONSOLE) cache:warmup
