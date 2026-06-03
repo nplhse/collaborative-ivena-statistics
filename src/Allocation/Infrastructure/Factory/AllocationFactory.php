@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -54,11 +55,11 @@ final class AllocationFactory extends PersistentProxyObjectFactory
             'department' => DepartmentFactory::random(),
             'departmentWasClosed' => self::faker()->boolean(),
             'assignment' => AssignmentFactory::random(),
-            'infection' => self::faker()->boolean(10) ? InfectionFactory::random() : null,
-            'occasion' => self::faker()->boolean(95) ? OccasionFactory::random() : null,
+            'infection' => LazyValue::new(fn (): ?object => self::faker()->boolean(10) ? InfectionFactory::randomOrCreate() : null),
+            'occasion' => LazyValue::new(fn (): ?object => self::faker()->boolean(95) ? OccasionFactory::randomOrCreate() : null),
             'secondaryTransport' => self::faker()->boolean(20) ? SecondaryTransportFactory::randomOrCreate() : null,
             'indicationRaw' => IndicationRawFactory::random(),
-            'indicationNormalized' => self::faker()->boolean(90) ? IndicationNormalizedFactory::random() : null,
+            'indicationNormalized' => LazyValue::new(fn (): ?object => self::faker()->boolean(90) ? IndicationNormalizedFactory::randomOrCreate() : null),
             'secondaryIndicationRaw' => null,
             'secondaryIndicationNormalized' => null,
             'assessment' => self::faker()->boolean(10) ? AssessmentFactory::createOne() : null,
