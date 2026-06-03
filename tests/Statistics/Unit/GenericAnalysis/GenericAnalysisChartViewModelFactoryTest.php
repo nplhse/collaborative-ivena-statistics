@@ -86,4 +86,33 @@ final class GenericAnalysisChartViewModelFactoryTest extends TestCase
         self::assertFalse($viewModel->hasChart);
         self::assertNull($viewModel->initialSpec);
     }
+
+    public function testUrgencyByMonthIncludesTopLimitedWarningWhenManyHospitals(): void
+    {
+        $labels = [];
+        $values = [];
+        for ($i = 1; $i <= 8; ++$i) {
+            $labels[] = 'Hospital '.$i;
+            $values[] = 100 - $i;
+        }
+
+        $viewModel = $this->factory->create(
+            new AnalysisQuery(
+                primaryDimensionKey: 'hospital',
+                scopeCriteria: StatisticsScopeCriteria::public(),
+                periodBounds: new StatisticsPeriodBounds(null),
+            ),
+            new NormalizedAnalysisResult(
+                title: 'By hospital',
+                primaryDimensionLabel: 'Hospital',
+                seriesDimensionLabel: null,
+                grandTotal: array_sum($values),
+                rows: [],
+                chartData: ['labels' => $labels, 'values' => $values],
+            ),
+        );
+
+        self::assertTrue($viewModel->hasChart);
+        self::assertStringContainsString('top_limited', $viewModel->warnings[0]);
+    }
 }

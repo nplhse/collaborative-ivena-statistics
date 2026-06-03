@@ -88,6 +88,68 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         self::assertSame(0, $reduced->series[5]['data'][1]);
     }
 
+    public function testLimitsCategoricalBucketsWithSeries(): void
+    {
+        $query = $this->query('hospital', 'urgency');
+        $labels = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
+        $series = [
+            ['name' => 'U1', 'data' => [10, 1, 1, 1, 1, 1]],
+            ['name' => 'U2', 'data' => [1, 1, 1, 1, 1, 50]],
+        ];
+        $result = new NormalizedAnalysisResult(
+            title: 'Test',
+            primaryDimensionLabel: 'Hospital',
+            seriesDimensionLabel: 'Urgency',
+            grandTotal: 70,
+            rows: [],
+            chartData: ['labels' => $labels, 'series' => $series],
+        );
+
+        $reduced = $this->reducer->reduce($query, $result);
+
+        self::assertTrue($reduced->limitedPrimaryBuckets);
+        self::assertNotNull($reduced->series);
+        self::assertCount(6, $reduced->labels);
+        self::assertSame('Other', $reduced->labels[5]);
+    }
+
+    public function testExtractsCountsFromRowsWhenValuesMissing(): void
+    {
+        $query = $this->query('gender');
+        $result = new NormalizedAnalysisResult(
+            title: 'Test',
+            primaryDimensionLabel: 'Gender',
+            seriesDimensionLabel: null,
+            grandTotal: 8,
+            rows: [
+                new \App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow('1', 'Male', 5, 62.5, 100.0),
+                new \App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow('2', 'Female', 3, 37.5, 100.0),
+            ],
+            chartData: ['labels' => ['Male', 'Female']],
+        );
+
+        $reduced = $this->reducer->reduce($query, $result);
+
+        self::assertSame([5, 3], $reduced->counts);
+    }
+
+    public function testReturnsEmptyLabelsWhenChartDataInvalid(): void
+    {
+        $query = $this->query('month');
+        $result = new NormalizedAnalysisResult(
+            title: 'Test',
+            primaryDimensionLabel: 'Month',
+            seriesDimensionLabel: null,
+            grandTotal: 0,
+            rows: [],
+            chartData: ['labels' => null],
+        );
+
+        $reduced = $this->reducer->reduce($query, $result);
+
+        self::assertSame([], $reduced->labels);
+    }
+
     private function query(string $primary, ?string $series = null): AnalysisQuery
     {
         return new AnalysisQuery(

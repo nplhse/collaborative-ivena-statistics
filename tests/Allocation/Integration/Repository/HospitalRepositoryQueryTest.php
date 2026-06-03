@@ -12,9 +12,13 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
 final class HospitalRepositoryQueryTest extends KernelTestCase
 {
+    use Factories;
+    use ResetDatabase;
     private HospitalRepository $repo;
 
     #[\Override]
@@ -63,5 +67,23 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         self::assertContains($owned1->getId(), $ids);
         self::assertContains($owned2->getId(), $ids);
         self::assertNotContains($foreign->getId(), $ids);
+    }
+
+    public function testFindNamesByIdsReturnsIdToNameMap(): void
+    {
+        UserFactory::createOne();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['name' => 'Lookup Hospital']);
+
+        self::assertSame(
+            [(int) $hospital->getId() => 'Lookup Hospital'],
+            $this->repo->findNamesByIds([(int) $hospital->getId()]),
+        );
+    }
+
+    public function testFindNamesByIdsWithEmptyListReturnsEmptyArray(): void
+    {
+        self::assertSame([], $this->repo->findNamesByIds([]));
     }
 }

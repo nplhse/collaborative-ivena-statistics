@@ -104,6 +104,78 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
         self::assertEqualsWithDelta(37.5, $spec['series'][1]['data'][0], 0.01);
     }
 
+    public function testBuildsStackedLineAndHorizontalSpecs(): void
+    {
+        $query = $this->query('month', 'urgency');
+        $result = new NormalizedAnalysisResult(
+            title: 'Urgency by month',
+            primaryDimensionLabel: 'Month',
+            seriesDimensionLabel: 'Urgency',
+            grandTotal: 8,
+            rows: [],
+            chartData: [
+                'labels' => ['Jan'],
+                'series' => [
+                    ['name' => 'U1', 'data' => [5]],
+                    ['name' => 'U2', 'data' => [3]],
+                ],
+            ],
+        );
+
+        $stacked = $this->builder->buildSpec(GenericAnalysisChartType::StackedBar, $query, $result);
+        $line = $this->builder->buildSpec(GenericAnalysisChartType::Line, $query, $result);
+        $horizontal = $this->builder->buildSpec(GenericAnalysisChartType::HorizontalBar, $query, $result);
+
+        self::assertSame('bar', $stacked['chartType']);
+        self::assertSame('line', $line['chartType']);
+        self::assertTrue($horizontal['horizontal']);
+    }
+
+    public function testBuildSpecsForTypesSkipsUnsupported(): void
+    {
+        $query = $this->query('month');
+        $result = new NormalizedAnalysisResult(
+            title: 'Test',
+            primaryDimensionLabel: 'Month',
+            seriesDimensionLabel: null,
+            grandTotal: 5,
+            rows: [],
+            chartData: ['labels' => ['Jan'], 'values' => [5]],
+        );
+
+        $specs = $this->builder->buildSpecsForTypes(
+            [
+                GenericAnalysisChartType::Bar,
+                GenericAnalysisChartType::Table,
+                GenericAnalysisChartType::Heatmap,
+            ],
+            $query,
+            $result,
+        );
+
+        self::assertArrayHasKey('bar', $specs);
+        self::assertArrayNotHasKey('table', $specs);
+        self::assertArrayNotHasKey('heatmap', $specs);
+    }
+
+    public function testPercentStackedFallsBackToBarWithoutSeries(): void
+    {
+        $query = $this->query('month');
+        $result = new NormalizedAnalysisResult(
+            title: 'Test',
+            primaryDimensionLabel: 'Month',
+            seriesDimensionLabel: null,
+            grandTotal: 5,
+            rows: [],
+            chartData: ['labels' => ['Jan'], 'values' => [5]],
+        );
+
+        $spec = $this->builder->buildSpec(GenericAnalysisChartType::PercentStackedBar, $query, $result);
+
+        self::assertSame('bar', $spec['chartType']);
+        self::assertArrayHasKey('counts', $spec);
+    }
+
     public function testManyHospitalsAreReducedInChartSpec(): void
     {
         $query = $this->query('hospital');

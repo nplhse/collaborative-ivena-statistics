@@ -148,6 +148,57 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
         self::assertContains('stats.generic_analysis.chart.warning.many_series', $recommendation->warnings);
     }
 
+    public function testManyBucketsAddsHorizontalBarForTemporal(): void
+    {
+        $labels = [];
+        $values = [];
+        for ($i = 1; $i <= 30; ++$i) {
+            $labels[] = 'Bucket '.$i;
+            $values[] = $i;
+        }
+
+        $recommendation = $this->service->recommend(
+            $this->query('month'),
+            $this->normalizedResult(chartData: ['labels' => $labels, 'values' => $values]),
+        );
+
+        self::assertContains(GenericAnalysisChartType::HorizontalBar, $recommendation->allowedChartTypes);
+        self::assertContains('stats.generic_analysis.chart.warning.many_buckets', $recommendation->warnings);
+    }
+
+    public function testCategoricalWithSeriesRecommendation(): void
+    {
+        $recommendation = $this->service->recommend(
+            $this->query('hospital', 'urgency'),
+            $this->normalizedResult(
+                chartData: [
+                    'labels' => ['H1'],
+                    'series' => [['name' => 'U1', 'data' => [5]]],
+                ],
+            ),
+        );
+
+        self::assertTrue($recommendation->hasChart);
+        self::assertSame('categorical_with_series', $recommendation->reason);
+        self::assertContains(GenericAnalysisChartType::StackedBar, $recommendation->allowedChartTypes);
+        self::assertSame(GenericAnalysisChartType::StackedBar, $recommendation->defaultChartType);
+    }
+
+    public function testSeriesCountFromChartDataWhenRowsEmpty(): void
+    {
+        $recommendation = $this->service->recommend(
+            $this->query('month', 'urgency'),
+            $this->normalizedResult(
+                chartData: [
+                    'labels' => ['Jan'],
+                    'series' => [['name' => 'U1', 'data' => [1]], ['name' => 'U2', 'data' => [2]]],
+                ],
+            ),
+        );
+
+        self::assertTrue($recommendation->hasChart);
+    }
+
     public function testHourWithWeekdaySeriesRecommendsHeatmapPlaceholder(): void
     {
         $query = $this->query('hour', 'weekday');
