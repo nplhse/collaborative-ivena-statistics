@@ -3679,6 +3679,22 @@
         <source>stats.generic_analysis.apply</source>
         <target>Apply</target>
       </trans-unit>
+      <trans-unit id="statsGa09m" resname="stats.generic_analysis.metrics_label">
+        <source>stats.generic_analysis.metrics_label</source>
+        <target>Metrics</target>
+      </trans-unit>
+      <trans-unit id="statsGa09m2" resname="stats.generic_analysis.metrics_hint">
+        <source>stats.generic_analysis.metrics_hint</source>
+        <target>Select values for the table. Count is always included. Some metrics require a series dimension.</target>
+      </trans-unit>
+      <trans-unit id="statsGa09v" resname="stats.generic_analysis.visual_metric">
+        <source>stats.generic_analysis.visual_metric</source>
+        <target>Chart metric</target>
+      </trans-unit>
+      <trans-unit id="statsGa09v2" resname="stats.generic_analysis.visual_metric_hint">
+        <source>stats.generic_analysis.visual_metric_hint</source>
+        <target>Which metric drives the chart bars or lines. Other selected metrics appear in the table.</target>
+      </trans-unit>
       <trans-unit id="statsGa10" resname="stats.generic_analysis.reset_to_preset">
         <source>stats.generic_analysis.reset_to_preset</source>
         <target>Reset to predefined analysis</target>
@@ -3746,6 +3762,22 @@
       <trans-unit id="statsGa19e" resname="stats.generic_analysis.table.bucket_total">
         <source>stats.generic_analysis.table.bucket_total</source>
         <target>Bucket total</target>
+      </trans-unit>
+      <trans-unit id="statsGa19rl" resname="stats.generic_analysis.table.row_limit_label">
+        <source>stats.generic_analysis.table.row_limit_label</source>
+        <target>Rows shown</target>
+      </trans-unit>
+      <trans-unit id="statsGa19r5" resname="stats.generic_analysis.table.row_limit_top_5">
+        <source>stats.generic_analysis.table.row_limit_top_5</source>
+        <target>Top 5</target>
+      </trans-unit>
+      <trans-unit id="statsGa19r10" resname="stats.generic_analysis.table.row_limit_top_10">
+        <source>stats.generic_analysis.table.row_limit_top_10</source>
+        <target>Top 10</target>
+      </trans-unit>
+      <trans-unit id="statsGa19ra" resname="stats.generic_analysis.table.row_limit_all">
+        <source>stats.generic_analysis.table.row_limit_all</source>
+        <target>All</target>
       </trans-unit>
       <trans-unit id="statsGa20" resname="stats.generic_analysis.table.percent_total">
         <source>stats.generic_analysis.table.percent_total</source>

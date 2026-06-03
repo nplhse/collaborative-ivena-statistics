@@ -11,6 +11,10 @@ use App\Statistics\GenericAnalysis\Application\DTO\GenericAnalysisTableFooterSer
 use App\Statistics\GenericAnalysis\Application\DTO\GenericAnalysisTableFooterTotals;
 use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisTableLayout;
+use App\Statistics\GenericAnalysis\Application\GenericAnalysisTableRowLimiter;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
+use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
+use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +26,8 @@ final readonly class GenericAnalysisTableViewModelFactory
 
     public function __construct(
         private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
+        private DimensionRegistry $dimensionRegistry,
+        private GenericAnalysisTableRowLimiter $tableRowLimiter,
     ) {
     }
 
@@ -29,6 +35,7 @@ final readonly class GenericAnalysisTableViewModelFactory
         Request $request,
         string $presetKey,
         NormalizedAnalysisResult $result,
+        string $primaryDimensionKey,
     ): GenericAnalysisTableViewModel {
         $supportsGrouped = null !== $result->seriesDimensionLabel;
         $requestedLayout = GenericAnalysisTableLayout::fromRequestValue(
@@ -38,15 +45,35 @@ final readonly class GenericAnalysisTableViewModelFactory
             ? GenericAnalysisTableLayout::Grouped
             : GenericAnalysisTableLayout::Stacked;
 
-        $seriesColumns = $this->extractSeriesColumns($result->rows);
-        $groupedRows = $this->buildGroupedRows($result->rows, $seriesColumns);
+        $primary = $this->dimensionRegistry->get($primaryDimensionKey);
+        $primaryIsTemporal = AnalysisDimensionType::Temporal === $primary->type;
+        $distinctBucketCount = $this->countDistinctPrimaryBuckets($result->rows);
+        $rowLimit = GenericAnalysisTableRowLimit::resolve($request, $distinctBucketCount, $primaryIsTemporal);
+
+        [$stackedRows] = $this->tableRowLimiter->limit(
+            $result->rows,
+            $rowLimit->cap(),
+            $result->grandTotal,
+            $result->metricKeys,
+        );
+
+        $seriesColumns = $this->extractSeriesColumns($stackedRows);
+        $showPercentOfBucket = \in_array('percent_of_bucket', $result->metricKeys, true);
+        $showPercentOfTotal = \in_array('percent_of_total', $result->metricKeys, true);
+        $groupedRows = $this->buildGroupedRows(
+            $stackedRows,
+            $seriesColumns,
+            $showPercentOfBucket,
+            $showPercentOfTotal,
+        );
 
         $seriesColumnCount = \count($seriesColumns);
         $footerTotals = $this->buildFooterTotals(
-            $result->rows,
+            $stackedRows,
             $groupedRows,
             $seriesColumns,
             $result->grandTotal,
+            $showPercentOfTotal,
         );
 
         return new GenericAnalysisTableViewModel(
@@ -57,13 +84,30 @@ final readonly class GenericAnalysisTableViewModelFactory
             primaryDimensionLabel: $result->primaryDimensionLabel,
             seriesDimensionLabel: $result->seriesDimensionLabel,
             grandTotal: $result->grandTotal,
-            stackedRows: $result->rows,
+            stackedRows: $stackedRows,
             seriesColumns: $seriesColumns,
             groupedRows: $groupedRows,
             groupedTableMinWidthPx: self::GROUPED_TABLE_BASE_WIDTH_PX
                 + ($seriesColumnCount * self::GROUPED_COLUMN_MIN_WIDTH_PX),
             footerTotals: $footerTotals,
+            metricColumns: $result->metricColumns,
+            selectedMetricKeys: $result->metricKeys,
+            showPercentOfBucket: $showPercentOfBucket,
+            showPercentOfTotal: $showPercentOfTotal,
         );
+    }
+
+    /**
+     * @param list<EnrichedAnalysisRow> $rows
+     */
+    private function countDistinctPrimaryBuckets(array $rows): int
+    {
+        $seen = [];
+        foreach ($rows as $row) {
+            $seen[$row->bucketKey] = true;
+        }
+
+        return \count($seen);
     }
 
     /**
@@ -76,10 +120,11 @@ final readonly class GenericAnalysisTableViewModelFactory
         array $groupedRows,
         array $seriesColumns,
         int $grandTotal,
+        bool $showPercentOfTotal,
     ): GenericAnalysisTableFooterTotals {
         $totalValue = 0;
         foreach ($stackedRows as $row) {
-            $totalValue += $row->value;
+            $totalValue += $row->countValue();
         }
 
         $seriesCells = [];
@@ -93,13 +138,17 @@ final readonly class GenericAnalysisTableViewModelFactory
             }
             $seriesCells[$seriesColumn['key']] = new GenericAnalysisTableFooterSeriesCell(
                 value: $seriesSum,
-                percentOfGrandTotal: $this->percentOfGrandTotal($seriesSum, $grandTotal),
+                percentOfGrandTotal: $showPercentOfTotal
+                    ? $this->percentOfGrandTotal($seriesSum, $grandTotal)
+                    : 0.0,
             );
         }
 
         return new GenericAnalysisTableFooterTotals(
             totalValue: $totalValue,
-            percentOfGrandTotal: $this->percentOfGrandTotal($totalValue, $grandTotal),
+            percentOfGrandTotal: $showPercentOfTotal
+                ? $this->percentOfGrandTotal($totalValue, $grandTotal)
+                : 0.0,
             seriesCellsByKey: $seriesCells,
         );
     }
@@ -160,8 +209,12 @@ final readonly class GenericAnalysisTableViewModelFactory
      *
      * @return list<GenericAnalysisGroupedTableRow>
      */
-    private function buildGroupedRows(array $rows, array $seriesColumns): array
-    {
+    private function buildGroupedRows(
+        array $rows,
+        array $seriesColumns,
+        bool $showPercentOfBucket,
+        bool $showPercentOfTotal,
+    ): array {
         if ([] === $seriesColumns) {
             return [];
         }
@@ -171,7 +224,6 @@ final readonly class GenericAnalysisTableViewModelFactory
         $seriesKeys = array_map(static fn (array $col): string => $col['key'], $seriesColumns);
 
         foreach ($rows as $row) {
-            // PHP casts numeric string array keys to int; keep bucket keys as strings for DTOs.
             $bucketKey = $row->bucketKey;
             if (!isset($byBucket[$bucketKey])) {
                 $cells = [];
@@ -186,9 +238,13 @@ final readonly class GenericAnalysisTableViewModelFactory
 
             if (null !== $row->seriesKey) {
                 $byBucket[$bucketKey]['cells'][$row->seriesKey] = new GenericAnalysisGroupedSeriesCell(
-                    value: $row->value,
-                    percentOfTotal: $row->percentOfTotal,
-                    percentOfBucket: $row->percentOfBucket,
+                    value: $row->countValue(),
+                    percentOfTotal: $showPercentOfTotal
+                        ? (float) ($row->metrics['percent_of_total'] ?? 0.0)
+                        : 0.0,
+                    percentOfBucket: $showPercentOfBucket
+                        ? (float) ($row->metrics['percent_of_bucket'] ?? 0.0)
+                        : 0.0,
                 );
             }
         }

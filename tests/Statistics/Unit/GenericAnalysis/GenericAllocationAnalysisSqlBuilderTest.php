@@ -14,6 +14,7 @@ use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionExce
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisSqlBuilder;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
@@ -24,6 +25,7 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
     {
         $this->builder = new GenericAllocationAnalysisSqlBuilder(
             new DimensionRegistry(),
+            new MetricRegistry(),
             new GenericAnalysisScopeSqlFilter(),
         );
     }
@@ -40,12 +42,13 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         ));
 
         self::assertStringContainsString('created_month AS bucket', $sql);
-        self::assertStringContainsString('COUNT(*)::INT AS value', $sql);
+        self::assertStringContainsString('COUNT(*)::INT AS count', $sql);
         self::assertStringContainsString('FROM allocation_stats_projection', $sql);
         self::assertStringContainsString('hospital_id IN (:scope_hospital_ids)', $sql);
         self::assertStringContainsString('created_at >= :period_from', $sql);
         self::assertStringContainsString('created_at < :period_to_exclusive', $sql);
         self::assertStringNotContainsString(';', $sql);
+        self::assertStringNotContainsString('age IS NOT NULL', $sql);
         self::assertSame([10, 20], $params['scope_hospital_ids']);
     }
 

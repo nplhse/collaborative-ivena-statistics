@@ -23,12 +23,13 @@ final readonly class GenericAnalysisChartSpecBuilder
         GenericAnalysisChartType $chartType,
         AnalysisQuery $query,
         NormalizedAnalysisResult $result,
+        ?int $primaryBucketCap = 5,
     ): ?array {
         if (!$chartType->supportsApexChart()) {
             return null;
         }
 
-        $data = $this->chartDataReducer->reduce($query, $result);
+        $data = $this->chartDataReducer->reduce($query, $result, $primaryBucketCap);
         if ([] === $data->labels) {
             return null;
         }
@@ -53,13 +54,14 @@ final readonly class GenericAnalysisChartSpecBuilder
         array $allowedTypes,
         AnalysisQuery $query,
         NormalizedAnalysisResult $result,
+        ?int $primaryBucketCap = 5,
     ): array {
         $specs = [];
         foreach ($allowedTypes as $type) {
             if (!$type->supportsApexChart()) {
                 continue;
             }
-            $spec = $this->buildSpec($type, $query, $result);
+            $spec = $this->buildSpec($type, $query, $result, $primaryBucketCap);
             if (null !== $spec) {
                 $specs[$type->value] = $spec;
             }
@@ -190,15 +192,15 @@ final readonly class GenericAnalysisChartSpecBuilder
         }
 
         for ($labelIndex = 0; $labelIndex < $labelCount; ++$labelIndex) {
-            $bucketTotal = 0;
+            $bucketTotal = 0.0;
             foreach ($data->series as $item) {
-                $bucketTotal += $item['data'][$labelIndex] ?? 0;
+                $bucketTotal += (float) ($item['data'][$labelIndex] ?? 0);
             }
 
             foreach ($data->series as $seriesIndex => $item) {
                 $value = $item['data'][$labelIndex] ?? 0;
                 $percent = $bucketTotal > 0
-                    ? round(((float) $value / (float) $bucketTotal) * 100.0, 2)
+                    ? round(((float) $value / $bucketTotal) * 100.0, 2)
                     : 0.0;
                 $seriesOutput[$seriesIndex]['data'][$labelIndex] = $percent;
             }

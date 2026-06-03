@@ -32,13 +32,18 @@
             </p>
         {% endif %}
 
-        <form method="get" action="{{ page.customFormAction }}" class="row g-3 align-items-end">
+        <form method="get"
+              action="{{ page.formAction }}"
+              class="row g-3 align-items-end"
+              data-testid="stats-generic-analysis-config-form"
+              data-controller="generic-analysis-metrics">
             {% for field in page.preservedQueryFields %}
                 <input type="hidden" name="{{ field.key }}" value="{{ field.value }}">
             {% endfor %}
             {% if page.formReferencePreset %}
                 <input type="hidden" name="ga_ref" value="{{ page.formReferencePreset }}">
             {% endif %}
+            <input type="hidden" name="ga_metrics[]" value="count">
 
             <div class="col-12 col-md-6 col-xl-4">
                 <label class="form-label" for="ga_primary">{{ 'stats.generic_analysis.primary_dimension'|trans }}</label>
@@ -80,7 +85,63 @@
                         {{ 'stats.generic_analysis.include_null_buckets'|trans }}
                     </label>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 w-xl-auto" data-testid="stats-generic-analysis-apply">
+            </div>
+
+            <div class="col-12">
+                <span class="form-label d-block">{{ 'stats.generic_analysis.metrics_label'|trans }}</span>
+                <p class="text-secondary small mb-2">{{ 'stats.generic_analysis.metrics_hint'|trans }}</p>
+                <div class="d-flex flex-wrap gap-3" data-testid="stats-generic-analysis-metrics" data-generic-analysis-metrics-target="metricList">
+                    {% for metric in page.availableMetrics %}
+                        <div class="form-check">
+                            {% if metric.key == 'count' %}
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="ga_metric_{{ metric.key }}"
+                                       checked
+                                       disabled
+                                       data-testid="stats-generic-analysis-metric-{{ metric.key }}">
+                            {% else %}
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="ga_metrics[]"
+                                       value="{{ metric.key }}"
+                                       id="ga_metric_{{ metric.key }}"
+                                       {% if metric.selected %}checked{% endif %}
+                                       {% if not metric.allowed %}disabled{% endif %}
+                                       data-generic-analysis-metrics-target="metricCheckbox"
+                                       data-action="change->generic-analysis-metrics#metricCheckboxChanged"
+                                       data-metric-key="{{ metric.key }}"
+                                       data-metric-label="{{ metric.label }}"
+                                       data-testid="stats-generic-analysis-metric-{{ metric.key }}">
+                            {% endif %}
+                            <label class="form-check-label{% if not metric.allowed %} text-muted{% endif %}"
+                                   for="ga_metric_{{ metric.key }}"
+                                   {% if metric.reason %}title="{{ metric.reason }}"{% endif %}>
+                                {{ metric.label }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-4">
+                <label class="form-label" for="ga_visual_metric">{{ 'stats.generic_analysis.visual_metric'|trans }}</label>
+                <select class="form-select"
+                        id="ga_visual_metric"
+                        name="ga_visual_metric"
+                        data-testid="stats-generic-analysis-visual-metric"
+                        data-generic-analysis-metrics-target="visualSelect">
+                    {% for option in page.visualMetricOptions %}
+                        <option value="{{ option.key }}"{% if option.selected %} selected{% endif %}>
+                            {{ option.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">{{ 'stats.generic_analysis.visual_metric_hint'|trans }}</div>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary" data-testid="stats-generic-analysis-apply">
                     {{ 'stats.generic_analysis.apply'|trans }}
                 </button>
             </div>

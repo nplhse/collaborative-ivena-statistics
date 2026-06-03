@@ -8,8 +8,10 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\GenericAnalysis\Application\AnalysisPresetRegistry;
 use App\Statistics\GenericAnalysis\Application\DTO\ResolvedGenericAnalysisConfig;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
@@ -39,6 +41,8 @@ final readonly class GenericAnalysisPageViewModelFactory
     public function __construct(
         private AnalysisPresetRegistry $presetRegistry,
         private DimensionRegistry $dimensionRegistry,
+        private MetricRegistry $metricRegistry,
+        private MetricCompatibilityChecker $metricCompatibilityChecker,
         private GenericAnalysisDimensionPolicy $dimensionPolicy,
         private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private UrlGeneratorInterface $router,
@@ -93,12 +97,18 @@ final readonly class GenericAnalysisPageViewModelFactory
             $user,
         );
 
+        $selectedMetricKeys = $config->query->resolvedMetricKeys();
+        $availableMetrics = $this->buildAvailableMetrics($config, $selectedMetricKeys);
+
         return new GenericAnalysisPageViewModel(
             presetMenu: $presetMenu,
             selectedPresetLabel: $selectedPresetLabel,
             dimensionGroups: $dimensionGroups,
             showRestrictedDimensionsHint: $showRestrictedDimensionsHint,
-            customFormAction: $this->router->generate(self::ROUTE, ['presetKey' => GenericAnalysisQueryKeys::PRESET_CUSTOM]),
+            formAction: $this->router->generate(
+                self::ROUTE,
+                ['presetKey' => $config->isCustom ? GenericAnalysisQueryKeys::PRESET_CUSTOM : $routePresetKey],
+            ),
             preservedQueryFields: $this->buildPreservedQueryFields($request),
             formPrimary: $config->primaryDimensionKey,
             formSeries: $config->seriesDimensionKey ?? '',
@@ -107,6 +117,8 @@ final readonly class GenericAnalysisPageViewModelFactory
             isCustom: $config->isCustom,
             referencePresetTitle: $referencePresetTitle,
             resetToPresetUrl: $resetToPresetUrl,
+            availableMetrics: $availableMetrics,
+            visualMetricOptions: $this->buildVisualMetricOptions($availableMetrics, $config->query->resolvedVisualMetricKey()),
         );
     }
 
@@ -171,6 +183,64 @@ final readonly class GenericAnalysisPageViewModelFactory
     }
 
     /**
+     * @param list<string> $selectedMetricKeys
+     *
+     * @return list<array{key: string, label: string, allowed: bool, reason: ?string, selected: bool, sortPriority: int}>
+     */
+    private function buildAvailableMetrics(ResolvedGenericAnalysisConfig $config, array $selectedMetricKeys): array
+    {
+        $items = [];
+        foreach ($this->metricCompatibilityChecker->listAvailability($config->query) as $entry) {
+            $metric = $entry['metric'];
+            $items[] = [
+                'key' => $metric->key,
+                'label' => $metric->label,
+                'allowed' => $entry['allowed'],
+                'reason' => $entry['reason'],
+                'selected' => \in_array($metric->key, $selectedMetricKeys, true),
+                'sortPriority' => $metric->sortPriority,
+            ];
+        }
+
+        usort($items, static fn (array $a, array $b): int => $a['sortPriority'] <=> $b['sortPriority']);
+
+        return $items;
+    }
+
+    /**
+     * @param list<array{key: string, label: string, allowed: bool, reason: ?string, selected: bool, sortPriority: int}> $availableMetrics
+     *
+     * @return list<array{key: string, label: string, selected: bool}>
+     */
+    private function buildVisualMetricOptions(array $availableMetrics, string $selectedVisualMetricKey): array
+    {
+        $options = [];
+        foreach ($availableMetrics as $metric) {
+            if (!$metric['selected']) {
+                continue;
+            }
+
+            $options[] = [
+                'key' => $metric['key'],
+                'label' => $metric['label'],
+                'selected' => $metric['key'] === $selectedVisualMetricKey,
+            ];
+        }
+
+        if ([] === $options) {
+            $count = $this->metricRegistry->get('count');
+
+            return [[
+                'key' => 'count',
+                'label' => $count->label,
+                'selected' => true,
+            ]];
+        }
+
+        return $options;
+    }
+
+    /**
      * @return list<array{key: string, value: string}>
      */
     private function buildPreservedQueryFields(Request $request): array
@@ -181,6 +251,33 @@ final readonly class GenericAnalysisPageViewModelFactory
                 continue;
             }
             $fields[] = ['key' => $key, 'value' => $request->query->getString($key)];
+        }
+
+        if ($request->query->has(GenericAnalysisQueryKeys::VISUAL_METRIC)) {
+            $fields[] = [
+                'key' => GenericAnalysisQueryKeys::VISUAL_METRIC,
+                'value' => $request->query->getString(GenericAnalysisQueryKeys::VISUAL_METRIC),
+            ];
+        }
+
+        if ($request->query->has(GenericAnalysisQueryKeys::TOP)) {
+            $fields[] = [
+                'key' => GenericAnalysisQueryKeys::TOP,
+                'value' => $request->query->getString(GenericAnalysisQueryKeys::TOP),
+            ];
+        }
+
+        if ($request->query->has(GenericAnalysisQueryKeys::METRICS)) {
+            $metricKeys = array_values($request->query->all(GenericAnalysisQueryKeys::METRICS));
+            foreach ($metricKeys as $metricKey) {
+                if (!\is_string($metricKey) || '' === $metricKey || 'count' === $metricKey) {
+                    continue;
+                }
+                $fields[] = [
+                    'key' => GenericAnalysisQueryKeys::METRICS.'[]',
+                    'value' => $metricKey,
+                ];
+            }
         }
 
         return $fields;

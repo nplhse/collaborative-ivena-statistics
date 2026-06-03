@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\UI\Http\Controller;
 
+use App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow;
 use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartRecommendationService;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
+use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
+use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class GenericAnalysisChartViewModelFactory
@@ -18,12 +25,18 @@ final readonly class GenericAnalysisChartViewModelFactory
         private GenericAnalysisChartRecommendationService $recommendationService,
         private GenericAnalysisChartSpecBuilder $specBuilder,
         private GenericAnalysisChartDataReducer $chartDataReducer,
+        private DimensionRegistry $dimensionRegistry,
+        private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private TranslatorInterface $translator,
     ) {
     }
 
-    public function create(AnalysisQuery $query, NormalizedAnalysisResult $result): GenericAnalysisChartViewModel
-    {
+    public function create(
+        Request $request,
+        string $presetKey,
+        AnalysisQuery $query,
+        NormalizedAnalysisResult $result,
+    ): GenericAnalysisChartViewModel {
         $recommendation = $this->recommendationService->recommend($query, $result);
 
         $allowedTypes = array_values(array_filter(
@@ -31,16 +44,18 @@ final readonly class GenericAnalysisChartViewModelFactory
             static fn (GenericAnalysisChartType $type): bool => $type->supportsApexChart(),
         ));
 
-        $reducedChartData = $this->chartDataReducer->reduce($query, $result);
+        [$primaryBucketCap, $rowLimit, $showRowLimitControl] = $this->resolveRowLimit($request, $query, $result->rows);
+
+        $reducedChartData = $this->chartDataReducer->reduce($query, $result, $primaryBucketCap);
         $warnings = $recommendation->warnings;
-        if ($reducedChartData->wasLimited()) {
+        if ($reducedChartData->limitedPrimaryBuckets && null !== $primaryBucketCap) {
             $warnings[] = $this->translator->trans('stats.generic_analysis.chart.warning.top_limited', [
-                'limit' => GenericAnalysisChartDataReducer::TOP_LIMIT,
+                'limit' => $primaryBucketCap,
             ]);
         }
 
         $specsByChartType = $recommendation->hasChart
-            ? $this->specBuilder->buildSpecsForTypes($allowedTypes, $query, $result)
+            ? $this->specBuilder->buildSpecsForTypes($allowedTypes, $query, $result, $primaryBucketCap)
             : [];
 
         $defaultType = $recommendation->defaultChartType->value;
@@ -95,7 +110,53 @@ final readonly class GenericAnalysisChartViewModelFactory
             chartTypeOptions: $chartTypeOptions,
             showChartTypeSelector: \count($chartTypeOptions) > 1,
             exportPlanned: true,
+            showRowLimitControl: $showRowLimitControl,
+            activeRowLimit: $rowLimit,
+            rowLimitUrls: $this->rowLimitUrls($request, $presetKey),
         );
+    }
+
+    /**
+     * @param list<EnrichedAnalysisRow> $rows
+     *
+     * @return array{0: ?int, 1: GenericAnalysisTableRowLimit, 2: bool}
+     */
+    private function resolveRowLimit(Request $request, AnalysisQuery $query, array $rows): array
+    {
+        $seen = [];
+        foreach ($rows as $row) {
+            $seen[$row->bucketKey] = true;
+        }
+        $distinctBucketCount = \count($seen);
+        $primary = $this->dimensionRegistry->get($query->primaryDimensionKey);
+        $primaryIsTemporal = AnalysisDimensionType::Temporal === $primary->type;
+        $rowLimit = GenericAnalysisTableRowLimit::resolve($request, $distinctBucketCount, $primaryIsTemporal);
+
+        return [
+            $rowLimit->cap(),
+            $rowLimit,
+            !$primaryIsTemporal && $distinctBucketCount > 5,
+        ];
+    }
+
+    /**
+     * @return array<int|string, string>
+     */
+    private function rowLimitUrls(Request $request, string $presetKey): array
+    {
+        $urls = [];
+        foreach (GenericAnalysisTableRowLimit::cases() as $limit) {
+            $urls[$limit->value] = $this->navigationUrlBuilder->build(
+                $request,
+                'app_stats_generic_analysis',
+                [
+                    'presetKey' => $presetKey,
+                    GenericAnalysisQueryKeys::TOP => $limit->value,
+                ],
+            );
+        }
+
+        return $urls;
     }
 
     private function chartTypeLabel(GenericAnalysisChartType $type): string

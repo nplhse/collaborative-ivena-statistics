@@ -162,7 +162,7 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
         if (AllocationPivotDimension::Urgency === $dimension) {
             usort($keys, static fn (string $a, string $b): int => (int) $a <=> (int) $b);
         } elseif (AllocationPivotDimension::AgeGroup === $dimension) {
-            $order = array_flip(['unknown', '0_18', '19_29', '30_39', '40_49', '50_59', '60_69', '70_79', '80_89', '90_99', '100p']);
+            $order = array_flip(['unknown', '0_18', '19_29', '30_39', '40_49', '50_59', '60_69', '70_79', '80_89', '90_99']);
             usort($keys, static fn (string $a, string $b): int => ($order[$a] ?? 999) <=> ($order[$b] ?? 999));
         } else {
             natcasesort($keys);
@@ -264,7 +264,6 @@ final readonly class AllocationPivotAnalysisDefinition implements AnalysisDefini
             '70_79' => '70_79',
             '80_89' => '80_89',
             '90_99' => '90_99',
-            '100p' => '100_plus',
             default => 'unknown',
         };
     }

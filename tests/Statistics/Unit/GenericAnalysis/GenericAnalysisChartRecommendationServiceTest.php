@@ -75,8 +75,8 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
                 ],
             ],
             rows: [
-                new EnrichedAnalysisRow('1', 'Jan', 5, 50.0, 62.5, '1', 'U1'),
-                new EnrichedAnalysisRow('1', 'Jan', 3, 30.0, 37.5, '2', 'U2'),
+                GenericAnalysisTestFixtures::enrichedRow('1', 'Jan', 5, 50.0, 62.5, '1', 'U1'),
+                GenericAnalysisTestFixtures::enrichedRow('1', 'Jan', 3, 30.0, 37.5, '2', 'U2'),
             ],
         );
 
@@ -131,7 +131,7 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
         $rows = [];
         for ($i = 1; $i <= 10; ++$i) {
             $series[] = ['name' => 'S'.$i, 'data' => [1]];
-            $rows[] = new EnrichedAnalysisRow('1', 'Jan', 1, 10.0, 10.0, (string) $i, 'S'.$i);
+            $rows[] = GenericAnalysisTestFixtures::enrichedRow('1', 'Jan', 1, 10.0, 10.0, (string) $i, 'S'.$i);
         }
 
         $query = $this->query('month', 'urgency');
@@ -235,13 +235,10 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
         array $chartData = [],
         array $rows = [],
     ): NormalizedAnalysisResult {
-        return new NormalizedAnalysisResult(
-            title: 'Test',
-            primaryDimensionLabel: 'Primary',
-            seriesDimensionLabel: null,
-            grandTotal: $grandTotal,
+        return GenericAnalysisTestFixtures::normalizedResult(
             rows: $rows,
-            chartData: $chartData,
+            grandTotal: $grandTotal,
+            chartData: [] === $chartData ? ['labels' => [], 'values' => []] : $chartData,
         );
     }
 }
