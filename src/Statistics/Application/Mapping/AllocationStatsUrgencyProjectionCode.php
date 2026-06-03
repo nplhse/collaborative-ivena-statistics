@@ -28,4 +28,16 @@ enum AllocationStatsUrgencyProjectionCode: int
 
         return self::tryFrom($int);
     }
+
+    /**
+     * Translation key aligned with overview/analysis charts (U1–U3).
+     */
+    public function labelTranslationKey(): string
+    {
+        return match ($this) {
+            self::Emergency => 'stats.overview.hospital_summary.urgency_u1',
+            self::Inpatient => 'stats.overview.hospital_summary.urgency_u2',
+            self::Outpatient => 'stats.overview.hospital_summary.urgency_u3',
+        };
+    }
 }
