@@ -3271,6 +3271,18 @@
         <source>label.block_type.quote</source>
         <target>Quote</target>
       </trans-unit>
+      <trans-unit id="page0017a" resname="label.block_type.headline">
+        <source>label.block_type.headline</source>
+        <target>Headline</target>
+      </trans-unit>
+      <trans-unit id="page0017b" resname="label.block_type.highlight">
+        <source>label.block_type.highlight</source>
+        <target>Highlight</target>
+      </trans-unit>
+      <trans-unit id="page0017c" resname="label.block_type.accordion">
+        <source>label.block_type.accordion</source>
+        <target>Accordion</target>
+      </trans-unit>
       <trans-unit id="page0018" resname="label.html">
         <source>label.html</source>
         <target>HTML</target>
@@ -3306,6 +3318,250 @@
       <trans-unit id="page0026" resname="label.quote_text">
         <source>label.quote_text</source>
         <target>Quote text</target>
+      </trans-unit>
+      <trans-unit id="page0026a" resname="label.headline_text">
+        <source>label.headline_text</source>
+        <target>Headline text</target>
+      </trans-unit>
+      <trans-unit id="page0026b" resname="label.headline_level">
+        <source>label.headline_level</source>
+        <target>Heading level</target>
+      </trans-unit>
+      <trans-unit id="page0026c" resname="label.headline_level.h1">
+        <source>label.headline_level.h1</source>
+        <target>H1</target>
+      </trans-unit>
+      <trans-unit id="page0026d" resname="label.headline_level.h2">
+        <source>label.headline_level.h2</source>
+        <target>H2</target>
+      </trans-unit>
+      <trans-unit id="page0026e" resname="label.headline_level.h3">
+        <source>label.headline_level.h3</source>
+        <target>H3</target>
+      </trans-unit>
+      <trans-unit id="page0026f" resname="label.headline_level.h4">
+        <source>label.headline_level.h4</source>
+        <target>H4</target>
+      </trans-unit>
+      <trans-unit id="page0026g" resname="help.page.headline_level">
+        <source>help.page.headline_level</source>
+        <target>The page title is already rendered as H1. Use H1 here only when you intentionally need a second top-level heading.</target>
+      </trans-unit>
+      <trans-unit id="page0026h" resname="label.headline_align">
+        <source>label.headline_align</source>
+        <target>Alignment</target>
+      </trans-unit>
+      <trans-unit id="page0026i" resname="label.headline_align.left">
+        <source>label.headline_align.left</source>
+        <target>Left</target>
+      </trans-unit>
+      <trans-unit id="page0026j" resname="label.headline_align.center">
+        <source>label.headline_align.center</source>
+        <target>Center</target>
+      </trans-unit>
+      <trans-unit id="page0026k" resname="label.headline_align.right">
+        <source>label.headline_align.right</source>
+        <target>Right</target>
+      </trans-unit>
+      <trans-unit id="page0026l" resname="label.headline_spacing_before">
+        <source>label.headline_spacing_before</source>
+        <target>Spacing before</target>
+      </trans-unit>
+      <trans-unit id="page0026m" resname="label.headline_spacing_after">
+        <source>label.headline_spacing_after</source>
+        <target>Spacing after</target>
+      </trans-unit>
+      <trans-unit id="page0026n" resname="label.spacing.none">
+        <source>label.spacing.none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="page0026o" resname="label.spacing.sm">
+        <source>label.spacing.sm</source>
+        <target>Small</target>
+      </trans-unit>
+      <trans-unit id="page0026p" resname="label.spacing.md">
+        <source>label.spacing.md</source>
+        <target>Medium</target>
+      </trans-unit>
+      <trans-unit id="page0026q" resname="label.spacing.lg">
+        <source>label.spacing.lg</source>
+        <target>Large</target>
+      </trans-unit>
+      <trans-unit id="page0026r" resname="label.highlight_variant">
+        <source>label.highlight_variant</source>
+        <target>Variant</target>
+      </trans-unit>
+      <trans-unit id="page0026s" resname="label.highlight_variant.info">
+        <source>label.highlight_variant.info</source>
+        <target>Info</target>
+      </trans-unit>
+      <trans-unit id="page0026t" resname="label.highlight_variant.success">
+        <source>label.highlight_variant.success</source>
+        <target>Success</target>
+      </trans-unit>
+      <trans-unit id="page0026u" resname="label.highlight_variant.warning">
+        <source>label.highlight_variant.warning</source>
+        <target>Warning</target>
+      </trans-unit>
+      <trans-unit id="page0026v" resname="label.highlight_variant.danger">
+        <source>label.highlight_variant.danger</source>
+        <target>Danger</target>
+      </trans-unit>
+      <trans-unit id="page0026w" resname="label.highlight_variant.note">
+        <source>label.highlight_variant.note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="page0026x" resname="label.highlight_title">
+        <source>label.highlight_title</source>
+        <target>Title (optional)</target>
+      </trans-unit>
+      <trans-unit id="page0026y" resname="label.highlight_icon_mode">
+        <source>label.highlight_icon_mode</source>
+        <target>Icon mode</target>
+      </trans-unit>
+      <trans-unit id="page0026z" resname="label.highlight_icon_mode.auto">
+        <source>label.highlight_icon_mode.auto</source>
+        <target>Automatic by variant</target>
+      </trans-unit>
+      <trans-unit id="page0026aa" resname="label.highlight_icon_mode.custom">
+        <source>label.highlight_icon_mode.custom</source>
+        <target>Custom icon</target>
+      </trans-unit>
+      <trans-unit id="page0026ab" resname="label.highlight_icon_mode.none">
+        <source>label.highlight_icon_mode.none</source>
+        <target>No icon</target>
+      </trans-unit>
+      <trans-unit id="page0026ac" resname="label.highlight_icon">
+        <source>label.highlight_icon</source>
+        <target>Custom icon</target>
+      </trans-unit>
+      <trans-unit id="page0026ad" resname="help.page.highlight_icon">
+        <source>help.page.highlight_icon</source>
+        <target>Tabler icon name, e.g. tabler:info-circle</target>
+      </trans-unit>
+      <trans-unit id="page0026ae" resname="label.accordion_items">
+        <source>label.accordion_items</source>
+        <target>Accordion items</target>
+      </trans-unit>
+      <trans-unit id="page0026af" resname="label.accordion_item_title">
+        <source>label.accordion_item_title</source>
+        <target>Item title</target>
+      </trans-unit>
+      <trans-unit id="page0026ag" resname="label.accordion_open_by_default">
+        <source>label.accordion_open_by_default</source>
+        <target>Open by default</target>
+      </trans-unit>
+      <trans-unit id="page0026ah" resname="label.image_width_mode">
+        <source>label.image_width_mode</source>
+        <target>Width mode</target>
+      </trans-unit>
+      <trans-unit id="page0026ai" resname="label.image_width_mode.preset">
+        <source>label.image_width_mode.preset</source>
+        <target>Preset</target>
+      </trans-unit>
+      <trans-unit id="page0026aj" resname="label.image_width_mode.px">
+        <source>label.image_width_mode.px</source>
+        <target>Fixed pixels</target>
+      </trans-unit>
+      <trans-unit id="page0026ak" resname="label.image_width_mode.percent">
+        <source>label.image_width_mode.percent</source>
+        <target>Percent</target>
+      </trans-unit>
+      <trans-unit id="page0026al" resname="label.image_width_preset">
+        <source>label.image_width_preset</source>
+        <target>Width preset</target>
+      </trans-unit>
+      <trans-unit id="page0026am" resname="label.image_width_preset.sm">
+        <source>label.image_width_preset.sm</source>
+        <target>Small (25%)</target>
+      </trans-unit>
+      <trans-unit id="page0026an" resname="label.image_width_preset.md">
+        <source>label.image_width_preset.md</source>
+        <target>Medium (50%)</target>
+      </trans-unit>
+      <trans-unit id="page0026ao" resname="label.image_width_preset.lg">
+        <source>label.image_width_preset.lg</source>
+        <target>Large (75%)</target>
+      </trans-unit>
+      <trans-unit id="page0026ap" resname="label.image_width_preset.full">
+        <source>label.image_width_preset.full</source>
+        <target>Full width</target>
+      </trans-unit>
+      <trans-unit id="page0026aq" resname="label.image_width_px">
+        <source>label.image_width_px</source>
+        <target>Width in pixels</target>
+      </trans-unit>
+      <trans-unit id="page0026ar" resname="help.page.image_width_px">
+        <source>help.page.image_width_px</source>
+        <target>Used when width mode is fixed pixels.</target>
+      </trans-unit>
+      <trans-unit id="page0026as" resname="label.image_width_percent">
+        <source>label.image_width_percent</source>
+        <target>Width in percent</target>
+      </trans-unit>
+      <trans-unit id="page0026at" resname="help.page.image_width_percent">
+        <source>help.page.image_width_percent</source>
+        <target>Used when width mode is percent (1–100).</target>
+      </trans-unit>
+      <trans-unit id="page0026au" resname="label.image_alignment">
+        <source>label.image_alignment</source>
+        <target>Alignment</target>
+      </trans-unit>
+      <trans-unit id="page0026av" resname="label.image_alignment.left">
+        <source>label.image_alignment.left</source>
+        <target>Left</target>
+      </trans-unit>
+      <trans-unit id="page0026aw" resname="label.image_alignment.center">
+        <source>label.image_alignment.center</source>
+        <target>Center</target>
+      </trans-unit>
+      <trans-unit id="page0026ax" resname="label.image_alignment.right">
+        <source>label.image_alignment.right</source>
+        <target>Right</target>
+      </trans-unit>
+      <trans-unit id="page0026ay" resname="label.image_alignment.full">
+        <source>label.image_alignment.full</source>
+        <target>Full width</target>
+      </trans-unit>
+      <trans-unit id="page0026az" resname="label.image_float">
+        <source>label.image_float</source>
+        <target>Text wrap</target>
+      </trans-unit>
+      <trans-unit id="page0026ba" resname="label.image_float.none">
+        <source>label.image_float.none</source>
+        <target>No wrap</target>
+      </trans-unit>
+      <trans-unit id="page0026bb" resname="label.image_float.left">
+        <source>label.image_float.left</source>
+        <target>Image left, text wraps right</target>
+      </trans-unit>
+      <trans-unit id="page0026bc" resname="label.image_float.right">
+        <source>label.image_float.right</source>
+        <target>Image right, text wraps left</target>
+      </trans-unit>
+      <trans-unit id="page0026bd" resname="help.page.image_float">
+        <source>help.page.image_float</source>
+        <target>Following rich text blocks will wrap around the image. On small screens the image becomes full width.</target>
+      </trans-unit>
+      <trans-unit id="page0026be" resname="label.image_size">
+        <source>label.image_size</source>
+        <target>Image size</target>
+      </trans-unit>
+      <trans-unit id="page0026bf" resname="label.image_size.sm">
+        <source>label.image_size.sm</source>
+        <target>Small</target>
+      </trans-unit>
+      <trans-unit id="page0026bg" resname="label.image_size.md">
+        <source>label.image_size.md</source>
+        <target>Medium</target>
+      </trans-unit>
+      <trans-unit id="page0026bh" resname="label.image_size.lg">
+        <source>label.image_size.lg</source>
+        <target>Large (full width)</target>
+      </trans-unit>
+      <trans-unit id="page0026bi" resname="help.page.image_size">
+        <source>help.page.image_size</source>
+        <target>Relative to the content card width, not the full page.</target>
       </trans-unit>
       <trans-unit id="page0027" resname="error.page.auth_required">
         <source>error.page.auth_required</source>

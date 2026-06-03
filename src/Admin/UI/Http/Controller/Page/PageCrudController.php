@@ -257,12 +257,13 @@ final class PageCrudController extends AbstractCrudController
 
     private function formatBlockTypeLabel(string $type): string
     {
-        return match ($type) {
-            'image' => $this->translator->trans('label.block_type.image'),
-            'cta' => $this->translator->trans('label.block_type.cta'),
-            'quote' => $this->translator->trans('label.block_type.quote'),
-            default => $this->translator->trans('label.block_type.richtext'),
-        };
+        $blockType = \App\Content\Domain\Enum\PageContentBlockType::tryFromString($type);
+
+        if ($blockType instanceof \App\Content\Domain\Enum\PageContentBlockType) {
+            return $this->translator->trans($blockType->translationKey());
+        }
+
+        return $this->translator->trans('label.block_type.richtext');
     }
 
     private function buildMediaLibraryHelp(): string

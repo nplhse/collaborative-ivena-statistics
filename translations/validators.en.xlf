@@ -765,6 +765,66 @@
         <source>page.validation.cta_media_required</source>
         <target>Select a PDF from the media library for this button.</target>
       </trans-unit>
+      <trans-unit id="pagev016" resname="page.validation.headline_invalid_level">
+        <source>page.validation.headline_invalid_level</source>
+        <target>Invalid headline level.</target>
+      </trans-unit>
+      <trans-unit id="pagev017" resname="page.validation.headline_invalid_align">
+        <source>page.validation.headline_invalid_align</source>
+        <target>Invalid headline alignment.</target>
+      </trans-unit>
+      <trans-unit id="pagev018" resname="page.validation.headline_invalid_spacing">
+        <source>page.validation.headline_invalid_spacing</source>
+        <target>Invalid spacing value for {field}.</target>
+      </trans-unit>
+      <trans-unit id="pagev019" resname="page.validation.highlight_invalid_variant">
+        <source>page.validation.highlight_invalid_variant</source>
+        <target>Invalid highlight variant.</target>
+      </trans-unit>
+      <trans-unit id="pagev020" resname="page.validation.highlight_invalid_icon_mode">
+        <source>page.validation.highlight_invalid_icon_mode</source>
+        <target>Invalid highlight icon mode.</target>
+      </trans-unit>
+      <trans-unit id="pagev021" resname="page.validation.highlight_icon_required">
+        <source>page.validation.highlight_icon_required</source>
+        <target>A custom icon is required when icon mode is custom.</target>
+      </trans-unit>
+      <trans-unit id="pagev022" resname="page.validation.accordion_items_required">
+        <source>page.validation.accordion_items_required</source>
+        <target>At least one accordion item is required.</target>
+      </trans-unit>
+      <trans-unit id="pagev023" resname="page.validation.accordion_item_must_be_object">
+        <source>page.validation.accordion_item_must_be_object</source>
+        <target>Accordion item must be an object.</target>
+      </trans-unit>
+      <trans-unit id="pagev024" resname="page.validation.image_invalid_size">
+        <source>page.validation.image_invalid_size</source>
+        <target>Invalid image size.</target>
+      </trans-unit>
+      <trans-unit id="pagev025" resname="page.validation.image_invalid_width_preset">
+        <source>page.validation.image_invalid_width_preset</source>
+        <target>Invalid image width preset.</target>
+      </trans-unit>
+      <trans-unit id="pagev026" resname="page.validation.image_width_px_required">
+        <source>page.validation.image_width_px_required</source>
+        <target>Width in pixels is required when width mode is fixed pixels.</target>
+      </trans-unit>
+      <trans-unit id="pagev027" resname="page.validation.image_width_percent_invalid">
+        <source>page.validation.image_width_percent_invalid</source>
+        <target>Width in percent must be between 1 and 100.</target>
+      </trans-unit>
+      <trans-unit id="pagev028" resname="page.validation.image_invalid_alignment">
+        <source>page.validation.image_invalid_alignment</source>
+        <target>Invalid image alignment.</target>
+      </trans-unit>
+      <trans-unit id="pagev029" resname="page.validation.image_invalid_float">
+        <source>page.validation.image_invalid_float</source>
+        <target>Invalid image float option.</target>
+      </trans-unit>
+      <trans-unit id="pagev030" resname="page.validation.image_float_requires_non_full_width">
+        <source>page.validation.image_float_requires_non_full_width</source>
+        <target>Text wrap requires a non-full-width image.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

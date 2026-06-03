@@ -59,4 +59,44 @@ HTML;
         self::assertStringContainsString('/uploads/media/sample.png', $html);
         self::assertStringContainsString('alt="Sample"', $html);
     }
+
+    public function testSanitizerSanitizesHighlightHtml(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PageContentSanitizer::class);
+
+        $raw = '<p>Notice</p><script>alert(1)</script>';
+
+        $out = $sut->sanitize([['type' => 'highlight', 'data' => ['html' => $raw]]]);
+        $html = (string) ($out[0]['data']['html'] ?? '');
+
+        self::assertStringContainsString('Notice', $html);
+        self::assertStringNotContainsString('<script>', $html);
+    }
+
+    public function testSanitizerSanitizesAccordionItemHtml(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PageContentSanitizer::class);
+
+        $raw = '<p>Answer</p><script>alert(1)</script>';
+
+        $out = $sut->sanitize([
+            [
+                'type' => 'accordion',
+                'data' => [
+                    'items' => [
+                        ['title' => 'Q', 'html' => $raw],
+                    ],
+                ],
+            ],
+        ]);
+
+        $html = (string) ($out[0]['data']['items'][0]['html'] ?? '');
+
+        self::assertStringContainsString('Answer', $html);
+        self::assertStringNotContainsString('<script>', $html);
+    }
 }
