@@ -1,6 +1,24 @@
-<figure class="mb-3">
-    <img class="img-fluid rounded" src="{{ block.data.src|default('') }}" alt="{{ block.data.alt|default('') }}" loading="lazy">
+{% set size = block.data.size|default('lg') %}
+{% if size not in ['sm', 'md', 'lg'] %}
+    {% set size = 'lg' %}
+{% endif %}
+{% set float = block.data.float|default('none') %}
+{% set figureClasses = ['card', 'card-sm', 'page-content-image', 'page-content-image--size-' ~ size, 'mb-0'] %}
+
+{% if float == 'left' %}
+    {% set figureClasses = figureClasses|merge(['page-content-image--float-left', 'float-start', 'me-3', 'mb-3']) %}
+{% elseif float == 'right' %}
+    {% set figureClasses = figureClasses|merge(['page-content-image--float-right', 'float-end', 'ms-3', 'mb-3']) %}
+{% endif %}
+
+<figure class="{{ figureClasses|join(' ') }}">
+    <img class="card-img-top"
+         src="{{ block.data.src|default('') }}"
+         alt="{{ block.data.alt|default('') }}"
+         loading="lazy">
     {% if block.data.caption|default('') is not empty %}
-        <figcaption class="text-secondary mt-1">{{ block.data.caption }}</figcaption>
+        <figcaption class="card-body py-2">
+            <p class="text-secondary small mb-0">{{ block.data.caption }}</p>
+        </figcaption>
     {% endif %}
 </figure>

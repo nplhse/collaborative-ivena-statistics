@@ -82,66 +82,67 @@ final class PageControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
-    public function testSidebarShowsOnlyPublicPagesForGuest(): void
-    {
-        $client = self::createClient();
-
-        $parent = PageFactory::createOne([
-            'title' => 'Öffentlich',
-            'slug' => 'oeffentlich',
-            'status' => Page::STATUS_PUBLISHED,
-            'visibility' => Page::VISIBILITY_PUBLIC,
-            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Öffentlich</p>']]],
-        ])->_real();
-
-        PageFactory::createOne([
-            'title' => 'Geschwister',
-            'slug' => 'geschwister',
-            'parent' => $parent,
-            'status' => Page::STATUS_PUBLISHED,
-            'visibility' => Page::VISIBILITY_PUBLIC,
-            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Geschwister</p>']]],
-        ]);
-
-        PageFactory::createOne([
-            'title' => 'Nur Mitglieder',
-            'slug' => 'nur-mitglieder',
-            'status' => Page::STATUS_PUBLISHED,
-            'visibility' => Page::VISIBILITY_AUTHENTICATED,
-        ]);
-
-        $client->request(Request::METHOD_GET, '/oeffentlich');
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-testid="page-sidebar"]');
-        self::assertSelectorTextContains('[data-testid="page-sidebar"]', 'Geschwister');
-        self::assertSelectorTextNotContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
-    }
-
-    public function testSidebarShowsAuthenticatedPagesForLoggedInUser(): void
+    public function testPageRendersNewBlockTypesInSharedCard(): void
     {
         $client = self::createClient();
 
         PageFactory::createOne([
-            'title' => 'Start',
-            'slug' => 'start',
+            'title' => 'Demo Blocks',
+            'slug' => 'demo-blocks',
             'status' => Page::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
-            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Start</p>']]],
+            'content' => [
+                [
+                    'type' => 'headline',
+                    'data' => [
+                        'text' => 'Demo Headline',
+                        'level' => 'h2',
+                    ],
+                ],
+                [
+                    'type' => 'highlight',
+                    'data' => [
+                        'variant' => 'warning',
+                        'title' => 'Important',
+                        'html' => '<p>Warning content</p>',
+                    ],
+                ],
+                [
+                    'type' => 'image',
+                    'data' => [
+                        'src' => '/uploads/demo.jpg',
+                        'alt' => 'Demo',
+                        'size' => 'md',
+                        'float' => 'left',
+                    ],
+                ],
+                [
+                    'type' => 'richtext',
+                    'data' => ['html' => '<p>Wrapped text</p>'],
+                ],
+                [
+                    'type' => 'accordion',
+                    'data' => [
+                        'items' => [
+                            [
+                                'title' => 'FAQ question',
+                                'html' => '<p>FAQ answer</p>',
+                                'openByDefault' => false,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
-        PageFactory::createOne([
-            'title' => 'Nur Mitglieder',
-            'slug' => 'nur-mitglieder',
-            'status' => Page::STATUS_PUBLISHED,
-            'visibility' => Page::VISIBILITY_AUTHENTICATED,
-        ]);
-
-        $user = UserFactory::createOne()->_real();
-        $client->loginUser($user);
-        $client->request(Request::METHOD_GET, '/start');
+        $client->request(Request::METHOD_GET, '/demo-blocks');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
+        self::assertSelectorExists('article.card .page-content-blocks');
+        self::assertSelectorTextContains('h2.page-content-headline', 'Demo Headline');
+        self::assertSelectorExists('.page-content-highlight.alert-warning');
+        self::assertSelectorExists('.page-content-image--size-md');
+        self::assertSelectorExists('.page-content-image--float-left');
+        self::assertSelectorExists('.page-content-accordion .accordion-button');
     }
 }

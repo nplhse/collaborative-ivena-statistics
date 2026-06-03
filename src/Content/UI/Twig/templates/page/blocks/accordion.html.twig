@@ -1,0 +1,29 @@
+{% set accordionId = 'page-accordion-' ~ blockIndex|default(1) %}
+{% set items = block.data.items|default([]) %}
+{% if items is not empty %}
+    <div class="accordion page-content-accordion" id="{{ accordionId }}">
+        {% for item in items %}
+            {% set itemId = accordionId ~ '-item-' ~ loop.index %}
+            {% set isOpen = item.openByDefault|default(false) %}
+            <div class="accordion-item">
+                <h3 class="accordion-header" id="{{ itemId }}-heading">
+                    <button class="accordion-button{% if not isOpen %} collapsed{% endif %}"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#{{ itemId }}-panel"
+                            aria-expanded="{{ isOpen ? 'true' : 'false' }}"
+                            aria-controls="{{ itemId }}-panel">
+                        {{ item.title|default('') }}
+                    </button>
+                </h3>
+                <div id="{{ itemId }}-panel"
+                     class="accordion-collapse collapse{% if isOpen %} show{% endif %}"
+                     aria-labelledby="{{ itemId }}-heading">
+                    <div class="accordion-body content">
+                        {{ item.html|default('')|raw }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

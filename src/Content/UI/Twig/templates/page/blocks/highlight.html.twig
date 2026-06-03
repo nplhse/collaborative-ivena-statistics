@@ -1,0 +1,32 @@
+{% set variant = block.data.variant|default('info') %}
+{% if variant not in ['info', 'success', 'warning', 'danger', 'note'] %}
+    {% set variant = 'info' %}
+{% endif %}
+{% set alertClass = variant == 'note' ? 'alert-secondary' : 'alert-' ~ variant %}
+{% set iconMode = block.data.iconMode|default('auto') %}
+{% set autoIcons = {
+    info: 'tabler:info-circle',
+    success: 'tabler:circle-check',
+    warning: 'tabler:alert-triangle',
+    danger: 'tabler:alert-circle',
+    note: 'tabler:notes',
+} %}
+{% set iconName = null %}
+{% if iconMode == 'auto' %}
+    {% set iconName = autoIcons[variant] ?? 'tabler:info-circle' %}
+{% elseif iconMode == 'custom' and block.data.icon|default('') is not empty %}
+    {% set iconName = block.data.icon %}
+{% endif %}
+<div class="alert {{ alertClass }} page-content-highlight mb-0" role="alert">
+    {% if block.data.title|default('') is not empty or iconName %}
+        <div class="d-flex align-items-center gap-2 mb-2">
+            {% if iconName %}
+                <twig:ux:icon name="{{ iconName }}" class="w-4 h-4 flex-shrink-0" />
+            {% endif %}
+            {% if block.data.title|default('') is not empty %}
+                <div class="alert-title fw-semibold mb-0">{{ block.data.title }}</div>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="content mb-0">{{ block.data.html|default('')|raw }}</div>
+</div>
