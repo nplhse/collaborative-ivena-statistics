@@ -38,16 +38,9 @@
         <div class="col-12 min-w-0">
             {{ include('@Statistics/generic_analysis/_analysis_config.html.twig') }}
 
-            {{ include('@Statistics/generic_analysis/_results_table.html.twig') }}
+            {{ include('@Statistics/generic_analysis/_chart_card.html.twig') }}
 
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h3 class="card-title">{{ 'stats.generic_analysis.chart_json_title'|trans }}</h3>
-                </div>
-                <div class="card-body">
-                    <pre class="bg-light p-3 small mb-0" style="max-height: 16rem; overflow: auto;">{{ chartJson }}</pre>
-                </div>
-            </div>
+            {{ include('@Statistics/generic_analysis/_results_table.html.twig') }}
 
             {% if overviewPeriodViewModel is defined %}
                 {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}

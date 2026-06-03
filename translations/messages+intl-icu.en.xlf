@@ -3767,6 +3767,102 @@
         <source>stats.generic_analysis.chart_json_title</source>
         <target>Chart data (JSON)</target>
       </trans-unit>
+      <trans-unit id="statsGa24" resname="stats.generic_analysis.chart.empty">
+        <source>stats.generic_analysis.chart.empty</source>
+        <target>No chart data for the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsGa25" resname="stats.generic_analysis.chart.subtitle_with_series">
+        <source>stats.generic_analysis.chart.subtitle_with_series</source>
+        <target>{primary} by {series}</target>
+      </trans-unit>
+      <trans-unit id="statsGa26" resname="stats.generic_analysis.chart.y_axis_allocations">
+        <source>stats.generic_analysis.chart.y_axis_allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsGa27" resname="stats.generic_analysis.chart.value_allocations">
+        <source>stats.generic_analysis.chart.value_allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsGa28" resname="stats.generic_analysis.chart.type_selector_label">
+        <source>stats.generic_analysis.chart.type_selector_label</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsGa29" resname="stats.generic_analysis.chart.type.bar">
+        <source>stats.generic_analysis.chart.type.bar</source>
+        <target>Bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa30" resname="stats.generic_analysis.chart.type.line">
+        <source>stats.generic_analysis.chart.type.line</source>
+        <target>Line</target>
+      </trans-unit>
+      <trans-unit id="statsGa31" resname="stats.generic_analysis.chart.type.stacked_bar">
+        <source>stats.generic_analysis.chart.type.stacked_bar</source>
+        <target>Stacked bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa32" resname="stats.generic_analysis.chart.type.grouped_bar">
+        <source>stats.generic_analysis.chart.type.grouped_bar</source>
+        <target>Grouped bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa33" resname="stats.generic_analysis.chart.type.horizontal_bar">
+        <source>stats.generic_analysis.chart.type.horizontal_bar</source>
+        <target>Horizontal bar</target>
+      </trans-unit>
+      <trans-unit id="statsGa34" resname="stats.generic_analysis.chart.type.percent_stacked_bar">
+        <source>stats.generic_analysis.chart.type.percent_stacked_bar</source>
+        <target>100% stacked</target>
+      </trans-unit>
+      <trans-unit id="statsGa35" resname="stats.generic_analysis.chart.type.pie">
+        <source>stats.generic_analysis.chart.type.pie</source>
+        <target>Pie</target>
+      </trans-unit>
+      <trans-unit id="statsGa36" resname="stats.generic_analysis.chart.type.heatmap">
+        <source>stats.generic_analysis.chart.type.heatmap</source>
+        <target>Heatmap</target>
+      </trans-unit>
+      <trans-unit id="statsGa37" resname="stats.generic_analysis.chart.type.table">
+        <source>stats.generic_analysis.chart.type.table</source>
+        <target>Table</target>
+      </trans-unit>
+      <trans-unit id="statsGa38" resname="stats.generic_analysis.chart.warning.numeric_dimension">
+        <source>stats.generic_analysis.chart.warning.numeric_dimension</source>
+        <target>Charts are not available for this numeric dimension. Use the table below.</target>
+      </trans-unit>
+      <trans-unit id="statsGa39" resname="stats.generic_analysis.chart.warning.histogram_not_supported">
+        <source>stats.generic_analysis.chart.warning.histogram_not_supported</source>
+        <target>Histogram charts are not yet supported. Use the table below.</target>
+      </trans-unit>
+      <trans-unit id="statsGa40" resname="stats.generic_analysis.chart.warning.heatmap_not_implemented">
+        <source>stats.generic_analysis.chart.warning.heatmap_not_implemented</source>
+        <target>Heatmap charts for hour and weekday are not yet available. Use the table below.</target>
+      </trans-unit>
+      <trans-unit id="statsGa41" resname="stats.generic_analysis.chart.warning.many_series">
+        <source>stats.generic_analysis.chart.warning.many_series</source>
+        <target>Many series — the legend may be hard to read.</target>
+      </trans-unit>
+      <trans-unit id="statsGa42" resname="stats.generic_analysis.chart.warning.many_buckets">
+        <source>stats.generic_analysis.chart.warning.many_buckets</source>
+        <target>Many categories — consider a horizontal bar chart.</target>
+      </trans-unit>
+      <trans-unit id="statsGa43" resname="stats.generic_analysis.chart.warning.pie_deferred">
+        <source>stats.generic_analysis.chart.warning.pie_deferred</source>
+        <target>Pie charts will be added later; showing a bar chart for now.</target>
+      </trans-unit>
+      <trans-unit id="statsGa44" resname="stats.generic_analysis.chart.export_planned">
+        <source>stats.generic_analysis.chart.export_planned</source>
+        <target>Chart export (PNG/CSV) is planned.</target>
+      </trans-unit>
+      <trans-unit id="statsGa45" resname="stats.generic_analysis.chart.remainder_bucket">
+        <source>stats.generic_analysis.chart.remainder_bucket</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="statsGa46" resname="stats.generic_analysis.chart.remainder_series">
+        <source>stats.generic_analysis.chart.remainder_series</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="statsGa47" resname="stats.generic_analysis.chart.warning.top_limited">
+        <source>stats.generic_analysis.chart.warning.top_limited</source>
+        <target>Chart shows the top {limit} values; remaining values are grouped as “Other”.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

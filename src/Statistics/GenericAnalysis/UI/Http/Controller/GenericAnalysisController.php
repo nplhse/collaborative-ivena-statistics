@@ -41,6 +41,7 @@ final class GenericAnalysisController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly GenericAnalysisTableViewModelFactory $tableViewModelFactory,
+        private readonly GenericAnalysisChartViewModelFactory $chartViewModelFactory,
     ) {
     }
 
@@ -110,7 +111,7 @@ final class GenericAnalysisController extends AbstractController
             'presetKey' => $presetKey,
             'analysisResult' => $result,
             'genericAnalysisTable' => $this->tableViewModelFactory->create($request, $presetKey, $result),
-            'chartJson' => json_encode($result->chartData, \JSON_THROW_ON_ERROR),
+            'genericAnalysisChart' => $this->chartViewModelFactory->create($config->query, $result),
             'genericAnalysisPage' => $this->genericAnalysisPageViewModelFactory->create(
                 $request,
                 $presetKey,
