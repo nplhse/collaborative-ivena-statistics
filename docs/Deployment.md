@@ -184,8 +184,8 @@ authorizes; otherwise messages often land in spam folders.
 
 ## Messenger worker (one-time server setup)
 
-Async messages use two transports (`async_priority_high`, `async_priority_low`) configured in [`config/packages/messenger.yaml`](../config/packages/messenger.yaml). 
-In production, email and domain jobs are routed to these queues; without a running worker, messages stay in the database.
+Async messages use three transports (`async_priority_high`, `async_priority_low`, `scheduler_default`) configured in [`config/packages/messenger.yaml`](../config/packages/messenger.yaml). 
+In production, email and domain jobs are routed to the async queues; scheduled KPI aggregation uses `scheduler_default`. Without a running worker, messages stay in the database.
 
 ### 1. Create the systemd unit
 
@@ -203,7 +203,7 @@ restarts after deploy load the new release.
 
 ```ini
 [Unit]
-Description=Symfony Messenger worker (high + low)
+Description=Symfony Messenger worker (high + low + scheduler)
 StartLimitIntervalSec=60
 StartLimitBurst=5
 
@@ -213,7 +213,7 @@ WorkingDirectory=/home/YOUR_USERNAME/www/current
 Environment=APP_ENV=prod
 Environment=APP_DEBUG=0
 
-ExecStart=/usr/bin/php -d memory_limit=-1 bin/console messenger:consume async_priority_high async_priority_low --env=prod --memory-limit=256M --time-limit=3600 -q
+ExecStart=/usr/bin/php -d memory_limit=-1 bin/console messenger:consume async_priority_high async_priority_low scheduler_default --env=prod --memory-limit=256M --time-limit=3600 -q
 
 Restart=always
 RestartSec=5
@@ -245,7 +245,7 @@ Before relying on systemd, run the consumer manually from the deploy path:
 
 ```bash
 cd ~/html/current
-php bin/console messenger:consume async_priority_high async_priority_low -vv --time-limit=30
+php bin/console messenger:consume async_priority_high async_priority_low scheduler_default -vv --time-limit=30
 ```
 
 Trigger an async action in the app (for example an import or statistics rebuild) and confirm messages are processed.
