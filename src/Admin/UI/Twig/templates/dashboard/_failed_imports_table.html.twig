@@ -1,0 +1,45 @@
+<div class="ea-dashboard-kpi mb-4">
+    <h3 class="h5 text-muted text-uppercase mb-3">{{ 'kpi.failed_imports.title'|trans({}, 'admin') }}</h3>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'kpi.failed_imports.date'|trans({}, 'admin') }}</th>
+                        <th scope="col">{{ 'kpi.failed_imports.hospital'|trans({}, 'admin') }}</th>
+                        <th scope="col">{{ 'kpi.failed_imports.file'|trans({}, 'admin') }}</th>
+                        <th scope="col">{{ 'kpi.failed_imports.status'|trans({}, 'admin') }}</th>
+                        <th scope="col">{{ 'kpi.failed_imports.reason'|trans({}, 'admin') }}</th>
+                        <th scope="col" class="text-end">{{ 'kpi.failed_imports.records'|trans({}, 'admin') }}</th>
+                        <th scope="col" class="text-end">{{ 'kpi.failed_imports.rejections'|trans({}, 'admin') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if failed_imports is empty %}
+                        <tr>
+                            <td colspan="7" class="text-muted text-center py-4">{{ 'kpi.failed_imports.empty'|trans({}, 'admin') }}</td>
+                        </tr>
+                    {% else %}
+                        {% for row in failed_imports %}
+                            <tr>
+                                <td class="text-nowrap">{{ row.createdAt|date('d.m.Y H:i') }}</td>
+                                <td>{{ row.hospitalName }}</td>
+                                <td>
+                                    {% if row.detailUrl %}
+                                        <a href="{{ row.detailUrl }}">{{ row.fileName }}</a>
+                                    {% else %}
+                                        {{ row.fileName }}
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge badge-danger">{{ row.status.value }}</span></td>
+                                <td class="small text-muted">{{ row.failureReasonKey|trans({}, 'admin') }}</td>
+                                <td class="text-end">{{ row.recordCount }}</td>
+                                <td class="text-end">{{ row.rejectionCount }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Infrastructure\Repository;
 
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -177,5 +178,28 @@ final class ImportRepository extends ServiceEntityRepository
         $rows = $qb->getQuery()->getArrayResult();
 
         return $rows;
+    }
+
+    /**
+     * @return list<Import>
+     */
+    public function findRecentFailedImports(int $limit = 10): array
+    {
+        if ($limit <= 0) {
+            return [];
+        }
+
+        /** @var list<Import> $imports */
+        $imports = $this->createQueryBuilder('i')
+            ->addSelect('h')
+            ->join('i.hospital', 'h')
+            ->where('i.status = :failed')
+            ->setParameter('failed', ImportStatus::FAILED)
+            ->orderBy('i.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $imports;
     }
 }

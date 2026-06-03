@@ -33,6 +33,9 @@ final class AdminDashboardTest extends WebTestCase
             ->assertSee('Pages')
             ->assertSee('Feedback')
             ->assertSee('Reference data and allocations')
+            ->assertSee('Key metrics (last 30 days)')
+            ->assertSee('Recent failed imports')
+            ->assertSee('Daily trend (last 30 days)')
         ;
 
         $path = parse_url($browser->client()->getHistory()->current()->getUri(), \PHP_URL_PATH);

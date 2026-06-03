@@ -53,6 +53,7 @@
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
                 <directory name="src/Statistics/" />
+                <directory name="src/Kpi/" />
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>

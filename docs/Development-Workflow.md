@@ -37,6 +37,26 @@ make static-analysis
 make cs
 ```
 
+### Aggregate admin KPIs
+
+Daily metrics for the EasyAdmin dashboard are written to `kpi_daily` by a console command (not computed on each page load):
+
+```bash
+php bin/console app:kpi:aggregate              # last 30 days ending yesterday (dashboard window)
+php bin/console app:kpi:aggregate --days=1     # cron: yesterday only
+php bin/console app:kpi:aggregate --date=2026-06-01
+```
+
+Only imports with final status (Completed, Partial, Failed, Cancelled) are counted; Pending/Running are ignored.
+
+Example cron (production):
+
+```cron
+15 2 * * * cd /var/www/app && php bin/console app:kpi:aggregate --days=1 --env=prod >> var/log/kpi-aggregate.log 2>&1
+```
+
+On a new environment, run `app:kpi:aggregate` once (default covers the same 30-day window as the dashboard).
+
 ### Refresh cache and assets
 
 ```bash
