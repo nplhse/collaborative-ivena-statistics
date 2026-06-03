@@ -18,6 +18,7 @@ final class GenericAnalysisTableViewModelFactoryTest extends TestCase
 {
     private GenericAnalysisTableViewModelFactory $factory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $router = $this->createMock(UrlGeneratorInterface::class);
@@ -110,6 +111,38 @@ final class GenericAnalysisTableViewModelFactoryTest extends TestCase
         self::assertStringContainsString('ga_layout=grouped', $viewModel->groupedLayoutUrl);
         self::assertStringContainsString('ga_layout=stacked', $viewModel->stackedLayoutUrl);
         self::assertStringContainsString('scope=public', $viewModel->groupedLayoutUrl);
+    }
+
+    public function testGroupedLayoutWithNumericBucketAndSeriesKeys(): void
+    {
+        $result = new NormalizedAnalysisResult(
+            title: 'Test',
+            primaryDimensionLabel: 'Month',
+            seriesDimensionLabel: 'Urgency',
+            grandTotal: 8,
+            rows: [
+                new EnrichedAnalysisRow('1', 'Jan', 5, 62.5, 62.5, '1', 'U1'),
+                new EnrichedAnalysisRow('1', 'Jan', 3, 37.5, 37.5, '2', 'U2'),
+                new EnrichedAnalysisRow('2', 'Feb', 8, 100.0, 100.0, '1', 'U1'),
+            ],
+            chartData: [],
+        );
+
+        $request = Request::create('/statistics/generic-analysis/custom', Request::METHOD_GET, [
+            GenericAnalysisQueryKeys::LAYOUT => 'grouped',
+        ]);
+
+        $viewModel = $this->factory->create($request, 'custom', $result);
+
+        self::assertTrue($viewModel->isGrouped());
+        self::assertCount(2, $viewModel->groupedRows);
+        self::assertSame('1', $viewModel->groupedRows[0]->bucketKey);
+        self::assertIsString($viewModel->groupedRows[0]->bucketKey);
+        self::assertCount(2, $viewModel->seriesColumns);
+        $firstSeriesKey = $viewModel->seriesColumns[0]['key'];
+        $secondSeriesKey = $viewModel->seriesColumns[1]['key'];
+        self::assertSame(5, $viewModel->groupedRows[0]->cellsBySeriesKey[$firstSeriesKey]?->value);
+        self::assertSame(3, $viewModel->groupedRows[0]->cellsBySeriesKey[$secondSeriesKey]?->value);
     }
 
     public function testFooterTotalsSumRowsAndPercentOfGrandTotal(): void

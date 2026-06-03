@@ -171,6 +171,7 @@ final readonly class GenericAnalysisTableViewModelFactory
         $seriesKeys = array_map(static fn (array $col): string => $col['key'], $seriesColumns);
 
         foreach ($rows as $row) {
+            // PHP casts numeric string array keys to int; keep bucket keys as strings for DTOs.
             $bucketKey = $row->bucketKey;
             if (!isset($byBucket[$bucketKey])) {
                 $cells = [];
@@ -202,13 +203,33 @@ final readonly class GenericAnalysisTableViewModelFactory
             }
 
             $grouped[] = new GenericAnalysisGroupedTableRow(
-                bucketKey: $bucketKey,
+                bucketKey: $this->stringifyArrayKey($bucketKey),
                 bucketLabel: $bucket['bucketLabel'],
-                cellsBySeriesKey: $bucket['cells'],
+                cellsBySeriesKey: $this->normalizeCellsBySeriesKey($bucket['cells']),
                 bucketTotal: $bucketTotal,
             );
         }
 
         return $grouped;
+    }
+
+    /**
+     * @param array<int|string, GenericAnalysisGroupedSeriesCell|null> $cells
+     *
+     * @return array<string, GenericAnalysisGroupedSeriesCell|null>
+     */
+    private function normalizeCellsBySeriesKey(array $cells): array
+    {
+        $normalized = [];
+        foreach ($cells as $seriesKey => $cell) {
+            $normalized[(string) $seriesKey] = $cell;
+        }
+
+        return $normalized;
+    }
+
+    private function stringifyArrayKey(int|string $key): string
+    {
+        return (string) $key;
     }
 }
