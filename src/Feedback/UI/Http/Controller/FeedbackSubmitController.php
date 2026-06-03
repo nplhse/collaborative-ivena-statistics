@@ -38,7 +38,7 @@ final class FeedbackSubmitController extends AbstractController
         RateLimiterFactory $anonymousIpLimiter,
         #[Autowire(service: 'limiter.feedback_submit_anonymous_email')]
         RateLimiterFactory $anonymousEmailLimiter,
-        #[Autowire('%app.feedback.app_version%')]
+        #[Autowire('%app.version%')]
         string $appVersion,
     ): RedirectResponse {
         $user = $this->getUser();
