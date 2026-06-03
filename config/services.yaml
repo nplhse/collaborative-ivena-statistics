@@ -31,7 +31,6 @@ services:
         bind:
             string $projectDir: '%kernel.project_dir%'
             Doctrine\DBAL\Connection $defaultConnection: '@doctrine.dbal.default_connection'
-            Doctrine\DBAL\Connection $legacyConnection: '@doctrine.dbal.legacy_connection'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -44,8 +43,6 @@ services:
             - 'User/Domain/Factory'
 
     Doctrine\DBAL\Connection: '@doctrine.dbal.default_connection'
-    App\LegacyMigration\Domain\Repository\LegacyMigrationStateRepositoryInterface: '@App\LegacyMigration\Infrastructure\Doctrine\LegacyMigrationStateRepository'
-    App\LegacyMigration\Application\Contract\LegacyAllocationImportFactoryInterface: '@App\LegacyMigration\Infrastructure\Adapter\AllocationImportFactoryAdapter'
     App\Statistics\Application\Contract\HospitalAccessInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineHospitalAccess'
     App\Statistics\Application\Contract\ImportTimelineInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineImportTimeline'
 
