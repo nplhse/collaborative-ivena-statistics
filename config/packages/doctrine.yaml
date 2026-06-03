@@ -60,6 +60,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Statistics/Infrastructure/Entity'
                 prefix: 'App\Statistics\Infrastructure\Entity'
+            Kpi:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Kpi/Domain/Entity'
+                prefix: 'App\Kpi\Domain\Entity'
         controller_resolver:
             auto_mapping: false
         schema_ignore_classes:
