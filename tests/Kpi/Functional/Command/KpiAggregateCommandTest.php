@@ -108,6 +108,43 @@ final class KpiAggregateCommandTest extends KernelTestCase
         self::assertStringContainsString('Invalid --date', $tester->getDisplay());
     }
 
+    public function testCommandRejectsInvalidDaysOption(): void
+    {
+        self::bootKernel();
+        $command = self::getContainer()->get(KpiAggregateCommand::class);
+        $tester = new CommandTester($command);
+
+        self::assertSame(1, $tester->execute(['--days' => '0']));
+        self::assertStringContainsString('--days', $tester->getDisplay());
+
+        self::assertSame(1, $tester->execute(['--days' => '500']));
+    }
+
+    public function testCommandAggregatesMultipleDaysAndSummarizesPeriod(): void
+    {
+        self::bootKernel();
+        $command = self::getContainer()->get(KpiAggregateCommand::class);
+        $tester = new CommandTester($command);
+
+        $exitCode = $tester->execute(['--days' => '2']);
+        $tester->assertCommandIsSuccessful();
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('2 day(s)', $tester->getDisplay());
+        self::assertStringContainsString('…', $tester->getDisplay());
+    }
+
+    public function testCommandNotesWhenNoRowsWereWritten(): void
+    {
+        self::bootKernel();
+        $command = self::getContainer()->get(KpiAggregateCommand::class);
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--date' => '2020-01-01']);
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('No rows written', $tester->getDisplay());
+        self::assertStringContainsString('(2020-01-01)', $tester->getDisplay());
+    }
+
     /**
      * @return array{user: object, hospital: object}
      */
