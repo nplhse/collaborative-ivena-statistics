@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Blog;
 
-use App\Admin\UI\Http\Controller\Media\MediaCrudController;
+use App\Content\Application\Blog\PostContentSanitizer;
+use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -19,7 +22,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -32,8 +34,9 @@ final class PostCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly PostRepository $postRepository,
-        private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly TranslatorInterface $translator,
+        private readonly PostContentSanitizer $postContentSanitizer,
+        private readonly MediaLibraryAdminUrlProvider $mediaLibraryAdminUrlProvider,
     ) {
     }
 
@@ -41,6 +44,12 @@ final class PostCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Post::class;
+    }
+
+    #[\Override]
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets->addAssetMapperEntry(Asset::new('admin-trix-media')->onlyOnForms());
     }
 
     #[\Override]
@@ -79,7 +88,13 @@ final class PostCrudController extends AbstractCrudController
             ->setHelp('help.blog.published_at');
         yield TextEditorField::new('content', 'label.content')
             ->setNumOfRows(20)
-            ->setHelp($this->buildMediaLibraryHelp())
+            ->setTrixEditorConfig([
+                'dompurify' => [
+                    'ADD_TAGS' => ['img', 'figure', 'figcaption'],
+                    'ADD_ATTR' => ['src', 'alt', 'loading', 'class', 'data-fslightbox', 'href', 'target', 'rel'],
+                ],
+            ])
+            ->setHelp($this->buildContentHelp())
             ->setFormTypeOption('help_html', true)
             ->hideOnIndex();
         yield DateTimeField::new('createdAt', 'label.created')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
@@ -95,6 +110,7 @@ final class PostCrudController extends AbstractCrudController
 
         $this->ensurePublishDataConsistency($entityInstance);
         $entityInstance->setSlug($this->buildUniqueSlug($entityInstance, null));
+        $entityInstance->setContent($this->postContentSanitizer->sanitize((string) $entityInstance->getContent()));
 
         parent::persistEntity($entityManager, $entityInstance);
     }
@@ -108,6 +124,7 @@ final class PostCrudController extends AbstractCrudController
 
         $this->ensurePublishDataConsistency($entityInstance);
         $entityInstance->setSlug($this->buildUniqueSlug($entityInstance, $entityInstance->getId()));
+        $entityInstance->setContent($this->postContentSanitizer->sanitize((string) $entityInstance->getContent()));
 
         parent::updateEntity($entityManager, $entityInstance);
     }
@@ -134,12 +151,16 @@ final class PostCrudController extends AbstractCrudController
         return $candidate;
     }
 
+    private function buildContentHelp(): string
+    {
+        return $this->buildMediaLibraryHelp()
+            .' '.$this->translator->trans('help.blog.image_layout');
+    }
+
     private function buildMediaLibraryHelp(): string
     {
         $url = htmlspecialchars(
-            $this->adminUrlGenerator
-                ->setController(MediaCrudController::class)
-                ->generateUrl(),
+            $this->mediaLibraryAdminUrlProvider->getIndexUrl(),
             ENT_QUOTES | ENT_HTML5,
         );
 

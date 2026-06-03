@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\UI\Http\Controller;
 
+use App\Content\Application\Blog\PostContentSanitizer;
 use App\Content\Domain\Entity\PostComment;
 use App\Content\Infrastructure\Repository\PostCategoryRepository;
 use App\Content\Infrastructure\Repository\PostCommentRepository;
@@ -28,6 +29,7 @@ final class BlogController extends AbstractController
         private readonly PostCategoryRepository $categoryRepository,
         private readonly PostTagRepository $tagRepository,
         private readonly PostCommentRepository $postCommentRepository,
+        private readonly PostContentSanitizer $postContentSanitizer,
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
     ) {
@@ -105,6 +107,7 @@ final class BlogController extends AbstractController
 
         return $this->render('@Content/blog/show.html.twig', [
             'post' => $post,
+            'content' => $this->postContentSanitizer->sanitize((string) $post->getContent()),
             'comments' => $this->postCommentRepository->findRootCommentsForPost($post),
             'previous_post' => $this->postRepository->findPreviousPublishedPost($post),
             'next_post' => $this->postRepository->findNextPublishedPost($post),

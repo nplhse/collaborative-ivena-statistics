@@ -24,6 +24,10 @@ return [
         'path' => './assets/admin-page-form.js',
         'entrypoint' => true,
     ],
+    'admin-trix-media' => [
+        'path' => './assets/admin-trix-media.js',
+        'entrypoint' => true,
+    ],
     'error_page' => [
         'path' => './assets/error-page.js',
         'entrypoint' => true,
