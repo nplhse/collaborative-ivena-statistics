@@ -24,7 +24,12 @@ final readonly class StatisticsNavigationUrlBuilder
      */
     public function build(Request $request, string $routeName, array $replace = [], array $removeKeys = []): string
     {
-        $params = $request->query->all();
+        $routeParams = $request->attributes->get('_route_params', []);
+        if (!\is_array($routeParams)) {
+            $routeParams = [];
+        }
+
+        $params = array_merge($routeParams, $request->query->all());
         foreach ($removeKeys as $key) {
             unset($params[$key]);
         }

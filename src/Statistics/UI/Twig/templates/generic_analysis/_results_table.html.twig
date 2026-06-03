@@ -1,0 +1,176 @@
+{% set table = genericAnalysisTable %}
+{% set footer = table.footerTotals %}
+
+<div class="card" data-testid="stats-generic-analysis-table">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <div>
+            <h3 class="card-title mb-0">{{ 'stats.generic_analysis.results_table_title'|trans }}</h3>
+            <div class="text-secondary small mt-1" data-testid="stats-generic-analysis-results-count">
+                {{ 'stats.generic_analysis.results_count'|trans({
+                    count: table.grandTotal|number_format(0, ',', '.'),
+                }) }}
+            </div>
+        </div>
+        {% if table.supportsGroupedLayout %}
+            <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.generic_analysis.table_layout_label'|trans }}"
+                 data-testid="stats-generic-analysis-table-layout-toggle">
+                <a href="{{ table.stackedLayoutUrl }}"
+                   class="btn{% if not table.isGrouped %} btn-primary{% endif %}"
+                   data-testid="stats-generic-analysis-layout-stacked">
+                    {{ 'stats.generic_analysis.table_layout_stacked'|trans }}
+                </a>
+                <a href="{{ table.groupedLayoutUrl }}"
+                   class="btn{% if table.isGrouped %} btn-primary{% endif %}"
+                   data-testid="stats-generic-analysis-layout-grouped">
+                    {{ 'stats.generic_analysis.table_layout_grouped'|trans }}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive stats-ga-table-scroll{% if table.isGrouped %} stats-ga-table-scroll--grouped{% endif %}">
+            {% if table.isGrouped %}
+                <table class="table table-vcenter card-table table-striped mb-0 stats-ga-table-grouped"
+                       style="min-width: {{ table.groupedTableMinWidthPx }}px;"
+                       data-testid="stats-generic-analysis-table-grouped">
+                    <thead>
+                        <tr>
+                            <th class="stats-ga-table-sticky-col">{{ table.primaryDimensionLabel }}</th>
+                            {% for series in table.seriesColumns %}
+                                <th class="text-end text-nowrap">{{ series.label }}</th>
+                            {% endfor %}
+                            <th class="text-end text-nowrap">{{ 'stats.generic_analysis.table.bucket_total'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table.groupedRows %}
+                            <tr>
+                                <th scope="row" class="stats-ga-table-sticky-col text-nowrap">{{ row.bucketLabel }}</th>
+                                {% for series in table.seriesColumns %}
+                                    {% set cell = row.cellsBySeriesKey[series.key] ?? null %}
+                                    <td class="text-end text-nowrap">
+                                        {% if cell %}
+                                            <div class="fw-medium">{{ cell.value|number_format(0, ',', '.') }}</div>
+                                            <div class="small text-secondary"
+                                                 title="{{ 'stats.generic_analysis.table.percent_total_tooltip'|trans({
+                                                     percent: cell.percentOfTotal|number_format(1, ',', '.'),
+                                                 }) }}">
+                                                {{ cell.percentOfBucket|number_format(1, ',', '.') }}%
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td class="text-end text-nowrap fw-medium">
+                                    {{ row.bucketTotal|number_format(0, ',', '.') }}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="{{ table.seriesColumns|length + 2 }}" class="text-muted p-3">
+                                    {{ 'stats.generic_analysis.no_data'|trans }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if table.groupedRows is not empty %}
+                        <tfoot>
+                            <tr class="fw-semibold border-top" data-testid="stats-generic-analysis-table-footer">
+                                <th scope="row" class="stats-ga-table-sticky-col text-nowrap">
+                                    {{ 'stats.generic_analysis.table.footer_total'|trans }}
+                                </th>
+                                {% for series in table.seriesColumns %}
+                                    {% set footerCell = footer.seriesCellsByKey[series.key] ?? null %}
+                                    <td class="text-end text-nowrap">
+                                        {% if footerCell %}
+                                            <div>{{ footerCell.value|number_format(0, ',', '.') }}</div>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td class="text-end text-nowrap fw-medium">
+                                    {{ footer.totalValue|number_format(0, ',', '.') }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    {% endif %}
+                </table>
+            {% else %}
+                <table class="table table-vcenter card-table table-striped mb-0"
+                       data-testid="stats-generic-analysis-table-stacked">
+                    <thead>
+                        <tr>
+                            <th>{{ table.primaryDimensionLabel }}</th>
+                            {% if table.seriesDimensionLabel %}
+                                <th>{{ table.seriesDimensionLabel }}</th>
+                            {% endif %}
+                            <th class="text-end">{{ 'stats.generic_analysis.table.count'|trans }}</th>
+                            <th class="text-end">{{ 'stats.generic_analysis.table.percent_total'|trans }}</th>
+                            {% if table.seriesDimensionLabel %}
+                                <th class="text-end">{{ 'stats.generic_analysis.table.percent_bucket'|trans }}</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table.stackedRows %}
+                            <tr>
+                                <td>{{ row.bucketLabel }}</td>
+                                {% if table.seriesDimensionLabel %}
+                                    <td>{{ row.seriesLabel ?? '—' }}</td>
+                                {% endif %}
+                                <td class="text-end">{{ row.value|number_format(0, ',', '.') }}</td>
+                                <td class="text-end">{{ row.percentOfTotal|number_format(2, ',', '.') }}%</td>
+                                {% if table.seriesDimensionLabel %}
+                                    <td class="text-end">{{ row.percentOfBucket|number_format(2, ',', '.') }}%</td>
+                                {% endif %}
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="{{ table.seriesDimensionLabel ? 5 : 3 }}" class="text-muted p-3">
+                                    {{ 'stats.generic_analysis.no_data'|trans }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if table.stackedRows is not empty %}
+                        <tfoot>
+                            <tr class="fw-semibold border-top" data-testid="stats-generic-analysis-table-footer">
+                                <td>{{ 'stats.generic_analysis.table.footer_total'|trans }}</td>
+                                {% if table.seriesDimensionLabel %}
+                                    <td></td>
+                                {% endif %}
+                                <td class="text-end">{{ footer.totalValue|number_format(0, ',', '.') }}</td>
+                                <td class="text-end">{{ footer.percentOfGrandTotal|number_format(2, ',', '.') }}%</td>
+                                {% if table.seriesDimensionLabel %}
+                                    <td class="text-end text-muted">—</td>
+                                {% endif %}
+                            </tr>
+                        </tfoot>
+                    {% endif %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .stats-ga-table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
+
+    .stats-ga-table-scroll--grouped .stats-ga-table-sticky-col {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: var(--tblr-card-bg, #fff);
+        box-shadow: 1px 0 0 var(--tblr-border-color, rgba(0, 0, 0, 0.1));
+    }
+
+    .stats-ga-table-scroll--grouped thead .stats-ga-table-sticky-col {
+        z-index: 2;
+    }
+</style>
