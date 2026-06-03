@@ -3277,7 +3277,7 @@
       </trans-unit>
       <trans-unit id="page0019" resname="help.page.richtext_allowed_tags">
         <source>help.page.richtext_allowed_tags</source>
-        <target>Allowed tags: p, br, h2-h4, strong, em, ul, ol, li, a, blockquote, img</target>
+        <target>Allowed tags: p, br, h2-h4, strong, em, ul, ol, li, a, blockquote, img, figure, figcaption</target>
       </trans-unit>
       <trans-unit id="page0020" resname="label.image_url">
         <source>label.image_url</source>
@@ -3846,6 +3846,30 @@
       <trans-unit id="media016" resname="help.blog.media_library">
         <source>help.blog.media_library</source>
         <target>Upload images or PDFs in the media library, then copy the HTML snippet into the editor.</target>
+      </trans-unit>
+      <trans-unit id="media016b" resname="help.blog.image_layout">
+        <source>help.blog.image_layout</source>
+        <target>After inserting the snippet, adjust the figure classes for size (page-content-image--size-sm, --size-md, --size-lg) and text wrap (page-content-image--float-left float-start or --float-right float-end).</target>
+      </trans-unit>
+      <trans-unit id="media016c" resname="help.media.image_layout.title">
+        <source>help.media.image_layout.title</source>
+        <target>Adjust layout via figure classes</target>
+      </trans-unit>
+      <trans-unit id="media016c1" resname="help.media.image_layout.size">
+        <source>help.media.image_layout.size</source>
+        <target>Size: replace page-content-image--size-lg with --size-sm (33%) or --size-md (66%).</target>
+      </trans-unit>
+      <trans-unit id="media016c2" resname="help.media.image_layout.float">
+        <source>help.media.image_layout.float</source>
+        <target>Text wrap: add page-content-image--float-left float-start me-3 mb-3 or --float-right float-end ms-3 mb-3 (only with sm or md).</target>
+      </trans-unit>
+      <trans-unit id="media016c3" resname="help.media.image_layout.mobile">
+        <source>help.media.image_layout.mobile</source>
+        <target>On small screens, floated images automatically span the full width.</target>
+      </trans-unit>
+      <trans-unit id="media016e" resname="action.snippet_copied">
+        <source>action.snippet_copied</source>
+        <target>Copied!</target>
       </trans-unit>
       <trans-unit id="media017" resname="help.page.media_library">
         <source>help.page.media_library</source>
