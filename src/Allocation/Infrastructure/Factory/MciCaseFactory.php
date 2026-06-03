@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -57,15 +58,15 @@ final class MciCaseFactory extends PersistentProxyObjectFactory
             'transportType' => self::faker()->boolean(70) ? self::faker()->randomElement(AllocationTransportType::cases()) : null,
             'urgency' => self::faker()->boolean(70) ? self::faker()->randomElement(AllocationUrgency::cases()) : null,
 
-            'speciality' => self::faker()->boolean(50) ? SpecialityFactory::random() : null,
-            'department' => self::faker()->boolean(50) ? DepartmentFactory::random() : null,
+            'speciality' => LazyValue::new(fn (): ?object => self::faker()->boolean(50) ? SpecialityFactory::randomOrCreate() : null),
+            'department' => LazyValue::new(fn (): ?object => self::faker()->boolean(50) ? DepartmentFactory::randomOrCreate() : null),
             'departmentWasClosed' => self::faker()->boolean(40) ? self::faker()->boolean() : null,
 
-            'occasion' => self::faker()->boolean(95) ? OccasionFactory::random() : null,
-            'infection' => self::faker()->boolean(10) ? InfectionFactory::random() : null,
+            'occasion' => LazyValue::new(fn (): ?object => self::faker()->boolean(95) ? OccasionFactory::randomOrCreate() : null),
+            'infection' => LazyValue::new(fn (): ?object => self::faker()->boolean(10) ? InfectionFactory::randomOrCreate() : null),
 
-            'indicationRaw' => self::faker()->boolean(70) ? IndicationRawFactory::random() : null,
-            'indicationNormalized' => self::faker()->boolean(70) ? IndicationNormalizedFactory::random() : null,
+            'indicationRaw' => LazyValue::new(fn (): ?object => self::faker()->boolean(70) ? IndicationRawFactory::randomOrCreate() : null),
+            'indicationNormalized' => LazyValue::new(fn (): ?object => self::faker()->boolean(70) ? IndicationNormalizedFactory::randomOrCreate() : null),
         ];
     }
 }
