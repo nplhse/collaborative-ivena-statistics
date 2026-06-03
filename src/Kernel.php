@@ -11,9 +11,8 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 final class Kernel extends BaseKernel
 {
-    public const string VERSION = 'v0.0.3-alpha';
-
     use MicroKernelTrait;
+    public const string APP_VERSION = 'v0.0.3-alpha';
 
     #[\Override]
     public function boot(): void
@@ -26,7 +25,7 @@ final class Kernel extends BaseKernel
     #[\Override]
     protected function prepareContainer(ContainerBuilder $container): void
     {
-        $container->setParameter('app.version', self::VERSION);
+        $container->setParameter('app.version', self::APP_VERSION);
         $container->registerExtension(new AppExtension());
 
         parent::prepareContainer($container);
