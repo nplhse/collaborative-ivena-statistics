@@ -1269,6 +1269,10 @@
         <source>link.stats.analysis_explorer</source>
         <target>Analysis Explorer</target>
       </trans-unit>
+      <trans-unit id="statsLnkIi01" resname="link.stats.indication_insights">
+        <source>link.stats.indication_insights</source>
+        <target>Indication Insights</target>
+      </trans-unit>
       <trans-unit id="statsLnkRp01" resname="link.stats.reports">
         <source>link.stats.reports</source>
         <target>Reports</target>
@@ -1620,6 +1624,18 @@
       <trans-unit id="yiqEcLx" resname="statistics.distribution.dim.is_ventilated">
         <source>statistics.distribution.dim.is_ventilated</source>
         <target>Ventilated</target>
+      </trans-unit>
+      <trans-unit id="statsDimSh01" resname="statistics.distribution.dim.is_shock">
+        <source>statistics.distribution.dim.is_shock</source>
+        <target>Shock</target>
+      </trans-unit>
+      <trans-unit id="statsDimPr01" resname="statistics.distribution.dim.is_pregnant">
+        <source>statistics.distribution.dim.is_pregnant</source>
+        <target>Pregnant</target>
+      </trans-unit>
+      <trans-unit id="statsDimWa01" resname="statistics.distribution.dim.is_work_accident">
+        <source>statistics.distribution.dim.is_work_accident</source>
+        <target>Work accident</target>
       </trans-unit>
       <trans-unit id="tjrmI0x" resname="statistics.distribution.dim.is_with_physician">
         <source>statistics.distribution.dim.is_with_physician</source>
@@ -4174,6 +4190,330 @@
       <trans-unit id="statsGa47" resname="stats.generic_analysis.chart.warning.top_limited">
         <source>stats.generic_analysis.chart.warning.top_limited</source>
         <target>Chart shows the top {limit} values; remaining values are grouped as “Other”.</target>
+      </trans-unit>
+      <trans-unit id="statsInd01" resname="stats.indication.dashboard.title">
+        <source>stats.indication.dashboard.title</source>
+        <target>Indication profile</target>
+      </trans-unit>
+      <trans-unit id="statsInd02" resname="stats.indication.dashboard.breadcrumb">
+        <source>stats.indication.dashboard.breadcrumb</source>
+        <target>Indication Insights</target>
+      </trans-unit>
+      <trans-unit id="statsInd65" resname="stats.indication.insights.index.pretitle">
+        <source>stats.indication.insights.index.pretitle</source>
+        <target>Diagnosis profiles</target>
+      </trans-unit>
+      <trans-unit id="statsInd66" resname="stats.indication.insights.index.top_title">
+        <source>stats.indication.insights.index.top_title</source>
+        <target>Top 25 diagnoses</target>
+      </trans-unit>
+      <trans-unit id="statsInd67" resname="stats.indication.insights.index.picker_title">
+        <source>stats.indication.insights.index.picker_title</source>
+        <target>Browse all indications</target>
+      </trans-unit>
+      <trans-unit id="statsInd68" resname="stats.indication.insights.index.picker_help">
+        <source>stats.indication.insights.index.picker_help</source>
+        <target>Type a name or code to search, then select an indication to open its profile.</target>
+      </trans-unit>
+      <trans-unit id="statsInd03" resname="stats.indication.dashboard.case_count">
+        <source>stats.indication.dashboard.case_count</source>
+        <target>{count, number} cases in the selected scope and period</target>
+      </trans-unit>
+      <trans-unit id="statsInd04" resname="stats.indication.section.insights">
+        <source>stats.indication.section.insights</source>
+        <target>Characteristic features</target>
+      </trans-unit>
+      <trans-unit id="statsInd58" resname="stats.indication.newsbit.title">
+        <source>stats.indication.newsbit.title</source>
+        <target>At a glance</target>
+      </trans-unit>
+      <trans-unit id="statsInd59" resname="stats.indication.newsbit.vs_other">
+        <source>stats.indication.newsbit.vs_other</source>
+        <target>vs. other</target>
+      </trans-unit>
+      <trans-unit id="statsInd60" resname="stats.indication.kpi.cases">
+        <source>stats.indication.kpi.cases</source>
+        <target>Cases</target>
+      </trans-unit>
+      <trans-unit id="statsInd61" resname="stats.indication.picker.label">
+        <source>stats.indication.picker.label</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="statsInd81" resname="stats.indication.picker.placeholder">
+        <source>stats.indication.picker.placeholder</source>
+        <target>Search by name or code…</target>
+      </trans-unit>
+      <trans-unit id="statsInd62" resname="stats.indication.summary.gender_title">
+        <source>stats.indication.summary.gender_title</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsInd63" resname="stats.indication.summary.urgency_title">
+        <source>stats.indication.summary.urgency_title</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsInd64" resname="stats.indication.insights.more">
+        <source>stats.indication.insights.more</source>
+        <target>+ {count, number} more highlights</target>
+      </trans-unit>
+      <trans-unit id="statsInd69" resname="stats.indication.insights.show_more">
+        <source>stats.indication.insights.show_more</source>
+        <target>Show {count, number} more highlights</target>
+      </trans-unit>
+      <trans-unit id="statsInd05" resname="stats.indication.insights.empty">
+        <source>stats.indication.insights.empty</source>
+        <target>Not enough data to generate insights for this indication.</target>
+      </trans-unit>
+      <trans-unit id="statsInd06" resname="stats.indication.section.time_series">
+        <source>stats.indication.section.time_series</source>
+        <target>Cases over time</target>
+      </trans-unit>
+      <trans-unit id="statsInd07" resname="stats.indication.section.weekday">
+        <source>stats.indication.section.weekday</source>
+        <target>By weekday</target>
+      </trans-unit>
+      <trans-unit id="statsInd08" resname="stats.indication.section.heatmap">
+        <source>stats.indication.section.heatmap</source>
+        <target>Weekday × time of day</target>
+      </trans-unit>
+      <trans-unit id="statsInd70" resname="stats.indication.section.occurrence">
+        <source>stats.indication.section.occurrence</source>
+        <target>Distribution of Cases</target>
+      </trans-unit>
+      <trans-unit id="statsInd71" resname="stats.indication.heatmap.mode.label">
+        <source>stats.indication.heatmap.mode.label</source>
+        <target>Occurrence view</target>
+      </trans-unit>
+      <trans-unit id="statsInd72" resname="stats.indication.heatmap.mode.day_time">
+        <source>stats.indication.heatmap.mode.day_time</source>
+        <target>Time of day</target>
+      </trans-unit>
+      <trans-unit id="statsInd73" resname="stats.indication.heatmap.mode.shift">
+        <source>stats.indication.heatmap.mode.shift</source>
+        <target>Shift model</target>
+      </trans-unit>
+      <trans-unit id="statsInd74" resname="stats.indication.shift_bucket.night">
+        <source>stats.indication.shift_bucket.night</source>
+        <target>Night shift (22:00–05:59)</target>
+      </trans-unit>
+      <trans-unit id="statsInd75" resname="stats.indication.shift_bucket.early">
+        <source>stats.indication.shift_bucket.early</source>
+        <target>Early shift (06:00–13:59)</target>
+      </trans-unit>
+      <trans-unit id="statsInd76" resname="stats.indication.shift_bucket.late">
+        <source>stats.indication.shift_bucket.late</source>
+        <target>Late shift (14:00–21:59)</target>
+      </trans-unit>
+      <trans-unit id="statsInd78" resname="stats.indication.heatmap.shift_ranges">
+        <source>stats.indication.heatmap.shift_ranges</source>
+        <target>Night shift: 22:00–05:59 · Early shift: 06:00–13:59 · Late shift: 14:00–21:59</target>
+      </trans-unit>
+      <trans-unit id="statsInd77" resname="stats.indication.chart.moving_average">
+        <source>stats.indication.chart.moving_average</source>
+        <target>Moving average</target>
+      </trans-unit>
+      <trans-unit id="statsInd09" resname="stats.indication.section.heatmap_table">
+        <source>stats.indication.section.heatmap_table</source>
+        <target>Heatmap data table</target>
+      </trans-unit>
+      <trans-unit id="statsInd10" resname="stats.indication.section.demographics">
+        <source>stats.indication.section.demographics</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsInd11" resname="stats.indication.section.age_groups">
+        <source>stats.indication.section.age_groups</source>
+        <target>Age groups</target>
+      </trans-unit>
+      <trans-unit id="statsInd12" resname="stats.indication.section.age_histogram">
+        <source>stats.indication.section.age_histogram</source>
+        <target>Age distribution</target>
+      </trans-unit>
+      <trans-unit id="statsInd13" resname="stats.indication.section.urgency">
+        <source>stats.indication.section.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsInd14" resname="stats.indication.section.transport">
+        <source>stats.indication.section.transport</source>
+        <target>Transport type</target>
+      </trans-unit>
+      <trans-unit id="statsInd15" resname="stats.indication.section.clinical">
+        <source>stats.indication.section.clinical</source>
+        <target>Urgency and mission characteristics</target>
+      </trans-unit>
+      <trans-unit id="statsInd16" resname="stats.indication.median_age">
+        <source>stats.indication.median_age</source>
+        <target>Median age: {age, number} years</target>
+      </trans-unit>
+      <trans-unit id="statsInd79" resname="stats.indication.section.transport_time">
+        <source>stats.indication.section.transport_time</source>
+        <target>Transport time</target>
+      </trans-unit>
+      <trans-unit id="statsInd80" resname="stats.indication.median_transport">
+        <source>stats.indication.median_transport</source>
+        <target>Median: {minutes, number} min</target>
+      </trans-unit>
+      <trans-unit id="statsInd17" resname="stats.indication.distribution.empty">
+        <source>stats.indication.distribution.empty</source>
+        <target>No data</target>
+      </trans-unit>
+      <trans-unit id="statsInd18" resname="stats.indication.day_time_bucket.night">
+        <source>stats.indication.day_time_bucket.night</source>
+        <target>Night (00:00–05:59)</target>
+      </trans-unit>
+      <trans-unit id="statsInd19" resname="stats.indication.day_time_bucket.morning">
+        <source>stats.indication.day_time_bucket.morning</source>
+        <target>Morning (06:00–11:59)</target>
+      </trans-unit>
+      <trans-unit id="statsInd20" resname="stats.indication.day_time_bucket.afternoon">
+        <source>stats.indication.day_time_bucket.afternoon</source>
+        <target>Afternoon (12:00–17:59)</target>
+      </trans-unit>
+      <trans-unit id="statsInd21" resname="stats.indication.day_time_bucket.evening">
+        <source>stats.indication.day_time_bucket.evening</source>
+        <target>Evening (18:00–23:59)</target>
+      </trans-unit>
+      <trans-unit id="statsInd22" resname="stats.indication.weekday.1">
+        <source>stats.indication.weekday.1</source>
+        <target>Monday</target>
+      </trans-unit>
+      <trans-unit id="statsInd23" resname="stats.indication.weekday.2">
+        <source>stats.indication.weekday.2</source>
+        <target>Tuesday</target>
+      </trans-unit>
+      <trans-unit id="statsInd24" resname="stats.indication.weekday.3">
+        <source>stats.indication.weekday.3</source>
+        <target>Wednesday</target>
+      </trans-unit>
+      <trans-unit id="statsInd25" resname="stats.indication.weekday.4">
+        <source>stats.indication.weekday.4</source>
+        <target>Thursday</target>
+      </trans-unit>
+      <trans-unit id="statsInd26" resname="stats.indication.weekday.5">
+        <source>stats.indication.weekday.5</source>
+        <target>Friday</target>
+      </trans-unit>
+      <trans-unit id="statsInd27" resname="stats.indication.weekday.6">
+        <source>stats.indication.weekday.6</source>
+        <target>Saturday</target>
+      </trans-unit>
+      <trans-unit id="statsInd28" resname="stats.indication.weekday.7">
+        <source>stats.indication.weekday.7</source>
+        <target>Sunday</target>
+      </trans-unit>
+      <trans-unit id="statsInd29" resname="stats.indication.age_group.0_17">
+        <source>stats.indication.age_group.0_17</source>
+        <target>0–17</target>
+      </trans-unit>
+      <trans-unit id="statsInd30" resname="stats.indication.age_group.18_39">
+        <source>stats.indication.age_group.18_39</source>
+        <target>18–39</target>
+      </trans-unit>
+      <trans-unit id="statsInd31" resname="stats.indication.age_group.40_59">
+        <source>stats.indication.age_group.40_59</source>
+        <target>40–59</target>
+      </trans-unit>
+      <trans-unit id="statsInd32" resname="stats.indication.age_group.60_79">
+        <source>stats.indication.age_group.60_79</source>
+        <target>60–79</target>
+      </trans-unit>
+      <trans-unit id="statsInd33" resname="stats.indication.age_group.80_plus">
+        <source>stats.indication.age_group.80_plus</source>
+        <target>80+</target>
+      </trans-unit>
+      <trans-unit id="statsInd34" resname="stats.indication.gender.unknown">
+        <source>stats.indication.gender.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsInd35" resname="stats.indication.transport.ground">
+        <source>stats.indication.transport.ground</source>
+        <target>Ground</target>
+      </trans-unit>
+      <trans-unit id="statsInd36" resname="stats.indication.transport.air">
+        <source>stats.indication.transport.air</source>
+        <target>Air</target>
+      </trans-unit>
+      <trans-unit id="statsInd37" resname="stats.indication.transport.unknown">
+        <source>stats.indication.transport.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsInd38" resname="stats.indication.clinical.infectious">
+        <source>stats.indication.clinical.infectious</source>
+        <target>Infectious patient</target>
+      </trans-unit>
+      <trans-unit id="statsInd39" resname="stats.indication.insight.physician">
+        <source>stats.indication.insight.physician</source>
+        <target>Physician escort occurs {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd40" resname="stats.indication.insight.resus">
+        <source>stats.indication.insight.resus</source>
+        <target>Resuscitation room admission occurs {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd41" resname="stats.indication.insight.cathlab">
+        <source>stats.indication.insight.cathlab</source>
+        <target>Cath lab indication occurs {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd42" resname="stats.indication.insight.night_daytime">
+        <source>stats.indication.insight.night_daytime</source>
+        <target>Night cases occur {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd43" resname="stats.indication.insight.age_80_plus">
+        <source>stats.indication.insight.age_80_plus</source>
+        <target>Patients aged 80+ occur {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd44" resname="stats.indication.insight.urgency_emergency">
+        <source>stats.indication.insight.urgency_emergency</source>
+        <target>Emergency urgency occurs {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd45" resname="stats.indication.insight.weekend">
+        <source>stats.indication.insight.weekend</source>
+        <target>Weekend cases occur {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd46" resname="stats.indication.insight.infectious">
+        <source>stats.indication.insight.infectious</source>
+        <target>Infectious patients occur {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd47" resname="stats.indication.insight.cpr">
+        <source>stats.indication.insight.cpr</source>
+        <target>CPR occurs {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd48" resname="stats.indication.insight.ventilation">
+        <source>stats.indication.insight.ventilation</source>
+        <target>Ventilation occurs {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd49" resname="stats.indication.insight.shock">
+        <source>stats.indication.insight.shock</source>
+        <target>Shock occurs {ratio, number, :: .#}× more often than for other indications ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsInd50" resname="stats.indication.insight.gender_male_dominant">
+        <source>stats.indication.insight.gender_male_dominant</source>
+        <target>Male patients are overrepresented ({indicationPercent, number}% vs. {baselinePercent, number}% among other indications).</target>
+      </trans-unit>
+      <trans-unit id="statsInd51" resname="stats.indication.insight.gender_female_dominant">
+        <source>stats.indication.insight.gender_female_dominant</source>
+        <target>Female patients are overrepresented ({indicationPercent, number}% vs. {baselinePercent, number}% among other indications).</target>
+      </trans-unit>
+      <trans-unit id="statsInd52" resname="stats.indication.insight.age_young">
+        <source>stats.indication.insight.age_young</source>
+        <target>Median age is markedly lower than for other indications ({indicationPercent, number} vs. {baselinePercent, number} years).</target>
+      </trans-unit>
+      <trans-unit id="statsInd53" resname="stats.indication.insight.age_old">
+        <source>stats.indication.insight.age_old</source>
+        <target>Median age is markedly higher than for other indications ({indicationPercent, number} vs. {baselinePercent, number} years).</target>
+      </trans-unit>
+      <trans-unit id="statsInd54" resname="stats.indication.insight.transport_time_long">
+        <source>stats.indication.insight.transport_time_long</source>
+        <target>Median transport time is longer than for other indications ({indicationPercent, number} vs. {baselinePercent, number} minutes).</target>
+      </trans-unit>
+      <trans-unit id="statsInd55" resname="stats.indication.insight.transport_time_short">
+        <source>stats.indication.insight.transport_time_short</source>
+        <target>Median transport time is shorter than for other indications ({indicationPercent, number} vs. {baselinePercent, number} minutes).</target>
+      </trans-unit>
+      <trans-unit id="statsInd56" resname="stats.indication.nav.profile">
+        <source>stats.indication.nav.profile</source>
+        <target>View profile</target>
+      </trans-unit>
+      <trans-unit id="statsInd57" resname="stats.reports.nav.indication_profile">
+        <source>stats.reports.nav.indication_profile</source>
+        <target>Indication profile</target>
       </trans-unit>
     </body>
   </file>
