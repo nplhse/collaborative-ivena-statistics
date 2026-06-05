@@ -185,13 +185,13 @@ final class SavedAnalysisViewController extends AbstractController
     ): array {
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
-            'app_stats_analytics_view',
+            'app_stats_analytics_saved',
             $user,
             $filter,
         );
         $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create(
             $request,
-            'app_stats_analytics_view',
+            'app_stats_analytics_saved',
             $filter,
         );
 

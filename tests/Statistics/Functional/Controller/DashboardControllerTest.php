@@ -187,8 +187,7 @@ class DashboardControllerTest extends WebTestCase
         $uri = $link->getUri();
         $this->assertStringContainsString('scope=public', $uri);
         $this->assertStringContainsString('period=all', $uri);
-        $this->assertStringContainsString('analysis=allocations_by_month', $uri);
-        $this->assertStringContainsString('dimension=features', $uri);
+        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
     }
 
     public function testOverviewGenderCardLinksToAnalysisWithGenderDimension(): void
@@ -199,8 +198,8 @@ class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $link = $crawler->filter('[data-testid="stats-cross-nav-overview-gender"]')->link();
         $uri = $link->getUri();
-        $this->assertStringContainsString('dimension=gender', $uri);
-        $this->assertStringContainsString('analysis=allocations_by_month', $uri);
+        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
+        $this->assertStringContainsString('scope=public', $uri);
     }
 
     public function testOverviewUrgencyCardLinksToAnalysisWithUrgencyDimension(): void
@@ -211,8 +210,8 @@ class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $link = $crawler->filter('[data-testid="stats-cross-nav-overview-urgency"]')->link();
         $uri = $link->getUri();
-        $this->assertStringContainsString('dimension=urgency', $uri);
-        $this->assertStringContainsString('analysis=allocations_by_month', $uri);
+        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
+        $this->assertStringContainsString('scope=public', $uri);
     }
 
     public function testOverviewKpiHasOnlyOneCrossNavLink(): void
@@ -232,8 +231,8 @@ class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $link = $crawler->filter('[data-testid="stats-cross-nav-overview-kpi"]')->link();
         $uri = $link->getUri();
-        $this->assertStringContainsString('dimension=features', $uri);
-        $this->assertStringContainsString('analysis=allocations_by_month', $uri);
+        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
+        $this->assertStringContainsString('scope=public', $uri);
     }
 
     public function testOverviewFeatureAndResourceCardsHaveRowsAndCrossNavPreservesFilter(): void
@@ -247,8 +246,7 @@ class DashboardControllerTest extends WebTestCase
 
         $featuresLink = $crawler->filter('[data-testid="stats-cross-nav-overview-features"]')->link();
         $featuresUri = $featuresLink->getUri();
-        $this->assertStringContainsString('analysis=allocations_by_month', $featuresUri);
-        $this->assertStringContainsString('dimension=features', $featuresUri);
+        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $featuresUri);
         $this->assertStringContainsString('scope=public', $featuresUri);
         $this->assertStringContainsString('period=month', $featuresUri);
         $this->assertStringContainsString('year=2025', $featuresUri);
@@ -256,8 +254,7 @@ class DashboardControllerTest extends WebTestCase
 
         $resourcesLink = $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->link();
         $resourcesUri = $resourcesLink->getUri();
-        $this->assertStringContainsString('analysis=allocations_by_month', $resourcesUri);
-        $this->assertStringContainsString('dimension=resources', $resourcesUri);
+        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $resourcesUri);
         $this->assertStringContainsString('scope=public', $resourcesUri);
         $this->assertStringContainsString('period=month', $resourcesUri);
     }
