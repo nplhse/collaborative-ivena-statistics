@@ -1536,6 +1536,7 @@
       <trans-unit id="statsAlBld12" resname="stats.analytics_builder.step.review">
         <source>stats.analytics_builder.step.review</source>
         <target>Review</target>
+      </trans-unit>
       <trans-unit id="statsLnkIi01" resname="link.stats.indication_insights">
         <source>link.stats.indication_insights</source>
         <target>Indication Insights</target>
