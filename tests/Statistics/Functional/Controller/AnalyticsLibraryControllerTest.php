@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -169,6 +173,77 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-analytics-view-card-allocations_by_month"]');
     }
 
+    public function testRoleUserSeesPublicStateDispatchScopesOnly(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/library?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $labels = $this->scopePrimaryMenuLabels($crawler);
+        self::assertContains('Public', $labels);
+        self::assertNotContains('My hospitals', $labels);
+        self::assertNotContains('Hospitals', $labels);
+    }
+
+    public function testParticipantWithOwnedHospitalsSeesMyHospitalsLabel(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['owner' => $user]);
+        HospitalFactory::createOne(['owner' => $user]);
+        $client->loginUser($user->_real());
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/library?scope=my_hospitals&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $labels = $this->scopePrimaryMenuLabels($crawler);
+        self::assertContains('My hospitals', $labels);
+        self::assertNotContains('Hospitals', $labels);
+    }
+
+    public function testAdminSeesHospitalsLabel(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createMany(2);
+        $client->loginUser($user->_real());
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/library?scope=my_hospitals&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $labels = $this->scopePrimaryMenuLabels($crawler);
+        self::assertContains('Hospitals', $labels);
+        self::assertNotContains('My hospitals', $labels);
+    }
+
+    public function testInvalidMyHospitalsScopeRedirectsToPublic(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->followRedirects(false);
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/library?scope=my_hospitals&period=all',
+        );
+
+        $this->assertResponseStatusCodeSame(302);
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('scope=public', $location);
+        $this->assertStringNotContainsString('my_hospitals', $location);
+    }
+
     private function submitFavoriteToggle(KernelBrowser $client, Crawler $crawler, string $viewKey): void
     {
         $button = $crawler->filter('[data-testid="stats-analytics-favorite-'.$viewKey.'"]');
@@ -178,5 +253,15 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
         $client->submit($form);
         $this->assertResponseRedirects();
         $client->followRedirect();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function scopePrimaryMenuLabels(Crawler $crawler): array
+    {
+        return $crawler
+            ->filter('.page-header .dropdown-menu .dropdown-item')
+            ->each(static fn (Crawler $node): string => trim($node->text()));
     }
 }

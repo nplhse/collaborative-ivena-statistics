@@ -95,6 +95,19 @@ final class StatisticsPageViewModelFactoryAccessTest extends KernelTestCase
         self::assertGreaterThanOrEqual(3, \count($model->scopeSecondaryMenu));
     }
 
+    public function testUserWithoutParticipantHasNoMyHospitalsMenuEntryOnAnalyticsLibraryRoute(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+        $model = $this->factory->create(
+            new Request(query: ['scope' => 'public', 'period' => 'all']),
+            'app_stats_analytics_library',
+            $user,
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+        );
+
+        self::assertFalse($this->hasMenuKey($model->scopePrimaryMenu, 'my_hospitals_group'));
+    }
+
     public function testShowsUnscopedHintForParticipantWithoutLinkedHospitalsOnMyHospitalsScope(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
