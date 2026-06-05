@@ -89,7 +89,7 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
         self::assertSame('temporal_with_series', $recommendation->reason);
     }
 
-    public function testGenderDistributionDefersPie(): void
+    public function testGenderDistributionRecommendsBar(): void
     {
         $query = $this->query('gender');
         $result = $this->normalizedResult(
@@ -104,7 +104,7 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
 
         self::assertTrue($recommendation->hasChart);
         self::assertSame(GenericAnalysisChartType::Bar, $recommendation->defaultChartType);
-        self::assertContains('stats.generic_analysis.chart.warning.pie_deferred', $recommendation->warnings);
+        self::assertSame([], $recommendation->warnings);
     }
 
     public function testAgeDimensionHasNoApexChart(): void
