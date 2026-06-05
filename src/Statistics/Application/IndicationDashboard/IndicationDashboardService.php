@@ -9,19 +9,15 @@ use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardCriteria;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardHeader;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult;
-use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardDemographicsQuery;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardMetricsQuery;
-use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardTemporalQuery;
-use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardTimeSeriesQuery;
+use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSliceQuery;
 
 final readonly class IndicationDashboardService
 {
     public function __construct(
         private IndicationNormalizedRepository $indicationRepository,
         private IndicationDashboardMetricsQuery $metricsQuery,
-        private IndicationDashboardTimeSeriesQuery $timeSeriesQuery,
-        private IndicationDashboardDemographicsQuery $demographicsQuery,
-        private IndicationDashboardTemporalQuery $temporalQuery,
+        private IndicationDashboardSliceQuery $sliceQuery,
         private IndicationInsightEngine $insightEngine,
         private IndicationDashboardAssembler $assembler,
     ) {
@@ -40,13 +36,7 @@ final readonly class IndicationDashboardService
         $indicationId = $criteria->indicationId;
 
         $metrics = $this->metricsQuery->fetch($indicationId, $from, $toExclusive, $scope);
-
-        $monthly = $this->timeSeriesQuery->countByMonth($indicationId, $from, $toExclusive, $scope);
-        $genderCounts = $this->demographicsQuery->genderCounts($indicationId, $from, $toExclusive, $scope);
-        $ageGroups = $this->demographicsQuery->ageGroupCounts($indicationId, $from, $toExclusive, $scope);
-        $transportTimeBuckets = $this->demographicsQuery->transportTimeBucketCounts($indicationId, $from, $toExclusive, $scope);
-        $dayTimeHeatmapCells = $this->temporalQuery->heatmapCells($indicationId, $from, $toExclusive, $scope);
-        $shiftHeatmapCells = $this->temporalQuery->shiftHeatmapCells($indicationId, $from, $toExclusive, $scope);
+        $slice = $this->sliceQuery->fetch($indicationId, $from, $toExclusive, $scope);
 
         $total = $metrics->totalIndication;
 
@@ -57,16 +47,16 @@ final readonly class IndicationDashboardService
                 $indication->getCode(),
                 $total,
             ),
-            $this->assembler->buildSummaryDeck($genderCounts, $metrics),
+            $this->assembler->buildSummaryDeck($slice->genderCounts, $metrics),
             $this->insightEngine->build($metrics),
-            $this->assembler->buildTimeSeries($monthly),
-            $this->assembler->buildDayTimeHeatmap($dayTimeHeatmapCells),
-            $this->assembler->buildShiftHeatmap($shiftHeatmapCells),
+            $this->assembler->buildTimeSeries($slice->monthlyRows),
+            $this->assembler->buildDayTimeHeatmap($slice->dayTimeHeatmapCells),
+            $this->assembler->buildShiftHeatmap($slice->shiftHeatmapCells),
             $this->assembler->buildResourcesDistribution($metrics),
             $this->assembler->buildTransportDistribution($metrics),
-            $this->assembler->buildTransportTimeDistribution($transportTimeBuckets, $total),
+            $this->assembler->buildTransportTimeDistribution($slice->transportTimeBucketCounts, $total),
             $this->assembler->buildClinicalFeatures($metrics),
-            $this->assembler->buildAgeGroupDistribution($ageGroups, $total),
+            $this->assembler->buildAgeGroupDistribution($slice->ageGroupCounts, $total),
             $metrics->medianAgeIndication,
             $metrics,
         );
