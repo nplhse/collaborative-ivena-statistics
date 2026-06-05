@@ -152,6 +152,8 @@ SQL;
         $this->register($this->hospitalCohortDimension());
 
         $this->register($categorical('department', 'department_id', 'Department'));
+        $this->register($categorical('speciality', 'speciality_id', 'Speciality'));
+        $this->register($categorical('occasion', 'occasion_id', 'Occasion'));
         $this->register($categorical('assignment', 'assignment_id', 'Assignment type'));
         $this->register($categorical('indication', 'indication_normalized_id', 'Indication'));
         $this->register($categorical('infection', 'infection_id', 'Infection'));

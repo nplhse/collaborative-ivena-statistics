@@ -10,6 +10,8 @@ use App\Allocation\Infrastructure\Repository\DepartmentRepository;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
 use App\Allocation\Infrastructure\Repository\InfectionRepository;
+use App\Allocation\Infrastructure\Repository\OccasionRepository;
+use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 
@@ -21,6 +23,8 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
         'state',
         'dispatchArea',
         'department',
+        'speciality',
+        'occasion',
         'assignment',
         'indication',
         'infection',
@@ -31,6 +35,8 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
         private DepartmentRepository $departmentRepository,
+        private SpecialityRepository $specialityRepository,
+        private OccasionRepository $occasionRepository,
         private AssignmentRepository $assignmentRepository,
         private IndicationNormalizedRepository $indicationNormalizedRepository,
         private InfectionRepository $infectionRepository,
@@ -62,6 +68,8 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
             'state' => $this->loadIdNameMap($this->stateRepository, 's', $uniqueIds),
             'dispatchArea' => $this->loadIdNameMap($this->dispatchAreaRepository, 'da', $uniqueIds),
             'department' => $this->loadIdNameMap($this->departmentRepository, 'd', $uniqueIds),
+            'speciality' => $this->loadIdNameMap($this->specialityRepository, 'sp', $uniqueIds),
+            'occasion' => $this->loadIdNameMap($this->occasionRepository, 'oc', $uniqueIds),
             'assignment' => $this->loadIdNameMap($this->assignmentRepository, 'a', $uniqueIds),
             'indication' => $this->loadIdNameMap($this->indicationNormalizedRepository, 'i', $uniqueIds),
             'infection' => $this->loadIdNameMap($this->infectionRepository, 'i', $uniqueIds),
