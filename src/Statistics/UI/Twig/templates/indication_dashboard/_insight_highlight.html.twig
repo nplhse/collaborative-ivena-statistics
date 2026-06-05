@@ -1,0 +1,28 @@
+{% if dashboard.insights is not empty %}
+    <div class="card" data-testid="stats-indication-insights">
+        <div class="card-header py-2">
+            <h3 class="card-title mb-0">{{ 'stats.indication.newsbit.title'|trans }}</h3>
+        </div>
+        <div class="card-body d-flex flex-column gap-3 py-3">
+            {% for insight in dashboard.insights %}
+                {% set dotClass = insight.severity.value == 'critical' ? 'bg-red status-dot-animated' : (insight.severity.value == 'elevated' ? 'bg-orange' : 'bg-primary') %}
+                {% set badgeClass = insight.severity.value == 'critical' ? 'bg-red-lt' : (insight.severity.value == 'elevated' ? 'bg-orange-lt' : 'bg-primary-lt') %}
+                <div class="d-flex align-items-start gap-2{% if not loop.last %} pb-3 border-bottom{% endif %}">
+                    <span class="status-dot {{ dotClass }} d-block mt-1"></span>
+                    <div class="min-w-0">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <span class="badge {{ badgeClass }}" data-testid="stats-indication-insight-{{ insight.id }}">{{ insight.ratio }}×</span>
+                        </div>
+                        <p class="mb-0 text-secondary small">
+                            {{ insight.translationKey|trans({
+                                ratio: insight.ratio,
+                                indicationPercent: insight.indicationPercent,
+                                baselinePercent: insight.baselinePercent,
+                            }) }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

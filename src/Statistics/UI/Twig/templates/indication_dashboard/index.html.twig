@@ -1,0 +1,150 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ dashboard.header.indicationName }} – {{ 'stats.indication.dashboard.title'|trans }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('@Shared/_includes/subnav_stats.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'link.stats.indication_insights', path: path('app_stats_indication_insights') },
+            { label: dashboard.header.indicationName }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-indication-heading-subtitle">
+                        {{ 'stats.indication.dashboard.title'|trans }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="stats-indication-heading-title">
+                        {{ dashboard.header.indicationName }}{% if dashboard.header.indicationCode is not null %}
+                            <span class="text-muted fw-normal fs-4 ms-1">({{ dashboard.header.indicationCode }})</span>{% endif %}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div data-controller="indication-dashboard-charts"
+         data-indication-dashboard-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+
+        {{ include('@Statistics/indication_dashboard/_summary_deck.html.twig') }}
+
+        <div class="row g-3 align-items-start mt-1">
+            <div class="col-lg-8 d-flex flex-column gap-3">
+                <div class="card" data-testid="stats-indication-time-series">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.time_series'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-lg"
+                             data-indication-dashboard-charts-target="timeSeriesChart"
+                             data-moving-average-label="{{ 'stats.indication.chart.moving_average'|trans }}"></div>
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-heatmap">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.occurrence'|trans }}</h3>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans }}">
+                            <button type="button"
+                                    class="btn active"
+                                    data-indication-dashboard-charts-target="heatmapModeDayTime"
+                                    data-action="indication-dashboard-charts#setHeatmapMode"
+                                    data-indication-dashboard-charts-mode-param="dayTime">
+                                {{ 'stats.indication.heatmap.mode.day_time'|trans }}
+                            </button>
+                            <button type="button"
+                                    class="btn"
+                                    data-indication-dashboard-charts-target="heatmapModeShift"
+                                    data-action="indication-dashboard-charts#setHeatmapMode"
+                                    data-indication-dashboard-charts-mode-param="shift">
+                                {{ 'stats.indication.heatmap.mode.shift'|trans }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2">
+                        <div class="chart-lg" data-indication-dashboard-charts-target="heatmapChart"></div>
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-age-groups">
+                    {% set ageGroupLabels = [] %}
+                    {% set ageGroupValues = [] %}
+                    {% for row in dashboard.ageGroupDistribution %}
+                        {% set ageGroupLabels = ageGroupLabels|merge([row.labelTranslationKey|trans]) %}
+                        {% set ageGroupValues = ageGroupValues|merge([row.count]) %}
+                    {% endfor %}
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans }}</h3>
+                        {% if dashboard.medianAge is not null %}
+                            <span class="text-muted small">{{ 'stats.indication.median_age'|trans({age: dashboard.medianAge|round(0)}) }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-sm"
+                             data-indication-dashboard-charts-target="ageGroupsChart"
+                             data-age-group-labels="{{ ageGroupLabels|json_encode|e('html_attr') }}"
+                             data-age-group-values="{{ ageGroupValues|json_encode|e('html_attr') }}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-flex flex-column gap-3">
+                {{ include('@Statistics/indication_dashboard/_insight_highlight.html.twig') }}
+
+                {{ include('@Statistics/indication_dashboard/_distribution_card.html.twig', {
+                    titleKey: 'stats.analysis.dimension.resources',
+                    rows: dashboard.resourcesDistribution,
+                    testId: 'stats-indication-resources',
+                    labelClass: '',
+                }) }}
+
+                {{ include('@Statistics/indication_dashboard/_distribution_card.html.twig', {
+                    titleKey: 'stats.analysis.dimension.features',
+                    rows: dashboard.clinicalFeatures,
+                    testId: 'stats-indication-clinical',
+                    labelClass: '',
+                }) }}
+
+                {{ include('@Statistics/indication_dashboard/_distribution_card.html.twig', {
+                    titleKey: 'stats.indication.section.transport',
+                    rows: dashboard.transportDistribution,
+                    testId: 'stats-indication-transport',
+                }) }}
+
+                <div class="card" data-testid="stats-indication-transport-time">
+                    {% set transportTimeLabels = [] %}
+                    {% set transportTimeValues = [] %}
+                    {% for row in dashboard.transportTimeDistribution %}
+                        {% set transportTimeLabels = transportTimeLabels|merge([row.labelTranslationKey|trans]) %}
+                        {% set transportTimeValues = transportTimeValues|merge([row.count]) %}
+                    {% endfor %}
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans }}</h3>
+                        {% if dashboard.metrics.medianTransportMinutesIndication is not null %}
+                            <span class="text-muted small">{{ 'stats.indication.median_transport'|trans({minutes: dashboard.metrics.medianTransportMinutesIndication|round(0)}) }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-sm"
+                             data-indication-dashboard-charts-target="transportTimeChart"
+                             data-transport-time-labels="{{ transportTimeLabels|json_encode|e('html_attr') }}"
+                             data-transport-time-values="{{ transportTimeValues|json_encode|e('html_attr') }}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

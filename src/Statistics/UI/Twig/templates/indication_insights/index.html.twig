@@ -1,0 +1,94 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'link.stats.indication_insights'|trans }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('@Shared/_includes/subnav_stats.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'link.stats.indication_insights' }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-indication-insights-subtitle">
+                        {{ 'stats.indication.insights.index.pretitle'|trans }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="stats-indication-insights-title">
+                        {{ 'link.stats.indication_insights'|trans }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row g-3 align-items-start">
+        <div class="col-lg-8">
+            <div class="card" data-testid="stats-indication-insights-top-table">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ 'stats.indication.insights.index.top_title'|trans }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if topRows is empty %}
+                        <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>{{ 'stats.reports.table.rank'|trans }}</th>
+                                        <th>{{ 'stats.reports.table.diagnosis'|trans }}</th>
+                                        <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
+                                        <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in topRows %}
+                                        <tr>
+                                            <td>{{ row.rank }}</td>
+                                            <td>
+                                                {% if row.url %}
+                                                    <a href="{{ row.url }}" class="text-reset">{{ row.label }}</a>
+                                                {% else %}
+                                                    {{ row.label }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
+                                            <td class="text-end">{{ row.shareDisplay }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card" data-testid="stats-indication-insights-picker-card">
+                <div class="card-body">
+                    <h3 class="card-title mb-2">{{ 'stats.indication.insights.index.picker_title'|trans }}</h3>
+                    <p class="text-muted small mb-3">{{ 'stats.indication.insights.index.picker_help'|trans }}</p>
+                    {{ include('@Statistics/indication_dashboard/_indication_picker.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if overviewPeriodViewModel is defined %}
+        {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+    {% endif %}
+{% endblock %}

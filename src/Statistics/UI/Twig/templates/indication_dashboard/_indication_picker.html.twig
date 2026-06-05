@@ -1,0 +1,25 @@
+{% set pickerItems = [] %}
+{% for item in indicationPicker.menuItems %}
+    {% set pickerItems = pickerItems|merge([{label: item.label, url: item.url}]) %}
+{% endfor %}
+
+<div data-controller="indication-picker"
+     data-indication-picker-items-value="{{ pickerItems|json_encode|e('html_attr') }}"
+     data-testid="stats-indication-picker">
+    <label class="form-label" for="stats-indication-picker-input">
+        {{ 'stats.indication.picker.label'|trans }}
+    </label>
+    <input type="text"
+           id="stats-indication-picker-input"
+           class="form-control"
+           list="stats-indication-picker-list"
+           placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+           autocomplete="off"
+           value="{{ indicationPicker.selectedLabel }}"
+           data-indication-picker-target="input">
+    <datalist id="stats-indication-picker-list">
+        {% for item in indicationPicker.menuItems %}
+            <option value="{{ item.label }}"></option>
+        {% endfor %}
+    </datalist>
+</div>
