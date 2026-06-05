@@ -8,11 +8,14 @@ use App\Statistics\GenericAnalysis\Application\DTO\GenericAnalysisReducedChartDa
 use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\MetricFormat;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 
 final readonly class GenericAnalysisChartSpecBuilder
 {
     public function __construct(
         private GenericAnalysisChartDataReducer $chartDataReducer,
+        private MetricRegistry $metricRegistry,
     ) {
     }
 
@@ -34,13 +37,15 @@ final readonly class GenericAnalysisChartSpecBuilder
             return null;
         }
 
+        $percentScale = $this->usesPercentScale($result->visualMetricKey);
+
         return match ($chartType) {
-            GenericAnalysisChartType::Line => $this->buildLineSpec($data),
-            GenericAnalysisChartType::GroupedBar => $this->buildGroupedBarSpec($data),
+            GenericAnalysisChartType::Line => $this->buildLineSpec($data, $percentScale),
+            GenericAnalysisChartType::GroupedBar => $this->buildGroupedBarSpec($data, $percentScale),
             GenericAnalysisChartType::PercentStackedBar => $this->buildPercentStackedBarSpec($data),
-            GenericAnalysisChartType::HorizontalBar => $this->buildHorizontalBarSpec($data),
-            GenericAnalysisChartType::StackedBar => $this->buildStackedBarSpec($data),
-            GenericAnalysisChartType::Bar => $this->buildBarSpec($data),
+            GenericAnalysisChartType::HorizontalBar => $this->buildHorizontalBarSpec($data, $percentScale),
+            GenericAnalysisChartType::StackedBar => $this->buildStackedBarSpec($data, $percentScale),
+            GenericAnalysisChartType::Bar => $this->buildBarSpec($data, $percentScale),
             default => null,
         };
     }
@@ -73,82 +78,94 @@ final readonly class GenericAnalysisChartSpecBuilder
     /**
      * @return array<string, mixed>
      */
-    private function buildBarSpec(GenericAnalysisReducedChartData $data): array
+    private function buildBarSpec(GenericAnalysisReducedChartData $data, bool $percentScale): array
     {
         if (null !== $data->series && [] !== $data->series) {
-            return [
+            $spec = [
                 'chartType' => 'bar',
                 'labels' => $data->labels,
                 'series' => $data->series,
             ];
+
+            return $this->applyPercentScale($spec, $percentScale);
         }
 
-        return [
+        $spec = [
             'chartType' => 'bar',
             'labels' => $data->labels,
             'counts' => $data->counts ?? [],
         ];
+
+        return $this->applyPercentScale($spec, $percentScale);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function buildStackedBarSpec(GenericAnalysisReducedChartData $data): array
+    private function buildStackedBarSpec(GenericAnalysisReducedChartData $data, bool $percentScale): array
     {
         if (null === $data->series || [] === $data->series) {
-            return $this->buildBarSpec($data);
+            return $this->buildBarSpec($data, $percentScale);
         }
 
-        return [
+        $spec = [
             'chartType' => 'bar',
             'labels' => $data->labels,
             'series' => $data->series,
         ];
+
+        return $this->applyPercentScale($spec, $percentScale);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function buildGroupedBarSpec(GenericAnalysisReducedChartData $data): array
+    private function buildGroupedBarSpec(GenericAnalysisReducedChartData $data, bool $percentScale): array
     {
         if (null === $data->series || [] === $data->series) {
-            return $this->buildBarSpec($data);
+            return $this->buildBarSpec($data, $percentScale);
         }
 
-        return [
+        $spec = [
             'chartType' => 'bar',
             'labels' => $data->labels,
             'series' => $data->series,
             'barGrouped' => true,
         ];
+
+        return $this->applyPercentScale($spec, $percentScale);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function buildLineSpec(GenericAnalysisReducedChartData $data): array
+    private function buildLineSpec(GenericAnalysisReducedChartData $data, bool $percentScale): array
     {
         if (null !== $data->series && [] !== $data->series) {
-            return [
+            $spec = [
                 'chartType' => 'line',
                 'labels' => $data->labels,
                 'series' => $data->series,
             ];
+
+            return $this->applyPercentScale($spec, $percentScale);
         }
 
-        return [
+        $spec = [
             'chartType' => 'line',
             'labels' => $data->labels,
             'counts' => $data->counts ?? [],
         ];
+
+        return $this->applyPercentScale($spec, $percentScale);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function buildHorizontalBarSpec(GenericAnalysisReducedChartData $data): array
+    private function buildHorizontalBarSpec(GenericAnalysisReducedChartData $data, bool $percentScale): array
     {
-        $spec = $this->buildBarSpec($data);
+        $spec = $this->buildBarSpec($data, $percentScale);
         $spec['horizontal'] = true;
 
         return $spec;
@@ -161,7 +178,7 @@ final readonly class GenericAnalysisChartSpecBuilder
     {
         $percentSeries = $this->buildPercentSeriesFromCounts($data);
         if ([] === $percentSeries) {
-            return $this->buildBarSpec($data);
+            return $this->buildBarSpec($data, false);
         }
 
         return [
@@ -170,6 +187,29 @@ final readonly class GenericAnalysisChartSpecBuilder
             'series' => $percentSeries,
             'percentScale' => true,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $spec
+     *
+     * @return array<string, mixed>
+     */
+    private function applyPercentScale(array $spec, bool $percentScale): array
+    {
+        if ($percentScale) {
+            $spec['percentScale'] = true;
+        }
+
+        return $spec;
+    }
+
+    private function usesPercentScale(string $visualMetricKey): bool
+    {
+        if (!$this->metricRegistry->has($visualMetricKey)) {
+            return false;
+        }
+
+        return MetricFormat::Percent === $this->metricRegistry->get($visualMetricKey)->defaultFormat;
     }
 
     /**

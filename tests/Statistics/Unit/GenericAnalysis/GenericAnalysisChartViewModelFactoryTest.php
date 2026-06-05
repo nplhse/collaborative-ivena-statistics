@@ -12,6 +12,7 @@ use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Controller\GenericAnalysisChartViewModelFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use PHPUnit\Framework\TestCase;
@@ -41,12 +42,17 @@ final class GenericAnalysisChartViewModelFactoryTest extends TestCase
             },
         );
 
-        $reducer = new GenericAnalysisChartDataReducer(new DimensionRegistry(), $translator);
+        $reducer = new GenericAnalysisChartDataReducer(
+            new DimensionRegistry(),
+            new MetricRegistry(),
+            $translator,
+        );
         $this->factory = new GenericAnalysisChartViewModelFactory(
             new GenericAnalysisChartRecommendationService(new DimensionRegistry(), $translator),
-            new GenericAnalysisChartSpecBuilder($reducer),
+            new GenericAnalysisChartSpecBuilder($reducer, new MetricRegistry()),
             $reducer,
             new DimensionRegistry(),
+            new MetricRegistry(),
             new StatisticsNavigationUrlBuilder($router),
             $translator,
         );
