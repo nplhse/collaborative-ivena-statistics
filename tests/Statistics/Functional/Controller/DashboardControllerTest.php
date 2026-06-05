@@ -262,26 +262,6 @@ class DashboardControllerTest extends WebTestCase
         $this->assertStringContainsString('period=month', $resourcesUri);
     }
 
-    public function testAnalysisTableMonthRowLinksToMonthPeriod(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis?scope=public&period=all&view=table',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $link = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody tr:first-child td:first-child a')->link();
-        $uri = $link->getUri();
-        $this->assertStringContainsString('scope=public', $uri);
-        $this->assertStringContainsString('period=month', $uri);
-        $this->assertStringContainsString('analysis=allocations_by_month', $uri);
-        $this->assertStringContainsString('view=table', $uri);
-        $this->assertStringContainsString('dimension=total', $uri);
-        $this->assertMatchesRegularExpression('/[?&]year=\d+/', $uri);
-        $this->assertMatchesRegularExpression('/[?&]month=\d+/', $uri);
-    }
-
     public function testOverviewShowsPeriodNavigation(): void
     {
         $client = $this->createClientAsRoleUser();

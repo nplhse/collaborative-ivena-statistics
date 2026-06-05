@@ -32,17 +32,18 @@ final class GenericAnalysisControllerTest extends WebTestCase
     use InteractsWithAuthenticatedUser;
     use ResetDatabase;
 
-    public function testAllocationsByMonthShowsChartAndTable(): void
+    public function testAllocationsByMonthRedirectsToAnalyticsView(): void
     {
         $client = $this->createClientAsRoleUser();
         $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
         $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/generic-analysis/allocations_by_month?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-generic-analysis-config"]');
+        $this->assertSelectorExists('[data-testid="stats-analytics-view-title"]');
         $this->assertSelectorExists('[data-testid="stats-generic-analysis-chart-card"]');
         $this->assertSelectorExists('[data-testid="stats-generic-analysis-chart"]');
         $this->assertSelectorExists('[data-testid="stats-generic-analysis-table"]');
@@ -52,10 +53,11 @@ final class GenericAnalysisControllerTest extends WebTestCase
         $this->assertStringContainsString('"bar"', $specsRaw);
     }
 
-    public function testUrgencyByMonthShowsChartTypeSelector(): void
+    public function testUrgencyByMonthRedirectsToAnalyticsViewWithChartTypeSelector(): void
     {
         $client = $this->createClientAsRoleUser();
         $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
         $client->request(
             Request::METHOD_GET,
             '/statistics/generic-analysis/urgency_by_month?scope=public&period=all',
@@ -78,26 +80,11 @@ final class GenericAnalysisControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testConfigFormShowsMetricSelection(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $client->request(
-            Request::METHOD_GET,
-            '/statistics/generic-analysis/allocations_by_month?scope=public&period=all',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metrics"]');
-        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metric-count"]');
-        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metric-percent_of_total"]');
-        $this->assertSelectorExists('[data-testid="stats-generic-analysis-visual-metric"]');
-        $this->assertSelectorExists('[data-controller="generic-analysis-metrics"]');
-    }
-
     public function testMetricOverridesShowMultipleTableColumns(): void
     {
         $client = $this->createClientAsRoleUser();
         $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
         $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/generic-analysis/allocations_by_month?scope=public&period=all&'
@@ -108,13 +95,13 @@ final class GenericAnalysisControllerTest extends WebTestCase
         $headers = $crawler->filter('[data-testid="stats-generic-analysis-table-stacked"] thead th')
             ->each(static fn ($node): string => trim((string) $node->text()));
         self::assertGreaterThanOrEqual(2, \count($headers));
-        $this->assertSelectorExists('[data-testid="stats-generic-analysis-metric-percent_of_total"][checked]');
     }
 
     public function testAgeGroupDistributionShowsRowLimitControl(): void
     {
         $client = $this->createClientAsRoleUser();
         $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
         $client->request(
             Request::METHOD_GET,
             '/statistics/generic-analysis/age_group_distribution?scope=public&period=all',
@@ -126,7 +113,7 @@ final class GenericAnalysisControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-generic-analysis-row-limit-5"]');
     }
 
-    public function testCustomQueryMatchingPresetRedirectsToCanonicalUrl(): void
+    public function testCustomPresetRedirectsToBuilder(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(
@@ -136,15 +123,17 @@ final class GenericAnalysisControllerTest extends WebTestCase
             .GenericAnalysisQueryKeys::SERIES.'=urgency',
         );
 
-        $this->assertResponseRedirects(
-            '/statistics/generic-analysis/urgency_by_month?scope=public&period=all',
-        );
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('/statistics/analytics/builder', $location);
+        $this->assertStringContainsString('scope=public', $location);
     }
 
     public function testAllocationsByHospitalCohortDoesNotExposeRawTranslationKeys(): void
     {
         $client = $this->createClientAsRoleUser();
         $this->seedProjectionWithTwoUrbanBasicHospitals();
+        $client->followRedirects(true);
         $client->request(
             Request::METHOD_GET,
             '/statistics/generic-analysis/allocations_by_hospital_cohort?scope=public&period=all',
