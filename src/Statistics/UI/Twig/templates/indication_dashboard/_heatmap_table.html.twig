@@ -1,0 +1,25 @@
+<details class="mt-2">
+    <summary class="text-muted small">{{ 'stats.indication.section.heatmap_table'|trans }}</summary>
+    <div class="table-responsive mt-2" data-testid="stats-indication-heatmap-table">
+        <table class="table table-sm table-bordered text-center mb-0">
+            <thead>
+                <tr>
+                    <th class="small"></th>
+                    {% for label in dashboard.heatmap.columnLabels %}
+                        <th class="small fw-normal">{{ label }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for rowIndex, rowLabel in dashboard.heatmap.rowLabels %}
+                    <tr>
+                        <th class="text-start small fw-normal">{{ rowLabel }}</th>
+                        {% for count in dashboard.heatmap.matrix[rowIndex] %}
+                            <td class="small">{{ count }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</details>
