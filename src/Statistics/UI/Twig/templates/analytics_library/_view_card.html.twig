@@ -1,0 +1,40 @@
+<div class="card" data-testid="stats-analytics-view-card-{{ card.key }}">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <div>
+                <a href="{{ card.categoryUrl }}"
+                   class="badge bg-blue-lt text-blue-lt-fg text-decoration-none"
+                   data-testid="stats-analytics-category-badge-{{ card.categoryKey }}">
+                    {{ card.category }}
+                </a>
+            </div>
+            {% if card.canFavorite and card.favoriteUrl %}
+                <form method="post" action="{{ card.favoriteUrl }}" class="m-0">
+                    <input type="hidden" name="_token" value="{{ csrf_token('analytics_favorite_' ~ card.key) }}">
+                    <button type="submit"
+                            class="btn btn-ghost-secondary btn-icon btn-sm{% if card.isFavorite %} text-yellow{% endif %}"
+                            aria-label="{{ 'stats.analytics_library.favorite'|trans }}"
+                            data-testid="stats-analytics-favorite-{{ card.key }}">
+                        <twig:ux:icon name="{{ card.isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+        <h3 class="card-title mb-1">{{ card.title }}</h3>
+        <p class="text-secondary small mb-3">{{ card.description }}</p>
+        <div class="d-flex flex-wrap gap-1 mb-3">
+            {% for tag in card.tags %}
+                <span class="badge bg-secondary-lt">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        <dl class="row small mb-3">
+            <dt class="col-5 text-secondary">{{ 'stats.analytics_library.card.chart'|trans }}</dt>
+            <dd class="col-7 mb-1">{{ card.chartType }}</dd>
+            <dt class="col-5 text-secondary">{{ 'stats.analytics_library.card.metrics'|trans }}</dt>
+            <dd class="col-7 mb-0">{{ card.metrics|join(', ') }}</dd>
+        </dl>
+        <a href="{{ card.openUrl }}" class="btn btn-primary w-100" data-testid="stats-analytics-open-{{ card.key }}">
+            {{ 'stats.analytics_library.open'|trans }}
+        </a>
+    </div>
+</div>

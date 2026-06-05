@@ -1,0 +1,142 @@
+{% set page = configPage %}
+
+<div class="card mb-4" data-testid="stats-analytics-builder-form">
+    <div class="card-header">
+        <h3 class="card-title mb-0">{{ 'stats.analytics_builder.form_title'|trans }}</h3>
+    </div>
+    <div class="card-body">
+        {% if page.showRestrictedDimensionsHint %}
+            <p class="text-secondary small mb-4">{{ 'stats.generic_analysis.restricted_dimensions_hint'|trans }}</p>
+        {% endif %}
+
+        <form method="get"
+              action="{{ page.formAction }}"
+              class="vstack gap-4"
+              data-controller="generic-analysis-metrics">
+            {% for field in page.preservedQueryFields %}
+                <input type="hidden" name="{{ field.key }}" value="{{ field.value }}">
+            {% endfor %}
+            {% if page.formReferencePreset %}
+                <input type="hidden" name="ga_ref" value="{{ page.formReferencePreset }}">
+            {% endif %}
+            <input type="hidden" name="ga_metrics[]" value="count">
+
+            <div>
+                <p class="text-secondary text-uppercase small fw-semibold mb-1">{{ 'stats.analytics_builder.section.dimensions'|trans }}</p>
+                <p class="text-secondary small mb-3">{{ 'stats.analytics_builder.section.dimensions_hint'|trans }}</p>
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <label class="form-label" for="builder_ga_primary">{{ 'stats.generic_analysis.primary_dimension'|trans }}</label>
+                        <select class="form-select" id="builder_ga_primary" name="ga_primary" required data-testid="stats-analytics-builder-primary">
+                            {% for group in page.dimensionGroups %}
+                                <optgroup label="{{ group.label }}">
+                                    {% for option in group.options %}
+                                        <option value="{{ option.key }}"{% if option.key == page.formPrimary %} selected{% endif %}>
+                                            {{ option.label }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <label class="form-label" for="builder_ga_series">{{ 'stats.generic_analysis.series_dimension'|trans }}</label>
+                        <select class="form-select" id="builder_ga_series" name="ga_series" data-testid="stats-analytics-builder-series">
+                            <option value="">{{ 'stats.generic_analysis.series_none'|trans }}</option>
+                            {% for group in page.dimensionGroups %}
+                                <optgroup label="{{ group.label }}">
+                                    {% for option in group.options %}
+                                        <option value="{{ option.key }}"{% if option.key == page.formSeries %} selected{% endif %}>
+                                            {{ option.label }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-xl-4">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="builder_ga_include_null"
+                                   name="ga_include_null"
+                                   value="1"
+                                   {% if page.formIncludeNull %}checked{% endif %}
+                                   data-testid="stats-analytics-builder-include-null">
+                            <label class="form-check-label" for="builder_ga_include_null">
+                                {{ 'stats.generic_analysis.include_null_buckets'|trans }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-secondary text-uppercase small fw-semibold mb-1">{{ 'stats.analytics_builder.section.metrics'|trans }}</p>
+                <p class="text-secondary small mb-3">{{ 'stats.analytics_builder.section.metrics_hint'|trans }}</p>
+                <div class="d-flex flex-wrap gap-3" data-generic-analysis-metrics-target="metricList">
+                        {% for metric in page.availableMetrics %}
+                            <div class="form-check">
+                                {% if metric.key == 'count' %}
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="builder_metric_{{ metric.key }}"
+                                           checked
+                                           disabled
+                                           data-testid="stats-analytics-builder-metric-{{ metric.key }}">
+                                {% else %}
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="ga_metrics[]"
+                                           value="{{ metric.key }}"
+                                           id="builder_metric_{{ metric.key }}"
+                                           {% if metric.selected %}checked{% endif %}
+                                           {% if not metric.allowed %}disabled{% endif %}
+                                           data-generic-analysis-metrics-target="metricCheckbox"
+                                           data-action="change->generic-analysis-metrics#metricCheckboxChanged"
+                                           data-metric-key="{{ metric.key }}"
+                                           data-metric-label="{{ metric.label }}"
+                                           data-testid="stats-analytics-builder-metric-{{ metric.key }}">
+                                {% endif %}
+                                <label class="form-check-label{% if not metric.allowed %} text-muted{% endif %}"
+                                       for="builder_metric_{{ metric.key }}"
+                                       {% if metric.reason %}title="{{ metric.reason }}"{% endif %}>
+                                    {{ metric.label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <p class="text-secondary text-uppercase small fw-semibold mb-1">{{ 'stats.analytics_builder.section.chart_metric'|trans }}</p>
+                <p class="text-secondary small mb-3">{{ 'stats.analytics_builder.section.chart_metric_hint'|trans }}</p>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <label class="form-label visually-hidden" for="builder_ga_visual_metric">{{ 'stats.generic_analysis.visual_metric'|trans }}</label>
+                        <select class="form-select"
+                                id="builder_ga_visual_metric"
+                                name="ga_visual_metric"
+                                data-testid="stats-analytics-builder-visual-metric"
+                                data-generic-analysis-metrics-target="visualSelect">
+                            {% for option in page.visualMetricOptions %}
+                                <option value="{{ option.key }}"{% if option.selected %} selected{% endif %}>
+                                    {{ option.label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <a href="{{ libraryUrl }}" class="btn">{{ 'stats.analytics_builder.back_to_library'|trans }}</a>
+                <button type="submit" class="btn btn-primary" data-testid="stats-analytics-builder-launch">
+                    {{ 'stats.analytics_builder.launch'|trans }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,68 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ analysisView.title }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.analytics_library.title', path: path('app_stats_analytics_library') },
+            { label: analysisView.title }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">{{ 'stats.analytics_library.view_pretitle'|trans }}</div>
+                    <h2 class="page-title" data-testid="stats-analytics-view-title">{{ analysisView.title }}</h2>
+                    {% if analysisView.description %}
+                        <p class="text-secondary mt-2 mb-0">{{ analysisView.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group" aria-label="{{ 'stats.analytics_library.view_actions'|trans }}">
+                        {% if canFavorite and favoriteToggleUrl %}
+                            <button type="submit"
+                                    form="analytics-view-favorite-form"
+                                    class="btn btn-icon{% if isFavorite %} text-yellow{% endif %}"
+                                    aria-label="{{ 'stats.analytics_library.favorite'|trans }}"
+                                    data-testid="stats-analytics-view-favorite">
+                                <twig:ux:icon name="{{ isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
+                            </button>
+                        {% endif %}
+                        <button type="button"
+                                class="btn d-inline-flex align-items-center gap-1"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#analyticsCustomizeDrawer"
+                                data-testid="stats-analytics-customize-open">
+                            <twig:ux:icon name="tabler:tool" style="height: 1.2em;" />
+                            {{ 'stats.analytics_library.edit'|trans }}
+                        </button>
+                    </div>
+                    {% if canFavorite and favoriteToggleUrl %}
+                        <form id="analytics-view-favorite-form" method="post" action="{{ favoriteToggleUrl }}" class="d-none">
+                            <input type="hidden" name="_token" value="{{ csrf_token('analytics_favorite_' ~ viewKey) }}">
+                        </form>
+                    {% endif %}
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/generic_analysis/_chart_card.html.twig') }}
+    {{ include('@Statistics/generic_analysis/_results_table.html.twig') }}
+    {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+
+    {{ include('@Statistics/analytics_library/_customize_drawer.html.twig') }}
+{% endblock %}
