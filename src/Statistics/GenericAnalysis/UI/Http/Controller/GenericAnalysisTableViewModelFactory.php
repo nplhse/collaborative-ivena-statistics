@@ -16,6 +16,7 @@ use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
+use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,7 +37,9 @@ final readonly class GenericAnalysisTableViewModelFactory
         string $presetKey,
         NormalizedAnalysisResult $result,
         string $primaryDimensionKey,
+        ?GenericAnalysisRouteContext $routeContext = null,
     ): GenericAnalysisTableViewModel {
+        $routeContext ??= GenericAnalysisRouteContext::forPreset($presetKey);
         $supportsGrouped = null !== $result->seriesDimensionLabel;
         $requestedLayout = GenericAnalysisTableLayout::fromRequestValue(
             $request->query->getString(GenericAnalysisQueryKeys::LAYOUT),
@@ -79,8 +82,8 @@ final readonly class GenericAnalysisTableViewModelFactory
         return new GenericAnalysisTableViewModel(
             layout: $layout,
             supportsGroupedLayout: $supportsGrouped,
-            stackedLayoutUrl: $this->layoutUrl($request, $presetKey, GenericAnalysisTableLayout::Stacked),
-            groupedLayoutUrl: $this->layoutUrl($request, $presetKey, GenericAnalysisTableLayout::Grouped),
+            stackedLayoutUrl: $this->layoutUrl($request, $routeContext, GenericAnalysisTableLayout::Stacked),
+            groupedLayoutUrl: $this->layoutUrl($request, $routeContext, GenericAnalysisTableLayout::Grouped),
             primaryDimensionLabel: $result->primaryDimensionLabel,
             seriesDimensionLabel: $result->seriesDimensionLabel,
             grandTotal: $result->grandTotal,
@@ -164,16 +167,16 @@ final readonly class GenericAnalysisTableViewModelFactory
 
     private function layoutUrl(
         Request $request,
-        string $presetKey,
+        GenericAnalysisRouteContext $routeContext,
         GenericAnalysisTableLayout $layout,
     ): string {
         return $this->navigationUrlBuilder->build(
             $request,
-            'app_stats_generic_analysis',
-            [
-                'presetKey' => $presetKey,
-                GenericAnalysisQueryKeys::LAYOUT => $layout->value,
-            ],
+            $routeContext->routeName,
+            array_merge(
+                $routeContext->routeParams,
+                [GenericAnalysisQueryKeys::LAYOUT => $layout->value],
+            ),
         );
     }
 

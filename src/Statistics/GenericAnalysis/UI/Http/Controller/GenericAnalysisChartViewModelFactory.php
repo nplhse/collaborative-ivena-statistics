@@ -15,6 +15,7 @@ use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
+use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -36,7 +37,9 @@ final readonly class GenericAnalysisChartViewModelFactory
         string $presetKey,
         AnalysisQuery $query,
         NormalizedAnalysisResult $result,
+        ?GenericAnalysisRouteContext $routeContext = null,
     ): GenericAnalysisChartViewModel {
+        $routeContext ??= GenericAnalysisRouteContext::forPreset($presetKey);
         $recommendation = $this->recommendationService->recommend($query, $result);
 
         $allowedTypes = array_values(array_filter(
@@ -112,7 +115,7 @@ final readonly class GenericAnalysisChartViewModelFactory
             exportPlanned: true,
             showRowLimitControl: $showRowLimitControl,
             activeRowLimit: $rowLimit,
-            rowLimitUrls: $this->rowLimitUrls($request, $presetKey),
+            rowLimitUrls: $this->rowLimitUrls($request, $routeContext),
         );
     }
 
@@ -142,17 +145,20 @@ final readonly class GenericAnalysisChartViewModelFactory
     /**
      * @return array<int|string, string>
      */
-    private function rowLimitUrls(Request $request, string $presetKey): array
+    /**
+     * @return array<int|string, string>
+     */
+    private function rowLimitUrls(Request $request, GenericAnalysisRouteContext $routeContext): array
     {
         $urls = [];
         foreach (GenericAnalysisTableRowLimit::cases() as $limit) {
             $urls[$limit->value] = $this->navigationUrlBuilder->build(
                 $request,
-                'app_stats_generic_analysis',
-                [
-                    'presetKey' => $presetKey,
-                    GenericAnalysisQueryKeys::TOP => $limit->value,
-                ],
+                $routeContext->routeName,
+                array_merge(
+                    $routeContext->routeParams,
+                    [GenericAnalysisQueryKeys::TOP => $limit->value],
+                ),
             );
         }
 

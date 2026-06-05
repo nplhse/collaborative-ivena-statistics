@@ -22,6 +22,7 @@ final readonly class GenericAnalysisPageViewModel
         public array $preservedQueryFields,
         public string $formPrimary,
         public string $formSeries,
+        public string $formVisualMetric,
         public bool $formIncludeNull,
         public ?string $formReferencePreset,
         public bool $isCustom,
@@ -29,6 +30,7 @@ final readonly class GenericAnalysisPageViewModel
         public ?string $resetToPresetUrl,
         public array $availableMetrics = [],
         public array $visualMetricOptions = [],
+        public string $saveTitleDraft = '',
     ) {
     }
 }

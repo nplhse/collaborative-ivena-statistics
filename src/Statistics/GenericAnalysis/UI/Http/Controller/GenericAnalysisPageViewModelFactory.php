@@ -13,6 +13,7 @@ use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
+use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
@@ -56,7 +57,9 @@ final readonly class GenericAnalysisPageViewModelFactory
         ResolvedGenericAnalysisConfig $config,
         StatisticsFilter $filter,
         ?User $user,
+        ?GenericAnalysisRouteContext $routeContext = null,
     ): GenericAnalysisPageViewModel {
+        $routeContext ??= GenericAnalysisRouteContext::forPreset($routePresetKey);
         $presetMenu = [];
         foreach ($this->presetRegistry->selectable() as $preset) {
             $presetMenu[] = [
@@ -81,16 +84,6 @@ final readonly class GenericAnalysisPageViewModelFactory
             $referencePresetTitle = $this->presetRegistry->get($config->referencePresetKey)->title;
         }
 
-        $resetToPresetUrl = null;
-        if ($config->isCustom && null !== $config->referencePresetKey) {
-            $resetToPresetUrl = $this->navigationUrlBuilder->build(
-                $request,
-                self::ROUTE,
-                ['presetKey' => $config->referencePresetKey],
-                GenericAnalysisQueryKeys::REMOVE_CUSTOM,
-            );
-        }
-
         [$dimensionGroups, $showRestrictedDimensionsHint] = $this->buildDimensionGroups(
             $request->getLocale(),
             $filter,
@@ -106,20 +99,46 @@ final readonly class GenericAnalysisPageViewModelFactory
             dimensionGroups: $dimensionGroups,
             showRestrictedDimensionsHint: $showRestrictedDimensionsHint,
             formAction: $this->router->generate(
-                self::ROUTE,
-                ['presetKey' => $config->isCustom ? GenericAnalysisQueryKeys::PRESET_CUSTOM : $routePresetKey],
+                $routeContext->routeName,
+                $routeContext->routeParams,
             ),
             preservedQueryFields: $this->buildPreservedQueryFields($request),
             formPrimary: $config->primaryDimensionKey,
             formSeries: $config->seriesDimensionKey ?? '',
+            formVisualMetric: $config->query->resolvedVisualMetricKey(),
             formIncludeNull: $config->includeNullBuckets,
             formReferencePreset: $config->referencePresetKey ?? ($config->isCustom ? null : $routePresetKey),
             isCustom: $config->isCustom,
             referencePresetTitle: $referencePresetTitle,
-            resetToPresetUrl: $resetToPresetUrl,
+            resetToPresetUrl: $this->buildResetUrl($request, $config, $routeContext),
             availableMetrics: $availableMetrics,
             visualMetricOptions: $this->buildVisualMetricOptions($availableMetrics, $config->query->resolvedVisualMetricKey()),
+            saveTitleDraft: $this->buildSaveTitleDraft(
+                $config->primaryDimensionKey,
+                $config->seriesDimensionKey,
+                $config->query->resolvedVisualMetricKey(),
+            ),
         );
+    }
+
+    public function buildSaveTitleDraft(
+        string $primaryDimensionKey,
+        ?string $seriesDimensionKey,
+        string $visualMetricKey,
+    ): string {
+        $primaryLabel = $this->dimensionRegistry->get($primaryDimensionKey)->label;
+
+        if (null !== $seriesDimensionKey && '' !== $seriesDimensionKey) {
+            return $this->translator->trans('stats.generic_analysis.chart.subtitle_with_series', [
+                'primary' => $primaryLabel,
+                'series' => $this->dimensionRegistry->get($seriesDimensionKey)->label,
+            ]);
+        }
+
+        return $this->translator->trans('stats.analytics_library.save.title_draft', [
+            'metric' => $this->metricRegistry->get($visualMetricKey)->label,
+            'primary' => $primaryLabel,
+        ]);
     }
 
     public function buildPresetRedirectUrl(Request $request, string $presetKey): string
@@ -128,6 +147,41 @@ final readonly class GenericAnalysisPageViewModelFactory
             $request,
             self::ROUTE,
             ['presetKey' => $presetKey],
+            GenericAnalysisQueryKeys::REMOVE_CUSTOM,
+        );
+    }
+
+    private function buildResetUrl(
+        Request $request,
+        ResolvedGenericAnalysisConfig $config,
+        GenericAnalysisRouteContext $routeContext,
+    ): ?string {
+        if (!$config->isCustom) {
+            return $this->navigationUrlBuilder->build(
+                $request,
+                $routeContext->routeName,
+                $routeContext->routeParams,
+                GenericAnalysisQueryKeys::REMOVE_CUSTOM,
+            );
+        }
+
+        if (null === $config->referencePresetKey) {
+            return null;
+        }
+
+        if (GenericAnalysisRouteContext::ANALYTICS_VIEW_ROUTE === $routeContext->routeName) {
+            return $this->navigationUrlBuilder->build(
+                $request,
+                $routeContext->routeName,
+                ['viewKey' => $config->referencePresetKey],
+                GenericAnalysisQueryKeys::REMOVE_CUSTOM,
+            );
+        }
+
+        return $this->navigationUrlBuilder->build(
+            $request,
+            self::ROUTE,
+            ['presetKey' => $config->referencePresetKey],
             GenericAnalysisQueryKeys::REMOVE_CUSTOM,
         );
     }
