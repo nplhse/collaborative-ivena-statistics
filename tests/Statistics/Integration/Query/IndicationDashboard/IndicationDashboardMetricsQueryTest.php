@@ -118,4 +118,17 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
         );
         self::assertSame((string) AllocationStatsDayTimeBucketProjectionCode::Night->value, (string) $nightBucket);
     }
+
+    public function testReturnsEmptyRowForEmptyHospitalScope(): void
+    {
+        self::bootKernel();
+
+        $query = self::getContainer()->get(IndicationDashboardMetricsQuery::class);
+        $row = $query->fetch(1, null, null, new StatisticsScopeCriteria([]));
+
+        self::assertSame(0, $row->totalIndication);
+        self::assertSame(0, $row->totalBaseline);
+        self::assertNull($row->medianAgeIndication);
+        self::assertNull($row->medianAgeBaseline);
+    }
 }
