@@ -13,19 +13,19 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item {{ route == 'app_stats_analysis' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_stats_analysis') }}">
+                    <li class="nav-item {{ route starts with 'app_stats_analytics' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_analytics_library') }}">
                             <span class="nav-link-title">
                                 <twig:ux:icon name="tabler:chart-histogram" style="height: 1.2em;" />
                                 {{ 'link.stats.analysis'|trans }}
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item {{ route == 'app_stats_generic_analysis' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_stats_generic_analysis', {presetKey: 'allocations_by_month'}) }}">
+                    <li class="nav-item {{ route == 'app_stats_pivot_tables' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_pivot_tables') }}">
                             <span class="nav-link-title">
-                                <twig:ux:icon name="tabler:chart-dots-3" style="height: 1.2em;" />
-                                {{ 'link.stats.analysis_explorer'|trans }}
+                                <twig:ux:icon name="tabler:table" style="height: 1.2em;" />
+                                {{ 'link.stats.pivot_tables'|trans }}
                             </span>
                         </a>
                     </li>

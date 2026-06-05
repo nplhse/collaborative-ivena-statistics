@@ -59,7 +59,7 @@ final readonly class AnalysisPivotChoicesFactory
         foreach (AllocationPivotDimension::cases() as $axis) {
             $rows[] = [
                 'labelKey' => 'stats.analysis.pivot.axis.rows.'.$axis->value,
-                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
+                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_pivot_tables', [
                     StatisticsQueryKeys::ANALYSIS => 'allocation_pivot',
                     StatisticsQueryKeys::ROWS => $axis->value,
                     StatisticsQueryKeys::VIEW => 'table',
@@ -68,7 +68,7 @@ final readonly class AnalysisPivotChoicesFactory
             ];
             $cols[] = [
                 'labelKey' => 'stats.analysis.pivot.axis.rows.'.$axis->value,
-                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
+                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_pivot_tables', [
                     StatisticsQueryKeys::ANALYSIS => 'allocation_pivot',
                     StatisticsQueryKeys::COLS => $axis->value,
                     StatisticsQueryKeys::VIEW => 'table',
@@ -80,7 +80,7 @@ final readonly class AnalysisPivotChoicesFactory
         foreach (AllocationPivotMeasure::cases() as $measure) {
             $measures[] = [
                 'labelKey' => 'stats.analysis.allocation_pivot.measure.'.$measure->value,
-                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
+                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_pivot_tables', [
                     StatisticsQueryKeys::ANALYSIS => 'allocation_pivot',
                     StatisticsQueryKeys::MEASURE => $measure->value,
                     StatisticsQueryKeys::VIEW => 'table',
@@ -114,7 +114,7 @@ final readonly class AnalysisPivotChoicesFactory
         foreach (HospitalPivotDimension::cases() as $axis) {
             $rows[] = [
                 'labelKey' => 'stats.analysis.hospital_pivot.axis.'.$axis->value,
-                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
+                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_pivot_tables', [
                     StatisticsQueryKeys::ANALYSIS => 'hospital_pivot',
                     StatisticsQueryKeys::ROWS => $axis->value,
                     StatisticsQueryKeys::VIEW => 'table',
@@ -123,7 +123,7 @@ final readonly class AnalysisPivotChoicesFactory
             ];
             $cols[] = [
                 'labelKey' => 'stats.analysis.hospital_pivot.axis.'.$axis->value,
-                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
+                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_pivot_tables', [
                     StatisticsQueryKeys::ANALYSIS => 'hospital_pivot',
                     StatisticsQueryKeys::COLS => $axis->value,
                     StatisticsQueryKeys::VIEW => 'table',
@@ -135,7 +135,7 @@ final readonly class AnalysisPivotChoicesFactory
         foreach (HospitalPivotMeasure::cases() as $measure) {
             $measures[] = [
                 'labelKey' => 'stats.analysis.hospital_pivot.measure.'.$measure->value,
-                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_analysis', [
+                'url' => $this->statisticsNavigationUrlBuilder->build($request, 'app_stats_pivot_tables', [
                     StatisticsQueryKeys::ANALYSIS => 'hospital_pivot',
                     StatisticsQueryKeys::MEASURE => $measure->value,
                     StatisticsQueryKeys::VIEW => 'table',

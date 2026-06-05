@@ -152,10 +152,6 @@ final readonly class GenericAnalysisChartRecommendationService
         bool $manyBuckets,
         array $warnings,
     ): GenericAnalysisChartRecommendation {
-        if ('pie' === $primary->recommendedChartType) {
-            $warnings[] = $this->translator->trans('stats.generic_analysis.chart.warning.pie_deferred');
-        }
-
         if (AnalysisDimensionType::Temporal === $primary->type) {
             $allowed = [GenericAnalysisChartType::Bar, GenericAnalysisChartType::Line, GenericAnalysisChartType::Table];
             if ($manyBuckets) {

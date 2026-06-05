@@ -73,6 +73,20 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
         );
     }
 
+    public function testSaveTitleDraftWithoutSeriesUsesMetricAndPrimary(): void
+    {
+        $draft = $this->factory->buildSaveTitleDraft('month', null, 'count');
+
+        $this->assertSame('stats.analytics_library.save.title_draft', $draft);
+    }
+
+    public function testSaveTitleDraftWithSeriesUsesPrimaryAndSeries(): void
+    {
+        $draft = $this->factory->buildSaveTitleDraft('hospital', 'month', 'count');
+
+        $this->assertSame('stats.generic_analysis.chart.subtitle_with_series', $draft);
+    }
+
     public function testPresetMenuUrlRemovesCustomQueryKeys(): void
     {
         $request = Request::create(

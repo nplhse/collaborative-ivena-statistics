@@ -75,7 +75,7 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
 
         if ('table' === $view) {
             if ($this->usesPlainCountColumnsTable($dimension)) {
-                $plainTablePayload = $this->buildPlainMultiSegmentTablePayload($series, $dimension, $monthTotalsByKey);
+                $plainTablePayload = $this->buildPlainMultiSegmentTablePayload($series, $monthTotalsByKey);
 
                 return new StatisticWidget(
                     StatisticWidgetType::Table,
@@ -94,8 +94,8 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
             }
 
             return StatisticsAnalysisDimension::Total === $dimension
-                ? $this->buildTotalTableWidget($series, $n, $summaryStats, $dimension)
-                : $this->buildSegmentedTableWidget($series, $n, $summaryStats, $dimension);
+                ? $this->buildTotalTableWidget($series, $n, $summaryStats)
+                : $this->buildSegmentedTableWidget($series, $n, $summaryStats);
         }
 
         if ($this->usesPlainCountColumnsTable($dimension)) {
@@ -325,7 +325,6 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
      */
     private function buildPlainMultiSegmentTablePayload(
         AllocationsOverTimeSeries $series,
-        StatisticsAnalysisDimension $dimensionForDrilldown,
         array $monthTotalsByKey,
     ): array {
         $n = \count($series->monthKeys);
@@ -341,7 +340,7 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
             $headerTranslationKeys[] = $segment->labelTranslationKey;
         }
 
-        $monthRowTargets = $this->monthRowTargetsForDimension($series, $dimensionForDrilldown);
+        $monthRowTargets = $this->monthRowTargetsForDimension($series);
 
         $rows = [];
         for ($i = 0; $i < $n; ++$i) {
@@ -389,7 +388,6 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
      */
     private function monthRowTargetsForDimension(
         AllocationsOverTimeSeries $series,
-        StatisticsAnalysisDimension $dimension,
     ): array {
         /** @var list<StatisticWidgetNavigationTarget|null> $targets */
         $targets = [];
@@ -402,14 +400,12 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
 
             $targets[] = new StatisticWidgetNavigationTarget(
                 '',
-                'app_stats_analysis',
+                'app_stats_analytics_view',
                 [
-                    'analysis' => $this->key(),
+                    'viewKey' => $this->key(),
                     'period' => StatisticsFilterPeriod::Month->value,
                     'year' => (int) $matches[1],
                     'month' => (int) $matches[2],
-                    'view' => 'table',
-                    'dimension' => $dimension->value,
                 ],
                 ['report', 'limit', 'chart'],
             );
@@ -425,7 +421,6 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         AllocationsOverTimeSeries $series,
         int $n,
         array $summaryStats,
-        StatisticsAnalysisDimension $dimension,
     ): StatisticWidget {
         $counts = $series->segments[0]->values;
 
@@ -435,7 +430,7 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         }
 
         $rows = [];
-        $monthRowTargets = $this->monthRowTargetsForDimension($series, $dimension);
+        $monthRowTargets = $this->monthRowTargetsForDimension($series);
 
         for ($i = 0; $i < $n; ++$i) {
             $c = $counts[$i];
@@ -477,7 +472,6 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         AllocationsOverTimeSeries $series,
         int $n,
         array $summaryStats,
-        StatisticsAnalysisDimension $dimension,
     ): StatisticWidget {
         /** @var list<string> $headerTranslationKeys */
         $headerTranslationKeys = ['stats.analysis.table.month'];
@@ -486,7 +480,7 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         }
 
         $rows = [];
-        $monthRowTargets = $this->monthRowTargetsForDimension($series, $dimension);
+        $monthRowTargets = $this->monthRowTargetsForDimension($series);
 
         for ($i = 0; $i < $n; ++$i) {
             $row = [$series->labels[$i]];

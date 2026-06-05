@@ -14,7 +14,7 @@
     <div class="container-xl">
         <twig:Breadcrumbs :items="[
             { label: 'link.statistics', path: path('app_stats_dashboard') },
-            { label: 'link.stats.analysis' }
+            { label: statsBreadcrumbLabelKey|default('link.stats.analysis')|trans }
         ]" />
 
         <div class="page-header d-print-none">

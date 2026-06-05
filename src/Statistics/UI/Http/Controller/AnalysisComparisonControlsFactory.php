@@ -51,7 +51,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $this->translator->trans('stats.filter.scope.public'),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     ['comparison_scope' => StatisticsFilterScope::Public->value],
                     self::COMPARISON_SCOPE_REMOVE,
                 ),
@@ -78,7 +78,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $row['name'],
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     ['comparison_scope' => $stateKey],
                     self::COMPARISON_SCOPE_REMOVE,
                 ),
@@ -106,7 +106,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $row['name'],
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     ['comparison_scope' => $dispatchKey],
                     self::COMPARISON_SCOPE_REMOVE,
                 ),
@@ -126,7 +126,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $this->hospitalCohortLabelResolver->label($cohortKey, $request->getLocale()),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     ['comparison_scope' => $scopeKey],
                     ['comparison_state', StatisticsQueryKeys::COMPARISON_DISPATCH_AREA],
                 ),
@@ -179,7 +179,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $this->translator->trans('stats.filter.period.all'),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     ['comparison_period' => StatisticsFilterPeriod::All->value],
                     ['comparison_year', 'comparison_month'],
                 ),
@@ -189,7 +189,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $this->translator->trans('stats.filter.period.all_time'),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     ['comparison_period' => StatisticsFilterPeriod::AllTime->value],
                     ['comparison_year', 'comparison_month'],
                 ),
@@ -199,7 +199,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $this->translator->trans('stats.filter.period.year').' '.$defaultYear,
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     [
                         'comparison_period' => StatisticsFilterPeriod::Year->value,
                         'comparison_year' => $defaultYear,
@@ -212,7 +212,7 @@ final readonly class AnalysisComparisonControlsFactory
                 'label' => $this->translator->trans('stats.filter.period.month').' '.sprintf('%04d-%02d', $defaultYear, $defaultMonth),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_analysis',
+                    'app_stats_pivot_tables',
                     [
                         'comparison_period' => StatisticsFilterPeriod::Month->value,
                         'comparison_year' => $defaultYear,
