@@ -24,6 +24,8 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardMetricsQuery;
 use App\User\Domain\Factory\UserFactory;
@@ -117,6 +119,54 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
             ['id' => $targetIndication->getId()],
         );
         self::assertSame((string) AllocationStatsDayTimeBucketProjectionCode::Night->value, (string) $nightBucket);
+    }
+
+    public function testFiltersByLocationAndTierScope(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'indication-metrics-scope-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'IndicationMetricsScopeState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationMetricsScopeDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'IndicationMetricsScopeHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'IndicationMetricsScopeSpec']);
+        DepartmentFactory::createOne(['name' => 'IndicationMetricsScopeDept']);
+        AssignmentFactory::createOne(['name' => 'IndicationMetricsScopeAssign']);
+        IndicationRawFactory::createOne(['name' => 'IndicationMetricsScopeRaw', 'code' => 912_352]);
+
+        $targetIndication = IndicationNormalizedFactory::createOne(['name' => 'Scope Target']);
+
+        $import = ImportFactory::createOne(['name' => 'IndicationMetricsScopeImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $targetIndication,
+            'createdAt' => new \DateTimeImmutable('2026-03-01 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-03-01 10:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $scope = new StatisticsScopeCriteria(
+            null,
+            [AllocationStatsHospitalLocationProjectionCode::Urban->value],
+            [AllocationStatsHospitalTierProjectionCode::Full->value],
+        );
+
+        $row = self::getContainer()->get(IndicationDashboardMetricsQuery::class)
+            ->fetch($targetIndication->getId(), null, null, $scope);
+
+        self::assertSame(1, $row->totalIndication);
     }
 
     public function testReturnsEmptyRowForEmptyHospitalScope(): void
