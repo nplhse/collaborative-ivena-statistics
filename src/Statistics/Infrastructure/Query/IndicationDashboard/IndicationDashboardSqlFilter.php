@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query\IndicationDashboard;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use Doctrine\DBAL\ArrayParameterType;
 
 /**
  * Builds SQL WHERE fragments for indication dashboard reads on allocation_stats_projection.
@@ -12,7 +13,7 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 final class IndicationDashboardSqlFilter
 {
     /**
-     * @return array{0: string, 1: array<string, mixed>}
+     * @return array{0: string, 1: array<string, mixed>, 2: array<string, ArrayParameterType>}
      */
     public static function buildScopePeriodWhere(
         ?\DateTimeImmutable $from,
@@ -23,6 +24,8 @@ final class IndicationDashboardSqlFilter
         $prefix = '' === $tableAlias ? '' : $tableAlias.'.';
         $conditions = ['1 = 1'];
         $params = [];
+        /** @var array<string, ArrayParameterType> $types */
+        $types = [];
 
         if ($from instanceof \DateTimeImmutable) {
             $conditions[] = sprintf('%screated_at >= :from', $prefix);
@@ -36,17 +39,29 @@ final class IndicationDashboardSqlFilter
 
         if (\is_array($scope->hospitalIds)) {
             $ids = array_map(static fn (int $id): int => $id, $scope->hospitalIds);
-            $conditions[] = [] === $ids ? '1 = 0' : sprintf('%shospital_id IN (%s)', $prefix, implode(',', $ids));
+            if ([] === $ids) {
+                $conditions[] = '1 = 0';
+            } else {
+                $conditions[] = sprintf('%shospital_id IN (:hospital_ids)', $prefix);
+                $params['hospital_ids'] = $ids;
+                $types['hospital_ids'] = ArrayParameterType::INTEGER;
+            }
         }
 
         if (null !== $scope->locationCodes) {
-            $conditions[] = sprintf('%shospital_location_code IN (%s)', $prefix, implode(',', array_map(intval(...), $scope->locationCodes)));
+            $locationCodes = array_map(intval(...), $scope->locationCodes);
+            $conditions[] = sprintf('%shospital_location_code IN (:location_codes)', $prefix);
+            $params['location_codes'] = $locationCodes;
+            $types['location_codes'] = ArrayParameterType::INTEGER;
         }
 
         if (null !== $scope->tierCodes) {
-            $conditions[] = sprintf('%shospital_tier_code IN (%s)', $prefix, implode(',', array_map(intval(...), $scope->tierCodes)));
+            $tierCodes = array_map(intval(...), $scope->tierCodes);
+            $conditions[] = sprintf('%shospital_tier_code IN (:tier_codes)', $prefix);
+            $params['tier_codes'] = $tierCodes;
+            $types['tier_codes'] = ArrayParameterType::INTEGER;
         }
 
-        return [implode(' AND ', $conditions), $params];
+        return [implode(' AND ', $conditions), $params, $types];
     }
 }
