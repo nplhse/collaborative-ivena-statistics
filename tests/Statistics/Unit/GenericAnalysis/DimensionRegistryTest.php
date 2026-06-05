@@ -52,6 +52,17 @@ final class DimensionRegistryTest extends TestCase
         self::assertSame(HospitalCohortKey::all()[0]->value(), $cohort->fixedBuckets[0]);
     }
 
+    public function testResolvesSpecialityAndOccasionDimensions(): void
+    {
+        $speciality = $this->registry->get('speciality');
+        $occasion = $this->registry->get('occasion');
+
+        self::assertSame('speciality_id', $speciality->column);
+        self::assertSame(AnalysisDimensionType::Categorical, $speciality->type);
+        self::assertSame('occasion_id', $occasion->column);
+        self::assertSame(AnalysisDimensionType::Categorical, $occasion->type);
+    }
+
     public function testUnknownDimensionThrows(): void
     {
         $this->expectException(UnknownAnalysisDimensionException::class);

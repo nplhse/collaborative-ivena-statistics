@@ -2783,6 +2783,78 @@
         <source>stats.reports.table.share</source>
         <target>Share</target>
       </trans-unit>
+      <trans-unit id="statsRpTbDp" resname="stats.reports.table.department">
+        <source>stats.reports.table.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbAs" resname="stats.reports.table.assignment">
+        <source>stats.reports.table.assignment</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbIf" resname="stats.reports.table.infection">
+        <source>stats.reports.table.infection</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbSd" resname="stats.reports.table.secondary_diagnosis">
+        <source>stats.reports.table.secondary_diagnosis</source>
+        <target>Secondary diagnosis</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbSp" resname="stats.reports.table.speciality">
+        <source>stats.reports.table.speciality</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbOc" resname="stats.reports.table.occasion">
+        <source>stats.reports.table.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="statsRpDpLb" resname="stats.reports.top_departments.label">
+        <source>stats.reports.top_departments.label</source>
+        <target>Top departments</target>
+      </trans-unit>
+      <trans-unit id="statsRpDpDs" resname="stats.reports.top_departments.description">
+        <source>stats.reports.top_departments.description</source>
+        <target>Most frequent departments in the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsRpAtLb" resname="stats.reports.top_assignments.label">
+        <source>stats.reports.top_assignments.label</source>
+        <target>Top assignment types</target>
+      </trans-unit>
+      <trans-unit id="statsRpAtDs" resname="stats.reports.top_assignments.description">
+        <source>stats.reports.top_assignments.description</source>
+        <target>Most frequent assignment types in the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsRpInLb" resname="stats.reports.top_infections.label">
+        <source>stats.reports.top_infections.label</source>
+        <target>Top infections</target>
+      </trans-unit>
+      <trans-unit id="statsRpInDs" resname="stats.reports.top_infections.description">
+        <source>stats.reports.top_infections.description</source>
+        <target>Most frequent infection labels in the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsRpSdLb" resname="stats.reports.top_secondary_diagnoses.label">
+        <source>stats.reports.top_secondary_diagnoses.label</source>
+        <target>Top secondary diagnoses</target>
+      </trans-unit>
+      <trans-unit id="statsRpSdDs" resname="stats.reports.top_secondary_diagnoses.description">
+        <source>stats.reports.top_secondary_diagnoses.description</source>
+        <target>Most frequent secondary diagnosis labels in the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsRpSlLb" resname="stats.reports.top_specialities.label">
+        <source>stats.reports.top_specialities.label</source>
+        <target>Top specialities</target>
+      </trans-unit>
+      <trans-unit id="statsRpSlDs" resname="stats.reports.top_specialities.description">
+        <source>stats.reports.top_specialities.description</source>
+        <target>Most frequent specialities in the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsRpOcLb" resname="stats.reports.top_occasions.label">
+        <source>stats.reports.top_occasions.label</source>
+        <target>Top occasions</target>
+      </trans-unit>
+      <trans-unit id="statsRpOcDs" resname="stats.reports.top_occasions.description">
+        <source>stats.reports.top_occasions.description</source>
+        <target>Most frequent occasions in the selected scope and period.</target>
+      </trans-unit>
       <trans-unit id="statsNavKpi" resname="stats.nav.overview_kpi_to_analysis">
         <source>stats.nav.overview_kpi_to_analysis</source>
         <target>Open allocations over time</target>

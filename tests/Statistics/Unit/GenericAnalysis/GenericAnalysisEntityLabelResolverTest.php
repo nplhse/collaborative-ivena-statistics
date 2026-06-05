@@ -6,6 +6,8 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisEntityLabelResolver;
 use App\User\Domain\Factory\UserFactory;
@@ -32,6 +34,8 @@ final class GenericAnalysisEntityLabelResolverTest extends KernelTestCase
     {
         self::assertTrue($this->resolver->supports('hospital'));
         self::assertTrue($this->resolver->supports('state'));
+        self::assertTrue($this->resolver->supports('speciality'));
+        self::assertTrue($this->resolver->supports('occasion'));
         self::assertFalse($this->resolver->supports('month'));
     }
 
@@ -70,5 +74,25 @@ final class GenericAnalysisEntityLabelResolverTest extends KernelTestCase
     public function testResolveUnknownIdIsOmitted(): void
     {
         self::assertSame([], $this->resolver->resolve('hospital', [9_999_999]));
+    }
+
+    public function testResolveSpecialityReturnsNames(): void
+    {
+        $speciality = SpecialityFactory::createOne(['name' => 'Resolver Speciality']);
+
+        self::assertSame(
+            [(int) $speciality->getId() => 'Resolver Speciality'],
+            $this->resolver->resolve('speciality', [(int) $speciality->getId()]),
+        );
+    }
+
+    public function testResolveOccasionReturnsNames(): void
+    {
+        $occasion = OccasionFactory::createOne(['name' => 'Resolver Occasion']);
+
+        self::assertSame(
+            [(int) $occasion->getId() => 'Resolver Occasion'],
+            $this->resolver->resolve('occasion', [(int) $occasion->getId()]),
+        );
     }
 }

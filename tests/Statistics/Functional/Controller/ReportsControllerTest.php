@@ -84,6 +84,101 @@ class ReportsControllerTest extends WebTestCase
         }
     }
 
+    public function testTopDepartmentsReportIsDisplayedWithTable(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-report-dept-test']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        $department = DepartmentFactory::createOne(['name' => 'Seeded Report Department']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        InfectionFactory::createOne(['name' => 'Test Infection']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Seeded Report Diagnosis Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Seeded Report Diagnosis']);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'department' => $department,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+        ]);
+        $this->rebuildProjection([(int) $import->getId()]);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/reports?scope=public&period=all&report=top_departments',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-reports-widget"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Department');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Seeded Report Department');
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('newTopReportCases')]
+    public function testAllNewTopReportsAreRenderedWithExpectedColumnAndValue(
+        string $reportKey,
+        string $expectedColumnLabel,
+        string $expectedValue,
+    ): void {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-report-all-new-test']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        $speciality = SpecialityFactory::createOne(['name' => 'Seeded Report Speciality']);
+        $department = DepartmentFactory::createOne(['name' => 'Seeded Report Department']);
+        $assignment = AssignmentFactory::createOne(['name' => 'Seeded Report Assignment']);
+        $occasion = OccasionFactory::createOne(['name' => 'Seeded Report Occasion']);
+        $infection = InfectionFactory::createOne(['name' => 'Seeded Report Infection']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Seeded Report Diagnosis Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Seeded Report Diagnosis']);
+        $secondaryNormalized = IndicationNormalizedFactory::createOne(['name' => 'Seeded Report Secondary Diagnosis']);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'speciality' => $speciality,
+            'department' => $department,
+            'assignment' => $assignment,
+            'occasion' => $occasion,
+            'infection' => $infection,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+            'secondaryIndicationNormalized' => $secondaryNormalized,
+        ]);
+        $this->rebuildProjection([(int) $import->getId()]);
+
+        $client->request(
+            Request::METHOD_GET,
+            sprintf('/statistics/reports?scope=public&period=all&report=%s', $reportKey),
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-reports-widget"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', $expectedColumnLabel);
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', $expectedValue);
+    }
+
+    /**
+     * @return iterable<string, array{0:string,1:string,2:string}>
+     */
+    public static function newTopReportCases(): iterable
+    {
+        yield 'top_departments' => ['top_departments', 'Department', 'Seeded Report Department'];
+        yield 'top_assignments' => ['top_assignments', 'Assignment type', 'Seeded Report Assignment'];
+        yield 'top_infections' => ['top_infections', 'Infection', 'Seeded Report Infection'];
+        yield 'top_secondary_diagnoses' => ['top_secondary_diagnoses', 'Secondary diagnosis', 'Seeded Report Secondary Diagnosis'];
+        yield 'top_specialities' => ['top_specialities', 'Speciality', 'Seeded Report Speciality'];
+        yield 'top_occasions' => ['top_occasions', 'Occasion', 'Seeded Report Occasion'];
+    }
+
     public function testLimitParameterTenIsAccepted(): void
     {
         $client = $this->createClientAsRoleUser();
