@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\IndicationDashboard;
 
+use App\Statistics\Application\IndicationDashboard\DTO\IndicationInsight;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationInsightSeverity;
 use App\Statistics\Application\IndicationDashboard\IndicationInsightEngine;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow;
@@ -50,7 +51,7 @@ final class IndicationInsightEngineTest extends TestCase
             nightDaytimeBaseline: 80,
         );
 
-        $ids = array_map(static fn ($i) => $i->id, $this->engine->build($metrics));
+        $ids = array_map(static fn (IndicationInsight $i): string => $i->id, $this->engine->build($metrics));
         self::assertContains('night_daytime', $ids);
     }
 
