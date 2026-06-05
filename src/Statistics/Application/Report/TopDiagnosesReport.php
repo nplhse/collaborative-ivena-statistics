@@ -52,6 +52,7 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
         $data = $this->topDiagnosesQuery->fetch($context, $limit);
         $total = $data['totalAllocations'];
         $rows = [];
+        $diagnosisRowTargets = [];
         $rank = 1;
 
         foreach ($data['rows'] as $row) {
@@ -63,6 +64,14 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
                 (string) $count,
                 sprintf('%.1f%%', $pct),
             ];
+            $diagnosisRowTargets[] = isset($row['indicationId'])
+                ? new StatisticWidgetNavigationTarget(
+                    'stats.reports.nav.indication_profile',
+                    'app_stats_indication_dashboard',
+                    ['indicationId' => $row['indicationId']],
+                    ['report', 'limit', 'view', 'chart'],
+                )
+                : null;
             ++$rank;
         }
 
@@ -74,7 +83,10 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
                 'stats.reports.table.share',
             ],
             $rows,
-            ['numericColumnStartIndex' => 3],
+            [
+                'numericColumnStartIndex' => 3,
+                'diagnosisRowTargets' => $diagnosisRowTargets,
+            ],
         );
 
         return new StatisticWidget(

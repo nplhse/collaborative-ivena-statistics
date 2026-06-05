@@ -19,23 +19,31 @@ final readonly class ProjectionDiagnosisQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return list<array{label:string,count:int}>
+     * @return list<array{label:string,count:int,indicationId:?int}>
      */
     public function fetchTopDiagnosisAggregates(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
     {
         $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds)
             ->leftJoin(\App\Allocation\Domain\Entity\IndicationNormalized::class, 'inorm', 'WITH', 'inorm.id = p.indicationNormalizedId')
-            ->select('COALESCE(inorm.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
+            ->select('inorm.id AS indicationId', 'COALESCE(inorm.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
-            ->groupBy('label')
+            ->groupBy('indicationId', 'label')
             ->orderBy('cnt', 'DESC')
             ->setMaxResults($limit);
 
-        /** @var list<array{label:string,cnt:numeric-string|int}> $rows */
+        /** @var list<array{indicationId:int|string|null,label:string,cnt:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();
 
         return array_map(
-            static fn (array $row): array => ['label' => $row['label'], 'count' => (int) $row['cnt']],
+            static function (array $row): array {
+                $indicationId = $row['indicationId'] ?? null;
+
+                return [
+                    'label' => $row['label'],
+                    'count' => (int) $row['cnt'],
+                    'indicationId' => null !== $indicationId && '' !== $indicationId ? (int) $indicationId : null,
+                ];
+            },
             $rows,
         );
     }
