@@ -1269,6 +1269,274 @@
         <source>link.stats.analysis_explorer</source>
         <target>Analysis Explorer</target>
       </trans-unit>
+      <trans-unit id="statsLnkAl01" resname="link.stats.analytics_library">
+        <source>link.stats.analytics_library</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsLnkPt01" resname="link.stats.pivot_tables">
+        <source>link.stats.pivot_tables</source>
+        <target>Pivot Tables</target>
+      </trans-unit>
+      <trans-unit id="statsPtSel01" resname="stats.pivot_tables.select_label">
+        <source>stats.pivot_tables.select_label</source>
+        <target>Pivot table</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib01" resname="stats.analytics_library.title">
+        <source>stats.analytics_library.title</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib02" resname="stats.analytics_library.pretitle">
+        <source>stats.analytics_library.pretitle</source>
+        <target>Statistics</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib03" resname="stats.analytics_library.search_placeholder">
+        <source>stats.analytics_library.search_placeholder</source>
+        <target>Search analyses by title, description, or tag…</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib04" resname="stats.analytics_library.search">
+        <source>stats.analytics_library.search</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib05" resname="stats.analytics_library.tab.recommended">
+        <source>stats.analytics_library.tab.recommended</source>
+        <target>Recommended</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib06" resname="stats.analytics_library.tab.favorites">
+        <source>stats.analytics_library.tab.favorites</source>
+        <target>Favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib07" resname="stats.analytics_library.tab.recent">
+        <source>stats.analytics_library.tab.recent</source>
+        <target>Recent</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib08" resname="stats.analytics_library.tab.categories">
+        <source>stats.analytics_library.tab.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib09" resname="stats.analytics_library.open">
+        <source>stats.analytics_library.open</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib10" resname="stats.analytics_library.favorite">
+        <source>stats.analytics_library.favorite</source>
+        <target>Favorite</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib11" resname="stats.analytics_library.card.chart">
+        <source>stats.analytics_library.card.chart</source>
+        <target>Chart</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib12" resname="stats.analytics_library.card.metrics">
+        <source>stats.analytics_library.card.metrics</source>
+        <target>Metrics</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib13" resname="stats.analytics_library.empty_title">
+        <source>stats.analytics_library.empty_title</source>
+        <target>No analyses found</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib14" resname="stats.analytics_library.empty_subtitle">
+        <source>stats.analytics_library.empty_subtitle</source>
+        <target>Try a different search term or category.</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib15" resname="stats.analytics_library.advanced_section">
+        <source>stats.analytics_library.advanced_section</source>
+        <target>Advanced</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib16" resname="stats.analytics_library.builder_entry_title">
+        <source>stats.analytics_library.builder_entry_title</source>
+        <target>Build your own analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib17" resname="stats.analytics_library.builder_entry_description">
+        <source>stats.analytics_library.builder_entry_description</source>
+        <target>Configure dimensions and metrics in one form, then run a custom analysis.</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib18" resname="stats.analytics_library.builder_entry_action">
+        <source>stats.analytics_library.builder_entry_action</source>
+        <target>Start builder</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib18a" resname="stats.analytics_library.builder_short">
+        <source>stats.analytics_library.builder_short</source>
+        <target>Builder</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib19" resname="stats.analytics_library.view_pretitle">
+        <source>stats.analytics_library.view_pretitle</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib20" resname="stats.analytics_library.customize">
+        <source>stats.analytics_library.customize</source>
+        <target>Customize</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib20a" resname="stats.analytics_library.view_actions">
+        <source>stats.analytics_library.view_actions</source>
+        <target>Analysis actions</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib20b" resname="stats.analytics_library.edit">
+        <source>stats.analytics_library.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib21" resname="stats.analytics_library.customize_title">
+        <source>stats.analytics_library.customize_title</source>
+        <target>Customize analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib22" resname="stats.analytics_library.apply">
+        <source>stats.analytics_library.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib23" resname="stats.analytics_library.reset">
+        <source>stats.analytics_library.reset</source>
+        <target>Reset to original</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib24" resname="stats.analytics_library.save_as_title">
+        <source>stats.analytics_library.save_as_title</source>
+        <target>Save as your analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib25a" resname="stats.analytics_library.save.title_draft">
+        <source>stats.analytics_library.save.title_draft</source>
+        <target>{metric} by {primary}</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib25" resname="stats.analytics_library.save.title_label">
+        <source>stats.analytics_library.save.title_label</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib26" resname="stats.analytics_library.save.description_label">
+        <source>stats.analytics_library.save.description_label</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib27" resname="stats.analytics_library.save.submit">
+        <source>stats.analytics_library.save.submit</source>
+        <target>Save analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib28" resname="stats.analytics_library.login_required_save">
+        <source>stats.analytics_library.login_required_save</source>
+        <target>Sign in to save your own analysis views.</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib29" resname="stats.analytics_library.export_title">
+        <source>stats.analytics_library.export_title</source>
+        <target>Export</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib30" resname="stats.analytics_library.export_coming_soon">
+        <source>stats.analytics_library.export_coming_soon</source>
+        <target>Coming soon</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib31" resname="stats.analytics_library.category.all">
+        <source>stats.analytics_library.category.all</source>
+        <target>All categories</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib32" resname="stats.analytics_library.category.time_and_trends">
+        <source>stats.analytics_library.category.time_and_trends</source>
+        <target>Time &amp; Trends</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib33" resname="stats.analytics_library.category.patients">
+        <source>stats.analytics_library.category.patients</source>
+        <target>Patients</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib34" resname="stats.analytics_library.category.clinical">
+        <source>stats.analytics_library.category.clinical</source>
+        <target>Clinical</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib35" resname="stats.analytics_library.category.operations">
+        <source>stats.analytics_library.category.operations</source>
+        <target>Operations</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib36" resname="stats.analytics_library.category.hospitals">
+        <source>stats.analytics_library.category.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib37" resname="stats.analytics_library.category.benchmarking">
+        <source>stats.analytics_library.category.benchmarking</source>
+        <target>Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib38" resname="stats.analytics_library.recent.last_used">
+        <source>stats.analytics_library.recent.last_used</source>
+        <target>Last used</target>
+      </trans-unit>
+      <trans-unit id="statsAlLib39" resname="stats.analytics_library.recent.most_frequent">
+        <source>stats.analytics_library.recent.most_frequent</source>
+        <target>Most frequently used</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld01" resname="stats.analytics_builder.title">
+        <source>stats.analytics_builder.title</source>
+        <target>Analysis builder</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02" resname="stats.analytics_builder.pretitle">
+        <source>stats.analytics_builder.pretitle</source>
+        <target>Advanced</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02a" resname="stats.analytics_builder.page_description">
+        <source>stats.analytics_builder.page_description</source>
+        <target>Configure dimensions, metrics, and chart display in one place, then open the analysis.</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02b" resname="stats.analytics_builder.form_title">
+        <source>stats.analytics_builder.form_title</source>
+        <target>Analysis configuration</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02c" resname="stats.analytics_builder.description">
+        <source>stats.analytics_builder.description</source>
+        <target>Same controls as the analysis explorer, grouped for a custom run from the library.</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02d" resname="stats.analytics_builder.section.dimensions">
+        <source>stats.analytics_builder.section.dimensions</source>
+        <target>Dimensions</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02d2" resname="stats.analytics_builder.section.dimensions_hint">
+        <source>stats.analytics_builder.section.dimensions_hint</source>
+        <target>Choose the main grouping for rows and buckets, and optionally add a series dimension to split the chart.</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02e" resname="stats.analytics_builder.section.metrics">
+        <source>stats.analytics_builder.section.metrics</source>
+        <target>Metrics</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02e2" resname="stats.analytics_builder.section.metrics_hint">
+        <source>stats.analytics_builder.section.metrics_hint</source>
+        <target>Select values for the table. Count is always included. Some metrics require a series dimension.</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02f" resname="stats.analytics_builder.section.chart_metric">
+        <source>stats.analytics_builder.section.chart_metric</source>
+        <target>Chart metric</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld02f2" resname="stats.analytics_builder.section.chart_metric_hint">
+        <source>stats.analytics_builder.section.chart_metric_hint</source>
+        <target>Which metric drives the chart bars or lines. Other selected metrics appear in the table.</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld03" resname="stats.analytics_builder.next">
+        <source>stats.analytics_builder.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld04" resname="stats.analytics_builder.launch">
+        <source>stats.analytics_builder.launch</source>
+        <target>Run analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld05" resname="stats.analytics_builder.back_to_library">
+        <source>stats.analytics_builder.back_to_library</source>
+        <target>Back to analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld06" resname="stats.analytics_builder.review_hint">
+        <source>stats.analytics_builder.review_hint</source>
+        <target>Review your choices and open the analysis with the selected configuration.</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld07" resname="stats.analytics_builder.step.goal">
+        <source>stats.analytics_builder.step.goal</source>
+        <target>What do you want to analyze?</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld08" resname="stats.analytics_builder.step.primary">
+        <source>stats.analytics_builder.step.primary</source>
+        <target>Primary dimension</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld09" resname="stats.analytics_builder.step.secondary">
+        <source>stats.analytics_builder.step.secondary</source>
+        <target>Breakdown dimension (optional)</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld10" resname="stats.analytics_builder.step.metrics">
+        <source>stats.analytics_builder.step.metrics</source>
+        <target>Metrics</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld11" resname="stats.analytics_builder.step.chart">
+        <source>stats.analytics_builder.step.chart</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsAlBld12" resname="stats.analytics_builder.step.review">
+        <source>stats.analytics_builder.step.review</source>
+        <target>Review</target>
+      </trans-unit>
       <trans-unit id="statsLnkRp01" resname="link.stats.reports">
         <source>link.stats.reports</source>
         <target>Reports</target>
@@ -4226,10 +4494,6 @@
       <trans-unit id="statsGa42" resname="stats.generic_analysis.chart.warning.many_buckets">
         <source>stats.generic_analysis.chart.warning.many_buckets</source>
         <target>Many categories — consider a horizontal bar chart.</target>
-      </trans-unit>
-      <trans-unit id="statsGa43" resname="stats.generic_analysis.chart.warning.pie_deferred">
-        <source>stats.generic_analysis.chart.warning.pie_deferred</source>
-        <target>Pie charts will be added later; showing a bar chart for now.</target>
       </trans-unit>
       <trans-unit id="statsGa44" resname="stats.generic_analysis.chart.export_planned">
         <source>stats.generic_analysis.chart.export_planned</source>
