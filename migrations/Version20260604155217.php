@@ -21,8 +21,8 @@ final class Version20260604155217 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE allocation_stats_projection ADD day_time_bucket_code SMALLINT DEFAULT NULL');
-        $this->addSql('ALTER TABLE allocation_stats_projection ADD shift_bucket_code SMALLINT DEFAULT NULL');
+        $this->addSql('ALTER TABLE allocation_stats_projection ADD COLUMN IF NOT EXISTS day_time_bucket_code SMALLINT DEFAULT NULL');
+        $this->addSql('ALTER TABLE allocation_stats_projection ADD COLUMN IF NOT EXISTS shift_bucket_code SMALLINT DEFAULT NULL');
 
         $this->addSql(<<<'SQL'
 UPDATE allocation_stats_projection SET
@@ -37,10 +37,33 @@ UPDATE allocation_stats_projection SET
         WHEN EXTRACT(HOUR FROM created_at)::INT < 14 THEN 2
         ELSE 3
     END
+WHERE day_time_bucket_code IS NULL OR shift_bucket_code IS NULL
 SQL);
 
-        $this->addSql('ALTER TABLE allocation_stats_projection ALTER COLUMN day_time_bucket_code SET NOT NULL');
-        $this->addSql('ALTER TABLE allocation_stats_projection ALTER COLUMN shift_bucket_code SET NOT NULL');
+        $this->addSql(<<<'SQL'
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'allocation_stats_projection'
+          AND column_name = 'day_time_bucket_code'
+          AND is_nullable = 'YES'
+    ) THEN
+        ALTER TABLE allocation_stats_projection ALTER COLUMN day_time_bucket_code SET NOT NULL;
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'allocation_stats_projection'
+          AND column_name = 'shift_bucket_code'
+          AND is_nullable = 'YES'
+    ) THEN
+        ALTER TABLE allocation_stats_projection ALTER COLUMN shift_bucket_code SET NOT NULL;
+    END IF;
+END $$
+SQL);
 
         $this->addSql('CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_asp_day_time_bucket ON allocation_stats_projection (day_time_bucket_code)');
         $this->addSql('CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_asp_shift_bucket ON allocation_stats_projection (shift_bucket_code)');
