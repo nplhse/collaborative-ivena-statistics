@@ -11,6 +11,7 @@ use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -24,7 +25,12 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
         $translator->method('trans')->willReturn('Other');
 
         $this->builder = new GenericAnalysisChartSpecBuilder(
-            new GenericAnalysisChartDataReducer(new DimensionRegistry(), $translator),
+            new GenericAnalysisChartDataReducer(
+                new DimensionRegistry(),
+                new MetricRegistry(),
+                $translator,
+            ),
+            new MetricRegistry(),
         );
     }
 
@@ -152,6 +158,26 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
 
         self::assertSame('bar', $spec['chartType']);
         self::assertArrayHasKey('counts', $spec);
+    }
+
+    public function testBarSpecUsesPercentScaleForRateVisualMetric(): void
+    {
+        $query = $this->query('department');
+        $result = GenericAnalysisTestFixtures::normalizedResult(
+            grandTotal: 100,
+            metricKeys: ['count', 'resus_rate'],
+            chartData: [
+                'labels' => ['Dept A', 'Dept B'],
+                'values' => [8.4, 4.1],
+            ],
+            visualMetricKey: 'resus_rate',
+        );
+
+        $spec = $this->builder->buildSpec(GenericAnalysisChartType::Bar, $query, $result);
+
+        self::assertNotNull($spec);
+        self::assertTrue($spec['percentScale']);
+        self::assertSame([8.4, 4.1], $spec['counts']);
     }
 
     public function testManyHospitalsAreReducedInChartSpec(): void

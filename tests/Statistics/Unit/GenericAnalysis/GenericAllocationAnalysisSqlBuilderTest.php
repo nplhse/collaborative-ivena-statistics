@@ -132,4 +132,33 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         self::assertStringContainsString('NOT IN (:exclude_null_bucket_age_group)', $sql);
         self::assertSame(['unknown'], $params['exclude_null_bucket_age_group']);
     }
+
+    public function testIncludesTransportMetricsInSql(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'department',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            metricKeys: ['count', 'median_transport_time', 'p90_transport_time'],
+        ));
+
+        self::assertStringContainsString('COUNT(*)::INT AS count', $sql);
+        self::assertStringContainsString('PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes)', $sql);
+        self::assertStringContainsString('PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY transport_time_minutes)', $sql);
+        self::assertStringNotContainsString('age IS NOT NULL', $sql);
+    }
+
+    public function testIncludesRateMetricsInSql(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'department',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            metricKeys: ['count', 'resus_rate'],
+        ));
+
+        self::assertStringContainsString('COUNT(*) FILTER (WHERE requires_resus IS TRUE)', $sql);
+        self::assertStringContainsString('NULLIF(COUNT(*), 0)', $sql);
+        self::assertStringContainsString('AS resus_rate', $sql);
+    }
 }

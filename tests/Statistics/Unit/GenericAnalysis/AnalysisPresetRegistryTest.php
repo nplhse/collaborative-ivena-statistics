@@ -42,6 +42,22 @@ final class AnalysisPresetRegistryTest extends TestCase
         self::assertSame(['count', 'percent_of_total'], $preset->metricKeys);
     }
 
+    public function testNewMetricPresetsAreRegistered(): void
+    {
+        $transport = $this->registry->get('transport_time_by_department');
+        self::assertSame('department', $transport->primaryDimensionKey);
+        self::assertSame(['count', 'median_transport_time', 'p90_transport_time'], $transport->metricKeys);
+        self::assertSame('median_transport_time', $transport->visualMetricKey);
+
+        $resus = $this->registry->get('resus_by_department');
+        self::assertSame(['count', 'resus_rate'], $resus->metricKeys);
+        self::assertSame('resus_rate', $resus->visualMetricKey);
+
+        $cpr = $this->registry->get('cpr_by_month');
+        self::assertSame('month', $cpr->primaryDimensionKey);
+        self::assertSame(['count', 'cpr_rate'], $cpr->metricKeys);
+    }
+
     public function testLegacyPresetsDefaultToEmptyMetrics(): void
     {
         $preset = $this->registry->get('allocations_by_month');

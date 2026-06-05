@@ -66,7 +66,7 @@ class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-reports-widget"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-table-card"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Rank');
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Diagnosis');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Indication');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Count');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Share');
     }
@@ -174,7 +174,7 @@ class ReportsControllerTest extends WebTestCase
         yield 'top_departments' => ['top_departments', 'Department', 'Seeded Report Department'];
         yield 'top_assignments' => ['top_assignments', 'Assignment type', 'Seeded Report Assignment'];
         yield 'top_infections' => ['top_infections', 'Infection', 'Seeded Report Infection'];
-        yield 'top_secondary_diagnoses' => ['top_secondary_diagnoses', 'Secondary diagnosis', 'Seeded Report Secondary Diagnosis'];
+        yield 'top_secondary_diagnoses' => ['top_secondary_diagnoses', 'Secondary indication', 'Seeded Report Secondary Diagnosis'];
         yield 'top_specialities' => ['top_specialities', 'Speciality', 'Seeded Report Speciality'];
         yield 'top_occasions' => ['top_occasions', 'Occasion', 'Seeded Report Occasion'];
     }

@@ -17,11 +17,13 @@ final class MetricValueFormatterTest extends TestCase
         $this->formatter = new MetricValueFormatter(new MetricRegistry());
     }
 
-    public function testFormatsPercentAndDecimal(): void
+    public function testFormatsPercentMinutesAndDecimal(): void
     {
         $registry = new MetricRegistry();
 
         self::assertSame('8,40 %', $this->formatter->format($registry->get('percent_of_total'), 8.4));
+        self::assertSame('8,4 %', $this->formatter->format($registry->get('resus_rate'), 8.4));
+        self::assertSame('18 min', $this->formatter->format($registry->get('median_transport_time'), 18));
         self::assertSame('123', $this->formatter->format($registry->get('count'), 123));
     }
 }

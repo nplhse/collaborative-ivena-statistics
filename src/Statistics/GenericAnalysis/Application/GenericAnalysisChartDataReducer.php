@@ -9,7 +9,9 @@ use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
+use App\Statistics\GenericAnalysis\Domain\Enum\MetricFormat;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class GenericAnalysisChartDataReducer
@@ -18,6 +20,7 @@ final readonly class GenericAnalysisChartDataReducer
 
     public function __construct(
         private DimensionRegistry $dimensionRegistry,
+        private MetricRegistry $metricRegistry,
         private TranslatorInterface $translator,
     ) {
     }
@@ -31,7 +34,7 @@ final readonly class GenericAnalysisChartDataReducer
 
         $labels = $this->extractLabels($result);
         $counts = $this->extractVisualValues($result, $labels);
-        $series = $this->extractSeries($result);
+        $series = $this->extractSeries($result, $result->visualMetricKey);
 
         $limitedSeries = false;
         $limitedBuckets = false;
@@ -70,10 +73,10 @@ final readonly class GenericAnalysisChartDataReducer
     }
 
     /**
-     * @param list<array{name: string, data: list<int>}> $series
-     * @param list<string>                               $labels
+     * @param list<array{name: string, data: list<int|float>}> $series
+     * @param list<string>                                     $labels
      *
-     * @return list<array{name: string, data: list<int>}>
+     * @return list<array{name: string, data: list<int|float>}>
      */
     private function limitSeries(array $series, array $labels, int $cap): array
     {
@@ -86,13 +89,13 @@ final readonly class GenericAnalysisChartDataReducer
         arsort($totals);
         $topIndices = array_slice(array_keys($totals), 0, $cap);
 
-        $restData = array_fill(0, $labelCount, 0);
+        $restData = array_fill(0, $labelCount, 0.0);
         foreach ($series as $index => $item) {
             if (\in_array($index, $topIndices, true)) {
                 continue;
             }
             foreach ($item['data'] as $labelIndex => $value) {
-                $restData[$labelIndex] += $value;
+                $restData[$labelIndex] += (float) $value;
             }
         }
 
@@ -112,11 +115,11 @@ final readonly class GenericAnalysisChartDataReducer
     }
 
     /**
-     * @param list<string>                               $labels
-     * @param list<int>                                  $counts
-     * @param list<array{name: string, data: list<int>}> $series
+     * @param list<string>                                     $labels
+     * @param list<int>                                        $counts
+     * @param list<array{name: string, data: list<int|float>}> $series
      *
-     * @return array{0: list<string>, 1: list<int>, 2: list<array{name: string, data: list<int>}>}
+     * @return array{0: list<string>, 1: list<int|float>, 2: list<array{name: string, data: list<int|float>}>}
      */
     private function limitPrimaryBuckets(array $labels, array $counts, array $series, int $cap): array
     {
@@ -124,9 +127,9 @@ final readonly class GenericAnalysisChartDataReducer
 
         if ([] !== $series) {
             foreach ($labels as $labelIndex => $label) {
-                $sum = 0;
+                $sum = 0.0;
                 foreach ($series as $item) {
-                    $sum += $item['data'][$labelIndex] ?? 0;
+                    $sum += (float) ($item['data'][$labelIndex] ?? 0);
                 }
                 $bucketTotals[$label] = $sum;
             }
@@ -139,10 +142,10 @@ final readonly class GenericAnalysisChartDataReducer
         arsort($bucketTotals);
         $topLabels = array_slice(array_keys($bucketTotals), 0, $cap);
 
-        $restTotal = 0;
+        $restTotal = 0.0;
         foreach ($bucketTotals as $label => $total) {
             if (!\in_array($label, $topLabels, true)) {
-                $restTotal += $total;
+                $restTotal += (float) $total;
             }
         }
 
@@ -171,14 +174,14 @@ final readonly class GenericAnalysisChartDataReducer
                 $newData[] = false !== $labelIndex ? ($item['data'][$labelIndex] ?? 0) : 0;
             }
             if ($restTotal > 0) {
-                $restForSeries = 0;
+                $restForSeries = 0.0;
                 foreach (array_keys($bucketTotals) as $label) {
                     if (\in_array($label, $topLabels, true)) {
                         continue;
                     }
                     $labelIndex = array_search($label, $labels, true);
                     if (false !== $labelIndex) {
-                        $restForSeries += $item['data'][$labelIndex] ?? 0;
+                        $restForSeries += (float) ($item['data'][$labelIndex] ?? 0);
                     }
                 }
                 $newData[] = $restForSeries;
@@ -251,11 +254,15 @@ final readonly class GenericAnalysisChartDataReducer
             return 0;
         }
 
-        if (str_starts_with($visualKey, 'percent_')) {
-            return (float) $value;
+        if (!$this->metricRegistry->has($visualKey)) {
+            return (int) round((float) $value);
         }
 
-        return (int) round((float) $value);
+        $format = $this->metricRegistry->get($visualKey)->defaultFormat;
+
+        return MetricFormat::Integer === $format
+            ? (int) round((float) $value)
+            : (float) $value;
     }
 
     /**
@@ -272,9 +279,9 @@ final readonly class GenericAnalysisChartDataReducer
     }
 
     /**
-     * @return list<array{name: string, data: list<int>}>
+     * @return list<array{name: string, data: list<int|float>}>
      */
-    private function extractSeries(NormalizedAnalysisResult $result): array
+    private function extractSeries(NormalizedAnalysisResult $result, string $visualKey): array
     {
         $raw = $result->chartData['series'] ?? null;
         if (!\is_array($raw)) {
@@ -293,7 +300,10 @@ final readonly class GenericAnalysisChartDataReducer
             }
             $series[] = [
                 'name' => $name,
-                'data' => array_values(array_map(static fn (mixed $v): int => (int) $v, $data)),
+                'data' => array_values(array_map(
+                    fn (mixed $v): int|float => $this->chartScalar($v, $visualKey),
+                    $data,
+                )),
             ];
         }
 

@@ -13,7 +13,9 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
+use App\Statistics\GenericAnalysis\Domain\Enum\MetricFormat;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
@@ -27,6 +29,7 @@ final readonly class GenericAnalysisChartViewModelFactory
         private GenericAnalysisChartSpecBuilder $specBuilder,
         private GenericAnalysisChartDataReducer $chartDataReducer,
         private DimensionRegistry $dimensionRegistry,
+        private MetricRegistry $metricRegistry,
         private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private TranslatorInterface $translator,
     ) {
@@ -90,6 +93,16 @@ final readonly class GenericAnalysisChartViewModelFactory
             ]);
         }
 
+        $visualMetric = $this->metricRegistry->get($result->visualMetricKey);
+        $isRelative = MetricFormat::Percent === $visualMetric->defaultFormat;
+        $metricLabel = $visualMetric->label;
+        $yAxisLabel = 'count' === $result->visualMetricKey
+            ? $this->translator->trans('stats.generic_analysis.chart.y_axis_allocations')
+            : $metricLabel;
+        $valueLabel = 'count' === $result->visualMetricKey
+            ? $this->translator->trans('stats.generic_analysis.chart.value_allocations')
+            : $metricLabel;
+
         return new GenericAnalysisChartViewModel(
             title: $result->title,
             subtitle: $subtitle,
@@ -105,9 +118,9 @@ final readonly class GenericAnalysisChartViewModelFactory
             initialSpec: $initialSpec,
             specsByChartType: $specsByChartType,
             xAxisLabel: $result->primaryDimensionLabel,
-            yAxisLabel: $this->translator->trans('stats.generic_analysis.chart.y_axis_allocations'),
-            isRelative: false,
-            valueLabel: $this->translator->trans('stats.generic_analysis.chart.value_allocations'),
+            yAxisLabel: $yAxisLabel,
+            isRelative: $isRelative,
+            valueLabel: $valueLabel,
             warnings: $warnings,
             emptyStateMessage: $this->translator->trans('stats.generic_analysis.chart.empty'),
             chartTypeOptions: $chartTypeOptions,

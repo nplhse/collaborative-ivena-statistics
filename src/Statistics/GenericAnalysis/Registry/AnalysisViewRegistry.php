@@ -226,6 +226,45 @@ final class AnalysisViewRegistry
             secondary: 'urgency',
             metrics: ['count', 'percent_of_bucket'],
         ));
+
+        $this->register($this->view(
+            key: 'transport_time_by_department',
+            title: 'Transport time by department',
+            description: 'Median and P90 transport time by department.',
+            category: AnalysisViewCategory::Operations,
+            tags: ['transport', 'department', 'operations'],
+            primary: 'department',
+            chart: GenericAnalysisChartType::Bar,
+            allowed: $bar,
+            metrics: ['count', 'median_transport_time', 'p90_transport_time'],
+            visualMetricKey: 'median_transport_time',
+        ));
+
+        $this->register($this->view(
+            key: 'resus_by_department',
+            title: 'Resuscitation by department',
+            description: 'Resuscitation rate by department.',
+            category: AnalysisViewCategory::Clinical,
+            tags: ['resus', 'department', 'clinical'],
+            primary: 'department',
+            chart: GenericAnalysisChartType::Bar,
+            allowed: $bar,
+            metrics: ['count', 'resus_rate'],
+            visualMetricKey: 'resus_rate',
+        ));
+
+        $this->register($this->view(
+            key: 'cpr_by_month',
+            title: 'CPR by month',
+            description: 'CPR rate by month.',
+            category: AnalysisViewCategory::TimeAndTrends,
+            tags: ['cpr', 'month', 'clinical'],
+            primary: 'month',
+            chart: GenericAnalysisChartType::Line,
+            allowed: $line,
+            metrics: ['count', 'cpr_rate'],
+            visualMetricKey: 'cpr_rate',
+        ));
     }
 
     /**
@@ -244,6 +283,7 @@ final class AnalysisViewRegistry
         array $allowed,
         ?string $secondary = null,
         array $metrics = [],
+        ?string $visualMetricKey = null,
         bool $featured = false,
         bool $includeNullBuckets = false,
     ): AnalysisViewDefinition {
@@ -256,6 +296,7 @@ final class AnalysisViewRegistry
             primaryDimensionKey: $primary,
             secondaryDimensionKey: $secondary,
             metricKeys: $metrics,
+            visualMetricKey: $visualMetricKey,
             chartType: $chart,
             allowedChartTypes: [] === $allowed ? [$chart] : $allowed,
             includeNullBuckets: $includeNullBuckets,

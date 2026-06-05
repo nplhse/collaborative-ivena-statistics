@@ -9,6 +9,7 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -27,7 +28,11 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
             },
         );
 
-        $this->reducer = new GenericAnalysisChartDataReducer(new DimensionRegistry(), $translator);
+        $this->reducer = new GenericAnalysisChartDataReducer(
+            new DimensionRegistry(),
+            new MetricRegistry(),
+            $translator,
+        );
     }
 
     public function testLimitsCategoricalPrimaryBucketsToTopFivePlusOther(): void
@@ -42,7 +47,7 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         self::assertTrue($reduced->limitedPrimaryBuckets);
         self::assertCount(6, $reduced->labels);
         self::assertSame('Other', $reduced->labels[5]);
-        self::assertSame(6, $reduced->counts[5]);
+        self::assertEquals(6, $reduced->counts[5]);
     }
 
     public function testDoesNotLimitTemporalPrimaryBuckets(): void
@@ -80,8 +85,8 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         self::assertNotNull($reduced->series);
         self::assertCount(6, $reduced->series);
         self::assertSame('Other', $reduced->series[5]['name']);
-        self::assertSame(30, $reduced->series[5]['data'][0]);
-        self::assertSame(0, $reduced->series[5]['data'][1]);
+        self::assertEquals(30, $reduced->series[5]['data'][0]);
+        self::assertEquals(0, $reduced->series[5]['data'][1]);
     }
 
     public function testLimitsCategoricalBucketsWithSeries(): void
@@ -140,6 +145,29 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         $reduced = $this->reducer->reduce($query, $result);
 
         self::assertSame([62.5, 37.5], $reduced->counts);
+    }
+
+    public function testPreservesMinutesVisualMetricAsFloat(): void
+    {
+        $query = $this->query(
+            'department',
+            metricKeys: ['count', 'median_transport_time'],
+            visualMetricKey: 'median_transport_time',
+        );
+        $result = GenericAnalysisTestFixtures::normalizedResult(
+            rows: [
+                GenericAnalysisTestFixtures::enrichedRow('1', 'Dept A', 10, extraMetrics: ['median_transport_time' => 18.6]),
+                GenericAnalysisTestFixtures::enrichedRow('2', 'Dept B', 5, extraMetrics: ['median_transport_time' => 22.4]),
+            ],
+            grandTotal: 15,
+            metricKeys: ['count', 'median_transport_time'],
+            chartData: ['labels' => ['Dept A', 'Dept B']],
+            visualMetricKey: 'median_transport_time',
+        );
+
+        $reduced = $this->reducer->reduce($query, $result);
+
+        self::assertSame([18.6, 22.4], $reduced->counts);
     }
 
     public function testReturnsEmptyLabelsWhenChartDataInvalid(): void

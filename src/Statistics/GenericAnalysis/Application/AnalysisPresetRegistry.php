@@ -122,6 +122,27 @@ final class AnalysisPresetRegistry
             metricKeys: ['count', 'percent_of_bucket'],
         ));
         $this->register(new AnalysisPreset(
+            key: 'transport_time_by_department',
+            title: 'Transport time by department',
+            primaryDimensionKey: 'department',
+            metricKeys: ['count', 'median_transport_time', 'p90_transport_time'],
+            visualMetricKey: 'median_transport_time',
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'resus_by_department',
+            title: 'Resuscitation by department',
+            primaryDimensionKey: 'department',
+            metricKeys: ['count', 'resus_rate'],
+            visualMetricKey: 'resus_rate',
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'cpr_by_month',
+            title: 'CPR by month',
+            primaryDimensionKey: 'month',
+            metricKeys: ['count', 'cpr_rate'],
+            visualMetricKey: 'cpr_rate',
+        ));
+        $this->register(new AnalysisPreset(
             key: 'custom',
             title: 'Custom analysis',
             primaryDimensionKey: 'month',
