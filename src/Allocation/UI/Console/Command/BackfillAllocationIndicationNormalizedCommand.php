@@ -96,7 +96,7 @@ final class BackfillAllocationIndicationNormalizedCommand extends Command
                 $output->writeln('');
             }
         } else {
-            $io->writeln('<comment>Projection not rebuilt. Use --rebuild-projection or <info>app:seed:projection</info> so Top diagnoses reflect the backfill.</comment>');
+            $io->writeln('<comment>Projection not rebuilt. Use --rebuild-projection or <info>app:seed:projection</info> so Top indications reflect the backfill.</comment>');
         }
 
         $io->success(sprintf('Backfill finished in %.2fs.', microtime(true) - $startedAt));
