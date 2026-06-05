@@ -17,11 +17,15 @@ use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 final readonly class MetricCompatibilityChecker
 {
     /** @var list<string> */
-    private const array TRANSPORT_TIME_METRIC_KEYS = [
-        'median_transport_time',
-        'p90_transport_time',
-        'p25_transport_time',
-        'p75_transport_time',
+    private const array PROJECTION_SOURCE_COLUMNS = [
+        'transport_time_minutes',
+        'requires_resus',
+        'is_cpr',
+        'is_shock',
+        'is_ventilated',
+        'requires_cathlab',
+        'is_pregnant',
+        'is_work_accident',
     ];
 
     public function __construct(
@@ -36,16 +40,17 @@ final readonly class MetricCompatibilityChecker
         ?AnalysisDimension $_series,
         MetricDefinition $metric,
     ): MetricCompatibilityResult {
-        if (\in_array($metric->key, self::TRANSPORT_TIME_METRIC_KEYS, true)) {
-            return MetricCompatibilityResult::denied('Transport time is not yet part of the domain models.');
-        }
-
         if (MetricComputationKind::InferentialStub === $metric->computationKind) {
             return MetricCompatibilityResult::denied('Metric is not implemented yet.');
         }
 
         if ('count' === $metric->key) {
             return MetricCompatibilityResult::allowed();
+        }
+
+        if (null !== $metric->sourceColumn
+            && !\in_array($metric->sourceColumn, self::PROJECTION_SOURCE_COLUMNS, true)) {
+            return MetricCompatibilityResult::denied('Source field not available.');
         }
 
         if ($metric->requiresSeriesDimension && null === $query->seriesDimensionKey) {
