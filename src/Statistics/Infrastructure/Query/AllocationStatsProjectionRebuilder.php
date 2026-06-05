@@ -92,6 +92,8 @@ INSERT INTO allocation_stats_projection (
     created_day,
     created_weekday,
     created_hour,
+    day_time_bucket_code,
+    shift_bucket_code,
     transport_time_minutes,
     age,
     gender_code,
@@ -130,6 +132,18 @@ SELECT
     EXTRACT(DAY FROM a.created_at)::SMALLINT,
     EXTRACT(ISODOW FROM a.created_at)::SMALLINT,
     EXTRACT(HOUR FROM a.created_at)::SMALLINT,
+    CASE
+        WHEN EXTRACT(HOUR FROM a.created_at)::INT < 6 THEN 1
+        WHEN EXTRACT(HOUR FROM a.created_at)::INT < 12 THEN 2
+        WHEN EXTRACT(HOUR FROM a.created_at)::INT < 18 THEN 3
+        ELSE 4
+    END,
+    CASE
+        WHEN EXTRACT(HOUR FROM a.created_at)::INT >= 22
+            OR EXTRACT(HOUR FROM a.created_at)::INT < 6 THEN 1
+        WHEN EXTRACT(HOUR FROM a.created_at)::INT < 14 THEN 2
+        ELSE 3
+    END,
     ROUND(EXTRACT(EPOCH FROM (a.arrival_at - a.created_at)) / 60)::INT,
     a.age,
     CASE UPPER(a.gender)
