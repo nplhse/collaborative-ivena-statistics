@@ -81,5 +81,8 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
         self::assertSelectorExists('#stats-indication-picker-input');
         self::assertSelectorNotExists('[data-testid="stats-indication-insights-top-table"] .card-subtitle');
         self::assertSelectorTextContains('[data-testid="stats-indication-insights-top-table"]', 'Index Test Indication');
+        self::assertSelectorExists(
+            sprintf('a[href*="/statistics/indication/%d"]', $indication->getId()),
+        );
     }
 }
