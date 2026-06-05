@@ -134,3 +134,9 @@ services:
         class: Sentry\SentryBundle\Monolog\LogsHandler
         arguments:
             - !php/const Monolog\Logger::WARNING
+
+    App\Statistics\GenericAnalysis\Application\AnalysisViewRecommendationServiceInterface:
+        alias: App\Statistics\GenericAnalysis\Application\RuleBasedAnalysisViewRecommendationService
+
+    App\Statistics\GenericAnalysis\Application\Contract\AnalysisExportServiceInterface:
+        alias: App\Statistics\GenericAnalysis\Application\AnalysisExportService
