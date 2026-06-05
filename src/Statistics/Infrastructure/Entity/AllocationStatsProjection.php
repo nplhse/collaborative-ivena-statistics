@@ -82,6 +82,12 @@ class AllocationStatsProjection
     #[ORM\Column(type: 'smallint')]
     private int $createdHour;
 
+    #[ORM\Column(type: 'smallint')]
+    private int $dayTimeBucketCode;
+
+    #[ORM\Column(type: 'smallint')]
+    private int $shiftBucketCode;
+
     #[ORM\Column]
     private int $transportTimeMinutes;
 
@@ -230,6 +236,16 @@ class AllocationStatsProjection
     public function getCreatedHour(): int
     {
         return $this->createdHour;
+    }
+
+    public function getDayTimeBucketCode(): int
+    {
+        return $this->dayTimeBucketCode;
+    }
+
+    public function getShiftBucketCode(): int
+    {
+        return $this->shiftBucketCode;
     }
 
     public function getTransportTimeMinutes(): int

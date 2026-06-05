@@ -23,9 +23,11 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsShiftBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
@@ -133,6 +135,14 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertSame(15, (int) $row['created_day']);
         self::assertSame((int) $createdAt->format('N'), (int) $row['created_weekday']);
         self::assertSame(10, (int) $row['created_hour']);
+        self::assertSame(
+            AllocationStatsDayTimeBucketProjectionCode::Morning->value,
+            (int) $row['day_time_bucket_code'],
+        );
+        self::assertSame(
+            AllocationStatsShiftBucketProjectionCode::EarlyShift->value,
+            (int) $row['shift_bucket_code'],
+        );
 
         self::assertSame(42, (int) $row['age']);
         self::assertSame(AllocationStatsGenderProjectionCode::Male->value, (int) $row['gender_code']);
@@ -174,6 +184,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertSame(15, $projection->getCreatedDay());
         self::assertSame((int) $createdAt->format('N'), $projection->getCreatedWeekday());
         self::assertSame(10, $projection->getCreatedHour());
+        self::assertSame(AllocationStatsDayTimeBucketProjectionCode::Morning->value, $projection->getDayTimeBucketCode());
+        self::assertSame(AllocationStatsShiftBucketProjectionCode::EarlyShift->value, $projection->getShiftBucketCode());
         self::assertSame(90, $projection->getTransportTimeMinutes());
 
         self::assertSame(42, $projection->getAge());

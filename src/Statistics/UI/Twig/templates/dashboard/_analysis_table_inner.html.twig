@@ -27,11 +27,17 @@
                     {% if p.monthRowTargets is defined %}
                         {% set monthRowTarget = p.monthRowTargets[loop.index0]|default(null) %}
                     {% endif %}
+                    {% set diagnosisRowTarget = null %}
+                    {% if p.diagnosisRowTargets is defined %}
+                        {% set diagnosisRowTarget = p.diagnosisRowTargets[loop.index0]|default(null) %}
+                    {% endif %}
                     <tr>
                         {% for cell in row %}
                             <td class="{{ loop.index < numericStart ? '' : 'text-end' }}">
                                 {% if loop.first and monthRowTarget is defined and monthRowTarget is not null %}
                                     <a href="{{ statistics_nav_url(monthRowTarget) }}" class="text-reset">{{ cell }}</a>
+                                {% elseif loop.index == 2 and diagnosisRowTarget is not null %}
+                                    <a href="{{ statistics_nav_url(diagnosisRowTarget) }}" class="text-reset">{{ cell }}</a>
                                 {% else %}
                                     {{ cell }}
                                 {% endif %}

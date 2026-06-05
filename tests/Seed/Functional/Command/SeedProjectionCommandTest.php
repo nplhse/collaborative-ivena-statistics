@@ -54,7 +54,7 @@ final class SeedProjectionCommandTest extends KernelTestCase
         AllocationFactory::createOne($this->allocationDefaults($seed, $importB, 40, '2025-03-02 08:00:00', '2025-03-02 09:15:00'));
 
         $connection->executeStatement(
-            'INSERT INTO allocation_stats_projection (id, import_id, hospital_id, state_id, dispatch_area_id, speciality_id, department_id, occasion_id, assignment_id, infection_id, indication_normalized_id, created_at, arrival_at, created_year, created_quarter, created_month, created_week, created_day, created_weekday, created_hour, transport_time_minutes, age, gender_code, urgency_code, transport_type_code, requires_resus, requires_cathlab, is_cpr, is_ventilated, is_work_accident, is_with_physician) VALUES (999999, 999999, 1, 1, 1, 1, 1, NULL, 1, NULL, NULL, NOW(), NOW(), 2025, 1, 1, 1, 1, 1, 1, 10, 10, 1, 1, 1, false, false, false, false, false, false)'
+            'INSERT INTO allocation_stats_projection (id, import_id, hospital_id, state_id, dispatch_area_id, speciality_id, department_id, occasion_id, assignment_id, infection_id, indication_normalized_id, created_at, arrival_at, created_year, created_quarter, created_month, created_week, created_day, created_weekday, created_hour, day_time_bucket_code, shift_bucket_code, transport_time_minutes, age, gender_code, urgency_code, transport_type_code, requires_resus, requires_cathlab, is_cpr, is_ventilated, is_work_accident, is_with_physician) VALUES (999999, 999999, 1, 1, 1, 1, 1, NULL, 1, NULL, NULL, NOW(), NOW(), 2025, 1, 1, 1, 1, 1, 1, 1, 1, 10, 10, 1, 1, 1, false, false, false, false, false, false)'
         );
 
         $command = self::getContainer()->get(SeedProjectionCommand::class);
