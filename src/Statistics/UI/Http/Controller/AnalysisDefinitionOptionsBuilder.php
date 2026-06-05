@@ -36,7 +36,7 @@ final readonly class AnalysisDefinitionOptionsBuilder
             $analysisDefinitions[] = $definition;
             $analysisSelectUrls[$definition->key()] = $this->statisticsNavigationUrlBuilder->build(
                 $request,
-                'app_stats_analysis',
+                'app_stats_pivot_tables',
                 ['analysis' => $definition->key()],
             );
         }

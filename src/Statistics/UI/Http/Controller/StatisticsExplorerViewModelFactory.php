@@ -38,30 +38,30 @@ final readonly class StatisticsExplorerViewModelFactory
             return [];
         }
 
-        if ('analysis' === $currentPage) {
-            $analysisEntries = [];
+        if ('pivot_tables' === $currentPage) {
+            $pivotEntries = [];
             foreach ($this->analysisDefinitionRegistry->all() as $definition) {
-                if ($this->isLegacyKey($definition->key())) {
+                if (!$definition->isPivotLike() || $this->isLegacyKey($definition->key())) {
                     continue;
                 }
-                $analysisEntries[] = [
+                $pivotEntries[] = [
                     'key' => $definition->key(),
                     'labelKey' => $definition->labelTranslationKey(),
                     'url' => $this->statisticsNavigationUrlBuilder->build(
                         $request,
-                        'app_stats_analysis',
+                        'app_stats_pivot_tables',
                         [StatisticsQueryKeys::ANALYSIS => $definition->key()],
-                        $definition->isPivotLike() ? StatisticsQueryKeys::PIVOT_STALE : StatisticsQueryKeys::CHART_TABLE_STALE,
+                        StatisticsQueryKeys::PIVOT_STALE,
                     ),
                     'active' => $currentAnalysisKey === $definition->key(),
                 ];
             }
-            $this->sortEntriesByTranslatedLabel($analysisEntries, $request->getLocale());
+            $this->sortEntriesByTranslatedLabel($pivotEntries, $request->getLocale());
 
             return [[
-                'key' => 'analysis',
-                'labelKey' => 'stats.analysis.select_label',
-                'entries' => $analysisEntries,
+                'key' => 'pivot_tables',
+                'labelKey' => 'stats.pivot_tables.select_label',
+                'entries' => $pivotEntries,
             ]];
         }
 

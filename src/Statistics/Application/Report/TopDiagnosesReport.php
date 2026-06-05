@@ -85,8 +85,8 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
             [
                 new StatisticWidgetNavigationTarget(
                     'stats.nav.report_to_analysis_allocations_by_month',
-                    'app_stats_analysis',
-                    ['analysis' => 'allocations_by_month'],
+                    'app_stats_analytics_view',
+                    ['viewKey' => 'allocations_by_month'],
                     ['report', 'limit', 'view', 'chart'],
                 ),
             ],

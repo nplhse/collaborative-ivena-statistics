@@ -7,7 +7,6 @@ namespace App\Statistics\Application;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\HospitalSummaryData;
-use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
@@ -103,7 +102,6 @@ final readonly class HospitalSummaryProvider
                     'actions' => [
                         ...$this->openAllocationsByMonthAnalysisActions(
                             'stats.nav.overview_indicators_to_analysis',
-                            StatisticsAnalysisDimension::Features,
                         ),
                     ],
                 ],
@@ -112,7 +110,6 @@ final readonly class HospitalSummaryProvider
                     'segments' => $genderSegments,
                     'actions' => $this->openAllocationsByMonthAnalysisActions(
                         'stats.nav.overview_gender_to_analysis',
-                        StatisticsAnalysisDimension::Gender,
                     ),
                 ],
                 [
@@ -120,7 +117,6 @@ final readonly class HospitalSummaryProvider
                     'segments' => $urgencySegments,
                     'actions' => $this->openAllocationsByMonthAnalysisActions(
                         'stats.nav.overview_urgency_to_analysis',
-                        StatisticsAnalysisDimension::Urgency,
                     ),
                 ],
                 ['showUnscopedHint' => false],
@@ -133,15 +129,13 @@ final readonly class HospitalSummaryProvider
      */
     private function openAllocationsByMonthAnalysisActions(
         string $labelTranslationKey,
-        StatisticsAnalysisDimension $dimension,
     ): array {
         return [
             new StatisticWidgetNavigationTarget(
                 $labelTranslationKey,
-                'app_stats_analysis',
+                'app_stats_analytics_view',
                 [
-                    'analysis' => 'allocations_by_month',
-                    'dimension' => $dimension->value,
+                    'viewKey' => 'allocations_by_month',
                 ],
                 self::ANALYSIS_CROSS_NAV_REMOVE_KEYS,
             ),

@@ -43,10 +43,9 @@ final readonly class ClinicalFeaturesProvider
                 actions: [
                     new StatisticWidgetNavigationTarget(
                         'stats.nav.overview_indicators_to_analysis',
-                        'app_stats_analysis',
+                        'app_stats_analytics_view',
                         [
-                            'analysis' => 'allocations_by_month',
-                            'dimension' => 'resources',
+                            'viewKey' => 'allocations_by_month',
                         ],
                         self::ANALYSIS_CROSS_NAV_REMOVE_KEYS,
                     ),
@@ -66,10 +65,9 @@ final readonly class ClinicalFeaturesProvider
                 actions: [
                     new StatisticWidgetNavigationTarget(
                         'stats.nav.overview_indicators_to_analysis',
-                        'app_stats_analysis',
+                        'app_stats_analytics_view',
                         [
-                            'analysis' => 'allocations_by_month',
-                            'dimension' => 'features',
+                            'viewKey' => 'allocations_by_month',
                         ],
                         self::ANALYSIS_CROSS_NAV_REMOVE_KEYS,
                     ),
