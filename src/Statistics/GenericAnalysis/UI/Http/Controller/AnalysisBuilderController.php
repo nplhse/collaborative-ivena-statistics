@@ -11,6 +11,7 @@ use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisConfigResolver;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
+use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -36,6 +37,7 @@ final class AnalysisBuilderController extends AbstractController
         private readonly StatisticsScopeResolver $statisticsScopeResolver,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
+        private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly UrlGeneratorInterface $router,
     ) {
     }
@@ -73,6 +75,21 @@ final class AnalysisBuilderController extends AbstractController
         }
 
         $routeContext = GenericAnalysisRouteContext::forAnalyticsView(self::REFERENCE_VIEW_KEY);
+        $pageViewModel = $this->statisticsPageViewModelFactory->create(
+            $request,
+            'app_stats_analytics_builder',
+            $user,
+            $filter,
+        );
+        $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create(
+            $request,
+            'app_stats_analytics_builder',
+            $filter,
+        );
+
+        if ($pageViewModel->showUnscopedHint) {
+            $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
+        }
 
         return $this->render('@Statistics/analytics_library/builder.html.twig', [
             'configPage' => $this->pageViewModelFactory->create(
@@ -84,12 +101,24 @@ final class AnalysisBuilderController extends AbstractController
                 $routeContext,
             ),
             'libraryUrl' => $this->router->generate('app_stats_analytics_library', $this->scopeQuery($request)),
-            'isLoggedIn' => $this->statisticsPageViewModelFactory->create(
-                $request,
-                'app_stats_analytics_builder',
-                $user,
-                $filter,
-            )->isLoggedIn,
+            'statisticsFilter' => $pageViewModel->filter,
+            'statsScopeUrls' => $pageViewModel->scopeUrls,
+            'statsHospitalUrls' => $pageViewModel->hospitalUrls,
+            'cohortScopeChoices' => $pageViewModel->cohortScopeChoices,
+            'statsCohortDropdownSelectedName' => $pageViewModel->cohortDropdownSelectedName,
+            'statsScopePrimaryMenu' => $pageViewModel->scopePrimaryMenu,
+            'statsScopeSecondaryMenu' => $pageViewModel->scopeSecondaryMenu,
+            'statsShowScopeSecondaryPicker' => $pageViewModel->showScopeSecondaryPicker,
+            'statsScopePrimaryDropdownLabel' => $pageViewModel->scopePrimaryDropdownLabel,
+            'statsScopeSecondaryDropdownLabel' => $pageViewModel->scopeSecondaryDropdownLabel,
+            'statsPeriodUrls' => $pageViewModel->periodUrls,
+            'accessibleHospitals' => $pageViewModel->accessibleHospitals,
+            'statsHospitalDropdownSelectedName' => $pageViewModel->hospitalDropdownSelectedName,
+            'isLoggedIn' => $pageViewModel->isLoggedIn,
+            'statisticsHeadingScope' => $pageViewModel->headingScope,
+            'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
+            'overviewPeriodViewModel' => $overviewPeriodViewModel,
+            'statsUseOverviewPeriodControls' => true,
         ]);
     }
 
