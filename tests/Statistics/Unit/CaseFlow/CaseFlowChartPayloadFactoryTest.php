@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\CaseFlow;
 
+use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacyPolicy;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDashboardResult;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDistributionSlice;
@@ -27,6 +28,13 @@ final class CaseFlowChartPayloadFactoryTest extends TestCase
 
     public function testCreateBuildsSystemFlowStackedBarPayload(): void
     {
+        $fullTierKey = (string) AllocationStatsHospitalTierProjectionCode::Full->value;
+        /** @var array<string, int> $destinationCounts */
+        $destinationCounts = [
+            $fullTierKey => 30,
+            CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY => 10,
+        ];
+
         $result = new CaseFlowDashboardResult(
             CaseFlowMode::SystemFlow,
             new CaseFlowKpiSet(55, 70.0, 45.0, 35.0, 'Frankfurt', 60.0, null, 20.0),
@@ -35,7 +43,7 @@ final class CaseFlowChartPayloadFactoryTest extends TestCase
                 new CaseFlowOriginSlice(1, 'Frankfurt', 40, 10, false),
             ],
             [
-                new CaseFlowFlowMatrixRow(1, 'Frankfurt', 40, ['3' => 30, CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY => 10], false),
+                new CaseFlowFlowMatrixRow(1, 'Frankfurt', 40, $destinationCounts, false),
             ],
             [],
             [],
@@ -64,7 +72,7 @@ final class CaseFlowChartPayloadFactoryTest extends TestCase
         self::assertSame(40, $payload['originBar']['values'][0]);
         self::assertSame(72.7, $payload['originBar']['percents'][0]);
         self::assertSame('frankfurt', $payload['mapFeatures'][0]['geoKey']);
-        self::assertTrue($payload['mapFeatures'][0]['suppressed'] === false);
+        self::assertTrue(false === $payload['mapFeatures'][0]['suppressed']);
     }
 
     public function testCreateOmitsStackedBarForHospitalOriginMode(): void

@@ -23,7 +23,6 @@ final class CaseFlowStructureDistributionAssemblerTest extends TestCase
     public function testTierCardBuildsOrderedSegmentsWithSuppressedPool(): void
     {
         $fullTierKey = (string) AllocationStatsHospitalTierProjectionCode::Full->value;
-        $basicTierKey = (string) AllocationStatsHospitalTierProjectionCode::Basic->value;
 
         $card = $this->assembler->tierCard([
             new CaseFlowDestinationPoolSlice($fullTierKey, 'stats.case_flow.tier.full', 80, 4, false),
