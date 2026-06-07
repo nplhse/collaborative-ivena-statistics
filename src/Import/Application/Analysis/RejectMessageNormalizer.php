@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Analysis;
 
+use App\Import\Infrastructure\Mapping\DispatchAreaSourceResolver;
+
 /**
  * @phpstan-type NormalizedReject array{field: string, rejected_value: string, reason: string}
  */
-final class RejectMessageNormalizer
+final readonly class RejectMessageNormalizer
 {
     private const string UNKNOWN_FIELD = '(unknown)';
 
@@ -15,7 +17,6 @@ final class RejectMessageNormalizer
 
     /** @var array<string, string> */
     private const array DTO_FIELD_TO_ROW_KEY = [
-        'dispatchArea' => 'versorgungsbereich',
         'hospital' => 'krankenhaus_kurzname',
         'createdAt' => 'datum_erstellungsdatum',
         'arrivalAt' => 'datum_eintreffzeit',
@@ -45,6 +46,11 @@ final class RejectMessageNormalizer
         'caseId' => 'enr',
         'notes' => 'freitext',
     ];
+
+    public function __construct(
+        private DispatchAreaSourceResolver $dispatchAreaSourceResolver = new DispatchAreaSourceResolver(),
+    ) {
+    }
 
     /**
      * @param array<string, mixed> $row
@@ -91,7 +97,7 @@ final class RejectMessageNormalizer
         }
 
         if (self::UNKNOWN_FIELD !== $field) {
-            $rowKey = self::DTO_FIELD_TO_ROW_KEY[$field] ?? $field;
+            $rowKey = $this->resolveRowKey($field, $row);
             if (\array_key_exists($rowKey, $row)) {
                 return $this->normalizeScalarValue($row[$rowKey], $message);
             }
@@ -127,5 +133,17 @@ final class RejectMessageNormalizer
             || str_contains($lower, 'should not be null')
             || str_contains($lower, 'cannot be empty')
             || str_contains($lower, 'is required');
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function resolveRowKey(string $field, array $row): string
+    {
+        if ('dispatchArea' === $field) {
+            return $this->dispatchAreaSourceResolver->resolveRowKey($row);
+        }
+
+        return self::DTO_FIELD_TO_ROW_KEY[$field] ?? $field;
     }
 }

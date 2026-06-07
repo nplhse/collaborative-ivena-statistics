@@ -85,7 +85,7 @@ final class FeedbackSubmitControllerTest extends WebTestCase
 
     public function testSubmitRedirectsBackToPathWithQueryAndStoresContext(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $this->acceptEssentialCookiesOnly($client);
         $client->followRedirects(false);
 

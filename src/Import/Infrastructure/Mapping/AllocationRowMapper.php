@@ -22,9 +22,15 @@ use App\Import\Application\DTO\AllocationRowDTO;
  * Actual validity (required fields, ranges, choices, cross-field rules) is enforced by
  * the DTO's Symfony constraints.
  */
-final class AllocationRowMapper implements RowToDtoMapperInterface
+final readonly class AllocationRowMapper implements RowToDtoMapperInterface
 {
     use AllocationRowNormalizationTrait;
+
+    public function __construct(
+        private DispatchAreaSourceResolver $dispatchAreaSourceResolver = new DispatchAreaSourceResolver(),
+        private DispatchAreaNameNormalizer $dispatchAreaNameNormalizer = new DispatchAreaNameNormalizer(),
+    ) {
+    }
 
     /**
      * @param array<string,string> $row
@@ -37,12 +43,8 @@ final class AllocationRowMapper implements RowToDtoMapperInterface
         // Direct string fields
         $dto->hospital = self::getStringOrNull($row, 'krankenhaus_kurzname');
 
-        $dispatchSource = $row['zuweisung_durch'] ?? null;
-        if (null === $dispatchSource || '' === $dispatchSource) {
-            $dispatchSource = $row['versorgungsbereich'] ?? null;
-        }
-
-        $dto->dispatchArea = self::normalizeDispatchArea($dispatchSource);
+        $dispatchSource = $this->dispatchAreaSourceResolver->resolve($row);
+        $dto->dispatchArea = $this->dispatchAreaNameNormalizer->normalize($dispatchSource->value);
 
         // Date fields
         $date_created = self::getStringOrNull($row, 'datum_erstellungsdatum');
