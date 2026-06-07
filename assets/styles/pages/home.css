@@ -211,8 +211,9 @@
 }
 
 .home-screenshot-carousel {
-    --home-screenshot-frame: #b8c0cc;
-    --home-screenshot-frame-strong: #8b95a5;
+    --home-screenshot-frame: #9aa8b8;
+    --home-screenshot-frame-strong: #6b7280;
+    --tblr-carousel-caption-color: #4b5563;
     --tblr-carousel-indicator-active-bg: var(--home-screenshot-frame-strong);
 }
 
@@ -277,6 +278,9 @@
     background: #fff;
     border: 1px solid var(--home-screenshot-frame);
     border-radius: var(--tblr-border-radius);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.65) inset,
+        0 2px 14px rgba(15, 23, 42, 0.12);
     line-height: 0;
     overflow: hidden;
 }
@@ -297,4 +301,26 @@
 
 .home-screenshot-link:hover img {
     opacity: 0.92;
+}
+
+.home-screenshot-carousel .carousel-caption-background {
+    height: 26%;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0));
+    pointer-events: none;
+    z-index: 1;
+}
+
+.home-screenshot-carousel .carousel-caption {
+    right: 10%;
+    bottom: 2.75rem;
+    left: 10%;
+    padding-top: 0;
+    padding-bottom: 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.home-screenshot-carousel .carousel-caption p {
+    font-size: var(--tblr-font-size-h4);
+    line-height: 1.5;
 }
