@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Versorgungsforschung.io — Pitch Deck</title>
+
+    {# Tabler.io core styles (CDN, no build step) #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Design tokens ─────────────────────────────────────────────── */
+        :root {
+            --deck-bg: #f6f8fb;
+            --deck-surface: #ffffff;
+            --deck-primary: #066fd1;
+            --deck-primary-soft: rgba(6, 111, 209, 0.08);
+            --deck-accent: #0ca678;
+            --deck-accent-soft: rgba(12, 166, 120, 0.1);
+            --deck-text: #1e293b;
+            --deck-muted: #64748b;
+            --deck-border: rgba(15, 23, 42, 0.08);
+            --deck-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+            --deck-shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --deck-header-h: 3.25rem;
+            --deck-footer-h: 4.5rem;
+            --deck-transition: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body.pitch-deck {
+            font-family: 'Inter', var(--tblr-font-sans-serif, system-ui, sans-serif);
+            background: var(--deck-bg);
+            color: var(--deck-text);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Fixed chrome ──────────────────────────────────────────────── */
+        .deck-header,
+        .deck-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-color: var(--deck-border);
+        }
+
+        .deck-header {
+            top: 0;
+            height: var(--deck-header-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.25rem;
+            border-bottom: 1px solid var(--deck-border);
+        }
+
+        .deck-brand-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--deck-text);
+            text-decoration: none;
+        }
+
+        .deck-brand-link:hover {
+            color: var(--deck-text);
+            text-decoration: underline;
+        }
+
+        .deck-brand {
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--deck-text);
+        }
+
+        .deck-counter {
+            font-size: 0.8125rem;
+            font-variant-numeric: tabular-nums;
+            color: var(--deck-muted);
+        }
+
+        .deck-footer {
+            bottom: 0;
+            height: var(--deck-footer-h);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem 1rem;
+            border-top: 1px solid var(--deck-border);
+        }
+
+        .deck-progress {
+            height: 3px;
+            background: rgba(6, 111, 209, 0.12);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .deck-progress-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--deck-primary), var(--deck-accent));
+            border-radius: inherit;
+            transform-origin: left center;
+            transform: scaleX(0.125);
+            transition: transform var(--deck-transition);
+        }
+
+        .deck-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .deck-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border: 1px solid var(--deck-border);
+            border-radius: 0.5rem;
+            background: var(--deck-surface);
+            color: var(--deck-text);
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+        .deck-btn:hover:not(:disabled) {
+            background: var(--deck-primary-soft);
+            border-color: rgba(6, 111, 209, 0.25);
+            color: var(--deck-primary);
+        }
+
+        .deck-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .deck-btn .ti { font-size: 1.125rem; }
+
+        /* ── Slideshow viewport ────────────────────────────────────────── */
+        .deck-main {
+            position: fixed;
+            top: var(--deck-header-h);
+            bottom: var(--deck-footer-h);
+            left: 0;
+            right: 0;
+            overflow: hidden;
+        }
+
+        .slides-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1.25rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(1.5rem);
+            transition: opacity var(--deck-transition), transform var(--deck-transition), visibility var(--deck-transition);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .slide.is-active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            z-index: 1;
+        }
+
+        .slide.is-prev {
+            transform: translateX(-1.5rem);
+        }
+
+        .slide-inner {
+            width: 100%;
+            max-width: 56rem;
+            margin: 0 auto;
+        }
+
+        /* ── Typography & shared components ────────────────────────────── */
+        .slide-label {
+            display: inline-block;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--deck-accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .slide-title {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            margin: 0 0 1rem;
+        }
+
+        .slide-lead {
+            font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+            font-weight: 600;
+            line-height: 1.45;
+            color: var(--deck-text);
+            margin: 0 0 1.5rem;
+        }
+
+        .slide-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            line-height: 1.55;
+            color: var(--deck-muted);
+            margin: 0 0 1.5rem;
+            max-width: 42rem;
+        }
+
+        .deck-card {
+            background: var(--deck-surface);
+            border: 1px solid var(--deck-border);
+            border-radius: 0.625rem;
+            box-shadow: var(--deck-shadow);
+            padding: 1.125rem 1.25rem;
+            height: 100%;
+        }
+
+        .deck-card-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.5rem;
+            background: var(--deck-primary-soft);
+            color: var(--deck-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .deck-card-icon .ti { font-size: 1.125rem; }
+
+        .deck-card-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin: 0 0 0.35rem;
+            line-height: 1.35;
+        }
+
+        .deck-card-text {
+            font-size: 0.8125rem;
+            color: var(--deck-muted);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .badge-scientific {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 999px;
+            background: var(--deck-accent-soft);
+            color: var(--deck-accent);
+            border: 1px solid rgba(12, 166, 120, 0.2);
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── Workflow steps ────────────────────────────────────────────── */
+        .workflow-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+
+        .workflow-step {
+            flex: 1 1 8rem;
+            min-width: 7rem;
+            position: relative;
+            background: var(--deck-surface);
+            border: 1px solid var(--deck-border);
+            border-radius: 0.625rem;
+            box-shadow: var(--deck-shadow);
+            padding: 1rem 0.75rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .workflow-step-icon {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 0.625rem;
+            background: var(--deck-primary-soft);
+            color: var(--deck-primary);
+            margin-bottom: 0.625rem;
+        }
+
+        .workflow-step-icon .ti {
+            font-size: 1.375rem;
+        }
+
+        .workflow-step-num {
+            position: absolute;
+            top: -0.3rem;
+            right: -0.3rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.125rem;
+            height: 1.125rem;
+            border-radius: 999px;
+            background: var(--deck-primary);
+            color: #fff;
+            font-size: 0.625rem;
+            font-weight: 700;
+            border: 2px solid var(--deck-surface);
+        }
+
+        .workflow-step-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            line-height: 1.35;
+            margin: 0;
+        }
+
+        .workflow-arrow {
+            display: none;
+            align-self: center;
+            color: var(--deck-muted);
+            font-size: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .workflow-steps {
+                flex-wrap: nowrap;
+            }
+
+            .workflow-arrow {
+                display: block;
+                flex: 0 0 auto;
+            }
+        }
+
+        /* ── Value badges grid ─────────────────────────────────────────── */
+        .value-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .value-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border-radius: 999px;
+            background: var(--deck-surface);
+            border: 1px solid var(--deck-border);
+            box-shadow: var(--deck-shadow);
+            color: var(--deck-text);
+        }
+
+        .value-badge .ti {
+            font-size: 0.9375rem;
+            color: var(--deck-primary);
+        }
+
+        /* ── Contact slide ─────────────────────────────────────────────── */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .contact-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            background: var(--deck-surface);
+            border: 1px solid var(--deck-border);
+            border-radius: 0.625rem;
+            box-shadow: var(--deck-shadow);
+        }
+
+        .contact-item .ti {
+            font-size: 1.125rem;
+            color: var(--deck-primary);
+        }
+
+        .contact-label {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--deck-muted);
+            margin: 0;
+        }
+
+        .contact-value {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--deck-primary);
+        }
+
+        .slide-center {
+            text-align: center;
+        }
+
+        .slide-center .slide-subtitle {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ── Reduced motion ────────────────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+            .slide,
+            .deck-progress-bar {
+                transition: opacity 0.2s ease;
+            }
+
+            .slide {
+                transform: none !important;
+            }
+        }
+
+        /* ── Fullscreen adjustments ────────────────────────────────────── */
+        :fullscreen .deck-header,
+        :fullscreen .deck-footer {
+            background: rgba(255, 255, 255, 0.96);
+        }
+    </style>
+</head>
+<body class="pitch-deck">
+
+<header class="deck-header">
+    <a href="https://versorgungsforschung.io/" class="deck-brand-link" target="_blank" rel="noopener noreferrer">Versorgungsforschung.io</a>
+    <div class="deck-counter" aria-live="polite">
+        <span id="slide-current">1</span> / <span id="slide-total">8</span>
+    </div>
+</header>
+
+<main class="deck-main" role="region" aria-label="Pitch deck slides">
+    <div class="slides-track" id="slides-track">
+
+        {# ── Slide 1: Title / Vision ─────────────────────────────────── #}
+        <section class="slide is-active" data-slide="1" id="slide-1" aria-labelledby="slide-1-title">
+            <div class="slide-inner slide-center">
+                <span class="badge-scientific">
+                    <i class="ti ti-stethoscope" aria-hidden="true"></i>
+                    Versorgungsforschung.io
+                </span>
+                <h1 class="slide-title" id="slide-1-title">
+                    Making EMS allocation routine data usable for health services research
+                </h1>
+                <p class="slide-subtitle">
+                    From IVENA exports to structured evidence, statistics, and scientific projects through a platform for normalization, analysis, and collaborative use of EMS allocation data.
+                </p>
+            </div>
+        </section>
+
+        {# ── Slide 2: The Problem ────────────────────────────────────── #}
+        <section class="slide" data-slide="2" id="slide-2" aria-labelledby="slide-2-lead">
+            <div class="slide-inner">
+                <span class="slide-label">The problem</span>
+                <p class="slide-lead" id="slide-2-lead">
+                    EMS allocation data holds significant research potential but is often used only operationally.
+                </p>
+                <div class="row g-3">
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-database-off" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Local &amp; heterogeneous data</p>
+                            <p class="deck-card-text">Datasets remain siloed across sites with inconsistent structures.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-manual-gearbox" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Manual, labor-intensive analysis</p>
+                            <p class="deck-card-text">Evaluations often rely on repetitive manual preparation steps.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-git-compare" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Limited comparability</p>
+                            <p class="deck-card-text">Cross-site benchmarking is difficult without standardized metrics.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-6">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-file-search" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Research blocked by preparation</p>
+                            <p class="deck-card-text">Scientific questions frequently fail at the data preparation stage.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-6">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-chart-dots" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Underused routine data</p>
+                            <p class="deck-card-text">Operational datasets are rarely leveraged systematically for research.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# ── Slide 3: The Solution ───────────────────────────────────── #}
+        <section class="slide" data-slide="3" id="slide-3" aria-labelledby="slide-3-lead">
+            <div class="slide-inner">
+                <span class="slide-label">The solution</span>
+                <p class="slide-lead" id="slide-3-lead">
+                    The platform automatically transforms IVENA data into a research-ready structure.
+                </p>
+                <div class="workflow-steps" role="list" aria-label="Data workflow">
+                    <div class="workflow-step" role="listitem">
+                        <div class="workflow-step-icon" aria-hidden="true">
+                            <i class="ti ti-file-export"></i>
+                            <span class="workflow-step-num">1</span>
+                        </div>
+                        <p class="workflow-step-label">IVENA export</p>
+                    </div>
+                    <i class="ti ti-chevron-right workflow-arrow" aria-hidden="true"></i>
+                    <div class="workflow-step" role="listitem">
+                        <div class="workflow-step-icon" aria-hidden="true">
+                            <i class="ti ti-cloud-upload"></i>
+                            <span class="workflow-step-num">2</span>
+                        </div>
+                        <p class="workflow-step-label">Upload</p>
+                    </div>
+                    <i class="ti ti-chevron-right workflow-arrow" aria-hidden="true"></i>
+                    <div class="workflow-step" role="listitem">
+                        <div class="workflow-step-icon" aria-hidden="true">
+                            <i class="ti ti-adjustments"></i>
+                            <span class="workflow-step-num">3</span>
+                        </div>
+                        <p class="workflow-step-label">Normalization</p>
+                    </div>
+                    <i class="ti ti-chevron-right workflow-arrow" aria-hidden="true"></i>
+                    <div class="workflow-step" role="listitem">
+                        <div class="workflow-step-icon" aria-hidden="true">
+                            <i class="ti ti-database"></i>
+                            <span class="workflow-step-num">4</span>
+                        </div>
+                        <p class="workflow-step-label">Research database</p>
+                    </div>
+                    <i class="ti ti-chevron-right workflow-arrow" aria-hidden="true"></i>
+                    <div class="workflow-step" role="listitem">
+                        <div class="workflow-step-icon" aria-hidden="true">
+                            <i class="ti ti-chart-dots-3"></i>
+                            <span class="workflow-step-num">5</span>
+                        </div>
+                        <p class="workflow-step-label">Statistics / analyses / projects</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# ── Slide 4: What users get ─────────────────────────────────── #}
+        <section class="slide" data-slide="4" id="slide-4" aria-labelledby="slide-4-lead">
+            <div class="slide-inner">
+                <span class="slide-label">Capabilities</span>
+                <p class="slide-lead" id="slide-4-lead">What users receive</p>
+                <div class="row g-3">
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-settings-automation" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Automated processing</p>
+                            <p class="deck-card-text">End-to-end processing of IVENA export files with validation and structured ingestion.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-filter" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Data cleansing &amp; normalization</p>
+                            <p class="deck-card-text">Consistent field mapping and quality checks across datasets.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-chart-bar" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Standardized metrics</p>
+                            <p class="deck-card-text">Comparable indicators ready for analysis and reporting.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-chart-line" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Interactive statistics</p>
+                            <p class="deck-card-text">Explorable views for patterns, trends, and drill-down analysis.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-file-export" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Exportable research datasets</p>
+                            <p class="deck-card-text">Structured exports for downstream scientific workflows.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-book" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Foundation for publications &amp; studies</p>
+                            <p class="deck-card-text">A reliable basis for abstracts, manuscripts, and grant applications.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# ── Slide 5: Example analyses ───────────────────────────────── #}
+        <section class="slide" data-slide="5" id="slide-5" aria-labelledby="slide-5-lead">
+            <div class="slide-inner">
+                <span class="slide-label">Example analyses</span>
+                <p class="slide-lead" id="slide-5-lead">Key platform areas — demonstrated live in the application</p>
+                <div class="row g-3">
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-table" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Data exploration</p>
+                            <p class="deck-card-text">Browse and filter individual allocations.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Statistics overview</p>
+                            <p class="deck-card-text">Platform-wide summary of key indicators.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-list-numbers" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Top 25 diagnoses</p>
+                            <p class="deck-card-text">Most frequent primary diagnoses across datasets.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-chart-line" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Urgency by month</p>
+                            <p class="deck-card-text">Analytics library view of temporal urgency patterns.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Indication insights</p>
+                            <p class="deck-card-text">Structured views of clinical indication clusters.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="deck-card">
+                            <div class="deck-card-icon"><i class="ti ti-chart-arrows-vertical" aria-hidden="true"></i></div>
+                            <p class="deck-card-title">Benchmark</p>
+                            <p class="deck-card-text">Cross-site comparison of standardized metrics.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# ── Slide 6: Scientific value ─────────────────────────────────── #}
+        <section class="slide" data-slide="6" id="slide-6" aria-labelledby="slide-6-lead">
+            <div class="slide-inner">
+                <span class="slide-label">Scientific value</span>
+                <p class="slide-lead" id="slide-6-lead">
+                    Operational routine data becomes a robust foundation for health services research.
+                </p>
+                <div class="value-badges">
+                    <span class="value-badge"><i class="ti ti-history" aria-hidden="true"></i> Retrospective analyses</span>
+                    <span class="value-badge"><i class="ti ti-bulb" aria-hidden="true"></i> Hypothesis generation</span>
+                    <span class="value-badge"><i class="ti ti-building-hospital" aria-hidden="true"></i> Multicentre studies</span>
+                    <span class="value-badge"><i class="ti ti-chart-arrows-vertical" aria-hidden="true"></i> Benchmarking</span>
+                    <span class="value-badge"><i class="ti ti-checklist" aria-hidden="true"></i> Quality indicators</span>
+                    <span class="value-badge"><i class="ti ti-route" aria-hidden="true"></i> Directing patient flow</span>
+                    <span class="value-badge"><i class="ti ti-file-text" aria-hidden="true"></i> Publication basis</span>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-4">
+                        <div class="deck-card text-center">
+                            <p class="metric-value mb-1">{{ hospitalCount|number_format(0, '.', ',') }}</p>
+                            <p class="deck-card-text">Participating hospitals</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="deck-card text-center">
+                            <p class="metric-value mb-1">{{ importCount|number_format(0, '.', ',') }}</p>
+                            <p class="deck-card-text">Imports</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="deck-card text-center">
+                            <p class="metric-value mb-1">{{ allocationCount|number_format(0, '.', ',') }}</p>
+                            <p class="deck-card-text">Total allocations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# ── Slide 7: Privacy & governance ─────────────────────────────── #}
+        <section class="slide" data-slide="7" id="slide-7" aria-labelledby="slide-7-lead">
+            <div class="slide-inner">
+                <span class="slide-label">Privacy &amp; governance</span>
+                <p class="slide-lead" id="slide-7-lead">
+                    Trust, data sovereignty, and privacy are core design principles.
+                </p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="deck-card d-flex gap-3">
+                            <div class="deck-card-icon flex-shrink-0 mb-0"><i class="ti ti-shield-check" aria-hidden="true"></i></div>
+                            <div>
+                                <p class="deck-card-title">GDPR-oriented concept</p>
+                                <p class="deck-card-text">Privacy-by-design aligned with European data protection requirements.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="deck-card d-flex gap-3">
+                            <div class="deck-card-icon flex-shrink-0 mb-0"><i class="ti ti-users" aria-hidden="true"></i></div>
+                            <div>
+                                <p class="deck-card-title">Role-based access control</p>
+                                <p class="deck-card-text">Granular permissions for institutions, researchers, and administrators.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="deck-card d-flex gap-3">
+                            <div class="deck-card-icon flex-shrink-0 mb-0"><i class="ti ti-eye-off" aria-hidden="true"></i></div>
+                            <div>
+                                <p class="deck-card-title">Pseudonymization &amp; anonymization</p>
+                                <p class="deck-card-text">Conceptual building blocks for responsible data handling.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="deck-card d-flex gap-3">
+                            <div class="deck-card-icon flex-shrink-0 mb-0"><i class="ti ti-list-details" aria-hidden="true"></i></div>
+                            <div>
+                                <p class="deck-card-title">Transparent data processing</p>
+                                <p class="deck-card-text">Documented workflows suitable for governance review.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="deck-card d-flex gap-3">
+                            <div class="deck-card-icon flex-shrink-0 mb-0"><i class="ti ti-trash" aria-hidden="true"></i></div>
+                            <div>
+                                <p class="deck-card-title">Export &amp; deletion options</p>
+                                <p class="deck-card-text">Institutions retain control over their contributed data.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="deck-card d-flex gap-3">
+                            <div class="deck-card-icon flex-shrink-0 mb-0"><i class="ti ti-certificate" aria-hidden="true"></i></div>
+                            <div>
+                                <p class="deck-card-title">Ethics &amp; governance readiness</p>
+                                <p class="deck-card-text">Designed to support scientific ethics and governance processes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# ── Slide 8: Closing / Contact ──────────────────────────────── #}
+        <section class="slide" data-slide="8" id="slide-8" aria-labelledby="slide-8-title">
+            <div class="slide-inner slide-center">
+                <span class="slide-label">Contact</span>
+                <h2 class="slide-title" id="slide-8-title">From data to evidence.</h2>
+                <p class="slide-subtitle">
+                    A platform for modern EMS health services research.
+                </p>
+                <div class="contact-grid text-start mt-4">
+                    <div class="contact-item">
+                        <i class="ti ti-user" aria-hidden="true"></i>
+                        <div>
+                            <p class="contact-label">Name</p>
+                            <p class="contact-value">{{ contactName is not empty ? contactName : '—' }}</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="ti ti-building" aria-hidden="true"></i>
+                        <div>
+                            <p class="contact-label">Institution</p>
+                            <p class="contact-value">{{ contactInstitution is not empty ? contactInstitution : '—' }}</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="ti ti-mail" aria-hidden="true"></i>
+                        <div>
+                            <p class="contact-label">E-mail</p>
+                            <p class="contact-value">
+                                {% if contactEmail is not empty %}
+                                    <a href="mailto:{{ contactEmail|e('html_attr') }}" class="contact-link text-reset text-decoration-none">{{ contactEmail }}</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="ti ti-world" aria-hidden="true"></i>
+                        <div>
+                            <p class="contact-label">Website</p>
+                            <p class="contact-value">
+                                <a href="https://versorgungsforschung.io/" class="contact-link text-reset text-decoration-none" target="_blank" rel="noopener noreferrer">versorgungsforschung.io</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<footer class="deck-footer">
+    <div class="deck-progress" role="progressbar" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1" id="deck-progress">
+        <div class="deck-progress-bar" id="deck-progress-bar"></div>
+    </div>
+    <div class="deck-controls">
+        <button type="button" class="deck-btn" id="btn-prev" aria-label="Previous slide" disabled>
+            <i class="ti ti-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="deck-btn" id="btn-next" aria-label="Next slide">
+            <i class="ti ti-chevron-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="deck-btn" id="btn-fullscreen" aria-label="Toggle fullscreen">
+            <i class="ti ti-maximize" aria-hidden="true" id="icon-fullscreen"></i>
+        </button>
+    </div>
+</footer>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ── Slideshow controller ─────────────────────────────────────────── */
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const total = slides.length;
+    const currentEl = document.getElementById('slide-current');
+    const totalEl = document.getElementById('slide-total');
+    const progressBar = document.getElementById('deck-progress-bar');
+    const progressEl = document.getElementById('deck-progress');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const iconFullscreen = document.getElementById('icon-fullscreen');
+
+    let current = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const SWIPE_THRESHOLD = 50;
+
+    totalEl.textContent = String(total);
+
+    /** Resolve initial slide from URL hash (#slide-N). */
+    function getInitialIndex() {
+        const match = window.location.hash.match(/^#slide-(\d+)$/);
+        if (!match) {
+            return 0;
+        }
+        const index = parseInt(match[1], 10) - 1;
+        return index >= 0 && index < total ? index : 0;
+    }
+
+    /** Update visible slide, chrome, and URL hash. */
+    function goTo(index, { updateHash = true } = {}) {
+        if (index < 0 || index >= total || index === current) {
+            return;
+        }
+
+        slides[current].classList.remove('is-active');
+        slides[current].classList.add('is-prev');
+        current = index;
+        slides.forEach(function (slide, i) {
+            slide.classList.toggle('is-prev', i < current);
+            slide.classList.toggle('is-active', i === current);
+        });
+
+        const slideNum = current + 1;
+        currentEl.textContent = String(slideNum);
+        progressBar.style.transform = 'scaleX(' + (slideNum / total) + ')';
+        progressEl.setAttribute('aria-valuenow', String(slideNum));
+        btnPrev.disabled = current === 0;
+        btnNext.disabled = current === total - 1;
+
+        if (updateHash) {
+            history.replaceState(null, '', '#slide-' + slideNum);
+        }
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    /* ── Keyboard navigation ──────────────────────────────────────────── */
+    document.addEventListener('keydown', function (event) {
+        if (event.target.closest('input, textarea, select, a[href^="mailto:"]')) {
+            return;
+        }
+        switch (event.key) {
+            case 'ArrowRight':
+            case 'ArrowDown':
+            case 'PageDown':
+            case ' ':
+                event.preventDefault();
+                next();
+                break;
+            case 'ArrowLeft':
+            case 'ArrowUp':
+            case 'PageUp':
+                event.preventDefault();
+                prev();
+                break;
+            case 'Home':
+                event.preventDefault();
+                goTo(0);
+                break;
+            case 'End':
+                event.preventDefault();
+                goTo(total - 1);
+                break;
+        }
+    });
+
+    /* ── Button navigation ────────────────────────────────────────────── */
+    btnPrev.addEventListener('click', prev);
+    btnNext.addEventListener('click', next);
+
+    /* ── Touch / swipe gestures ───────────────────────────────────────── */
+    document.querySelector('.deck-main').addEventListener('touchstart', function (event) {
+        touchStartX = event.changedTouches[0].screenX;
+        touchStartY = event.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.querySelector('.deck-main').addEventListener('touchend', function (event) {
+        const deltaX = event.changedTouches[0].screenX - touchStartX;
+        const deltaY = event.changedTouches[0].screenY - touchStartY;
+
+        if (Math.abs(deltaX) < SWIPE_THRESHOLD || Math.abs(deltaY) > Math.abs(deltaX)) {
+            return;
+        }
+
+        if (deltaX < 0) {
+            next();
+        } else {
+            prev();
+        }
+    }, { passive: true });
+
+    /* ── Fullscreen toggle ────────────────────────────────────────────── */
+    btnFullscreen.addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function () { /* ignored */ });
+        } else {
+            document.exitFullscreen();
+        }
+    });
+
+    document.addEventListener('fullscreenchange', function () {
+        const isFs = !!document.fullscreenElement;
+        iconFullscreen.className = isFs ? 'ti ti-minimize' : 'ti ti-maximize';
+        btnFullscreen.setAttribute('aria-label', isFs ? 'Exit fullscreen' : 'Toggle fullscreen');
+    });
+
+    /* ── Hash change (browser back/forward) ───────────────────────────── */
+    window.addEventListener('hashchange', function () {
+        goTo(getInitialIndex(), { updateHash: false });
+    });
+
+    /* ── Initialise ───────────────────────────────────────────────────── */
+    current = getInitialIndex();
+    if (current !== 0) {
+        slides[0].classList.remove('is-active');
+        slides.forEach(function (slide, i) {
+            slide.classList.toggle('is-active', i === current);
+            slide.classList.toggle('is-prev', i < current);
+        });
+        const slideNum = current + 1;
+        currentEl.textContent = String(slideNum);
+        progressBar.style.transform = 'scaleX(' + (slideNum / total) + ')';
+        progressEl.setAttribute('aria-valuenow', String(slideNum));
+        btnPrev.disabled = current === 0;
+        btnNext.disabled = current === total - 1;
+    }
+})();
+</script>
+</body>
+</html>
