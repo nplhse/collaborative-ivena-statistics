@@ -49,6 +49,32 @@ final class RejectMessageNormalizerTest extends TestCase
         self::assertSame('Unknown', $result['rejected_value']);
     }
 
+    public function testDispatchAreaRejectUsesZuweisungDurchColumn(): void
+    {
+        $message = 'REF_NOT_FOUND | Reference not found for "dispatchArea" | field=dispatchArea';
+
+        $result = $this->normalizer->normalize($message, [
+            'zuweisung_durch' => 'Berlin (Disponent)',
+            'versorgungsbereich' => 'Leitstelle Waldeck-Frankenberg',
+        ]);
+
+        self::assertSame('dispatchArea', $result['field']);
+        self::assertSame('Berlin (Disponent)', $result['rejected_value']);
+    }
+
+    public function testDispatchAreaRejectUsesVersorgungsbereichForKoordinierungsstelle(): void
+    {
+        $message = 'REF_NOT_FOUND | field=dispatchArea';
+
+        $result = $this->normalizer->normalize($message, [
+            'zuweisung_durch' => 'Koordinierungsstelle für Sekundärtransporte - HE (Einsatzbearbeiter)',
+            'versorgungsbereich' => 'Leitstelle Frankfurt',
+        ]);
+
+        self::assertSame('dispatchArea', $result['field']);
+        self::assertSame('Leitstelle Frankfurt', $result['rejected_value']);
+    }
+
     public function testUnknownMessageUsesUnknownField(): void
     {
         $result = $this->normalizer->normalize('Unable to detect a supported row type.', []);
