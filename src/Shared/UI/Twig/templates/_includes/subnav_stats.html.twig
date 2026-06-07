@@ -21,11 +21,11 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item {{ route == 'app_stats_pivot_tables' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_stats_pivot_tables') }}">
+                    <li class="nav-item {{ route == 'app_stats_reports' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_reports') }}">
                             <span class="nav-link-title">
-                                <twig:ux:icon name="tabler:table" style="height: 1.2em;" />
-                                {{ 'link.stats.pivot_tables'|trans }}
+                                <twig:ux:icon name="tabler:report-search" style="height: 1.2em;" />
+                                {{ 'link.stats.reports'|trans }}
                             </span>
                         </a>
                     </li>
@@ -45,11 +45,19 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item {{ route == 'app_stats_reports' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_stats_reports') }}">
+                    <li class="nav-item {{ route == 'app_stats_pivot_tables' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_pivot_tables') }}">
                             <span class="nav-link-title">
-                                <twig:ux:icon name="tabler:report-search" style="height: 1.2em;" />
-                                {{ 'link.stats.reports'|trans }}
+                                <twig:ux:icon name="tabler:table" style="height: 1.2em;" />
+                                {{ 'link.stats.pivot_tables'|trans }}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ route == 'app_stats_case_flow' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_case_flow') }}">
+                            <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:route" style="height: 1.2em;" />
+                                {{ 'link.stats.case_flow'|trans }}
                             </span>
                         </a>
                     </li>
