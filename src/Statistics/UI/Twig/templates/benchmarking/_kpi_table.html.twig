@@ -1,0 +1,67 @@
+<div class="card mb-3" data-testid="stats-benchmark-kpi-table">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.kpi'|trans }}</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>{{ 'stats.benchmark.kpi.metric'|trans }}</th>
+                    <th class="text-end">{{ 'stats.benchmark.kpi.primary'|trans }}</th>
+                    <th class="text-end">{{ 'stats.benchmark.kpi.comparison'|trans }}</th>
+                    <th class="text-end">{{ 'stats.benchmark.kpi.delta'|trans }}</th>
+                    <th class="text-end">{{ 'stats.benchmark.kpi.ratio'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for metric in report.kpiMetrics %}
+                    {% set deltaTone = metric.absoluteDelta > 0 ? 'success' : (metric.absoluteDelta < 0 ? 'danger' : 'primary') %}
+                    {% set deltaBadgeClass = deltaTone == 'danger' ? 'bg-red-lt' : (deltaTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
+                    {% set ratioTone = metric.ratio > 1 ? 'success' : (metric.ratio < 1 ? 'danger' : 'primary') %}
+                    {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
+
+                    <tr data-testid="stats-benchmark-kpi-{{ metric.key.value }}">
+                        <td>{{ ('stats.benchmark.metric.' ~ metric.key.value)|trans }}</td>
+                        <td class="text-end">
+                            {% if metric.format.value == 'percent' %}
+                                {{ metric.primaryValue|number_format(1, ',', '.') }}%
+                            {% elseif metric.format.value == 'years' %}
+                                {{ metric.primaryValue|number_format(1, ',', '.') }}
+                            {% elseif metric.format.value == 'minutes' %}
+                                {{ metric.primaryValue|number_format(1, ',', '.') }} min
+                            {% else %}
+                                {{ metric.primaryValue|number_format(0, ',', '.') }}
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if metric.format.value == 'percent' %}
+                                {{ metric.comparisonValue|number_format(1, ',', '.') }}%
+                            {% elseif metric.format.value == 'years' %}
+                                {{ metric.comparisonValue|number_format(1, ',', '.') }}
+                            {% elseif metric.format.value == 'minutes' %}
+                                {{ metric.comparisonValue|number_format(1, ',', '.') }} min
+                            {% else %}
+                                {{ metric.comparisonValue|number_format(0, ',', '.') }}
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if metric.format.value == 'percent' %}
+                                {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') ~ '%' %}
+                            {% elseif metric.format.value == 'count' %}
+                                {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(0, ',', '.') %}
+                            {% elseif metric.format.value == 'minutes' %}
+                                {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') ~ ' min' %}
+                            {% else %}
+                                {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') %}
+                            {% endif %}
+                            <span class="badge {{ deltaBadgeClass }}" data-testid="stats-benchmark-kpi-delta-{{ metric.key.value }}">{{ deltaLabel }}</span>
+                        </td>
+                        <td class="text-end">
+                            <span class="badge {{ ratioBadgeClass }}" data-testid="stats-benchmark-kpi-ratio-{{ metric.key.value }}">{{ metric.ratio|number_format(1, ',', '.') }}×</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
