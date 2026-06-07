@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { buildHeatmapSeries } from '../lib/build-heatmap-series.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -310,13 +311,7 @@ export default class extends Controller {
         const matrix = heatmap.matrix ?? [];
         const colorScale = this.buildHeatmapColorScale(matrix);
 
-        const series = columnLabels.map((colLabel, colIndex) => ({
-            name: colLabel,
-            data: rowLabels.map((rowLabel, rowIndex) => ({
-                x: rowLabel,
-                y: matrix[rowIndex]?.[colIndex] ?? 0,
-            })),
-        }));
+        const series = buildHeatmapSeries(columnLabels, rowLabels, matrix);
 
         const chart = new ApexCharts(this.heatmapChartTarget, {
             chart: {
