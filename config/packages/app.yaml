@@ -1,9 +1,21 @@
 parameters:
     app.default.title: 'Collaborative IVENA statistics'
+    app.pitch_deck.default_path: '/deck/versorgungsforschung'
+    pitch_deck_enabled_default: '0'
+    pitch_deck_contact_name_default: ''
+    pitch_deck_contact_institution_default: ''
+    pitch_deck_contact_email_default: ''
 
 app:
     title: '%env(default:app.default.title:APP_TITLE)%'
     short_title: 'COIS'
+    pitch_deck:
+        enabled: '%env(bool:default:pitch_deck_enabled_default:PITCH_DECK_ENABLED)%'
+        path: '%env(default:app.pitch_deck.default_path:PITCH_DECK_PATH)%'
+        contact:
+            name: '%env(default:pitch_deck_contact_name_default:PITCH_DECK_CONTACT_NAME)%'
+            institution: '%env(default:pitch_deck_contact_institution_default:PITCH_DECK_CONTACT_INSTITUTION)%'
+            email: '%env(default:pitch_deck_contact_email_default:PITCH_DECK_CONTACT_EMAIL)%'
     blog:
         title: 'Our Blog'
         description: 'Updates, Backgrounds and News about Collaborative IVENA Statistics.'

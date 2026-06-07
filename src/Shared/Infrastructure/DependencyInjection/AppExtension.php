@@ -35,5 +35,13 @@ final class AppExtension extends Extension
         $container->setParameter('app.feedback.spam.authenticated_threshold', $spamConfig['authenticated_threshold']);
         $container->setParameter('app.feedback.spam.authenticated_score_bonus', $spamConfig['authenticated_score_bonus']);
         $container->setParameter('app.feedback.spam.keywords', $spamConfig['keywords']);
+
+        // Pitch deck settings
+        $pitchDeckConfig = $config['pitch_deck'];
+        $container->setParameter('app.pitch_deck.enabled', $pitchDeckConfig['enabled']);
+        $container->setParameter('app.pitch_deck.path', $pitchDeckConfig['path']);
+        $container->setParameter('app.pitch_deck.contact.name', $pitchDeckConfig['contact']['name']);
+        $container->setParameter('app.pitch_deck.contact.institution', $pitchDeckConfig['contact']['institution']);
+        $container->setParameter('app.pitch_deck.contact.email', $pitchDeckConfig['contact']['email']);
     }
 }
