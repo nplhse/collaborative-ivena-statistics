@@ -15,6 +15,16 @@ enum AllocationStatsShiftBucketProjectionCode: int
 
     case LateShift = 3;
 
+    /** @return list<self> */
+    public static function displayOrder(): array
+    {
+        return [
+            self::EarlyShift,
+            self::LateShift,
+            self::NightShift,
+        ];
+    }
+
     public function labelTranslationKey(): string
     {
         return match ($this) {

@@ -13,6 +13,15 @@ enum AllocationStatsTransportTypeProjectionCode: int
 
     case Air = 2;
 
+    /** @return list<self> */
+    public static function displayOrder(): array
+    {
+        return [
+            self::Ground,
+            self::Air,
+        ];
+    }
+
     /**
      * Maps persisted allocation.transport_type letter (G/A) to a projection code.
      */

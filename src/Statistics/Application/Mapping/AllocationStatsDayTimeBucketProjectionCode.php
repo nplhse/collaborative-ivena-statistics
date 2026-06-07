@@ -17,6 +17,17 @@ enum AllocationStatsDayTimeBucketProjectionCode: int
 
     case Evening = 4;
 
+    /** @return list<self> */
+    public static function displayOrder(): array
+    {
+        return [
+            self::Morning,
+            self::Afternoon,
+            self::Evening,
+            self::Night,
+        ];
+    }
+
     public function labelTranslationKey(): string
     {
         return match ($this) {

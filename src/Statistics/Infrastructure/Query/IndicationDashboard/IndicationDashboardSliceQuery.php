@@ -6,6 +6,8 @@ namespace App\Statistics\Infrastructure\Query\IndicationDashboard;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardSliceData;
 use Doctrine\DBAL\Connection;
 
@@ -34,8 +36,8 @@ final readonly class IndicationDashboardSliceQuery
         [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
         $params['indication_id'] = $indicationId;
 
-        $ageBucketCase = IndicationDashboardAgeBucketSql::CASE_EXPRESSION;
-        $transportBucketCase = IndicationDashboardTransportTimeBucketSql::CASE_EXPRESSION;
+        $ageBucketCase = StatisticsAgeGroupBucketSql::CASE_EXPRESSION;
+        $transportBucketCase = StatisticsTransportTimeBucketSql::CASE_EXPRESSION;
         $maleCode = AllocationStatsGenderProjectionCode::Male->value;
         $femaleCode = AllocationStatsGenderProjectionCode::Female->value;
         $otherCode = AllocationStatsGenderProjectionCode::Other->value;

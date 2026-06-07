@@ -2,14 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Infrastructure\Query\IndicationDashboard;
+namespace App\Statistics\Application\Mapping;
 
 /**
  * Transport duration buckets in minutes (aligned with statistics.distribution.transport_time_bucket.*).
  */
-final class IndicationDashboardTransportTimeBucketSql
+final class StatisticsTransportTimeBucketSql
 {
-    public const string BUCKET_KEYS = 'under_10,10_20,20_30,30_40,40_50,50_60,over_60';
+    /** @var list<string> */
+    public const array DISPLAY_BUCKET_KEYS = [
+        'under_10',
+        '10_20',
+        '20_30',
+        '30_40',
+        '40_50',
+        '50_60',
+        'over_60',
+    ];
+
+    /** @var list<string> */
+    public const array BUCKET_KEYS = [
+        ...self::DISPLAY_BUCKET_KEYS,
+        'unknown',
+    ];
 
     public const string CASE_EXPRESSION = <<<'SQL'
 CASE
