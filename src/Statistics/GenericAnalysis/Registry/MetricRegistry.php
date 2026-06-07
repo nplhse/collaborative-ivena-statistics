@@ -175,6 +175,7 @@ final class MetricRegistry
         $this->registerBooleanRateMetric('cathlab_rate', 'Cath lab rate', 'requires_cathlab', 44);
         $this->registerBooleanRateMetric('pregnancy_rate', 'Pregnancy rate', 'is_pregnant', 45);
         $this->registerBooleanRateMetric('work_accident_rate', 'Work accident rate', 'is_work_accident', 46);
+        $this->registerBooleanRateMetric('with_physician_rate', 'Physician accompaniment rate', 'is_with_physician', 47);
     }
 
     private function registerBooleanRateMetric(

@@ -59,6 +59,7 @@ final class MetricRegistryTest extends TestCase
             'cathlab_rate' => 'requires_cathlab',
             'pregnancy_rate' => 'is_pregnant',
             'work_accident_rate' => 'is_work_accident',
+            'with_physician_rate' => 'is_with_physician',
         ];
 
         foreach ($rates as $key => $column) {

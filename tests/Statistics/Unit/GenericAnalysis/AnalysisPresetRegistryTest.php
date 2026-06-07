@@ -58,6 +58,57 @@ final class AnalysisPresetRegistryTest extends TestCase
         self::assertSame(['count', 'cpr_rate'], $cpr->metricKeys);
     }
 
+    public function testExpansionPresetsAreRegistered(): void
+    {
+        $genderByUrgency = $this->registry->get('gender_distribution_by_urgency');
+        self::assertSame('urgency', $genderByUrgency->primaryDimensionKey);
+        self::assertSame('gender', $genderByUrgency->seriesDimensionKey);
+        self::assertFalse($genderByUrgency->includeNullBuckets);
+
+        $transportByMonth = $this->registry->get('transport_time_by_month');
+        self::assertSame('month', $transportByMonth->primaryDimensionKey);
+        self::assertSame('median_transport_time', $transportByMonth->visualMetricKey);
+
+        $shock = $this->registry->get('shock_rate_by_department');
+        self::assertSame(['count', 'shock_rate'], $shock->metricKeys);
+
+        $ventilation = $this->registry->get('ventilation_rate_by_hour');
+        self::assertSame('hour', $ventilation->primaryDimensionKey);
+
+        $cathlab = $this->registry->get('cathlab_rate_by_speciality');
+        self::assertSame('speciality', $cathlab->primaryDimensionKey);
+
+        $pregnancy = $this->registry->get('pregnancy_rate_by_month');
+        self::assertSame('pregnancy_rate', $pregnancy->visualMetricKey);
+
+        $workAccident = $this->registry->get('work_accident_rate_by_month');
+        self::assertSame('work_accident_rate', $workAccident->visualMetricKey);
+
+        $resusRate = $this->registry->get('resus_rate_by_hour');
+        self::assertSame(['count', 'resus_rate'], $resusRate->metricKeys);
+
+        $byDepartment = $this->registry->get('allocations_by_department');
+        self::assertSame('department', $byDepartment->primaryDimensionKey);
+
+        $urgencyByDepartment = $this->registry->get('urgency_by_department');
+        self::assertSame('urgency', $urgencyByDepartment->seriesDimensionKey);
+
+        $byHospital = $this->registry->get('allocations_by_hospital');
+        self::assertSame('hospital', $byHospital->primaryDimensionKey);
+
+        $weekdayShare = $this->registry->get('allocations_by_weekday_with_share');
+        self::assertSame(['count', 'percent_of_total'], $weekdayShare->metricKeys);
+
+        $transportByUrgency = $this->registry->get('transport_time_by_urgency');
+        self::assertSame('urgency', $transportByUrgency->primaryDimensionKey);
+        self::assertSame('median_transport_time', $transportByUrgency->visualMetricKey);
+
+        $withPhysician = $this->registry->get('with_physician_rate_by_month');
+        self::assertSame('month', $withPhysician->primaryDimensionKey);
+        self::assertSame(['count', 'with_physician_rate'], $withPhysician->metricKeys);
+        self::assertSame('with_physician_rate', $withPhysician->visualMetricKey);
+    }
+
     public function testLegacyPresetsDefaultToEmptyMetrics(): void
     {
         $preset = $this->registry->get('allocations_by_month');
