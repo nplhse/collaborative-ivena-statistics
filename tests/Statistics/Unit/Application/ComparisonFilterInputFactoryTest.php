@@ -128,6 +128,66 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         self::assertSame(2, $input->month);
     }
 
+    public function testBuildsMyHospitalsComparisonInput(): void
+    {
+        $primaryFilter = new StatisticsFilter(
+            StatisticsFilterScope::Public,
+            null,
+            null,
+            StatisticsFilterPeriod::All,
+        );
+
+        $input = $this->factory->fromQuery(
+            $this->queryBag(['comparison_scope' => 'my_hospitals']),
+            $primaryFilter,
+            'urban_basic',
+        );
+
+        self::assertSame('my_hospitals', $input->scope);
+        self::assertTrue($input->hasScopeQueryParameter);
+    }
+
+    public function testBuildsHospitalComparisonInputFromScopeAndHospitalQuery(): void
+    {
+        $primaryFilter = new StatisticsFilter(
+            StatisticsFilterScope::Public,
+            null,
+            null,
+            StatisticsFilterPeriod::All,
+        );
+
+        $input = $this->factory->fromQuery(
+            $this->queryBag([
+                'comparison_scope' => 'hospital',
+                'comparison_hospital' => '42',
+            ]),
+            $primaryFilter,
+            'urban_basic',
+        );
+
+        self::assertSame('hospital', $input->scope);
+        self::assertSame('42', $input->hospital);
+    }
+
+    public function testBuildsHospitalComparisonInputFromColonSyntax(): void
+    {
+        $primaryFilter = new StatisticsFilter(
+            StatisticsFilterScope::Public,
+            null,
+            null,
+            StatisticsFilterPeriod::All,
+        );
+
+        $input = $this->factory->fromQuery(
+            $this->queryBag(['comparison_scope' => 'hospital:99']),
+            $primaryFilter,
+            'urban_basic',
+        );
+
+        self::assertSame('hospital', $input->scope);
+        self::assertSame('99', $input->hospital);
+    }
+
     /**
      * @param array<string, string> $parameters
      *
