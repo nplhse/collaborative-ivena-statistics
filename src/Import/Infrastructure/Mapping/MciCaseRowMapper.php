@@ -11,9 +11,15 @@ use App\Import\Application\DTO\MciCaseRowDTO;
  * Maps a normalized associative CSV row (snake_case keys produced by
  * SplCsvRowReader::rowsAssoc()) into an MciCaseRowDTO.
  */
-final class MciCaseRowMapper implements MciCaseRowToDtoMapperInterface
+final readonly class MciCaseRowMapper implements MciCaseRowToDtoMapperInterface
 {
     use AllocationRowNormalizationTrait;
+
+    public function __construct(
+        private DispatchAreaSourceResolver $dispatchAreaSourceResolver = new DispatchAreaSourceResolver(),
+        private DispatchAreaNameNormalizer $dispatchAreaNameNormalizer = new DispatchAreaNameNormalizer(),
+    ) {
+    }
 
     /**
      * @param array<string,string> $row
@@ -26,12 +32,9 @@ final class MciCaseRowMapper implements MciCaseRowToDtoMapperInterface
         // Required direct string fields
         $dto->hospital = self::getStringOrNull($row, 'krankenhaus_kurzname');
 
-        // Dispatch area source (single-hospital import may still vary)
-        $dispatchSource = $row['zuweisung_durch'] ?? null;
-        if (null === $dispatchSource || '' === $dispatchSource) {
-            $dispatchSource = $row['versorgungsbereich'] ?? null;
-        }
-        $dto->dispatchArea = self::normalizeDispatchArea($dispatchSource);
+        // Dispatch area: disponierende Leitstelle from Zuweisung durch (see DispatchAreaSourceResolver)
+        $dispatchSource = $this->dispatchAreaSourceResolver->resolve($row);
+        $dto->dispatchArea = $this->dispatchAreaNameNormalizer->normalize($dispatchSource->value);
 
         // Date fields (string format "d.m.Y H:i")
         $dto->createdAt = self::combineDateAndTime(
