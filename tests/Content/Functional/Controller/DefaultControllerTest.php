@@ -61,6 +61,8 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/benchmarking"]');
         self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/indication-insights"]');
         self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/analytics"]');
+        self::assertSelectorExists('.home-screenshot-carousel .carousel-caption[data-testid="home-screenshot-caption"]');
+        self::assertSelectorTextContains('body', 'Shared overview of allocations, trends and clinical distributions across the network.');
     }
 
     public function testAuthenticatedUsersSeeDashboardOnHomepage(): void

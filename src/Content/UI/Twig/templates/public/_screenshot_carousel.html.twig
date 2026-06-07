@@ -2,18 +2,22 @@
     {
         src: 'images/home/dashboard.png',
         alt: 'public.home.screenshots.dashboard.alt'|trans,
+        caption: 'public.home.screenshots.dashboard.caption'|trans,
     },
     {
         src: 'images/home/benchmarking.png',
         alt: 'public.home.screenshots.benchmarking.alt'|trans,
+        caption: 'public.home.screenshots.benchmarking.caption'|trans,
     },
     {
         src: 'images/home/indication-insights.png',
         alt: 'public.home.screenshots.indication_insights.alt'|trans,
+        caption: 'public.home.screenshots.indication_insights.caption'|trans,
     },
     {
         src: 'images/home/analytics.png',
         alt: 'public.home.screenshots.analytics.alt'|trans,
+        caption: 'public.home.screenshots.analytics.caption'|trans,
     },
 ] %}
 
@@ -47,6 +51,10 @@
                                  height="800"
                                  loading="{{ loop.first ? 'eager' : 'lazy' }}">
                         </a>
+                    </div>
+                    <div class="carousel-caption-background"></div>
+                    <div class="carousel-caption" data-testid="home-screenshot-caption">
+                        <p class="mb-0">{{ screenshot.caption }}</p>
                     </div>
                 </div>
             {% endfor %}
