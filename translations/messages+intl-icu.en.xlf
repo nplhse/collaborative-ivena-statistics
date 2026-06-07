@@ -1717,6 +1717,50 @@
         <source>public.home.stats.title</source>
         <target>Project overview</target>
       </trans-unit>
+      <trans-unit id="HpScrn01" resname="public.home.screenshots.analytics.alt">
+        <source>public.home.screenshots.analytics.alt</source>
+        <target>Custom analytics view showing gender distribution by urgency with analysis options</target>
+      </trans-unit>
+      <trans-unit id="HpScrn01c" resname="public.home.screenshots.analytics.caption">
+        <source>public.home.screenshots.analytics.caption</source>
+        <target>Customize analyses by urgency, gender and other clinical dimensions.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn02" resname="public.home.screenshots.benchmarking.alt">
+        <source>public.home.screenshots.benchmarking.alt</source>
+        <target>Benchmarking view comparing primary and comparison cohorts across key metrics</target>
+      </trans-unit>
+      <trans-unit id="HpScrn02c" resname="public.home.screenshots.benchmarking.caption">
+        <source>public.home.screenshots.benchmarking.caption</source>
+        <target>Benchmark hospitals and regions on key emergency care indicators.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn03" resname="public.home.screenshots.carousel_label">
+        <source>public.home.screenshots.carousel_label</source>
+        <target>Platform screenshots</target>
+      </trans-unit>
+      <trans-unit id="HpScrn04" resname="public.home.screenshots.dashboard.alt">
+        <source>public.home.screenshots.dashboard.alt</source>
+        <target>Statistics overview dashboard with allocation trends and clinical distributions</target>
+      </trans-unit>
+      <trans-unit id="HpScrn04c" resname="public.home.screenshots.dashboard.caption">
+        <source>public.home.screenshots.dashboard.caption</source>
+        <target>Shared overview of allocations, trends and clinical distributions across the network.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn05" resname="public.home.screenshots.indication_insights.alt">
+        <source>public.home.screenshots.indication_insights.alt</source>
+        <target>Indication profile with cases over time, distribution heatmap and clinical features</target>
+      </trans-unit>
+      <trans-unit id="HpScrn05c" resname="public.home.screenshots.indication_insights.caption">
+        <source>public.home.screenshots.indication_insights.caption</source>
+        <target>Explore indication profiles with time trends and case distributions.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn06" resname="public.home.screenshots.next">
+        <source>public.home.screenshots.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="HpScrn07" resname="public.home.screenshots.previous">
+        <source>public.home.screenshots.previous</source>
+        <target>Previous</target>
+      </trans-unit>
       <trans-unit id="rJakKKg" resname="public.stats.allocations">
         <source>public.stats.allocations</source>
         <target>Allocations</target>
