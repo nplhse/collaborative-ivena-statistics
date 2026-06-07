@@ -82,7 +82,7 @@ final class AnalysisViewRegistryTest extends KernelTestCase
         $featured = $this->viewRegistry->featured();
         self::assertCount(6, $featured);
 
-        $featuredKeys = array_map(static fn ($view) => $view->key, $featured);
+        $featuredKeys = array_map(static fn (\App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewDefinition $view): string => $view->key, $featured);
         self::assertSame([
             'allocations_by_month',
             'urgency_by_month',
