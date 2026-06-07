@@ -18,19 +18,21 @@
                     <ul class="navbar-nav">
                         {% block navbar_links %}
                             {% if is_granted('ROLE_USER') %}
-                                <li class="nav-item {{ route starts with 'app_explore' ? 'active' : '' }}">
-                                    <a class="nav-link" href="{{ path('app_explore_index') }}">
-                                        <span class="nav-link-title">
-                                            <twig:ux:icon name="tabler:compass" style="height: 1.5em;" />
-                                            {{ 'link.explore'|trans }}
-                                        </span>
-                                    </a>
-                                </li>
                                 <li class="nav-item {{ route starts with 'app_stats' ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ path('app_stats_dashboard') }}">
                                         <span class="nav-link-title">
                                             <twig:ux:icon name="tabler:graph" style="height: 1.5em;" />
                                             {{ 'link.statistics'|trans }}
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if is_granted('ROLE_PARTICIPANT') %}
+                                <li class="nav-item {{ route starts with 'app_explore' ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ path('app_explore_index') }}">
+                                        <span class="nav-link-title">
+                                            <twig:ux:icon name="tabler:compass" style="height: 1.5em;" />
+                                            {{ 'link.explore'|trans }}
                                         </span>
                                     </a>
                                 </li>

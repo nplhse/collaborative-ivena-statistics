@@ -21,7 +21,10 @@ trait InteractsWithAuthenticatedUser
     protected function createClientAsAreaUser(): KernelBrowser
     {
         $client = static::createClient();
-        $areaUser = UserFactory::createOne(['username' => 'area-user'])->_real();
+        $areaUser = UserFactory::createOne([
+            'username' => 'area-user',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ])->_real();
         $client->loginUser($areaUser);
 
         return $client;
@@ -30,6 +33,22 @@ trait InteractsWithAuthenticatedUser
     protected function loginAsRoleUser(KernelBrowser $client): User
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $client->loginUser($user);
+
+        return $user;
+    }
+
+    protected function createClientAsParticipant(): KernelBrowser
+    {
+        $client = static::createClient();
+        $this->loginAsParticipant($client);
+
+        return $client;
+    }
+
+    protected function loginAsParticipant(KernelBrowser $client): User
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']])->_real();
         $client->loginUser($user);
 
         return $user;

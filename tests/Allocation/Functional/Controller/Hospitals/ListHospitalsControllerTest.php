@@ -60,7 +60,7 @@ class ListHospitalsControllerTest extends WebTestCase
     public function testTableCanBeSorted(): void
     {
         // Arrange
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createOne();
@@ -82,7 +82,7 @@ class ListHospitalsControllerTest extends WebTestCase
     public function testTableCanBePaginated(): void
     {
         // Arrange
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createOne();

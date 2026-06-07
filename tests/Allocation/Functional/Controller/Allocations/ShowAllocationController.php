@@ -36,7 +36,7 @@ final class ShowAllocationController extends WebTestCase
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -120,7 +120,7 @@ final class ShowAllocationController extends WebTestCase
 
     public function testShowRejectsPostMethod(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $client->request(Request::METHOD_POST, '/explore/allocation/1');
 
         self::assertResponseStatusCodeSame(405);
@@ -128,7 +128,7 @@ final class ShowAllocationController extends WebTestCase
 
     public function testShow404ForUnknownAllocation(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $client->request(Request::METHOD_GET, '/explore/allocation/999999');
         self::assertResponseStatusCodeSame(404);
     }

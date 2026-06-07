@@ -18,7 +18,7 @@ class DataControllerTest extends WebTestCase
 
     public function testOverviewIsDisplayed(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
 
         $client->request(Request::METHOD_GET, '/explore');
 

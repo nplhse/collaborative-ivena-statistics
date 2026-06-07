@@ -31,7 +31,7 @@ final class ShowMciCaseControllerTest extends WebTestCase
 
     public function testDetailPageShowsMciCase(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $mciCase = $this->createMciCase('Mass casualty incident alpha');
         $id = $mciCase->getId();
         self::assertNotNull($id);
@@ -46,7 +46,7 @@ final class ShowMciCaseControllerTest extends WebTestCase
 
     public function testDetailPageRejectsPostMethod(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $mciCase = $this->createMciCase();
         $id = $mciCase->getId();
         self::assertNotNull($id);

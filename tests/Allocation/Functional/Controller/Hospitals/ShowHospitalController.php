@@ -27,7 +27,7 @@ final class ShowHospitalController extends WebTestCase
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -76,7 +76,7 @@ final class ShowHospitalController extends WebTestCase
 
     public function testShowRejectsPostMethod(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -92,7 +92,7 @@ final class ShowHospitalController extends WebTestCase
 
     public function testShow404ForUnknownHospital(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $client->request(Request::METHOD_GET, '/explore/hospital/999999');
         self::assertResponseStatusCodeSame(404);
     }

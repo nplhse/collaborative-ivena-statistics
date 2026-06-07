@@ -61,7 +61,7 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/hospitals, roles: ROLE_PARTICIPANT }
         - { path: ^/explore/indication/raw/assign, roles: ROLE_ADMIN }
-        - { path: ^/explore, roles: ROLE_USER }
+        - { path: ^/explore, roles: ROLE_PARTICIPANT }
         - { path: ^/statistics, roles: ROLE_USER }
         - { path: ^/login/confirm, roles: IS_AUTHENTICATED_REMEMBERED }
         # - { path: ^/profile, roles: ROLE_USER }

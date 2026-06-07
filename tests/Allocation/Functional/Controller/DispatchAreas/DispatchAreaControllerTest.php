@@ -58,7 +58,7 @@ class DispatchAreaControllerTest extends WebTestCase
     public function testTableCanBeSorted(): void
     {
         // Arrange
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createOne(['name' => 'ABC']);
@@ -79,7 +79,7 @@ class DispatchAreaControllerTest extends WebTestCase
     public function testTableCanBePaginated(): void
     {
         // Arrange
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         UserFactory::createOne();
         StateFactory::createOne();
         DispatchAreaFactory::createMany(35);

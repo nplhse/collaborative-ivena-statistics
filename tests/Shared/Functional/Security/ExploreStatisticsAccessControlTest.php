@@ -32,19 +32,28 @@ final class ExploreStatisticsAccessControlTest extends WebTestCase
         self::assertResponseRedirects('/login');
     }
 
-    public function testExploreIsSuccessfulForAuthenticatedUser(): void
+    public function testExploreIsForbiddenForUserWithoutParticipantRole(): void
     {
         $client = self::createClient();
         $this->loginAsRoleUser($client);
         $client->request(Request::METHOD_GET, '/explore');
 
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testExploreIsSuccessfulForParticipant(): void
+    {
+        $client = self::createClient();
+        $this->loginAsParticipant($client);
+        $client->request(Request::METHOD_GET, '/explore');
+
         self::assertResponseIsSuccessful();
     }
 
-    public function testExploreRejectsNonGetMethodsForAuthenticatedUser(): void
+    public function testExploreRejectsNonGetMethodsForParticipant(): void
     {
         $client = self::createClient();
-        $this->loginAsRoleUser($client);
+        $this->loginAsParticipant($client);
         $client->request(Request::METHOD_POST, '/explore');
 
         self::assertResponseStatusCodeSame(405);

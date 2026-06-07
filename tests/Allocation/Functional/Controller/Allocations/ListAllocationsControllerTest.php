@@ -34,7 +34,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testFirstPageAndNextCursorWork(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $this->seedDependencies();
         $base = new \DateTimeImmutable('2026-01-01 12:00:00');
         AllocationFactory::createMany(5, static fn (): array => [
@@ -63,7 +63,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testStableTieBreakerWithSameArrivalAtAvoidsDuplicates(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $this->seedDependencies();
         $arrival = new \DateTimeImmutable('2026-02-01 10:00:00');
 
@@ -96,7 +96,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testInvalidCursorFallsBackToFirstPage(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $this->seedDependencies();
         AllocationFactory::createMany(4);
 
@@ -112,7 +112,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testLimitPlusOneBehaviourAndFilterPersistence(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $this->seedDependencies();
         $importOne = ImportFactory::createOne(['name' => 'Filtered Import']);
         $importTwo = ImportFactory::createOne(['name' => 'Other Import']);
@@ -139,7 +139,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testIsInfectiousAndInfectionFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $this->seedDependencies();
 
         $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
@@ -164,7 +164,7 @@ class ListAllocationsControllerTest extends WebTestCase
 
     public function testIsVentilatedFilterOnlyReturnsVentilatedAllocations(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $this->seedDependencies();
 
         $ventilatedAllocation = AllocationFactory::createOne(['isVentilated' => true]);
