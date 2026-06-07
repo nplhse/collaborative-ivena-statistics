@@ -113,9 +113,20 @@ final class GenericAnalysisControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-generic-analysis-row-limit-5"]');
     }
 
-    public function testCustomPresetRedirectsToBuilder(): void
+    public function testCustomPresetIsForbiddenForRoleUser(): void
     {
         $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/generic-analysis/custom?scope=public&period=all',
+        );
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testCustomPresetRedirectsToBuilderForParticipant(): void
+    {
+        $client = $this->createClientAsParticipant();
         $client->request(
             Request::METHOD_GET,
             '/statistics/generic-analysis/custom?scope=public&period=all&'

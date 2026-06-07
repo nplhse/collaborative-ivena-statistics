@@ -25,6 +25,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AnalysisBuilderController extends AbstractController
 {
@@ -42,6 +43,7 @@ final class AnalysisBuilderController extends AbstractController
     ) {
     }
 
+    #[IsGranted('ROLE_PARTICIPANT')]
     #[Route('/statistics/analytics/builder', name: 'app_stats_analytics_builder', methods: ['GET'])]
     public function __invoke(
         Request $request,

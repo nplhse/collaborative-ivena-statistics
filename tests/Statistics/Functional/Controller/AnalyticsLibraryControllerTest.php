@@ -33,12 +33,12 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analytics-library"]');
         $this->assertSelectorExists('[data-testid="stats-analytics-view-card-allocations_by_month"]');
-        $this->assertSelectorExists('[data-testid="stats-analytics-builder-entry"]');
-        $this->assertSelectorExists('[data-testid="stats-analytics-builder-header-link"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analytics-builder-entry"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analytics-builder-header-link"]');
         $this->assertSelectorNotExists('[data-testid="stats-analytics-library-search"]');
     }
 
-    public function testViewPageRendersChartAndCustomizeDrawer(): void
+    public function testViewPageRendersChartWithoutCustomizeDrawerForRoleUser(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(
@@ -49,6 +49,19 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analytics-view-title"]');
         $this->assertSelectorExists('[data-testid="stats-generic-analysis-chart-card"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analytics-customize-drawer"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analytics-customize-open"]');
+    }
+
+    public function testViewPageRendersCustomizeDrawerForParticipant(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/view/allocations_by_month?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analytics-customize-drawer"]');
         $this->assertSelectorExists('[data-testid="stats-analytics-save-view-title"]');
     }
@@ -68,7 +81,7 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
 
     public function testBuilderRendersSingleConfigurationForm(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $client->request(
             Request::METHOD_GET,
             '/statistics/analytics/builder?scope=public&period=all',

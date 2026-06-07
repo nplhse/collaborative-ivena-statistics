@@ -7,6 +7,7 @@ namespace App\Statistics\GenericAnalysis\Application;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\GenericAnalysis\Application\Contract\CustomAnalysisAccessInterface;
 use App\Statistics\GenericAnalysis\Application\DTO\ResolvedGenericAnalysisConfig;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisPreset;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
@@ -16,6 +17,7 @@ use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class GenericAnalysisConfigResolver
@@ -25,6 +27,7 @@ final readonly class GenericAnalysisConfigResolver
         private DimensionRegistry $dimensionRegistry,
         private GenericAnalysisDimensionPolicy $dimensionPolicy,
         private GenericAnalysisMetricRequestResolver $metricRequestResolver,
+        private CustomAnalysisAccessInterface $customAnalysisAccess,
         private TranslatorInterface $translator,
     ) {
     }
@@ -56,6 +59,10 @@ final readonly class GenericAnalysisConfigResolver
             $overrideSeries,
             $overrideIncludeNull,
         ))) {
+            if (!$this->customAnalysisAccess->canUseCustomAnalysis($user)) {
+                throw new AccessDeniedException('Custom analysis requires participant role.');
+            }
+
             return $this->resolveCustom(
                 $routePreset,
                 $referencePresetKey,

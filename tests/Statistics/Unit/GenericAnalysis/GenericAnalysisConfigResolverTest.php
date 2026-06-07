@@ -11,6 +11,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\AnalysisPresetRegistry;
+use App\Statistics\GenericAnalysis\Application\Contract\CustomAnalysisAccessInterface;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisConfigResolver;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisMetricRequestResolver;
@@ -19,8 +20,10 @@ use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionExce
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
+use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class GenericAnalysisConfigResolverTest extends TestCase
@@ -29,16 +32,40 @@ final class GenericAnalysisConfigResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturn('Custom analysis');
+        $this->resolver = $this->createResolver();
+    }
 
-        $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
-        $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
+    private function allowCustomAnalysis(): CustomAnalysisAccessInterface
+    {
+        $access = $this->createMock(CustomAnalysisAccessInterface::class);
+        $access->method('canUseCustomAnalysis')->willReturn(true);
+
+        return $access;
+    }
+
+    private function denyCustomAnalysis(): CustomAnalysisAccessInterface
+    {
+        $access = $this->createMock(CustomAnalysisAccessInterface::class);
+        $access->method('canUseCustomAnalysis')->willReturn(false);
+
+        return $access;
+    }
+
+    private function createResolver(
+        ?HospitalAccessInterface $hospitalAccess = null,
+        ?CustomAnalysisAccessInterface $customAnalysisAccess = null,
+    ): GenericAnalysisConfigResolver {
+        if (!$hospitalAccess instanceof HospitalAccessInterface) {
+            $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
+            $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
+        }
 
         $metricRegistry = new MetricRegistry();
         $dimensionRegistry = new DimensionRegistry();
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Custom analysis');
 
-        $this->resolver = new GenericAnalysisConfigResolver(
+        return new GenericAnalysisConfigResolver(
             new AnalysisPresetRegistry(),
             $dimensionRegistry,
             new GenericAnalysisDimensionPolicy($hospitalAccess),
@@ -47,6 +74,7 @@ final class GenericAnalysisConfigResolverTest extends TestCase
                 $dimensionRegistry,
                 new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
             ),
+            $customAnalysisAccess ?? $this->allowCustomAnalysis(),
             $translator,
         );
     }
@@ -160,25 +188,34 @@ final class GenericAnalysisConfigResolverTest extends TestCase
         );
     }
 
+    public function testRejectsCustomOverridesForNonParticipant(): void
+    {
+        $resolver = $this->createResolver(customAnalysisAccess: $this->denyCustomAnalysis());
+        $user = $this->createMock(User::class);
+        $user->method('getRoles')->willReturn(['ROLE_USER']);
+
+        $request = Request::create('/statistics/generic-analysis/allocations_by_month', Request::METHOD_GET, [
+            GenericAnalysisQueryKeys::PRIMARY => 'hour',
+        ]);
+
+        $this->expectException(AccessDeniedException::class);
+
+        $resolver->resolve(
+            'allocations_by_month',
+            $request,
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            $this->publicFilter(),
+            $user,
+        );
+    }
+
     public function testDisallowedDimensionForScopeThrows(): void
     {
         $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
         $hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
 
-        $metricRegistry = new MetricRegistry();
-        $dimensionRegistry = new DimensionRegistry();
-
-        $resolver = new GenericAnalysisConfigResolver(
-            new AnalysisPresetRegistry(),
-            $dimensionRegistry,
-            new GenericAnalysisDimensionPolicy($hospitalAccess),
-            new GenericAnalysisMetricRequestResolver(
-                $metricRegistry,
-                $dimensionRegistry,
-                new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
-            ),
-            $this->createMock(TranslatorInterface::class),
-        );
+        $resolver = $this->createResolver($hospitalAccess, $this->allowCustomAnalysis());
 
         $request = Request::create('/statistics/generic-analysis/custom', Request::METHOD_GET, [
             GenericAnalysisQueryKeys::PRIMARY => 'hospital',

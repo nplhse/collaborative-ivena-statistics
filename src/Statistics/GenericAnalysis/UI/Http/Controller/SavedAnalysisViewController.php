@@ -51,7 +51,7 @@ final class SavedAnalysisViewController extends AbstractController
     ) {
     }
 
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_PARTICIPANT')]
     #[Route('/statistics/analytics/saved/{id}', name: 'app_stats_analytics_saved', methods: ['GET'])]
     public function show(
         int $id,
@@ -108,7 +108,7 @@ final class SavedAnalysisViewController extends AbstractController
         ));
     }
 
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_PARTICIPANT')]
     #[Route('/statistics/analytics/saved', name: 'app_stats_analytics_saved_create', methods: ['POST'])]
     public function create(
         Request $request,
@@ -147,7 +147,7 @@ final class SavedAnalysisViewController extends AbstractController
         return $this->redirectToRoute('app_stats_analytics_saved', ['id' => $saved->getId()]);
     }
 
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_PARTICIPANT')]
     #[Route('/statistics/analytics/saved/{id}', name: 'app_stats_analytics_saved_delete', methods: ['DELETE'])]
     public function delete(
         int $id,
@@ -197,6 +197,7 @@ final class SavedAnalysisViewController extends AbstractController
 
         return [
             'viewKey' => $viewKey,
+            'canCustomize' => true,
             'analysisView' => $view,
             'analysisResult' => $result,
             'genericAnalysisTable' => $this->tableViewModelFactory->create(

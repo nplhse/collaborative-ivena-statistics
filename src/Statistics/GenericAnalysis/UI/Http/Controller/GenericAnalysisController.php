@@ -49,6 +49,10 @@ final class GenericAnalysisController extends AbstractController
         }
 
         if ('custom' === $presetKey) {
+            if (!$this->isGranted('ROLE_PARTICIPANT')) {
+                throw $this->createAccessDeniedException();
+            }
+
             return $this->redirectToRoute('app_stats_analytics_builder', $this->scopeQuery($request));
         }
 

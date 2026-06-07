@@ -11,6 +11,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\AnalysisPresetRegistry;
+use App\Statistics\GenericAnalysis\Application\Contract\CustomAnalysisAccessInterface;
 use App\Statistics\GenericAnalysis\Application\DTO\ResolvedGenericAnalysisConfig;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisConfigResolver;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
@@ -179,6 +180,9 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
         $metricRegistry = new MetricRegistry();
         $dimensionRegistry = new DimensionRegistry();
 
+        $customAnalysisAccess = $this->createMock(CustomAnalysisAccessInterface::class);
+        $customAnalysisAccess->method('canUseCustomAnalysis')->willReturn(true);
+
         return new GenericAnalysisConfigResolver(
             new AnalysisPresetRegistry(),
             $dimensionRegistry,
@@ -188,6 +192,7 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
                 $dimensionRegistry,
                 new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
             ),
+            $customAnalysisAccess,
             $this->createMock(TranslatorInterface::class),
         );
     }

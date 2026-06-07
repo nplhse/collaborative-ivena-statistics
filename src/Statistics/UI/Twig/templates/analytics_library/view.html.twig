@@ -38,14 +38,16 @@
                                 <twig:ux:icon name="{{ isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
                             </button>
                         {% endif %}
-                        <button type="button"
-                                class="btn d-inline-flex align-items-center gap-1"
-                                data-bs-toggle="offcanvas"
-                                data-bs-target="#analyticsCustomizeDrawer"
-                                data-testid="stats-analytics-customize-open">
-                            <twig:ux:icon name="tabler:tool" style="height: 1.2em;" />
-                            {{ 'stats.analytics_library.edit'|trans }}
-                        </button>
+                        {% if canCustomize %}
+                            <button type="button"
+                                    class="btn d-inline-flex align-items-center gap-1"
+                                    data-bs-toggle="offcanvas"
+                                    data-bs-target="#analyticsCustomizeDrawer"
+                                    data-testid="stats-analytics-customize-open">
+                                <twig:ux:icon name="tabler:tool" style="height: 1.2em;" />
+                                {{ 'stats.analytics_library.edit'|trans }}
+                            </button>
+                        {% endif %}
                     </div>
                     {% if canFavorite and favoriteToggleUrl %}
                         <form id="analytics-view-favorite-form" method="post" action="{{ favoriteToggleUrl }}" class="d-none">
@@ -64,5 +66,7 @@
     {{ include('@Statistics/generic_analysis/_results_table.html.twig') }}
     {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
 
-    {{ include('@Statistics/analytics_library/_customize_drawer.html.twig') }}
+    {% if canCustomize %}
+        {{ include('@Statistics/analytics_library/_customize_drawer.html.twig') }}
+    {% endif %}
 {% endblock %}

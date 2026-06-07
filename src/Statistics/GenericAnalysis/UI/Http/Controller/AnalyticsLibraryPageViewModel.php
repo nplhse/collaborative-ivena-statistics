@@ -29,6 +29,7 @@ final readonly class AnalyticsLibraryPageViewModel
         public array $categoryCards,
         public array $categoryFilters,
         public string $builderUrl,
+        public bool $canUseBuilder,
         public bool $isLoggedIn,
     ) {
     }

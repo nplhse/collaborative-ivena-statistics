@@ -10,6 +10,7 @@ use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\GenericAnalysis\Application\AnalysisViewResolver;
 use App\Statistics\GenericAnalysis\Application\AnalysisViewUsageTracker;
+use App\Statistics\GenericAnalysis\Application\Contract\CustomAnalysisAccessInterface;
 use App\Statistics\GenericAnalysis\Application\FavoriteAnalysisViewService;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisService;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
@@ -46,6 +47,7 @@ final class AnalysisViewController extends AbstractController
         private readonly FavoriteAnalysisViewService $favoriteService,
         private readonly AnalysisViewUsageTracker $usageTracker,
         private readonly UrlGeneratorInterface $router,
+        private readonly CustomAnalysisAccessInterface $customAnalysisAccess,
     ) {
     }
 
@@ -106,8 +108,11 @@ final class AnalysisViewController extends AbstractController
             $filter,
         );
 
+        $canCustomize = $this->customAnalysisAccess->canUseCustomAnalysis($user);
+
         return $this->render('@Statistics/analytics_library/view.html.twig', [
             'viewKey' => $viewKey,
+            'canCustomize' => $canCustomize,
             'analysisView' => $resolved->view,
             'analysisResult' => $result,
             'genericAnalysisTable' => $this->tableViewModelFactory->create(
@@ -137,7 +142,7 @@ final class AnalysisViewController extends AbstractController
             'favoriteToggleUrl' => $user instanceof User
                 ? $this->router->generate('app_stats_analytics_favorite_toggle', ['viewKey' => $viewKey])
                 : null,
-            'saveViewUrl' => $user instanceof User
+            'saveViewUrl' => $canCustomize
                 ? $this->router->generate('app_stats_analytics_saved_create')
                 : null,
             'statisticsFilter' => $pageViewModel->filter,

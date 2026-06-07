@@ -19,7 +19,7 @@ final class AnalysisBuilderControllerTest extends WebTestCase
 
     public function testBuilderShowsScopeDropdown(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/analytics/builder?scope=public&period=all',
@@ -32,7 +32,7 @@ final class AnalysisBuilderControllerTest extends WebTestCase
 
     public function testInvalidMyHospitalsScopeRedirectsToPublic(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $client->followRedirects(false);
         $client->request(
             Request::METHOD_GET,
@@ -47,7 +47,7 @@ final class AnalysisBuilderControllerTest extends WebTestCase
 
     public function testBuilderFormPreservesScopeQueryFields(): void
     {
-        $client = $this->createClientAsRoleUser();
+        $client = $this->createClientAsParticipant();
         $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/analytics/builder?scope=public&period=all&year=2025',

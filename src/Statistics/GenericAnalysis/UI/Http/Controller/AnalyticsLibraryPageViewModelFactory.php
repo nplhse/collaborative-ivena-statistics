@@ -7,6 +7,7 @@ namespace App\Statistics\GenericAnalysis\UI\Http\Controller;
 use App\Statistics\Domain\Entity\SavedAnalysisView;
 use App\Statistics\GenericAnalysis\Application\AnalysisViewLibraryService;
 use App\Statistics\GenericAnalysis\Application\AnalysisViewRecentService;
+use App\Statistics\GenericAnalysis\Application\Contract\CustomAnalysisAccessInterface;
 use App\Statistics\GenericAnalysis\Application\FavoriteAnalysisViewService;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewDefinition;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewCategory;
@@ -31,12 +32,17 @@ final readonly class AnalyticsLibraryPageViewModelFactory
         private MetricRegistry $metricRegistry,
         private UrlGeneratorInterface $router,
         private TranslatorInterface $translator,
+        private CustomAnalysisAccessInterface $customAnalysisAccess,
     ) {
     }
 
     public function create(Request $request, ?User $user): AnalyticsLibraryPageViewModel
     {
+        $canUseBuilder = $this->customAnalysisAccess->canUseCustomAnalysis($user);
         $activeTab = $request->query->getString(AnalyticsLibraryQueryKeys::TAB, 'recommended');
+        if (!$canUseBuilder && \in_array($activeTab, ['recent', 'frequent'], true)) {
+            $activeTab = 'recommended';
+        }
         $search = 'categories' === $activeTab
             ? trim($request->query->getString(AnalyticsLibraryQueryKeys::SEARCH))
             : '';
@@ -52,7 +58,7 @@ final readonly class AnalyticsLibraryPageViewModelFactory
             searchQuery: $search,
             activeTab: $activeTab,
             activeCategory: $category?->value,
-            tabs: $this->tabs($request, $activeTab),
+            tabs: $this->tabs($request, $activeTab, $canUseBuilder),
             categories: $this->categoryOptions(),
             recommendedCards: $this->buildCards(
                 $request,
@@ -60,16 +66,19 @@ final readonly class AnalyticsLibraryPageViewModelFactory
                 $favoriteKeys,
                 $user,
             ),
-            favoriteCards: $this->buildFavoriteCards($request, $user),
-            recentCards: $user instanceof User
+            favoriteCards: $this->buildFavoriteCards($request, $user, $canUseBuilder),
+            recentCards: $canUseBuilder && $user instanceof User
                 ? $this->buildCards($request, $this->recentService->lastUsed($user), $favoriteKeys, $user)
                 : [],
-            frequentCards: $user instanceof User
+            frequentCards: $canUseBuilder && $user instanceof User
                 ? $this->buildCards($request, $this->recentService->mostFrequent($user), $favoriteKeys, $user)
                 : [],
             categoryCards: $this->buildCards($request, $views, $favoriteKeys, $user),
             categoryFilters: $this->categoryFilters($request, $category?->value),
-            builderUrl: $this->router->generate('app_stats_analytics_builder', $this->scopeQuery($request)),
+            builderUrl: $canUseBuilder
+                ? $this->router->generate('app_stats_analytics_builder', $this->scopeQuery($request))
+                : '',
+            canUseBuilder: $canUseBuilder,
             isLoggedIn: $user instanceof User,
         );
     }
@@ -128,7 +137,7 @@ final readonly class AnalyticsLibraryPageViewModelFactory
     /**
      * @return list<array<string, mixed>>
      */
-    private function buildFavoriteCards(Request $request, ?User $user): array
+    private function buildFavoriteCards(Request $request, ?User $user, bool $canUseBuilder): array
     {
         if (!$user instanceof User) {
             return [];
@@ -137,6 +146,10 @@ final readonly class AnalyticsLibraryPageViewModelFactory
         $cards = [];
         $favoriteKeys = $this->favoriteKeys($user);
         foreach ($this->favoriteService->listForUser($user) as $favorite) {
+            if (AnalysisViewSource::Saved === $favorite->getSource() && !$canUseBuilder) {
+                continue;
+            }
+
             if (AnalysisViewSource::System === $favorite->getSource()) {
                 $key = $favorite->getSystemViewKey();
                 if (null !== $key && $this->viewRegistry->has($key)) {
@@ -252,14 +265,16 @@ final readonly class AnalyticsLibraryPageViewModelFactory
     /**
      * @return list<array{key: string, label: string, active: bool, url: string}>
      */
-    private function tabs(Request $request, string $activeTab): array
+    private function tabs(Request $request, string $activeTab, bool $canUseBuilder): array
     {
         $definitions = [
             'recommended' => 'stats.analytics_library.tab.recommended',
             'favorites' => 'stats.analytics_library.tab.favorites',
-            'recent' => 'stats.analytics_library.tab.recent',
-            'categories' => 'stats.analytics_library.tab.categories',
         ];
+        if ($canUseBuilder) {
+            $definitions['recent'] = 'stats.analytics_library.tab.recent';
+        }
+        $definitions['categories'] = 'stats.analytics_library.tab.categories';
 
         $tabs = [];
         foreach ($definitions as $key => $labelKey) {

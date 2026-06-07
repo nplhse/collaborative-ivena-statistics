@@ -81,7 +81,10 @@ final class SavedAnalysisViewControllerTest extends WebTestCase
         $client->submit($this->saveViewForm($crawler, 'Owner only view'));
         $savedId = $this->extractSavedIdFromLocation((string) $client->getResponse()->headers->get('Location'));
 
-        $otherUser = UserFactory::createOne(['roles' => ['ROLE_USER'], 'username' => 'other-saved-view-user'])->_real();
+        $otherUser = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'other-saved-view-user',
+        ])->_real();
         $client->loginUser($otherUser);
         $client->request(
             Request::METHOD_GET,
@@ -116,7 +119,7 @@ final class SavedAnalysisViewControllerTest extends WebTestCase
     private function createAuthenticatedClient(): KernelBrowser
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']])->_real();
         $client->loginUser($user);
 
         return $client;
