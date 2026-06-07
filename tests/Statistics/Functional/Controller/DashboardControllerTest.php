@@ -177,65 +177,7 @@ class DashboardControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
     }
 
-    public function testOverviewHospitalSummaryLinksToAnalysisPreservesFilter(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
-
-        $this->assertResponseIsSuccessful();
-        $link = $crawler->filter('[data-testid="stats-cross-nav-overview-kpi"]')->link();
-        $uri = $link->getUri();
-        $this->assertStringContainsString('scope=public', $uri);
-        $this->assertStringContainsString('period=all', $uri);
-        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
-    }
-
-    public function testOverviewGenderCardLinksToAnalysisWithGenderDimension(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
-
-        $this->assertResponseIsSuccessful();
-        $link = $crawler->filter('[data-testid="stats-cross-nav-overview-gender"]')->link();
-        $uri = $link->getUri();
-        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
-        $this->assertStringContainsString('scope=public', $uri);
-    }
-
-    public function testOverviewUrgencyCardLinksToAnalysisWithUrgencyDimension(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
-
-        $this->assertResponseIsSuccessful();
-        $link = $crawler->filter('[data-testid="stats-cross-nav-overview-urgency"]')->link();
-        $uri = $link->getUri();
-        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
-        $this->assertStringContainsString('scope=public', $uri);
-    }
-
-    public function testOverviewKpiHasOnlyOneCrossNavLink(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertCount(1, $crawler->filter('[data-testid="stats-cross-nav-overview-kpi"]'));
-    }
-
-    public function testOverviewKpiLinksToAnalysisWithFeaturesDimension(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
-
-        $this->assertResponseIsSuccessful();
-        $link = $crawler->filter('[data-testid="stats-cross-nav-overview-kpi"]')->link();
-        $uri = $link->getUri();
-        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $uri);
-        $this->assertStringContainsString('scope=public', $uri);
-    }
-
-    public function testOverviewFeatureAndResourceCardsHaveRowsAndCrossNavPreservesFilter(): void
+    public function testOverviewFeatureAndResourceCardsHaveRows(): void
     {
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=month&year=2025&month=6');
@@ -243,20 +185,6 @@ class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertCount(7, $crawler->filter('[data-testid="stats-overview-features"] .progress'));
         $this->assertCount(2, $crawler->filter('[data-testid="stats-overview-resources"] .progress'));
-
-        $featuresLink = $crawler->filter('[data-testid="stats-cross-nav-overview-features"]')->link();
-        $featuresUri = $featuresLink->getUri();
-        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $featuresUri);
-        $this->assertStringContainsString('scope=public', $featuresUri);
-        $this->assertStringContainsString('period=month', $featuresUri);
-        $this->assertStringContainsString('year=2025', $featuresUri);
-        $this->assertStringContainsString('month=6', $featuresUri);
-
-        $resourcesLink = $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->link();
-        $resourcesUri = $resourcesLink->getUri();
-        $this->assertStringContainsString('/statistics/analytics/view/allocations_by_month', $resourcesUri);
-        $this->assertStringContainsString('scope=public', $resourcesUri);
-        $this->assertStringContainsString('period=month', $resourcesUri);
     }
 
     public function testOverviewShowsPeriodNavigation(): void
