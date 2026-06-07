@@ -26,6 +26,7 @@ final readonly class MetricCompatibilityChecker
         'requires_cathlab',
         'is_pregnant',
         'is_work_accident',
+        'is_with_physician',
     ];
 
     public function __construct(

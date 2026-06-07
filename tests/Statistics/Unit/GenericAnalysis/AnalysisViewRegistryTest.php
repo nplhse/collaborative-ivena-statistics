@@ -69,5 +69,27 @@ final class AnalysisViewRegistryTest extends KernelTestCase
         foreach ($resusViews as $view) {
             self::assertContains('resus', $view->tags);
         }
+
+        $rateViews = $this->viewRegistry->byTag('metric:rate');
+        self::assertNotEmpty($rateViews);
+        foreach ($rateViews as $view) {
+            self::assertContains('metric:rate', $view->tags);
+        }
+    }
+
+    public function testFeaturedViewsMatchExpansionPlan(): void
+    {
+        $featured = $this->viewRegistry->featured();
+        self::assertCount(6, $featured);
+
+        $featuredKeys = array_map(static fn ($view) => $view->key, $featured);
+        self::assertSame([
+            'allocations_by_month',
+            'urgency_by_month',
+            'gender_distribution_by_urgency',
+            'resus_rate_by_hour',
+            'transport_time_by_urgency',
+            'with_physician_rate_by_month',
+        ], $featuredKeys);
     }
 }
