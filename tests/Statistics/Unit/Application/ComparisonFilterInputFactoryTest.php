@@ -188,6 +188,53 @@ final class ComparisonFilterInputFactoryTest extends TestCase
         self::assertSame('99', $input->hospital);
     }
 
+    public function testBuildsPublicComparisonInputFromColonSyntax(): void
+    {
+        $primaryFilter = new StatisticsFilter(
+            StatisticsFilterScope::Public,
+            null,
+            null,
+            StatisticsFilterPeriod::Quarter,
+            2025,
+            null,
+            1,
+        );
+
+        $input = $this->factory->fromQuery(
+            $this->queryBag(['comparison_scope' => 'public:ignored']),
+            $primaryFilter,
+            'urban_basic',
+        );
+
+        self::assertSame('public', $input->scope);
+        self::assertSame('quarter', $input->period);
+        self::assertSame(2025, $input->year);
+        self::assertSame(1, $input->quarter);
+    }
+
+    public function testInheritsPrimaryQuarterWhenComparisonQuarterMissing(): void
+    {
+        $primaryFilter = new StatisticsFilter(
+            StatisticsFilterScope::Public,
+            null,
+            null,
+            StatisticsFilterPeriod::Quarter,
+            2025,
+            null,
+            3,
+        );
+
+        $input = $this->factory->fromQuery(
+            $this->queryBag(['comparison_scope' => 'hospital_cohort']),
+            $primaryFilter,
+            'urban_basic',
+        );
+
+        self::assertSame('hospital_cohort', $input->scope);
+        self::assertSame('urban_basic', $input->cohort);
+        self::assertSame(3, $input->quarter);
+    }
+
     /**
      * @param array<string, string> $parameters
      *

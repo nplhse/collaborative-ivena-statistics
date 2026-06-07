@@ -196,6 +196,44 @@ final class BenchmarkMetricBuilderTest extends TestCase
         self::assertSame(80.0, $distribution->buckets[0]->primaryShare);
     }
 
+    public function testBuildsUrgencyDayTimeAndShiftDistributions(): void
+    {
+        $result = new BenchmarkAggregationResult(
+            BenchmarkSideCounts::empty(),
+            BenchmarkSideCounts::empty(),
+            [
+                new BenchmarkDistributionRow('urgency', '1', null, 40, 400),
+                new BenchmarkDistributionRow('day_time_bucket', '2', null, 10, 100),
+                new BenchmarkDistributionRow('shift_bucket', '2', null, 20, 200),
+            ],
+        );
+
+        $urgency = $this->builder->buildUrgencyDistribution($result);
+        $dayTime = $this->builder->buildDayTimeBucketDistribution($result);
+        $shift = $this->builder->buildShiftBucketDistribution($result);
+
+        self::assertSame('1', $urgency->buckets[0]->key);
+        self::assertSame('stats.benchmark.day_time.morning', $dayTime->buckets[0]->label);
+        self::assertSame('stats.benchmark.shift.early', $shift->buckets[0]->label);
+    }
+
+    public function testMetricByKeyReturnsMatchingMetric(): void
+    {
+        $result = new BenchmarkAggregationResult(
+            new BenchmarkSideCounts(
+                200, 120, 40, 20, 10, 8, 6, 0, 0, 4, 80, 60, 60,
+                50, 40, 30, 100, 80, 0, 65.0, 45.0, 46.0,
+            ),
+            BenchmarkSideCounts::empty(),
+            [],
+        );
+
+        $metrics = $this->builder->buildKpiMetrics($result);
+
+        self::assertSame(BenchmarkMetricKey::WithPhysician, $this->builder->metricByKey($metrics, BenchmarkMetricKey::WithPhysician)?->key);
+        self::assertNull($this->builder->metricByKey($metrics, BenchmarkMetricKey::IndicationMix));
+    }
+
     /**
      * @param list<\App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric> $metrics
      */

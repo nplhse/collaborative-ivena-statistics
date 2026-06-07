@@ -100,4 +100,21 @@ final class BenchmarkAggregationProviderTest extends KernelTestCase
         self::assertSame(3, $result->primary->withPhysician);
         self::assertGreaterThan(0, \count($result->distributionRows));
     }
+
+    public function testReturnsEmptyResultForEmptyScopes(): void
+    {
+        self::bootKernel();
+
+        /** @var BenchmarkAggregationProvider $provider */
+        $provider = self::getContainer()->get(BenchmarkAggregationProvider::class);
+
+        $result = $provider->aggregate(
+            new StatisticsScopeCriteria([]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-01-01')),
+            new StatisticsScopeCriteria([]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-01-01')),
+        );
+
+        self::assertTrue($result->hasEmptyPrimaryScope());
+    }
 }

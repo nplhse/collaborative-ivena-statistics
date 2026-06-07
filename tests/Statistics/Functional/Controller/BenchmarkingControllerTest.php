@@ -74,6 +74,66 @@ final class BenchmarkingControllerTest extends WebTestCase
         self::assertStringContainsString('period=all', $location);
     }
 
+    public function testRendersBenchmarkingDashboardAfterParticipantDefaultRedirect(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'username' => 'benchmark-follow-'.bin2hex(random_bytes(4)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $state = StateFactory::createOne(['name' => 'BenchmarkFollowState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'BenchmarkFollowDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'BenchmarkFollowHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+            'owner' => $user,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'BenchmarkFollowSpec']);
+        DepartmentFactory::createOne(['name' => 'BenchmarkFollowDept']);
+        AssignmentFactory::createOne(['name' => 'BenchmarkFollowAssign']);
+        IndicationRawFactory::createOne(['name' => 'BenchmarkFollowRaw', 'code' => 912_403]);
+
+        $import = ImportFactory::createOne(['name' => 'BenchmarkFollowImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        AllocationFactory::createMany(3, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'age' => 70,
+            'isWithPhysician' => true,
+            'createdAt' => new \DateTimeImmutable('2026-03-01 12:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-03-01 12:20:00'),
+        ]);
+        AllocationFactory::createMany(5, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'age' => 45,
+            'createdAt' => new \DateTimeImmutable('2024-01-10 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2024-01-10 10:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+        $client->loginUser($user->_real());
+
+        $client->request(Request::METHOD_GET, '/statistics/benchmarking');
+        self::assertResponseRedirects();
+        $client->followRedirect();
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="stats-benchmark-heading"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-selection-card"]');
+    }
+
     public function testRendersBenchmarkingDashboard(): void
     {
         $client = self::createClient();

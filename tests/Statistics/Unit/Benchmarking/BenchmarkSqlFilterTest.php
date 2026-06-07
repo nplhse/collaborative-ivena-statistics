@@ -55,4 +55,34 @@ final class BenchmarkSqlFilterTest extends TestCase
         self::assertArrayHasKey('primary_hospital_ids', $params);
         self::assertArrayNotHasKey('comparison_hospital_ids', $params);
     }
+
+    public function testPublicScopeWithoutPeriodBoundsUsesTruePredicate(): void
+    {
+        [$sql, $params, $types] = BenchmarkSqlFilter::buildSidePredicate(
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            'comparison',
+        );
+
+        self::assertSame('1 = 1', $sql);
+        self::assertSame([], $params);
+        self::assertSame([], $types);
+    }
+
+    public function testBuildsCohortLocationAndTierPredicatesWithTableAlias(): void
+    {
+        [$sql, $params, $types] = BenchmarkSqlFilter::buildSidePredicate(
+            new StatisticsScopeCriteria(null, [1, 2], [3]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-01-01')),
+            'primary',
+            'p',
+        );
+
+        self::assertStringContainsString('p.hospital_location_code IN (:primary_location_codes)', $sql);
+        self::assertStringContainsString('p.hospital_tier_code IN (:primary_tier_codes)', $sql);
+        self::assertSame([1, 2], $params['primary_location_codes']);
+        self::assertSame([3], $params['primary_tier_codes']);
+        self::assertArrayHasKey('primary_location_codes', $types);
+        self::assertArrayHasKey('primary_tier_codes', $types);
+    }
 }
