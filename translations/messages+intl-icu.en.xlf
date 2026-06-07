@@ -153,6 +153,14 @@
         <source>dashboard.next_steps.analysis.description</source>
         <target>Start with the statistics overview before diving into detailed analyses.</target>
       </trans-unit>
+      <trans-unit id="dshNxtAnlyPubTit" resname="dashboard.next_steps.analysis.public.title">
+        <source>dashboard.next_steps.analysis.public.title</source>
+        <target>Analyze our Data</target>
+      </trans-unit>
+      <trans-unit id="dshNxtAnlyPubDesc" resname="dashboard.next_steps.analysis.public.description">
+        <source>dashboard.next_steps.analysis.public.description</source>
+        <target>Explore aggregated statistics across participating hospitals.</target>
+      </trans-unit>
       <trans-unit id="dshNxtImptTit" resname="dashboard.next_steps.import.title">
         <source>dashboard.next_steps.import.title</source>
         <target>Import new Allocations</target>
@@ -168,6 +176,46 @@
       <trans-unit id="dshNxtBlogDesc" resname="dashboard.next_steps.blog.description">
         <source>dashboard.next_steps.blog.description</source>
         <target>Follow updates, guidance, and background stories from the project team.</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccTit" resname="dashboard.participant_access.title">
+        <source>dashboard.participant_access.title</source>
+        <target>Your current access</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIntro" resname="dashboard.participant_access.intro">
+        <source>dashboard.participant_access.intro</source>
+        <target>As a registered user you can explore aggregated statistics across the network. Full platform features require participant access assigned by an administrator.</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncTit" resname="dashboard.participant_access.includes_title">
+        <source>dashboard.participant_access.includes_title</source>
+        <target>With participant access you can also:</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncExpl" resname="dashboard.participant_access.includes.explore">
+        <source>dashboard.participant_access.includes.explore</source>
+        <target>Browse and explore allocation data</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncImpt" resname="dashboard.participant_access.includes.import">
+        <source>dashboard.participant_access.includes.import</source>
+        <target>Import allocation data for linked hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncHosp" resname="dashboard.participant_access.includes.hospitals">
+        <source>dashboard.participant_access.includes.hospitals</source>
+        <target>View and manage your linked hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncScope" resname="dashboard.participant_access.includes.stats_scope">
+        <source>dashboard.participant_access.includes.stats_scope</source>
+        <target>Analyze hospital-specific statistics (My hospitals scope)</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncAnly" resname="dashboard.participant_access.includes.analytics">
+        <source>dashboard.participant_access.includes.analytics</source>
+        <target>Build and save custom analytics</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccCntTit" resname="dashboard.participant_access.contact_title">
+        <source>dashboard.participant_access.contact_title</source>
+        <target>Request participant access</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccCntFb" resname="dashboard.participant_access.contact_feedback">
+        <source>dashboard.participant_access.contact_feedback</source>
+        <target>Send a message via feedback</target>
       </trans-unit>
       <trans-unit id="dshPgTit" resname="dashboard.pages.card_title">
         <source>dashboard.pages.card_title</source>

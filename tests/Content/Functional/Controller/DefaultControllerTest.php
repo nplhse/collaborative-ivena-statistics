@@ -74,18 +74,71 @@ final class DefaultControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'View all Hospitals');
-        self::assertSelectorTextContains('body', 'Explore our Data');
-        self::assertSelectorTextContains('body', 'Analyze your Data');
+        self::assertSelectorTextContains('body', 'Analyze our Data');
+        self::assertSelectorTextNotContains('body', 'Analyze your Data');
         self::assertSelectorTextContains('body', 'Read the Blog');
-        self::assertSelectorExists('a[href="/explore/hospital"]');
-        self::assertSelectorExists('a[href="/explore"]');
         self::assertSelectorExists('a[href="/statistics/"]');
         self::assertSelectorExists('a[href="/blog"]');
         self::assertSelectorTextContains('body', 'Latest blog posts');
         self::assertSelectorTextContains('body', 'Pages');
         self::assertSelectorTextContains('body', 'No published posts yet.');
         self::assertSelectorTextContains('body', 'No pages available.');
+        self::assertSelectorExists('[data-testid="dashboard-participant-access-notice"]');
+        self::assertSelectorTextContains('body', 'Your current access');
+        self::assertSelectorTextContains('body', 'Browse and explore allocation data');
+        self::assertSelectorExists('[data-testid="dashboard-participant-access-feedback"]');
+    }
+
+    public function testAuthenticatedUsersWithoutParticipantDoNotSeeParticipantOnlyLinks(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'non-participant-user'])->_real();
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('a[href="/explore"]');
+        self::assertSelectorNotExists('a[href="/explore/hospital"]');
+        self::assertSelectorNotExists('a[href="/import"]');
+        self::assertSelectorExists('a[href="/statistics/"]');
+        self::assertSelectorTextContains('body', 'Analyze our Data');
+        self::assertSelectorTextNotContains('body', 'Analyze your Data');
+        self::assertSelectorExists('[data-testid="dashboard-participant-access-notice"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('#navbar-menu a[href="/explore"]');
+        self::assertSelectorNotExists('#navbar-menu a[href="/import"]');
+        self::assertSelectorExists('#navbar-menu a[href="/statistics/"]');
+    }
+
+    public function testParticipantUsersSeeExploreAndImportLinks(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'participant-nav-user',
+        ])->_real();
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'View all Hospitals');
+        self::assertSelectorTextContains('body', 'Explore our Data');
+        self::assertSelectorTextContains('body', 'Analyze your Data');
+        self::assertSelectorNotExists('[data-testid="dashboard-participant-access-notice"]');
+        self::assertSelectorExists('a[href="/explore/hospital"]');
+        self::assertSelectorExists('a[href="/explore"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#navbar-menu a[href="/explore"]');
+        self::assertSelectorExists('#navbar-menu a[href="/import"]');
+        self::assertSelectorExists('#navbar-menu a[href="/statistics/"]');
     }
 
     public function testParticipantUsersWithHospitalsSeeOwnedHospitalsAndImportActions(): void

@@ -13,32 +13,50 @@
 {% block page_content %}
     {% set hasOwnedHospitals = app.user and app.user.hospitals|length > 0 %}
     {% set canViewOwnedHospitals = is_granted('ROLE_PARTICIPANT') and hasOwnedHospitals %}
-    {% set nextSteps = [
-        {
-            title: canViewOwnedHospitals ? 'dashboard.next_steps.hospitals.owned.title' : 'dashboard.next_steps.hospitals.all.title',
-            description: canViewOwnedHospitals ? 'dashboard.next_steps.hospitals.owned.description' : 'dashboard.next_steps.hospitals.all.description',
+    {% set canExplore = is_granted('ROLE_PARTICIPANT') %}
+    {% set showParticipantAccessNotice = is_granted('ROLE_USER') and not is_granted('ROLE_PARTICIPANT') %}
+    {% set analysisTitleKey = is_granted('ROLE_PARTICIPANT')
+        ? 'dashboard.next_steps.analysis.title'
+        : 'dashboard.next_steps.analysis.public.title' %}
+    {% set analysisDescriptionKey = is_granted('ROLE_PARTICIPANT')
+        ? 'dashboard.next_steps.analysis.description'
+        : 'dashboard.next_steps.analysis.public.description' %}
+    {% set nextSteps = [] %}
+    {% if canViewOwnedHospitals %}
+        {% set nextSteps = nextSteps|merge([{
+            title: 'dashboard.next_steps.hospitals.owned.title',
+            description: 'dashboard.next_steps.hospitals.owned.description',
             icon: 'tabler:building-hospital',
-            url: canViewOwnedHospitals ? path('app_hospitals_index') : path('app_explore_hospital_list'),
-        },
-        {
+            url: path('app_hospitals_index'),
+        }]) %}
+    {% elseif canExplore %}
+        {% set nextSteps = nextSteps|merge([{
+            title: 'dashboard.next_steps.hospitals.all.title',
+            description: 'dashboard.next_steps.hospitals.all.description',
+            icon: 'tabler:building-hospital',
+            url: path('app_explore_hospital_list'),
+        }]) %}
+    {% endif %}
+    {% if canExplore %}
+        {% set nextSteps = nextSteps|merge([{
             title: 'dashboard.next_steps.explore.title',
             description: 'dashboard.next_steps.explore.description',
             icon: 'tabler:compass',
             url: path('app_explore_index'),
-        },
-        {
-            title: 'dashboard.next_steps.analysis.title',
-            description: 'dashboard.next_steps.analysis.description',
-            icon: 'tabler:chart-histogram',
-            url: path('app_stats_dashboard'),
-        },
-        {
-            title: canViewOwnedHospitals ? 'dashboard.next_steps.import.title' : 'dashboard.next_steps.blog.title',
-            description: canViewOwnedHospitals ? 'dashboard.next_steps.import.description' : 'dashboard.next_steps.blog.description',
-            icon: canViewOwnedHospitals ? 'tabler:database-import' : 'tabler:notes',
-            url: canViewOwnedHospitals ? path('app_import_new') : path('app_blog_index'),
-        },
-    ] %}
+        }]) %}
+    {% endif %}
+    {% set nextSteps = nextSteps|merge([{
+        title: analysisTitleKey,
+        description: analysisDescriptionKey,
+        icon: 'tabler:chart-histogram',
+        url: path('app_stats_dashboard'),
+    }]) %}
+    {% set nextSteps = nextSteps|merge([{
+        title: canViewOwnedHospitals ? 'dashboard.next_steps.import.title' : 'dashboard.next_steps.blog.title',
+        description: canViewOwnedHospitals ? 'dashboard.next_steps.import.description' : 'dashboard.next_steps.blog.description',
+        icon: canViewOwnedHospitals ? 'tabler:database-import' : 'tabler:notes',
+        url: canViewOwnedHospitals ? path('app_import_new') : path('app_blog_index'),
+    }]) %}
 
     <div class="row g-3 align-items-start">
         <div class="col-12 col-lg-8 d-flex flex-column gap-3">
@@ -96,7 +114,10 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+            {% if showParticipantAccessNotice %}
+                {{ include('@Content/dashboard/_participant_access_notice.html.twig') }}
+            {% endif %}
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title mb-0">{{ 'dashboard.pages.card_title'|trans }}</h3>
