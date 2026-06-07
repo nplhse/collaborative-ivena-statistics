@@ -63,4 +63,11 @@ return [
     'fslightbox' => [
         'version' => '3.7.5',
     ],
+    'leaflet' => [
+        'version' => '1.9.4',
+    ],
+    'leaflet/dist/leaflet.css' => [
+        'version' => '1.9.4',
+        'type' => 'css',
+    ],
 ];
