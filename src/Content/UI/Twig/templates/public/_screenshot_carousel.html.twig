@@ -1,0 +1,69 @@
+{% set homeScreenshots = [
+    {
+        src: 'images/home/dashboard.png',
+        alt: 'public.home.screenshots.dashboard.alt'|trans,
+    },
+    {
+        src: 'images/home/benchmarking.png',
+        alt: 'public.home.screenshots.benchmarking.alt'|trans,
+    },
+    {
+        src: 'images/home/indication-insights.png',
+        alt: 'public.home.screenshots.indication_insights.alt'|trans,
+    },
+    {
+        src: 'images/home/analytics.png',
+        alt: 'public.home.screenshots.analytics.alt'|trans,
+    },
+] %}
+
+<div class="home-screenshot-carousel"
+     data-controller="lightbox"
+     data-lightbox-gallery-value="home-screenshots"
+     data-testid="home-screenshot-carousel">
+    <div id="home-screenshots-carousel"
+         class="carousel slide"
+         aria-label="{{ 'public.home.screenshots.carousel_label'|trans }}">
+        <div class="carousel-indicators">
+            {% for screenshot in homeScreenshots %}
+                <button type="button"
+                        data-bs-target="#home-screenshots-carousel"
+                        data-bs-slide-to="{{ loop.index0 }}"
+                        class="{{ loop.first ? 'active' : '' }}"
+                        aria-label="{{ screenshot.alt }}"></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-inner">
+            {% for screenshot in homeScreenshots %}
+                {% set imageUrl = asset(screenshot.src) %}
+                <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+                    <div class="home-screenshot-frame">
+                        <a href="{{ imageUrl }}"
+                           data-fslightbox="home-screenshots"
+                           class="home-screenshot-link">
+                            <img src="{{ imageUrl }}"
+                                 alt="{{ screenshot.alt }}"
+                                 width="1000"
+                                 height="800"
+                                 loading="{{ loop.first ? 'eager' : 'lazy' }}">
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#home-screenshots-carousel"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{{ 'public.home.screenshots.previous'|trans }}</span>
+        </button>
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#home-screenshots-carousel"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{{ 'public.home.screenshots.next'|trans }}</span>
+        </button>
+    </div>
+</div>

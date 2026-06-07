@@ -53,6 +53,14 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Research Together.');
         self::assertSelectorTextContains('body', 'About us');
         self::assertSelectorTextContains('body', 'Core platform strengths');
+        self::assertSelectorExists('[data-testid="home-screenshot-carousel"]');
+        self::assertSelectorExists('#home-screenshots-carousel .carousel-indicators button');
+        self::assertSelectorExists('#home-screenshots-carousel .carousel-control-prev');
+        self::assertSelectorExists('#home-screenshots-carousel .carousel-control-next');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/dashboard"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/benchmarking"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/indication-insights"]');
+        self::assertSelectorExists('a[data-fslightbox="home-screenshots"][href*="/assets/images/home/analytics"]');
     }
 
     public function testAuthenticatedUsersSeeDashboardOnHomepage(): void
