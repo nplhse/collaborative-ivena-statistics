@@ -1541,6 +1541,10 @@
         <source>link.stats.indication_insights</source>
         <target>Indication Insights</target>
       </trans-unit>
+      <trans-unit id="statsLnkBm01" resname="link.stats.benchmarking">
+        <source>link.stats.benchmarking</source>
+        <target>Benchmarking</target>
+      </trans-unit>
       <trans-unit id="statsLnkRp01" resname="link.stats.reports">
         <source>link.stats.reports</source>
         <target>Reports</target>
@@ -4739,21 +4743,37 @@
         <source>stats.indication.age_group.0_17</source>
         <target>0–17</target>
       </trans-unit>
-      <trans-unit id="statsInd30" resname="stats.indication.age_group.18_39">
-        <source>stats.indication.age_group.18_39</source>
-        <target>18–39</target>
+      <trans-unit id="statsInd30" resname="stats.indication.age_group.18_29">
+        <source>stats.indication.age_group.18_29</source>
+        <target>18–29</target>
       </trans-unit>
-      <trans-unit id="statsInd31" resname="stats.indication.age_group.40_59">
-        <source>stats.indication.age_group.40_59</source>
-        <target>40–59</target>
+      <trans-unit id="statsInd31" resname="stats.indication.age_group.30_39">
+        <source>stats.indication.age_group.30_39</source>
+        <target>30–39</target>
       </trans-unit>
-      <trans-unit id="statsInd32" resname="stats.indication.age_group.60_79">
-        <source>stats.indication.age_group.60_79</source>
-        <target>60–79</target>
+      <trans-unit id="statsInd32" resname="stats.indication.age_group.40_49">
+        <source>stats.indication.age_group.40_49</source>
+        <target>40–49</target>
       </trans-unit>
-      <trans-unit id="statsInd33" resname="stats.indication.age_group.80_plus">
-        <source>stats.indication.age_group.80_plus</source>
-        <target>80+</target>
+      <trans-unit id="statsInd33" resname="stats.indication.age_group.50_59">
+        <source>stats.indication.age_group.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="statsInd33a" resname="stats.indication.age_group.60_69">
+        <source>stats.indication.age_group.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="statsInd33b" resname="stats.indication.age_group.70_79">
+        <source>stats.indication.age_group.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="statsInd33c" resname="stats.indication.age_group.80_89">
+        <source>stats.indication.age_group.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="statsInd33d" resname="stats.indication.age_group.90_99">
+        <source>stats.indication.age_group.90_99</source>
+        <target>90–99</target>
       </trans-unit>
       <trans-unit id="statsInd34" resname="stats.indication.gender.unknown">
         <source>stats.indication.gender.unknown</source>
@@ -4850,6 +4870,418 @@
       <trans-unit id="statsInd57" resname="stats.reports.nav.indication_profile">
         <source>stats.reports.nav.indication_profile</source>
         <target>Indication profile</target>
+      </trans-unit>
+      <trans-unit id="statsBm01" resname="stats.benchmark.title">
+        <source>stats.benchmark.title</source>
+        <target>Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="statsBm02" resname="stats.benchmark.subtitle">
+        <source>stats.benchmark.subtitle</source>
+        <target>Scope comparison report</target>
+      </trans-unit>
+      <trans-unit id="statsBm03" resname="stats.benchmark.primary.label">
+        <source>stats.benchmark.primary.label</source>
+        <target>Primary scope</target>
+      </trans-unit>
+      <trans-unit id="statsBm04" resname="stats.benchmark.comparison.label">
+        <source>stats.benchmark.comparison.label</source>
+        <target>Comparison scope</target>
+      </trans-unit>
+      <trans-unit id="statsBm04a" resname="stats.benchmark.selection.title">
+        <source>stats.benchmark.selection.title</source>
+        <target>Applied selection</target>
+      </trans-unit>
+      <trans-unit id="statsBm04b" resname="stats.benchmark.selection.summary_hint">
+        <source>stats.benchmark.selection.summary_hint</source>
+        <target>Active comparison based on the selections above.</target>
+      </trans-unit>
+      <trans-unit id="statsBm05" resname="stats.benchmark.comparison.choose_period">
+        <source>stats.benchmark.comparison.choose_period</source>
+        <target>Choose period</target>
+      </trans-unit>
+      <trans-unit id="statsBm06" resname="stats.benchmark.cases">
+        <source>stats.benchmark.cases</source>
+        <target>{count, number} cases</target>
+      </trans-unit>
+      <trans-unit id="statsBm07" resname="stats.benchmark.insufficient_data">
+        <source>stats.benchmark.insufficient_data</source>
+        <target>Not enough data in one or both scopes to generate reliable insights. Try a broader scope or period.</target>
+      </trans-unit>
+      <trans-unit id="statsBm08" resname="stats.benchmark.section.executive_summary">
+        <source>stats.benchmark.section.executive_summary</source>
+        <target>Executive summary</target>
+      </trans-unit>
+      <trans-unit id="statsBm09" resname="stats.benchmark.section.kpi">
+        <source>stats.benchmark.section.kpi</source>
+        <target>KPI comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm10" resname="stats.benchmark.section.indication_mix">
+        <source>stats.benchmark.section.indication_mix</source>
+        <target>Indication mix</target>
+      </trans-unit>
+      <trans-unit id="statsBm10f" resname="stats.benchmark.section.case_distribution">
+        <source>stats.benchmark.section.case_distribution</source>
+        <target>Distribution of Cases</target>
+      </trans-unit>
+      <trans-unit id="statsBm10g" resname="stats.benchmark.heatmap.mode.label">
+        <source>stats.benchmark.heatmap.mode.label</source>
+        <target>Occurrence view</target>
+      </trans-unit>
+      <trans-unit id="statsBm10h" resname="stats.benchmark.heatmap.mode.day_time">
+        <source>stats.benchmark.heatmap.mode.day_time</source>
+        <target>Time of Day</target>
+      </trans-unit>
+      <trans-unit id="statsBm10i" resname="stats.benchmark.heatmap.mode.shift">
+        <source>stats.benchmark.heatmap.mode.shift</source>
+        <target>Shift</target>
+      </trans-unit>
+      <trans-unit id="statsBm10j" resname="stats.benchmark.case_distribution.help">
+        <source>stats.benchmark.case_distribution.help</source>
+        <target>Colors show the relative share difference between scopes (Δ in %), not absolute case counts. Red indicates that primary is higher, while green indicates that primary is lower than comparison.</target>
+      </trans-unit>
+      <trans-unit id="statsBm10a" resname="stats.benchmark.indication_mix.indication">
+        <source>stats.benchmark.indication_mix.indication</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="statsBm10b" resname="stats.benchmark.indication_mix.over_represented">
+        <source>stats.benchmark.indication_mix.over_represented</source>
+        <target>Over-represented vs comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm10c" resname="stats.benchmark.indication_mix.under_represented">
+        <source>stats.benchmark.indication_mix.under_represented</source>
+        <target>Under-represented vs comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm10d" resname="stats.benchmark.indication_mix.expand_to_top_10">
+        <source>stats.benchmark.indication_mix.expand_to_top_10</source>
+        <target>Expand to Top 10</target>
+      </trans-unit>
+      <trans-unit id="statsBm10e" resname="stats.benchmark.indication_mix.reduce_to_top_5">
+        <source>stats.benchmark.indication_mix.reduce_to_top_5</source>
+        <target>Reduce to Top 5</target>
+      </trans-unit>
+      <trans-unit id="statsBm11" resname="stats.benchmark.section.gender">
+        <source>stats.benchmark.section.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsBm12" resname="stats.benchmark.section.age_groups">
+        <source>stats.benchmark.section.age_groups</source>
+        <target>Age groups</target>
+      </trans-unit>
+      <trans-unit id="statsBm13" resname="stats.benchmark.section.transport_times">
+        <source>stats.benchmark.section.transport_times</source>
+        <target>Transport times</target>
+      </trans-unit>
+      <trans-unit id="statsBm13a" resname="stats.benchmark.section.transport_type">
+        <source>stats.benchmark.section.transport_type</source>
+        <target>Transport type</target>
+      </trans-unit>
+      <trans-unit id="statsBm14" resname="stats.benchmark.section.resources">
+        <source>stats.benchmark.section.resources</source>
+        <target>Resources</target>
+      </trans-unit>
+      <trans-unit id="statsBm14a" resname="stats.benchmark.section.urgency">
+        <source>stats.benchmark.section.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsBm14b" resname="stats.benchmark.section.clinical_features">
+        <source>stats.benchmark.section.clinical_features</source>
+        <target>Clinical Features</target>
+      </trans-unit>
+      <trans-unit id="statsBm15" resname="stats.benchmark.summary.above">
+        <source>stats.benchmark.summary.above</source>
+        <target>Above comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm16" resname="stats.benchmark.summary.neutral">
+        <source>stats.benchmark.summary.neutral</source>
+        <target>Unremarkable</target>
+      </trans-unit>
+      <trans-unit id="statsBm17" resname="stats.benchmark.summary.below">
+        <source>stats.benchmark.summary.below</source>
+        <target>Below comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm18" resname="stats.benchmark.summary.empty">
+        <source>stats.benchmark.summary.empty</source>
+        <target>No notable differences</target>
+      </trans-unit>
+      <trans-unit id="statsBm19" resname="stats.benchmark.kpi.metric">
+        <source>stats.benchmark.kpi.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsBm20" resname="stats.benchmark.kpi.primary">
+        <source>stats.benchmark.kpi.primary</source>
+        <target>Primary</target>
+      </trans-unit>
+      <trans-unit id="statsBm21" resname="stats.benchmark.kpi.comparison">
+        <source>stats.benchmark.kpi.comparison</source>
+        <target>Comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm22" resname="stats.benchmark.kpi.delta">
+        <source>stats.benchmark.kpi.delta</source>
+        <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="statsBm23" resname="stats.benchmark.kpi.ratio">
+        <source>stats.benchmark.kpi.ratio</source>
+        <target>Ratio</target>
+      </trans-unit>
+      <trans-unit id="statsBm24" resname="stats.benchmark.metric.total">
+        <source>stats.benchmark.metric.total</source>
+        <target>Case count</target>
+      </trans-unit>
+      <trans-unit id="statsBm25" resname="stats.benchmark.metric.with_physician">
+        <source>stats.benchmark.metric.with_physician</source>
+        <target>Physician escort rate</target>
+      </trans-unit>
+      <trans-unit id="statsBm26" resname="stats.benchmark.metric.resus">
+        <source>stats.benchmark.metric.resus</source>
+        <target>Resuscitation room rate</target>
+      </trans-unit>
+      <trans-unit id="statsBm27" resname="stats.benchmark.metric.cathlab">
+        <source>stats.benchmark.metric.cathlab</source>
+        <target>Cath lab rate</target>
+      </trans-unit>
+      <trans-unit id="statsBm28" resname="stats.benchmark.metric.median_age">
+        <source>stats.benchmark.metric.median_age</source>
+        <target>Median age</target>
+      </trans-unit>
+      <trans-unit id="statsBm29" resname="stats.benchmark.metric.age_80_plus">
+        <source>stats.benchmark.metric.age_80_plus</source>
+        <target>Share aged 80+</target>
+      </trans-unit>
+      <trans-unit id="statsBm30" resname="stats.benchmark.metric.night_daytime">
+        <source>stats.benchmark.metric.night_daytime</source>
+        <target>Night share</target>
+      </trans-unit>
+      <trans-unit id="statsBm31" resname="stats.benchmark.metric.weekend">
+        <source>stats.benchmark.metric.weekend</source>
+        <target>Weekend share</target>
+      </trans-unit>
+      <trans-unit id="statsBm32" resname="stats.benchmark.metric.median_transport">
+        <source>stats.benchmark.metric.median_transport</source>
+        <target>Median transport time</target>
+      </trans-unit>
+      <trans-unit id="statsBm33" resname="stats.benchmark.gender.male">
+        <source>stats.benchmark.gender.male</source>
+        <target>Male</target>
+      </trans-unit>
+      <trans-unit id="statsBm34" resname="stats.benchmark.gender.female">
+        <source>stats.benchmark.gender.female</source>
+        <target>Female</target>
+      </trans-unit>
+      <trans-unit id="statsBm35" resname="stats.benchmark.gender.other">
+        <source>stats.benchmark.gender.other</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="statsBm36" resname="stats.benchmark.gender.unknown">
+        <source>stats.benchmark.gender.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsBm37" resname="stats.benchmark.age_group.0_17">
+        <source>stats.benchmark.age_group.0_17</source>
+        <target>0–17</target>
+      </trans-unit>
+      <trans-unit id="statsBm38" resname="stats.benchmark.age_group.18_29">
+        <source>stats.benchmark.age_group.18_29</source>
+        <target>18–29</target>
+      </trans-unit>
+      <trans-unit id="statsBm39" resname="stats.benchmark.age_group.30_39">
+        <source>stats.benchmark.age_group.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="statsBm40" resname="stats.benchmark.age_group.40_49">
+        <source>stats.benchmark.age_group.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="statsBm41" resname="stats.benchmark.age_group.50_59">
+        <source>stats.benchmark.age_group.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="statsBm41a" resname="stats.benchmark.age_group.60_69">
+        <source>stats.benchmark.age_group.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="statsBm41b" resname="stats.benchmark.age_group.70_79">
+        <source>stats.benchmark.age_group.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="statsBm41c" resname="stats.benchmark.age_group.80_89">
+        <source>stats.benchmark.age_group.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="statsBm41d" resname="stats.benchmark.age_group.90_99">
+        <source>stats.benchmark.age_group.90_99</source>
+        <target>90–99</target>
+      </trans-unit>
+      <trans-unit id="statsBm42" resname="stats.benchmark.age_group.unknown">
+        <source>stats.benchmark.age_group.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsBm43" resname="stats.benchmark.weekday.monday">
+        <source>stats.benchmark.weekday.monday</source>
+        <target>Monday</target>
+      </trans-unit>
+      <trans-unit id="statsBm44" resname="stats.benchmark.weekday.tuesday">
+        <source>stats.benchmark.weekday.tuesday</source>
+        <target>Tuesday</target>
+      </trans-unit>
+      <trans-unit id="statsBm45" resname="stats.benchmark.weekday.wednesday">
+        <source>stats.benchmark.weekday.wednesday</source>
+        <target>Wednesday</target>
+      </trans-unit>
+      <trans-unit id="statsBm46" resname="stats.benchmark.weekday.thursday">
+        <source>stats.benchmark.weekday.thursday</source>
+        <target>Thursday</target>
+      </trans-unit>
+      <trans-unit id="statsBm47" resname="stats.benchmark.weekday.friday">
+        <source>stats.benchmark.weekday.friday</source>
+        <target>Friday</target>
+      </trans-unit>
+      <trans-unit id="statsBm48" resname="stats.benchmark.weekday.saturday">
+        <source>stats.benchmark.weekday.saturday</source>
+        <target>Saturday</target>
+      </trans-unit>
+      <trans-unit id="statsBm49" resname="stats.benchmark.weekday.sunday">
+        <source>stats.benchmark.weekday.sunday</source>
+        <target>Sunday</target>
+      </trans-unit>
+      <trans-unit id="statsBm49a" resname="stats.benchmark.urgency.emergency">
+        <source>stats.benchmark.urgency.emergency</source>
+        <target>Emergency Care</target>
+      </trans-unit>
+      <trans-unit id="statsBm49b" resname="stats.benchmark.urgency.inpatient">
+        <source>stats.benchmark.urgency.inpatient</source>
+        <target>Inpatient Care</target>
+      </trans-unit>
+      <trans-unit id="statsBm49c" resname="stats.benchmark.urgency.outpatient">
+        <source>stats.benchmark.urgency.outpatient</source>
+        <target>Outpatient Care</target>
+      </trans-unit>
+      <trans-unit id="statsBm50" resname="stats.benchmark.resource.with_physician">
+        <source>stats.benchmark.resource.with_physician</source>
+        <target>Physician escort</target>
+      </trans-unit>
+      <trans-unit id="statsBm51" resname="stats.benchmark.resource.resus">
+        <source>stats.benchmark.resource.resus</source>
+        <target>Resuscitation room</target>
+      </trans-unit>
+      <trans-unit id="statsBm52" resname="stats.benchmark.resource.cathlab">
+        <source>stats.benchmark.resource.cathlab</source>
+        <target>Cath lab</target>
+      </trans-unit>
+      <trans-unit id="statsBm53" resname="stats.benchmark.resource.cpr">
+        <source>stats.benchmark.resource.cpr</source>
+        <target>CPR</target>
+      </trans-unit>
+      <trans-unit id="statsBm54" resname="stats.benchmark.resource.ventilated">
+        <source>stats.benchmark.resource.ventilated</source>
+        <target>Ventilation</target>
+      </trans-unit>
+      <trans-unit id="statsBm55" resname="stats.benchmark.resource.shock">
+        <source>stats.benchmark.resource.shock</source>
+        <target>Shock</target>
+      </trans-unit>
+      <trans-unit id="statsBm56" resname="stats.benchmark.insight.physician">
+        <source>stats.benchmark.insight.physician</source>
+        <target>Physician escort occurs {ratio, number, :: .#}× more often ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm57" resname="stats.benchmark.insight.physician_neutral">
+        <source>stats.benchmark.insight.physician_neutral</source>
+        <target>Physician escort rate is in line with the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm58" resname="stats.benchmark.insight.physician_low">
+        <source>stats.benchmark.insight.physician_low</source>
+        <target>Physician escort occurs less often than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm59" resname="stats.benchmark.insight.resus">
+        <source>stats.benchmark.insight.resus</source>
+        <target>Resuscitation room rate is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm60" resname="stats.benchmark.insight.resus_low">
+        <source>stats.benchmark.insight.resus_low</source>
+        <target>Resuscitation room rate is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm61" resname="stats.benchmark.insight.cathlab">
+        <source>stats.benchmark.insight.cathlab</source>
+        <target>Cath lab rate is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm62" resname="stats.benchmark.insight.cathlab_low">
+        <source>stats.benchmark.insight.cathlab_low</source>
+        <target>Cath lab rate is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm63" resname="stats.benchmark.insight.urgency_emergency">
+        <source>stats.benchmark.insight.urgency_emergency</source>
+        <target>Emergency urgency is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm64" resname="stats.benchmark.insight.urgency_emergency_low">
+        <source>stats.benchmark.insight.urgency_emergency_low</source>
+        <target>Emergency urgency is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm65" resname="stats.benchmark.insight.age_80_plus">
+        <source>stats.benchmark.insight.age_80_plus</source>
+        <target>Share aged 80+ is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm66" resname="stats.benchmark.insight.age_80_plus_low">
+        <source>stats.benchmark.insight.age_80_plus_low</source>
+        <target>Share aged 80+ is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm67" resname="stats.benchmark.insight.night_daytime">
+        <source>stats.benchmark.insight.night_daytime</source>
+        <target>Night share is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm68" resname="stats.benchmark.insight.night_daytime_low">
+        <source>stats.benchmark.insight.night_daytime_low</source>
+        <target>Night share is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm69" resname="stats.benchmark.insight.weekend">
+        <source>stats.benchmark.insight.weekend</source>
+        <target>Weekend share is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm70" resname="stats.benchmark.insight.weekend_low">
+        <source>stats.benchmark.insight.weekend_low</source>
+        <target>Weekend share is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm71" resname="stats.benchmark.insight.cpr">
+        <source>stats.benchmark.insight.cpr</source>
+        <target>CPR rate is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm72" resname="stats.benchmark.insight.cpr_low">
+        <source>stats.benchmark.insight.cpr_low</source>
+        <target>CPR rate is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm73" resname="stats.benchmark.insight.ventilation">
+        <source>stats.benchmark.insight.ventilation</source>
+        <target>Ventilation rate is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm74" resname="stats.benchmark.insight.ventilation_low">
+        <source>stats.benchmark.insight.ventilation_low</source>
+        <target>Ventilation rate is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm75" resname="stats.benchmark.insight.shock">
+        <source>stats.benchmark.insight.shock</source>
+        <target>Shock rate is {ratio, number, :: .#}× higher ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm76" resname="stats.benchmark.insight.shock_low">
+        <source>stats.benchmark.insight.shock_low</source>
+        <target>Shock rate is lower than in the comparison ({primaryPercent, number}% vs. {comparisonPercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsBm77" resname="stats.benchmark.insight.gender_balance">
+        <source>stats.benchmark.insight.gender_balance</source>
+        <target>Gender distribution is in line with the comparison.</target>
+      </trans-unit>
+      <trans-unit id="statsBm78" resname="stats.benchmark.insight.age_young">
+        <source>stats.benchmark.insight.age_young</source>
+        <target>Median age is markedly lower ({primaryValue, number} vs. {comparisonValue, number} years).</target>
+      </trans-unit>
+      <trans-unit id="statsBm79" resname="stats.benchmark.insight.age_old">
+        <source>stats.benchmark.insight.age_old</source>
+        <target>Median age is markedly higher ({primaryValue, number} vs. {comparisonValue, number} years).</target>
+      </trans-unit>
+      <trans-unit id="statsBm80" resname="stats.benchmark.insight.transport_time_long">
+        <source>stats.benchmark.insight.transport_time_long</source>
+        <target>Median transport time is longer ({primaryValue, number} vs. {comparisonValue, number} minutes).</target>
+      </trans-unit>
+      <trans-unit id="statsBm81" resname="stats.benchmark.insight.transport_time_short">
+        <source>stats.benchmark.insight.transport_time_short</source>
+        <target>Median transport time is shorter ({primaryValue, number} vs. {comparisonValue, number} minutes).</target>
       </trans-unit>
     </body>
   </file>

@@ -1,0 +1,174 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.benchmark.title'|trans }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.benchmark.title' }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle">{{ 'stats.benchmark.subtitle'|trans }}</div>
+                    <h2 class="page-title mb-0" data-testid="stats-benchmark-heading">{{ 'stats.benchmark.title'|trans }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div data-controller="benchmarking-charts"
+         data-benchmarking-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}"
+         data-benchmarking-charts-primary-label-value="{{ report.header.primaryScopeLabel|e('html_attr') }} ({{ report.header.primaryPeriodLabel|e('html_attr') }})"
+         data-benchmarking-charts-comparison-label-value="{{ report.header.comparisonScopeLabel|e('html_attr') }} ({{ report.header.comparisonPeriodLabel|e('html_attr') }})">
+
+        {{ include('@Statistics/benchmarking/_selection_card.html.twig') }}
+
+        {% if report.hasInsufficientData %}
+            <div class="alert alert-warning" data-testid="stats-benchmark-insufficient-data">
+                {{ 'stats.benchmark.insufficient_data'|trans }}
+            </div>
+        {% endif %}
+
+        {{ include('@Statistics/benchmarking/_executive_summary.html.twig') }}
+        {{ include('@Statistics/benchmarking/_kpi_table.html.twig') }}
+
+        <div class="row g-3 mt-1">
+            <div class="col-lg-8 d-flex flex-column gap-3">
+                <div class="card" data-testid="stats-benchmark-indication-mix">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.indication_mix'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_indication_mix_table.html.twig') }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-benchmark-case-distribution">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans }}</h3>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.benchmark.heatmap.mode.label'|trans }}">
+                            <button type="button"
+                                    class="btn active"
+                                    data-benchmarking-charts-target="heatmapModeDayTime"
+                                    data-action="benchmarking-charts#setHeatmapMode"
+                                    data-benchmarking-charts-mode-param="dayTime">
+                                {{ 'stats.benchmark.heatmap.mode.day_time'|trans }}
+                            </button>
+                            <button type="button"
+                                    class="btn"
+                                    data-benchmarking-charts-target="heatmapModeShift"
+                                    data-action="benchmarking-charts#setHeatmapMode"
+                                    data-benchmarking-charts-mode-param="shift">
+                                {{ 'stats.benchmark.heatmap.mode.shift'|trans }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2">
+                        <div class="chart-lg" data-benchmarking-charts-target="caseDistributionHeatmap"></div>
+                        <p class="text-muted small mb-0 mt-2" data-testid="stats-benchmark-case-distribution-help">
+                            {{ 'stats.benchmark.case_distribution.help'|trans }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-benchmark-demographics-age">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.age_groups'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-md" data-benchmarking-charts-target="ageGroupsChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-flex flex-column gap-3">
+                <div class="card" data-testid="stats-benchmark-demographics-gender">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.gender'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {
+                            distribution: report.gender,
+                            barClassMap: {
+                                male: 'bg-primary',
+                                female: 'bg-pink',
+                                other: 'bg-purple',
+                            },
+                        }) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-benchmark-urgency">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.urgency'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {
+                            distribution: report.urgency,
+                            barClassMap: {
+                                1: 'bg-red',
+                                2: 'bg-yellow',
+                                3: 'bg-green',
+                            },
+                        }) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-benchmark-resources">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.resources'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.resourceProfile, labelPrefix: 'stats.benchmark.resource.'}) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-benchmark-clinical-features">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.clinical_features'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.clinicalFeatures}) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-benchmark-transport-type">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.transport_type'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {
+                            distribution: report.transportType,
+                            barClassMap: {
+                                1: 'bg-primary',
+                                2: 'bg-azure',
+                            },
+                        }) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-benchmark-transport-times">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.transport_times'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-sm" data-benchmarking-charts-target="transportTimesChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

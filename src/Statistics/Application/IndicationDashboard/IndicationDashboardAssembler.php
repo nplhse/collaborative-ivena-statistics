@@ -14,14 +14,12 @@ use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCod
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsShiftBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class IndicationDashboardAssembler
 {
-    /** @var list<string> */
-    private const array AGE_GROUP_KEYS = ['0_17', '18_39', '40_59', '60_79', '80_plus'];
-
     /** @var list<string> */
     private const array TRANSPORT_TIME_BUCKET_KEYS = [
         'under_10',
@@ -163,7 +161,7 @@ final readonly class IndicationDashboardAssembler
     {
         $rows = [];
 
-        foreach (self::AGE_GROUP_KEYS as $key) {
+        foreach (StatisticsAgeGroupBucketSql::DISPLAY_BUCKET_KEYS as $key) {
             $count = $ageGroupCounts[$key] ?? 0;
             $rows[] = new IndicationDistributionRow(
                 'stats.indication.age_group.'.$key,
@@ -277,12 +275,10 @@ final readonly class IndicationDashboardAssembler
         return $this->buildWeekdayBucketHeatmap(
             $cells,
             'dayTimeBucketCode',
-            [
-                AllocationStatsDayTimeBucketProjectionCode::Night->value,
-                AllocationStatsDayTimeBucketProjectionCode::Morning->value,
-                AllocationStatsDayTimeBucketProjectionCode::Afternoon->value,
-                AllocationStatsDayTimeBucketProjectionCode::Evening->value,
-            ],
+            array_map(
+                static fn (AllocationStatsDayTimeBucketProjectionCode $case): int => $case->value,
+                AllocationStatsDayTimeBucketProjectionCode::displayOrder(),
+            ),
             static fn (int $code): string => AllocationStatsDayTimeBucketProjectionCode::from($code)->labelTranslationKey(),
         );
     }
@@ -295,11 +291,10 @@ final readonly class IndicationDashboardAssembler
         return $this->buildWeekdayBucketHeatmap(
             $cells,
             'shiftBucketCode',
-            [
-                AllocationStatsShiftBucketProjectionCode::NightShift->value,
-                AllocationStatsShiftBucketProjectionCode::EarlyShift->value,
-                AllocationStatsShiftBucketProjectionCode::LateShift->value,
-            ],
+            array_map(
+                static fn (AllocationStatsShiftBucketProjectionCode $case): int => $case->value,
+                AllocationStatsShiftBucketProjectionCode::displayOrder(),
+            ),
             static fn (int $code): string => AllocationStatsShiftBucketProjectionCode::from($code)->labelTranslationKey(),
         );
     }

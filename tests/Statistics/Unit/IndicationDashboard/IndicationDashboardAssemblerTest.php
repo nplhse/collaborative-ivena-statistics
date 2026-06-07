@@ -131,10 +131,11 @@ final class IndicationDashboardAssemblerTest extends TestCase
             ['age' => 40, 'count' => 3],
             ['age' => 55, 'count' => 7],
         ]);
-        $groups = $this->assembler->buildAgeGroupDistribution(['40_59' => 4, '80_plus' => 1], 5);
+        $groups = $this->assembler->buildAgeGroupDistribution(['50_59' => 4, '80_89' => 1], 5);
 
         self::assertSame(['40', '55'], $histogram->labels);
-        self::assertSame(20.0, $groups[4]->percent);
+        self::assertSame(80.0, $groups[4]->percent);
+        self::assertSame(20.0, $groups[7]->percent);
         self::assertSame(0.0, $groups[0]->percent);
     }
 
@@ -168,9 +169,9 @@ final class IndicationDashboardAssemblerTest extends TestCase
         ]);
 
         self::assertSame(4, $dayTime->maxCount);
-        self::assertSame(4, $dayTime->matrix[0][1]);
+        self::assertSame(4, $dayTime->matrix[0][0]);
         self::assertSame(9, $shift->maxCount);
-        self::assertSame(9, $shift->matrix[6][0]);
+        self::assertSame(9, $shift->matrix[6][2]);
         self::assertContains('stats.indication.weekday.1', $dayTime->rowLabels);
     }
 

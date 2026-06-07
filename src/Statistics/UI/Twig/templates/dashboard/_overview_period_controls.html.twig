@@ -1,4 +1,5 @@
 {% set periodVm = overviewPeriodViewModel %}
+{% set periodTestIdPrefix = periodTestIdPrefix|default('stats-period') %}
 
 <div class="btn-group" role="group" aria-label="{{ 'stats.filter.period_label'|trans }}">
     {% if periodVm.showSecondaryPicker %}
@@ -7,7 +8,7 @@
                     class="btn dropdown-toggle"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    data-testid="stats-period-primary">
+                    data-testid="{{ periodTestIdPrefix }}-primary">
                 {{ periodVm.primaryDropdownLabel }}
             </button>
             <div class="dropdown-menu">
@@ -21,7 +22,7 @@
                     class="btn dropdown-toggle"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    data-testid="stats-period-secondary">
+                    data-testid="{{ periodTestIdPrefix }}-secondary">
                 {{ periodVm.secondaryDropdownLabel }}
             </button>
             <div class="dropdown-menu dropdown-menu-end" style="max-height: 20rem; overflow-y: auto;">
@@ -40,7 +41,7 @@
                     class="btn dropdown-toggle"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    data-testid="stats-period-primary">
+                    data-testid="{{ periodTestIdPrefix }}-primary">
                 {{ periodVm.primaryDropdownLabel }}
             </button>
             <div class="dropdown-menu dropdown-menu-end">

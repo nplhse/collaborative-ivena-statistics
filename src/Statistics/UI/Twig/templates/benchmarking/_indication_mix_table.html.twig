@@ -1,0 +1,119 @@
+{% macro renderRows(rows, initialCount) %}
+    {% for row in rows %}
+        {% set bucket = row.bucket %}
+        {% set absoluteDelta = bucket.primaryShare - bucket.comparisonShare %}
+        {% set deltaTone = absoluteDelta > 0 ? 'success' : (absoluteDelta < 0 ? 'danger' : 'primary') %}
+        {% set deltaBadgeClass = deltaTone == 'danger' ? 'bg-red-lt' : (deltaTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
+        {% set ratioTone = bucket.ratio > 1 ? 'success' : (bucket.ratio < 1 ? 'danger' : 'primary') %}
+        {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
+        {% set deltaLabel = (absoluteDelta >= 0 ? '+' : '') ~ absoluteDelta|number_format(1, ',', '.') ~ '%' %}
+
+        <tr class="{{ loop.index0 >= initialCount ? 'd-none' : '' }}"
+            {% if loop.index0 >= initialCount %}data-benchmark-indication-mix-expand-target="hiddenRow"{% endif %}
+            data-testid="stats-benchmark-indication-mix-{{ bucket.key }}">
+            <td>
+                {% if row.insightsUrl %}
+                    <a href="{{ row.insightsUrl }}" class="text-reset">{{ bucket.label }}</a>
+                {% else %}
+                    {{ bucket.label }}
+                {% endif %}
+            </td>
+            <td class="text-end">{{ bucket.primaryShare|number_format(1, ',', '.') }}%</td>
+            <td class="text-end">{{ bucket.comparisonShare|number_format(1, ',', '.') }}%</td>
+            <td class="text-end">
+                <span class="badge {{ deltaBadgeClass }}">{{ deltaLabel }}</span>
+            </td>
+            <td class="text-end">
+                <span class="badge {{ ratioBadgeClass }}">{{ bucket.ratio|number_format(1, ',', '.') }}×</span>
+            </td>
+        </tr>
+    {% endfor %}
+{% endmacro %}
+
+{% macro expandButton(testId) %}
+    <div class="text-end mt-2">
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
+                data-action="benchmark-indication-mix-expand#toggle"
+                data-testid="{{ testId }}">
+            <span data-benchmark-indication-mix-expand-target="expandIconMore">
+                <twig:ux:icon name="tabler:eye" class="icon icon-sm" />
+            </span>
+            <span class="d-none" data-benchmark-indication-mix-expand-target="expandIconLess">
+                <twig:ux:icon name="tabler:eye-off" class="icon icon-sm" />
+            </span>
+            <span data-benchmark-indication-mix-expand-target="expandLabel">
+                {{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans }}
+            </span>
+        </button>
+    </div>
+{% endmacro %}
+
+{% set initialCount = constant('App\\Statistics\\Benchmarking\\Application\\BenchmarkMetricBuilder::INDICATION_MIX_INITIAL_COUNT') %}
+
+<div data-testid="stats-benchmark-indication-mix-table">
+    {% if indicationMixViewModel.isEmpty %}
+        <span class="text-secondary small">{{ 'stats.benchmark.summary.empty'|trans }}</span>
+    {% else %}
+        {% import _self as indicationMixTable %}
+
+        {% if indicationMixViewModel.overRepresented is not empty %}
+            <div class="fw-semibold mb-2" data-testid="stats-benchmark-indication-mix-over-heading">
+                {{ 'stats.benchmark.indication_mix.over_represented'|trans }}
+            </div>
+            <div data-controller="benchmark-indication-mix-expand"
+                 data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans|e('html_attr') }}"
+                 data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.benchmark.indication_mix.reduce_to_top_5'|trans|e('html_attr') }}">
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table mb-0" data-testid="stats-benchmark-indication-mix-over-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'stats.benchmark.indication_mix.indication'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.primary'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.comparison'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.delta'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.ratio'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{ indicationMixTable.renderRows(indicationMixViewModel.overRepresented, initialCount) }}
+                        </tbody>
+                    </table>
+                </div>
+                {% if indicationMixViewModel.canExpandOver %}
+                    {{ indicationMixTable.expandButton('stats-benchmark-indication-mix-over-expand') }}
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if indicationMixViewModel.underRepresented is not empty %}
+            <div class="fw-semibold mb-2{% if indicationMixViewModel.overRepresented is not empty %} mt-4{% endif %}"
+                 data-testid="stats-benchmark-indication-mix-under-heading">
+                {{ 'stats.benchmark.indication_mix.under_represented'|trans }}
+            </div>
+            <div data-controller="benchmark-indication-mix-expand"
+                 data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans|e('html_attr') }}"
+                 data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.benchmark.indication_mix.reduce_to_top_5'|trans|e('html_attr') }}">
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table mb-0" data-testid="stats-benchmark-indication-mix-under-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'stats.benchmark.indication_mix.indication'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.primary'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.comparison'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.delta'|trans }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.ratio'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{ indicationMixTable.renderRows(indicationMixViewModel.underRepresented, initialCount) }}
+                        </tbody>
+                    </table>
+                </div>
+                {% if indicationMixViewModel.canExpandUnder %}
+                    {{ indicationMixTable.expandButton('stats-benchmark-indication-mix-under-expand') }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>

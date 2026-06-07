@@ -32,6 +32,34 @@ final class StatisticsQueryKeys
     public const string COMPARISON_PERIOD = 'comparison_period';
     public const string COMPARISON_YEAR = 'comparison_year';
     public const string COMPARISON_MONTH = 'comparison_month';
+    public const string COMPARISON_QUARTER = 'comparison_quarter';
+    public const string COMPARISON_HOSPITAL = 'comparison_hospital';
+
+    /** @var list<string> */
+    public const array REMOVE_COMPARISON_SCOPE_DEPENDENT = [
+        self::COMPARISON_HOSPITAL,
+        self::COMPARISON_COHORT,
+        self::COMPARISON_STATE,
+        self::COMPARISON_DISPATCH_AREA,
+    ];
+
+    /** @var list<string> */
+    public const array REMOVE_COMPARISON_PERIOD_DEPENDENT = [
+        self::COMPARISON_YEAR,
+        self::COMPARISON_MONTH,
+        self::COMPARISON_QUARTER,
+    ];
+
+    /** @var list<string> */
+    public const array REMOVE_COMPARISON_MONTH_DEPENDENT = [
+        self::COMPARISON_MONTH,
+    ];
+
+    /** @var list<string> */
+    public const array REMOVE_COMPARISON_QUARTER_DEPENDENT = [
+        self::COMPARISON_QUARTER,
+        self::COMPARISON_MONTH,
+    ];
 
     public const string REPORT = 'report';
     public const string LIMIT = 'limit';

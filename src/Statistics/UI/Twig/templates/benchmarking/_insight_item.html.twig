@@ -1,0 +1,21 @@
+{% set tone = insight.direction.value == 'above' ? 'success' : (insight.direction.value == 'below' ? 'danger' : 'primary') %}
+{% set badgeClass = tone == 'danger' ? 'bg-red-lt' : (tone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
+{% set dotClass = tone == 'danger' ? 'bg-red' : (tone == 'success' ? 'bg-green' : 'bg-primary') %}
+
+<div class="d-flex align-items-start gap-2 border rounded p-2">
+    <span class="status-dot {{ dotClass }} d-block mt-1"></span>
+    <div class="min-w-0">
+        <div class="mb-1">
+            <span class="badge {{ badgeClass }}" data-testid="stats-benchmark-insight-{{ insight.id }}">{{ insight.ratio|number_format(1, ',', '.') }}×</span>
+        </div>
+        <p class="mb-0 text-secondary small">
+            {{ insight.translationKey|trans({
+                ratio: insight.ratio|number_format(1, ',', '.'),
+                primaryPercent: insight.primaryDisplay|number_format(1, ',', '.'),
+                comparisonPercent: insight.comparisonDisplay|number_format(1, ',', '.'),
+                primaryValue: insight.primaryDisplay|number_format(1, ',', '.'),
+                comparisonValue: insight.comparisonDisplay|number_format(1, ',', '.'),
+            }) }}
+        </p>
+    </div>
+</div>
