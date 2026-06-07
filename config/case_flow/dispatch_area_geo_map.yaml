@@ -1,0 +1,25 @@
+dispatch_area_geo_map:
+    Bergstraße: bergstrasse
+    Darmstadt: darmstadt
+    Darmstadt-Dieburg: darmstadt-dieburg
+    Frankfurt: frankfurt
+    Fulda: fulda
+    Gießen: giessen
+    Groß-Gerau: gross-gerau
+    Hersfeld-Rotenburg: hersfeld-rotenburg
+    Hochtaunus: hochtaunus
+    Kassel: kassel
+    Lahn-Dill: lahn-dill
+    Limburg-Weilburg: limburg-weilburg
+    Main-Kinzig: main-kinzig
+    Main-Taunus: main-taunus
+    Marburg-Biedenkopf: marburg-biedenkopf
+    Odenwald: odenwald
+    Offenbach: offenbach
+    'Rheingau Taunus': rheingau-taunus
+    Schwalm-Eder: schwalm-eder
+    Vogelsberg: vogelsberg
+    Waldeck-Frankenberg: waldeck-frankenberg
+    Werra-Meißner: werra-meissner
+    Wetterau: wetterau
+    Wiesbaden: wiesbaden

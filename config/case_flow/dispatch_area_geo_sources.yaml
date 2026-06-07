@@ -1,0 +1,101 @@
+# Maps dispatch-area geo keys to one or more official Kreis geometries (merged on the map).
+# Source: BKG VG250 via Opendatasoft georef-germany-kreis (Hessen, lan_name = Hessen).
+dispatch_areas:
+    bergstrasse:
+        name: Bergstraße
+        krs_names:
+            - Landkreis Bergstraße
+    darmstadt:
+        name: Darmstadt
+        krs_names:
+            - Kreisfreie Stadt Darmstadt
+    darmstadt-dieburg:
+        name: Darmstadt-Dieburg
+        krs_names:
+            - Landkreis Darmstadt-Dieburg
+    frankfurt:
+        name: Frankfurt
+        krs_names:
+            - Kreisfreie Stadt Frankfurt am Main
+    fulda:
+        name: Fulda
+        krs_names:
+            - Landkreis Fulda
+    giessen:
+        name: Gießen
+        krs_names:
+            - Landkreis Gießen
+    gross-gerau:
+        name: Groß-Gerau
+        krs_names:
+            - Landkreis Groß-Gerau
+    hersfeld-rotenburg:
+        name: Hersfeld-Rotenburg
+        krs_names:
+            - Landkreis Hersfeld-Rotenburg
+    hochtaunus:
+        name: Hochtaunus
+        krs_names:
+            - Landkreis Hochtaunuskreis
+    kassel:
+        name: Kassel
+        krs_names:
+            - Kreisfreie Stadt Kassel
+            - Landkreis Kassel
+    lahn-dill:
+        name: Lahn-Dill
+        krs_names:
+            - Landkreis Lahn-Dill-Kreis
+    limburg-weilburg:
+        name: Limburg-Weilburg
+        krs_names:
+            - Landkreis Limburg-Weilburg
+    main-kinzig:
+        name: Main-Kinzig
+        krs_names:
+            - Landkreis Main-Kinzig-Kreis
+    main-taunus:
+        name: Main-Taunus
+        krs_names:
+            - Landkreis Main-Taunus-Kreis
+    marburg-biedenkopf:
+        name: Marburg-Biedenkopf
+        krs_names:
+            - Landkreis Marburg-Biedenkopf
+    odenwald:
+        name: Odenwald
+        krs_names:
+            - Landkreis Odenwaldkreis
+    offenbach:
+        name: Offenbach
+        krs_names:
+            - Kreisfreie Stadt Offenbach am Main
+            - Landkreis Offenbach
+    rheingau-taunus:
+        name: Rheingau Taunus
+        krs_names:
+            - Landkreis Rheingau-Taunus-Kreis
+    schwalm-eder:
+        name: Schwalm-Eder
+        krs_names:
+            - Landkreis Schwalm-Eder-Kreis
+    vogelsberg:
+        name: Vogelsberg
+        krs_names:
+            - Landkreis Vogelsbergkreis
+    waldeck-frankenberg:
+        name: Waldeck-Frankenberg
+        krs_names:
+            - Landkreis Waldeck-Frankenberg
+    werra-meissner:
+        name: Werra-Meißner
+        krs_names:
+            - Landkreis Werra-Meißner-Kreis
+    wetterau:
+        name: Wetterau
+        krs_names:
+            - Landkreis Wetteraukreis
+    wiesbaden:
+        name: Wiesbaden
+        krs_names:
+            - Kreisfreie Stadt Wiesbaden

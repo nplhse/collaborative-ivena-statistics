@@ -68,3 +68,36 @@
         transform: rotate(360deg);
     }
 }
+
+.case-flow-map-square {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: min(100%, 560px);
+}
+
+.case-flow-map-square .case-flow-map-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    border-radius: var(--tblr-border-radius, 4px);
+    overflow: hidden;
+    background: var(--tblr-bg-surface-secondary, #f8f9fa);
+}
+
+.case-flow-map-container.leaflet-container {
+    height: 100%;
+    width: 100%;
+    font: inherit;
+}
+
+.case-flow-map-container .leaflet-pane {
+    z-index: 1;
+}
+
+.case-flow-map-container .leaflet-top,
+.case-flow-map-container .leaflet-bottom {
+    z-index: 2;
+}

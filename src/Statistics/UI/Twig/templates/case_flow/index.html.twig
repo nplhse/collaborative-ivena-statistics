@@ -1,0 +1,97 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.case_flow.title'|trans }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.case_flow.title'|trans }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-case-flow-heading-subtitle">
+                        {{ 'stats.case_flow.pretitle'|trans }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="stats-case-flow-heading-title">
+                        {{ 'stats.case_flow.title'|trans }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div data-controller="case-flow-charts"
+         data-case-flow-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+
+        {{ include('@Statistics/case_flow/_summary_deck.html.twig') }}
+
+        <div class="row g-3 align-items-start mt-1">
+            <div class="col-lg-8 d-flex flex-column gap-3">
+                {{ include('@Statistics/case_flow/_map_card.html.twig') }}
+
+                {% if dashboard.mode.value == 'system_flow' %}
+                    <div class="card" data-testid="stats-case-flow-stacked-bar">
+                        <div class="card-header py-2">
+                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.flow_matrix'|trans }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-lg" data-case-flow-charts-target="flowStackedBarChart"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="card" data-testid="stats-case-flow-origin-bar">
+                        <div class="card-header py-2">
+                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.origin_distribution'|trans }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-lg" data-case-flow-charts-target="originBarChart"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4 d-flex flex-column gap-3">
+                {{ include('@Statistics/case_flow/_insight_highlights.html.twig') }}
+
+                {% if dashboard.mode.value == 'system_flow' %}
+                    {% if dashboard.destinationTierCard %}
+                        {{ include('@Statistics/case_flow/_structure_distribution_card.html.twig', {
+                            card: dashboard.destinationTierCard,
+                            testId: 'stats-case-flow-tier-structure',
+                        }) }}
+                    {% endif %}
+                    {% if dashboard.destinationLocationCard %}
+                        {{ include('@Statistics/case_flow/_structure_distribution_card.html.twig', {
+                            card: dashboard.destinationLocationCard,
+                            testId: 'stats-case-flow-location-structure',
+                        }) }}
+                    {% endif %}
+                    {% if dashboard.destinationSizeCard %}
+                        {{ include('@Statistics/case_flow/_structure_distribution_card.html.twig', {
+                            card: dashboard.destinationSizeCard,
+                            testId: 'stats-case-flow-size-structure',
+                        }) }}
+                    {% endif %}
+                {% else %}
+                    {{ include('@Statistics/case_flow/_urgency_distribution_card.html.twig') }}
+                {% endif %}
+
+                {{ include('@Statistics/case_flow/_transport_time_card.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

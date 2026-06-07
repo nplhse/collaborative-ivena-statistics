@@ -5283,6 +5283,178 @@
         <source>stats.benchmark.insight.transport_time_short</source>
         <target>Median transport time is shorter ({primaryValue, number} vs. {comparisonValue, number} minutes).</target>
       </trans-unit>
+      <trans-unit id="statsPf01" resname="link.stats.case_flow">
+        <source>link.stats.case_flow</source>
+        <target>Case flow</target>
+      </trans-unit>
+      <trans-unit id="statsPf02" resname="stats.case_flow.title">
+        <source>stats.case_flow.title</source>
+        <target>Case flow</target>
+      </trans-unit>
+      <trans-unit id="statsPf03" resname="stats.case_flow.pretitle">
+        <source>stats.case_flow.pretitle</source>
+        <target>Care system structure</target>
+      </trans-unit>
+      <trans-unit id="statsPf04" resname="stats.case_flow.mode.system_flow">
+        <source>stats.case_flow.mode.system_flow</source>
+        <target>System flow analysis</target>
+      </trans-unit>
+      <trans-unit id="statsPf05" resname="stats.case_flow.mode.hospital_origin">
+        <source>stats.case_flow.mode.hospital_origin</source>
+        <target>Origin analysis</target>
+      </trans-unit>
+      <trans-unit id="statsPf06" resname="stats.case_flow.kpi.total_cases">
+        <source>stats.case_flow.kpi.total_cases</source>
+        <target>Total cases</target>
+      </trans-unit>
+      <trans-unit id="statsPf07" resname="stats.case_flow.kpi.regional_share">
+        <source>stats.case_flow.kpi.regional_share</source>
+        <target>Regional care share</target>
+      </trans-unit>
+      <trans-unit id="statsPf08" resname="stats.case_flow.kpi.centralization">
+        <source>stats.case_flow.kpi.centralization</source>
+        <target>Full-tier share</target>
+      </trans-unit>
+      <trans-unit id="statsPf09" resname="stats.case_flow.kpi.overregional_share">
+        <source>stats.case_flow.kpi.overregional_share</source>
+        <target>Over-regional share</target>
+      </trans-unit>
+      <trans-unit id="statsPf10" resname="stats.case_flow.kpi.mean_transport">
+        <source>stats.case_flow.kpi.mean_transport</source>
+        <target>Mean transport time</target>
+      </trans-unit>
+      <trans-unit id="statsPf10b" resname="stats.case_flow.kpi.median_transport">
+        <source>stats.case_flow.kpi.median_transport</source>
+        <target>Median transport time</target>
+      </trans-unit>
+      <trans-unit id="statsPf11" resname="stats.case_flow.kpi.minutes">
+        <source>stats.case_flow.kpi.minutes</source>
+        <target>min</target>
+      </trans-unit>
+      <trans-unit id="statsPf12" resname="stats.case_flow.kpi.emergency_share">
+        <source>stats.case_flow.kpi.emergency_share</source>
+        <target>Emergency share</target>
+      </trans-unit>
+      <trans-unit id="statsPf13" resname="stats.case_flow.insights.title">
+        <source>stats.case_flow.insights.title</source>
+        <target>Automatic insights</target>
+      </trans-unit>
+      <trans-unit id="statsPf14" resname="stats.case_flow.section.flow_matrix">
+        <source>stats.case_flow.section.flow_matrix</source>
+        <target>Origin to destination tier</target>
+      </trans-unit>
+      <trans-unit id="statsPf15" resname="stats.case_flow.section.origin_distribution">
+        <source>stats.case_flow.section.origin_distribution</source>
+        <target>Case origins</target>
+      </trans-unit>
+      <trans-unit id="statsPf16" resname="stats.case_flow.section.destination_tier">
+        <source>stats.case_flow.section.destination_tier</source>
+        <target>Destination by tier</target>
+      </trans-unit>
+      <trans-unit id="statsPf17" resname="stats.case_flow.section.destination_location">
+        <source>stats.case_flow.section.destination_location</source>
+        <target>Destination by location type</target>
+      </trans-unit>
+      <trans-unit id="statsPf17b" resname="stats.case_flow.section.destination_size">
+        <source>stats.case_flow.section.destination_size</source>
+        <target>Destination by hospital size</target>
+      </trans-unit>
+      <trans-unit id="statsPf17c" resname="stats.case_flow.structure.empty">
+        <source>stats.case_flow.structure.empty</source>
+        <target>No data available for this selection.</target>
+      </trans-unit>
+      <trans-unit id="statsPf18" resname="stats.case_flow.section.transport_time">
+        <source>stats.case_flow.section.transport_time</source>
+        <target>Transport time distribution</target>
+      </trans-unit>
+      <trans-unit id="statsPf19" resname="stats.case_flow.section.urgency">
+        <source>stats.case_flow.section.urgency</source>
+        <target>Urgency distribution</target>
+      </trans-unit>
+      <trans-unit id="statsPf20" resname="stats.case_flow.section.map">
+        <source>stats.case_flow.section.map</source>
+        <target>Hesse dispatch area map</target>
+      </trans-unit>
+      <trans-unit id="statsPf21" resname="stats.case_flow.map.mode.label">
+        <source>stats.case_flow.map.mode.label</source>
+        <target>Map value mode</target>
+      </trans-unit>
+      <trans-unit id="statsPf22" resname="stats.case_flow.map.mode.absolute">
+        <source>stats.case_flow.map.mode.absolute</source>
+        <target>Absolute</target>
+      </trans-unit>
+      <trans-unit id="statsPf23" resname="stats.case_flow.map.mode.relative">
+        <source>stats.case_flow.map.mode.relative</source>
+        <target>Relative (%)</target>
+      </trans-unit>
+      <trans-unit id="statsPf24" resname="stats.case_flow.map.legend_hint">
+        <source>stats.case_flow.map.legend_hint</source>
+        <target>Gray areas indicate suppressed values due to small case counts.</target>
+      </trans-unit>
+      <trans-unit id="statsPf25" resname="stats.case_flow.tier.basic">
+        <source>stats.case_flow.tier.basic</source>
+        <target>Basic tier</target>
+      </trans-unit>
+      <trans-unit id="statsPf26" resname="stats.case_flow.tier.extended">
+        <source>stats.case_flow.tier.extended</source>
+        <target>Extended tier</target>
+      </trans-unit>
+      <trans-unit id="statsPf27" resname="stats.case_flow.tier.full">
+        <source>stats.case_flow.tier.full</source>
+        <target>Full tier</target>
+      </trans-unit>
+      <trans-unit id="statsPf28" resname="stats.case_flow.location.urban">
+        <source>stats.case_flow.location.urban</source>
+        <target>Urban</target>
+      </trans-unit>
+      <trans-unit id="statsPf29" resname="stats.case_flow.location.mixed">
+        <source>stats.case_flow.location.mixed</source>
+        <target>Mixed</target>
+      </trans-unit>
+      <trans-unit id="statsPf30" resname="stats.case_flow.location.rural">
+        <source>stats.case_flow.location.rural</source>
+        <target>Rural</target>
+      </trans-unit>
+      <trans-unit id="statsPf31" resname="stats.case_flow.pool.suppressed">
+        <source>stats.case_flow.pool.suppressed</source>
+        <target>Suppressed</target>
+      </trans-unit>
+      <trans-unit id="statsPf32" resname="stats.case_flow.pool.unknown">
+        <source>stats.case_flow.pool.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsPf33" resname="stats.case_flow.urgency.emergency">
+        <source>stats.case_flow.urgency.emergency</source>
+        <target>Emergency</target>
+      </trans-unit>
+      <trans-unit id="statsPf34" resname="stats.case_flow.urgency.inpatient">
+        <source>stats.case_flow.urgency.inpatient</source>
+        <target>Inpatient</target>
+      </trans-unit>
+      <trans-unit id="statsPf35" resname="stats.case_flow.urgency.outpatient">
+        <source>stats.case_flow.urgency.outpatient</source>
+        <target>Outpatient</target>
+      </trans-unit>
+      <trans-unit id="statsPf36" resname="stats.case_flow.urgency.unknown">
+        <source>stats.case_flow.urgency.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsPf37" resname="stats.case_flow.insight.predominantly_regional">
+        <source>stats.case_flow.insight.predominantly_regional</source>
+        <target>Care is predominantly regional: {share, number}% of cases are treated within the origin dispatch area.</target>
+      </trans-unit>
+      <trans-unit id="statsPf38" resname="stats.case_flow.insight.high_centralization">
+        <source>stats.case_flow.insight.high_centralization</source>
+        <target>High centralization: {share, number}% of cases are treated in full-tier facilities.</target>
+      </trans-unit>
+      <trans-unit id="statsPf39" resname="stats.case_flow.insight.elevated_transport_time">
+        <source>stats.case_flow.insight.elevated_transport_time</source>
+        <target>Above-average transport times (mean {mean, number} min vs. {baselineMean, number} min baseline).</target>
+      </trans-unit>
+      <trans-unit id="statsPf40" resname="stats.case_flow.insight.urgency_concentration_origin">
+        <source>stats.case_flow.insight.urgency_concentration_origin</source>
+        <target>Emergency cases are geographically concentrated: {share, number}% originate from {origin}.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

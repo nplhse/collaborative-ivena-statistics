@@ -9,7 +9,6 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\HospitalSummaryData;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticWidget;
-use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\SummaryDeckWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
@@ -17,9 +16,6 @@ use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsRes
 
 final readonly class HospitalSummaryProvider
 {
-    /** @var list<string> */
-    private const array ANALYSIS_CROSS_NAV_REMOVE_KEYS = ['report', 'limit', 'view', 'chart'];
-
     /** @var array<string, string> AllocationGender::value => Tabler progress-bar class */
     private const array GENDER_BAR_CLASSES = [
         'M' => 'bg-primary',
@@ -99,46 +95,17 @@ final readonly class HospitalSummaryProvider
                     'mutedTranslationKey' => 'stats.overview.hospital_summary.kpi_subline',
                     'totalCount' => $total,
                     'percent' => $percent,
-                    'actions' => [
-                        ...$this->openAllocationsByMonthAnalysisActions(
-                            'stats.nav.overview_indicators_to_analysis',
-                        ),
-                    ],
                 ],
                 [
                     'titleTranslationKey' => 'stats.overview.hospital_summary.gender_card_title',
                     'segments' => $genderSegments,
-                    'actions' => $this->openAllocationsByMonthAnalysisActions(
-                        'stats.nav.overview_gender_to_analysis',
-                    ),
                 ],
                 [
                     'titleTranslationKey' => 'stats.overview.hospital_summary.urgency_card_title',
                     'segments' => $urgencySegments,
-                    'actions' => $this->openAllocationsByMonthAnalysisActions(
-                        'stats.nav.overview_urgency_to_analysis',
-                    ),
                 ],
                 ['showUnscopedHint' => false],
             )),
         );
-    }
-
-    /**
-     * @return list<StatisticWidgetNavigationTarget>
-     */
-    private function openAllocationsByMonthAnalysisActions(
-        string $labelTranslationKey,
-    ): array {
-        return [
-            new StatisticWidgetNavigationTarget(
-                $labelTranslationKey,
-                'app_stats_analytics_view',
-                [
-                    'viewKey' => 'allocations_by_month',
-                ],
-                self::ANALYSIS_CROSS_NAV_REMOVE_KEYS,
-            ),
-        ];
     }
 }
