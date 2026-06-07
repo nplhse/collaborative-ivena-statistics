@@ -73,6 +73,10 @@ services:
         tags:
             - { name: controller.argument_value_resolver, priority: 180 }
 
+    App\Statistics\CaseFlow\Application\CaseFlowGeoKeyResolver:
+        arguments:
+            $configPath: '%kernel.project_dir%/config/case_flow/dispatch_area_geo_map.yaml'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
