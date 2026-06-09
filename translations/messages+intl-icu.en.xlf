@@ -5806,6 +5806,7 @@
       <trans-unit id="statsEv55" resname="stats.data_quality.allocation.histogram.sufficient">
         <source>stats.data_quality.allocation.histogram.sufficient</source>
         <target>Sufficient</target>
+      </trans-unit>
       <trans-unit id="statsHp01" resname="link.stats.hospital_population">
         <source>link.stats.hospital_population</source>
         <target>Hospitals</target>
