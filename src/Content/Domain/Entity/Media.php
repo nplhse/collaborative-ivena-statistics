@@ -46,6 +46,12 @@ class Media implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?int $size = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $width = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $height = null;
+
     #[ORM\Column(nullable: true, enumType: MediaType::class)]
     private ?MediaType $type = null;
 
@@ -145,6 +151,30 @@ class Media implements \Stringable
     public function setSize(?int $size): self
     {
         $this->size = $size;
+
+        return $this;
+    }
+
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    public function setWidth(?int $width): self
+    {
+        $this->width = $width;
+
+        return $this;
+    }
+
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    public function setHeight(?int $height): self
+    {
+        $this->height = $height;
 
         return $this;
     }
