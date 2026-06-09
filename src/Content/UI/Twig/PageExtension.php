@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Content\UI\Twig;
 
+use App\Content\Application\Page\DTO\PageImagePresentation;
 use App\Content\Application\Page\DTO\PageNavigationLink;
+use App\Content\Application\Page\PageImageBlockPresenter;
 use App\Content\Application\Page\PageNavigationProvider;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageContentBlockType;
@@ -16,6 +18,7 @@ final class PageExtension extends AbstractExtension
 {
     public function __construct(
         private readonly PageNavigationProvider $pageNavigationProvider,
+        private readonly PageImageBlockPresenter $pageImageBlockPresenter,
     ) {
     }
 
@@ -28,7 +31,16 @@ final class PageExtension extends AbstractExtension
             new TwigFunction('page_nav_header_items', $this->pageNavHeaderItems(...)),
             new TwigFunction('page_nav_footer_items', $this->pageNavFooterItems(...)),
             new TwigFunction('page_content_block_types', $this->pageContentBlockTypes(...)),
+            new TwigFunction('page_image_presentation', $this->pageImagePresentation(...)),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function pageImagePresentation(array $data): PageImagePresentation
+    {
+        return $this->pageImageBlockPresenter->present($data);
     }
 
     public function pageByKey(string $key): ?Page

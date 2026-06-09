@@ -22,6 +22,8 @@ final class PageContentMediaResolverTest extends KernelTestCase
         $media = MediaFactory::createOne([
             'filename' => 'resolved.png',
             'altText' => 'From media',
+            'width' => 640,
+            'height' => 480,
         ])->_real();
 
         $sut = self::getContainer()->get(PageContentMediaResolver::class);
@@ -38,6 +40,8 @@ final class PageContentMediaResolverTest extends KernelTestCase
 
         self::assertSame('/uploads/media/resolved.png', $resolved[0]['data']['src']);
         self::assertSame('From media', $resolved[0]['data']['alt']);
+        self::assertSame(640, $resolved[0]['data']['width']);
+        self::assertSame(480, $resolved[0]['data']['height']);
     }
 
     public function testCtaMediaBlockResolvesPdfUrlAndOpensInNewTab(): void

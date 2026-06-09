@@ -83,6 +83,62 @@ final class PageContentValidatorTest extends TestCase
         self::assertStringContainsString('non-full-width', implode(' ', $errors));
     }
 
+    public function testAutoImageSizeIsValid(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/img.jpg',
+                    'alt' => 'Alt',
+                    'size' => 'auto',
+                    'float' => 'none',
+                ],
+            ],
+        ]);
+
+        self::assertSame([], $errors);
+    }
+
+    public function testImageWithoutExplicitSizeDefaultsToAutoViaLegacyPreset(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/img.jpg',
+                    'alt' => 'Alt',
+                    'float' => 'none',
+                ],
+            ],
+        ]);
+
+        self::assertSame([], $errors);
+    }
+
+    public function testImageWithUnknownWidthPresetDefaultsToAuto(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/img.jpg',
+                    'alt' => 'Alt',
+                    'widthPreset' => 'full',
+                    'float' => 'none',
+                ],
+            ],
+        ]);
+
+        self::assertSame([], $errors);
+    }
+
     public function testHighlightCustomIconRequiresIconName(): void
     {
         $validator = new PageContentValidator($this->translator());
@@ -252,6 +308,25 @@ final class PageContentValidatorTest extends TestCase
                     'src' => '/img.jpg',
                     'alt' => 'Alt',
                     'widthPreset' => 'sm',
+                ],
+            ],
+        ]);
+
+        self::assertSame([], $errors);
+    }
+
+    public function testImageAcceptsLegacyLargeWidthPresetForSize(): void
+    {
+        $validator = new PageContentValidator($this->translator());
+
+        $errors = $validator->validate([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/img.jpg',
+                    'alt' => 'Alt',
+                    'widthPreset' => 'lg',
+                    'float' => 'none',
                 ],
             ],
         ]);

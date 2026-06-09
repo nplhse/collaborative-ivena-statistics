@@ -14,6 +14,30 @@ cd ~/www/current && php bin/console messenger:stats
 cd ~/www/current && php bin/console messenger:failed:show
 ```
 
+### Media uploads (shared across releases)
+
+Uploaded images and PDFs live in `public/uploads/media`, which Deployer keeps in
+`shared/public/uploads/media` so files survive release changes.
+
+**One-time migration** after enabling the shared directory (copies from the release
+that currently holds the most media files):
+
+```bash
+vendor/bin/dep media:migrate-to-shared coishub.uber.space
+vendor/bin/dep deploy coishub.uber.space
+```
+
+**Post-deploy maintenance** (requires the `app:content:analyze-page-images` console
+command in the deployed release):
+
+```bash
+# Dry-run (default console flags can be overridden)
+vendor/bin/dep content:analyze-page-images coishub.uber.space
+
+# Custom flags, e.g. analysis only
+vendor/bin/dep content:analyze-page-images coishub.uber.space -o content_analyze_page_images_options="--dry-run"
+```
+
 Related docs:
 - Configuration details: [Configuration.md](Configuration.md)
 - Runtime issues and diagnostics: [Troubleshooting.md](Troubleshooting.md)

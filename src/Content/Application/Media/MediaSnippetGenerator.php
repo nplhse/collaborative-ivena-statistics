@@ -39,7 +39,7 @@ final readonly class MediaSnippetGenerator
 
     public function generateImageFigureHtml(
         Media $media,
-        string $size = 'lg',
+        string $size = 'auto',
         string $float = 'none',
     ): string {
         return $this->imageFigureHtmlBuilder->build(
@@ -47,6 +47,8 @@ final readonly class MediaSnippetGenerator
             $this->resolveAltText($media),
             $size,
             $float,
+            $media->getWidth(),
+            $media->getHeight(),
         );
     }
 

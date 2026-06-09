@@ -40,7 +40,7 @@ final readonly class PageContentValidator
     private const array HIGHLIGHT_ICON_MODES = ['auto', 'custom', 'none'];
 
     /** @var list<string> */
-    private const array IMAGE_SIZES = ['sm', 'md', 'lg'];
+    private const array IMAGE_SIZES = ['auto', 'sm', 'md', 'lg'];
 
     /** @var list<string> */
     private const array IMAGE_FLOATS = ['none', 'left', 'right'];
@@ -169,12 +169,13 @@ final readonly class PageContentValidator
      */
     private function resolveLegacyImageSize(array $data): string
     {
-        $preset = (string) ($data['widthPreset'] ?? 'lg');
+        $preset = (string) ($data['widthPreset'] ?? '');
 
         return match ($preset) {
             'sm' => 'sm',
             'md' => 'md',
-            default => 'lg',
+            'lg' => 'lg',
+            default => 'auto',
         };
     }
 

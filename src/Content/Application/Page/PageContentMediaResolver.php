@@ -78,6 +78,15 @@ final readonly class PageContentMediaResolver
             $data['alt'] = $this->defaultAltFromMedia($media);
         }
 
+        $width = $media->getWidth();
+        $height = $media->getHeight();
+        if (null !== $width && $width > 0) {
+            $data['width'] = $width;
+        }
+        if (null !== $height && $height > 0) {
+            $data['height'] = $height;
+        }
+
         return $data;
     }
 

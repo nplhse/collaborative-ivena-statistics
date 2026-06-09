@@ -146,6 +146,36 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorExists('.page-content-accordion .accordion-button');
     }
 
+    public function testImageBlockWithAutoSizeRendersNaturalWidthClass(): void
+    {
+        $client = self::createClient();
+
+        PageFactory::createOne([
+            'title' => 'Auto Image',
+            'slug' => 'auto-image',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [
+                [
+                    'type' => 'image',
+                    'data' => [
+                        'src' => '/uploads/demo.jpg',
+                        'alt' => 'Demo',
+                        'size' => 'auto',
+                        'width' => 320,
+                        'height' => 200,
+                    ],
+                ],
+            ],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/auto-image');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.page-content-image--size-auto');
+        self::assertSelectorExists('img[width="320"][height="200"]');
+    }
+
     public function testSidebarShowsOnlyPublicPagesForGuest(): void
     {
         $client = self::createClient();
