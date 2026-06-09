@@ -137,11 +137,12 @@ final readonly class PageContentBlockDataFieldsConfigurator
             ->add('size', ChoiceType::class, [
                 'label' => 'label.image_size',
                 'choices' => [
+                    'label.image_size.auto' => 'auto',
                     'label.image_size.sm' => 'sm',
                     'label.image_size.md' => 'md',
                     'label.image_size.lg' => 'lg',
                 ],
-                'empty_data' => 'lg',
+                'empty_data' => 'auto',
                 'help' => 'help.page.image_size',
             ])
             ->add('float', ChoiceType::class, [

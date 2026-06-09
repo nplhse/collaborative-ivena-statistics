@@ -77,6 +77,15 @@ final class PageExtensionTest extends KernelTestCase
         self::assertStringNotContainsString('/privacy-slug', $html);
     }
 
+    public function testPageImagePresentationFunctionReturnsAutoSizeByDefault(): void
+    {
+        $html = $this->twig->createTemplate(
+            '{% set presentation = page_image_presentation({src: "/uploads/media/x.png", alt: "Alt"}) %}{{ presentation.figureClassString }}'
+        )->render();
+
+        self::assertStringContainsString('page-content-image--size-auto', $html);
+    }
+
     public function testPageNavHeaderItemsOnlyListsAvailablePages(): void
     {
         PageFactory::createOne([

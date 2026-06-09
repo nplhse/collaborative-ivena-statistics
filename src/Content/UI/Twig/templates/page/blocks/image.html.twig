@@ -1,23 +1,15 @@
-{% set size = block.data.size|default('lg') %}
-{% if size not in ['sm', 'md', 'lg'] %}
-    {% set size = 'lg' %}
-{% endif %}
-{% set float = block.data.float|default('none') %}
-{% set figureClasses = ['card', 'card-sm', 'page-content-image', 'page-content-image--size-' ~ size, 'mb-0'] %}
-
-{% if float == 'left' %}
-    {% set figureClasses = figureClasses|merge(['page-content-image--float-left', 'float-start', 'me-3', 'mb-3']) %}
-{% elseif float == 'right' %}
-    {% set figureClasses = figureClasses|merge(['page-content-image--float-right', 'float-end', 'ms-3', 'mb-3']) %}
-{% endif %}
-
-<figure class="{{ figureClasses|join(' ') }}">
+{% set presentation = page_image_presentation(block.data) %}
+<figure class="{{ presentation.figureClassString }}">
     <a href="{{ block.data.src|default('') }}"
        data-fslightbox="content-gallery"
        class="d-block page-content-image__link">
         <img class="card-img-top"
              src="{{ block.data.src|default('') }}"
              alt="{{ block.data.alt|default('') }}"
+             {% if presentation.imgWidth and presentation.imgHeight %}
+                 width="{{ presentation.imgWidth }}"
+                 height="{{ presentation.imgHeight }}"
+             {% endif %}
              loading="lazy">
     </a>
     {% if block.data.caption|default('') is not empty %}

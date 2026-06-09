@@ -12,7 +12,7 @@ final readonly class PageContentBlockDataNormalizer
     private const array ALLOWED_FIELDS_BY_TYPE = [
         PageContentBlockType::Richtext->value => ['html'],
         PageContentBlockType::Image->value => [
-            'mediaId', 'src', 'alt', 'caption', 'size', 'float',
+            'mediaId', 'src', 'alt', 'caption', 'size', 'float', 'width', 'height',
         ],
         PageContentBlockType::Cta->value => [
             'headline', 'buttonLabel', 'buttonUrl', 'mediaId', 'linkType', 'openInNewTab',
@@ -123,7 +123,7 @@ final readonly class PageContentBlockDataNormalizer
     private function normalizeImageSize(array $data): string
     {
         $size = $data['size'] ?? null;
-        if (is_string($size) && in_array($size, ['sm', 'md', 'lg'], true)) {
+        if (is_string($size) && in_array($size, ['auto', 'sm', 'md', 'lg'], true)) {
             return $size;
         }
 
@@ -132,7 +132,8 @@ final readonly class PageContentBlockDataNormalizer
         return match ($preset) {
             'sm' => 'sm',
             'md' => 'md',
-            default => 'lg',
+            'lg' => 'lg',
+            default => 'auto',
         };
     }
 

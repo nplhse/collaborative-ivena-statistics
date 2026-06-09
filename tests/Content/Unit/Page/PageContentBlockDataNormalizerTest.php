@@ -32,7 +32,7 @@ final class PageContentBlockDataNormalizerTest extends TestCase
                 'data' => [
                     'alt' => 'Alt text',
                     'src' => '/uploads/media/x.png',
-                    'size' => 'lg',
+                    'size' => 'auto',
                     'float' => 'none',
                 ],
             ],
@@ -229,6 +229,45 @@ final class PageContentBlockDataNormalizerTest extends TestCase
         ]);
 
         self::assertSame('md', $normalized[0]['data']['size']);
+    }
+
+    public function testNormalizesLegacyWidthPresetLgToSize(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/img.jpg',
+                    'alt' => 'Alt',
+                    'widthPreset' => 'lg',
+                ],
+            ],
+        ]);
+
+        self::assertSame('lg', $normalized[0]['data']['size']);
+    }
+
+    public function testPreservesImageWidthAndHeightFields(): void
+    {
+        $sut = new PageContentBlockDataNormalizer();
+
+        $normalized = $sut->normalize([
+            [
+                'type' => 'image',
+                'data' => [
+                    'src' => '/uploads/media/photo.png',
+                    'alt' => 'Alt',
+                    'size' => 'auto',
+                    'width' => 640,
+                    'height' => 480,
+                ],
+            ],
+        ]);
+
+        self::assertSame(640, $normalized[0]['data']['width']);
+        self::assertSame(480, $normalized[0]['data']['height']);
     }
 
     public function testNormalizesAccordionItemsToEmptyListWhenInvalid(): void

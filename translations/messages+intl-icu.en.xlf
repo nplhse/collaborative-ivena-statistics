@@ -4019,6 +4019,10 @@
         <source>label.image_size</source>
         <target>Image size</target>
       </trans-unit>
+      <trans-unit id="page0026bf0" resname="label.image_size.auto">
+        <source>label.image_size.auto</source>
+        <target>Natural size</target>
+      </trans-unit>
       <trans-unit id="page0026bf" resname="label.image_size.sm">
         <source>label.image_size.sm</source>
         <target>Small</target>
@@ -4033,7 +4037,7 @@
       </trans-unit>
       <trans-unit id="page0026bi" resname="help.page.image_size">
         <source>help.page.image_size</source>
-        <target>Relative to the content card width, not the full page.</target>
+        <target>Natural size keeps the original image width (up to the content column). Small, medium, and large force a relative width inside the content card.</target>
       </trans-unit>
       <trans-unit id="page0026bj" resname="label.move_block_up">
         <source>label.move_block_up</source>
@@ -4341,7 +4345,7 @@
       </trans-unit>
       <trans-unit id="media016c1" resname="help.media.image_layout.size">
         <source>help.media.image_layout.size</source>
-        <target>Size: replace page-content-image--size-lg with --size-sm (33%) or --size-md (66%).</target>
+        <target>Size: default is --size-auto (natural width). Use --size-sm (33%), --size-md (66%), or --size-lg (full width).</target>
       </trans-unit>
       <trans-unit id="media016c2" resname="help.media.image_layout.float">
         <source>help.media.image_layout.float</source>
