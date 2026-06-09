@@ -49,6 +49,7 @@ services:
 
     Doctrine\DBAL\Connection: '@doctrine.dbal.default_connection'
     App\Statistics\Application\Contract\HospitalAccessInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineHospitalAccess'
+    App\Statistics\DataQuality\Application\Contract\DataQualityHospitalPopulationReaderInterface: '@App\Statistics\DataQuality\Infrastructure\Query\DataQualityHospitalPopulationQuery'
     App\Statistics\GenericAnalysis\Application\Contract\CustomAnalysisAccessInterface: '@App\Statistics\GenericAnalysis\Infrastructure\Adapter\ParticipantCustomAnalysisAccess'
     App\Statistics\Application\Contract\ImportTimelineInterface: '@App\Statistics\Infrastructure\Adapter\DoctrineImportTimeline'
 
