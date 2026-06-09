@@ -1,29 +1,48 @@
-# Data quality indicator (indication dashboard)
+# Data quality indicator (statistics)
 
-The indication dashboard (`/statistics/indication/{id}`) shows a **Data Quality** badge in the breadcrumb row. It answers a single question for the active **scope**, **period**, and **indication**:
+Statistics pages with **scope** and **period** filters show a **Data Quality** badge in the breadcrumb row. It answers:
 
-> How trustworthy are the deployment statistics shown on this page?
+> How trustworthy are the deployment statistics for the active scope and period?
+
+On the indication dashboard, evaluation is additionally limited to the route **indication**. Everywhere else, all allocations in the scope and period are considered.
 
 The badge uses a three-level traffic light (`LOW` / `MEDIUM` / `HIGH`). Clicking it opens an offcanvas drawer with per-dimension scores, short explanations, and optional detail panels.
 
 This is a **read-side transparency feature**. It does not block access to statistics or change query results.
 
+## Where it appears
+
+| Page | Route | `indicationId` |
+|---|---|---|
+| Overview | `/statistics/` | — (scope-wide) |
+| Indication Insights index | `/statistics/indication-insights` | — |
+| Indication dashboard | `/statistics/indication/{id}` | route parameter |
+| Case Flow | `/statistics/case-flow` | — |
+| Reports | `/statistics/reports` | — |
+| Pivot tables | `/statistics/pivot` | — |
+| Analytics library / views / builder / saved | `/statistics/analytics/*` | — |
+| Benchmarking | `/statistics/benchmarking` | — (primary scope) |
+
+**Excluded:** Hospital Population (`/statistics/hospital-population`) — no scope/period filter context.
+
+Pages with extra filters (pivot dimensions, comparison scope in benchmarking, analytics dimensions) still show **scope + period** quality only, not filter-specific quality.
+
 ## Scope and inputs
 
-Evaluation always uses the same filter context as the dashboard itself:
+Evaluation uses the same scope and period as the page header controls:
 
 | Input | Source |
 |---|---|
 | Scope | `StatisticsFilter` (public, hospital, state, dispatch area, cohort, my hospitals) |
-| Period | Dashboard period resolver |
-| Indication | Route parameter `indicationId` |
+| Period | Overview/dashboard period resolver |
+| Indication | Route parameter on indication dashboard only; omitted elsewhere |
 
 Two hospital sets are derived:
 
 | Set | Definition |
 |---|---|
 | **Population** | All hospitals in the organisational scope, loaded from the `Hospital` entity (`DataQualityPopulationResolver` → `DataQualityHospitalPopulationQuery`) |
-| **Participants** | Hospitals with at least one matching row in `allocation_stats_projection` for scope + period + indication (`DataQualityParticipantHospitalIdsQuery`) |
+| **Participants** | Hospitals with at least one matching row in `allocation_stats_projection` for scope + period (+ indication when set) (`DataQualityParticipantHospitalIdsQuery`) |
 
 Population snapshots carry `size`, `careLevel` (tier), `urbanity` (location), and `landkreis` for representativeness and subgroup checks.
 
@@ -33,7 +52,7 @@ Each dimension is scored independently, then combined into an overall level.
 
 ### 1. Coverage
 
-Share of population hospitals that contributed data for this indication in the selected period.
+Share of population hospitals that contributed data in the selected period (and indication, when set).
 
 | Level | Threshold |
 |---|---|
@@ -121,10 +140,12 @@ Namespace: `App\Statistics\DataQuality\`
 | Orchestration | `Application/DataQualityReportService.php` |
 | Population by scope | `Application/DataQualityPopulationResolver.php` |
 | SQL reads | `Infrastructure/Query/DataQuality*Query.php` |
-| UI entry point | `IndicationDashboardController` |
-| Templates | `indication_dashboard/_data_quality_indicator.html.twig`, `_data_quality_drawer.html.twig` |
+| Controller wiring | `StatisticsDataQualityReportFactory` |
+| Templates | `_data_quality_indicator.html.twig`, `_data_quality_drawer.html.twig` |
 | Styles | `assets/styles/app.css` (`.data-quality-*`) |
 | Translations | `stats.data_quality.*` in `translations/messages+intl-icu.en.xlf` |
+
+`DataQualityCriteria.indicationId` is `null` for scope-wide evaluation; set on the indication dashboard.
 
 Service wiring: `DataQualityHospitalPopulationReaderInterface` → `DataQualityHospitalPopulationQuery` in `config/services.yaml`.
 
@@ -141,8 +162,8 @@ There is no runtime configuration or admin UI for thresholds yet.
 
 | Type | Location |
 |---|---|
-| Unit | `tests/Statistics/Unit/DataQuality/` — calculators, cap rules, population resolver |
-| Functional | `IndicationDashboardControllerTest` — asserts `data-testid="stats-data-quality-indicator"` |
+| Unit | `tests/Statistics/Unit/DataQuality/` — calculators, cap rules, population resolver, SQL filter |
+| Functional | `IndicationDashboardControllerTest`, `DashboardControllerTest`, `IndicationInsightsIndexControllerTest` — assert `data-testid="stats-data-quality-indicator"` |
 
 ## Related documentation
 

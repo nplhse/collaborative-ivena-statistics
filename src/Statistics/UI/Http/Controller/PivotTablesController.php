@@ -32,6 +32,7 @@ final class PivotTablesController extends AbstractController
         private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -99,8 +100,15 @@ final class PivotTablesController extends AbstractController
         );
         $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
         $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create($request, 'app_stats_pivot_tables', $filter);
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
 
         return $this->render('@Statistics/analysis/index.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,

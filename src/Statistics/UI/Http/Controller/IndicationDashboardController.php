@@ -10,8 +10,6 @@ use App\Statistics\Application\IndicationDashboard\IndicationDashboardService;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
-use App\Statistics\DataQuality\Application\DataQualityCriteria;
-use App\Statistics\DataQuality\Application\DataQualityReportService;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +29,7 @@ final class IndicationDashboardController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly IndicationDashboardChartPayloadFactory $chartPayloadFactory,
-        private readonly DataQualityReportService $dataQualityReportService,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -82,15 +80,13 @@ final class IndicationDashboardController extends AbstractController
 
         $routeParams = ['indicationId' => $indicationId];
 
-        $dataQualityReport = $this->dataQualityReportService->build(new DataQualityCriteria(
-            $indicationId,
+        $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
-            $scope,
-            $period,
-            $pageViewModel->headingScope,
-            $overviewPeriodViewModel->headingLabel,
             $user,
-        ));
+            $pageViewModel,
+            $overviewPeriodViewModel,
+            $indicationId,
+        );
 
         return $this->render('@Statistics/indication_dashboard/index.html.twig', [
             'dashboard' => $result,

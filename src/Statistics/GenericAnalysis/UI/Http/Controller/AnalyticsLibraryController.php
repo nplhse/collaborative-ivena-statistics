@@ -6,6 +6,7 @@ namespace App\Statistics\GenericAnalysis\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
+use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -24,6 +25,7 @@ final class AnalyticsLibraryController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -58,7 +60,15 @@ final class AnalyticsLibraryController extends AbstractController
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
 
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
+
         return $this->render('@Statistics/analytics_library/library.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'analyticsLibraryPage' => $this->pageViewModelFactory->create($request, $user),
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,

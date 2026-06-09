@@ -10,8 +10,11 @@ use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Benchmarking\Application\BenchmarkCriteriaFactory;
 use App\Statistics\Benchmarking\Application\BenchmarkDefaultResolver;
 use App\Statistics\Benchmarking\Application\BenchmarkReportService;
+use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
+use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerStateFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
+use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,6 +37,9 @@ final class BenchmarkingController extends AbstractController
         private readonly BenchmarkSelectionViewModelFactory $benchmarkSelectionViewModelFactory,
         private readonly BenchmarkChartPayloadFactory $benchmarkChartPayloadFactory,
         private readonly BenchmarkIndicationMixViewModelFactory $benchmarkIndicationMixViewModelFactory,
+        private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
+        private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -73,8 +79,26 @@ final class BenchmarkingController extends AbstractController
             $comparisonFilter,
         );
         $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
+        $pageViewModel = $this->statisticsPageViewModelFactory->create(
+            $request,
+            'app_stats_benchmarking',
+            $user,
+            $filter,
+        );
+        $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create(
+            $request,
+            'app_stats_benchmarking',
+            $filter,
+        );
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
 
         return $this->render('@Statistics/benchmarking/index.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'report' => $report,
             'chartPayload' => $this->benchmarkChartPayloadFactory->create($report),
             'selection' => $selection,

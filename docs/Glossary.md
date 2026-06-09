@@ -8,7 +8,7 @@
 | Requeue | Re-dispatching existing imports to the queue |
 | Reject | A rejected import row with error context |
 | Projection | Denormalized statistics table (`allocation_stats_projection`) |
-| Data quality indicator | Traffic-light badge on the indication dashboard summarising coverage, representativeness, subgroup support, and allocation volume for the active scope |
+| Data quality indicator | Traffic-light badge on statistics pages with scope and period filters; summarises coverage, representativeness, subgroup support, and allocation volume (indication-specific on the indication dashboard) |
 | Materialized view | Pre-aggregated database view for fast reads |
 | Messenger worker | Process that consumes asynchronous messages |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |

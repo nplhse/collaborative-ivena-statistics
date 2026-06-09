@@ -55,6 +55,8 @@ class DashboardControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-overview-features"]', 'Clinical features');
         $this->assertSelectorTextContains('[data-testid="stats-overview-resources"]', 'Resources');
         $this->assertSelectorExists('[data-testid="stats-charts"]');
+        $this->assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
+        $this->assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
     }
 
     public function testStatisticsOverviewAcceptsScopeAndPeriodQueryParameters(): void

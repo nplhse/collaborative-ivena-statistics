@@ -18,6 +18,7 @@ use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\Infrastructure\Repository\SavedAnalysisViewRepository;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
+use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -48,6 +49,7 @@ final class SavedAnalysisViewController extends AbstractController
         private readonly GenericAnalysisTableViewModelFactory $tableViewModelFactory,
         private readonly GenericAnalysisChartViewModelFactory $chartViewModelFactory,
         private readonly AnalysisViewUsageTracker $usageTracker,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -196,6 +198,12 @@ final class SavedAnalysisViewController extends AbstractController
         );
 
         return [
+            'dataQualityReport' => $this->dataQualityReportFactory->create(
+                $filter,
+                $user,
+                $pageViewModel,
+                $overviewPeriodViewModel,
+            ),
             'viewKey' => $viewKey,
             'canCustomize' => true,
             'analysisView' => $view,

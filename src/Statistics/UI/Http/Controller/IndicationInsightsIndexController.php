@@ -29,6 +29,7 @@ final class IndicationInsightsIndexController extends AbstractController
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly IndicationPickerViewModelFactory $indicationPickerViewModelFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -84,7 +85,15 @@ final class IndicationInsightsIndexController extends AbstractController
             ++$rank;
         }
 
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
+
         return $this->render('@Statistics/indication_insights/index.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'topRows' => $topRows,
             'indicationPicker' => $this->indicationPickerViewModelFactory->create($request),
             'statisticsFilter' => $pageViewModel->filter,

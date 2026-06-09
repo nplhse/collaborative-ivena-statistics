@@ -12,10 +12,16 @@
 
 {% block page_header %}
     <div class="container-xl">
-        <twig:Breadcrumbs :items="[
-            { label: 'link.statistics', path: path('app_stats_dashboard') },
-            { label: 'stats.analytics_library.title' }
-        ]" />
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'stats.analytics_library.title' }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
 
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
@@ -42,6 +48,8 @@
 {% endblock %}
 
 {% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+
     {% set page = analyticsLibraryPage %}
 
     <div data-testid="stats-analytics-library">
