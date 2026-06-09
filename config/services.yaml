@@ -13,6 +13,7 @@ parameters:
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
     app.media_max_size: '10M'
     app.media_upload_dir: '%kernel.project_dir%/public/uploads/media'
+    app.page_content_width_estimate: 800
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
     env(APP_URL): ''
     env(MAILER_FROM): 'no-reply@localhost'
@@ -151,3 +152,11 @@ services:
 
     App\Statistics\GenericAnalysis\Application\Contract\AnalysisExportServiceInterface:
         alias: App\Statistics\GenericAnalysis\Application\AnalysisExportService
+
+    App\Content\Infrastructure\Media\LocalMediaFileLocator:
+        arguments:
+            $uploadDir: '%app.media_upload_dir%'
+
+    App\Content\Application\Page\PageImageContentAnalyzer:
+        arguments:
+            $contentWidthEstimate: '%app.page_content_width_estimate%'
