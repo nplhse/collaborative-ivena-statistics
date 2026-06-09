@@ -33,6 +33,19 @@ final class MediaDimensionsExtractorTest extends TestCase
         self::assertNull($this->extractor()->extract($path));
     }
 
+    public function testReturnsNullForUnreadableFile(): void
+    {
+        $path = $this->createPng(10, 10);
+        chmod($path, 0000);
+
+        try {
+            self::assertNull($this->extractor()->extract($path));
+        } finally {
+            chmod($path, 0644);
+            unlink($path);
+        }
+    }
+
     private function extractor(): MediaDimensionsExtractor
     {
         return new MediaDimensionsExtractor();

@@ -68,6 +68,50 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
         self::assertSame(0, $result->unknownDimensions);
     }
 
+    public function testCountsMissingLocalFiles(): void
+    {
+        self::bootKernel();
+
+        $media = MediaFactory::createOne([
+            'filename' => 'backfill-missing-file.png',
+            'width' => null,
+            'height' => null,
+        ])->_real();
+
+        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
+        $path = $projectDir.'/public/uploads/media/backfill-missing-file.png';
+        if (is_file($path)) {
+            unlink($path);
+        }
+
+        $result = $this->backfillService()->backfill(true);
+
+        self::assertGreaterThanOrEqual(1, $result->missingFile);
+        self::assertNull($this->reloadMedia((int) $media->getId())->getWidth());
+    }
+
+    public function testCountsUnknownDimensionsForUnreadableImageFile(): void
+    {
+        self::bootKernel();
+
+        MediaFactory::createOne([
+            'filename' => 'backfill-unknown-dims.png',
+            'width' => null,
+            'height' => null,
+        ]);
+
+        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
+        file_put_contents(
+            $projectDir.'/public/uploads/media/backfill-unknown-dims.png',
+            'not-an-image',
+        );
+
+        $result = $this->backfillService()->backfill(true);
+
+        self::assertGreaterThanOrEqual(1, $result->unknownDimensions);
+        self::assertSame(0, $result->updated);
+    }
+
     private function reloadMedia(int $mediaId): \App\Content\Domain\Entity\Media
     {
         $media = self::getContainer()->get(MediaRepository::class)->find($mediaId);

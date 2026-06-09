@@ -83,6 +83,111 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
         self::assertSame(1, $reloaded->getHeight());
     }
 
+    public function testReportsNoImageReferencesWhenPagesHaveNoImages(): void
+    {
+        self::bootKernel();
+
+        PageFactory::createOne([
+            'slug' => 'command-no-images',
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => ['html' => '<p>Only text</p>'],
+                ],
+            ],
+        ]);
+
+        $tester = $this->createCommandTester();
+        $exitCode = $tester->execute([]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertStringContainsString('No image references found in pages.', $tester->getDisplay());
+    }
+
+    public function testFixRichtextSnippetsDryRunReportsPendingSnippetChanges(): void
+    {
+        self::bootKernel();
+
+        $page = PageFactory::createOne([
+            'slug' => 'command-fix-snippets',
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<figure class="page-content-image page-content-image--size-lg"></figure>',
+                    ],
+                ],
+            ],
+        ])->_real();
+
+        $tester = $this->createCommandTester();
+        $exitCode = $tester->execute([
+            '--fix-richtext-snippets' => true,
+            '--page-id' => (string) $page->getId(),
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+
+        $display = $tester->getDisplay();
+        self::assertStringContainsString('Richtext snippet migration', $display);
+        self::assertStringContainsString('Updated HTML blocks: 1', $display);
+        self::assertStringContainsString('Dry run finished. Re-run with --apply to persist changes.', $display);
+        self::assertStringContainsString(
+            'page-content-image--size-lg',
+            $page->getContent()[0]['data']['html'],
+        );
+    }
+
+    public function testApplyFixRichtextSnippetsPersistsChanges(): void
+    {
+        self::bootKernel();
+
+        $page = PageFactory::createOne([
+            'slug' => 'command-fix-snippets-apply',
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => [
+                        'html' => '<figure class="page-content-image page-content-image--size-lg"></figure>',
+                    ],
+                ],
+            ],
+        ])->_real();
+
+        $pageId = (int) $page->getId();
+        $tester = $this->createCommandTester();
+        $exitCode = $tester->execute([
+            '--apply' => true,
+            '--fix-richtext-snippets' => true,
+            '--page-id' => (string) $pageId,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertStringContainsString('Analysis finished.', $tester->getDisplay());
+
+        $reloaded = PageFactory::repository()->find($pageId);
+        self::assertNotNull($reloaded);
+        self::assertStringContainsString(
+            'page-content-image--size-auto',
+            $reloaded->getContent()[0]['data']['html'],
+        );
+    }
+
+    public function testInvalidPageIdOptionIsIgnored(): void
+    {
+        self::bootKernel();
+        $this->seedPageWithAutoImage();
+
+        $tester = $this->createCommandTester();
+        $exitCode = $tester->execute(['--page-id' => 'not-a-number']);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertStringContainsString('Found 1 image reference(s)', $tester->getDisplay());
+    }
+
     public function testMigrateSizeDryRunReportsPendingChanges(): void
     {
         self::bootKernel();

@@ -71,6 +71,77 @@ final class PageImageBlockPresenterTest extends TestCase
         self::assertNull($presentation->imgHeight);
     }
 
+    public function testLegacyWidthPresetMapsToSizeClass(): void
+    {
+        $presentation = $this->presenter()->present([
+            'src' => '/uploads/media/photo.png',
+            'alt' => 'Photo',
+            'widthPreset' => 'md',
+        ]);
+
+        self::assertContains('page-content-image--size-md', $presentation->figureClasses);
+    }
+
+    public function testLegacySmallWidthPresetMapsToSizeClass(): void
+    {
+        $presentation = $this->presenter()->present([
+            'src' => '/uploads/media/photo.png',
+            'alt' => 'Photo',
+            'widthPreset' => 'sm',
+        ]);
+
+        self::assertContains('page-content-image--size-sm', $presentation->figureClasses);
+    }
+
+    public function testLegacyLargeWidthPresetMapsToSizeClass(): void
+    {
+        $presentation = $this->presenter()->present([
+            'src' => '/uploads/media/photo.png',
+            'alt' => 'Photo',
+            'widthPreset' => 'lg',
+        ]);
+
+        self::assertContains('page-content-image--size-lg', $presentation->figureClasses);
+    }
+
+    public function testRightFloatAddsEndClasses(): void
+    {
+        $presentation = $this->presenter()->present([
+            'src' => '/uploads/media/photo.png',
+            'alt' => 'Photo',
+            'size' => 'sm',
+            'float' => 'right',
+        ]);
+
+        self::assertContains('page-content-image--float-right', $presentation->figureClasses);
+        self::assertContains('float-end', $presentation->figureClasses);
+    }
+
+    public function testInvalidFloatDefaultsToNone(): void
+    {
+        $presentation = $this->presenter()->present([
+            'src' => '/uploads/media/photo.png',
+            'alt' => 'Photo',
+            'float' => 'center',
+        ]);
+
+        self::assertNotContains('page-content-image--float-left', $presentation->figureClasses);
+        self::assertNotContains('page-content-image--float-right', $presentation->figureClasses);
+    }
+
+    public function testStringDimensionsAreParsed(): void
+    {
+        $presentation = $this->presenter()->present([
+            'src' => '/uploads/media/photo.png',
+            'alt' => 'Photo',
+            'width' => '640',
+            'height' => '480',
+        ]);
+
+        self::assertSame(640, $presentation->imgWidth);
+        self::assertSame(480, $presentation->imgHeight);
+    }
+
     private function presenter(): PageImageBlockPresenter
     {
         return new PageImageBlockPresenter();
