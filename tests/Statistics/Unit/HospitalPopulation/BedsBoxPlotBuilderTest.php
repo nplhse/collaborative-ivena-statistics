@@ -45,7 +45,7 @@ final class BedsBoxPlotBuilderTest extends TestCase
         self::assertSame(500, $fullCareLevel->population->maximum);
         self::assertSame(1, $fullCareLevel->participants->count);
 
-        $ruralLocation = $breakdown->byLocation[0];
+        $ruralLocation = $breakdown->byLocation[2];
         self::assertSame('Rural', $ruralLocation->label);
         self::assertSame(2, $ruralLocation->population->count);
         self::assertSame(500, $ruralLocation->participants->minimum);

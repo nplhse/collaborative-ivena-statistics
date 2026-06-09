@@ -39,9 +39,9 @@ final class AllocationBasisSummaryCalculatorTest extends TestCase
         self::assertSame(30, $summary->byTier[2]->totalAllocations);
         self::assertSame(0, $summary->byTier[1]->totalAllocations);
 
-        self::assertSame(30, $summary->byLocation[0]->totalAllocations);
+        self::assertSame(10, $summary->byLocation[0]->totalAllocations);
         self::assertSame(0, $summary->byLocation[1]->totalAllocations);
-        self::assertSame(10, $summary->byLocation[2]->totalAllocations);
+        self::assertSame(30, $summary->byLocation[2]->totalAllocations);
     }
 
     public function testCrossTablesIncludeEmptyCellsAndExcludeUnknownTier(): void
@@ -58,13 +58,13 @@ final class AllocationBasisSummaryCalculatorTest extends TestCase
         self::assertSame(8, $summary->byTier[2]->totalAllocations);
         self::assertSame(40.0, $summary->byTier[2]->sharePercent);
 
-        $fullRuralCell = $summary->locationByTierCrossTable->rows[0]->cells[2];
+        $fullRuralCell = $summary->locationByTierCrossTable->rows[2]->cells[2];
         self::assertSame(8, $fullRuralCell->totalAllocations);
         self::assertSame(1, $fullRuralCell->hospitalCount);
         self::assertSame(8.0, $fullRuralCell->meanPerHospital);
         self::assertSame(40.0, $fullRuralCell->sharePercent);
 
-        $basicUrbanCell = $summary->locationByTierCrossTable->rows[2]->cells[0];
+        $basicUrbanCell = $summary->locationByTierCrossTable->rows[0]->cells[0];
         self::assertSame(0, $basicUrbanCell->totalAllocations);
         self::assertSame(0, $basicUrbanCell->hospitalCount);
         self::assertNull($basicUrbanCell->meanPerHospital);
