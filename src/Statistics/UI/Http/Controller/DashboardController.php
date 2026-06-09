@@ -36,6 +36,7 @@ final class DashboardController extends AbstractController
         private readonly StatisticsScopeResolver $statisticsScopeResolver,
         private readonly GetOverviewDashboardMetricsQuery $overviewDashboardMetricsQuery,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -72,8 +73,15 @@ final class DashboardController extends AbstractController
         }
         $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
         $chartPairWidget = array_find($this->overviewDashboardProvider->build($context), fn ($widget): bool => StatisticWidgetType::ChartPair === $widget->type);
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
 
         return $this->render('@Statistics/dashboard/index.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'chartPairWidget' => $chartPairWidget,
             'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context, $overviewMetrics),
             'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context, $overviewMetrics),

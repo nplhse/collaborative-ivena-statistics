@@ -20,7 +20,7 @@
             ]" />
 
             <div class="flex-shrink-0 d-print-none mt-2">
-                {{ include('@Statistics/indication_dashboard/_data_quality_indicator.html.twig') }}
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
             </div>
         </div>
 
@@ -42,7 +42,7 @@
 {% endblock %}
 
 {% block page_content %}
-    {{ include('@Statistics/indication_dashboard/_data_quality_drawer.html.twig') }}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
     <div data-controller="indication-dashboard-charts"
          data-indication-dashboard-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">

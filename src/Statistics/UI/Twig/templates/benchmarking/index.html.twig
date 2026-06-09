@@ -12,10 +12,16 @@
 
 {% block page_header %}
     <div class="container-xl">
-        <twig:Breadcrumbs :items="[
-            { label: 'link.statistics', path: path('app_stats_dashboard') },
-            { label: 'stats.benchmark.title' }
-        ]" />
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'stats.benchmark.title' }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
 
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
@@ -29,6 +35,8 @@
 {% endblock %}
 
 {% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+
     <div data-controller="benchmarking-charts"
          data-benchmarking-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}"
          data-benchmarking-charts-primary-label-value="{{ report.header.primaryScopeLabel|e('html_attr') }} ({{ report.header.primaryPeriodLabel|e('html_attr') }})"

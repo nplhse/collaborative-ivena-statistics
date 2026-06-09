@@ -12,6 +12,7 @@ use App\Statistics\CaseFlow\Application\CaseFlowDashboardService;
 use App\Statistics\CaseFlow\Application\CaseFlowModeResolver;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowCriteria;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
+use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerStateFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
@@ -36,6 +37,7 @@ final class CaseFlowController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly CaseFlowChartPayloadFactory $chartPayloadFactory,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -77,8 +79,15 @@ final class CaseFlowController extends AbstractController
             $filter,
         );
         $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
 
         return $this->render('@Statistics/case_flow/index.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'dashboard' => $result,
             'chartPayload' => $this->chartPayloadFactory->create($result),
             'statisticsFilter' => $pageViewModel->filter,

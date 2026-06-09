@@ -12,6 +12,7 @@ use App\Statistics\GenericAnalysis\Application\GenericAnalysisConfigResolver;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
+use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -40,6 +41,7 @@ final class AnalysisBuilderController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly UrlGeneratorInterface $router,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -93,7 +95,15 @@ final class AnalysisBuilderController extends AbstractController
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
 
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
+
         return $this->render('@Statistics/analytics_library/builder.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'configPage' => $this->pageViewModelFactory->create(
                 $request,
                 self::REFERENCE_VIEW_KEY,

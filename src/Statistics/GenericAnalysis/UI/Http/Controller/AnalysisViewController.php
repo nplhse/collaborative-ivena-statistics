@@ -17,6 +17,7 @@ use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionExce
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisViewException;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
+use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -48,6 +49,7 @@ final class AnalysisViewController extends AbstractController
         private readonly AnalysisViewUsageTracker $usageTracker,
         private readonly UrlGeneratorInterface $router,
         private readonly CustomAnalysisAccessInterface $customAnalysisAccess,
+        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
     }
 
@@ -109,8 +111,15 @@ final class AnalysisViewController extends AbstractController
         );
 
         $canCustomize = $this->customAnalysisAccess->canUseCustomAnalysis($user);
+        $dataQualityReport = $this->dataQualityReportFactory->create(
+            $filter,
+            $user,
+            $pageViewModel,
+            $overviewPeriodViewModel,
+        );
 
         return $this->render('@Statistics/analytics_library/view.html.twig', [
+            'dataQualityReport' => $dataQualityReport,
             'viewKey' => $viewKey,
             'canCustomize' => $canCustomize,
             'analysisView' => $resolved->view,
