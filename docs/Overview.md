@@ -26,6 +26,7 @@ Quick help and diagnostic commands:
 - [Import-batch-requeue.md](Import-batch-requeue.md)
 - [Import-reject-analysis.md](Import-reject-analysis.md)
 - [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md)
+- [data-quality-indicator.md](data-quality-indicator.md)
 - [Observability-sentry.md](Observability-sentry.md)
 
 ## For new developers
