@@ -321,6 +321,14 @@
         <source>flash.import.created</source>
         <target>New Import has been created successfully!</target>
       </trans-unit>
+      <trans-unit id="impFlDelOk" resname="flash.import.deleted">
+        <source>flash.import.deleted</source>
+        <target>Import has been deleted successfully.</target>
+      </trans-unit>
+      <trans-unit id="impFlDelRun" resname="flash.import.delete_running_blocked">
+        <source>flash.import.delete_running_blocked</source>
+        <target>This import is currently running and cannot be deleted.</target>
+      </trans-unit>
       <trans-unit id="qCQxM_A" resname="flash.indication.assigned">
         <source>flash.indication.assigned</source>
         <target>Normalized indication has been assigned.</target>
@@ -432,6 +440,30 @@
       <trans-unit id="2_8EtuE" resname="import.action.preview_rows">
         <source>import.action.preview_rows</source>
         <target>Preview Rows</target>
+      </trans-unit>
+      <trans-unit id="impActDel" resname="import.action.delete">
+        <source>import.action.delete</source>
+        <target>Delete import</target>
+      </trans-unit>
+      <trans-unit id="impDelTit" resname="import.delete.modal.title">
+        <source>import.delete.modal.title</source>
+        <target>Delete import?</target>
+      </trans-unit>
+      <trans-unit id="impDelBody" resname="import.delete.modal.body">
+        <source>import.delete.modal.body</source>
+        <target>Are you sure you want to permanently delete "{name}"? All allocations, projections, and related data will be removed. This action cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="impDelConf" resname="import.delete.modal.confirm">
+        <source>import.delete.modal.confirm</source>
+        <target>Delete permanently</target>
+      </trans-unit>
+      <trans-unit id="impDelCanc" resname="import.delete.modal.cancel">
+        <source>import.delete.modal.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="impDelRunH" resname="import.delete.running_blocked_hint">
+        <source>import.delete.running_blocked_hint</source>
+        <target>This import is currently running and cannot be deleted.</target>
       </trans-unit>
       <trans-unit id="T_sGody" resname="import.field.fileExtension">
         <source>import.field.fileExtension</source>

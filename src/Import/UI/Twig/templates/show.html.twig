@@ -226,6 +226,17 @@
                                 <a class="btn btn-outline-secondary" href="{{ path('app_explore_mci_case_list', {importId: import.id}) }}">
                                     <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" /> {{ 'import.action.preview_mci_cases'|trans }}
                                 </a>
+                                {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) %}
+                                    {% if import.status.value == 'Running' %}
+                                        <button type="button" class="btn btn-outline-danger" disabled title="{{ 'import.delete.running_blocked_hint'|trans }}">
+                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans }}
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#import-delete-modal">
+                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans }}
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
                                 </div>
                             </twig:Card>
                         </div>
@@ -234,5 +245,28 @@
             </div>
         </div>
     </div>
+
+    {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) and import.status.value != 'Running' %}
+        <div class="modal modal-blur fade" id="import-delete-modal" tabindex="-1" aria-labelledby="import-delete-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form method="post" action="{{ path('app_import_delete', {id: import.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('import_delete_' ~ import.id) }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="import-delete-modal-label">{{ 'import.delete.modal.title'|trans }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'import.delete.modal.cancel'|trans }}"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="mb-0">{{ 'import.delete.modal.body'|trans({'%name%': import.name ?? ('#' ~ import.id)}) }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'import.delete.modal.cancel'|trans }}</button>
+                            <button type="submit" class="btn btn-danger">{{ 'import.delete.modal.confirm'|trans }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}
