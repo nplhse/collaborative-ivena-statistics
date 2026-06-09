@@ -67,7 +67,7 @@ final readonly class StatisticsPageViewModelFactory
         $accessibleHospitals = [];
         $hospitalUrls = [];
         if ($user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)) {
-            $accessibleHospitals = $this->hospitalRepository->findAccessibleHospitalSummaries($user);
+            $accessibleHospitals = $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user);
             foreach ($accessibleHospitals as $row) {
                 $hospitalUrls[(string) $row['id']] = $this->statisticsNavigationUrlBuilder->build(
                     $request,

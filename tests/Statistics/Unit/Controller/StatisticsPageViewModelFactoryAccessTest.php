@@ -123,6 +123,49 @@ final class StatisticsPageViewModelFactoryAccessTest extends KernelTestCase
         self::assertSame('Public', $model->headingScope);
     }
 
+    public function testParticipantSeesOnlyParticipatingHospitalsInAccessibleList(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $participating = HospitalFactory::createOne(['owner' => $user]);
+        $nonParticipating = HospitalFactory::createOne(['owner' => $user]);
+        $nonParticipating->setParticipating(false);
+        $nonParticipating->_save();
+
+        $model = $this->factory->create(
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            'app_stats_dashboard',
+            $user,
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+        );
+
+        self::assertCount(1, $model->accessibleHospitals);
+        self::assertSame((int) $participating->getId(), $model->accessibleHospitals[0]['id']);
+    }
+
+    public function testAdminSeesOnlyParticipatingHospitalsInAccessibleList(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $participating = HospitalFactory::createOne();
+        $nonParticipating = HospitalFactory::createOne();
+        $nonParticipating->setParticipating(false);
+        $nonParticipating->_save();
+
+        $model = $this->factory->create(
+            new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
+            'app_stats_dashboard',
+            $user,
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+        );
+
+        $ids = array_column($model->accessibleHospitals, 'id');
+        self::assertContains((int) $participating->getId(), $ids);
+        self::assertNotContains((int) $nonParticipating->getId(), $ids);
+    }
+
     /**
      * @param list<array{key: string, label: string, url: string, active: bool}> $menu
      */
