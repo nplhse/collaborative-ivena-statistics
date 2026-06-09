@@ -16,7 +16,7 @@ final class DataQualitySqlFilter
      * @return array{0: string, 1: array<string, mixed>, 2: array<string, ArrayParameterType>}
      */
     public static function buildWhere(
-        int $indicationId,
+        ?int $indicationId,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
@@ -24,11 +24,14 @@ final class DataQualitySqlFilter
     ): array {
         $prefix = '' === $tableAlias ? '' : $tableAlias.'.';
         $conditions = ['1 = 1'];
-        $params = ['indication_id' => $indicationId];
+        $params = [];
         /** @var array<string, ArrayParameterType> $types */
         $types = [];
 
-        $conditions[] = sprintf('%sindication_normalized_id = :indication_id', $prefix);
+        if (null !== $indicationId) {
+            $conditions[] = sprintf('%sindication_normalized_id = :indication_id', $prefix);
+            $params['indication_id'] = $indicationId;
+        }
 
         if ($from instanceof \DateTimeImmutable) {
             $conditions[] = sprintf('%screated_at >= :from', $prefix);

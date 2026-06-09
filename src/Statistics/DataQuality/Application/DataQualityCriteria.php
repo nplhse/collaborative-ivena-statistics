@@ -12,7 +12,7 @@ use App\User\Domain\Entity\User;
 final readonly class DataQualityCriteria
 {
     public function __construct(
-        public int $indicationId,
+        public ?int $indicationId,
         public StatisticsFilter $filter,
         public StatisticsScopeCriteria $scope,
         public StatisticsPeriodBounds $period,

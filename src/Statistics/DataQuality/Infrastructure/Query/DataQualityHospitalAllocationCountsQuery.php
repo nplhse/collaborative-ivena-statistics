@@ -19,7 +19,7 @@ final readonly class DataQualityHospitalAllocationCountsQuery
      * @return array<int, int> hospitalId => allocation count
      */
     public function fetch(
-        int $indicationId,
+        ?int $indicationId,
         StatisticsPeriodBounds $period,
         StatisticsScopeCriteria $scope,
     ): array {

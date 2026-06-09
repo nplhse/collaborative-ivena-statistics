@@ -19,7 +19,7 @@ final readonly class DataQualityParticipantHospitalIdsQuery
      * @return list<int>
      */
     public function fetch(
-        int $indicationId,
+        ?int $indicationId,
         StatisticsPeriodBounds $period,
         StatisticsScopeCriteria $scope,
     ): array {
