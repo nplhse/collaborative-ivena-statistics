@@ -100,7 +100,7 @@ final class HospitalPopulationDashboardServiceTest extends KernelTestCase
         self::assertCount(3, $result->overview->sizeByTierCrossTable->columns);
         self::assertSame(1, $result->overview->sizeByTierCrossTable->rows[2]->cells[2]->participants);
         self::assertSame(0, $result->overview->sizeByTierCrossTable->rows[0]->cells[0]->participants);
-        self::assertSame(1, $result->overview->urbanityByTierCrossTable->rows[2]->cells[2]->participants);
+        self::assertSame(1, $result->overview->urbanityByTierCrossTable->rows[2]->cells[0]->participants);
         self::assertSame('Example State', $result->regionalCoverage[0]->stateName);
     }
 }
