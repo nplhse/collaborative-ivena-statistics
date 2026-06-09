@@ -84,5 +84,7 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
         self::assertSelectorExists(
             sprintf('a[href*="/statistics/indication/%d"]', $indication->getId()),
         );
+        self::assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
+        self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
     }
 }
