@@ -11,6 +11,7 @@ use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Seed\Application\Contracts\SeedProviderInterface;
 use App\Seed\Infrastructure\Areas\AreaCache;
+use App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationGeocodingLookupFactory;
 use App\User\Domain\Entity\User;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
@@ -39,6 +40,7 @@ final readonly class HospitalSeedProvider implements SeedProviderInterface
 {
     public function __construct(
         private AreaCache $areaCache,
+        private HospitalPopulationGeocodingLookupFactory $geocodingLookupFactory,
     ) {
     }
 
@@ -49,6 +51,7 @@ final readonly class HospitalSeedProvider implements SeedProviderInterface
     public function build(User $user): iterable
     {
         $this->areaCache->warmUp();
+        $geocodingLookup = $this->geocodingLookupFactory->create();
 
         foreach ($this->provide() as $row) {
             if (!$this->areaCache->hasState($row['state'])) {
@@ -88,6 +91,17 @@ final readonly class HospitalSeedProvider implements SeedProviderInterface
                 ->setParticipating($row['participating'])
                 ->setOwner(null)
                 ->setCreatedBy($user);
+
+            $coordinates = $geocodingLookup->resolve(
+                $row['address']['postalCode'],
+                $row['address']['city'],
+                $row['area'],
+            );
+            if ($coordinates instanceof \App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationCoordinates) {
+                $hospital
+                    ->setLatitude($coordinates->latitude)
+                    ->setLongitude($coordinates->longitude);
+            }
 
             yield $hospital;
         }

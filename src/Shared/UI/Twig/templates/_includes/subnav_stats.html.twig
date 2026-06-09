@@ -61,6 +61,14 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route == 'app_stats_hospital_population' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_hospital_population') }}">
+                            <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:building-hospital" style="height: 1.2em;" />
+                                {{ 'link.stats.hospital_population'|trans }}
+                            </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
