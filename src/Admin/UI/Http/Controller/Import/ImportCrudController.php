@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Import;
 
+use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -30,6 +32,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class ImportCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private readonly ImportDeletionService $importDeletionService,
+    ) {
+    }
+
     #[\Override]
     public static function getEntityFqcn(): string
     {
@@ -101,5 +108,11 @@ final class ImportCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield TextField::new('rejectFilePath', 'Reject file')
             ->onlyOnDetail();
+    }
+
+    #[\Override]
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->importDeletionService->delete($entityInstance);
     }
 }

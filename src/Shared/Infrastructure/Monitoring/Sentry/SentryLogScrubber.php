@@ -18,6 +18,7 @@ final readonly class SentryLogScrubber
         'import.abort.flush_failed',
         'import.rejects.cleared',
         'import.reject_file.deleted',
+        'import.source_file.deleted',
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
