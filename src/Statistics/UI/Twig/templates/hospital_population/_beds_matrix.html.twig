@@ -1,0 +1,161 @@
+{% macro format_int(value) %}
+    {{ value is not null ? value|number_format(0, ',', '.') : '–' }}
+{% endmacro %}
+
+{% macro format_decimal(value, decimals) %}
+    {{ value is not null ? value|number_format(decimals, ',', '.') : '–' }}
+{% endmacro %}
+
+{% macro format_range(minimum, maximum) %}
+    {%- if minimum is null or maximum is null -%}
+        –
+    {%- else -%}
+        {{ (maximum - minimum)|number_format(0, ',', '.') }}
+    {%- endif -%}
+{% endmacro %}
+
+{% macro format_iqr(p25, p75) %}
+    {%- if p25 is null or p75 is null -%}
+        –
+    {%- else -%}
+        {{ (p75 - p25)|number_format(1, ',', '.') }}
+    {%- endif -%}
+{% endmacro %}
+
+{% macro matrix_section(title) %}
+    <tr class="stats-hp-beds-matrix-section">
+        <td colspan="3">{{ title }}</td>
+    </tr>
+{% endmacro %}
+
+{% macro matrix_row(label, populationValue, participantValue) %}
+    <tr>
+        <th scope="row" class="fw-normal">{{ label }}</th>
+        <td class="text-end">{{ populationValue }}</td>
+        <td class="text-end">{{ participantValue }}</td>
+    </tr>
+{% endmacro %}
+
+{% import _self as hp %}
+
+{% set population = result.bedsPopulation %}
+{% set participants = result.bedsParticipants %}
+
+<div class="card h-100" data-testid="stats-hospital-population-beds-matrix">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.beds_descriptive'|trans }}</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-sm mb-0 stats-hp-beds-matrix">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col" class="text-end">
+                        {{ 'stats.hospital_population.beds_matrix.column_population'|trans({count: population.count}) }}
+                    </th>
+                    <th scope="col" class="text-end">
+                        {{ 'stats.hospital_population.beds_matrix.column_participants'|trans({count: participants.count}) }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.sample'|trans) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.count'|trans,
+                    hp.format_int(population.count),
+                    hp.format_int(participants.count),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.sum'|trans,
+                    hp.format_int(population.sum),
+                    hp.format_int(participants.sum),
+                ) }}
+
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.range'|trans) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.minimum'|trans,
+                    hp.format_int(population.minimum),
+                    hp.format_int(participants.minimum),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.maximum'|trans,
+                    hp.format_int(population.maximum),
+                    hp.format_int(participants.maximum),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.range'|trans,
+                    hp.format_range(population.minimum, population.maximum),
+                    hp.format_range(participants.minimum, participants.maximum),
+                ) }}
+
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.central_tendency'|trans) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.mean'|trans,
+                    hp.format_decimal(population.mean, 1),
+                    hp.format_decimal(participants.mean, 1),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.median'|trans,
+                    hp.format_decimal(population.median, 1),
+                    hp.format_decimal(participants.median, 1),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.stddev'|trans,
+                    hp.format_decimal(population.standardDeviation, 1),
+                    hp.format_decimal(participants.standardDeviation, 1),
+                ) }}
+
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.percentiles'|trans) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.p10'|trans,
+                    hp.format_decimal(population.p10, 1),
+                    hp.format_decimal(participants.p10, 1),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.p25'|trans,
+                    hp.format_decimal(population.p25, 1),
+                    hp.format_decimal(participants.p25, 1),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.p75'|trans,
+                    hp.format_decimal(population.p75, 1),
+                    hp.format_decimal(participants.p75, 1),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.p95'|trans,
+                    hp.format_decimal(population.p95, 1),
+                    hp.format_decimal(participants.p95, 1),
+                ) }}
+                {{ hp.matrix_row(
+                    'stats.hospital_population.stats.iqr'|trans,
+                    hp.format_iqr(population.p25, population.p75),
+                    hp.format_iqr(participants.p25, participants.p75),
+                ) }}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .stats-hp-beds-matrix-section td {
+        background-color: var(--tblr-bg-surface-secondary, var(--tblr-light, #f8f9fa));
+        border-top-width: 1px;
+        color: var(--tblr-secondary, #667382);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding-top: 0.65rem;
+        padding-bottom: 0.35rem;
+        text-transform: uppercase;
+    }
+
+    .stats-hp-beds-matrix-section:first-child td {
+        border-top: 0;
+        padding-top: 0.35rem;
+    }
+
+    .stats-hp-beds-matrix tbody th[scope="row"] {
+        color: inherit;
+        width: 40%;
+    }
+</style>
