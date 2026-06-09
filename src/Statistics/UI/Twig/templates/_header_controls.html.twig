@@ -14,11 +14,11 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="btn-group" role="group">
+                <div class="btn-group" role="group" data-controller="dropdown-typeahead">
                     <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         {{ statsScopeSecondaryDropdownLabel|default('') }}
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end">
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-scrollable" data-dropdown-typeahead-target="menu">
                         {% for row in statsScopeSecondaryMenu|default([]) %}
                             <a class="dropdown-item{% if row.active %} active{% endif %}" href="{{ row.url }}">{{ row.label }}</a>
                         {% endfor %}
