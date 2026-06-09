@@ -18,4 +18,14 @@ final class ImportBatchRunItemRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ImportBatchRunItem::class);
     }
+
+    public function deleteByImportId(int $importId): void
+    {
+        $this->createQueryBuilder('item')
+            ->delete()
+            ->where('item.importId = :importId')
+            ->setParameter('importId', $importId)
+            ->getQuery()
+            ->execute();
+    }
 }
