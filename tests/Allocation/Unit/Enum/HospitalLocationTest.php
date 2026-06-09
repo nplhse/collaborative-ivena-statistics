@@ -19,7 +19,7 @@ final class HospitalLocationTest extends TestCase
 
     public function testGetValuesReturnsAllValuesInOrder(): void
     {
-        $expected = ['Urban', 'Mixed', 'Rural'];
+        $expected = ['Rural', 'Mixed', 'Urban'];
         self::assertSame($expected, HospitalLocation::getValues());
     }
 
