@@ -1,0 +1,230 @@
+{% if dataQualityReport is defined %}
+    <div class="offcanvas offcanvas-end data-quality-drawer"
+         tabindex="-1"
+         id="statsDataQualityDrawer"
+         aria-labelledby="statsDataQualityDrawerLabel"
+         data-testid="stats-data-quality-drawer">
+        <div class="offcanvas-header">
+            <div>
+                <h2 class="offcanvas-title mb-1" id="statsDataQualityDrawerLabel">
+                    {{ 'stats.data_quality.drawer.title'|trans }}
+                </h2>
+                <p class="text-muted small mb-0">
+                    {{ 'stats.data_quality.drawer.context'|trans({
+                        scope: dataQualityReport.scopeLabel,
+                        period: dataQualityReport.periodLabel,
+                    }) }}
+                </p>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{{ 'action.close'|trans }}"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="mb-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="status-dot {{ dataQualityReport.overallLevel.statusDotClass }}"></span>
+                    <span class="fw-semibold">{{ 'stats.data_quality.overall.label'|trans }}:</span>
+                    <span class="badge {{ dataQualityReport.overallLevel.badgeClass }}">{{ dataQualityReport.overallLevel.labelKey|trans }}</span>
+                </div>
+                <p class="text-secondary mb-0">{{ dataQualityReport.explanationKey|trans(dataQualityReport.explanationParameters) }}</p>
+            </div>
+
+            <h3 class="h4 mb-3">{{ 'stats.data_quality.drawer.dimensions_title'|trans }}</h3>
+            <div class="table-responsive">
+                <table class="table table-vcenter table-sm card-table data-quality-dimensions-table mb-0" data-testid="stats-data-quality-dimensions-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'stats.data_quality.table.dimension'|trans }}</th>
+                            <th>{{ 'stats.data_quality.table.status'|trans }}</th>
+                            <th>{{ 'stats.data_quality.table.metric'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dimension in dataQualityReport.dimensions %}
+                            <tr class="data-quality-dimension-row">
+                                <td>{{ ('stats.data_quality.dimension.' ~ dimension.key)|trans }}</td>
+                                <td>
+                                    <span class="badge {{ dimension.level.badgeClass }}">{{ dimension.level.labelKey|trans }}</span>
+                                </td>
+                                <td>{{ dimension.metricValue }}</td>
+                            </tr>
+                            <tr class="data-quality-dimension-note-row">
+                                <td colspan="3" class="p-0">
+                                    <table class="table table-sm mb-0 data-quality-dimension-note-subtable">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-secondary small">
+                                                    <span class="text-muted">{{ 'stats.data_quality.table.hint'|trans }}:</span>
+                                                    {{ dimension.hintKey|trans(dimension.hintParameters) }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="accordion data-quality-details-accordion mt-4" id="statsDataQualityDetailsAccordion">
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="statsDataQualityRepresentativenessHeading">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#statsDataQualityRepresentativenessPanel"
+                                aria-expanded="false"
+                                aria-controls="statsDataQualityRepresentativenessPanel">
+                            {{ 'stats.data_quality.drawer.representativeness_title'|trans }}
+                        </button>
+                    </h3>
+                    <div id="statsDataQualityRepresentativenessPanel"
+                         class="accordion-collapse collapse"
+                         aria-labelledby="statsDataQualityRepresentativenessHeading"
+                         data-bs-parent="#statsDataQualityDetailsAccordion">
+                        <div class="accordion-body pt-2 pb-3">
+                            <p class="text-secondary small mb-3">{{ 'stats.data_quality.representativeness.help'|trans }}</p>
+                            <ul class="list-unstyled mb-0">
+                                {% for detail in dataQualityReport.representativeness.dimensions %}
+                                    <li class="mb-2{% if not loop.last %} pb-2 border-bottom{% endif %}">
+                                        <span class="fw-semibold">{{ ('stats.data_quality.representativeness.' ~ detail.dimensionKey)|trans }}</span>:
+                                        <span class="badge {{ detail.level.badgeClass }}">{{ detail.level.labelKey|trans }}</span>
+                                        <span class="text-muted small">({{ 'stats.data_quality.representativeness.difference'|trans({value: detail.difference}) }})</span>
+                                        {% if detail.limitedReliability %}
+                                            <span class="text-muted small d-block">{{ 'stats.data_quality.representativeness.limited'|trans }}</span>
+                                        {% endif %}
+                                        {% if detail.topDeviations is not empty %}
+                                            <ul class="text-secondary small mb-0 mt-1">
+                                                {% for deviation in detail.topDeviations %}
+                                                    <li>{{ deviation }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {% if dataQualityReport.subgroupSupport.weaklySupportedCells is not empty %}
+                    <div class="accordion-item">
+                        <h3 class="accordion-header" id="statsDataQualityWeakSubgroupsHeading">
+                            <button class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#statsDataQualityWeakSubgroupsPanel"
+                                    aria-expanded="false"
+                                    aria-controls="statsDataQualityWeakSubgroupsPanel">
+                                {{ 'stats.data_quality.drawer.weak_subgroups_title'|trans }}
+                                <span class="badge bg-secondary-lt ms-2">{{ dataQualityReport.subgroupSupport.weaklySupportedCells|length }}</span>
+                            </button>
+                        </h3>
+                        <div id="statsDataQualityWeakSubgroupsPanel"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="statsDataQualityWeakSubgroupsHeading"
+                             data-bs-parent="#statsDataQualityDetailsAccordion">
+                            <div class="accordion-body pt-2 pb-3">
+                                <p class="text-secondary small mb-3">{{ 'stats.data_quality.subgroup.help'|trans({minParticipants: 5}) }}</p>
+                                <ul class="text-secondary small mb-0">
+                                    {% for cell in dataQualityReport.subgroupSupport.weaklySupportedCells %}
+                                        <li>{{ cell.cellKey }} ({{ cell.participantCount }}/{{ cell.populationCount }})</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="statsDataQualityAllocationHeading">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#statsDataQualityAllocationPanel"
+                                aria-expanded="false"
+                                aria-controls="statsDataQualityAllocationPanel">
+                            {{ 'stats.data_quality.drawer.allocation_title'|trans }}
+                        </button>
+                    </h3>
+                    <div id="statsDataQualityAllocationPanel"
+                         class="accordion-collapse collapse"
+                         aria-labelledby="statsDataQualityAllocationHeading"
+                         data-bs-parent="#statsDataQualityDetailsAccordion">
+                        <div class="accordion-body pt-2 pb-3">
+                            {% set allocation = dataQualityReport.allocationVolume %}
+                            {% set hospitalsWithSufficientVolume = allocation.histogram
+                                |filter(bucket => bucket.meetsVolumeThreshold)
+                                |reduce((carry, bucket) => carry + bucket.hospitalCount, 0) %}
+
+                            <h4 class="h5 mb-2">{{ 'stats.data_quality.allocation.summary_title'|trans }}</h4>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-vcenter table-sm card-table data-quality-allocation-table mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">{{ 'stats.data_quality.allocation.total'|trans }}</th>
+                                            <td class="text-end">{{ allocation.totalAllocations|number_format(0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">{{ 'stats.data_quality.allocation.participating_hospitals'|trans }}</th>
+                                            <td class="text-end">{{ allocation.participantHospitalCount|number_format(0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">{{ 'stats.data_quality.allocation.mean'|trans }}</th>
+                                            <td class="text-end">{{ allocation.meanAllocationsPerHospital|number_format(1, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">{{ 'stats.data_quality.allocation.median'|trans }}</th>
+                                            <td class="text-end">{{ allocation.medianAllocationsPerHospital|number_format(0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">{{ 'stats.data_quality.allocation.sufficient_volume'|trans({threshold: allocation.minAllocationsPerHospital}) }}</th>
+                                            <td class="text-end">
+                                                {{ (allocation.shareHospitalsWithSufficientAllocations * 100)|round(0) }} %
+                                                <span class="text-muted small">({{ hospitalsWithSufficientVolume|number_format(0, ',', '.') }} / {{ allocation.participantHospitalCount|number_format(0, ',', '.') }})</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h4 class="h5 mb-1">{{ 'stats.data_quality.allocation.histogram_title'|trans }}</h4>
+                            <p class="text-secondary small mb-2">{{ 'stats.data_quality.allocation.histogram_help'|trans({threshold: allocation.minAllocationsPerHospital}) }}</p>
+                            <div class="table-responsive">
+                                <table class="table table-vcenter table-sm card-table data-quality-allocation-table mb-0" data-testid="stats-data-quality-allocation-histogram">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ 'stats.data_quality.allocation.histogram.range'|trans }}</th>
+                                            <th class="text-end">{{ 'stats.data_quality.allocation.histogram.hospitals'|trans }}</th>
+                                            <th class="text-end">{{ 'stats.data_quality.allocation.histogram.share'|trans }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for bucket in allocation.histogram %}
+                                            <tr class="{% if bucket.meetsVolumeThreshold %}data-quality-allocation-bucket-sufficient{% endif %}">
+                                                <td>
+                                                    {{ bucket.label }}
+                                                    {% if bucket.meetsVolumeThreshold %}
+                                                        <span class="badge bg-green-lt ms-1">{{ 'stats.data_quality.allocation.histogram.sufficient'|trans }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end">{{ bucket.hospitalCount|number_format(0, ',', '.') }}</td>
+                                                <td class="text-end">
+                                                    {% if allocation.participantHospitalCount > 0 %}
+                                                        {{ ((bucket.hospitalCount / allocation.participantHospitalCount) * 100)|round(1) }} %
+                                                    {% else %}
+                                                        0 %
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

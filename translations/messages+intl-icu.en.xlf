@@ -5579,6 +5579,234 @@
         <source>stats.case_flow.insight.urgency_concentration_origin</source>
         <target>Emergency cases are geographically concentrated: {share, number}% originate from {origin}.</target>
       </trans-unit>
+      <trans-unit id="statsEv01" resname="stats.data_quality.indicator.label">
+        <source>stats.data_quality.indicator.label</source>
+        <target>Data quality</target>
+      </trans-unit>
+      <trans-unit id="statsEv02" resname="stats.data_quality.level.low">
+        <source>stats.data_quality.level.low</source>
+        <target>Low</target>
+      </trans-unit>
+      <trans-unit id="statsEv03" resname="stats.data_quality.level.medium">
+        <source>stats.data_quality.level.medium</source>
+        <target>Medium</target>
+      </trans-unit>
+      <trans-unit id="statsEv04" resname="stats.data_quality.level.high">
+        <source>stats.data_quality.level.high</source>
+        <target>High</target>
+      </trans-unit>
+      <trans-unit id="statsEv05" resname="stats.data_quality.drawer.title">
+        <source>stats.data_quality.drawer.title</source>
+        <target>Data quality</target>
+      </trans-unit>
+      <trans-unit id="statsEv06" resname="stats.data_quality.drawer.context">
+        <source>stats.data_quality.drawer.context</source>
+        <target>For {scope} · {period}</target>
+      </trans-unit>
+      <trans-unit id="statsEv07" resname="stats.data_quality.overall.label">
+        <source>stats.data_quality.overall.label</source>
+        <target>Overall data quality</target>
+      </trans-unit>
+      <trans-unit id="statsEv08" resname="stats.data_quality.drawer.dimensions_title">
+        <source>stats.data_quality.drawer.dimensions_title</source>
+        <target>Dimensions</target>
+      </trans-unit>
+      <trans-unit id="statsEv09" resname="stats.data_quality.table.dimension">
+        <source>stats.data_quality.table.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsEv10" resname="stats.data_quality.table.status">
+        <source>stats.data_quality.table.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="statsEv11" resname="stats.data_quality.table.metric">
+        <source>stats.data_quality.table.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsEv12" resname="stats.data_quality.table.hint">
+        <source>stats.data_quality.table.hint</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="statsEv13" resname="stats.data_quality.dimension.coverage">
+        <source>stats.data_quality.dimension.coverage</source>
+        <target>Coverage</target>
+      </trans-unit>
+      <trans-unit id="statsEv14" resname="stats.data_quality.dimension.representativeness">
+        <source>stats.data_quality.dimension.representativeness</source>
+        <target>Representativeness</target>
+      </trans-unit>
+      <trans-unit id="statsEv15" resname="stats.data_quality.dimension.subgroup">
+        <source>stats.data_quality.dimension.subgroup</source>
+        <target>Subgroup support</target>
+      </trans-unit>
+      <trans-unit id="statsEv16" resname="stats.data_quality.dimension.allocation">
+        <source>stats.data_quality.dimension.allocation</source>
+        <target>Allocation volume</target>
+      </trans-unit>
+      <trans-unit id="statsEv17" resname="stats.data_quality.dimension.coverage.metric">
+        <source>stats.data_quality.dimension.coverage.metric</source>
+        <target>Coverage</target>
+      </trans-unit>
+      <trans-unit id="statsEv18" resname="stats.data_quality.dimension.coverage.hint">
+        <source>stats.data_quality.dimension.coverage.hint</source>
+        <target>{participating} of {total} hospitals included</target>
+      </trans-unit>
+      <trans-unit id="statsEv19" resname="stats.data_quality.dimension.representativeness.metric">
+        <source>stats.data_quality.dimension.representativeness.metric</source>
+        <target>Deviation</target>
+      </trans-unit>
+      <trans-unit id="statsEv20" resname="stats.data_quality.dimension.representativeness.hint_similar">
+        <source>stats.data_quality.dimension.representativeness.hint_similar</source>
+        <target>Distributions are similar</target>
+      </trans-unit>
+      <trans-unit id="statsEv21" resname="stats.data_quality.dimension.representativeness.hint_divergent">
+        <source>stats.data_quality.dimension.representativeness.hint_divergent</source>
+        <target>Notable deviations from the clinic base</target>
+      </trans-unit>
+      <trans-unit id="statsEv22" resname="stats.data_quality.dimension.subgroup.metric">
+        <source>stats.data_quality.dimension.subgroup.metric</source>
+        <target>Supported share</target>
+      </trans-unit>
+      <trans-unit id="statsEv23" resname="stats.data_quality.dimension.subgroup.hint_weak">
+        <source>stats.data_quality.dimension.subgroup.hint_weak</source>
+        <target>Some subgroups are weakly populated ({weakCount})</target>
+      </trans-unit>
+      <trans-unit id="statsEv24" resname="stats.data_quality.dimension.subgroup.hint_ok">
+        <source>stats.data_quality.dimension.subgroup.hint_ok</source>
+        <target>Relevant subgroups are sufficiently supported</target>
+      </trans-unit>
+      <trans-unit id="statsEv25" resname="stats.data_quality.dimension.allocation.metric">
+        <source>stats.data_quality.dimension.allocation.metric</source>
+        <target>Share ≥ {threshold} cases</target>
+      </trans-unit>
+      <trans-unit id="statsEv26" resname="stats.data_quality.dimension.allocation.hint_ok">
+        <source>stats.data_quality.dimension.allocation.hint_ok</source>
+        <target>Sufficient case volume</target>
+      </trans-unit>
+      <trans-unit id="statsEv27" resname="stats.data_quality.dimension.allocation.hint_low">
+        <source>stats.data_quality.dimension.allocation.hint_low</source>
+        <target>Many hospitals have few cases</target>
+      </trans-unit>
+      <trans-unit id="statsEv28" resname="stats.data_quality.explanation.high">
+        <source>stats.data_quality.explanation.high</source>
+        <target>Deployment statistics are well interpretable. Participating hospitals adequately cover the selected clinic base.</target>
+      </trans-unit>
+      <trans-unit id="statsEv29" resname="stats.data_quality.explanation.medium">
+        <source>stats.data_quality.explanation.medium</source>
+        <target>Deployment statistics are only moderately interpretable for the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsEv30" resname="stats.data_quality.explanation.weak_subgroups">
+        <source>stats.data_quality.explanation.weak_subgroups</source>
+        <target>Deployment statistics are only limited interpretable because several relevant subgroups are weakly populated.</target>
+      </trans-unit>
+      <trans-unit id="statsEv31" resname="stats.data_quality.explanation.low_coverage">
+        <source>stats.data_quality.explanation.low_coverage</source>
+        <target>Deployment statistics are barely reliable because coverage is low ({percentage}%).</target>
+      </trans-unit>
+      <trans-unit id="statsEv32" resname="stats.data_quality.explanation.low_coverage_and_representativeness">
+        <source>stats.data_quality.explanation.low_coverage_and_representativeness</source>
+        <target>Deployment statistics are barely reliable because coverage is low and participating hospitals differ strongly from the clinic base.</target>
+      </trans-unit>
+      <trans-unit id="statsEv33" resname="stats.data_quality.explanation.low_representativeness">
+        <source>stats.data_quality.explanation.low_representativeness</source>
+        <target>Deployment statistics are limited interpretable because participating hospitals differ from the clinic base (deviation {difference}).</target>
+      </trans-unit>
+      <trans-unit id="statsEv34" resname="stats.data_quality.explanation.low_allocation_volume">
+        <source>stats.data_quality.explanation.low_allocation_volume</source>
+        <target>Deployment statistics are limited interpretable because many hospitals have too few cases ({share}% with ≥ {threshold}).</target>
+      </trans-unit>
+      <trans-unit id="statsEv35" resname="stats.data_quality.drawer.representativeness_title">
+        <source>stats.data_quality.drawer.representativeness_title</source>
+        <target>Representativeness details</target>
+      </trans-unit>
+      <trans-unit id="statsEv36" resname="stats.data_quality.representativeness.size">
+        <source>stats.data_quality.representativeness.size</source>
+        <target>Size</target>
+      </trans-unit>
+      <trans-unit id="statsEv37" resname="stats.data_quality.representativeness.care_level">
+        <source>stats.data_quality.representativeness.care_level</source>
+        <target>Care level</target>
+      </trans-unit>
+      <trans-unit id="statsEv38" resname="stats.data_quality.representativeness.urbanity">
+        <source>stats.data_quality.representativeness.urbanity</source>
+        <target>Urbanity</target>
+      </trans-unit>
+      <trans-unit id="statsEv39" resname="stats.data_quality.representativeness.landkreis">
+        <source>stats.data_quality.representativeness.landkreis</source>
+        <target>District</target>
+      </trans-unit>
+      <trans-unit id="statsEv40" resname="stats.data_quality.representativeness.difference">
+        <source>stats.data_quality.representativeness.difference</source>
+        <target>difference {value}</target>
+      </trans-unit>
+      <trans-unit id="statsEv41" resname="stats.data_quality.representativeness.limited">
+        <source>stats.data_quality.representativeness.limited</source>
+        <target>Limited reliability due to small clinic base</target>
+      </trans-unit>
+      <trans-unit id="statsEv56" resname="stats.data_quality.representativeness.help">
+        <source>stats.data_quality.representativeness.help</source>
+        <target>Compares the distribution of participating hospitals with the full clinic base across size, care level, urbanity and district. A lower difference means the sample is more representative.</target>
+      </trans-unit>
+      <trans-unit id="statsEv57" resname="stats.data_quality.subgroup.help">
+        <source>stats.data_quality.subgroup.help</source>
+        <target>Checks relevant hospital subgroups (size × care level and urbanity × care level) for sufficient participation. A subgroup counts as supported when at least {minParticipants} hospitals contribute data, or all hospitals in that subgroup when fewer than {minParticipants} exist. With fewer than 5 populated subgroups, the rating uses the share of supported subgroups.</target>
+      </trans-unit>
+      <trans-unit id="statsEv42" resname="stats.data_quality.drawer.weak_subgroups_title">
+        <source>stats.data_quality.drawer.weak_subgroups_title</source>
+        <target>Weakly supported subgroups</target>
+      </trans-unit>
+      <trans-unit id="statsEv43" resname="stats.data_quality.drawer.allocation_title">
+        <source>stats.data_quality.drawer.allocation_title</source>
+        <target>Allocation volume</target>
+      </trans-unit>
+      <trans-unit id="statsEv44" resname="stats.data_quality.allocation.total">
+        <source>stats.data_quality.allocation.total</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsEv45" resname="stats.data_quality.allocation.mean">
+        <source>stats.data_quality.allocation.mean</source>
+        <target>Mean per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsEv46" resname="stats.data_quality.allocation.median">
+        <source>stats.data_quality.allocation.median</source>
+        <target>Median per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsEv47" resname="stats.data_quality.allocation.summary_title">
+        <source>stats.data_quality.allocation.summary_title</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="statsEv48" resname="stats.data_quality.allocation.participating_hospitals">
+        <source>stats.data_quality.allocation.participating_hospitals</source>
+        <target>Participating hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsEv49" resname="stats.data_quality.allocation.sufficient_volume">
+        <source>stats.data_quality.allocation.sufficient_volume</source>
+        <target>Hospitals with ≥ {threshold} cases</target>
+      </trans-unit>
+      <trans-unit id="statsEv50" resname="stats.data_quality.allocation.histogram_title">
+        <source>stats.data_quality.allocation.histogram_title</source>
+        <target>Distribution by case volume</target>
+      </trans-unit>
+      <trans-unit id="statsEv51" resname="stats.data_quality.allocation.histogram_help">
+        <source>stats.data_quality.allocation.histogram_help</source>
+        <target>How many participating hospitals fall into each range of allocations for this indication in the selected scope and period. Ranges from {threshold} cases upward count as sufficient case volume.</target>
+      </trans-unit>
+      <trans-unit id="statsEv52" resname="stats.data_quality.allocation.histogram.range">
+        <source>stats.data_quality.allocation.histogram.range</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsEv53" resname="stats.data_quality.allocation.histogram.hospitals">
+        <source>stats.data_quality.allocation.histogram.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsEv54" resname="stats.data_quality.allocation.histogram.share">
+        <source>stats.data_quality.allocation.histogram.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsEv55" resname="stats.data_quality.allocation.histogram.sufficient">
+        <source>stats.data_quality.allocation.histogram.sufficient</source>
+        <target>Sufficient</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
