@@ -89,6 +89,8 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-indication-transport-time"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-age-histogram"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-weekday"]');
+        self::assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
+        self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
     }
 
     public function testUnknownIndicationReturns404(): void

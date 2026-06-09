@@ -1,0 +1,13 @@
+{% if dataQualityReport is defined %}
+    <button type="button"
+            class="btn btn-sm d-inline-flex align-items-center gap-2 data-quality-indicator-btn"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#statsDataQualityDrawer"
+            aria-controls="statsDataQualityDrawer"
+            data-testid="stats-data-quality-indicator">
+        <span class="text-nowrap">
+            {{ 'stats.data_quality.indicator.label'|trans }}:
+            <span class="badge {{ dataQualityReport.overallLevel.badgeClass }}">{{ dataQualityReport.overallLevel.labelKey|trans }}</span>
+        </span>
+    </button>
+{% endif %}

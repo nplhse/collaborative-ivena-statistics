@@ -112,6 +112,56 @@
     z-index: 2;
 }
 
+.data-quality-drawer {
+    --bs-offcanvas-width: min(28rem, 100vw);
+}
+
+.data-quality-indicator-btn {
+    max-width: 100%;
+}
+
+.data-quality-dimensions-table .data-quality-dimension-note-row > td {
+    padding: 0;
+    border-top: none;
+}
+
+.data-quality-dimensions-table .data-quality-dimension-row + .data-quality-dimension-note-row > td {
+    border-top: none;
+}
+
+.data-quality-dimension-note-subtable {
+    --bs-table-bg: var(--tblr-bg-surface-secondary, #f8f9fa);
+    width: 100%;
+    table-layout: fixed;
+}
+
+.data-quality-dimension-note-subtable td {
+    padding: 0.375rem 0.75rem;
+    border: none;
+    border-left: 3px solid var(--tblr-border-color, #dee2e6);
+}
+
+.data-quality-details-accordion .accordion-button {
+    font-size: 0.9375rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+}
+
+.data-quality-details-accordion .accordion-button:not(.collapsed) {
+    box-shadow: none;
+}
+
+.data-quality-allocation-table th {
+    font-weight: 600;
+}
+
+.data-quality-allocation-table th[scope="row"] {
+    color: var(--tblr-secondary, #6c757d);
+    font-weight: 500;
+}
+
+.data-quality-allocation-bucket-sufficient {
+    --bs-table-bg: rgba(var(--tblr-green-rgb, 47, 179, 68), 0.04);
 .hospital-population-map-pin {
     background: transparent;
     border: none;
