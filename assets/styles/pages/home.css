@@ -213,7 +213,7 @@
 .home-screenshot-carousel {
     --home-screenshot-frame: #9aa8b8;
     --home-screenshot-frame-strong: #6b7280;
-    --tblr-carousel-caption-color: #4b5563;
+    --tblr-carousel-caption-color: #fff;
     --tblr-carousel-indicator-active-bg: var(--home-screenshot-frame-strong);
 }
 
@@ -304,15 +304,24 @@
 }
 
 .home-screenshot-carousel .carousel-caption-background {
-    height: 26%;
-    background: linear-gradient(0deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0));
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 45%;
+    background: linear-gradient(
+        0deg,
+        rgba(15, 23, 42, 0.92) 0%,
+        rgba(15, 23, 42, 0.75) 35%,
+        rgba(15, 23, 42, 0) 100%
+    );
     pointer-events: none;
     z-index: 1;
 }
 
 .home-screenshot-carousel .carousel-caption {
     right: 10%;
-    bottom: 2.75rem;
+    bottom: 2rem;
     left: 10%;
     padding-top: 0;
     padding-bottom: 0;
@@ -323,4 +332,5 @@
 .home-screenshot-carousel .carousel-caption p {
     font-size: var(--tblr-font-size-h4);
     line-height: 1.5;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
