@@ -5806,6 +5806,381 @@
       <trans-unit id="statsEv55" resname="stats.data_quality.allocation.histogram.sufficient">
         <source>stats.data_quality.allocation.histogram.sufficient</source>
         <target>Sufficient</target>
+      <trans-unit id="statsHp01" resname="link.stats.hospital_population">
+        <source>link.stats.hospital_population</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsHp02" resname="stats.hospital_population.title">
+        <source>stats.hospital_population.title</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsHp03" resname="stats.hospital_population.pretitle">
+        <source>stats.hospital_population.pretitle</source>
+        <target>Master data &amp; representativeness</target>
+      </trans-unit>
+      <trans-unit id="statsHp04" resname="stats.hospital_population.intro">
+        <source>stats.hospital_population.intro</source>
+        <target>Overview of all hospitals in the dataset, participant coverage, and the allocation data basis.</target>
+      </trans-unit>
+      <trans-unit id="statsHp05" resname="stats.hospital_population.kpi.total_hospitals">
+        <source>stats.hospital_population.kpi.total_hospitals</source>
+        <target>Total hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsHp06" resname="stats.hospital_population.kpi.participants">
+        <source>stats.hospital_population.kpi.participants</source>
+        <target>Participants</target>
+      </trans-unit>
+      <trans-unit id="statsHp08" resname="stats.hospital_population.kpi.coverage">
+        <source>stats.hospital_population.kpi.coverage</source>
+        <target>Coverage</target>
+      </trans-unit>
+      <trans-unit id="statsHp12" resname="stats.hospital_population.section.size">
+        <source>stats.hospital_population.section.size</source>
+        <target>Distribution by size</target>
+      </trans-unit>
+      <trans-unit id="statsHp77" resname="stats.hospital_population.section.size_by_tier">
+        <source>stats.hospital_population.section.size_by_tier</source>
+        <target>Coverage by size and tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp78" resname="stats.hospital_population.section.location_by_tier">
+        <source>stats.hospital_population.section.location_by_tier</source>
+        <target>Coverage by location and tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp79" resname="stats.hospital_population.table.tier">
+        <source>stats.hospital_population.table.tier</source>
+        <target>Tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp80" resname="stats.hospital_population.table.size">
+        <source>stats.hospital_population.table.size</source>
+        <target>Size</target>
+      </trans-unit>
+      <trans-unit id="statsHp81" resname="stats.hospital_population.table.location">
+        <source>stats.hospital_population.table.location</source>
+        <target>Location</target>
+      </trans-unit>
+      <trans-unit id="statsHp13" resname="stats.hospital_population.section.care_level">
+        <source>stats.hospital_population.section.care_level</source>
+        <target>Distribution by tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp14" resname="stats.hospital_population.section.urbanity">
+        <source>stats.hospital_population.section.urbanity</source>
+        <target>Distribution by urbanity</target>
+      </trans-unit>
+      <trans-unit id="statsHp15" resname="stats.hospital_population.section.regional_coverage">
+        <source>stats.hospital_population.section.regional_coverage</source>
+        <target>Dispatch area coverage</target>
+      </trans-unit>
+      <trans-unit id="statsHp16" resname="stats.hospital_population.section.beds_population">
+        <source>stats.hospital_population.section.beds_population</source>
+        <target>Beds – all hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsHp65" resname="stats.hospital_population.section.beds_descriptive">
+        <source>stats.hospital_population.section.beds_descriptive</source>
+        <target>Beds – descriptive statistics</target>
+      </trans-unit>
+      <trans-unit id="statsHp66" resname="stats.hospital_population.beds_matrix.column_population">
+        <source>stats.hospital_population.beds_matrix.column_population</source>
+        <target>All hospitals (n={count})</target>
+      </trans-unit>
+      <trans-unit id="statsHp67" resname="stats.hospital_population.beds_matrix.column_participants">
+        <source>stats.hospital_population.beds_matrix.column_participants</source>
+        <target>Participants (n={count})</target>
+      </trans-unit>
+      <trans-unit id="statsHp68" resname="stats.hospital_population.beds_matrix.section.sample">
+        <source>stats.hospital_population.beds_matrix.section.sample</source>
+        <target>Sample</target>
+      </trans-unit>
+      <trans-unit id="statsHp69" resname="stats.hospital_population.beds_matrix.section.range">
+        <source>stats.hospital_population.beds_matrix.section.range</source>
+        <target>Range</target>
+      </trans-unit>
+      <trans-unit id="statsHp70" resname="stats.hospital_population.beds_matrix.section.central_tendency">
+        <source>stats.hospital_population.beds_matrix.section.central_tendency</source>
+        <target>Central tendency</target>
+      </trans-unit>
+      <trans-unit id="statsHp71" resname="stats.hospital_population.beds_matrix.section.percentiles">
+        <source>stats.hospital_population.beds_matrix.section.percentiles</source>
+        <target>Percentiles</target>
+      </trans-unit>
+      <trans-unit id="statsHp72" resname="stats.hospital_population.beds_matrix.mean_sd">
+        <source>stats.hospital_population.beds_matrix.mean_sd</source>
+        <target>Mean (SD)</target>
+      </trans-unit>
+      <trans-unit id="statsHp73" resname="stats.hospital_population.section.beds_boxplot_tier">
+        <source>stats.hospital_population.section.beds_boxplot_tier</source>
+        <target>Beds by tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp73legacy" resname="stats.hospital_population.section.beds_boxplot_care_level">
+        <source>stats.hospital_population.section.beds_boxplot_care_level</source>
+        <target>Beds by tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp76" resname="stats.hospital_population.section.beds_boxplot_location">
+        <source>stats.hospital_population.section.beds_boxplot_location</source>
+        <target>Beds by location</target>
+      </trans-unit>
+      <trans-unit id="statsHp74" resname="stats.hospital_population.beds_grouped_boxplot.yaxis">
+        <source>stats.hospital_population.beds_grouped_boxplot.yaxis</source>
+        <target>Number of beds</target>
+      </trans-unit>
+      <trans-unit id="statsHp75" resname="stats.hospital_population.beds_grouped_boxplot.care_level_unknown">
+        <source>stats.hospital_population.beds_grouped_boxplot.care_level_unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsHp17" resname="stats.hospital_population.section.beds_participants">
+        <source>stats.hospital_population.section.beds_participants</source>
+        <target>Beds – participants</target>
+      </trans-unit>
+      <trans-unit id="statsHp18" resname="stats.hospital_population.section.beds_histogram">
+        <source>stats.hospital_population.section.beds_histogram</source>
+        <target>Beds histogram</target>
+      </trans-unit>
+      <trans-unit id="statsHp19" resname="stats.hospital_population.section.beds_boxplot">
+        <source>stats.hospital_population.section.beds_boxplot</source>
+        <target>Beds box plot</target>
+      </trans-unit>
+      <trans-unit id="statsHp20" resname="stats.hospital_population.section.map">
+        <source>stats.hospital_population.section.map</source>
+        <target>Geographic distribution</target>
+      </trans-unit>
+      <trans-unit id="statsHp21" resname="stats.hospital_population.section.allocation_basis">
+        <source>stats.hospital_population.section.allocation_basis</source>
+        <target>Allocation data basis</target>
+      </trans-unit>
+      <trans-unit id="statsHp22" resname="stats.hospital_population.table.category">
+        <source>stats.hospital_population.table.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="statsHp23" resname="stats.hospital_population.table.population">
+        <source>stats.hospital_population.table.population</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsHp24" resname="stats.hospital_population.table.participants">
+        <source>stats.hospital_population.table.participants</source>
+        <target>Participants</target>
+      </trans-unit>
+      <trans-unit id="statsHp60" resname="stats.hospital_population.table.population_short">
+        <source>stats.hospital_population.table.population_short</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="statsHp61" resname="stats.hospital_population.table.participants_short">
+        <source>stats.hospital_population.table.participants_short</source>
+        <target>Part.</target>
+      </trans-unit>
+      <trans-unit id="statsHp62" resname="stats.hospital_population.table.coverage_delta">
+        <source>stats.hospital_population.table.coverage_delta</source>
+        <target>Coverage / Delta</target>
+      </trans-unit>
+      <trans-unit id="statsHp63" resname="stats.hospital_population.table.state">
+        <source>stats.hospital_population.table.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="statsHp64" resname="stats.hospital_population.table.dispatch_area">
+        <source>stats.hospital_population.table.dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsHp26" resname="stats.hospital_population.table.coverage">
+        <source>stats.hospital_population.table.coverage</source>
+        <target>Coverage</target>
+      </trans-unit>
+      <trans-unit id="statsHp28" resname="stats.hospital_population.table.population_pct">
+        <source>stats.hospital_population.table.population_pct</source>
+        <target>All hospitals %</target>
+      </trans-unit>
+      <trans-unit id="statsHp29" resname="stats.hospital_population.table.participant_pct">
+        <source>stats.hospital_population.table.participant_pct</source>
+        <target>Participant %</target>
+      </trans-unit>
+      <trans-unit id="statsHp30" resname="stats.hospital_population.table.delta">
+        <source>stats.hospital_population.table.delta</source>
+        <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="statsHp31" resname="stats.hospital_population.table.empty">
+        <source>stats.hospital_population.table.empty</source>
+        <target>No data available.</target>
+      </trans-unit>
+      <trans-unit id="statsHp32" resname="stats.hospital_population.sort.label">
+        <source>stats.hospital_population.sort.label</source>
+        <target>Sort dispatch areas</target>
+      </trans-unit>
+      <trans-unit id="statsHp33" resname="stats.hospital_population.sort.coverage_desc">
+        <source>stats.hospital_population.sort.coverage_desc</source>
+        <target>Coverage ↓</target>
+      </trans-unit>
+      <trans-unit id="statsHp34" resname="stats.hospital_population.sort.coverage_asc">
+        <source>stats.hospital_population.sort.coverage_asc</source>
+        <target>Coverage ↑</target>
+      </trans-unit>
+      <trans-unit id="statsHp35" resname="stats.hospital_population.sort.population">
+        <source>stats.hospital_population.sort.population</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsHp36" resname="stats.hospital_population.sort.participants">
+        <source>stats.hospital_population.sort.participants</source>
+        <target>Participants</target>
+      </trans-unit>
+      <trans-unit id="statsHp37" resname="stats.hospital_population.representativity.hint">
+        <source>stats.hospital_population.representativity.hint</source>
+        <target>Positive delta indicates overrepresentation of participants; negative delta indicates underrepresentation.</target>
+      </trans-unit>
+      <trans-unit id="statsHp82" resname="stats.hospital_population.stats.sum">
+        <source>stats.hospital_population.stats.sum</source>
+        <target>Total beds</target>
+      </trans-unit>
+      <trans-unit id="statsHp83" resname="stats.hospital_population.stats.range">
+        <source>stats.hospital_population.stats.range</source>
+        <target>Range</target>
+      </trans-unit>
+      <trans-unit id="statsHp84" resname="stats.hospital_population.stats.iqr">
+        <source>stats.hospital_population.stats.iqr</source>
+        <target>IQR</target>
+      </trans-unit>
+      <trans-unit id="statsHp85" resname="stats.hospital_population.stats.p10">
+        <source>stats.hospital_population.stats.p10</source>
+        <target>P10</target>
+      </trans-unit>
+      <trans-unit id="statsHp38" resname="stats.hospital_population.stats.count">
+        <source>stats.hospital_population.stats.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsHp39" resname="stats.hospital_population.stats.minimum">
+        <source>stats.hospital_population.stats.minimum</source>
+        <target>Minimum</target>
+      </trans-unit>
+      <trans-unit id="statsHp40" resname="stats.hospital_population.stats.maximum">
+        <source>stats.hospital_population.stats.maximum</source>
+        <target>Maximum</target>
+      </trans-unit>
+      <trans-unit id="statsHp41" resname="stats.hospital_population.stats.mean">
+        <source>stats.hospital_population.stats.mean</source>
+        <target>Mean</target>
+      </trans-unit>
+      <trans-unit id="statsHp42" resname="stats.hospital_population.stats.median">
+        <source>stats.hospital_population.stats.median</source>
+        <target>Median</target>
+      </trans-unit>
+      <trans-unit id="statsHp43" resname="stats.hospital_population.stats.stddev">
+        <source>stats.hospital_population.stats.stddev</source>
+        <target>Standard deviation</target>
+      </trans-unit>
+      <trans-unit id="statsHp44" resname="stats.hospital_population.stats.p25">
+        <source>stats.hospital_population.stats.p25</source>
+        <target>P25</target>
+      </trans-unit>
+      <trans-unit id="statsHp45" resname="stats.hospital_population.stats.p75">
+        <source>stats.hospital_population.stats.p75</source>
+        <target>P75</target>
+      </trans-unit>
+      <trans-unit id="statsHp46" resname="stats.hospital_population.stats.p95">
+        <source>stats.hospital_population.stats.p95</source>
+        <target>P95</target>
+      </trans-unit>
+      <trans-unit id="statsHp47" resname="stats.hospital_population.map.legend_population">
+        <source>stats.hospital_population.map.legend_population</source>
+        <target>Grey pin: non-participating hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp48" resname="stats.hospital_population.map.legend_participants">
+        <source>stats.hospital_population.map.legend_participants</source>
+        <target>Blue pin: participating hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp49" resname="stats.hospital_population.map.legend_size">
+        <source>stats.hospital_population.map.legend_size</source>
+        <target>Marker size is proportional to bed count</target>
+      </trans-unit>
+      <trans-unit id="statsHp50" resname="stats.hospital_population.map.legend_choropleth">
+        <source>stats.hospital_population.map.legend_choropleth</source>
+        <target>The shaded regions show regional coverage: the share of participating hospitals in each dispatch area relative to all hospitals in that area. Red indicates low coverage, yellow moderate coverage, and green high coverage.</target>
+      </trans-unit>
+      <trans-unit id="statsHp51" resname="stats.hospital_population.allocation_basis.intro">
+        <source>stats.hospital_population.allocation_basis.intro</source>
+        <target>Descriptive summary of allocations per participating hospital. No operational allocation analysis.</target>
+      </trans-unit>
+      <trans-unit id="statsHp52" resname="stats.hospital_population.allocation.total">
+        <source>stats.hospital_population.allocation.total</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHp53" resname="stats.hospital_population.allocation.mean">
+        <source>stats.hospital_population.allocation.mean</source>
+        <target>Mean per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp54" resname="stats.hospital_population.allocation.median">
+        <source>stats.hospital_population.allocation.median</source>
+        <target>Median per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp55" resname="stats.hospital_population.allocation.maximum">
+        <source>stats.hospital_population.allocation.maximum</source>
+        <target>Maximum per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp56" resname="stats.hospital_population.allocation.percentiles">
+        <source>stats.hospital_population.allocation.percentiles</source>
+        <target>Percentiles per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp57" resname="stats.hospital_population.allocation.histogram">
+        <source>stats.hospital_population.allocation.histogram</source>
+        <target>Allocations per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp58" resname="stats.hospital_population.allocation.by_size">
+        <source>stats.hospital_population.allocation.by_size</source>
+        <target>Allocations by size</target>
+      </trans-unit>
+      <trans-unit id="statsHp59" resname="stats.hospital_population.allocation.by_tier">
+        <source>stats.hospital_population.allocation.by_tier</source>
+        <target>Allocations by tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp59legacy" resname="stats.hospital_population.allocation.by_care_level">
+        <source>stats.hospital_population.allocation.by_care_level</source>
+        <target>Allocations by tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp86" resname="stats.hospital_population.allocation.by_location">
+        <source>stats.hospital_population.allocation.by_location</source>
+        <target>Allocations by location</target>
+      </trans-unit>
+      <trans-unit id="statsHp87" resname="stats.hospital_population.allocation.allocations_total">
+        <source>stats.hospital_population.allocation.allocations_total</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHp88" resname="stats.hospital_population.allocation.allocations_share">
+        <source>stats.hospital_population.allocation.allocations_share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsHp89" resname="stats.hospital_population.allocation.hospitals_with_data">
+        <source>stats.hospital_population.allocation.hospitals_with_data</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsHp90" resname="stats.hospital_population.allocation.hospitals_with_data_short">
+        <source>stats.hospital_population.allocation.hospitals_with_data_short</source>
+        <target>n={count}</target>
+      </trans-unit>
+      <trans-unit id="statsHp91" resname="stats.hospital_population.allocation.mean_per_hospital">
+        <source>stats.hospital_population.allocation.mean_per_hospital</source>
+        <target>Mean per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsHp92" resname="stats.hospital_population.allocation.mean_per_hospital_short">
+        <source>stats.hospital_population.allocation.mean_per_hospital_short</source>
+        <target>Ø {value}</target>
+      </trans-unit>
+      <trans-unit id="statsHp93" resname="stats.hospital_population.allocation.cross_table_location_by_tier">
+        <source>stats.hospital_population.allocation.cross_table_location_by_tier</source>
+        <target>Allocations by location and tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp94" resname="stats.hospital_population.allocation.cross_table_size_by_tier">
+        <source>stats.hospital_population.allocation.cross_table_size_by_tier</source>
+        <target>Allocations by size and tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp95" resname="stats.hospital_population.allocation.chart_by_tier">
+        <source>stats.hospital_population.allocation.chart_by_tier</source>
+        <target>Allocations by tier</target>
+      </trans-unit>
+      <trans-unit id="statsHp96" resname="stats.hospital_population.allocation.chart_by_size">
+        <source>stats.hospital_population.allocation.chart_by_size</source>
+        <target>Allocations by size</target>
+      </trans-unit>
+      <trans-unit id="statsHp97" resname="stats.hospital_population.allocation.chart_by_location">
+        <source>stats.hospital_population.allocation.chart_by_location</source>
+        <target>Allocations by location</target>
+      </trans-unit>
+      <trans-unit id="statsHp98" resname="stats.hospital_population.allocation.cross_table_share_hint">
+        <source>stats.hospital_population.allocation.cross_table_share_hint</source>
+        <target>The percentage shows this cell's share of all allocations and highlights where the data is concentrated.</target>
       </trans-unit>
     </body>
   </file>

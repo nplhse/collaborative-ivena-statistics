@@ -152,4 +152,23 @@
 
 .data-quality-allocation-bucket-sufficient {
     --bs-table-bg: rgba(var(--tblr-green-rgb, 47, 179, 68), 0.04);
+.hospital-population-map-pin {
+    background: transparent;
+    border: none;
+}
+
+.hospital-population-map-legend-pin {
+    flex-shrink: 0;
+}
+
+.hospital-population-map-legend-pin--participating {
+    color: #1864ab;
+}
+
+.hospital-population-map-legend-pin--reference {
+    color: #868e96;
+}
+
+.page-body:has(#stats-hospital-population) {
+    padding-top: 0;
 }

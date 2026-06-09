@@ -55,6 +55,12 @@ class Hospital implements \Stringable
     #[ORM\Column]
     private ?int $beds = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $latitude = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $longitude = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $isParticipating = true;
 
@@ -188,6 +194,30 @@ class Hospital implements \Stringable
     public function setBeds(int $beds): static
     {
         $this->beds = $beds;
+
+        return $this;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?float $latitude): static
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?float $longitude): static
+    {
+        $this->longitude = $longitude;
 
         return $this;
     }

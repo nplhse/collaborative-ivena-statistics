@@ -1,0 +1,108 @@
+{% macro coverage_badge(coverage) %}
+    {% set percent = coverage * 100 %}
+    {% set badgeClass = percent < 33 ? 'bg-red-lt text-red' : (percent < 66 ? 'bg-yellow-lt text-yellow' : 'bg-green-lt text-green') %}
+    <span class="badge {{ badgeClass }}">{{ percent|number_format(1, ',', '.') }}%</span>
+{% endmacro %}
+
+{% macro share_badge(sharePercent) %}
+    {% set badgeClass = sharePercent < 5 ? 'bg-red-lt text-red' : (sharePercent < 15 ? 'bg-yellow-lt text-yellow' : 'bg-green-lt text-green') %}
+    <span class="badge {{ badgeClass }}">{{ sharePercent|number_format(1, ',', '.') }}%</span>
+{% endmacro %}
+
+{% macro coverage_cell(cell) %}
+    {% if cell.population > 0 %}
+        <div class="small text-secondary mb-1">
+            {{ cell.participants|number_format(0, ',', '.') }}
+            /
+            {{ cell.population|number_format(0, ',', '.') }}
+        </div>
+        {{ _self.coverage_badge(cell.coverage) }}
+    {% else %}
+        <span class="text-secondary">–</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro allocation_cell(cell) %}
+    {% if cell.totalAllocations > 0 %}
+        <div class="fw-semibold mb-1">{{ cell.totalAllocations|number_format(0, ',', '.') }}</div>
+        {{ _self.share_badge(cell.sharePercent) }}
+    {% else %}
+        <span class="text-secondary">–</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro cross_table_shell(title, rowAxisLabel, columnAxisLabel, crossTable, mode) %}
+    <div class="card mb-3">
+        <div class="card-header py-2">
+            <h4 class="card-title mb-0">{{ title }}</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table table-sm mb-0 stats-hp-cross-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="stats-hp-cross-table-corner border-bottom-0"></th>
+                        <th scope="col" colspan="{{ crossTable.columns|length }}" class="text-center text-secondary fw-normal border-bottom-0 pb-0">
+                            {{ columnAxisLabel }}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th scope="col" class="text-secondary fw-normal">{{ rowAxisLabel }}</th>
+                        {% for column in crossTable.columns %}
+                            <th scope="col" class="text-center">{{ column.label }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in crossTable.rows %}
+                        <tr>
+                            <th scope="row" class="fw-normal">{{ row.label }}</th>
+                            {% for cell in row.cells %}
+                                <td class="text-center">
+                                    {% if mode == 'allocation' %}
+                                        {{ _self.allocation_cell(cell) }}
+                                    {% else %}
+                                        {{ _self.coverage_cell(cell) }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="{{ crossTable.columns|length + 1 }}" class="text-secondary">
+                                {{ 'stats.hospital_population.table.empty'|trans }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro coverage_cross_table(title, rowAxisLabel, columnAxisLabel, crossTable) %}
+    {{ _self.cross_table_shell(title, rowAxisLabel, columnAxisLabel, crossTable, 'coverage') }}
+{% endmacro %}
+
+{% macro allocation_cross_table(title, rowAxisLabel, columnAxisLabel, crossTable) %}
+    {{ _self.cross_table_shell(title, rowAxisLabel, columnAxisLabel, crossTable, 'allocation') }}
+{% endmacro %}
+
+<style>
+    .stats-hp-cross-table-corner {
+        width: 6rem;
+    }
+
+    .stats-hp-cross-table td,
+    .stats-hp-cross-table th {
+        vertical-align: middle;
+    }
+
+    .stats-hp-cross-table thead tr + tr th {
+        border-top: 0;
+    }
+
+    .stats-hp-cross-table thead tr:first-child .stats-hp-cross-table-corner,
+    .stats-hp-cross-table thead tr:first-child th[colspan] {
+        border-bottom: 0;
+    }
+</style>

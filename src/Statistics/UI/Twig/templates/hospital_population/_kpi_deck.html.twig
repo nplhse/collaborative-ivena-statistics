@@ -1,0 +1,27 @@
+{% set overview = result.overview %}
+<div class="row row-deck row-cards g-3 mb-3" data-testid="stats-hospital-population-kpi-deck">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.hospital_population.kpi.total_hospitals'|trans }}</div>
+                <div class="h1 mb-0">{{ overview.totalHospitals|number_format(0, ',', '.') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.hospital_population.kpi.participants'|trans }}</div>
+                <div class="h1 mb-0">{{ overview.participants|number_format(0, ',', '.') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.hospital_population.kpi.coverage'|trans }}</div>
+                <div class="h1 mb-0">{{ (overview.coverage * 100)|number_format(1, ',', '.') }}%</div>
+            </div>
+        </div>
+    </div>
+</div>

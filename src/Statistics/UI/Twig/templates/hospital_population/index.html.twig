@@ -1,0 +1,45 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.hospital_population.title'|trans }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.hospital_population.title' }
+        ]" />
+
+        <div class="page-header d-print-none mb-0">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle">{{ 'stats.hospital_population.pretitle'|trans }}</div>
+                    <h2 class="page-title mb-0" data-testid="stats-hospital-population-heading">{{ 'stats.hospital_population.title'|trans }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content_id %}stats-hospital-population{% endblock %}
+
+{% block page_content_class %}content pt-0{% endblock %}
+
+{% block page_content %}
+    <div data-controller="hospital-population-charts"
+         data-hospital-population-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+
+        {{ include('@Statistics/hospital_population/_kpi_deck.html.twig') }}
+        {{ include('@Statistics/hospital_population/_overview_section.html.twig') }}
+        {{ include('@Statistics/hospital_population/_beds_section.html.twig') }}
+
+        {{ include('@Statistics/hospital_population/_allocation_basis.html.twig') }}
+    </div>
+{% endblock %}

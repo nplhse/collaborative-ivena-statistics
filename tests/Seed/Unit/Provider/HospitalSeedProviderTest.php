@@ -12,11 +12,20 @@ use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Seed\Infrastructure\Areas\AreaCache;
 use App\Seed\Infrastructure\Provider\HospitalSeedProvider;
+use App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationGeocodingLookupFactory;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class HospitalSeedProviderTest extends TestCase
 {
+    private function createProvider(AreaCache $areaCache): HospitalSeedProvider
+    {
+        return new HospitalSeedProvider(
+            $areaCache,
+            new HospitalPopulationGeocodingLookupFactory(dirname(__DIR__, 4)),
+        );
+    }
+
     public function testBuildCreatesFirstHospitalWithExpectedFields(): void
     {
         $areaCache = $this->createMock(AreaCache::class);
@@ -38,7 +47,7 @@ final class HospitalSeedProviderTest extends TestCase
             ->method('getAreaRef')
             ->willReturn(new DispatchArea());
 
-        $provider = new HospitalSeedProvider($areaCache);
+        $provider = $this->createProvider($areaCache);
         $user = new User();
 
         $first = null;
@@ -73,7 +82,7 @@ final class HospitalSeedProviderTest extends TestCase
         $areaCache->method('warmUp');
         $areaCache->method('hasState')->willReturn(false);
 
-        $provider = new HospitalSeedProvider($areaCache);
+        $provider = $this->createProvider($areaCache);
         $user = new User();
 
         $this->expectException(\RuntimeException::class);
@@ -91,7 +100,7 @@ final class HospitalSeedProviderTest extends TestCase
         $areaCache->method('hasState')->willReturn(true);
         $areaCache->method('hasArea')->willReturn(false);
 
-        $provider = new HospitalSeedProvider($areaCache);
+        $provider = $this->createProvider($areaCache);
         $user = new User();
 
         $this->expectException(\RuntimeException::class);
@@ -104,7 +113,7 @@ final class HospitalSeedProviderTest extends TestCase
 
     public function testProvideReturnsExpectedHospitalsInOrder(): void
     {
-        $provider = new HospitalSeedProvider($this->createMock(AreaCache::class));
+        $provider = $this->createProvider($this->createMock(AreaCache::class));
 
         /** @var array<int, array<string, mixed>> $rows */
         $rows = \iterator_to_array($provider->provide(), false);
@@ -125,12 +134,12 @@ final class HospitalSeedProviderTest extends TestCase
 
     public function testGetTypeIsSpeciality(): void
     {
-        self::assertSame('hospital', new HospitalSeedProvider($this->createMock(AreaCache::class))->getType());
+        self::assertSame('hospital', $this->createProvider($this->createMock(AreaCache::class))->getType());
     }
 
     public function testPurgeTablesReturnAssignment(): void
     {
-        $provider = new HospitalSeedProvider($this->createMock(AreaCache::class));
+        $provider = $this->createProvider($this->createMock(AreaCache::class));
 
         self::assertSame(['hospital'], $provider->purgeTables());
     }
