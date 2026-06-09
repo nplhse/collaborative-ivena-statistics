@@ -83,15 +83,62 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
+    public function testDeleteGrantedForHospitalOwner(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner->_real()), $import->_real(), [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testDeleteGrantedForAdmin(): void
+    {
+        $admin = UserFactory::new()->asAdmin()->create();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($admin->_real()), $import->_real(), [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testDeleteGrantedForCreatorWithoutHospitalAccess(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, $creator);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($creator->_real()), $import->_real(), [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testDeleteDeniedForForeignParticipant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $intruder = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($intruder->_real()), $import->_real(), [ImportVoter::DELETE]),
+        );
+    }
+
     public function testSupportsTypeForImportOnly(): void
     {
         self::assertTrue($this->voter->supportsType(Import::class));
         self::assertFalse($this->voter->supportsType(Hospital::class));
     }
 
-    private function createImportForOwner(object $owner): object
+    private function createImportForOwner(object $owner, ?object $createdBy = null): object
     {
-        $createdBy = UserFactory::createOne();
+        $createdBy ??= UserFactory::createOne();
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne([
