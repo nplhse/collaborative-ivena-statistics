@@ -45,9 +45,11 @@ add('shared_files', [
 ]);
 add('shared_dirs', [
     'var/imports',
+    'public/uploads/media',
 ]);
 add('writable_dirs', [
     'var/imports',
+    'public/uploads/media',
 ]);
 
 /*
@@ -112,3 +114,42 @@ before('deploy:publish', 'database:migrate');
 after('deploy:publish', 'messenger:restart');
 
 after('deploy:failed', 'deploy:unlock');
+
+desc('Copy media uploads from the richest previous release into shared/public/uploads/media');
+task('media:migrate-to-shared', function () {
+    $deployPath = get('deploy_path');
+    $sharedMedia = $deployPath.'/shared/public/uploads/media';
+
+    $source = trim(run(<<<BASH
+        best=''
+        best_count=0
+        for dir in {$deployPath}/releases/*/public/uploads/media; do
+            [ -d "\$dir" ] || continue
+            count=\$(find "\$dir" -maxdepth 1 -type f ! -name '.gitkeep' | wc -l | tr -d ' ')
+            if [ "\$count" -gt "\$best_count" ]; then
+                best_count=\$count
+                best="\$dir"
+            fi
+        done
+        printf '%s' "\$best"
+    BASH));
+
+    if ('' === $source) {
+        writeln('<comment>No release media directory with files found; nothing to migrate.</comment>');
+
+        return;
+    }
+
+    writeln('<info>Migrating media from '.$source.' to '.$sharedMedia.'</info>');
+    run('mkdir -p '.escapeshellarg($sharedMedia));
+    run('cp -a '.escapeshellarg($source.'/').'. '.escapeshellarg($sharedMedia.'/'));
+    run('chmod -R ug+rwX '.escapeshellarg($sharedMedia));
+});
+
+set('content_analyze_page_images_options', '--apply --backfill-dimensions --migrate-size');
+
+desc('Analyze page images, backfill media dimensions, and migrate layout sizes on the server');
+task('content:analyze-page-images', function () {
+    $options = get('content_analyze_page_images_options');
+    run('cd {{current_path}} && {{bin/console}} app:content:analyze-page-images '.$options.' {{console_options}}');
+});
