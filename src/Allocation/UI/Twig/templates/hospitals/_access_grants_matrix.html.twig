@@ -1,0 +1,170 @@
+<style>
+    .access-grants-matrix-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .access-grants-matrix-table thead th {
+        background: var(--tblr-bg-surface, #fff);
+        border-bottom: 1px solid var(--tblr-border-color, rgba(98, 105, 118, 0.16));
+        padding: 0;
+        vertical-align: bottom;
+        text-transform: none;
+        font-weight: 600;
+    }
+
+    .access-grants-matrix-table thead .access-grants-matrix__user-th {
+        padding: 0 0.75rem 0.65rem;
+        font-size: 0.75rem;
+        color: var(--tblr-secondary, #667382);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .access-grants-matrix-table thead .access-grants-matrix__permission-th {
+        height: 7rem;
+        overflow: hidden;
+    }
+
+    .access-grants-matrix-table .access-grants-matrix__permission-head {
+        position: relative;
+        height: 6.75rem;
+        width: 100%;
+    }
+
+    .access-grants-matrix-table thead .access-grants-matrix__permission-label {
+        position: absolute;
+        left: 0.85rem;
+        bottom: 0.6rem;
+        transform: rotate(-45deg);
+        transform-origin: left bottom;
+        white-space: nowrap;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        line-height: 1.1;
+        color: var(--tblr-secondary, #667382);
+        letter-spacing: 0.01em;
+        text-transform: none;
+    }
+
+    .access-grants-matrix-table tbody td {
+        vertical-align: middle;
+        border-bottom: 1px solid var(--tblr-border-color, rgba(98, 105, 118, 0.16));
+    }
+
+    .access-grants-matrix-table tbody .access-grants-matrix__user-td {
+        padding: 0.85rem 0.75rem;
+        font-weight: 500;
+        max-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .access-grants-matrix-table tbody .access-grants-matrix__permission-td {
+        text-align: left;
+        padding: 0.85rem 0.35rem 0.85rem 0.85rem;
+    }
+
+    .access-grants-matrix-table tbody .access-grants-matrix__actions-td {
+        padding-right: 0.75rem;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .access-grants-matrix-table .access-grants-matrix__user-col {
+        width: 30%;
+    }
+
+    .access-grants-matrix-table .access-grants-matrix__perm-col {
+        width: 12%;
+    }
+
+    .access-grants-matrix-table .access-grants-matrix__actions-col {
+        width: 10%;
+    }
+
+    .access-grants-matrix-table .access-grants-matrix__actions-list {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        gap: 0.25rem;
+    }
+</style>
+
+<div class="table-responsive">
+    <table class="table table-vcenter card-table access-grants-matrix-table">
+        <colgroup>
+            <col class="access-grants-matrix__user-col">
+            <col class="access-grants-matrix__perm-col" span="{{ assignablePermissions|length }}">
+            <col class="access-grants-matrix__actions-col">
+        </colgroup>
+        <thead>
+        <tr>
+            <th class="access-grants-matrix__user-th" scope="col">{{ 'label.username'|trans }}</th>
+            {% for permission in assignablePermissions %}
+                {% set permissionLabel = ('label.hospital_permission.' ~ permission.name)|trans %}
+                <th class="access-grants-matrix__permission-th" scope="col" title="{{ permissionLabel }}">
+                    <div class="access-grants-matrix__permission-head">
+                        <span class="access-grants-matrix__permission-label">{{ permissionLabel }}</span>
+                    </div>
+                </th>
+            {% endfor %}
+            <th class="access-grants-matrix__actions-th" scope="col" aria-hidden="true"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for grant in grants %}
+            <tr>
+                <td class="access-grants-matrix__user-td" title="{{ grant.user.username }}">{{ grant.user.username }}</td>
+                {% for permission in assignablePermissions %}
+                    {% set granted = (grant.permissions b-and permission.value) != 0 %}
+                    <td class="access-grants-matrix__permission-td">
+                        {% if granted %}
+                            <span class="text-success" aria-label="{{ ('label.hospital_access_grants.matrix.granted'|trans({username: grant.user.username, permission: ('label.hospital_permission.' ~ permission.name)|trans})) }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M5 12l5 5l10 -10" />
+                                </svg>
+                            </span>
+                        {% else %}
+                            <span class="text-danger" aria-label="{{ ('label.hospital_access_grants.matrix.denied'|trans({username: grant.user.username, permission: ('label.hospital_permission.' ~ permission.name)|trans})) }}">
+                                <twig:ux:icon name="tabler:x" width="20" height="20" aria-hidden="true" />
+                            </span>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                <td class="access-grants-matrix__actions-td">
+                    <div class="access-grants-matrix__actions-list">
+                        <a
+                            class="btn btn-icon btn-outline-primary"
+                            href="{{ path('app_hospitals_edit_access_grant', {id: hospital.id, grantId: grant.id}) }}"
+                            title="{{ 'label.edit'|trans }}"
+                            aria-label="{{ 'label.edit'|trans }}"
+                        >
+                            <twig:ux:icon name="tabler:edit" width="1em" height="1em" />
+                        </a>
+                        <form method="post" action="{{ path('app_hospitals_edit_access_grant_delete', {id: hospital.id, grantId: grant.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'confirm.hospital_access_grant.delete'|trans|e('js') }}');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_access_grant_' ~ grant.id) }}">
+                            <button
+                                type="submit"
+                                class="btn btn-icon btn-outline-danger"
+                                title="{{ 'label.delete'|trans }}"
+                                aria-label="{{ 'label.delete'|trans }}"
+                            >
+                                <twig:ux:icon name="tabler:trash" width="1em" height="1em" />
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="{{ assignablePermissions|length + 2 }}" class="text-center text-muted py-4">{{ 'help.hospital_access_grants.empty'|trans }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
