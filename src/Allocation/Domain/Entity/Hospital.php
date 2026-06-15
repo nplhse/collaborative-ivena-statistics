@@ -236,7 +236,7 @@ class Hospital implements \Stringable
         return $this->isParticipating;
     }
 
-    public function setParticipating(bool $isParticipating): static
+    public function setIsParticipating(bool $isParticipating): static
     {
         $this->isParticipating = $isParticipating;
 
