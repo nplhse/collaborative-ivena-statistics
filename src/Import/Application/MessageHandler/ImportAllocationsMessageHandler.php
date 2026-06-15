@@ -160,11 +160,12 @@ final readonly class ImportAllocationsMessageHandler
 
     private function dispatchImportOutcome(int $importId, ?string $failureReason = null): void
     {
-        $this->em->clear();
         $import = $this->importRepository->find($importId);
         if (!$import instanceof Import) {
             return;
         }
+
+        $this->em->refresh($import);
 
         $status = $import->getStatus();
         if (ImportStatus::FAILED === $status) {
