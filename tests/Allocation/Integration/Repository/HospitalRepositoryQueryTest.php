@@ -6,7 +6,10 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Integration\Repository;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
@@ -126,5 +129,35 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         $ids = array_column($summaries, 'id');
 
         self::assertSame([(int) $participating->getId()], $ids);
+    }
+
+    public function testGrantedUserSeesHospitalWithMatchingPermission(): void
+    {
+        $owner = UserFactory::createOne(['username' => 'owner-'.bin2hex(random_bytes(6))]);
+        $grantee = UserFactory::createOne(['username' => 'grantee-'.bin2hex(random_bytes(6)), 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $other = UserFactory::createOne(['username' => 'other-'.bin2hex(random_bytes(6))]);
+
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+
+        $grantedHospital = HospitalFactory::createOne(['owner' => $owner, 'name' => 'Granted Hospital']);
+        HospitalFactory::createOne(['owner' => $other, 'name' => 'Foreign Hospital']);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $grantedHospital,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        $result = $this->repo
+            ->getQueryBuilderForHospitalsWithPermission($grantee->_real(), HospitalPermission::View)
+            ->getQuery()
+            ->getResult();
+
+        $ids = array_map(static fn (Hospital $hospital): ?int => $hospital->getId(), $result);
+
+        self::assertContains($grantedHospital->getId(), $ids);
+        self::assertCount(1, $ids);
     }
 }
