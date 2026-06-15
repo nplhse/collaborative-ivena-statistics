@@ -9,13 +9,11 @@ use App\Statistics\GenericAnalysis\Application\AnalysisPresetRegistry;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisPresetException;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
-use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class GenericAnalysisController extends AbstractController
 {
@@ -33,7 +31,6 @@ final class GenericAnalysisController extends AbstractController
     public function __invoke(
         string $presetKey,
         Request $request,
-        #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): \Symfony\Component\HttpFoundation\RedirectResponse {
         $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);

@@ -206,10 +206,10 @@ final readonly class OverviewDashboardProvider
     }
 
     /**
-     * @param list<string>      $bucketKeys
-     * @param list<string>      $labels
-     * @param array<string,int> $allocationBucketCounts
-     * @param array<string,int> $importBucketCounts
+     * @param list<string>          $bucketKeys
+     * @param list<string>          $labels
+     * @param array<int|string,int> $allocationBucketCounts
+     * @param array<int|string,int> $importBucketCounts
      *
      * @return array{
      *     allocationChart: array{labels: string[], monthlyCounts: int[], cumulativeCounts: int[]},

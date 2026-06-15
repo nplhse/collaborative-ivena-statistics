@@ -69,7 +69,7 @@ final readonly class StatisticsPageViewModelFactory
         if ($user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)) {
             $accessibleHospitals = $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user);
             foreach ($accessibleHospitals as $row) {
-                $hospitalUrls[(string) $row['id']] = $this->statisticsNavigationUrlBuilder->build(
+                $hospitalUrls[$row['id']] = $this->statisticsNavigationUrlBuilder->build(
                     $request,
                     $routeName,
                     [
@@ -368,7 +368,7 @@ final readonly class StatisticsPageViewModelFactory
      * @param list<array{id: int, name: string}>                                 $eligibleStateRows
      * @param list<array{id: int, name: string}>                                 $eligibleDispatchRows
      * @param list<array{key: string, label: string, url: string, active: bool}> $cohortScopeChoices
-     * @param array<string, string>                                              $hospitalUrls
+     * @param array<int, string>                                                 $hospitalUrls
      * @param list<array{id: int, name: string}>                                 $accessibleHospitals
      *
      * @return list<array{label: string, url: string, active: bool}>
@@ -437,7 +437,7 @@ final readonly class StatisticsPageViewModelFactory
             foreach ($accessibleHospitals as $row) {
                 $menu[] = [
                     'label' => $row['name'],
-                    'url' => $hospitalUrls[(string) $row['id']] ?? $scopeUrls['my_hospitals'],
+                    'url' => $hospitalUrls[$row['id']] ?? $scopeUrls['my_hospitals'],
                     'active' => StatisticsFilterScope::Hospital === $filter->scope && $filter->hospitalId === $row['id'],
                 ];
             }
