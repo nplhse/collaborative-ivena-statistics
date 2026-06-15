@@ -1,0 +1,48 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.hospital.edit'|trans }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Allocation/hospitals/_hospital_edit_page_header.html.twig') }}
+{% endblock %}
+
+{% block page_body %}
+    {% embed '@Allocation/hospitals/_edit_shell.html.twig' with {
+        hospital: hospital,
+        activeSection: '',
+        activeAccessSubsection: 'new',
+    } %}
+        {% block edit_main %}
+            {{ form_start(form) }}
+            <div class="card-header">
+                <h3 class="card-title">{{ 'title.hospital_access_grants.new'|trans }}</h3>
+            </div>
+            <div class="card-body">
+                {% set listId = form.user_label.vars.id ~ '-datalist' %}
+                {% set hiddenSelector = '#' ~ form.user.vars.id %}
+
+                {{ form_row(form.user_label, {
+                    attr: form.user_label.vars.attr|merge({
+                        list: listId,
+                        'data-datalist-chooser-list-id-value': listId,
+                        'data-datalist-chooser-hidden-selector-value': hiddenSelector,
+                    }),
+                }) }}
+
+                <datalist id="{{ listId }}">
+                    {% for row in userDatalist %}
+                        <option value="{{ row.label }}" data-id="{{ row.id }}"></option>
+                    {% endfor %}
+                </datalist>
+
+                {{ form_widget(form.user) }}
+                {{ form_row(form.permissionChoices) }}
+            </div>
+            <div class="card-footer d-flex justify-content-end gap-2">
+                <a class="btn btn-link" href="{{ path('app_hospitals_edit_access', {id: hospital.id}) }}">{{ 'btn.cancel'|trans }}</a>
+                {{ form_widget(form.submit) }}
+            </div>
+            {{ form_end(form) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

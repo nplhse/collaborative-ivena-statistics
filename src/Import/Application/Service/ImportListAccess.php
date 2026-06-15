@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Service;
 
+use App\Allocation\Application\Service\HospitalPermissionAccess;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\User\Domain\Entity\User;
 
@@ -12,6 +14,7 @@ final readonly class ImportListAccess
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private HospitalRepository $hospitalRepository,
+        private HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
     }
 
@@ -20,24 +23,17 @@ final readonly class ImportListAccess
      */
     public function resolveAccessibleHospitalIds(User $user): array
     {
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
-
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
+        return $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission($user, HospitalPermission::Import);
     }
 
     public function canAccessHospital(User $user, int $hospitalId): bool
     {
-        return \in_array($hospitalId, $this->resolveAccessibleHospitalIds($user), true);
+        return $this->hospitalPermissionAccess->hasPermission($user, $hospitalId, HospitalPermission::View);
     }
 
     public function canAccessImportHospital(User $user, int $hospitalId): bool
     {
-        return $this->canAccessHospital($user, $hospitalId);
+        return $this->hospitalPermissionAccess->hasPermission($user, $hospitalId, HospitalPermission::Import);
     }
 
     public function sanitizeHospitalId(User $user, ?int $hospitalId): ?int

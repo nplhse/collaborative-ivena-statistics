@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
@@ -26,26 +27,33 @@ final readonly class ComparisonScopeResolver
     ) {
     }
 
-    public function resolve(Request $request, ?User $user, StatisticsFilter $primaryFilter): StatisticsFilter
-    {
+    public function resolve(
+        Request $request,
+        ?User $user,
+        StatisticsFilter $primaryFilter,
+        HospitalPermission $hospitalPermission = HospitalPermission::Statistics,
+    ): StatisticsFilter {
         $input = $this->comparisonFilterInputFactory->fromQuery(
             $request->query,
             $primaryFilter,
-            $this->defaultComparisonCohort($primaryFilter, $user),
+            $this->defaultComparisonCohort($primaryFilter, $user, $hospitalPermission),
         );
 
         return $this->statisticsFilterFactory->createFromInput($input, $user);
     }
 
-    private function defaultComparisonCohort(StatisticsFilter $primaryFilter, ?User $user): string
-    {
+    private function defaultComparisonCohort(
+        StatisticsFilter $primaryFilter,
+        ?User $user,
+        HospitalPermission $hospitalPermission,
+    ): string {
         if (StatisticsFilterScope::HospitalCohort === $primaryFilter->scope && $primaryFilter->cohortType instanceof HospitalCohortKey) {
             return $primaryFilter->cohortType->value();
         }
 
         $hospitalIds = match ($primaryFilter->scope) {
             StatisticsFilterScope::Hospital => null !== $primaryFilter->hospitalId ? [$primaryFilter->hospitalId] : [],
-            StatisticsFilterScope::MyHospitals => $this->accessibleHospitalIds($user),
+            StatisticsFilterScope::MyHospitals => $this->accessibleHospitalIds($user, $hospitalPermission),
             StatisticsFilterScope::State => null !== $primaryFilter->stateId
                 ? $this->projectionScopeQuery->distinctHospitalIdsForState($primaryFilter->stateId)
                 : [],
@@ -85,9 +93,21 @@ final readonly class ComparisonScopeResolver
     /**
      * @return list<int>
      */
-    private function accessibleHospitalIds(?User $user): array
+    private function accessibleHospitalIds(?User $user, HospitalPermission $hospitalPermission): array
     {
-        if (!$user instanceof User || !$this->hospitalAccess->canUseMyHospitalsScope($user)) {
+        if (!$user instanceof User) {
+            return [];
+        }
+
+        if (HospitalPermission::Benchmarking === $hospitalPermission) {
+            if (!$this->hospitalAccess->canUseBenchmarkingScope($user)) {
+                return [];
+            }
+
+            return $this->hospitalAccess->benchmarkingHospitalIds($user);
+        }
+
+        if (!$this->hospitalAccess->canUseMyHospitalsScope($user)) {
             return [];
         }
 

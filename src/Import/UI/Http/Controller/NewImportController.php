@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Controller;
 
+use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
@@ -13,6 +15,7 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Form\ImportCreateType;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -32,6 +35,7 @@ final class NewImportController extends AbstractController
         private readonly FileChecksumCalculator $checksumCalculator,
         private readonly FileUploader $fileUploader,
         private readonly AuditContext $auditContext,
+        private readonly HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
     }
 
@@ -48,6 +52,12 @@ final class NewImportController extends AbstractController
 
         /** @var Hospital $hospital */
         $hospital = $form->get('hospital')->getData();
+        $user = $this->getUser();
+        $hospitalId = $hospital->getId();
+        if (!$user instanceof User || null === $hospitalId || !$this->hospitalPermissionAccess->hasPermission($user, $hospitalId, HospitalPermission::Import)) {
+            throw $this->createAccessDeniedException();
+        }
+
         $name = (string) $form->get('name')->getData();
 
         /** @var UploadedFile $file */

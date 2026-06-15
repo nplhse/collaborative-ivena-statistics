@@ -61,6 +61,10 @@
         <source>btn.save.changes</source>
         <target>Save changes</target>
       </trans-unit>
+      <trans-unit id="hag20" resname="label.btn.save">
+        <source>label.btn.save</source>
+        <target>Save</target>
+      </trans-unit>
       <trans-unit id="qLSIn.8" resname="cookie.banner.accept_all">
         <source>cookie.banner.accept_all</source>
         <target>Allow All Cookies</target>
@@ -6274,6 +6278,110 @@
       <trans-unit id="statsHp98" resname="stats.hospital_population.allocation.cross_table_share_hint">
         <source>stats.hospital_population.allocation.cross_table_share_hint</source>
         <target>The percentage shows this cell's share of all allocations and highlights where the data is concentrated.</target>
+      </trans-unit>
+      <trans-unit id="hag01" resname="title.hospital_access_grants">
+        <source>title.hospital_access_grants</source>
+        <target>Access grants</target>
+      </trans-unit>
+      <trans-unit id="hag02" resname="title.hospital_access_grants.list">
+        <source>title.hospital_access_grants.list</source>
+        <target>User permissions</target>
+      </trans-unit>
+      <trans-unit id="hag03" resname="title.hospital_access_grants.new">
+        <source>title.hospital_access_grants.new</source>
+        <target>Grant access</target>
+      </trans-unit>
+      <trans-unit id="hag04" resname="title.hospital_access_grants.edit">
+        <source>title.hospital_access_grants.edit</source>
+        <target>Edit access grant</target>
+      </trans-unit>
+      <trans-unit id="hag05" resname="label.hospital_access_grants.manage">
+        <source>label.hospital_access_grants.manage</source>
+        <target>Manage access</target>
+      </trans-unit>
+      <trans-unit id="hag05a" resname="label.hospital.manage_access">
+        <source>label.hospital.manage_access</source>
+        <target>Manage access</target>
+      </trans-unit>
+      <trans-unit id="hag05d" resname="label.hospital.access_grants.overview">
+        <source>label.hospital.access_grants.overview</source>
+        <target>User permissions</target>
+      </trans-unit>
+      <trans-unit id="hag05b" resname="label.hospital_access_grants.add">
+        <source>label.hospital_access_grants.add</source>
+        <target>Grant access</target>
+      </trans-unit>
+      <trans-unit id="hag05c" resname="label.hospital_access_grants.matrix.granted">
+        <source>label.hospital_access_grants.matrix.granted</source>
+        <target>{username} has {permission}</target>
+      </trans-unit>
+      <trans-unit id="hag05e" resname="label.hospital_access_grants.matrix.denied">
+        <source>label.hospital_access_grants.matrix.denied</source>
+        <target>{username} does not have {permission}</target>
+      </trans-unit>
+      <trans-unit id="hag06" resname="label.hospital_access_grant.permissions">
+        <source>label.hospital_access_grant.permissions</source>
+        <target>Permissions</target>
+      </trans-unit>
+      <trans-unit id="hag07" resname="label.hospital_access_grant.select_user">
+        <source>label.hospital_access_grant.select_user</source>
+        <target>Select user</target>
+      </trans-unit>
+      <trans-unit id="hag19a" resname="label.hospital_access_grant.search_user">
+        <source>label.hospital_access_grant.search_user</source>
+        <target>Search participant by username</target>
+      </trans-unit>
+      <trans-unit id="hag19b" resname="label.hospital_access_grant.search_user_placeholder">
+        <source>label.hospital_access_grant.search_user_placeholder</source>
+        <target>Search by username</target>
+      </trans-unit>
+      <trans-unit id="hag08" resname="label.hospital_permission.View">
+        <source>label.hospital_permission.View</source>
+        <target>View Details</target>
+      </trans-unit>
+      <trans-unit id="hag09" resname="label.hospital_permission.Statistics">
+        <source>label.hospital_permission.Statistics</source>
+        <target>Access Statistics</target>
+      </trans-unit>
+      <trans-unit id="hag10" resname="label.hospital_permission.Benchmarking">
+        <source>label.hospital_permission.Benchmarking</source>
+        <target>Access Benchmarks</target>
+      </trans-unit>
+      <trans-unit id="hag11" resname="label.hospital_permission.Import">
+        <source>label.hospital_permission.Import</source>
+        <target>Access Imports</target>
+      </trans-unit>
+      <trans-unit id="hag12" resname="label.hospital_permission.Export">
+        <source>label.hospital_permission.Export</source>
+        <target>Access Exports</target>
+      </trans-unit>
+      <trans-unit id="hag13" resname="help.hospital_access_grants.empty">
+        <source>help.hospital_access_grants.empty</source>
+        <target>No users have been granted access yet.</target>
+      </trans-unit>
+      <trans-unit id="hag14" resname="confirm.hospital_access_grant.delete">
+        <source>confirm.hospital_access_grant.delete</source>
+        <target>Remove this access grant?</target>
+      </trans-unit>
+      <trans-unit id="hag15" resname="flash.hospital_access_grant.created">
+        <source>flash.hospital_access_grant.created</source>
+        <target>Access grant created.</target>
+      </trans-unit>
+      <trans-unit id="hag16" resname="flash.hospital_access_grant.updated">
+        <source>flash.hospital_access_grant.updated</source>
+        <target>Access grant updated.</target>
+      </trans-unit>
+      <trans-unit id="hag17" resname="flash.hospital_access_grant.deleted">
+        <source>flash.hospital_access_grant.deleted</source>
+        <target>Access grant removed.</target>
+      </trans-unit>
+      <trans-unit id="hag18" resname="flash.hospital_access_grant.duplicate">
+        <source>flash.hospital_access_grant.duplicate</source>
+        <target>This user already has an access grant for this clinic.</target>
+      </trans-unit>
+      <trans-unit id="hag19" resname="label.delete">
+        <source>label.delete</source>
+        <target>Delete</target>
       </trans-unit>
     </body>
   </file>

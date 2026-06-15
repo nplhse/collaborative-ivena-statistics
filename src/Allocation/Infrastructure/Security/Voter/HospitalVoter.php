@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Security\Voter;
 
+use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Application\Service\ImportListAccess;
 use App\User\Domain\Entity\User;
@@ -19,9 +20,12 @@ final class HospitalVoter extends Voter
 
     public const string EDIT = 'EDIT';
 
+    public const string MANAGE_ACCESS_GRANTS = 'MANAGE_ACCESS_GRANTS';
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly ImportListAccess $importListAccess,
+        private readonly HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
     }
 
@@ -35,7 +39,7 @@ final class HospitalVoter extends Voter
     protected function supports(string $attribute, mixed $subject): bool
     {
         return $subject instanceof Hospital
-            && \in_array($attribute, [self::ACCESS, self::EDIT], true);
+            && \in_array($attribute, [self::ACCESS, self::EDIT, self::MANAGE_ACCESS_GRANTS], true);
     }
 
     #[\Override]
@@ -53,7 +57,8 @@ final class HospitalVoter extends Voter
 
         return match ($attribute) {
             self::ACCESS => $this->importListAccess->canAccessHospital($user, $hospitalId),
-            self::EDIT => $subject->getOwner()?->getId() === $user->getId(),
+            self::EDIT => $this->hospitalPermissionAccess->canEditHospital($user, $subject),
+            self::MANAGE_ACCESS_GRANTS => $this->hospitalPermissionAccess->canManageAccessGrants($user, $subject),
             default => false,
         };
     }

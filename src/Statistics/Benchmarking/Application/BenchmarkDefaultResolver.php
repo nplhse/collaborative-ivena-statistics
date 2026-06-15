@@ -27,7 +27,7 @@ final readonly class BenchmarkDefaultResolver
             return null;
         }
 
-        if ($user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)) {
+        if ($user instanceof User && $this->hospitalAccess->canUseBenchmarkingScope($user)) {
             return [
                 'query' => [
                     'scope' => StatisticsFilterScope::MyHospitals->value,

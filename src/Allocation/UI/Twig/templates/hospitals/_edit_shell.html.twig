@@ -1,0 +1,49 @@
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="row g-0">
+                <div class="col-12 col-md-3 border-end">
+                    <div class="card-body">
+                        <h4 class="subheader">{{ 'title.hospital.edit'|trans }}</h4>
+                        <div class="list-group list-group-transparent">
+                            <a class="list-group-item list-group-item-action d-flex align-items-center {{ activeSection == 'general' ? 'active' }}" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
+                                {{ 'label.hospital.general_information'|trans }}
+                            </a>
+                            <a class="list-group-item list-group-item-action d-flex align-items-center {{ activeSection == 'address' ? 'active' }}" href="{{ path('app_hospitals_edit_address', {id: hospital.id}) }}">
+                                {{ 'label.hospital.address_information'|trans }}
+                            </a>
+                        </div>
+
+                        {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::MANAGE_ACCESS_GRANTS'), hospital) %}
+                            <h4 class="subheader mt-4">{{ 'label.hospital.manage_access'|trans }}</h4>
+                            <div class="list-group list-group-transparent">
+                                <a class="list-group-item list-group-item-action d-flex align-items-center {{ activeAccessSubsection|default('') == 'overview' ? 'active' }}" href="{{ path('app_hospitals_edit_access', {id: hospital.id}) }}">
+                                    {{ 'label.hospital.access_grants.overview'|trans }}
+                                </a>
+                                <a class="list-group-item list-group-item-action d-flex align-items-center {{ activeAccessSubsection|default('') == 'new' ? 'active' }}" href="{{ path('app_hospitals_edit_access_new', {id: hospital.id}) }}">
+                                    {{ 'label.hospital_access_grants.add'|trans }}
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 col-md-9">
+                    {% block edit_main %}
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h3 class="card-title mb-0">{% block edit_card_title %}{% endblock %}</h3>
+                            <div class="ms-auto">{% block edit_card_actions %}{% endblock %}</div>
+                        </div>
+                        <div class="card-body">
+                            {% block edit_content %}{% endblock %}
+                        </div>
+                        {% if block('edit_footer') is defined and block('edit_footer')|trim is not empty %}
+                            <div class="card-footer d-flex justify-content-end gap-2">
+                                {% block edit_footer %}{% endblock %}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

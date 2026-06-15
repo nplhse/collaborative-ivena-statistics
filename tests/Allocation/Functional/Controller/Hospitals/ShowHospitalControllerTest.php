@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class ShowHospitalController extends WebTestCase
+final class ShowHospitalControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
@@ -26,7 +26,6 @@ final class ShowHospitalController extends WebTestCase
 
     public function testShowDisplaysHospitalDetails(): void
     {
-        // Arrange
         $client = $this->createClientAsParticipant();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
@@ -56,10 +55,8 @@ final class ShowHospitalController extends WebTestCase
             'createdAt' => new \DateTimeImmutable('2025-01-02 03:04:05'),
         ]);
 
-        // Act
         $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
 
-        // Assert
         self::assertResponseIsSuccessful();
 
         self::assertSelectorTextContains('#hospital-name', 'St. Test Hospital');
@@ -72,6 +69,40 @@ final class ShowHospitalController extends WebTestCase
         self::assertSelectorTextContains('#hospital-beds', '321');
         self::assertSelectorTextContains('#hospital-location', HospitalLocation::cases()[0]->value);
         self::assertSelectorTextContains('#hospital-tier', HospitalTier::cases()[0]->value);
+        self::assertSelectorNotExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
+    }
+
+    public function testOwnerSeesEditButtonOnOwnHospitalShowPage(): void
+    {
+        $client = self::createClient();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'username' => 'owner-user']);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner, 'name' => 'Owned Clinic']);
+
+        $client->loginUser($owner->_real());
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
+    }
+
+    public function testAdminSeesEditButtonOnForeignHospitalShowPage(): void
+    {
+        $client = self::createClient();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner, 'name' => 'Foreign Clinic']);
+
+        $client->loginUser($admin->_real());
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
     }
 
     public function testShowRejectsPostMethod(): void

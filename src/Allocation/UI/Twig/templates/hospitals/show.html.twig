@@ -43,7 +43,7 @@
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
-                    {% if is_granted('ROLE_PARTICIPANT') and app.user and hospital.owner and hospital.owner.id == app.user.id %}
+                    {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::EDIT'), hospital) %}
                         <span class="d-none d-sm-inline">
                             <a class="btn btn-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
                                 <twig:ux:icon name="tabler:edit" width="1em" height="1em" />&nbsp;

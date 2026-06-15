@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\UI\Form;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
@@ -53,7 +54,7 @@ final class ImportCreateType extends AbstractType
                 'class' => Hospital::class,
                 'choice_label' => 'name',
                 'placeholder' => 'label.import.selectHospital',
-                'query_builder' => fn (): QueryBuilder => $this->hospitalRepository->getQueryBuilderForAccessibleHospitals($user),
+                'query_builder' => fn (): QueryBuilder => $this->hospitalRepository->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Import),
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('file', FileType::class, [

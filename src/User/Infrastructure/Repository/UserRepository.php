@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Repository;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -57,6 +59,47 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
         }
 
         return $matched;
+    }
+
+    /**
+     * @param list<int> $excludeUserIds
+     *
+     * @return list<array{id: int, label: string}>
+     */
+    public function findGrantEligibleUserDatalist(Hospital $hospital, array $excludeUserIds = []): array
+    {
+        $excludeLookup = array_fill_keys($excludeUserIds, true);
+        $ownerId = $hospital->getOwner()?->getId();
+        if (null !== $ownerId) {
+            $excludeLookup[$ownerId] = true;
+        }
+
+        $users = $this->findEnabledVerifiedUsersWithRoles([UserRole::PARTICIPANT]);
+        $choices = [];
+
+        foreach ($users as $user) {
+            $userId = $user->getId();
+            if (null === $userId || isset($excludeLookup[$userId])) {
+                continue;
+            }
+
+            $username = $user->getUsername();
+            if (null === $username || '' === $username) {
+                continue;
+            }
+
+            $choices[] = [
+                'id' => $userId,
+                'label' => $username,
+            ];
+        }
+
+        usort(
+            $choices,
+            static fn (array $a, array $b): int => strcasecmp($a['label'], $b['label']),
+        );
+
+        return $choices;
     }
 
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void

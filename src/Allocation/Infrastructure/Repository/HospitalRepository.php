@@ -9,11 +9,13 @@ use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
@@ -24,8 +26,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class HospitalRepository extends ServiceEntityRepository implements HospitalLookupInterface
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
+    ) {
         parent::__construct($registry, Hospital::class);
     }
 
@@ -74,17 +78,34 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
 
     public function getQueryBuilderForAccessibleHospitals(User $user): QueryBuilder
     {
+        return $this->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::View);
+    }
+
+    public function getQueryBuilderForHospitalsWithPermission(User $user, HospitalPermission $permission): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('h')
             ->orderBy('h.name', 'ASC');
 
-        if (\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+        if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
             return $qb;
         }
 
+        $grantHospitalIds = $this->hospitalAccessGrantRepository->findHospitalIdsForUserWithPermission($user, $permission);
+        $userId = $user->getId();
+        if (null === $userId) {
+            return $qb->andWhere('1 = 0');
+        }
+
+        if ([] === $grantHospitalIds) {
+            return $qb
+                ->andWhere('IDENTITY(h.owner) = :userId')
+                ->setParameter('userId', $userId);
+        }
+
         return $qb
-            ->innerJoin('h.owner', 'o')
-            ->andWhere('o = :user')
-            ->setParameter('user', $user->getId());
+            ->andWhere('IDENTITY(h.owner) = :userId OR h.id IN (:grantHospitalIds)')
+            ->setParameter('userId', $userId)
+            ->setParameter('grantHospitalIds', $grantHospitalIds);
     }
 
     /**
@@ -92,20 +113,17 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
      */
     public function countAccessibleHospitals(User $user): int
     {
-        if (\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+        if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
             return (int) $this->createQueryBuilder('h')
                 ->select('COUNT(h.id)')
                 ->getQuery()
                 ->getSingleScalarResult();
         }
 
-        return (int) $this->createQueryBuilder('h')
-            ->select('COUNT(h.id)')
-            ->innerJoin('h.owner', 'o')
-            ->andWhere('o = :user')
-            ->setParameter('user', $user->getId())
+        return \count($this->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Statistics)
+            ->select('h.id')
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getSingleColumnResult());
     }
 
     /**
@@ -217,9 +235,9 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     /**
      * @return list<array{id: int, name: string}>
      */
-    public function findAccessibleParticipatingHospitalSummaries(User $user): array
+    public function findAccessibleParticipatingHospitalSummaries(User $user, HospitalPermission $permission = HospitalPermission::Statistics): array
     {
-        $rows = $this->getQueryBuilderForAccessibleHospitals($user)
+        $rows = $this->getQueryBuilderForHospitalsWithPermission($user, $permission)
             ->andWhere('h.isParticipating = true')
             ->select('h.id AS id', 'h.name AS name')
             ->getQuery()

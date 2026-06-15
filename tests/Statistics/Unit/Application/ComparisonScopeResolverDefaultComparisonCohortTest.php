@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\Application;
 
 use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\ComparisonScopeResolver;
@@ -89,7 +90,7 @@ final class ComparisonScopeResolverDefaultComparisonCohortTest extends KernelTes
         $resolver = self::getContainer()->get(ComparisonScopeResolver::class);
         $method = new \ReflectionMethod(ComparisonScopeResolver::class, 'defaultComparisonCohort');
 
-        return $method->invoke($resolver, $primaryFilter, null);
+        return $method->invoke($resolver, $primaryFilter, null, HospitalPermission::Statistics);
     }
 
     /**

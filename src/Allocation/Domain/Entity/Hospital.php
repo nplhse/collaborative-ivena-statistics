@@ -11,6 +11,8 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Shared\Domain\Traits\Blamable;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[Audit\Audited]
@@ -70,6 +72,12 @@ class Hospital implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    /**
+     * @var Collection<int, HospitalAccessGrant>
+     */
+    #[ORM\OneToMany(targetEntity: HospitalAccessGrant::class, mappedBy: 'hospital', orphanRemoval: true)]
+    private Collection $accessGrants;
+
     /** @psalm-suppress PropertyNotSetInConstructor */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -83,6 +91,7 @@ class Hospital implements \Stringable
     {
         $this->createdAt = new \DateTimeImmutable('now');
         $this->address = new Address();
+        $this->accessGrants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -254,6 +263,31 @@ class Hospital implements \Stringable
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, HospitalAccessGrant>
+     */
+    public function getAccessGrants(): Collection
+    {
+        return $this->accessGrants;
+    }
+
+    public function addAccessGrant(HospitalAccessGrant $accessGrant): static
+    {
+        if (!$this->accessGrants->contains($accessGrant)) {
+            $this->accessGrants->add($accessGrant);
+            $accessGrant->setHospital($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccessGrant(HospitalAccessGrant $accessGrant): static
+    {
+        $this->accessGrants->removeElement($accessGrant);
 
         return $this;
     }

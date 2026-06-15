@@ -55,3 +55,7 @@ For flow details: [Import-workflow.md](Import-workflow.md) and [Statistics-proje
 - `app:allocation:backfill-indications`
 - `app:seed:projection`
 - `app:install`
+
+## Clinic-specific access grants
+
+Hospital owners can grant other `ROLE_PARTICIPANT` users clinic-scoped permissions via `HospitalAccessGrant` (entity) and `HospitalPermissionAccess` (resolver). Permissions are stored as a bitmask (`VIEW`, `STATISTICS`, `BENCHMARKING`, `IMPORT`, `EXPORT`). Owners retain full control; admins retain global access. Benchmarking requires statistics permissions.
