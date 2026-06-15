@@ -41,7 +41,7 @@ final class GetHospitalPopulationQueryTest extends KernelTestCase
             'beds' => 400,
             'latitude' => 50.11,
             'longitude' => 8.68,
-            'participating' => true,
+            'isParticipating' => true,
         ]);
         HospitalFactory::createOne([
             'name' => 'Hospital Beta',
@@ -53,7 +53,7 @@ final class GetHospitalPopulationQueryTest extends KernelTestCase
             'beds' => 120,
             'latitude' => 51.31,
             'longitude' => 9.48,
-            'participating' => false,
+            'isParticipating' => false,
         ]);
 
         $snapshots = self::getContainer()->get(GetHospitalPopulationQuery::class)();

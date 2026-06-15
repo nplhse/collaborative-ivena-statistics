@@ -130,7 +130,7 @@ final class StatisticsPageViewModelFactoryAccessTest extends KernelTestCase
         DispatchAreaFactory::createOne();
         $participating = HospitalFactory::createOne(['owner' => $user]);
         $nonParticipating = HospitalFactory::createOne(['owner' => $user]);
-        $nonParticipating->setParticipating(false);
+        $nonParticipating->setIsParticipating(false);
         $nonParticipating->_save();
 
         $model = $this->factory->create(
@@ -151,7 +151,7 @@ final class StatisticsPageViewModelFactoryAccessTest extends KernelTestCase
         DispatchAreaFactory::createOne();
         $participating = HospitalFactory::createOne();
         $nonParticipating = HospitalFactory::createOne();
-        $nonParticipating->setParticipating(false);
+        $nonParticipating->setIsParticipating(false);
         $nonParticipating->_save();
 
         $model = $this->factory->create(

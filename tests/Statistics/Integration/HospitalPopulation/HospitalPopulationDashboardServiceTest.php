@@ -49,7 +49,7 @@ final class HospitalPopulationDashboardServiceTest extends KernelTestCase
             'beds' => 500,
             'latitude' => 50.11,
             'longitude' => 8.68,
-            'participating' => true,
+            'isParticipating' => true,
         ]);
         HospitalFactory::createOne([
             'name' => 'Reference Hospital',
@@ -61,7 +61,7 @@ final class HospitalPopulationDashboardServiceTest extends KernelTestCase
             'beds' => 100,
             'latitude' => 51.31,
             'longitude' => 9.48,
-            'participating' => false,
+            'isParticipating' => false,
         ]);
 
         SpecialityFactory::createOne(['name' => 'HpDashSpec']);

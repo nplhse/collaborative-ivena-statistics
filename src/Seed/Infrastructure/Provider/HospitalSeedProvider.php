@@ -88,7 +88,7 @@ final readonly class HospitalSeedProvider implements SeedProviderInterface
                         ->setCountry($row['address']['country'])
                         ->setState($row['address']['state'])
                 )
-                ->setParticipating($row['participating'])
+                ->setIsParticipating($row['participating'])
                 ->setOwner(null)
                 ->setCreatedBy($user);
 

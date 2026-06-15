@@ -101,7 +101,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         DispatchAreaFactory::createOne();
         $participating = HospitalFactory::createOne();
         $nonParticipating = HospitalFactory::createOne();
-        $nonParticipating->setParticipating(false);
+        $nonParticipating->setIsParticipating(false);
         $nonParticipating->_save();
 
         $summaries = $this->repo->findAccessibleParticipatingHospitalSummaries($admin);
@@ -121,7 +121,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
 
         $participating = HospitalFactory::createOne(['owner' => $owner]);
         $nonParticipating = HospitalFactory::createOne(['owner' => $owner]);
-        $nonParticipating->setParticipating(false);
+        $nonParticipating->setIsParticipating(false);
         $nonParticipating->_save();
         HospitalFactory::createOne(['owner' => $other]);
 
