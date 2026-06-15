@@ -9,6 +9,7 @@ use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
 use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Event\ImportCompleted;
+use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
@@ -57,13 +58,16 @@ final readonly class ImportAllocationsMessageHandler
         $filePath = $import->getFilePath();
         if (null === $filePath) {
             $this->markFailed($import, 'Import has no file path');
+            $this->dispatchImportOutcome($message->importId, 'Import has no file path');
 
             return;
         }
 
         $filePath = $this->resolvePath($filePath);
         if (!\is_file($filePath)) {
-            $this->markFailed($import, 'CSV not found: '.$filePath);
+            $reason = 'CSV not found: '.$filePath;
+            $this->markFailed($import, $reason);
+            $this->dispatchImportOutcome($message->importId, $reason);
 
             return;
         }
@@ -83,15 +87,18 @@ final readonly class ImportAllocationsMessageHandler
 
             try {
                 $this->run($import, $reader, $writer);
-
-                $this->dispatcher->dispatch(new ImportCompleted($message->importId));
             } catch (\Throwable $e) {
                 $this->importLogger->critical('import.failed', [
                     'id' => $import->getId(),
                     'ex' => $e::class,
                     'msg' => $e->getMessage(),
                 ]);
+                $this->dispatchImportOutcome($message->importId, $e->getMessage());
+
+                return;
             }
+
+            $this->dispatchImportOutcome($message->importId);
         } finally {
             $this->auditContext->popSuppressedEntityAudit();
         }
@@ -149,6 +156,48 @@ final readonly class ImportAllocationsMessageHandler
             'id' => $import->getId(),
             'reason' => $reason,
         ]);
+    }
+
+    private function dispatchImportOutcome(int $importId, ?string $failureReason = null): void
+    {
+        $this->em->clear();
+        $import = $this->importRepository->find($importId);
+        if (!$import instanceof Import) {
+            return;
+        }
+
+        $status = $import->getStatus();
+        if (ImportStatus::FAILED === $status) {
+            $this->dispatcher->dispatch(new ImportFailed(
+                $importId,
+                $failureReason ?? $this->resolveFailureReason($import),
+            ));
+
+            return;
+        }
+
+        if ($status?->isFinal() ?? false) {
+            $this->dispatcher->dispatch(new ImportCompleted($importId));
+        }
+    }
+
+    private function resolveFailureReason(Import $import): string
+    {
+        $rowCount = $import->getRowCount() ?? 0;
+        if (0 === $rowCount) {
+            return 'Import file contained no rows.';
+        }
+
+        $rejected = $import->getRowsRejected() ?? 0;
+        if ($rejected > 0) {
+            return sprintf(
+                'Import exceeded the maximum allowed rejection ratio (%d of %d rows rejected).',
+                $rejected,
+                $rowCount,
+            );
+        }
+
+        return 'Import processing failed.';
     }
 
     /** @param array<string, mixed> $metadata */

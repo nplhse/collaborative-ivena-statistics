@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\UI\Http\Controller;
 
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\RegistrationFormType;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 final class RegistrationController extends AbstractController
@@ -25,6 +27,7 @@ final class RegistrationController extends AbstractController
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly EmailVerifier $emailVerifier,
         private readonly AuditContext $auditContext,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -60,6 +63,11 @@ final class RegistrationController extends AbstractController
                 $this->entityManager->flush();
             } finally {
                 $this->auditContext->endIntent();
+            }
+
+            $userId = $user->getId();
+            if (null !== $userId) {
+                $this->eventDispatcher->dispatch(new UserRegistered($userId));
             }
 
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);

@@ -13,4 +13,6 @@ final class UserRole
     public const string ADMIN = 'ROLE_ADMIN';
 
     public const string FEEDBACK_RECIPIENT = 'ROLE_FEEDBACK_RECIPIENT';
+
+    public const string RECEIVES_NOTIFICATION = 'ROLE_RECEIVES_NOTIFICATION';
 }
