@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Adapter;
 
+use App\Allocation\Application\Service\HospitalPermissionAccess;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\User\Domain\Entity\User;
@@ -13,6 +15,7 @@ final readonly class DoctrineHospitalAccess implements HospitalAccessInterface
 {
     public function __construct(
         private HospitalRepository $hospitalRepository,
+        private HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
     }
 
@@ -37,6 +40,20 @@ final readonly class DoctrineHospitalAccess implements HospitalAccessInterface
     }
 
     #[\Override]
+    public function canUseBenchmarkingScope(User $user): bool
+    {
+        if ($this->isAdminHospitalScopeUser($user)) {
+            return true;
+        }
+
+        if (!\in_array(UserRole::PARTICIPANT, $user->getRoles(), true)) {
+            return false;
+        }
+
+        return \count($this->benchmarkingHospitalIds($user)) > 0;
+    }
+
+    #[\Override]
     public function canSelectHospitalScope(User $user, int $hospitalId): bool
     {
         return \in_array($hospitalId, $this->accessibleHospitalIds($user), true);
@@ -45,19 +62,22 @@ final readonly class DoctrineHospitalAccess implements HospitalAccessInterface
     #[\Override]
     public function countAccessibleHospitals(User $user): int
     {
-        return $this->hospitalRepository->countAccessibleHospitals($user);
+        if ($this->isAdminHospitalScopeUser($user)) {
+            return $this->hospitalRepository->countAccessibleHospitals($user);
+        }
+
+        return \count($this->accessibleHospitalIds($user));
     }
 
     #[\Override]
     public function accessibleHospitalIds(User $user): array
     {
-        /** @var list<int|string> $rawIds */
-        $rawIds = $this->hospitalRepository
-            ->getQueryBuilderForAccessibleHospitals($user)
-            ->select('h.id')
-            ->getQuery()
-            ->getSingleColumnResult();
+        return $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission($user, HospitalPermission::Statistics);
+    }
 
-        return array_map(static fn (int|string $id): int => (int) $id, $rawIds);
+    #[\Override]
+    public function benchmarkingHospitalIds(User $user): array
+    {
+        return $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission($user, HospitalPermission::Benchmarking);
     }
 }

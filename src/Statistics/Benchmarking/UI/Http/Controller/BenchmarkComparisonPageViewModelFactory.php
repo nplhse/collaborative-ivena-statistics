@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Benchmarking\UI\Http\Controller;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
@@ -67,8 +68,8 @@ final readonly class BenchmarkComparisonPageViewModelFactory
 
         $accessibleHospitals = [];
         $hospitalUrls = [];
-        if ($user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)) {
-            $accessibleHospitals = $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user);
+        if ($user instanceof User && $this->hospitalAccess->canUseBenchmarkingScope($user)) {
+            $accessibleHospitals = $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user, HospitalPermission::Benchmarking);
             foreach ($accessibleHospitals as $row) {
                 $hospitalUrls[$row['id']] = $this->statisticsNavigationUrlBuilder->build(
                     $request,
@@ -183,7 +184,7 @@ final readonly class BenchmarkComparisonPageViewModelFactory
         );
 
         $myHospitalsDual = $user instanceof User
-            && $this->hospitalAccess->canUseMyHospitalsScope($user)
+            && $this->hospitalAccess->canUseBenchmarkingScope($user)
             && \count($accessibleHospitals) > 1
             && (StatisticsFilterScope::MyHospitals === $filter->scope || StatisticsFilterScope::Hospital === $filter->scope);
         $stateDual = StatisticsFilterScope::State === $filter->scope && [] !== $eligibleStateRows;
@@ -426,7 +427,7 @@ final readonly class BenchmarkComparisonPageViewModelFactory
         }
 
         if ($user instanceof User
-            && $this->hospitalAccess->canUseMyHospitalsScope($user)
+            && $this->hospitalAccess->canUseBenchmarkingScope($user)
             && \count($accessibleHospitals) > 1
             && (StatisticsFilterScope::MyHospitals === $filter->scope || StatisticsFilterScope::Hospital === $filter->scope)
         ) {

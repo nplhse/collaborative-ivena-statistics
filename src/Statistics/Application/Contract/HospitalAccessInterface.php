@@ -12,6 +12,8 @@ interface HospitalAccessInterface
 
     public function canUseMyHospitalsScope(User $user): bool;
 
+    public function canUseBenchmarkingScope(User $user): bool;
+
     public function canSelectHospitalScope(User $user, int $hospitalId): bool;
 
     public function countAccessibleHospitals(User $user): int;
@@ -20,4 +22,9 @@ interface HospitalAccessInterface
      * @return list<int>
      */
     public function accessibleHospitalIds(User $user): array;
+
+    /**
+     * @return list<int>
+     */
+    public function benchmarkingHospitalIds(User $user): array;
 }

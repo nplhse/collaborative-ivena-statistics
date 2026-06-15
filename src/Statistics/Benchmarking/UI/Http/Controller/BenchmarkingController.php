@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Benchmarking\UI\Http\Controller;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Statistics\Application\ComparisonScopeResolver;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\StatisticsContextFactory;
@@ -63,7 +64,7 @@ final class BenchmarkingController extends AbstractController
             return $this->redirectToRoute('app_stats_benchmarking', $publicRedirect['query']);
         }
 
-        $comparisonFilter = $this->comparisonScopeResolver->resolve($request, $user, $filter);
+        $comparisonFilter = $this->comparisonScopeResolver->resolve($request, $user, $filter, HospitalPermission::Benchmarking);
         $context = $this->statisticsContextFactory->create(
             $user,
             $filter,
