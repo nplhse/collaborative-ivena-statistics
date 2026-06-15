@@ -4191,6 +4191,94 @@
         <source>email.footer.transactional</source>
         <target>This is an automated message from {app}.</target>
       </trans-unit>
+      <trans-unit id="an.subjUserReg" resname="admin_notification.email.subject.user_registered">
+        <source>admin_notification.email.subject.user_registered</source>
+        <target>New user registration</target>
+      </trans-unit>
+      <trans-unit id="an.subjImportFail" resname="admin_notification.email.subject.import_failed">
+        <source>admin_notification.email.subject.import_failed</source>
+        <target>Import failed</target>
+      </trans-unit>
+      <trans-unit id="an.urTitle" resname="admin_notification.email.user_registered.title">
+        <source>admin_notification.email.user_registered.title</source>
+        <target>New user registration</target>
+      </trans-unit>
+      <trans-unit id="an.urHeading" resname="admin_notification.email.user_registered.heading">
+        <source>admin_notification.email.user_registered.heading</source>
+        <target>New user registered</target>
+      </trans-unit>
+      <trans-unit id="an.urIntro" resname="admin_notification.email.user_registered.intro">
+        <source>admin_notification.email.user_registered.intro</source>
+        <target>A new user has registered and may need participant permissions before they can fully use the platform.</target>
+      </trans-unit>
+      <trans-unit id="an.urManage" resname="admin_notification.email.user_registered.action.manage">
+        <source>admin_notification.email.user_registered.action.manage</source>
+        <target>Manage user</target>
+      </trans-unit>
+      <trans-unit id="an.urGrant" resname="admin_notification.email.user_registered.action.grant_participant">
+        <source>admin_notification.email.user_registered.action.grant_participant</source>
+        <target>Grant participant role</target>
+      </trans-unit>
+      <trans-unit id="an.ifTitle" resname="admin_notification.email.import_failed.title">
+        <source>admin_notification.email.import_failed.title</source>
+        <target>Import failed</target>
+      </trans-unit>
+      <trans-unit id="an.ifHeading" resname="admin_notification.email.import_failed.heading">
+        <source>admin_notification.email.import_failed.heading</source>
+        <target>Import failed</target>
+      </trans-unit>
+      <trans-unit id="an.ifIntro" resname="admin_notification.email.import_failed.intro">
+        <source>admin_notification.email.import_failed.intro</source>
+        <target>An import has failed and may require investigation.</target>
+      </trans-unit>
+      <trans-unit id="an.ifView" resname="admin_notification.email.import_failed.action.view">
+        <source>admin_notification.email.import_failed.action.view</source>
+        <target>View import details</target>
+      </trans-unit>
+      <trans-unit id="an.lblUsername" resname="admin_notification.email.label.username">
+        <source>admin_notification.email.label.username</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="an.lblEmail" resname="admin_notification.email.label.email">
+        <source>admin_notification.email.label.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="an.lblRegisteredAt" resname="admin_notification.email.label.registered_at">
+        <source>admin_notification.email.label.registered_at</source>
+        <target>Registered at</target>
+      </trans-unit>
+      <trans-unit id="an.lblImportName" resname="admin_notification.email.label.import_name">
+        <source>admin_notification.email.label.import_name</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="an.lblHospital" resname="admin_notification.email.label.hospital">
+        <source>admin_notification.email.label.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="an.lblStatus" resname="admin_notification.email.label.status">
+        <source>admin_notification.email.label.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="an.lblRows" resname="admin_notification.email.label.rows">
+        <source>admin_notification.email.label.rows</source>
+        <target>Rows processed</target>
+      </trans-unit>
+      <trans-unit id="an.lblRuntime" resname="admin_notification.email.label.runtime">
+        <source>admin_notification.email.label.runtime</source>
+        <target>Runtime</target>
+      </trans-unit>
+      <trans-unit id="an.lblError" resname="admin_notification.email.label.error">
+        <source>admin_notification.email.label.error</source>
+        <target>Error details</target>
+      </trans-unit>
+      <trans-unit id="flash.grantParticipantOk" resname="flash.admin.user.grant_participant.success">
+        <source>flash.admin.user.grant_participant.success</source>
+        <target>Participant role has been granted.</target>
+      </trans-unit>
+      <trans-unit id="flash.grantParticipantAlready" resname="flash.admin.user.grant_participant.already">
+        <source>flash.admin.user.grant_participant.already</source>
+        <target>This user already has the participant role.</target>
+      </trans-unit>
       <trans-unit id="em.footerContactPrefix" resname="email.footer.contact_prefix">
         <source>email.footer.contact_prefix</source>
         <target>If you have questions, reply to this email or write to </target>

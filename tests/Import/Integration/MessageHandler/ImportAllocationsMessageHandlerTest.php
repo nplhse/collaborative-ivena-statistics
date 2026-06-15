@@ -14,9 +14,11 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Event\ImportCompleted;
+use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
 use App\Import\Domain\Entity\Import;
@@ -71,6 +73,8 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         OccasionFactory::createOne(['name' => 'Häuslicher Einsatz']);
         OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
         OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+
+        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
 
         InfectionFactory::createOne(['name' => 'Noro']);
         InfectionFactory::createOne(['name' => 'V.a. COVID']);
@@ -274,50 +278,111 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $id = (int) $import->getId();
         self::assertGreaterThan(0, $id);
 
+        $failedIds = [];
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher->addListener(ImportFailed::class, function (object $event) use (&$failedIds): void {
+            if ($event instanceof ImportFailed) {
+                $failedIds[] = $event->importId;
+            }
+        });
+
         $this->handler->__invoke(new ImportAllocationsMessage($id));
+
+        self::assertSame([$id], $failedIds);
 
         $fresh = $this->imports->find($id);
         self::assertNotNull($fresh);
         self::assertSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
-    public function testInvokeDispatchesImportCompletedAfterSuccessfulFileImport(): void
+    public function testDispatchImportOutcomeDispatchesImportCompletedForFinalImportStatus(): void
     {
-        ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
-
-        $allocationAuditsBeforeInvoke = $this->countAuditEntriesForEntityClass(Allocation::class);
+        $import = $this->createPersistedImport(ImportStatus::PARTIAL, rowCount: 3, rowsPassed: 2, rowsRejected: 1);
 
         $dispatchedIds = [];
+        $failedIds = [];
         $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $dispatcher->addListener(ImportCompleted::class, function (object $event) use (&$dispatchedIds): void {
             if ($event instanceof ImportCompleted) {
                 $dispatchedIds[] = $event->importId;
             }
         });
-
-        try {
-            $this->handler->__invoke(new ImportAllocationsMessage($id));
-        } finally {
-            if (is_file($csvPath)) {
-                @unlink($csvPath);
+        $dispatcher->addListener(ImportFailed::class, function (object $event) use (&$failedIds): void {
+            if ($event instanceof ImportFailed) {
+                $failedIds[] = $event->importId;
             }
-        }
+        });
 
-        self::assertSame([$id], $dispatchedIds);
+        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'dispatchImportOutcome');
+        $reflection->invoke($this->handler, (int) $import->getId());
 
-        self::assertSame(
-            $allocationAuditsBeforeInvoke,
-            $this->countAuditEntriesForEntityClass(Allocation::class),
-            'Import via __invoke must suppress per-row Allocation audit entries',
-        );
-        self::assertTrue(
-            $this->importEntityHasAuditIntent($id, 'import.run.finished'),
-            'Expected Import audit metadata to include import.run.finished intent for this import id',
-        );
+        self::assertSame([], $failedIds);
+        self::assertSame([(int) $import->getId()], $dispatchedIds);
+    }
 
-        $fresh = $this->imports->find($id);
-        self::assertNotNull($fresh);
-        self::assertNotSame(ImportStatus::FAILED, $fresh->getStatus());
+    public function testDispatchImportOutcomeDispatchesImportFailedForFailedImportStatus(): void
+    {
+        $import = $this->createPersistedImport(ImportStatus::FAILED);
+
+        $dispatchedIds = [];
+        $failedIds = [];
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher->addListener(ImportCompleted::class, function (object $event) use (&$dispatchedIds): void {
+            if ($event instanceof ImportCompleted) {
+                $dispatchedIds[] = $event->importId;
+            }
+        });
+        $dispatcher->addListener(ImportFailed::class, function (object $event) use (&$failedIds): void {
+            if ($event instanceof ImportFailed) {
+                $failedIds[] = $event->importId;
+            }
+        });
+
+        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'dispatchImportOutcome');
+        $reflection->invoke($this->handler, (int) $import->getId(), 'CSV not found');
+
+        self::assertSame([], $dispatchedIds);
+        self::assertSame([(int) $import->getId()], $failedIds);
+    }
+
+    private function createPersistedImport(
+        ImportStatus $status,
+        int $rowCount = 0,
+        int $rowsPassed = 0,
+        int $rowsRejected = 0,
+    ): Import {
+        $owner = UserFactory::createOne(['username' => 'import-status-'.bin2hex(random_bytes(6))]);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'StatusEvt'.bin2hex(random_bytes(4)), 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Status Hospital '.bin2hex(random_bytes(4)),
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
+        $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
+
+        $import = new Import()
+            ->setName('Dispatch status IT')
+            ->setHospital($hospitalRef)
+            ->setCreatedBy($userRef)
+            ->setType(ImportType::ALLOCATION)
+            ->setStatus($status)
+            ->setFilePath('/tmp/unused.csv')
+            ->setFileExtension('csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize(0)
+            ->setRunCount(1)
+            ->setRunTime(10)
+            ->setRowCount($rowCount)
+            ->setRowsPassed($rowsPassed)
+            ->setRowsRejected($rowsRejected);
+
+        $this->em->persist($import);
+        $this->em->flush();
+
+        return $import;
     }
 
     public function testReimportWithAssessmentSucceedsAfterCleanup(): void
@@ -400,13 +465,17 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
      */
     private function arrangeSingleRowSuccessfulCsvImport(bool $withAssessment = false): array
     {
+        if ($withAssessment) {
+            return $this->arrangeAssessmentCsvImport();
+        }
+
         $suffix = bin2hex(random_bytes(5));
 
         $owner = UserFactory::createOne(['username' => 'import-csv-'.$suffix]);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'CsvDisp'.$suffix, 'state' => $state]);
         $hospital = HospitalFactory::createOne([
-            'name' => 'CsvHospital'.$suffix,
+            'name' => 'Testkrankenhaus Musterstadt',
             'state' => $state,
             'dispatchArea' => $dispatch,
         ]);
@@ -423,13 +492,15 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
         OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
 
+        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
+
         InfectionFactory::createOne(['name' => 'Noro']);
         InfectionFactory::createOne(['name' => 'V.a. COVID']);
 
         IndicationRawFactory::createOne([
-            'name' => 'Evt Indication '.$suffix,
-            'code' => 456,
-            'hash' => bin2hex(random_bytes(16)),
+            'name' => 'Test Indication',
+            'code' => 123,
+            'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4',
         ]);
 
         $header = [
@@ -441,17 +512,98 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
             'PZC und Text',
         ];
 
-        if ($withAssessment) {
-            $header = array_merge($header, ['Airway', 'Breathing', 'Circulation', 'Disability']);
-        }
+        $row = ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', '123741', 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', '123 Test Indication'];
 
-        $pzcCol = '456741';
-        $pzTextCol = '456 Evt Indication '.$suffix;
+        $rows = [$row];
 
-        $row = ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', $pzcCol, 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', $pzTextCol];
-        if ($withAssessment) {
-            $row = array_merge($row, ['A-Frei', 'B-Spontan', 'C-Stabil', 'D-Wach']);
+        $csvPath = sys_get_temp_dir().'/ivena-import-evt-'.bin2hex(random_bytes(8)).'.csv';
+        $fh = fopen($csvPath, 'wb');
+        self::assertNotFalse($fh);
+        $delimiter = ';';
+        $enclosure = '"';
+        $escape = '\\';
+        fputcsv($fh, $header, $delimiter, $enclosure, $escape);
+        foreach ($rows as $csvRow) {
+            fputcsv($fh, $csvRow, $delimiter, $enclosure, $escape);
         }
+        fclose($fh);
+
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
+        $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
+
+        $import = new Import()
+            ->setName('Handler invoke IT '.$suffix)
+            ->setHospital($hospitalRef)
+            ->setCreatedBy($userRef)
+            ->setType(ImportType::ALLOCATION)
+            ->setStatus(ImportStatus::PENDING)
+            ->setFilePath($csvPath)
+            ->setFileExtension('csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize((int) filesize($csvPath))
+            ->setRunCount(0)
+            ->setRunTime(0)
+            ->setRowCount(0);
+
+        $this->em->persist($import);
+        $this->em->flush();
+
+        return ['id' => (int) $import->getId(), 'csvPath' => $csvPath];
+    }
+
+    /**
+     * @return array{id: int, csvPath: string}
+     */
+    private function arrangeAssessmentCsvImport(): array
+    {
+        $suffix = bin2hex(random_bytes(5));
+
+        $owner = UserFactory::createOne(['username' => 'import-csv-'.$suffix]);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'CsvDisp'.$suffix, 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Testkrankenhaus Musterstadt',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+
+        AssignmentFactory::createOne(['name' => 'Patient']);
+        AssignmentFactory::createOne(['name' => 'RD']);
+        AssignmentFactory::createOne(['name' => 'ZLST']);
+
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        OccasionFactory::createOne(['name' => 'Häuslicher Einsatz']);
+        OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
+        OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+
+        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
+
+        InfectionFactory::createOne(['name' => 'Noro']);
+        InfectionFactory::createOne(['name' => 'V.a. COVID']);
+
+        IndicationRawFactory::createOne([
+            'name' => 'Test Indication',
+            'code' => 123,
+            'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4',
+        ]);
+
+        $header = [
+            'Versorgungsbereich', 'KHS-Versorgungsgebiet', 'Krankenhaus', 'Krankenhaus-Kurzname',
+            'Datum', 'Uhrzeit', 'Datum (Eintreffzeit)', 'Uhrzeit (Eintreffzeit)',
+            'Geschlecht', 'Alter', 'Schockraum', 'Herzkatheter', 'Reanimation', 'Beatmet',
+            'Schwanger', 'Arztbegleitet', 'Transportmittel', 'Datum (Erstellungsdatum)', 'Uhrzeit (Erstellungsdatum)',
+            'PZC', 'Fachgebiet', 'Fachbereich', 'Fachbereich war abgemeldet?', 'Anlass', 'Grund', 'Ansteckungsfähig',
+            'PZC und Text',
+            'Airway', 'Breathing', 'Circulation', 'Disability',
+        ];
+
+        $pzcCol = '123741';
+        $pzTextCol = '123 Test Indication';
+
+        $row = ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', $pzcCol, 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', $pzTextCol, 'A-Frei', 'B-Spontan', 'C-Stabil', 'D-Wach'];
 
         $rows = [$row];
 

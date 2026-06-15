@@ -112,6 +112,12 @@ services:
     App\User\Infrastructure\Security\FeedbackRecipientEmailResolver:
         alias: App\User\Infrastructure\Security\FeedbackRecipientResolver
 
+    App\User\Infrastructure\Security\NotificationRecipientEmailResolver:
+        alias: App\User\Infrastructure\Security\NotificationRecipientResolver
+
+    App\Shared\Application\Notification\AdminNotificationSenderInterface:
+        alias: App\Shared\Infrastructure\Mail\AdminNotificationSender
+
     App\Import\Infrastructure\Adapter\SplCsvRejectWriter:
         arguments:
             $rejectsBaseDir: '%app.rejects_base_dir%'

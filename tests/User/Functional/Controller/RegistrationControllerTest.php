@@ -9,7 +9,10 @@ use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Mime\Email;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Test\Factories;
@@ -20,7 +23,65 @@ final class RegistrationControllerTest extends WebTestCase
     use CookieConsentTestHelper;
     use Factories;
     use HasBrowser;
+    use MailerAssertionsTrait;
     use ResetDatabase;
+
+    public function testRegistrationSendsAdminNotificationToNotificationRecipients(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $recipientEmail = sprintf('admin-notify-%s@example.test', $suffix);
+        UserFactory::new()
+            ->asNotificationRecipient()
+            ->create([
+                'username' => sprintf('admin-notify-%s', $suffix),
+                'email' => $recipientEmail,
+            ]);
+
+        $username = sprintf('register-admin-mail-%s', $suffix);
+        $email = sprintf('register-admin-mail-%s@example.test', $suffix);
+
+        $previousFollowRedirects = $_SERVER['BROWSER_FOLLOW_REDIRECTS'] ?? null;
+        $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = '0';
+
+        try {
+            $this->browser()
+                ->disableReboot()
+                ->visit('/register')
+                ->fillField('Username', $username)
+                ->fillField('Email', $email)
+                ->fillField('Plain password', 'super-secret-password')
+                ->checkField('registration_form[acceptTerms]')
+                ->click('Register')
+                ->assertStatus(302)
+            ;
+        } finally {
+            if (null === $previousFollowRedirects) {
+                unset($_SERVER['BROWSER_FOLLOW_REDIRECTS']);
+            } else {
+                $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = $previousFollowRedirects;
+            }
+        }
+
+        self::assertQueuedEmailCount(2);
+
+        $adminNotification = null;
+        foreach (self::getMailerMessages() as $message) {
+            if (!$message instanceof Email) {
+                continue;
+            }
+
+            if (!str_contains((string) $message->getSubject(), 'New user registration')) {
+                continue;
+            }
+
+            self::assertEmailAddressContains($message, 'to', $recipientEmail);
+            $adminNotification = $message;
+            break;
+        }
+
+        self::assertInstanceOf(TemplatedEmail::class, $adminNotification);
+        self::assertEmailSubjectContains($adminNotification, 'New user registration');
+    }
 
     public function testUserCanRegisterButIsNotAutoLoggedInWithoutConsentDecision(): void
     {

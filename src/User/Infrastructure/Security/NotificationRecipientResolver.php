@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security;
 
+use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Repository\UserRepository;
 
 /** @psalm-suppress UnusedClass */
-final readonly class FeedbackRecipientResolver implements FeedbackRecipientEmailResolver
+final readonly class NotificationRecipientResolver implements NotificationRecipientEmailResolver
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
@@ -24,11 +25,21 @@ final readonly class FeedbackRecipientResolver implements FeedbackRecipientEmail
     {
         $candidates = $this->userRepository->findEnabledVerifiedUsersWithRoles([
             UserRole::ADMIN,
-            UserRole::FEEDBACK_RECIPIENT,
+            UserRole::RECEIVES_NOTIFICATION,
         ]);
 
+        return $this->extractUniqueEmails($candidates);
+    }
+
+    /**
+     * @param list<User> $users
+     *
+     * @return list<string>
+     */
+    private function extractUniqueEmails(array $users): array
+    {
         $emails = [];
-        foreach ($candidates as $user) {
+        foreach ($users as $user) {
             $email = $user->getEmail();
             if (null === $email || '' === trim($email)) {
                 continue;
