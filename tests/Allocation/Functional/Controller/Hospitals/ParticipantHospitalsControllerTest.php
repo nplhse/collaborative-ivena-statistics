@@ -104,6 +104,31 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testAdminCanEditForeignHospital(): void
+    {
+        $client = self::createClient();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $createdBy = UserFactory::createOne();
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne();
+
+        $hospital = HospitalFactory::createOne([
+            'owner' => $owner,
+            'createdBy' => $createdBy,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        $client->loginUser($admin->_real());
+        $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit');
+        self::assertResponseIsSuccessful();
+
+        $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/address');
+        self::assertResponseIsSuccessful();
+    }
+
     public function testOwnerParticipantCanEditHospitalGeneralData(): void
     {
         $client = self::createClient();
@@ -126,6 +151,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         $client->loginUser($owner->_real());
         $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit');
         self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Manage access', (string) $client->getResponse()->getContent());
 
         $form = $crawler->selectButton('Save changes')->form([
             'hospital_participant_edit[name]' => 'Hospital After Edit',
