@@ -7,8 +7,8 @@ namespace App\Statistics\Application;
 final class ChartBucketMapper
 {
     /**
-     * @param list<string>      $bucketKeys
-     * @param array<string,int> $bucketedCounts
+     * @param list<string>          $bucketKeys
+     * @param array<int|string,int> $bucketedCounts
      *
      * @return list<int>
      */
@@ -42,13 +42,13 @@ final class ChartBucketMapper
     /**
      * @param array<int, array{year: int, count: int}> $rows
      *
-     * @return array<string,int>
+     * @return array<int,int>
      */
     public function yearRowsToBucketCounts(array $rows): array
     {
         $counts = [];
         foreach ($rows as $row) {
-            $counts[(string) $row['year']] = $row['count'];
+            $counts[$row['year']] = $row['count'];
         }
 
         return $counts;

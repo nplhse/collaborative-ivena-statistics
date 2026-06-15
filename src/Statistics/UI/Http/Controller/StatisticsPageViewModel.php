@@ -10,7 +10,7 @@ final readonly class StatisticsPageViewModel
 {
     /**
      * @param array<string, string>                                              $scopeUrls
-     * @param array<string, string>                                              $hospitalUrls
+     * @param array<int, string>                                                 $hospitalUrls
      * @param list<array{key: string, label: string, url: string, active: bool}> $cohortScopeChoices
      * @param array<string, string>                                              $periodUrls
      * @param list<array{id: int, name: string}>                                 $accessibleHospitals

@@ -38,11 +38,14 @@ return [
     '@symfony/stimulus-bundle' => [
         'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
     ],
+    '@symfony/ux-live-component' => [
+        'path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js',
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],
     '@hotwired/turbo' => [
-        'version' => '8.0.18',
+        'version' => '8.0.23',
     ],
     '@tabler/core' => [
         'version' => '1.4.0',
@@ -52,13 +55,10 @@ return [
         'type' => 'css',
     ],
     'debounce' => [
-        'version' => '2.2.0',
+        'version' => '3.0.0',
     ],
     'apexcharts' => [
-        'version' => '5.3.6',
-    ],
-    '@symfony/ux-live-component' => [
-        'path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js',
+        'version' => '5.15.0',
     ],
     'fslightbox' => [
         'version' => '3.7.5',
@@ -74,6 +74,10 @@ return [
         'version' => '2.3.1',
     ],
     'string-natural-compare' => [
-        'version' => '2.0.3',
+        'version' => '3.0.1',
+    ],
+    'leaflet/dist/leaflet.min.css' => [
+        'version' => '1.9.4',
+        'type' => 'css',
     ],
 ];
