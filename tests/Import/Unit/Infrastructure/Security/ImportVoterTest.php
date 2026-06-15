@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Import\Unit\Infrastructure\Security;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
@@ -127,6 +130,44 @@ final class ImportVoterTest extends KernelTestCase
         self::assertSame(
             Voter::ACCESS_DENIED,
             $this->voter->vote($this->createToken($intruder->_real()), $import->_real(), [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testViewGrantedForUserWithImportGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $import->getHospital(),
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::Import]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($grantee->_real()), $import->_real(), [ImportVoter::VIEW]),
+        );
+    }
+
+    public function testViewDeniedForUserWithOnlyViewGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $import->getHospital(),
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($grantee->_real()), $import->_real(), [ImportVoter::VIEW]),
         );
     }
 

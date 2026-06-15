@@ -7,6 +7,7 @@ namespace App\Import\Infrastructure\Security\Voter;
 use App\Import\Application\Service\ImportListAccess;
 use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -45,8 +46,9 @@ final class ImportVoter extends Voter
             return false;
         }
 
+        $hospitalId = $subject->getHospital()?->getId();
+
         if (self::VIEW === $attribute) {
-            $hospitalId = $subject->getHospital()?->getId();
             if (null === $hospitalId) {
                 return false;
             }
@@ -54,11 +56,10 @@ final class ImportVoter extends Voter
             return $this->importListAccess->canAccessImportHospital($user, $hospitalId);
         }
 
-        if (\in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+        if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
             return true;
         }
 
-        $hospitalId = $subject->getHospital()?->getId();
         if (null !== $hospitalId && $this->importListAccess->canAccessImportHospital($user, $hospitalId)) {
             return true;
         }

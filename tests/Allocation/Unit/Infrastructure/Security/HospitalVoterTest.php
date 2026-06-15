@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Unit\Infrastructure\Security;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
@@ -77,13 +80,13 @@ final class HospitalVoterTest extends KernelTestCase
         );
     }
 
-    public function testEditDeniedForNonOwnerEvenWhenAdmin(): void
+    public function testEditGrantedForAdmin(): void
     {
         [, $hospital] = $this->createOwnedHospital();
         $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
 
         self::assertSame(
-            Voter::ACCESS_DENIED,
+            Voter::ACCESS_GRANTED,
             $this->voter->vote($this->createToken($admin->_real()), $hospital->_real(), [HospitalVoter::EDIT]),
         );
     }
@@ -109,6 +112,57 @@ final class HospitalVoterTest extends KernelTestCase
         self::assertSame(
             Voter::ACCESS_DENIED,
             $this->voter->vote($this->createToken($owner->_real()), $hospital, [HospitalVoter::ACCESS]),
+        );
+    }
+
+    public function testManageAccessGrantsGrantedForOwner(): void
+    {
+        [$owner, $hospital] = $this->createOwnedHospital();
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner), $hospital->_real(), [HospitalVoter::MANAGE_ACCESS_GRANTS]),
+        );
+    }
+
+    public function testManageAccessGrantsDeniedForNonOwner(): void
+    {
+        [, $hospital] = $this->createOwnedHospital();
+        $intruder = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($intruder->_real()), $hospital->_real(), [HospitalVoter::MANAGE_ACCESS_GRANTS]),
+        );
+    }
+
+    public function testManageAccessGrantsGrantedForAdmin(): void
+    {
+        [, $hospital] = $this->createOwnedHospital();
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($admin->_real()), $hospital->_real(), [HospitalVoter::MANAGE_ACCESS_GRANTS]),
+        );
+    }
+
+    public function testAccessGrantedForUserWithViewGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospital = $this->createHospitalForOwner($owner);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($grantee->_real()), $hospital->_real(), [HospitalVoter::ACCESS]),
         );
     }
 
