@@ -1,0 +1,126 @@
+version: 1
+schema: distribution-pattern/v1
+segment:
+  hospital_tier: Full
+  hospital_location: Urban
+meta:
+  sample_size: 5004
+  exported_at: '2026-06-16T11:32:33+02:00'
+  source: anonymized_aggregate
+distributions:
+  urgency:
+    2: 0.3449240607514
+    3: 0.33373301358913
+    1: 0.32134292565947
+  gender:
+    F: 0.33533173461231
+    M: 0.33333333333333
+    X: 0.33133493205436
+  transport_type:
+    A: 0.51258992805755
+    G: 0.48741007194245
+  department:
+    Herzchirurgie: 0.15667466027178
+    Verbrennungschirurgie: 0.088529176658673
+    'Transport zu definierter Leistung': 0.087529976019185
+    Strahlentherapie: 0.086930455635492
+    'Neurologie Intensiv ohne Beatmung': 0.086330935251799
+    Wirbelsäulenchirurgie: 0.084932054356515
+    'Orthopädie - Isolierung': 0.083932853717026
+    'Hals-Nasen-Ohrenheilkunde - Isolierung': 0.083533173461231
+    'Neurochirurgie Intensiv ohne Beatmung': 0.081334932054357
+    'Allgemeine Urologie - Isolierung': 0.080335731414868
+    'Psychiatrie HFEG': 0.079936051159073
+  speciality:
+    'Sonderlage Ukraine': 0.088729016786571
+    'Zentrale Notaufnahme': 0.087529976019185
+    Herzchirurgie: 0.085731414868106
+    Nuklearmedizin/Hämatologie/Onkologie: 0.08533173461231
+    Hals-Nasen-Ohrenheilkunde: 0.083733013589129
+    Diagnostik/Geräte: 0.083533173461231
+    'Frauenheilkunde u. Geburtshilfe': 0.082533972821743
+    Chirurgie: 0.082134292565947
+    Interdisziplinär: 0.081734612310152
+    'Kinder- und Jugendmedizin': 0.081734612310152
+    Strahlentherapie: 0.081135091926459
+    'Innere Medizin': 0.076139088729017
+  assignment:
+    Patient: 0.49780175859313
+    Arzt/Arzt: 0.16866506794564
+    Einweisung: 0.084932054356515
+    Notzuweisung: 0.084932054356515
+    ZLST: 0.082334132693845
+    RD: 0.081334932054357
+  occasion:
+    _present: 1
+    'Sturz < 3m Höhe': 0.25059952038369
+    Sportunfall: 0.17885691446843
+    'Sturz > 3m Höhe': 0.16187050359712
+    Stichverletzung: 0.084732214228617
+    'Öffentlicher Raum': 0.082533972821743
+    Diagnostik: 0.081734612310152
+    OP: 0.080535571542766
+    Sekundärverlegung: 0.079136690647482
+  infection:
+    _present: 0.078936850519584
+    HKLE: 1
+  indication_normalized:
+    _present: 0.91666666666667
+    'ab 37+0 SSW': 0.096359276215391
+    Gesichtsverletzung: 0.095487246566383
+    'Gynäkologischer Notfall, sonstiger': 0.095487246566383
+    'vvECMO Abholung': 0.091999127970351
+    'Drillinge bis 32+6, alle über 3 Mehrlinge': 0.091127098321343
+    'Chirurgie Zu-Verlegung Intensiv ohne Arzt': 0.091127098321343
+    '32+0 SSW bis 36+6 SSW + jede Wachstumsstörung': 0.089819053847831
+    'eCPR Abholung': 0.089165031611075
+    'Geriatrische Einweisung': 0.087638979725311
+    'Infektionskrankheit – (nicht bestätigt)': 0.085894920427295
+    'NSTEMI, instabile AP': 0.085894920427295
+  secondary_transport:
+    _present: 0
+  age_bucket:
+    65-99: 0.35491606714628
+    40-64: 0.25239808153477
+    18-39: 0.22262190247802
+    0-17: 0.17006394884093
+  hour_of_day:
+    10: 0.052957633892886
+    22: 0.050359712230216
+    5: 0.048561151079137
+    0: 0.047961630695444
+    19: 0.047162270183853
+    6: 0.04656274980016
+    17: 0.045963229416467
+    11: 0.045363709032774
+    3: 0.044564348521183
+    7: 0.042366107114309
+    8: 0.042166266986411
+    1: 0.041966426858513
+    9: 0.040767386091127
+    13: 0.040167865707434
+    23: 0.040167865707434
+    14: 0.038569144684253
+    4: 0.038169464428457
+    15: 0.037370103916867
+    12: 0.037170263788969
+    21: 0.036970423661071
+    16: 0.03617106314948
+    18: 0.035771382893685
+    20: 0.033573141486811
+    2: 0.029176658673062
+  flags:
+    requires_resus: 0.050159872102318
+    requires_cathlab: 0.0075939248601119
+    is_cpr: 0.50259792166267
+    is_ventilated: 0.49580335731415
+    is_shock: 0.50199840127898
+    is_pregnant: 0.4910071942446
+    is_work_accident: 0.08273381294964
+    is_with_physician: 0.12210231814548
+    department_was_closed: 0.51498800959233
+  transport_time_minutes:
+    p25: 64.0
+    p50: 94.0
+    p75: 111.0
+    p90: 121.0

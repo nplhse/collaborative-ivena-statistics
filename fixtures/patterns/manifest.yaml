@@ -1,0 +1,17 @@
+version: 1
+patterns:
+  urban-full:
+    file: urban-full.yaml
+    segment:
+      hospital_tier: Full
+      hospital_location: Urban
+  urban-basic:
+    file: urban-basic.yaml
+    segment:
+      hospital_tier: Basic
+      hospital_location: Urban
+  rural-basic:
+    file: rural-basic.yaml
+    segment:
+      hospital_tier: Basic
+      hospital_location: Rural
