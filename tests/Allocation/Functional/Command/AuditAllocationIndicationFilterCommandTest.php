@@ -9,13 +9,13 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class AuditAllocationIndicationFilterCommandTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testJsonOptionReturnsProblematicRowsAsJson(): void
     {

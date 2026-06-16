@@ -16,21 +16,21 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
-use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
 use App\User\Domain\Factory\UserFactory;
-use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 class ReportsControllerTest extends WebTestCase
 {
     use InteractsWithAuthenticatedUser;
+    use RefreshesStatisticsFunctionalDataTrait;
 
     use Factories;
-    use ResetDatabase;
 
     public function testReportsPageIsDisplayedWithTable(): void
     {
@@ -54,7 +54,7 @@ class ReportsControllerTest extends WebTestCase
             'indicationRaw' => $raw,
             'indicationNormalized' => $normalized,
         ]);
-        $this->rebuildProjection([(int) $import->getId()]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
 
         $client->request(
             Request::METHOD_GET,
@@ -69,19 +69,6 @@ class ReportsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Indication');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Count');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Share');
-    }
-
-    /**
-     * @param list<int> $importIds
-     */
-    private function rebuildProjection(array $importIds): void
-    {
-        $container = static::getContainer();
-        $container->get(Connection::class)->executeStatement('TRUNCATE TABLE allocation_stats_projection');
-        $rebuilder = $container->get(AllocationStatsProjectionRebuildInterface::class);
-        foreach ($importIds as $importId) {
-            $rebuilder->rebuildForImport($importId);
-        }
     }
 
     public function testTopDepartmentsReportIsDisplayedWithTable(): void
@@ -107,7 +94,7 @@ class ReportsControllerTest extends WebTestCase
             'indicationRaw' => $raw,
             'indicationNormalized' => $normalized,
         ]);
-        $this->rebuildProjection([(int) $import->getId()]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
 
         $client->request(
             Request::METHOD_GET,
@@ -153,7 +140,7 @@ class ReportsControllerTest extends WebTestCase
             'indicationNormalized' => $normalized,
             'secondaryIndicationNormalized' => $secondaryNormalized,
         ]);
-        $this->rebuildProjection([(int) $import->getId()]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
 
         $client->request(
             Request::METHOD_GET,

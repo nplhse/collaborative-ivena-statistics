@@ -10,14 +10,14 @@ use App\User\Infrastructure\Repository\ResetPasswordRequestRepository;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ResetPasswordControllerTest extends WebTestCase
 {
     use Factories;
     use HasBrowser;
-    use ResetDatabase;
 
     public function testResetRequestIsBlockedForUnverifiedEmail(): void
     {

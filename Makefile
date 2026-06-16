@@ -141,14 +141,20 @@ rector: ## Run Rector
 	@$(RECTOR)
 
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
-test: ## Run tests
-	@$(PHPUNIT) --stop-on-failure -d memory_limit=-1 --no-coverage
+SUITE ?= all
+PATH_ARG ?=
+GROUP ?=
+EXCLUDE_GROUP ?=
+ARGS ?=
 
-testdox: ## Run tests with testdox
-	@$(PHPUNIT) --testdox -d memory_limit=-1 --no-coverage
+test: ## Run tests (SUITE=all|unit|integration|functional|functional-http|browser|fixtures|system|materialized-view, PATH_ARG=tests/…, GROUP=, EXCLUDE_GROUP=, ARGS=)
+	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --stop-on-failure --no-coverage $(ARGS)
 
-coverage: ## Run tests with Coverage reports
-	@XDEBUG_MODE=coverage $(PHPUNIT) -d memory_limit=-1
+testdox: ## Run tests with testdox (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
+	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --testdox --no-coverage $(ARGS)
+
+coverage: ## Run tests with coverage (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
+	@XDEBUG_MODE=coverage SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests $(ARGS)
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs

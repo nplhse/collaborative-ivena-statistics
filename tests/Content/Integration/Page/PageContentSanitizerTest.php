@@ -9,10 +9,13 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class PageContentSanitizerTest extends KernelTestCase
 {
-    public function testSanitizerKeepsTrixStyleMarkupAllowedByConfig(): void
+    protected function setUp(): void
     {
         self::bootKernel();
+    }
 
+    public function testSanitizerKeepsTrixStyleMarkupAllowedByConfig(): void
+    {
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $raw = <<<'HTML'
@@ -31,8 +34,6 @@ HTML;
 
     public function testSanitizerPreservesDivBlocksUsedByTrix(): void
     {
-        self::bootKernel();
-
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $raw = '<div>Zeile mit <strong>Fett</strong></div>';
@@ -46,8 +47,6 @@ HTML;
 
     public function testSanitizerKeepsImageTagsFromMediaSnippets(): void
     {
-        self::bootKernel();
-
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $raw = '<p>Text</p><img src="/uploads/media/sample.png" alt="Sample">';
@@ -62,8 +61,6 @@ HTML;
 
     public function testSanitizerKeepsLightboxWrappedImageTagsFromMediaSnippets(): void
     {
-        self::bootKernel();
-
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $raw = '<p>Text</p><a href="/uploads/media/sample.png" data-fslightbox="content-gallery"><img src="/uploads/media/sample.png" alt="Sample"></a>';
@@ -79,8 +76,6 @@ HTML;
 
     public function testSanitizerSanitizesHighlightHtml(): void
     {
-        self::bootKernel();
-
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $raw = '<p>Notice</p><script>alert(1)</script>';
@@ -94,8 +89,6 @@ HTML;
 
     public function testSanitizerSanitizesAccordionItemHtml(): void
     {
-        self::bootKernel();
-
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $raw = '<p>Answer</p><script>alert(1)</script>';
@@ -119,8 +112,6 @@ HTML;
 
     public function testSanitizerSkipsInvalidAccordionItems(): void
     {
-        self::bootKernel();
-
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $out = $sut->sanitize([
@@ -141,8 +132,6 @@ HTML;
 
     public function testSanitizerPassesThroughNonHtmlBlocks(): void
     {
-        self::bootKernel();
-
         $sut = self::getContainer()->get(PageContentSanitizer::class);
 
         $block = [

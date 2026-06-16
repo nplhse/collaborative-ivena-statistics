@@ -7,17 +7,14 @@ namespace App\Tests\Install\Functional\Command;
 use App\Install\UI\Console\Command\InstallCommand;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Repository\UserRepository;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
-#[CoversClass(InstallCommand::class)]
+#[ResetDatabase]
 final class InstallCommandTest extends KernelTestCase
 {
-    use ResetDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();

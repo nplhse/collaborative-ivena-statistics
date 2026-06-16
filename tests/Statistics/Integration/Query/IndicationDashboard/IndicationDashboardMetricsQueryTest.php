@@ -30,13 +30,13 @@ use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardMetricsQuery;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class IndicationDashboardMetricsQueryTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testCountsIndicationAndBaselineWithDayTimeBucket(): void
     {

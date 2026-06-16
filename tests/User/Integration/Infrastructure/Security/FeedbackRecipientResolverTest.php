@@ -8,13 +8,13 @@ use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Security\FeedbackRecipientResolver;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class FeedbackRecipientResolverTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testResolvesEnabledVerifiedAdminWithFeedbackRole(): void
     {

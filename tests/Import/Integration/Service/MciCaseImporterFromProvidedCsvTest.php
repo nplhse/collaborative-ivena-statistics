@@ -28,12 +28,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Filesystem\Filesystem;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
+#[ResetDatabase]
 final class MciCaseImporterFromProvidedCsvTest extends KernelTestCase
 {
-    use ResetDatabase;
-
     private string $fixtureFile = 'mci_case_import_sample.csv';
     private string $rejectDir = 'var/tests/rejects';
 

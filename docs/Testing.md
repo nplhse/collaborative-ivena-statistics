@@ -10,10 +10,29 @@
 ## Run locally
 
 ```bash
-make test
-make testdox
-make coverage
+make test                              # full suite
+make test SUITE=unit                   # unit layer only
+make test SUITE=functional-http        # functional without Zenstruck browser
+make test SUITE=browser                # browser tests (starts webserver)
+make test PATH_ARG=tests/Statistics    # single bounded context
+make test ARGS="--filter FooTest"      # passthrough to PHPUnit
+make testdox SUITE=unit
+make coverage SUITE=integration
 ```
+
+After a test run, slowest tests from the PHPUnit duration cache:
+
+```bash
+php bin/report-slowest-tests 10
+```
+
+## Test suites
+
+PHPUnit suites are defined in `phpunit.dist.xml`: `all`, `unit`, `integration`, `functional`, `fixtures`, `system`.
+
+Cross-cutting groups: `browser` (Zenstruck browser tests), `materialized-view` (statistics MV tests).
+
+`BROWSER_ALWAYS_START_WEBSERVER=1` is set only when running browser tests (`make test SUITE=browser` or `GROUP=browser`), not globally.
 
 ## Static analysis and linting
 
@@ -31,12 +50,15 @@ make psalm
 
 ## CI reference
 
-- Tests: `.github/workflows/tests.yml`
+- **Unit job** (parallel, no database): `vendor/bin/paratest --testsuite unit` — stops on first failure
+- **Database job** (parallel, PostgreSQL, migrations): `bin/phpunit --testsuite all --exclude-testsuite unit` — stops on first failure; either job failing fails the workflow
+- Workflows: `.github/workflows/tests.yml`
 - Linting: `.github/workflows/lint.yml`
 - Security scan: `.github/workflows/security.yml`
 
 ## Common pitfalls
 
+- Tests using `#[ResetDatabase]` or `DatabaseKernelTestCase` belong under `tests/*/Integration/` (or higher layers), not `tests/*/Unit/`: the CI unit job runs ParaTest without PostgreSQL.
 - Missing test database or wrong `DATABASE_URL`
 - Materialized views not refreshed in statistics-related tests
 - Missing `fixtures.scale` in test env (see `config/packages/test/fixtures.yaml`)

@@ -15,13 +15,13 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class HospitalRepositoryQueryTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
     private HospitalRepository $repo;
 
     #[\Override]

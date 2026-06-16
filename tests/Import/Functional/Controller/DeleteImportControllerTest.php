@@ -15,58 +15,60 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class DeleteImportControllerTest extends WebTestCase
 {
     use Factories;
-    use HasBrowser;
-    use ResetDatabase;
 
     public function testHospitalOwnerCanDeleteImportViaModal(): void
     {
+        $client = self::createClient();
         [$owner, $importId] = $this->createImportForOwner();
 
-        $this->browser()
-            ->actingAs($owner)
-            ->interceptRedirects()
-            ->visit('/import/'.$importId)
-            ->assertSuccessful()
-            ->click('Delete permanently')
-            ->assertRedirectedTo('/import');
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/'.$importId);
+        self::assertResponseIsSuccessful();
+
+        $client->submit($crawler->filter('#import-delete-modal form')->form());
+        self::assertResponseRedirects('/import');
 
         self::assertNull(self::getContainer()->get(ImportRepository::class)->find($importId));
     }
 
     public function testForeignParticipantCannotDeleteImport(): void
     {
+        $client = self::createClient();
         [, $importId] = $this->createImportForOwner();
+
         $intruder = UserFactory::createOne([
             'username' => 'delete-intruder-'.bin2hex(random_bytes(4)),
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
         ]);
 
-        $browser = $this->browser()->actingAs($intruder);
-        $browser->client()->request(
+        $client->loginUser($intruder->_real());
+        $client->request(
             Request::METHOD_POST,
             '/import/'.$importId.'/delete',
             ['_token' => 'unused-token'],
         );
 
-        $browser->assertStatus(403);
-
+        self::assertResponseStatusCodeSame(403);
         self::assertNotNull(self::getContainer()->get(ImportRepository::class)->find($importId));
     }
 
     public function testDeleteRequiresValidCsrfToken(): void
     {
+        $client = self::createClient();
         [$owner, $importId] = $this->createImportForOwner();
 
-        $browser = $this->browser()->actingAs($owner);
-        $browser->visit('/import/'.$importId)->assertSuccessful();
-        $browser->client()->request(
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/import/'.$importId);
+        self::assertResponseIsSuccessful();
+
+        $client->request(
             Request::METHOD_POST,
             '/import/'.$importId.'/delete',
             ['_token' => 'invalid-token'],
@@ -77,27 +79,28 @@ final class DeleteImportControllerTest extends WebTestCase
 
     public function testRunningImportShowsDisabledDeleteButton(): void
     {
+        $client = self::createClient();
         [$owner, $importId] = $this->createImportForOwner(ImportStatus::RUNNING);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import/'.$importId)
-            ->assertSuccessful()
-            ->assertSeeElement('button.btn-outline-danger[disabled]');
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/import/'.$importId);
 
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('button.btn-outline-danger[disabled]');
         self::assertNotNull(self::getContainer()->get(ImportRepository::class)->find($importId));
     }
 
     public function testShowPageDisplaysDeleteButtonForOwner(): void
     {
+        $client = self::createClient();
         [$owner, $importId] = $this->createImportForOwner();
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import/'.$importId)
-            ->assertSuccessful()
-            ->assertSeeElement('#import-delete-modal')
-            ->assertSee('Delete import');
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/import/'.$importId);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import-delete-modal');
+        self::assertSelectorTextContains('body', 'Delete import');
     }
 
     /**

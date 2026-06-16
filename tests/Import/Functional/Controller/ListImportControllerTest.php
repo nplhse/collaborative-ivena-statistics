@@ -13,138 +13,122 @@ use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
-use Zenstruck\Browser\Test\HasBrowser;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ListImportControllerTest extends WebTestCase
 {
-    use HasBrowser;
     use Factories;
-    use ResetDatabase;
 
     public function testTableWithResultsIsShown(): void
     {
+        $client = self::createClient();
         [$owner] = $this->seedImportsWithFactory(10);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import')
-            ->assertSuccessful()
-            ->assertSeeElement('table.table thead')
-            ->assertSeeElement('table.table tbody')
-            ->use(function (Crawler $crawler): void {
-                $rows = $crawler->filter('table.table tbody tr');
-                self::assertCount(10, $rows, 'We should see 10 rows of results.');
+        $crawler = $this->requestAsUser($client, $owner, '/import');
 
-                $firstTds = $rows->eq(0)->filter('td');
-                self::assertGreaterThanOrEqual(6, $firstTds->count());
-                $nameText = \trim($firstTds->eq(1)->text(''));
-                self::assertNotEmpty($nameText);
-            })
-            ->assertSeeElement('#result-count')
-            ->use(function (Crawler $crawler): void {
-                $txt = \preg_replace('/\s+/', ' ', $crawler->filter('#result-count')->text(''));
-                self::assertStringContainsString('1', $txt);
-                self::assertStringContainsString('10', $txt);
-            });
+        self::assertGreaterThan(0, $crawler->filter('table.table thead')->count());
+        self::assertGreaterThan(0, $crawler->filter('table.table tbody')->count());
+
+        $rows = $crawler->filter('table.table tbody tr');
+        self::assertCount(10, $rows, 'We should see 10 rows of results.');
+
+        $firstTds = $rows->eq(0)->filter('td');
+        self::assertGreaterThanOrEqual(6, $firstTds->count());
+        $nameText = \trim($firstTds->eq(1)->text(''));
+        self::assertNotEmpty($nameText);
+
+        self::assertGreaterThan(0, $crawler->filter('#result-count')->count());
+        $txt = \preg_replace('/\s+/', ' ', $crawler->filter('#result-count')->text(''));
+        self::assertStringContainsString('1', $txt);
+        self::assertStringContainsString('10', $txt);
     }
 
     public function testTableCanBeSortedByNameDesc(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         $this->createImportForList('ACME Hospital Import', $hospital, $createdBy, ['filePath' => '/tmp/acme.csv']);
         $this->createImportForList('XYZ Hospital Import', $hospital, $createdBy, ['filePath' => '/tmp/xyz.csv']);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import?sortBy=name&orderBy=desc')
-            ->assertSuccessful()
-            ->use(function (Crawler $crawler): void {
-                $rows = $crawler->filter('table.table tbody tr');
-                self::assertGreaterThanOrEqual(2, $rows->count());
-                $firstName = \trim($rows->eq(0)->filter('td')->eq(1)->text(''));
-                self::assertSame('XYZ Hospital Import', $firstName);
-            });
+        $crawler = $this->requestAsUser($client, $owner, '/import?sortBy=name&orderBy=desc');
+
+        $rows = $crawler->filter('table.table tbody tr');
+        self::assertGreaterThanOrEqual(2, $rows->count());
+        $firstName = \trim($rows->eq(0)->filter('td')->eq(1)->text(''));
+        self::assertSame('XYZ Hospital Import', $firstName);
     }
 
     public function testTableCanBePaginated(): void
     {
+        $client = self::createClient();
         [$owner] = $this->seedImportsWithFactory(35);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import?page=2')
-            ->assertSuccessful()
-            ->use(function (Crawler $crawler): void {
-                $rows = $crawler->filter('table.table tbody tr');
-                self::assertCount(10, $rows, 'We should see 10 rows of results.');
+        $crawler = $this->requestAsUser($client, $owner, '/import?page=2');
 
-                $txt = \preg_replace('/\s+/', ' ', $crawler->filter('#result-count')->text(''));
-                self::assertStringContainsString('26', $txt);
-                self::assertStringContainsString('35', $txt);
-            });
+        $rows = $crawler->filter('table.table tbody tr');
+        self::assertCount(10, $rows, 'We should see 10 rows of results.');
+
+        $txt = \preg_replace('/\s+/', ' ', $crawler->filter('#result-count')->text(''));
+        self::assertStringContainsString('26', $txt);
+        self::assertStringContainsString('35', $txt);
     }
 
     public function testEmptyFilterQueryParamsAreAccepted(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         $this->createImportForList('Filtered Import', $hospital, $createdBy, ['filePath' => '/tmp/filtered.csv']);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit(\sprintf(
-                '/import?hospitalId=%d&ownerId=&status=&createdFrom=&createdUntil=',
-                $hospital->getId(),
-            ))
-            ->assertSuccessful()
-            ->assertSee('Filtered Import')
-            ->assertSeeElement('.alert-info .badge');
+        $crawler = $this->requestAsUser($client, $owner, \sprintf(
+            '/import?hospitalId=%d&ownerId=&status=&createdFrom=&createdUntil=',
+            $hospital->getId(),
+        ));
+
+        self::assertStringContainsString('Filtered Import', $crawler->text());
+        self::assertGreaterThan(0, $crawler->filter('.alert-info .badge')->count());
     }
 
     public function testDefaultDateFiltersAreApplied(): void
     {
+        $client = self::createClient();
         [$owner] = $this->seedImportsWithFactory(1);
 
-        $crawler = $this->browser()
-            ->actingAs($owner)
-            ->visit('/import')
-            ->assertSuccessful()
-            ->use(function (Crawler $crawler): void {
-                self::assertSame(
-                    ListImportQueryParametersDTO::DEFAULT_CREATED_FROM,
-                    $crawler->filter('#import-filter-created-from')->attr('value'),
-                );
-                self::assertSame(
-                    new \DateTimeImmutable('today')->format('Y-m-d'),
-                    $crawler->filter('#import-filter-created-until')->attr('value'),
-                );
-            })
-            ->crawler();
+        $crawler = $this->requestAsUser($client, $owner, '/import');
 
-        self::assertNotNull($crawler);
+        self::assertSame(
+            ListImportQueryParametersDTO::DEFAULT_CREATED_FROM,
+            $crawler->filter('#import-filter-created-from')->attr('value'),
+        );
+        self::assertSame(
+            new \DateTimeImmutable('today')->format('Y-m-d'),
+            $crawler->filter('#import-filter-created-until')->attr('value'),
+        );
     }
 
     public function testActiveFilterBadgesShowHospitalName(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         $this->createImportForList('Hospital Filtered Import', $hospital, $createdBy, ['filePath' => '/tmp/hospital-filtered.csv']);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit(\sprintf('/import?hospitalId=%d', $hospital->getId()))
-            ->assertSuccessful()
-            ->assertSee('Active filters')
-            ->assertSee('St. Test Hospital');
+        $crawler = $this->requestAsUser($client, $owner, \sprintf('/import?hospitalId=%d', $hospital->getId()));
+
+        self::assertStringContainsString('Active filters', $crawler->text());
+        self::assertStringContainsString('St. Test Hospital', $crawler->text());
     }
 
     public function testParticipantDoesNotSeeForeignHospitalImports(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
         $other = UserFactory::createOne([
             'username' => 'other-'.bin2hex(random_bytes(3)),
@@ -161,16 +145,15 @@ final class ListImportControllerTest extends WebTestCase
         $this->createImportForList('Visible Import', $hospital, $createdBy, ['filePath' => '/tmp/visible.csv']);
         $this->createImportForList('Secret Foreign Import', $foreignHospital, $createdBy, ['filePath' => '/tmp/secret.csv']);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import')
-            ->assertSuccessful()
-            ->assertSee('Visible Import')
-            ->assertNotSee('Secret Foreign Import');
+        $crawler = $this->requestAsUser($client, $owner, '/import');
+
+        self::assertStringContainsString('Visible Import', $crawler->text());
+        self::assertStringNotContainsString('Secret Foreign Import', $crawler->text());
     }
 
     public function testAdminSeesImportsFromAllOwners(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
         $other = UserFactory::createOne([
             'username' => 'other-'.bin2hex(random_bytes(3)),
@@ -192,16 +175,15 @@ final class ListImportControllerTest extends WebTestCase
             'username' => 'admin-'.bin2hex(random_bytes(4)),
         ]);
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/import')
-            ->assertSuccessful()
-            ->assertSee('Own Import')
-            ->assertSee('Foreign Import');
+        $crawler = $this->requestAsUser($client, $admin, '/import');
+
+        self::assertStringContainsString('Own Import', $crawler->text());
+        self::assertStringContainsString('Foreign Import', $crawler->text());
     }
 
     public function testStatusFilterShowsOnlyMatchingImports(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         $this->createImportForList('Completed Import', $hospital, $createdBy, [
@@ -210,16 +192,15 @@ final class ListImportControllerTest extends WebTestCase
         ]);
         $this->createImportForList('Pending Import', $hospital, $createdBy, ['filePath' => '/tmp/pending.csv']);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import?status='.urlencode(ImportStatus::COMPLETED->value))
-            ->assertSuccessful()
-            ->assertSee('Completed Import')
-            ->assertNotSee('Pending Import');
+        $crawler = $this->requestAsUser($client, $owner, '/import?status='.urlencode(ImportStatus::COMPLETED->value));
+
+        self::assertStringContainsString('Completed Import', $crawler->text());
+        self::assertStringNotContainsString('Pending Import', $crawler->text());
     }
 
     public function testDateRangeFilterWorks(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         $this->createImportForList('In Range Import', $hospital, $createdBy, [
@@ -231,16 +212,15 @@ final class ListImportControllerTest extends WebTestCase
             'filePath' => '/tmp/out-of-range.csv',
         ]);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import?createdFrom=2025-04-01&createdUntil=2025-04-30')
-            ->assertSuccessful()
-            ->assertSee('In Range Import')
-            ->assertNotSee('Out Of Range Import');
+        $crawler = $this->requestAsUser($client, $owner, '/import?createdFrom=2025-04-01&createdUntil=2025-04-30');
+
+        self::assertStringContainsString('In Range Import', $crawler->text());
+        self::assertStringNotContainsString('Out Of Range Import', $crawler->text());
     }
 
     public function testSortByCreatedAtDesc(): void
     {
+        $client = self::createClient();
         [$owner, $hospital, $createdBy] = $this->seedBaseActors();
 
         $this->createImportForList('Older Import', $hospital, $createdBy, [
@@ -252,14 +232,22 @@ final class ListImportControllerTest extends WebTestCase
             'filePath' => '/tmp/newer.csv',
         ]);
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit('/import?sortBy=createdAt&orderBy=desc')
-            ->assertSuccessful()
-            ->use(function (Crawler $crawler): void {
-                $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1)->text(''));
-                self::assertSame('Newer Import', $firstName);
-            });
+        $crawler = $this->requestAsUser($client, $owner, '/import?sortBy=createdAt&orderBy=desc');
+
+        $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1)->text(''));
+        self::assertSame('Newer Import', $firstName);
+    }
+
+    /**
+     * @param \Zenstruck\Foundry\Persistence\Proxy<User>|User $user
+     */
+    private function requestAsUser(KernelBrowser $client, object $user, string $uri): Crawler
+    {
+        $client->loginUser($user->_real());
+        $client->request(Request::METHOD_GET, $uri);
+        self::assertResponseIsSuccessful();
+
+        return $client->getCrawler();
     }
 
     /**

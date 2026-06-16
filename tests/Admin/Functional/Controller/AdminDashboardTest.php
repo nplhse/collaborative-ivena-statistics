@@ -6,18 +6,19 @@ namespace App\Tests\Admin\Functional\Controller;
 
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Browser\Test\HasBrowser;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class AdminDashboardTest extends WebTestCase
 {
     use Factories;
-    use HasBrowser;
-    use ResetDatabase;
 
     public function testDashboardShowsTilesWithoutRedirectingToUserCrud(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asAdmin()
             ->create([
@@ -25,20 +26,20 @@ final class AdminDashboardTest extends WebTestCase
             ])
         ;
 
-        $browser = $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin')
-            ->assertSuccessful()
-            ->assertSee('Users')
-            ->assertSee('Pages')
-            ->assertSee('Feedback')
-            ->assertSee('Reference data and allocations')
-            ->assertSee('Key metrics (last 30 days)')
-            ->assertSee('Recent failed imports')
-            ->assertSee('Daily trend (last 30 days)')
-        ;
+        $client->loginUser($admin->_real());
+        $client->request(Request::METHOD_GET, '/admin');
 
-        $path = parse_url($browser->client()->getHistory()->current()->getUri(), \PHP_URL_PATH);
-        self::assertMatchesRegularExpression('#^/admin/?$#', (string) $path);
+        self::assertResponseIsSuccessful();
+        $text = $client->getCrawler()->text();
+        self::assertStringContainsString('Users', $text);
+        self::assertStringContainsString('Pages', $text);
+        self::assertStringContainsString('Feedback', $text);
+        self::assertStringContainsString('Reference data and allocations', $text);
+        self::assertStringContainsString('Key metrics (last 30 days)', $text);
+        self::assertStringContainsString('Recent failed imports', $text);
+        self::assertStringContainsString('Daily trend (last 30 days)', $text);
+
+        $path = $client->getRequest()->getPathInfo();
+        self::assertMatchesRegularExpression('#^/admin/?$#', $path);
     }
 }

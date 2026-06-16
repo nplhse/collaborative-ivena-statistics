@@ -27,17 +27,21 @@ use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class DeduplicateProjectionCommandTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+    }
 
     public function testDryRunReportsEnrDuplicateWithoutDeleting(): void
     {
-        self::bootKernel();
         $this->seedEnrDuplicateFixture();
 
         $tester = $this->createCommandTester();
@@ -58,7 +62,6 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
 
     public function testExecuteRemovesEnrDuplicateAndKeepsNewestImport(): void
     {
-        self::bootKernel();
         $fixture = $this->seedEnrDuplicateFixture();
 
         $tester = $this->createCommandTester();
@@ -85,7 +88,6 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
 
     public function testSameEnrDifferentEventIsNotTreatedAsDuplicate(): void
     {
-        self::bootKernel();
         $this->seedEnrReuseAcrossYearsFixture();
 
         $tester = $this->createCommandTester();
@@ -105,7 +107,6 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
 
     public function testExecuteDeletesAssessmentLinkedToRemovedDuplicate(): void
     {
-        self::bootKernel();
         $fixture = $this->seedEnrDuplicateFixture(withAssessmentOnOlderDuplicate: true);
 
         /** @var Connection $connection */
@@ -128,7 +129,6 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
 
     public function testExecuteRemovesFingerprintDuplicate(): void
     {
-        self::bootKernel();
         $fixture = $this->seedFingerprintDuplicateFixture();
 
         $tester = $this->createCommandTester();
@@ -145,7 +145,6 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
 
     public function testExecuteRemovesOrphanProjectionRow(): void
     {
-        self::bootKernel();
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
 
@@ -165,7 +164,6 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
 
     public function testDefaultRunIsDryRun(): void
     {
-        self::bootKernel();
         $this->seedEnrDuplicateFixture();
 
         $tester = $this->createCommandTester();
@@ -181,7 +179,6 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
 
     public function testNoDuplicatesSucceedsWithZeroRemovals(): void
     {
-        self::bootKernel();
         $seed = $this->seedReferenceGraph();
         $import = ImportFactory::createOne([
             'name' => 'Unique Import',

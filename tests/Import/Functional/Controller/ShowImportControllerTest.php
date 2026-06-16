@@ -15,44 +15,42 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Browser\Test\HasBrowser;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ShowImportControllerTest extends WebTestCase
 {
-    use HasBrowser;
     use Factories;
-    use ResetDatabase;
 
     public function testShowDisplaysImportDetails(): void
     {
+        $client = self::createClient();
         [$owner, $importId, $name, $hospitalName] = $this->createImportWithRelations();
 
-        $this->browser()
-            ->actingAs($owner)
-            ->visit(\sprintf('/import/%d', $importId))
-            ->assertSuccessful()
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
 
-            ->assertSeeElement('#import-id')
-            ->assertSee('#'.$importId)
-            ->assertSee($name)
-
-            ->assertSee($hospitalName)
-
-            ->assertSeeIn('.datagrid', 'CSV')
-            ->assertSeeIn('.datagrid', 'Mime Type')
-            ->assertSeeIn('.datagrid', 'KB')
-
-            ->assertSee('PENDING')
-            ->assertSee('ALLOCATION')
-            ->assertSee('0 ms')
-            ->assertSee('4')
-            ->assertSee('1');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import-id');
+        self::assertSelectorTextContains('#import-id', '#'.$importId);
+        self::assertSelectorTextContains('body', $name);
+        self::assertSelectorTextContains('body', $hospitalName);
+        self::assertSelectorTextContains('.datagrid', 'CSV');
+        self::assertSelectorTextContains('.datagrid', 'Mime Type');
+        self::assertSelectorTextContains('.datagrid', 'KB');
+        self::assertSelectorTextContains('body', 'Pending');
+        self::assertSelectorTextContains('body', 'Allocation');
+        self::assertSelectorTextContains('body', '0 ms');
+        self::assertSelectorTextContains('body', '4');
+        self::assertSelectorTextContains('body', '1');
     }
 
     public function testForeignImportIsNotAccessible(): void
     {
+        $client = self::createClient();
+
         $owner = UserFactory::createOne([
             'username' => 'owner-'.bin2hex(random_bytes(4)),
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
@@ -89,10 +87,10 @@ final class ShowImportControllerTest extends WebTestCase
             'createdBy' => $createdBy,
         ]);
 
-        $this->browser()
-            ->actingAs($intruder)
-            ->visit(\sprintf('/import/%d', $import->getId()))
-            ->assertStatus(403);
+        $client->loginUser($intruder->_real());
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $import->getId()));
+
+        self::assertResponseStatusCodeSame(403);
     }
 
     /**

@@ -8,12 +8,11 @@ use App\Content\Domain\Entity\Page;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
+#[ResetDatabase]
 final class PageHierarchyValidationTest extends KernelTestCase
 {
-    use ResetDatabase;
-
     private ValidatorInterface $validator;
 
     #[\Override]

@@ -33,13 +33,13 @@ use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class GetOverviewDashboardMetricsQueryTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testBundleMatchesLegacyOverviewQueriesForScopedHospital(): void
     {

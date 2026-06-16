@@ -23,12 +23,11 @@ use App\Import\Infrastructure\Mapping\MciCaseImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
+#[ResetDatabase]
 final class MciCaseImportFactoryTest extends KernelTestCase
 {
-    use ResetDatabase;
-
     private Import $import;
     private MciCaseImportFactory $factory;
 

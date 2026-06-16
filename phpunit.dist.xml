@@ -15,12 +15,54 @@
         <ini name="error_reporting" value="-1" />
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
-        <server name="BROWSER_ALWAYS_START_WEBSERVER" value="1" />
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
+        <testsuite name="all">
             <directory>tests</directory>
+            <exclude>tests/Support</exclude>
+        </testsuite>
+
+        <testsuite name="unit">
+            <directory>tests/Allocation/Unit</directory>
+            <directory>tests/Content/Unit</directory>
+            <directory>tests/Feedback/Unit</directory>
+            <directory>tests/Import/Unit</directory>
+            <directory>tests/Kpi/Unit</directory>
+            <directory>tests/Shared/Unit</directory>
+            <directory>tests/Statistics/Unit</directory>
+            <directory>tests/User/Unit</directory>
+        </testsuite>
+
+        <testsuite name="integration">
+            <directory>tests/Allocation/Integration</directory>
+            <directory>tests/Content/Integration</directory>
+            <directory>tests/Import/Integration</directory>
+            <directory>tests/Kpi/Integration</directory>
+            <directory>tests/Shared/Integration</directory>
+            <directory>tests/Statistics/Integration</directory>
+            <directory>tests/User/Integration</directory>
+        </testsuite>
+
+        <testsuite name="functional">
+            <directory>tests/Admin/Functional</directory>
+            <directory>tests/Allocation/Functional</directory>
+            <directory>tests/Content/Functional</directory>
+            <directory>tests/Feedback/Functional</directory>
+            <directory>tests/Import/Functional</directory>
+            <directory>tests/Install/Functional</directory>
+            <directory>tests/Kpi/Functional</directory>
+            <directory>tests/Shared/Functional</directory>
+            <directory>tests/Statistics/Functional</directory>
+            <directory>tests/User/Functional</directory>
+        </testsuite>
+
+        <testsuite name="fixtures">
+            <directory>tests/DataFixtures</directory>
+        </testsuite>
+
+        <testsuite name="system">
+            <directory>tests/System</directory>
         </testsuite>
     </testsuites>
 

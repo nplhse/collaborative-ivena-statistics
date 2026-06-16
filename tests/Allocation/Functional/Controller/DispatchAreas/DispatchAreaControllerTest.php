@@ -10,14 +10,13 @@ use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 class DispatchAreaControllerTest extends WebTestCase
 {
     use InteractsWithAuthenticatedUser;
-
-    use ResetDatabase;
     use Factories;
 
     public function testTableWithResultsIsShown(): void

@@ -32,14 +32,14 @@ use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class OverviewMaterializedViewQueryTest extends KernelTestCase
 {
     use Factories;
     use RefreshesStatisticsMaterializedViewsTrait;
-    use ResetDatabase;
 
     public function testMaterializedViewQueriesMatchProjectionScopeAfterRefresh(): void
     {

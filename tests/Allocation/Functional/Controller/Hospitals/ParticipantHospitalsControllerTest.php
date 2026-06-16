@@ -11,13 +11,13 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ParticipantHospitalsControllerTest extends WebTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testHospitalsIndexRedirectsWhenNotAuthenticated(): void
     {

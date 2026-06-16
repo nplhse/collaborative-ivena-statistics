@@ -13,13 +13,13 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\HospitalPopulation\Infrastructure\Query\GetHospitalPopulationQuery;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class GetHospitalPopulationQueryTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testReturnsHospitalsWithStateAndDispatchArea(): void
     {

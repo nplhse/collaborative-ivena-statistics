@@ -25,13 +25,11 @@ use App\Import\Infrastructure\Mapping\AllocationImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
+#[ResetDatabase]
 final class AllocationImportFactoryTest extends KernelTestCase
 {
-    use ResetDatabase;
-
-    private int $hospitalId;
     private Import $import;
     private AllocationImportFactory $factory;
 

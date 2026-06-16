@@ -16,22 +16,22 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
-use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\GenericAnalysis\Application\SavedAnalysisViewService;
 use App\Statistics\Infrastructure\Repository\SavedAnalysisViewRepository;
+use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
 use App\User\Domain\Factory\UserFactory;
-use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class SavedAnalysisViewControllerTest extends WebTestCase
 {
     use Factories;
-    use ResetDatabase;
+    use RefreshesStatisticsFunctionalDataTrait;
 
     public function testSaveViewFromCustomizeDrawerRedirectsToSavedView(): void
     {
@@ -166,19 +166,6 @@ final class SavedAnalysisViewControllerTest extends WebTestCase
             'indicationNormalized' => $normalized,
         ]);
 
-        $this->rebuildProjection([(int) $import->getId()]);
-    }
-
-    /**
-     * @param list<int> $importIds
-     */
-    private function rebuildProjection(array $importIds): void
-    {
-        $container = self::getContainer();
-        $container->get(Connection::class)->executeStatement('TRUNCATE TABLE allocation_stats_projection');
-        $rebuilder = $container->get(AllocationStatsProjectionRebuildInterface::class);
-        foreach ($importIds as $importId) {
-            $rebuilder->rebuildForImport($importId);
-        }
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
     }
 }

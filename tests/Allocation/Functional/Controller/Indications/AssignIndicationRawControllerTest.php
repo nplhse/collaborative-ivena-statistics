@@ -10,12 +10,12 @@ use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class AssignIndicationRawControllerTest extends WebTestCase
 {
-    use ResetDatabase;
     use Factories;
 
     public function testAssignRedirectsWhenNotAuthenticated(): void

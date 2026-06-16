@@ -16,13 +16,13 @@ use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ListImportsQueryTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     private ListImportsQuery $query;
 

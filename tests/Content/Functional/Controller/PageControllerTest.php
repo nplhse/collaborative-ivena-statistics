@@ -9,13 +9,13 @@ use App\Content\Infrastructure\Factory\PageFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PageControllerTest extends WebTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testPublishedPublicPageIsResolvedByPath(): void
     {

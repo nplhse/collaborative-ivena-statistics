@@ -16,21 +16,21 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
-use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
 use App\User\Domain\Factory\UserFactory;
-use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class GenericAnalysisControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
-    use ResetDatabase;
+    use RefreshesStatisticsFunctionalDataTrait;
 
     public function testAllocationsByMonthRedirectsToAnalyticsView(): void
     {
@@ -193,7 +193,7 @@ final class GenericAnalysisControllerTest extends WebTestCase
             ]);
         }
 
-        $this->rebuildProjection([(int) $importA->getId(), (int) $importB->getId()]);
+        $this->rebuildProjectionForImports([(int) $importA->getId(), (int) $importB->getId()]);
     }
 
     private function seedProjectionWithAllocation(): void
@@ -220,19 +220,6 @@ final class GenericAnalysisControllerTest extends WebTestCase
             'indicationNormalized' => $normalized,
         ]);
 
-        $this->rebuildProjection([(int) $import->getId()]);
-    }
-
-    /**
-     * @param list<int> $importIds
-     */
-    private function rebuildProjection(array $importIds): void
-    {
-        $container = self::getContainer();
-        $container->get(Connection::class)->executeStatement('TRUNCATE TABLE allocation_stats_projection');
-        $rebuilder = $container->get(AllocationStatsProjectionRebuildInterface::class);
-        foreach ($importIds as $importId) {
-            $rebuilder->rebuildForImport($importId);
-        }
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
     }
 }

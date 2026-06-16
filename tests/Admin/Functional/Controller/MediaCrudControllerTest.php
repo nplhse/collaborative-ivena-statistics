@@ -10,18 +10,19 @@ use App\Content\Infrastructure\Factory\MediaFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Browser\Test\HasBrowser;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class MediaCrudControllerTest extends WebTestCase
 {
     use Factories;
-    use HasBrowser;
-    use ResetDatabase;
 
     public function testAdminCanOpenMediaLibraryIndex(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asAdmin()
             ->create(['username' => 'media-admin-'.bin2hex(random_bytes(4))]);
@@ -33,17 +34,18 @@ final class MediaCrudControllerTest extends WebTestCase
             'type' => MediaType::IMAGE,
         ]);
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin/media')
-            ->assertSuccessful()
-            ->assertSee('Media library')
-            ->assertSee('List test image')
-        ;
+        $client->loginUser($admin->_real());
+        $client->request(Request::METHOD_GET, '/admin/media');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Media library');
+        self::assertSelectorTextContains('body', 'List test image');
     }
 
     public function testAdminCanOpenMediaDetailWithEnumType(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asAdmin()
             ->create(['username' => 'media-detail-'.bin2hex(random_bytes(4))]);
@@ -53,29 +55,31 @@ final class MediaCrudControllerTest extends WebTestCase
             'originalFilename' => 'detail-test.png',
         ]);
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin/media/'.$media->getId())
-            ->assertSuccessful()
-            ->assertSee('detail-test.png')
-        ;
+        $client->loginUser($admin->_real());
+        $client->request(Request::METHOD_GET, '/admin/media/'.$media->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'detail-test.png');
     }
 
     public function testNonAdminGetsForbiddenOnMediaIndex(): void
     {
+        $client = self::createClient();
+
         $user = UserFactory::createOne([
             'username' => 'media-user-'.bin2hex(random_bytes(4)),
         ]);
 
-        $this->browser()
-            ->actingAs($user)
-            ->visit('/admin/media')
-            ->assertStatus(403)
-        ;
+        $client->loginUser($user->_real());
+        $client->request(Request::METHOD_GET, '/admin/media');
+
+        self::assertResponseStatusCodeSame(403);
     }
 
     public function testDeleteRemovesDatabaseRecordAndFile(): void
     {
+        self::createClient();
+
         UserFactory::new()->asAdmin()->create();
         $media = MediaFactory::createOne(['filename' => 'delete-me.png']);
         $id = $media->getId();
