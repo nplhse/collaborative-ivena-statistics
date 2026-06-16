@@ -36,7 +36,7 @@ final class UserFactory extends PersistentProxyObjectFactory
 
         return [
             'credentialsExpired' => false,
-            'email' => sprintf('%s@example.test', $username),
+            'email' => sprintf('user-%s@example.test', bin2hex(random_bytes(8))),
             'isEnabled' => true,
             'isVerified' => true,
             'password' => 'password',
