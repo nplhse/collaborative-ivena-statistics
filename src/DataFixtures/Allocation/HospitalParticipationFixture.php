@@ -4,22 +4,27 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Allocation;
 
+use App\DataFixtures\Reference\IndicationReferenceFixture;
+use App\User\Domain\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-final class PatternAllocationFixture extends Fixture implements DependentFixtureInterface, FixtureGroupInterface
+final class HospitalParticipationFixture extends Fixture implements DependentFixtureInterface, FixtureGroupInterface
 {
     public function __construct(
-        private readonly SyntheticAllocationGenerator $generator,
+        private readonly ParticipatingHospitalProvisioner $provisioner,
     ) {
     }
 
     #[\Override]
     public function load(ObjectManager $manager): void
     {
-        $this->generator->generate();
+        $foo = $this->getReference('foo', User::class);
+
+        $this->provisioner->provision($foo);
+        $manager->flush();
     }
 
     /**
@@ -28,7 +33,7 @@ final class PatternAllocationFixture extends Fixture implements DependentFixture
     #[\Override]
     public function getDependencies(): array
     {
-        return [HospitalParticipationFixture::class];
+        return [IndicationReferenceFixture::class];
     }
 
     /**
@@ -37,6 +42,6 @@ final class PatternAllocationFixture extends Fixture implements DependentFixture
     #[\Override]
     public static function getGroups(): array
     {
-        return ['allocations', 'dev', 'statistics'];
+        return ['participation', 'dev', 'allocations', 'statistics'];
     }
 }

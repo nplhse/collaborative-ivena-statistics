@@ -113,20 +113,40 @@ final class ReferenceRegistry
     /**
      * Stratified subset: spread across size tiers, prefer participating hospitals.
      *
+     * @param list<Hospital> $required
+     *
      * @return list<Hospital>
      */
-    public function selectActiveHospitals(int $count): array
+    public function selectActiveHospitals(int $count, array $required = []): array
     {
         $allHospitals = $this->allHospitals();
-        if ($count >= \count($allHospitals)) {
-            return $allHospitals;
-        }
 
         $participating = array_values(array_filter(
             $allHospitals,
             static fn (Hospital $hospital): bool => $hospital->isParticipating(),
         ));
-        $pool = [] !== $participating ? $participating : $allHospitals;
+        if ([] === $participating) {
+            return [];
+        }
+
+        $selected = $this->uniqueHospitals(array_values(array_filter(
+            $required,
+            static fn (Hospital $hospital): bool => $hospital->isParticipating(),
+        )));
+
+        if (\count($selected) >= $count) {
+            return \array_slice($selected, 0, $count);
+        }
+
+        if ($count >= \count($participating)) {
+            return $this->uniqueHospitals([...$selected, ...$participating]);
+        }
+
+        $selectedIds = $this->hospitalIds($selected);
+        $pool = array_values(array_filter(
+            $participating,
+            static fn (Hospital $hospital): bool => !isset($selectedIds[(int) $hospital->getId()]),
+        ));
 
         usort($pool, static fn (Hospital $a, Hospital $b): int => strcmp((string) $a->getName(), (string) $b->getName()));
 
@@ -137,18 +157,13 @@ final class ReferenceRegistry
             $bySize[$size][] = $hospital;
         }
 
-        $selected = [];
         $sizes = [HospitalSize::LARGE->value, HospitalSize::MEDIUM->value, HospitalSize::SMALL->value];
         $sizeIndex = 0;
 
         while (\count($selected) < $count) {
             $size = $sizes[$sizeIndex % \count($sizes)];
-            $candidates = $bySize[$size] ?? [];
-            if ([] !== $candidates) {
-                $hospital = array_shift($bySize[$size]);
-                if ($hospital instanceof Hospital) {
-                    $selected[] = $hospital;
-                }
+            if (isset($bySize[$size]) && [] !== $bySize[$size]) {
+                $selected[] = array_shift($bySize[$size]);
             }
             ++$sizeIndex;
             if ($sizeIndex > $count * 3 && [] === array_filter($bySize)) {
@@ -158,7 +173,7 @@ final class ReferenceRegistry
 
         if (\count($selected) < $count) {
             foreach ($pool as $hospital) {
-                if (\in_array($hospital, $selected, true)) {
+                if (isset($this->hospitalIds($selected)[(int) $hospital->getId()])) {
                     continue;
                 }
                 $selected[] = $hospital;
@@ -168,7 +183,83 @@ final class ReferenceRegistry
             }
         }
 
-        return \array_slice($selected, 0, $count);
+        return \array_slice($this->uniqueHospitals($selected), 0, $count);
+    }
+
+    /**
+     * @return list<Hospital>
+     */
+    public function participatingHospitals(): array
+    {
+        return array_values(array_filter(
+            $this->allHospitals(),
+            static fn (Hospital $hospital): bool => $hospital->isParticipating(),
+        ));
+    }
+
+    /**
+     * @return list<Hospital>
+     */
+    public function participatingHospitalsMatching(?HospitalTier $tier, ?HospitalLocation $location): array
+    {
+        return array_values(array_filter(
+            $this->participatingHospitals(),
+            static function (Hospital $hospital) use ($tier, $location): bool {
+                if ($tier instanceof HospitalTier && $hospital->getTier() !== $tier) {
+                    return false;
+                }
+                if ($location instanceof HospitalLocation && $hospital->getLocation() !== $location) {
+                    return false;
+                }
+
+                return true;
+            },
+        ));
+    }
+
+    public function findHospitalOwnedByUsername(string $username): ?Hospital
+    {
+        $hospital = $this->entityManager->createQueryBuilder()
+            ->select('h')
+            ->from(Hospital::class, 'h')
+            ->join('h.owner', 'u')
+            ->where('u.username = :username')
+            ->setParameter('username', $username)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $hospital instanceof Hospital ? $this->ensureManagedHospital($hospital) : null;
+    }
+
+    /**
+     * @param list<Hospital> $hospitals
+     *
+     * @return list<Hospital>
+     */
+    private function uniqueHospitals(array $hospitals): array
+    {
+        $unique = [];
+        foreach ($hospitals as $hospital) {
+            $unique[(int) $hospital->getId()] = $this->ensureManagedHospital($hospital);
+        }
+
+        return array_values($unique);
+    }
+
+    /**
+     * @param list<Hospital> $hospitals
+     *
+     * @return array<int, true>
+     */
+    private function hospitalIds(array $hospitals): array
+    {
+        $ids = [];
+        foreach ($hospitals as $hospital) {
+            $ids[(int) $hospital->getId()] = true;
+        }
+
+        return $ids;
     }
 
     private function ensureManagedState(State $state): State

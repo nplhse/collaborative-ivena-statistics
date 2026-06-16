@@ -19,7 +19,7 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
-use App\User\Domain\Factory\UserFactory;
+use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -48,10 +48,20 @@ final readonly class SyntheticAllocationGenerator
             $pattern->segment->hospitalTier,
             $pattern->segment->hospitalLocation,
         );
-        $activeHospitals = $this->registry->selectActiveHospitals($volume->hospitalsActive);
+        $fooHospital = $this->requireDemoHospitalOwnedBy('foo');
+        $activeHospitals = $this->registry->selectActiveHospitals($volume->hospitalsActive, [$fooHospital]);
         $hospitals = $this->intersectHospitals($activeHospitals, $segmentHospitals);
         if ([] === $hospitals) {
-            $hospitals = $activeHospitals;
+            $hospitals = array_values(array_filter(
+                $activeHospitals,
+                static fn (Hospital $hospital): bool => $hospital->isParticipating(),
+            ));
+        }
+
+        $hospitals = $this->ensureHospitalIncluded($hospitals, $fooHospital);
+
+        if ([] === $hospitals) {
+            throw new \RuntimeException('No participating hospitals available for synthetic allocations.');
         }
 
         $hospitalIds = array_map(
@@ -71,6 +81,11 @@ final readonly class SyntheticAllocationGenerator
                 throw new \RuntimeException(sprintf('Hospital "%s" is missing dispatch area or state for synthetic allocations.', (string) $batch->hospital->getName()));
             }
 
+            $owner = $batch->hospital->getOwner();
+            if (!$owner instanceof User) {
+                throw new \RuntimeException(sprintf('Hospital "%s" has no owner for synthetic import.', (string) $batch->hospital->getName()));
+            }
+
             $import = ImportFactory::createOne([
                 'name' => $batch->importName,
                 'hospital' => $batch->hospital,
@@ -79,7 +94,7 @@ final readonly class SyntheticAllocationGenerator
                 'rowCount' => $batch->allocationCount,
                 'rowsPassed' => $batch->allocationCount,
                 'rowsRejected' => 0,
-                'createdBy' => UserFactory::random(),
+                'createdBy' => $owner,
             ]);
             $importId = (int) $import->getId();
 
@@ -152,6 +167,40 @@ final readonly class SyntheticAllocationGenerator
             ->setSecondaryTransport($sampled->secondaryTransport)
             ->setIndicationRaw($sampled->indicationRaw)
             ->setIndicationNormalized($sampled->indicationNormalized);
+    }
+
+    /**
+     * @return list<Hospital>
+     */
+    /**
+     * @param list<Hospital> $hospitals
+     *
+     * @return list<Hospital>
+     */
+    private function ensureHospitalIncluded(array $hospitals, Hospital $required): array
+    {
+        foreach ($hospitals as $hospital) {
+            if ((int) $hospital->getId() === (int) $required->getId()) {
+                return $hospitals;
+            }
+        }
+
+        array_unshift($hospitals, $required);
+
+        return $hospitals;
+    }
+
+    private function requireDemoHospitalOwnedBy(string $username): Hospital
+    {
+        $hospital = $this->registry->findHospitalOwnedByUsername($username);
+        if (!$hospital instanceof Hospital) {
+            throw new \RuntimeException(sprintf('Demo user "%s" must own a participating hospital.', $username));
+        }
+        if (!$hospital->isParticipating()) {
+            throw new \RuntimeException(sprintf('Demo hospital for user "%s" must be participating.', $username));
+        }
+
+        return $hospital;
     }
 
     /**

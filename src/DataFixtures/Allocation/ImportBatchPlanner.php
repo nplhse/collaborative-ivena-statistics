@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\DataFixtures\Allocation;
 
 use App\Allocation\Domain\Entity\Hospital;
-use App\Allocation\Domain\Enum\HospitalSize;
 use App\DataFixtures\FixtureVolume;
 
 final readonly class ImportBatch
@@ -27,69 +26,35 @@ final class ImportBatchPlanner
      */
     public function plan(FixtureVolume $volume, array $hospitals): array
     {
+        $hospitals = array_values(array_filter(
+            $hospitals,
+            static fn (Hospital $hospital): bool => $hospital->isParticipating(),
+        ));
         if ([] === $hospitals) {
             return [];
         }
 
-        /** @var array<string, list<Hospital>> $bySize */
-        $bySize = [
-            HospitalSize::LARGE->value => [],
-            HospitalSize::MEDIUM->value => [],
-            HospitalSize::SMALL->value => [],
-        ];
+        usort(
+            $hospitals,
+            static fn (Hospital $a, Hospital $b): int => strcmp((string) $a->getName(), (string) $b->getName()),
+        );
 
-        foreach ($hospitals as $hospital) {
-            $size = ($hospital->getSize() ?? HospitalSize::MEDIUM)->value;
-            $bySize[$size][] = $hospital;
-        }
-
+        $importBudget = max(1, $volume->imports);
         $batches = [];
-        $importBudget = $volume->imports;
-        $allocationBudget = $volume->allocations;
 
-        /** @var array<string, float> $sizeWeights */
-        $sizeWeights = [
-            HospitalSize::LARGE->value => 0.70,
-            HospitalSize::MEDIUM->value => 0.20,
-            HospitalSize::SMALL->value => 0.10,
-        ];
-
-        $importsPerSize = [
-            HospitalSize::LARGE->value => 2,
-            HospitalSize::MEDIUM->value => 1,
-            HospitalSize::SMALL->value => 1,
-        ];
-
-        foreach ($bySize as $size => $sizeHospitals) {
-            if ([] === $sizeHospitals) {
-                continue;
-            }
-
-            $weight = $sizeWeights[$size];
-            $sizeAllocationBudget = (int) round((float) $allocationBudget * $weight);
-            $importsForSize = min(
-                \count($sizeHospitals) * $importsPerSize[$size],
-                max(1, (int) round((float) $importBudget * $weight)),
+        for ($i = 0; $i < $importBudget; ++$i) {
+            $hospital = $hospitals[$i % \count($hospitals)];
+            $batches[] = new ImportBatch(
+                hospital: $hospital,
+                importName: sprintf(
+                    '2025 Q%d IVENA allocations',
+                    ($i % 4) + 1,
+                ),
+                allocationCount: 1,
             );
-            $perImport = max(1, (int) round($sizeAllocationBudget / max(1, $importsForSize)));
-
-            $created = 0;
-            foreach ($sizeHospitals as $hospital) {
-                $importsForHospital = $importsPerSize[$size];
-                for ($i = 0; $i < $importsForHospital && $created < $importsForSize; ++$i, ++$created) {
-                    $batches[] = new ImportBatch(
-                        hospital: $hospital,
-                        importName: sprintf(
-                            '2025 Q%d IVENA allocations',
-                            ($created % 4) + 1,
-                        ),
-                        allocationCount: $perImport,
-                    );
-                }
-            }
         }
 
-        return $this->normalizeTotals($batches, $volume->imports, $volume->allocations);
+        return $this->normalizeTotals($batches, $importBudget, $volume->allocations);
     }
 
     /**

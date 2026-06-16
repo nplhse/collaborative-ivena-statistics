@@ -92,4 +92,23 @@ final class ReferenceRegistryTest extends TestCase
         self::assertSame([$hospitalA, $hospitalB], $registry->allHospitals());
         self::assertSame($hospitalA, $registry->getHospital('Hospital A'));
     }
+
+    #[Test]
+    public function selectActiveHospitalsAlwaysIncludesRequiredParticipatingHospital(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('contains')->willReturn(true);
+
+        $required = new Hospital()
+            ->setName('Required Hospital')
+            ->setIsParticipating(true);
+
+        $registry = new ReferenceRegistry($em);
+        $registry->registerHospital($required);
+
+        $selected = $registry->selectActiveHospitals(1, [$required]);
+
+        self::assertCount(1, $selected);
+        self::assertSame('Required Hospital', $selected[0]->getName());
+    }
 }
