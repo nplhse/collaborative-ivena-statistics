@@ -7,6 +7,10 @@ namespace App\Tests\Import\Integration\MessageHandler;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Assessment;
+use App\Allocation\Domain\Enum\AllocationGender;
+use App\Allocation\Domain\Enum\AllocationTransportType;
+use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -24,11 +28,13 @@ use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
+use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -139,6 +145,89 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         $firstReject = $rejectWriter->all()[0];
         self::assertArrayHasKey('messages', $firstReject);
         self::assertNotEmpty($firstReject['messages']);
+    }
+
+    public function testRunDeduplicatesOverlappingAllocationsAndRecordsStats(): void
+    {
+        $owner = UserFactory::createOne(['username' => 'import-dedup-'.bin2hex(random_bytes(6))]);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Testkrankenhaus Musterstadt',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        $speciality = SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        $department = DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        $assignment = AssignmentFactory::createOne(['name' => 'Patient']);
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        InfectionFactory::createOne(['name' => 'Noro']);
+        $indicationRaw = IndicationRawFactory::createOne([
+            'name' => 'Test Indication',
+            'code' => 123,
+            'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4',
+        ]);
+
+        $olderImport = ImportFactory::createOne([
+            'name' => 'Older overlapping import',
+            'hospital' => $hospital,
+            'createdBy' => $owner,
+            'createdAt' => new \DateTimeImmutable('2024-01-01 10:00:00'),
+        ]);
+
+        AllocationFactory::createOne([
+            'import' => $olderImport,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'speciality' => $speciality,
+            'department' => $department,
+            'assignment' => $assignment,
+            'indicationRaw' => $indicationRaw,
+            'caseIdHash' => null,
+            'gender' => AllocationGender::FEMALE,
+            'age' => 74,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'transportType' => AllocationTransportType::GROUND,
+            'createdAt' => new \DateTimeImmutable('2025-01-07 10:19:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-01-07 13:14:00'),
+        ]);
+
+        $header = [
+            'Versorgungsbereich', 'KHS-Versorgungsgebiet', 'Krankenhaus', 'Krankenhaus-Kurzname',
+            'Datum', 'Uhrzeit', 'Datum (Eintreffzeit)', 'Uhrzeit (Eintreffzeit)',
+            'Geschlecht', 'Alter', 'Schockraum', 'Herzkatheter', 'Reanimation', 'Beatmet',
+            'Schwanger', 'Arztbegleitet', 'Transportmittel', 'Datum (Erstellungsdatum)', 'Uhrzeit (Erstellungsdatum)',
+            'PZC', 'Fachgebiet', 'Fachbereich', 'Fachbereich war abgemeldet?', 'Anlass', 'Grund', 'Ansteckungsfähig',
+            'PZC und Text',
+        ];
+
+        $rows = [
+            ['Leitstelle Test', '1', $hospital->getName(), 'KH Test', '07.01.2025', '10:19', '07.01.2025', '13:14', 'W', '74', 'S+', 'H+', 'R+', 'B-', '', 'N-', 'Boden', '07.01.2025', '10:19', '123741', 'Innere Medizin', 'Kardiologie', 'Ja', 'aus Arztpraxis', 'Patient', 'Noro', '123 Test Indication'],
+        ];
+
+        $import = $this->createInMemoryImport($owner, $hospital);
+        $reader = new InMemoryRowReader($header, $rows);
+        $rejectWriter = new InMemoryRejectWriter();
+
+        $this->handler->run($import, $reader, $rejectWriter);
+
+        $fresh = $this->imports->find($import->getId());
+        self::assertNotNull($fresh);
+        self::assertSame(ImportStatus::COMPLETED, $fresh->getStatus());
+        self::assertSame(1, $fresh->getRowsPassed());
+        self::assertSame(0, $fresh->getRowsRejected());
+        self::assertSame(1, $fresh->getRowsDeduplicated());
+        self::assertSame(0, $fresh->getRowsDeduplicatedDiscarded());
+        self::assertSame(1, $fresh->getRowsDeduplicatedReplaced());
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get(Connection::class);
+        self::assertSame(1, (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM allocation WHERE hospital_id = :hospitalId',
+            ['hospitalId' => $hospital->getId()],
+        ));
     }
 
     public function testImportWithPlaceholderAbcdColumnsDoesNotPersistAssessmentOrAudit(): void

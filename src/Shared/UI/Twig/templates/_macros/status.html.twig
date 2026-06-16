@@ -20,3 +20,11 @@
         {{ status }}
     </span>
 {% endmacro %}
+
+{% macro import_rate(percent, kind) %}
+    {% set badge = import_rate_badge(percent, kind) %}
+    <span class="status status-{{ badge.color }}">
+        {{ ux_icon(badge.icon, {width: 12, height: 12}) }}
+        {{ percent|number_format(2, ',', '.') }}%
+    </span>
+{% endmacro %}

@@ -497,6 +497,22 @@
         <source>import.field.rowsRejected</source>
         <target>Rejected rows</target>
       </trans-unit>
+      <trans-unit id="DdupTotal01" resname="import.field.rowsDeduplicated">
+        <source>import.field.rowsDeduplicated</source>
+        <target>Deduplicated rows (total)</target>
+      </trans-unit>
+      <trans-unit id="DdupDisc01" resname="import.field.rowsDeduplicatedDiscarded">
+        <source>import.field.rowsDeduplicatedDiscarded</source>
+        <target>Deduplicated rows (Discarded)</target>
+      </trans-unit>
+      <trans-unit id="DdupRepl01" resname="import.field.rowsDeduplicatedReplaced">
+        <source>import.field.rowsDeduplicatedReplaced</source>
+        <target>Deduplicated rows (Replaced)</target>
+      </trans-unit>
+      <trans-unit id="DdupRate01" resname="import.field.duplicationRate">
+        <source>import.field.duplicationRate</source>
+        <target>Duplication rate</target>
+      </trans-unit>
       <trans-unit id="oiSvDD9" resname="import.field.runCount">
         <source>import.field.runCount</source>
         <target>Run count</target>

@@ -62,6 +62,15 @@ class Import implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?int $rowsRejected = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $rowsDeduplicated = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $rowsDeduplicatedDiscarded = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $rowsDeduplicatedReplaced = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $rejectFilePath = null;
 
@@ -245,6 +254,42 @@ class Import implements \Stringable
         return $this;
     }
 
+    public function getRowsDeduplicated(): ?int
+    {
+        return $this->rowsDeduplicated;
+    }
+
+    public function setRowsDeduplicated(?int $rowsDeduplicated): static
+    {
+        $this->rowsDeduplicated = $rowsDeduplicated;
+
+        return $this;
+    }
+
+    public function getRowsDeduplicatedDiscarded(): ?int
+    {
+        return $this->rowsDeduplicatedDiscarded;
+    }
+
+    public function setRowsDeduplicatedDiscarded(?int $rowsDeduplicatedDiscarded): static
+    {
+        $this->rowsDeduplicatedDiscarded = $rowsDeduplicatedDiscarded;
+
+        return $this;
+    }
+
+    public function getRowsDeduplicatedReplaced(): ?int
+    {
+        return $this->rowsDeduplicatedReplaced;
+    }
+
+    public function setRowsDeduplicatedReplaced(?int $rowsDeduplicatedReplaced): static
+    {
+        $this->rowsDeduplicatedReplaced = $rowsDeduplicatedReplaced;
+
+        return $this;
+    }
+
     public function getRejectFilePath(): ?string
     {
         return $this->rejectFilePath;
@@ -300,6 +345,9 @@ class Import implements \Stringable
             ->setRowCount(0)
             ->setRowsPassed(0)
             ->setRowsRejected(0)
+            ->setRowsDeduplicated(0)
+            ->setRowsDeduplicatedDiscarded(0)
+            ->setRowsDeduplicatedReplaced(0)
             ->setRejectFilePath(null)
             ->setRunTime(0);
     }
@@ -331,10 +379,13 @@ class Import implements \Stringable
             ->setRunTime($runtimeMs);
     }
 
-    public function markAsFailed(int $runtimeMs): void
+    public function markAsFailed(int $runtimeMs, int $total = 0, int $ok = 0, int $rejected = 0): void
     {
         $this
             ->setStatus(ImportStatus::FAILED)
+            ->setRowCount($total)
+            ->setRowsPassed($ok)
+            ->setRowsRejected($rejected)
             ->incrementRunCount()
             ->setRunTime($runtimeMs);
     }
