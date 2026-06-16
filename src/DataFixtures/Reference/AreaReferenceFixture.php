@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Reference;
 
-use App\DataFixtures\UserFixtures;
+use App\DataFixtures\Content\ContentScenarioFixture;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
@@ -31,7 +31,7 @@ final class AreaReferenceFixture extends Fixture implements DependentFixtureInte
     #[\Override]
     public function getDependencies(): array
     {
-        return [UserFixtures::class];
+        return [ContentScenarioFixture::class];
     }
 
     /**

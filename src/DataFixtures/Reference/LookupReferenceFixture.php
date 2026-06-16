@@ -30,7 +30,7 @@ final class LookupReferenceFixture extends Fixture implements DependentFixtureIn
     #[\Override]
     public function getDependencies(): array
     {
-        return [AreaReferenceFixture::class];
+        return [HospitalReferenceFixture::class];
     }
 
     /**

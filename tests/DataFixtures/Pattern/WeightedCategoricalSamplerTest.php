@@ -30,4 +30,15 @@ final class WeightedCategoricalSamplerTest extends TestCase
 
         self::assertContains($label, ['red', 'blue']);
     }
+
+    #[Test]
+    public function sampleCoercesNumericYamlKeysToString(): void
+    {
+        $sampler = new WeightedCategoricalSampler();
+
+        $label = $sampler->sample([1 => 1, 2 => 1, 3 => 1]);
+
+        self::assertIsString($label);
+        self::assertContains($label, ['1', '2', '3']);
+    }
 }

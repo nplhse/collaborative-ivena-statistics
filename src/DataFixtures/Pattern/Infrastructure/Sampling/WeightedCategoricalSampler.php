@@ -7,7 +7,7 @@ namespace App\DataFixtures\Pattern\Infrastructure\Sampling;
 final class WeightedCategoricalSampler
 {
     /**
-     * @param array<string, float|int> $weights
+     * @param array<int|string, float|int> $weights
      */
     public function sample(array $weights): string
     {
@@ -22,16 +22,21 @@ final class WeightedCategoricalSampler
         foreach ($normalized as $label => $weight) {
             $cursor += $weight;
             if ($target <= $cursor) {
-                return $label;
+                return $this->stringifyKey($label);
             }
         }
 
         $lastLabel = array_key_last($normalized);
-        if (!\is_string($lastLabel)) {
+        if (null === $lastLabel) {
             throw new \RuntimeException('Cannot sample from an empty normalized distribution.');
         }
 
-        return $lastLabel;
+        return $this->stringifyKey($lastLabel);
+    }
+
+    private function stringifyKey(int|string $key): string
+    {
+        return (string) $key;
     }
 
     public function sampleBernoulli(float $probability): bool
@@ -42,9 +47,9 @@ final class WeightedCategoricalSampler
     }
 
     /**
-     * @param array<string, float|int> $weights
+     * @param array<int|string, float|int> $weights
      *
-     * @return array<string, float>
+     * @return array<int|string, float>
      */
     public function normalize(array $weights): array
     {
@@ -54,7 +59,7 @@ final class WeightedCategoricalSampler
             if ($weight <= 0) {
                 continue;
             }
-            $positive[$label] = (float) $weight;
+            $positive[$this->stringifyKey($label)] = (float) $weight;
             $sum += (float) $weight;
         }
 

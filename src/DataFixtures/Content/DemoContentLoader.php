@@ -206,43 +206,93 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
     {
         $devlog = PostCategoryFactory::createOne(['name' => 'Devlog', 'slug' => 'devlog']);
         $news = PostCategoryFactory::createOne(['name' => 'News', 'slug' => 'news']);
-        PostTagFactory::createOne(['name' => 'Release', 'slug' => 'release']);
-        PostTagFactory::createOne(['name' => 'Statistics', 'slug' => 'statistics']);
+        $platform = PostCategoryFactory::createOne(['name' => 'Platform', 'slug' => 'platform']);
+        $research = PostCategoryFactory::createOne(['name' => 'Research', 'slug' => 'research']);
+
+        $tagRelease = PostTagFactory::createOne(['name' => 'Release', 'slug' => 'release']);
+        $tagStatistics = PostTagFactory::createOne(['name' => 'Statistics', 'slug' => 'statistics']);
+        $tagImport = PostTagFactory::createOne(['name' => 'Import', 'slug' => 'import']);
+        $tagBenchmarking = PostTagFactory::createOne(['name' => 'Benchmarking', 'slug' => 'benchmarking']);
+        $tagCollaboration = PostTagFactory::createOne(['name' => 'Collaboration', 'slug' => 'collaboration']);
 
         $posts = [
             [
-                'title' => 'Devlog #1: Getting started',
-                'slug' => 'devlog-1-getting-started',
-                'content' => '<p>Welcome to the first devlog for Collaborative IVENA Statistics. This alpha release is a proof of concept with known limitations in email delivery, import scope, and statistics performance.</p>',
-                'category' => $devlog,
-                'status' => PostStatus::PUBLISHED,
-            ],
-            [
-                'title' => 'Devlog #3: First statistics optimisations',
-                'slug' => 'devlog-3-statistics-optimisations',
-                'content' => '<p>We merged redundant database queries and introduced materialized views for overview metrics. Query time on the overview dashboard dropped by roughly 80%.</p>',
-                'category' => $devlog,
-                'status' => PostStatus::PUBLISHED,
-            ],
-            [
-                'title' => 'Devlog #5: Import data quality improvements',
-                'slug' => 'devlog-5-import-data-quality',
-                'content' => '<p>Several normalisation fixes improve dispatch area matching, assessment handling, and department mapping during import.</p>',
-                'category' => $devlog,
-                'status' => PostStatus::PUBLISHED,
-            ],
-            [
-                'title' => 'Devlog #10: Benchmarking arrives',
-                'slug' => 'devlog-10-benchmarking',
-                'content' => '<p>The new statistics explorer introduces configurable analyses and first benchmarking views to compare scopes and time periods.</p>',
-                'category' => $devlog,
-                'status' => PostStatus::PUBLISHED,
-            ],
-            [
-                'title' => 'The story behind this project',
-                'slug' => 'project-origin-story',
-                'content' => '<p>In early 2021, members of the DGINA Hesse working group started building a collaborative platform to merge IVENA allocation exports from multiple hospitals.</p>',
+                'title' => 'The coffee was still warm when the first emails of the day arrived.',
+                'slug' => 'coffee-still-warm-first-emails',
+                'content' => '<p>After months of groundwork, the first alpha of Collaborative IVENA Statistics is available to a small group of participating hospitals. '
+                    .'The goal is not a polished product launch, but a working proof of concept that shows how IVENA allocation exports can be merged, validated, and explored in one shared environment.</p>'
+                    .'<p>At this stage, the platform focuses on the essentials: secure hospital-scoped access, CSV import with reporting, and a first set of overview statistics. '
+                    .'Several features are deliberately limited, including email notifications, large-scale import batches, and advanced benchmarking views.</p>'
+                    .'<p>Early feedback from emergency department coordinators has already highlighted where the workflow feels intuitive and where more guidance is needed. '
+                    .'In particular, hospitals asked for clearer import status pages and simpler explanations when rows are rejected during validation.</p>'
+                    .'<p>We are treating this release as a learning phase. Participating sites can experiment with quarterly exports, compare their own trends over time, and help us prioritise the next development steps.</p>'
+                    .'<p>If you are part of the pilot group, thank you for testing the platform under real operational conditions. Your comments directly shape what we build next.</p>',
                 'category' => $news,
+                'tags' => [$tagRelease, $tagCollaboration],
+                'status' => PostStatus::PUBLISHED,
+            ],
+            [
+                'title' => 'Sometimes the shortest walk home takes the longest.',
+                'slug' => 'shortest-walk-home-takes-longest',
+                'content' => '<p>One of the first pain points after importing several thousand allocations was the time required to load the overview dashboard. '
+                    .'Repeated aggregate queries across large fact tables made the page feel sluggish, especially when users switched between hospitals or date ranges.</p>'
+                    .'<p>We merged several redundant database queries and introduced materialised views for the most common overview metrics. '
+                    .'The result is a much snappier experience: median load time on the overview page dropped by roughly 80% in our internal benchmarks.</p>'
+                    .'<p>Behind the scenes, the statistics module now reads from pre-aggregated projections instead of scanning raw allocation rows for every chart refresh. '
+                    .'This also reduces database load during peak usage in the morning, when many coordinators review the previous day\'s figures.</p>'
+                    .'<p>There is still room for improvement on deeply filtered analyses and long historical ranges. '
+                    .'Those views will be addressed in a follow-up iteration once the new projection pipeline has proven stable in production-like fixture volumes.</p>'
+                    .'<p>For now, the performance gain should make daily monitoring far more practical, even for hospitals with high allocation throughput.</p>'
+                    .'<p>We will publish more technical detail on the projection design in a later post once the rebuild command and monitoring hooks are fully documented.</p>',
+                'category' => $devlog,
+                'tags' => [$tagStatistics, $tagRelease],
+                'status' => PostStatus::PUBLISHED,
+            ],
+            [
+                'title' => 'She left the window open just enough to hear the rain.',
+                'slug' => 'window-open-enough-to-hear-rain',
+                'content' => '<p>Data quality during IVENA imports depends on dozens of small normalisation rules. '
+                    .'When dispatch area names or department labels differ slightly between exports, rows used to fail validation even though the underlying clinical meaning was clear.</p>'
+                    .'<p>Recent changes improve matching for dispatch areas, assessment fields, and department mappings. '
+                    .'The import pipeline now applies a consistent normalisation layer before plausibility checks run, which reduces false rejections without weakening data integrity.</p>'
+                    .'<p>Hospitals that regularly import quarterly batches should see fewer unexplained rejections in the import report. '
+                    .'Where a value still cannot be mapped, the report now includes more context so coordinators can fix source data or request a reference update.</p>'
+                    .'<p>We also tightened logging around edge cases such as missing secondary transport flags and ambiguous speciality codes. '
+                    .'That makes it easier for support staff to trace a rejected row back to the exact validation rule.</p>'
+                    .'<p>These improvements are especially relevant for sites joining the collaborative network with historical exports spanning several years.</p>',
+                'category' => $platform,
+                'tags' => [$tagImport, $tagCollaboration],
+                'status' => PostStatus::PUBLISHED,
+            ],
+            [
+                'title' => 'There is a particular quiet in cities just before sunrise.',
+                'slug' => 'quiet-in-cities-before-sunrise',
+                'content' => '<p>Benchmarking has been one of the most requested capabilities since the project started. '
+                    .'Hospitals want to understand how their allocation patterns compare to anonymised peer groups without exposing identifiable competitor data.</p>'
+                    .'<p>The new statistics explorer adds configurable analyses with saved scopes, filters for urgency and speciality, and first benchmarking views that compare a hospital against size-based clusters.</p>'
+                    .'<p>All comparisons remain aggregated and anonymised. Named hospitals outside a user\'s own organisation are never shown side by side in a competitive layout.</p>'
+                    .'<p>Early testers used the explorer to review seasonal shifts in paediatric transfers and to monitor how often specific clinical flags appear in high-urgency cases. '
+                    .'Those workflows informed default chart presets and the layout of the filter panel.</p>'
+                    .'<p>We plan to extend benchmarking with additional cluster dimensions and export options for research working groups. '
+                    .'Feedback on which comparisons are clinically meaningful is very welcome.</p>'
+                    .'<p>This release marks a major step from a pure import repository towards an analysis platform that supports quality assurance and collaborative research questions.</p>'
+                    .'<p>Documentation for the explorer will be expanded in the FAQ over the coming weeks.</p>',
+                'category' => $platform,
+                'tags' => [$tagBenchmarking, $tagStatistics],
+                'status' => PostStatus::PUBLISHED,
+            ],
+            [
+                'title' => 'He kept the old map folded in the back pocket of his coat.',
+                'slug' => 'old-map-folded-in-coat-pocket',
+                'content' => '<p>In early 2021, members of a regional emergency medicine working group began discussing how rarely EMS allocation data is analysed at scale. '
+                    .'Individual hospitals held rich IVENA exports, but there was no infrastructure to combine them responsibly for collaborative research.</p>'
+                    .'<p>The idea behind Collaborative IVENA Statistics grew out of those conversations: a shared platform where participating hospitals retain control over their own data while contributing to anonymised aggregate analyses.</p>'
+                    .'<p>Initial prototypes focused on import mechanics and reference data alignment across sites with different IVENA configuration histories. '
+                    .'Even simple questions, such as comparing urgency distributions between urban and rural catchment areas, required substantial normalisation work.</p>'
+                    .'<p>Today the project spans multiple hospitals and continues to be shaped by clinicians, coordinators, and data staff who use the platform in parallel with their daily operations.</p>'
+                    .'<p>This draft post will be expanded with a fuller project timeline once the public about page is updated.</p>',
+                'category' => $research,
+                'tags' => [$tagCollaboration],
                 'status' => PostStatus::DRAFT,
             ],
         ];
@@ -253,6 +303,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 'slug' => $postData['slug'],
                 'content' => $postData['content'],
                 'category' => $postData['category'],
+                'tags' => $postData['tags'],
                 'status' => $postData['status'],
                 'publishedAt' => new \DateTimeImmutable('-'.random_int(1, 90).' days'),
                 'createdBy' => UserFactory::random(),

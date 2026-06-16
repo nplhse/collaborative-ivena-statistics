@@ -80,9 +80,8 @@ final class ImportBatchPlanner
                     $batches[] = new ImportBatch(
                         hospital: $hospital,
                         importName: sprintf(
-                            '2025 Q%d IVENA allocations — %s',
-                            ($i % 4) + 1,
-                            (string) $hospital->getName(),
+                            '2025 Q%d IVENA allocations',
+                            ($created % 4) + 1,
                         ),
                         allocationCount: $perImport,
                     );
