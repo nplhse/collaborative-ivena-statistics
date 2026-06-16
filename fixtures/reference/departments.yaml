@@ -1,0 +1,110 @@
+names:
+  - 'Akut- und Gerontopsych. / Isolierung'
+  - 'Akut- und Gerontopsychiatrie'
+  - 'Allgemein Innere Medizin'
+  - 'Allgemein- und Viszeralchirurgie'
+  - 'Allgemeine Augenheilkunde'
+  - 'Allgemeine Augenheilkunde - Isolierung'
+  - 'Allgemeine Geriatrie - Isolierung'
+  - 'Allgemeine Kinderheilkunde - Isolierung'
+  - 'Allgemeine Neurologie - Isolierung'
+  - 'Allgemeine Urologie - Isolierung'
+  - 'Cardiac Arrest Center'
+  - 'Chest Pain Unit'
+  - 'Chir. Allgemein - Isolierung'
+  - 'Chir. IMC - Isolierung'
+  - 'Chir. IMC ohne Beatmung'
+  - 'Chir. Intensiv - Isolierung'
+  - 'Chir. Intensiv mit Beatmung'
+  - 'Chir. Intensiv mit Isolierung'
+  - 'Chir. Intensiv ohne Beatmung'
+  - 'CoVID-19 Intensivstation'
+  - 'CoVID-19 Normalstation'
+  - Endokrino-/Diabetologie
+  - 'Endokrino-/Diabetologie - Isolierung'
+  - Gastroenterologie
+  - 'Gastroenterologie - Isolierung'
+  - Geburtshilfe
+  - 'Geburtshilfe - Isolierung'
+  - Gefäßchirurgie
+  - Geriatrie
+  - Gynäkologie
+  - 'Gynäkologie - Isolierung'
+  - Hals-Nasen-Ohrenheilkunde
+  - 'Hals-Nasen-Ohrenheilkunde - Isolierung'
+  - Handchirurgie
+  - 'Haut- und Geschlechtsk. - Isolierung'
+  - 'Haut- und Geschlechtskrankheiten'
+  - Herzchirurgie
+  - IMC
+  - Infektiologie
+  - 'Innere Allgemein - Isolierung'
+  - 'Innere IMC - Isolierung'
+  - 'Innere IMC ohne Beatmung'
+  - 'Innere Intensiv - Isolierung'
+  - 'Innere Intensiv mit Beatmung'
+  - 'Innere Intensiv ohne Beatmung'
+  - 'Innere Überwachung'
+  - Intensivstation
+  - Intoxikation
+  - Kardiologie
+  - 'Kardiologie - Isolierung'
+  - 'Kardiologie Intensiv - Isolierung'
+  - 'Kardiologie Intensiv mit Beatmung'
+  - 'Kardiologie Intensiv ohne Beatmung'
+  - 'Kinder / Jugendpsychiatrie / Isolierung'
+  - 'Kinder Intensiv - Isolierung'
+  - 'Kinder Intensiv mit Beatmung'
+  - 'Kinder Intensiv ohne Beatmung'
+  - 'Kinder- und Jugendgynäkologie'
+  - Kinder-HNO
+  - Kinder-Pneumologie
+  - Kinderaugenheilkunde
+  - Kinderchirurgie
+  - Kinderdiabetologie
+  - Kindergastroenterologie
+  - Kinderheilkunde
+  - Kinderinfektiologie
+  - Kinderkardiologie
+  - Kinderneurochirurgie
+  - Kinderneurologie
+  - Kinderpsychiatrie
+  - Kinderurologie
+  - Mund-Kiefer-Gesichtschirurgie
+  - 'Mund-Kiefer-Gesichtschirurgie - Isolier'
+  - 'Neonatologie Intensiv'
+  - Neurochirurgie
+  - 'Neurochirurgie Intensiv - Isolierung'
+  - 'Neurochirurgie Intensiv mit Beatmung'
+  - 'Neurochirurgie Intensiv ohne Beatmung'
+  - Neurologie
+  - 'Neurologie Intensiv - Isolierung'
+  - 'Neurologie Intensiv mit Beatmung'
+  - 'Neurologie Intensiv ohne Beatmung'
+  - Nuklearmedizin
+  - 'Operative Neurochirurgie - Isolierung'
+  - Orthopädie
+  - 'Orthopädie - Isolierung'
+  - Pneumologie
+  - 'Pneumologie - Isolierung'
+  - Psychiatrie
+  - 'Psychiatrie / Psychother. / Isolierung'
+  - 'Psychiatrie HFEG'
+  - 'Sektorenzuweisung nach PSychKHG'
+  - Strahlentherapie
+  - 'Stroke Unit'
+  - Suchtbehandlung
+  - Thoraxchirurgie
+  - Thrombektomie
+  - 'Transport zu definierter Leistung'
+  - 'Traumatologisch Intensiv - Isolierung'
+  - 'Traumatologisch Intensiv mit Beatmung'
+  - 'Traumatologisch Intensiv ohne Beatmung'
+  - Unfallchirurgie
+  - 'Unfallchirurgie - Isolierung'
+  - Urologie
+  - Verbrennungschirurgie
+  - Wirbelsäulenchirurgie
+  - ZAS
+  - ZOM
+  - 'Zu- Verlegung Sonderlage Ukraine'
