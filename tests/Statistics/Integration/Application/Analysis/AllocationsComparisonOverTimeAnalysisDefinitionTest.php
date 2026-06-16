@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Statistics\Unit\Application\Analysis;
+namespace App\Tests\Statistics\Integration\Application\Analysis;
 
 use App\Statistics\Application\Analysis\AllocationsComparisonOverTimeAnalysisDefinition;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;

@@ -50,14 +50,15 @@ make psalm
 
 ## CI reference
 
-- **Unit job** (parallel, no database): `vendor/bin/paratest --testsuite unit`
-- **Database job** (PostgreSQL, migrations): `bin/phpunit --testsuite all --exclude-testsuite unit`
+- **Unit job** (parallel, no database): `vendor/bin/paratest --testsuite unit` — stops on first failure
+- **Database job** (parallel, PostgreSQL, migrations): `bin/phpunit --testsuite all --exclude-testsuite unit` — stops on first failure; either job failing fails the workflow
 - Workflows: `.github/workflows/tests.yml`
 - Linting: `.github/workflows/lint.yml`
 - Security scan: `.github/workflows/security.yml`
 
 ## Common pitfalls
 
+- Tests using `#[ResetDatabase]` or `DatabaseKernelTestCase` belong under `tests/*/Integration/` (or higher layers), not `tests/*/Unit/`: the CI unit job runs ParaTest without PostgreSQL.
 - Missing test database or wrong `DATABASE_URL`
 - Materialized views not refreshed in statistics-related tests
 - Missing `fixtures.scale` in test env (see `config/packages/test/fixtures.yaml`)

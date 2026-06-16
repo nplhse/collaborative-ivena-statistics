@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Allocation\Unit\Infrastructure\Security;
+namespace App\Tests\Allocation\Integration\Infrastructure\Security;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;

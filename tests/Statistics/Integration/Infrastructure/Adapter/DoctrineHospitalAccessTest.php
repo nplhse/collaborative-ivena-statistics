@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Statistics\Unit\Infrastructure\Adapter;
+namespace App\Tests\Statistics\Integration\Infrastructure\Adapter;
 
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;

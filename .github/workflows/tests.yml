@@ -47,7 +47,7 @@ jobs:
               run: composer install --ansi --no-interaction --no-progress
 
             - name: Execute unit tests via ParaTest
-              run: vendor/bin/paratest --testsuite unit --processes=4 --order-by duration
+              run: vendor/bin/paratest --testsuite unit --processes=4 --order-by duration --stop-on-failure
 
     database:
         name: Database tests (PHP ${{ matrix.php-version }})
@@ -115,18 +115,19 @@ jobs:
 
             - name: Execute database-backed tests via PHPUnit
               run: |
-                  bin/phpunit --testsuite all --exclude-testsuite unit --log-junit junit.xml --order-by duration
+                  bin/phpunit --testsuite all --exclude-testsuite unit --log-junit junit.xml --order-by duration --stop-on-failure
                   php bin/report-slowest-tests 10 || true
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
 
             - name: Upload coverage reports to Codecov
+              if: success()
               uses: codecov/codecov-action@v6
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
 
             - name: Upload test results to Codecov
-              if: ${{ !cancelled() }}
+              if: success()
               uses: codecov/test-results-action@v1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
