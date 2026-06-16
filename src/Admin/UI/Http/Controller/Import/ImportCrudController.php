@@ -100,6 +100,12 @@ final class ImportCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield IntegerField::new('rowsRejected', 'Rows rejected')
             ->onlyOnDetail();
+        yield IntegerField::new('rowsDeduplicated', 'Rows deduplicated')
+            ->onlyOnDetail();
+        yield IntegerField::new('rowsDeduplicatedDiscarded', 'Rows deduplicated (Discarded)')
+            ->onlyOnDetail();
+        yield IntegerField::new('rowsDeduplicatedReplaced', 'Rows deduplicated (Replaced)')
+            ->onlyOnDetail();
         yield IntegerField::new('runCount', 'Run count')
             ->onlyOnDetail();
         yield IntegerField::new('runTime', 'Runtime (ms)')

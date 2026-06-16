@@ -14,6 +14,7 @@ use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
+use App\Import\Application\Service\ImportAllocationDeduplicationService;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
@@ -40,6 +41,7 @@ final readonly class ImportAllocationsMessageHandler
         private LoggerInterface $importLogger,
         private EventDispatcherInterface $dispatcher,
         private ImportPreviousRunCleanupService $previousRunCleanupService,
+        private ImportAllocationDeduplicationService $deduplicationService,
         private AuditContext $auditContext,
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
@@ -108,6 +110,7 @@ final readonly class ImportAllocationsMessageHandler
     public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
     {
         $started = \microtime(true);
+        $summary = ImportSummary::empty();
 
         try {
             $importer = $this->importFactory->create($reader, $writer);
@@ -125,6 +128,10 @@ final readonly class ImportAllocationsMessageHandler
                 $fresh->setRejectFilePath(\str_replace('\\', '/', $rel));
             }
 
+            $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);
+            $this->deduplicationService->applyDeduplicationStats($fresh, $dedupResult);
+            $summary = $this->deduplicationService->adjustSummary($summary, $dedupResult);
+
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
 
             ImportEvaluation::apply($fresh, $summary, $runtimeMs);
@@ -135,7 +142,12 @@ final readonly class ImportAllocationsMessageHandler
         } catch (\Throwable $e) {
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
 
-            $import->markAsFailed($runtimeMs);
+            $import->markAsFailed(
+                $runtimeMs,
+                $summary->total,
+                $summary->ok,
+                $summary->rejected,
+            );
             $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $e->getMessage()]);
 
             $this->importLogger->error('import.failed.precondition', [

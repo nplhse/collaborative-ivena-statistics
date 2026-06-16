@@ -16,7 +16,12 @@ final class ImportEvaluation
     public static function apply(Import $import, ImportSummary $summary, int $runtimeMs): void
     {
         if (0 === $summary->total) {
-            $import->markAsFailed($runtimeMs);
+            $import->markAsFailed(
+                runtimeMs: $runtimeMs,
+                total: $summary->total,
+                ok: $summary->ok,
+                rejected: $summary->rejected,
+            );
 
             return;
         }
@@ -35,7 +40,12 @@ final class ImportEvaluation
         }
 
         if ($ratio >= self::FAILED_MIN_RATIO) {
-            $import->markAsFailed($runtimeMs);
+            $import->markAsFailed(
+                runtimeMs: $runtimeMs,
+                total: $summary->total,
+                ok: $summary->ok,
+                rejected: $summary->rejected,
+            );
 
             return;
         }
