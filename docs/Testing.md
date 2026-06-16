@@ -3,6 +3,7 @@
 ## Test types
 
 - **Unit / integration / functional** via PHPUnit under `tests/`
+- **Fixture tests** under `tests/DataFixtures/` (reference YAML, pattern validation)
 - **Import integration tests** for CSV processing and reject behavior
 - **Command tests** for requeue and exit-code behavior
 
@@ -38,9 +39,11 @@ make psalm
 
 - Missing test database or wrong `DATABASE_URL`
 - Materialized views not refreshed in statistics-related tests
+- Missing `fixtures.scale` in test env (see `config/packages/test/fixtures.yaml`)
 - Queue expectations in tests vs `when@test` routing (sync)
 
 ## Related documentation
 
 - Statistics projection: [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md)
+- Fixtures: [Development-fixtures.md](Development-fixtures.md)
 - Development: [Development-Workflow.md](Development-Workflow.md)

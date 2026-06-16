@@ -84,6 +84,7 @@ For a full overview of the documentation, look at [docs/Overview.md](docs/Overvi
 - Configuration: [docs/Configuration.md](docs/Configuration.md)
 - Import: [docs/Import-workflow.md](docs/Import-workflow.md)
 - Development: [docs/Development-Workflow.md](docs/Development-Workflow.md)
+- Fixtures: [docs/Development-fixtures.md](docs/Development-fixtures.md)
 - Testing: [docs/Testing.md](docs/Testing.md)
 - Deployment / operations: [docs/Deployment.md](docs/Deployment.md)
 - Troubleshooting: [docs/Troubleshooting.md](docs/Troubleshooting.md)
@@ -93,6 +94,7 @@ For a full overview of the documentation, look at [docs/Overview.md](docs/Overvi
 - [docs/Import-batch-requeue.md](docs/Import-batch-requeue.md)
 - [docs/Import-reject-analysis.md](docs/Import-reject-analysis.md)
 - [docs/Statistics-projection-materialized-views.md](docs/Statistics-projection-materialized-views.md)
+- [docs/Development-fixtures.md](docs/Development-fixtures.md)
 - [docs/Observability-sentry.md](docs/Observability-sentry.md)
 
 ## Contributing

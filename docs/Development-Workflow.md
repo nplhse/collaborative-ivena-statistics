@@ -13,7 +13,7 @@ make upgrade-dev  # update deps/schema; keeps existing DB (e.g. mirror DB)
 
 ```bash
 make purge   # clear assets, uploads, imports, logs; empty DB; no fixtures
-make reset   # like purge, then load demo fixtures
+make reset   # like purge, then load demo fixtures (see Development-fixtures.md)
 ```
 
 ### Start the local worker
@@ -101,4 +101,5 @@ php bin/console doctrine:migrations:migrate --no-interaction
 - Setup: [Setup.md](Setup.md)
 - Testing: [Testing.md](Testing.md)
 - Import: [Import-workflow.md](Import-workflow.md)
+- Fixtures: [Development-fixtures.md](Development-fixtures.md)
 - Troubleshooting: [Troubleshooting.md](Troubleshooting.md)

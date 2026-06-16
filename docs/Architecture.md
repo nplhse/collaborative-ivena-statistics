@@ -21,6 +21,7 @@ Typical layering per context:
 | `Admin` | EasyAdmin back office |
 | `Shared` | Cross-cutting concerns (audit, monitoring, infrastructure) |
 | `Content` | Content pages and blog |
+| `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |
 
 ## Core components
 
@@ -53,8 +54,12 @@ For flow details: [Import-workflow.md](Import-workflow.md) and [Statistics-proje
 - `app:import:requeue-all`
 - `app:statistics:refresh-mviews`
 - `app:allocation:backfill-indications`
-- `app:seed:projection`
+- `app:statistics:rebuild-projection`
+- `app:fixtures:validate-patterns`
+- `app:fixtures:export-patterns`
 - `app:install`
+
+Fixture loading uses `doctrine:fixtures:load` with groups (see [Development-fixtures.md](Development-fixtures.md)).
 
 ## Clinic-specific access grants
 

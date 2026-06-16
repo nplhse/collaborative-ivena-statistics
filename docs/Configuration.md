@@ -28,6 +28,7 @@
 | `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::APP_VERSION` (`app.version`) |
 | `SENTRY_TRACES_SAMPLE_RATE` | Trace sampling rate | `0.0`–`1.0` |
 | `SENTRY_ENABLE_LOGS` | Structured logs | `true` / `false` |
+| `FIXTURES_SCALE` | Dev fixture volume multiplier | `1`–`10`; see [Development-fixtures.md](Development-fixtures.md) |
 
 ## Database
 
