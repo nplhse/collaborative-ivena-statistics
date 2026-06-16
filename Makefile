@@ -1,5 +1,5 @@
 .DEFAULT_GOAL = help
-.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset upgrade
+.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade
 
 # Executables
 COMPOSER      = composer
@@ -98,6 +98,9 @@ compile: ## Execute some tasks before deployment
 consume: ## Consume messages from symfony messenger
 	@$(CONSOLE) messenger:consume async_priority_high async_priority_low scheduler_default -vv
 
+fixtures: ## Load dev demo fixtures (replaces existing fixture data)
+	@$(SYMFONY) composer load-fixtures
+
 trans: ## Extract translations from symfony
 	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc en
 
@@ -162,7 +165,7 @@ purge: purge-runtime ## Clear runtime files and empty DB (no fixtures)
 reset: purge-runtime ## Like purge plus demo fixtures
 	@$(SYMFONY) composer setup-database
 	@$(MAKE) warmup
-	@$(SYMFONY) composer load-fixtures
+	@$(MAKE) load-fixtures
 
 clear: ## Cleanup everything
 	@rm -rf vendor/*
