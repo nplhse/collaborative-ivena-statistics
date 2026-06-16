@@ -62,7 +62,7 @@ make start
 
 ```bash
 symfony composer setup-database
-symfony composer load-fixtures      # optional demo data
+symfony composer load-fixtures      # demo data (--group=dev)
 symfony composer setup-test-env     # fresh test DB (drop/create/migrate)
 symfony composer upgrade-test-env   # same as setup-test-env; used by make upgrade-dev
 ```
@@ -75,3 +75,5 @@ make lint
 ```
 
 If both pass, the local development environment is ready.
+
+Fixture details: [Development-fixtures.md](Development-fixtures.md)

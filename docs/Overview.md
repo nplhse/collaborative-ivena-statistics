@@ -11,6 +11,7 @@ Entry point for project documentation.
 | Configuration | [Configuration.md](Configuration.md)               | ENV variables, databases, Messenger, mail, Sentry |
 | Import | [Import-workflow.md](Import-workflow.md)           | Upload, dispatch, worker processing, failure modes |
 | Development | [Development-Workflow.md](Development-Workflow.md) | Typical commands, daily workflows, debugging |
+| Fixtures | [Development-fixtures.md](Development-fixtures.md) | Reference YAML, fixture groups, synthetic allocations |
 | Testing | [Testing.md](Testing.md)                           | Local test runs and CI-relevant checks |
 | Deployment | [Deployment.md](Deployment.md)                     | Deployer, worker, ops commands |
 | Troubleshooting | [Troubleshooting.md](Troubleshooting.md)           | Common problems and quick diagnosis |
@@ -25,6 +26,7 @@ Quick help and diagnostic commands:
 
 - [Import-batch-requeue.md](Import-batch-requeue.md)
 - [Import-reject-analysis.md](Import-reject-analysis.md)
+- [Development-fixtures.md](Development-fixtures.md)
 - [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md)
 - [data-quality-indicator.md](data-quality-indicator.md)
 - [Observability-sentry.md](Observability-sentry.md)

@@ -10,10 +10,10 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\StatisticsFilterFactory;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class StatisticsFilterFactoryTest extends KernelTestCase
+final class StatisticsFilterFactoryTest extends DatabaseKernelTestCase
 {
     public function testInvalidCohortFallsBackToPublicForAnonymousUser(): void
     {

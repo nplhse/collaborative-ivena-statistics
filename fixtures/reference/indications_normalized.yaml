@@ -1,0 +1,631 @@
+indications:
+  -
+    code: '000'
+    name: 'Kein Patient vorhanden'
+  -
+    code: '111'
+    name: 'primäre Todesfeststellung'
+  -
+    code: '121'
+    name: 'Reanimation ohne ROSC'
+  -
+    code: '122'
+    name: 'Reanimation mit ROSC (Tod am EO)'
+  -
+    code: '123'
+    name: 'Reanimation mit ROSC (Tod auf Trsp.)'
+  -
+    code: '131'
+    name: 'Reanimation laufend /intermittierend'
+  -
+    code: '132'
+    name: 'Reanimation ROSC'
+  -
+    code: '133'
+    name: 'Reanimation bei Trauma laufend/intermittierend'
+  -
+    code: '134'
+    name: 'Reanimation Hypothermie'
+  -
+    code: '140'
+    name: 'vvECMO Zuverlegung'
+  -
+    code: '141'
+    name: 'vvECMO Abholung'
+  -
+    code: '142'
+    name: 'vaECMO Zuverlegung'
+  -
+    code: '143'
+    name: 'vaECMO Abholung'
+  -
+    code: '144'
+    name: 'eCPR Zuverlegung'
+  -
+    code: '145'
+    name: 'eCPR Abholung'
+  -
+    code: '201'
+    name: 'Chirurgie Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '202'
+    name: 'Chirurgie Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '203'
+    name: 'Chirurgie Zu-Verlegung IMC mit Arzt'
+  -
+    code: '204'
+    name: 'Chirurgie Zu-Verlegung IMC ohne Arzt'
+  -
+    code: '205'
+    name: 'Neurochirurgie Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '206'
+    name: 'Neurochirurgie Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '211'
+    name: 'Polytrauma mit SHT'
+  -
+    code: '212'
+    name: 'Polytrauma ohne SHT'
+  -
+    code: '213'
+    name: 'Schockraumindikation nach Unfallhergang'
+  -
+    code: '214'
+    name: 'Mehrfachverletzung sonstige'
+  -
+    code: '215'
+    name: 'Mehrfachverletzung mit Augen'
+  -
+    code: '219'
+    name: 'oberflächliche Verletzung beliebiger Lokalisation'
+  -
+    code: '211'
+    name: 'SHT offen'
+  -
+    code: '222'
+    name: 'SHT geschlossen'
+  -
+    code: '223'
+    name: Gesichtsverletzung
+  -
+    code: '224'
+    name: Kopfverletzung
+  -
+    code: '225'
+    name: Augenverletzung
+  -
+    code: '231'
+    name: 'Thorax penetrierend'
+  -
+    code: '232'
+    name: 'Thorax geschlossen/stumpf'
+  -
+    code: '233'
+    name: 'Pneumothorax (traumatisch)'
+  -
+    code: '241'
+    name: 'Abdomen penetrierend'
+  -
+    code: '242'
+    name: 'Abdomen geschlossen/stumpf'
+  -
+    code: '243'
+    name: 'Akutes Abdomen (nicht traumatisch)'
+  -
+    code: '251'
+    name: 'Verletzung der Wirbelsäulen mit neuro. Ausfällen'
+  -
+    code: '252'
+    name: 'Verletzung der Wirbelsäulen ohne neuro. Ausfällen'
+  -
+    code: '253'
+    name: 'Rückenschmerzen, akut mit neuro. Symptomatik'
+  -
+    code: '254'
+    name: 'Rückenschmerzen, nicht traumatisch ohne neuro. Ausfällen'
+  -
+    code: '255'
+    name: 'Lähmung / Querschnitt akut (nicht Stroke)'
+  -
+    code: '261'
+    name: 'Becken offen'
+  -
+    code: '262'
+    name: 'Becken geschlossen'
+  -
+    code: '263'
+    name: 'Urogenitaltrauma (isoliert)'
+  -
+    code: '271'
+    name: 'Extremitäten offen'
+  -
+    code: '272'
+    name: 'Extremitäten geschlossen'
+  -
+    code: '273'
+    name: Hüft-/Schenkelhalsfraktur
+  -
+    code: '274'
+    name: 'Verl. d. Extrem. mit Gefäß-/Nervenverl.'
+  -
+    code: '275'
+    name: Handverletzung
+  -
+    code: '276'
+    name: 'Finger Amputation'
+  -
+    code: '277'
+    name: 'Hand-/Extremitäten Amputation'
+  -
+    code: '281'
+    name: 'Verbrennung / Verbrühung'
+  -
+    code: '282'
+    name: Verätzung
+  -
+    code: '283'
+    name: Hochspannungstrauma
+  -
+    code: '284'
+    name: 'Barotrauma / Tauchunfall /Dekompressionskrankheit'
+  -
+    code: '285'
+    name: Strahlentrauma
+  -
+    code: '286'
+    name: 'Hitzeerschöpfung / Hitzschlag'
+  -
+    code: '287'
+    name: 'Unterkühlung / Erfrierung'
+  -
+    code: '288'
+    name: '(Beinahe-) Ertrinken / Badeunfall'
+  -
+    code: '291'
+    name: Aortenaneurysma
+  -
+    code: '292'
+    name: 'Extremitätenischaemie (akut)'
+  -
+    code: '293'
+    name: 'Aorta ascendens Dissektion (bestätigt)'
+  -
+    code: '299'
+    name: 'Gefäßchirurgischer Notfall, sonstiger'
+  -
+    code: '301'
+    name: 'Innere Medizin Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '302'
+    name: 'Innere Medizin Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '303'
+    name: 'Innere Medizin Zu-Verlegung IMC mit Arzt'
+  -
+    code: '304'
+    name: 'Innere Medizin Zu-Verlegung IMC ohne Arzt'
+  -
+    code: '311'
+    name: 'Atemnot (unklar) /Atembeschwerden /ARI'
+  -
+    code: '312'
+    name: 'Obstruktion (Asthma / COPD)'
+  -
+    code: '313'
+    name: 'Hämoptoe / Hämoptysen'
+  -
+    code: '314'
+    name: '(Bolus-) Aspiration'
+  -
+    code: '315'
+    name: 'Bronchitis / Pneumonie'
+  -
+    code: '316'
+    name: Hyperventilation
+  -
+    code: '317'
+    name: 'Lungenödem (nicht kardial)'
+  -
+    code: '318'
+    name: Spontanpneumothorax
+  -
+    code: '319'
+    name: 'Pneumologischer Notfall, sonstiger'
+  -
+    code: '321'
+    name: 'Anaphylaxie / Unverträglichkeitsreaktion'
+  -
+    code: '322'
+    name: 'Synkope / Kollaps'
+  -
+    code: '323'
+    name: Hypotonie
+  -
+    code: '324'
+    name: Thrombose
+  -
+    code: '325'
+    name: 'Unklares Fieber'
+  -
+    code: '326'
+    name: Exsikkose
+  -
+    code: '329'
+    name: 'Internistischer Notfall, sonstiger'
+  -
+    code: '331'
+    name: 'Unklarer Brust-/Thoraxschmerz'
+  -
+    code: '332'
+    name: STEMI/“OMI“
+  -
+    code: '333'
+    name: 'NSTEMI, instabile AP'
+  -
+    code: '341'
+    name: Arrhythmie
+  -
+    code: '342'
+    name: Bradykardie
+  -
+    code: '343'
+    name: Tachykardie
+  -
+    code: '344'
+    name: 'Elektrounfall (Schwachstrom)'
+  -
+    code: '345'
+    name: 'Hypertensiver Notfall/Krise'
+  -
+    code: '346'
+    name: 'Kardiogener Schock'
+  -
+    code: '347'
+    name: Herzinsuffizienz
+  -
+    code: '348'
+    name: Lungenembolie
+  -
+    code: '349'
+    name: 'Kardiologischer Notfall, sonstiger'
+  -
+    code: '351'
+    name: GI-Blutung
+  -
+    code: '353'
+    name: Bauchschmerzen
+  -
+    code: '354'
+    name: Gastroenteritis
+  -
+    code: '359'
+    name: 'Gastroenterologischer Notfall, sonstiger'
+  -
+    code: '360'
+    name: 'Rauchgas/Reizgas (nicht CO)'
+  -
+    code: '361'
+    name: Alkohol
+  -
+    code: '362'
+    name: 'Drogen / Rauschgift'
+  -
+    code: '363'
+    name: 'Mischintoxikation / Alkohol / Drogen / Medikamente'
+  -
+    code: '364'
+    name: Lebensmittel
+  -
+    code: '365'
+    name: Medikamente
+  -
+    code: '366'
+    name: Pflanzenschutzmittel
+  -
+    code: '367'
+    name: 'Tierische Gifte'
+  -
+    code: '368'
+    name: Giftpflanzen
+  -
+    code: '369'
+    name: 'Inhalative Intoxikation, sonstige'
+  -
+    code: '370'
+    name: Kohlenmonoxid-Vergiftung
+  -
+    code: '371'
+    name: 'Meningitis /Enzephalitis'
+  -
+    code: '372'
+    name: TBC
+  -
+    code: '373'
+    name: 'Sepsis (Infekt. + qSOFA mind. 2)'
+  -
+    code: '374'
+    name: 'Septischer Schock'
+  -
+    code: '375'
+    name: 'Hochkontagiöse Erkrankung (Sonder-ISO)'
+  -
+    code: '376'
+    name: 'Infektionskrankheit – (bestätigt)'
+  -
+    code: '377'
+    name: 'Infektionskrankheit – (nicht bestätigt)'
+  -
+    code: '378'
+    name: 'Infektionskrankheit – (zur Quarantäne)'
+  -
+    code: '379'
+    name: 'Infektiologischer Notfall, sonstiger'
+  -
+    code: '391'
+    name: 'Akuter endokrinologischer Notfall'
+  -
+    code: '392'
+    name: Hyperglykämie
+  -
+    code: '393'
+    name: Hypoglykämie
+  -
+    code: '401'
+    name: 'Neurologie Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '402'
+    name: 'Neurologie Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '411'
+    name: 'Anhaltender epileptischer Krampfanfall'
+  -
+    code: '412'
+    name: 'Epileptischer Anfall (stattgehabt)'
+  -
+    code: '413'
+    name: 'Kopf-/Gesichtsschmerz (bei SK1 NC!)'
+  -
+    code: '414'
+    name: 'Vigilanzminderung /Koma (ohne Trauma)'
+  -
+    code: '415'
+    name: Schwindel
+  -
+    code: '419'
+    name: 'Neurologischer Notfall, sonstiger'
+  -
+    code: '421'
+    name: 'Schlaganfall / Blutung < 24 h oder unklar'
+  -
+    code: '422'
+    name: 'Wie 421 Einsatzstelle -- > Thrombektomie'
+  -
+    code: '423'
+    name: 'Schlaganfall / Blutung >24 h'
+  -
+    code: '425'
+    name: 'Diagnostik Cereb. Gefäßverschl. zur Thrombektomie'
+  -
+    code: '431'
+    name: 'Suizid, angedroht'
+  -
+    code: '432'
+    name: 'Einweisung, psychiatrische'
+  -
+    code: '433'
+    name: 'Einweisung (nach LandesPsychKG)'
+  -
+    code: '434'
+    name: 'Einweisung (nach LandesPsychKG)"'
+  -
+    code: '435'
+    name: 'Akute Verwirrtheit/Delir'
+  -
+    code: '501'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '502'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '502'
+    name: 'Zuverlegung Inkubator'
+  -
+    code: '511'
+    name: 'Pädiatrisch - Atemnot'
+  -
+    code: '512'
+    name: 'schwerer Husten (Pseudokrupp)'
+  -
+    code: '513'
+    name: 'pädiatrisch Fieberkrampf'
+  -
+    code: '519'
+    name: 'Pädiatrischer Notfall, sonstiger'
+  -
+    code: '521'
+    name: '<16 SSW'
+  -
+    code: '522'
+    name: '16+0 SSW bis 21+6 SSW'
+  -
+    code: '523'
+    name: '22+0 SSW bis 28+6 SSW'
+  -
+    code: '524'
+    name: '29+0 SSW bis 31+6 SSW'
+  -
+    code: '525'
+    name: '32+0 SSW bis 36+6 SSW + jede Wachstumsstörung'
+  -
+    code: '526'
+    name: 'ab 37+0 SSW'
+  -
+    code: '527'
+    name: 'ab 37+0 SSW + Diabetes'
+  -
+    code: '528'
+    name: 'Drillinge bis 32+6, alle über 3 Mehrlinge'
+  -
+    code: '529'
+    name: 'Drillinge ab 33+0'
+  -
+    code: '531'
+    name: '<16 SSW'
+  -
+    code: '532'
+    name: '16+0 SSW bis 21+6 SSW'
+  -
+    code: '533'
+    name: '22+0 SSW bis 28+6 SSW'
+  -
+    code: '534'
+    name: '29+0 SSW bis 31+6 SSW'
+  -
+    code: '535'
+    name: '32+0 SSW bis 36+6 SSW + jede Wachstumsstörung'
+  -
+    code: '536'
+    name: 'ab 37+0 SSW'
+  -
+    code: '537'
+    name: 'ab 37+0 SSW + Diabetes'
+  -
+    code: '538'
+    name: 'Drillinge bis 32+6, alle über 3 Mehrlinge'
+  -
+    code: '539'
+    name: 'Drillinge ab 33+0'
+  -
+    code: '530'
+    name: 'akute fetale Gefährdung, Erstversorgung ggf. in ungeeigneter Klinik'
+  -
+    code: '541'
+    name: '<16 SSW'
+  -
+    code: '542'
+    name: '16+0 SSW bis 21+6 SSW'
+  -
+    code: '543'
+    name: '22+0 SSW bis 28+6 SSW'
+  -
+    code: '544'
+    name: '29+0 SSW bis 31+6 SSW'
+  -
+    code: '545'
+    name: '32+0 SSW bis 36+6 SSW + jede Wachstumsstörung'
+  -
+    code: '546'
+    name: 'ab 37+0 SSW'
+  -
+    code: '547'
+    name: 'ab 37+0 SSW + Diabetes'
+  -
+    code: '548'
+    name: 'Drillinge bis 32+6, alle über 3 Mehrlinge'
+  -
+    code: '549'
+    name: 'Drillinge ab 33+0'
+  -
+    code: '540'
+    name: 'akute fetale Gefährdung, Erstversorgung ggf. in ungeeigneter Klinik'
+  -
+    code: '551'
+    name: 'Vaginale Blutung'
+  -
+    code: '552'
+    name: Unterbauchschmerzen
+  -
+    code: '553'
+    name: Sexualdelikt
+  -
+    code: '559'
+    name: 'Gynäkologischer Notfall, sonstiger'
+  -
+    code: '601'
+    name: 'Transport zu definierten Leistungen'
+  -
+    code: '601'
+    name: 'Transport zu geplanter Dialyse'
+  -
+    code: '601'
+    name: 'Transport zu geplantem Herzkatheter'
+  -
+    code: '601'
+    name: 'Transport zu geplantem CT'
+  -
+    code: '601'
+    name: 'Transport zu geplantem MRT'
+  -
+    code: '626'
+    name: 'Strategische Verlegung (z.B. Kleeblatt)'
+  -
+    code: '631'
+    name: 'Entlassung aus stationärer Behandlung'
+  -
+    code: '701'
+    name: 'Haut-u. Geschlechtskrankheiten'
+  -
+    code: '711'
+    name: 'Nieren- Harnleiterkolik'
+  -
+    code: '712'
+    name: Hodenschmerz
+  -
+    code: '713'
+    name: 'Harnverhalt (akut)'
+  -
+    code: '714'
+    name: Hämaturie
+  -
+    code: '715'
+    name: 'Katheterwechsel (transurethral)'
+  -
+    code: '716'
+    name: 'Katheterwechsel (suprapubisch)'
+  -
+    code: '717'
+    name: Katheterverlust/-verstopfung
+  -
+    code: '718'
+    name: Harnwegsinfekt
+  -
+    code: '719'
+    name: 'Urologischer Notfall, sonstiger'
+  -
+    code: '721'
+    name: 'Akute Augenerkrankung'
+  -
+    code: '729'
+    name: 'Augennotfall, sonstiger'
+  -
+    code: '731'
+    name: 'Nasenbluten (Epistaxis) unstillbar'
+  -
+    code: '732'
+    name: '(Nach-)Blutung, HNO, akut'
+  -
+    code: '733'
+    name: Tracheostoma-Komplikation
+  -
+    code: '739'
+    name: 'HNO Notfall, sonstiger'
+  -
+    code: '749'
+    name: 'MKG Notfall, sonstiger'
+  -
+    code: '751'
+    name: 'Geriatrische Einweisung'
+  -
+    code: '779'
+    name: 'sonstige Notfallsituationen'
+  -
+    code: '801'
+    name: 'Schmerz/Schwellung Bewegungsapparat (nicht traumatisch)'
+  -
+    code: '802'
+    name: 'Schwellung/Abszeß sonstige Lokalisation'
+  -
+    code: '809'
+    name: 'Allgemeinmedizin, sonstiger Notfall'

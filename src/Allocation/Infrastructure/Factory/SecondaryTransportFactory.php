@@ -26,11 +26,14 @@ final class SecondaryTransportFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         $names = [
+            'Diagnostik',
+            'Intensivstation',
+            'Intervention',
+            'OP',
+            'Sekundärverlegung',
+            'Sonstiger Einsatz',
+            'Weaning',
             'Kapazitätsengpass',
-            'Spezialversorgung',
-            'Verlegung auf Wunsch',
-            'Weitere Diagnostik',
-            'Rehabilitation',
         ];
 
         return [

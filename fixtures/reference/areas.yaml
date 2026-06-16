@@ -1,0 +1,76 @@
+areas:
+  -
+    state: Hessen
+    name: Bergstraße
+  -
+    state: Hessen
+    name: Darmstadt
+  -
+    state: Hessen
+    name: Darmstadt-Dieburg
+  -
+    state: Hessen
+    name: Frankfurt
+  -
+    state: Hessen
+    name: Fulda
+  -
+    state: Hessen
+    name: Gießen
+  -
+    state: Hessen
+    name: Groß-Gerau
+  -
+    state: Hessen
+    name: Hersfeld-Rotenburg
+  -
+    state: Hessen
+    name: Hochtaunus
+  -
+    state: Hessen
+    name: Kassel
+  -
+    state: Hessen
+    name: Lahn-Dill
+  -
+    state: Hessen
+    name: Limburg-Weilburg
+  -
+    state: Hessen
+    name: Main-Kinzig
+  -
+    state: Hessen
+    name: Main-Taunus
+  -
+    state: Hessen
+    name: Marburg-Biedenkopf
+  -
+    state: Hessen
+    name: Odenwald
+  -
+    state: Hessen
+    name: Offenbach
+  -
+    state: Hessen
+    name: 'Rheingau Taunus'
+  -
+    state: Hessen
+    name: Schwalm-Eder
+  -
+    state: Hessen
+    name: Vogelsberg
+  -
+    state: Hessen
+    name: Waldeck-Frankenberg
+  -
+    state: Hessen
+    name: Werra-Meißner
+  -
+    state: Hessen
+    name: Wetterau
+  -
+    state: Hessen
+    name: Wiesbaden
+  -
+    state: Bayern
+    name: 'Bayerischer Untermain'

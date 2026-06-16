@@ -42,10 +42,10 @@ Because of this split, **the projection table and the materialized views can dis
 
 ### Rebuild projection data
 
-After imports or seeding projection data:
+After imports or loading allocation fixtures:
 
 ```bash
-php bin/console app:seed:projection
+php bin/console app:statistics:rebuild-projection
 ```
 
 Or rely on the async handler that calls `AllocationStatsProjectionRebuilder::rebuildForImport()` per import.

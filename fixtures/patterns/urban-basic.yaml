@@ -1,0 +1,98 @@
+version: 1
+schema: distribution-pattern/v1
+segment:
+  hospital_tier: Basic
+  hospital_location: Urban
+meta:
+  sample_size: 1000
+  exported_at: '2026-06-16T11:29:28+02:00'
+  source: anonymized_aggregate
+distributions:
+  urgency:
+    3: 0.348
+    1: 0.334
+    2: 0.318
+  gender:
+    F: 0.35
+    M: 0.333
+    X: 0.317
+  transport_type:
+    G: 0.503
+    A: 0.497
+  department:
+    ZOM: 0.25
+    Kinderinfektiologie: 0.25
+    'Kinder- und Jugendgynäkologie': 0.25
+    Suchtbehandlung: 0.25
+  speciality:
+    'Haut- und Geschlechtskrankheiten': 0.25
+    Mund-Kiefer-Gesichtschirurgie: 0.25
+    'Frauenheilkunde u. Geburtshilfe': 0.25
+    'Zentrale Notaufnahme': 0.25
+  assignment:
+    Einweisung: 0.25
+    Notzuweisung: 0.25
+    Arzt/Arzt: 0.25
+    RD: 0.25
+  occasion:
+    _present: 1
+    Intervention: 0.25
+    'Schiff / Bootunfall': 0.25
+    Fluggeräteunfall: 0.25
+    Sekundärverlegung: 0.25
+  infection:
+    _present: 0.25
+    Masern: 1
+  indication_normalized:
+    _present: 1
+    'Kein Patient vorhanden': 0.25
+    Gesichtsverletzung: 0.25
+    Giftpflanzen: 0.25
+    'oberflächliche Verletzung beliebiger Lokalisation': 0.25
+  secondary_transport:
+    _present: 0
+  age_bucket:
+    65-99: 0.363
+    40-64: 0.233
+    18-39: 0.214
+    0-17: 0.19
+  hour_of_day:
+    3: 0.051
+    0: 0.051
+    1: 0.05
+    22: 0.05
+    15: 0.048
+    12: 0.048
+    2: 0.047
+    13: 0.046
+    17: 0.043
+    14: 0.042
+    21: 0.042
+    6: 0.041
+    16: 0.041
+    23: 0.04
+    19: 0.04
+    11: 0.04
+    20: 0.038
+    7: 0.037
+    10: 0.037
+    8: 0.035
+    18: 0.034
+    4: 0.034
+    9: 0.033
+    5: 0.032
+  flags:
+    requires_resus: 0.044
+    requires_cathlab: 0.002
+    is_cpr: 0.521
+    is_ventilated: 0.509
+    is_shock: 0.5
+    is_pregnant: 0.498
+    is_work_accident: 0.075
+    is_with_physician: 0.141
+    department_was_closed: 0.519
+  transport_time_minutes:
+    p25: 36.8
+    p50: 63.0
+    p75: 91.0
+    p90: 110.0

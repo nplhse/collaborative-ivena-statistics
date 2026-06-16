@@ -1,0 +1,30 @@
+names:
+  - Arbeitsunfall
+  - 'aus Arztpraxis'
+  - Bahnunfall
+  - Diagnostik
+  - Fluggeräteunfall
+  - 'Häuslicher Einsatz'
+  - Hausunfall
+  - Intensivstation
+  - Intervention
+  - k.A.
+  - 'Öffentlicher Raum'
+  - OP
+  - 'Schiff / Bootunfall'
+  - Schussverletzung
+  - Sekundärverlegung
+  - 'Sonstiger Einsatz'
+  - Sportunfall
+  - 'Stich- / Schnittverletzung'
+  - Stichverletzung
+  - 'Sturz < 3m Höhe'
+  - 'Sturz > 3m Höhe'
+  - 'Unfall > 4 Verletzte'
+  - 'Unfall 2 bis 4 Verletzte'
+  - 'Unfall eingeklemmte Pers.'
+  - Verkehrsunfall
+  - 'VU mit Fußgänger'
+  - 'VU mit Zweirad'
+  - 'VU Verletzte Person'
+  - Weaning

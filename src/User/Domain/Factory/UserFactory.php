@@ -32,16 +32,14 @@ final class UserFactory extends PersistentProxyObjectFactory
     #[\Override]
     protected function defaults(): array
     {
-        $suffix = bin2hex(random_bytes(8));
-
         return [
             'credentialsExpired' => false,
-            'email' => sprintf('user-%s@example.test', $suffix),
+            'email' => sprintf('user-%s@example.test', bin2hex(random_bytes(8))),
             'isEnabled' => true,
             'isVerified' => true,
             'password' => 'password',
             'roles' => ['ROLE_USER'],
-            'username' => sprintf('%s-%s', self::faker()->userName(), $suffix),
+            'username' => self::faker()->userName(),
         ];
     }
 

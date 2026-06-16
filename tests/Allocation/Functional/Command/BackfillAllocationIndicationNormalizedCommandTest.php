@@ -69,7 +69,7 @@ final class BackfillAllocationIndicationNormalizedCommandTest extends KernelTest
         self::assertStringContainsString('Backfill allocation indication_normalized', $display);
         self::assertStringContainsString('indication_raw.normalized_id', $display);
         self::assertStringContainsString('Projection not rebuilt.', $display);
-        self::assertStringContainsString('app:seed:projection', $display);
+        self::assertStringContainsString('app:statistics:rebuild-projection', $display);
         self::assertStringContainsString('Backfill finished in', $display);
 
         /** @var Connection $connection */

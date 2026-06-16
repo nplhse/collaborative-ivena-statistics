@@ -12,10 +12,10 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class AllocationsComparisonOverTimeAnalysisDefinitionTest extends KernelTestCase
+final class AllocationsComparisonOverTimeAnalysisDefinitionTest extends DatabaseKernelTestCase
 {
     public function testBuildUsesHospitalsLabelForAdminMyHospitalsScope(): void
     {

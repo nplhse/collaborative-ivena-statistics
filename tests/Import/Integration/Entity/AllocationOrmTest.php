@@ -33,11 +33,11 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\CaseId\CaseIdHasher;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class AllocationOrmTest extends KernelTestCase
+final class AllocationOrmTest extends DatabaseKernelTestCase
 {
     private EntityManagerInterface $em;
 
@@ -50,7 +50,7 @@ final class AllocationOrmTest extends KernelTestCase
 
     public function testPersistAndHydrateRoundtrip(): void
     {
-        UserFactory::createOne(['username' => 'allocation-orm-roundtrip-'.bin2hex(random_bytes(6))]);
+        UserFactory::createOne(['username' => 'allocation-orm-roundtrip']);
 
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $area = DispatchAreaFactory::createOne(['name' => 'Alpha Area', 'state' => $state]);
@@ -167,7 +167,7 @@ final class AllocationOrmTest extends KernelTestCase
 
     public function testCaseIdHashAndNotesPersistAndHydrate(): void
     {
-        UserFactory::createOne(['username' => 'allocation-orm-supplementary-'.bin2hex(random_bytes(6))]);
+        UserFactory::createOne(['username' => 'allocation-orm-supplementary']);
 
         $state = StateFactory::createOne();
         $area = DispatchAreaFactory::createOne(['state' => $state]);
@@ -237,7 +237,7 @@ final class AllocationOrmTest extends KernelTestCase
 
     public function testTransportTypeAndInfectionCanBeNull(): void
     {
-        UserFactory::createOne(['username' => 'allocation-orm-nullable-'.bin2hex(random_bytes(6))]);
+        UserFactory::createOne(['username' => 'allocation-orm-nullable']);
 
         $state = StateFactory::createOne();
         $area = DispatchAreaFactory::createOne(['state' => $state]);

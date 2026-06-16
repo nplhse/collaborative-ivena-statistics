@@ -46,7 +46,7 @@ final class UserFixtures extends Fixture
     {
         return [
             ['admin', 'password', ['ROLE_ADMIN', 'ROLE_FEEDBACK_RECIPIENT', 'ROLE_RECEIVES_NOTIFICATION', 'ROLE_USER'], 'admin@test.local', true],
-            ['foo', 'bar', ['ROLE_USER'], 'foo@bar.local', true],
+            ['foo', 'bar', ['ROLE_USER', 'ROLE_PARTICIPANT'], 'foo@bar.local', true],
         ];
     }
 }

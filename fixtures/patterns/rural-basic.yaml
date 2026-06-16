@@ -1,0 +1,82 @@
+version: 1
+schema: distribution-pattern/v1
+segment:
+  hospital_tier: Basic
+  hospital_location: Rural
+meta:
+  sample_size: 250
+  exported_at: '2026-06-16T11:29:28+02:00'
+  source: anonymized_aggregate
+distributions:
+  urgency:
+    2: 0.376
+    3: 0.316
+    1: 0.308
+  gender:
+    M: 0.364
+    X: 0.34
+    F: 0.296
+  transport_type:
+    A: 0.548
+    G: 0.452
+  department:
+    'Traumatologisch Intensiv ohne Beatmung': 1
+  speciality:
+    Hals-Nasen-Ohrenheilkunde: 1
+  assignment:
+    Einweisung: 1
+  occasion:
+    _present: 1
+    Fluggeräteunfall: 1
+  infection:
+    _present: 0
+  indication_normalized:
+    _present: 1
+    'Innere Medizin Zu-Verlegung Intensiv mit Arzt': 1
+  secondary_transport:
+    _present: 0
+  age_bucket:
+    65-99: 0.436
+    40-64: 0.228
+    18-39: 0.216
+    0-17: 0.12
+  hour_of_day:
+    22: 0.068
+    0: 0.068
+    15: 0.064
+    7: 0.056
+    23: 0.052
+    8: 0.052
+    14: 0.052
+    11: 0.048
+    3: 0.044
+    19: 0.04
+    20: 0.04
+    2: 0.04
+    4: 0.036
+    5: 0.036
+    16: 0.036
+    21: 0.036
+    1: 0.032
+    6: 0.032
+    17: 0.032
+    18: 0.028
+    10: 0.028
+    13: 0.028
+    12: 0.028
+    9: 0.024
+  flags:
+    requires_resus: 0.048
+    requires_cathlab: 0.016
+    is_cpr: 0.492
+    is_ventilated: 0.48
+    is_shock: 0.524
+    is_pregnant: 0.476
+    is_work_accident: 0.116
+    is_with_physician: 0.104
+    department_was_closed: 0.512
+  transport_time_minutes:
+    p25: 37.0
+    p50: 68.0
+    p75: 93.0
+    p90: 108.1

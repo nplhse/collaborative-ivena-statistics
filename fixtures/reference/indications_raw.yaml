@@ -1,0 +1,601 @@
+indications:
+  -
+    code: '111'
+    name: 'primäre Todesfeststellung'
+  -
+    code: '121'
+    name: 'Reanimation ohne ROSC'
+  -
+    code: '201'
+    name: 'Chirurgie Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '202'
+    name: 'Chirurgie Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '203'
+    name: 'Chirurgie Zu-Verlegung IMC mit Arzt'
+  -
+    code: '204'
+    name: 'Chirurgie Zu-Verlegung IMC ohne Arzt'
+  -
+    code: '205'
+    name: 'Neurochirurgie Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '206'
+    name: 'Neurochirurgie Zu-Verlegung  Intensiv ohne Arzt'
+  -
+    code: '210'
+    name: 'sonstige kombinierte Verletzung'
+  -
+    code: '211'
+    name: 'Polytrauma mit SHT'
+  -
+    code: '212'
+    name: 'Polytrauma ohne SHT'
+  -
+    code: '213'
+    name: 'Schockraumindikation nach Unfallhergang'
+  -
+    code: '214'
+    name: Gesichts-/Kopfverletzung
+  -
+    code: '215'
+    name: 'Gesichts-/Kopfverletzung mit Augenbeteiligung'
+  -
+    code: '216'
+    name: 'Gesichts-/Kopfverletzung mit MKG Beteiligung'
+  -
+    code: '217'
+    name: 'Gesichts-/Kopfverletzung mit HNO Beteiligung'
+  -
+    code: '221'
+    name: 'Kopf SHT offen'
+  -
+    code: '222'
+    name: 'Kopf SHT geschlossen'
+  -
+    code: '223'
+    name: SAB
+  -
+    code: '230'
+    name: 'sonstige thoraxchirurgische Verletzung'
+  -
+    code: '231'
+    name: 'Thorax penetrierend'
+  -
+    code: '232'
+    name: 'Thorax geschlossen/stumpf'
+  -
+    code: '233'
+    name: Pneumothorax
+  -
+    code: '240'
+    name: 'sonstiger viszeralchirurgischer Notfall'
+  -
+    code: '241'
+    name: 'Abdomen penetrierend'
+  -
+    code: '242'
+    name: 'Abdomen geschlossen/stumpf'
+  -
+    code: '243'
+    name: 'Akutes Abdomen (nicht traumatisch)'
+  -
+    code: '244'
+    name: Appendizitis
+  -
+    code: '251'
+    name: 'Wirbelsäulentrauma mit neurologischen Ausfällen'
+  -
+    code: '252'
+    name: 'Wirbelsäulentrauma ohne neurologische Ausfälle'
+  -
+    code: '253'
+    name: 'Rückenschmerz nicht traum. mit neuro. Ausfällen'
+  -
+    code: '254'
+    name: 'Rückenschmerz nicht traum. ohne neuro Ausfällen'
+  -
+    code: '261'
+    name: 'Becken penetrierend'
+  -
+    code: '262'
+    name: 'Becken geschlossen/stumpf'
+  -
+    code: '270'
+    name: 'Sonstige kombinierte Extremitäten Verletzung'
+  -
+    code: '271'
+    name: 'Extremitäten offen'
+  -
+    code: '272'
+    name: 'Extremitäten geschlossen'
+  -
+    code: '273'
+    name: 'Extremitäten geschlossen'
+  -
+    code: '273'
+    name: Schenkelhals
+  -
+    code: '274'
+    name: Luxation
+  -
+    code: '275'
+    name: Handverletzung
+  -
+    code: '276'
+    name: Hand-Amputation
+  -
+    code: '277'
+    name: Finger-Amputation
+  -
+    code: '278'
+    name: Extremitäten-Amputation
+  -
+    code: '281'
+    name: 'Verbrennung /Verbrühung'
+  -
+    code: '282'
+    name: 'Verätzung (äußerlich)'
+  -
+    code: '283'
+    name: Blitzschlag/Hochspannungstrauma
+  -
+    code: '290'
+    name: 'sonstiger gefäßchirurgischer Notfall'
+  -
+    code: '291'
+    name: 'Extremitäten mit Gefäß-/Nervenverletzung'
+  -
+    code: '292'
+    name: Aortenaneurysma
+  -
+    code: '293'
+    name: 'Extremitätenischaemie (akut)'
+  -
+    code: '294'
+    name: 'Aorta ascendens Dissektion'
+  -
+    code: '301'
+    name: 'Innere Medizin Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '302'
+    name: 'Innere Medizin Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '303'
+    name: 'Innere Medizin Zu-Verlegung IMC mit Arzt'
+  -
+    code: '304'
+    name: 'Innere Medizin Zu-Verlegung IMC ohne Arzt'
+  -
+    code: '310'
+    name: 'sonstiger respiratorischer Notfall'
+  -
+    code: '311'
+    name: 'Atemnot (unklar)'
+  -
+    code: '312'
+    name: 'Obstruktion (Asthma / COPD)'
+  -
+    code: '313'
+    name: Hämoptoe/Hämoptysen
+  -
+    code: '314'
+    name: '(Bolus-) Aspiration'
+  -
+    code: '315'
+    name: Bronchitis/Pneumonie
+  -
+    code: '316'
+    name: Hyperventilation
+  -
+    code: '317'
+    name: Rauchgas/Reizgas
+  -
+    code: '318'
+    name: Spontanpneumothorax
+  -
+    code: '319'
+    name: '(Beinahe-) Ertrinken'
+  -
+    code: '320'
+    name: 'sonstiger internistischer Notfall'
+  -
+    code: '321'
+    name: Anaphylaxie/Unverträglichkeitsreaktion
+  -
+    code: '322'
+    name: 'sonstiger respiratorischer Notfall'
+  -
+    code: '322'
+    name: Synkope/Kollaps
+  -
+    code: '323'
+    name: Hypertonie
+  -
+    code: '324'
+    name: Hypotonie
+  -
+    code: '324'
+    name: 'sonstige Notfallsituation'
+  -
+    code: '325'
+    name: Thrombose
+  -
+    code: '326'
+    name: 'unklares Fieber'
+  -
+    code: '327'
+    name: Hitzeerschöpfung/Hitzschlag
+  -
+    code: '328'
+    name: Unterkühlung/Erfrierung
+  -
+    code: '329'
+    name: Exsikkose
+  -
+    code: '330'
+    name: 'sonstiger kardiologischer Notfall'
+  -
+    code: '331'
+    name: 'STEMI  < 12h (EKG gesichert)'
+  -
+    code: '332'
+    name: 'STEMI  > 12h (EKG gesichert)'
+  -
+    code: '333'
+    name: 'Akutes Koronarsyndrom (Sonstiges)'
+  -
+    code: '341'
+    name: Arrhythmie/Rhythmusstörungen
+  -
+    code: '342'
+    name: 'bradykarde Rhythmusstörungen'
+  -
+    code: '343'
+    name: Hypertonie
+  -
+    code: '343'
+    name: 'tachykarde Rhythmusstörungen'
+  -
+    code: '344'
+    name: 'Elektrounfall (Schwachstrom)'
+  -
+    code: '347'
+    name: 'Kardiogener Schock'
+  -
+    code: '348'
+    name: Herzinsuffizienz/Lungenödem
+  -
+    code: '349'
+    name: Lungenembolie
+  -
+    code: '350'
+    name: 'sonstiger gastroenterologischer Notfall'
+  -
+    code: '351'
+    name: 'Obere GI-Blutung'
+  -
+    code: '352'
+    name: 'Untere GI-Blutung'
+  -
+    code: '353'
+    name: 'Unklares Abdomen'
+  -
+    code: '354'
+    name: 'Infektiöse Gastroenteritis'
+  -
+    code: '355'
+    name: Hämaturie
+  -
+    code: '355'
+    name: 'Sonstige Gastroenteritis'
+  -
+    code: '356'
+    name: 'Verätzung/Ingestion (innerlich)'
+  -
+    code: '357'
+    name: Kolik
+  -
+    code: '360'
+    name: 'sonstige Intoxikationen'
+  -
+    code: '361'
+    name: Alkohol
+  -
+    code: '362'
+    name: 'Drogen / Rauschgift'
+  -
+    code: '363'
+    name: 'Mischintoxikation Alkohol/Drogen/Medikament'
+  -
+    code: '364'
+    name: Lebensmittel
+  -
+    code: '365'
+    name: Medikamente
+  -
+    code: '366'
+    name: Pflanzenschutzmittel
+  -
+    code: '367'
+    name: 'Tierische Gifte / Giftpflanzen'
+  -
+    code: '370'
+    name: 'sonstiger infektiologischer Notfall'
+  -
+    code: '371'
+    name: 'Definierte Infektionskrankheit'
+  -
+    code: '372'
+    name: Meningitis
+  -
+    code: '373'
+    name: NTBC
+  -
+    code: '374'
+    name: 'septischer Schock'
+  -
+    code: '376'
+    name: '(SARS-CoV-2) Covid-19 bestätigt'
+  -
+    code: '377'
+    name: '(SARS-CoV-2) Covid-19 nicht bestätigt'
+  -
+    code: '379'
+    name: 'Hochkontagiöse Erkrankung'
+  -
+    code: '391'
+    name: 'Diabetischer Notfall'
+  -
+    code: '392'
+    name: Hyperglykämie
+  -
+    code: '393'
+    name: Hypoglykämie
+  -
+    code: '394'
+    name: 'Akuter endokrinologischer Notfall (nicht 391)'
+  -
+    code: '401'
+    name: 'Neurologie Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '402'
+    name: 'Neurologie Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '410'
+    name: 'sonstiger neurologischer Notfall'
+  -
+    code: '411'
+    name: 'Krampfanfall bei bekanntem Krampfleiden'
+  -
+    code: '412'
+    name: 'erstmaliger Krampfanfall'
+  -
+    code: '413'
+    name: Kopf-/Gesichtsschmerzen
+  -
+    code: '414'
+    name: 'unklare Bewusstlosigkeit'
+  -
+    code: '421'
+    name: 'Apoplex/TIA/Blutung  < 6 h'
+  -
+    code: '422'
+    name: 'Apoplex/TIA/Blutung  6-24 h'
+  -
+    code: '423'
+    name: 'Apoplex/TIA/Blutung >24h'
+  -
+    code: '425'
+    name: 'Cerebraler Gefäßverschluss zur Thrombektomie'
+  -
+    code: '430'
+    name: 'sonstiger psychiatrischer Notfall'
+  -
+    code: '431'
+    name: 'Akute Suizidalität'
+  -
+    code: '434'
+    name: 'Fachpsychiatrische Unterbringung'
+  -
+    code: '435'
+    name: 'Unterbringung nach PSychKHG'
+  -
+    code: '436'
+    name: 'Akuter Erregungszustand '
+  -
+    code: '437'
+    name: 'Akute Psychose'
+  -
+    code: '438'
+    name: Entzugssyndrom
+  -
+    code: '501'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv mit Arzt'
+  -
+    code: '502'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv ohne Arzt'
+  -
+    code: '503'
+    name: 'Zuverlegung Inkubator'
+  -
+    code: '510'
+    name: 'sonstige pädiatrische Notfall'
+  -
+    code: '511'
+    name: 'Pädiatrisch - Atemnot'
+  -
+    code: '512'
+    name: 'Krupp / Pseudokrupp'
+  -
+    code: '513'
+    name: 'Pädiatrisch Fieberkrampf'
+  -
+    code: '514'
+    name: 'Pädiatrisch Epilepsie'
+  -
+    code: '515'
+    name: 'Akuter kindlicher Hüftschmerz'
+  -
+    code: '520'
+    name: 'sonstiger Notfall in der Schwangerschaft'
+  -
+    code: '521'
+    name: 'Entbindung/Einsetzende Geburt > 36.SSW'
+  -
+    code: '521'
+    name: 'Entbindung/Einsetzende Geburt >= 36.SSW'
+  -
+    code: '522'
+    name: 'Entbindung/Einsetzende Geburt > 32. und < 36.SSW'
+  -
+    code: '522'
+    name: 'Entbindung/Einsetzende Geburt >= 32. und < 36.SSW'
+  -
+    code: '523'
+    name: 'Entbindung/Einsetzende Geburt > 29. und < 32.SSW'
+  -
+    code: '523'
+    name: 'Entbindung/Einsetzende Geburt >= 29. und < 32.SSW'
+  -
+    code: '524'
+    name: 'Entbindung/Einsetzende Geburt < 29.SSW'
+  -
+    code: '525'
+    name: 'Präklinische Geburt '
+  -
+    code: '526'
+    name: 'Präklinische Frühgeburt < 36. SSW'
+  -
+    code: '527'
+    name: 'Eklampsie '
+  -
+    code: '528'
+    name: 'Vaginale Blutung w. d. Schwangerschaft < 20. SSW'
+  -
+    code: '529'
+    name: 'Vaginale Blutung w. d. Schwangerschaft > 20. SSW'
+  -
+    code: '529'
+    name: 'Vaginale Blutung w. d. Schwangerschaft >= 20. SSW'
+  -
+    code: '530'
+    name: 'sonstiger gynäkologischer Notfall'
+  -
+    code: '531'
+    name: 'Vaginale Blutung'
+  -
+    code: '532'
+    name: Unterbauchschmerzen
+  -
+    code: '533'
+    name: Sexualdelikt
+  -
+    code: '601'
+    name: 'Transport zu definierter Leistung (KT)'
+  -
+    code: '602'
+    name: 'Transport zu geplanter Dialyse'
+  -
+    code: '603'
+    name: 'Transport zu geplantem Herzkatheter'
+  -
+    code: '604'
+    name: 'Transport zu geplanter CT'
+  -
+    code: '605'
+    name: 'Transport zu geplanter MRT'
+  -
+    code: '606'
+    name: ''
+  -
+    code: '607'
+    name: ''
+  -
+    code: '625'
+    name: 'Sekundärverlegung Covid-Patienten'
+  -
+    code: '626'
+    name: 'Zu- Verlegung Sonderlage Ukraine'
+  -
+    code: '702'
+    name: 'Geriatrie Einweisung'
+  -
+    code: '703'
+    name: 'Haut- u- Geschlechtskrankheit Einweisung'
+  -
+    code: '710'
+    name: 'sonstiger urologischer Notfall'
+  -
+    code: '711'
+    name: 'Nieren- Harnleiterkolik'
+  -
+    code: '711'
+    name: 'Unklares Abdomen'
+  -
+    code: '712'
+    name: Hodenschmerz
+  -
+    code: '713'
+    name: Harnverhalt
+  -
+    code: '713'
+    name: 'Katheterwechsel (transurethral)'
+  -
+    code: '714'
+    name: Hämaturie
+  -
+    code: '715'
+    name: 'Katheterwechsel (transurethral)'
+  -
+    code: '716'
+    name: 'Katheterwechsel (suprapubisch)'
+  -
+    code: '717'
+    name: Katheterverlust
+  -
+    code: '718'
+    name: Harnwegsinfekt
+  -
+    code: '718'
+    name: 'Katheterwechsel (transurethral)'
+  -
+    code: '720'
+    name: 'sonstiger ophthalmologischer Notfall'
+  -
+    code: '721'
+    name: 'Augenverletzung mit Fremdkörper'
+  -
+    code: '722'
+    name: 'Augenverletzung ohne Fremdkörper'
+  -
+    code: '723'
+    name: 'Akute Augenerkrankung'
+  -
+    code: '730'
+    name: 'sonstiger HNO Notfall'
+  -
+    code: '731'
+    name: Epistaxis
+  -
+    code: '732'
+    name: Barotrauma
+  -
+    code: '733'
+    name: Hörsturz
+  -
+    code: '734'
+    name: 'HNO Nachblutung'
+  -
+    code: '741'
+    name: 'MKG Einweisung'
+  -
+    code: '751'
+    name: Strahlentrauma
+  -
+    code: '761'
+    name: Kohlenmonoxid-Vergiftung
+  -
+    code: '770'
+    name: 'sonstige Notfallsituation'

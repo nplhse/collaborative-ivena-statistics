@@ -8,12 +8,12 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterInputFactory;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 
-final class StatisticsFilterInputFactoryTest extends KernelTestCase
+final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
 {
     private StatisticsFilterInputFactory $factory;
 
