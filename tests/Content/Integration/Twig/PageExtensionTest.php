@@ -9,13 +9,13 @@ use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Twig\Environment;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PageExtensionTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     private Environment $twig;
 

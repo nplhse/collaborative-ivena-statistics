@@ -13,14 +13,14 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class NewImportControllerTest extends WebTestCase
 {
     use HasBrowser;
     use Factories;
-    use ResetDatabase;
 
     private string $fixturesDir;
 

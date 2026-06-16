@@ -9,18 +9,21 @@ use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Repository\PageRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PageImageContentMigrationServiceTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+    }
 
     public function testDryRunDoesNotPersistSizeMigration(): void
     {
-        self::bootKernel();
-
         $page = $this->createPageWithLargeImageBlock();
         $pageId = (int) $page->getId();
 
@@ -33,8 +36,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testApplyMigratesLargeImageBlocksToAuto(): void
     {
-        self::bootKernel();
-
         $page = $this->createPageWithLargeImageBlock();
         $pageId = (int) $page->getId();
 
@@ -46,8 +47,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixRichtextSnippetsReplacesLegacySizeClass(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-richtext',
             'content' => [
@@ -78,8 +77,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testMigrateSizesWithoutPageFilterUpdatesAllCandidates(): void
     {
-        self::bootKernel();
-
         $page = $this->createPageWithLargeImageBlock();
         $pageId = (int) $page->getId();
 
@@ -91,8 +88,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixRichtextSnippetsDryRunDoesNotPersist(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-richtext-dry-run',
             'content' => [
@@ -118,8 +113,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixHighlightSnippetsReplacesLegacySizeClass(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-highlight',
             'content' => [
@@ -145,8 +138,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixAccordionSnippetsReplacesLegacySizeClass(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-accordion',
             'content' => [
@@ -177,8 +168,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixRichtextSnippetsWithoutPageFilterUpdatesAllPages(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-all-pages',
             'content' => [
@@ -204,8 +193,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixRichtextSnippetsSkipsBlocksWithoutHtmlChanges(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-no-snippet-change',
             'content' => [
@@ -232,8 +219,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testMigrateSizesSkipsNonImageBlocks(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'migrate-with-headline.png',
             'width' => 605,
@@ -271,8 +256,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testMigrateSizesSkipsNonLargeImageBlocksOnCandidatePage(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'migrate-candidate-mix.png',
             'width' => 605,
@@ -317,8 +300,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixRichtextSnippetsReturnsEmptyForUnknownPageId(): void
     {
-        self::bootKernel();
-
         $result = $this->migrationService()->fixRichtextSnippets(false, 999_999);
 
         self::assertSame(0, $result->updatedBlocks);
@@ -327,8 +308,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixAccordionSnippetsSkipsInvalidItems(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-accordion-invalid',
             'content' => [
@@ -360,8 +339,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testFixRichtextSnippetsSkipsBlocksWithoutHtmlField(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'migration-highlight-no-html',
             'content' => [
@@ -380,8 +357,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
     public function testSkipsFloatedLargeImagesDuringSizeMigration(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'floated.png',
             'width' => 400,

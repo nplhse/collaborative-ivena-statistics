@@ -13,14 +13,14 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class AnalyticsLibraryControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
-    use ResetDatabase;
 
     public function testLibraryRendersWithRecommendedViews(): void
     {

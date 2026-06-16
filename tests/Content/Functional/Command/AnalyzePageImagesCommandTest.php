@@ -10,17 +10,21 @@ use App\Content\UI\Console\Command\AnalyzePageImagesCommand;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class AnalyzePageImagesCommandTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+    }
 
     public function testDryRunShowsFindingsWithoutWritingChanges(): void
     {
-        self::bootKernel();
         $this->seedPageWithAutoImage();
 
         $tester = $this->createCommandTester();
@@ -38,8 +42,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
     public function testApplyWithBackfillDimensionsPersistsMediaMetadata(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'command-backfill.png',
             'width' => null,
@@ -85,8 +87,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
     public function testReportsNoImageReferencesWhenPagesHaveNoImages(): void
     {
-        self::bootKernel();
-
         PageFactory::createOne([
             'slug' => 'command-no-images',
             'content' => [
@@ -107,8 +107,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
     public function testFixRichtextSnippetsDryRunReportsPendingSnippetChanges(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'command-fix-snippets',
             'content' => [
@@ -142,8 +140,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
     public function testApplyFixRichtextSnippetsPersistsChanges(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'command-fix-snippets-apply',
             'content' => [
@@ -178,7 +174,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
     public function testInvalidPageIdOptionIsIgnored(): void
     {
-        self::bootKernel();
         $this->seedPageWithAutoImage();
 
         $tester = $this->createCommandTester();
@@ -190,8 +185,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
     public function testMigrateSizeDryRunReportsPendingChanges(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'command-migrate.png',
             'width' => 605,

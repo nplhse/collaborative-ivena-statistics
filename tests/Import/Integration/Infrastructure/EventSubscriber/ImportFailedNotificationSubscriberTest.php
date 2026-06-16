@@ -18,13 +18,13 @@ use App\Shared\Application\Notification\AdminNotificationType;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ImportFailedNotificationSubscriberTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testOnImportFailedSendsNotification(): void
     {

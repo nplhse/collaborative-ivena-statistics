@@ -11,13 +11,13 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class CookieConsentServiceTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testResolveDoesNotPersistAnonymousSubjectUntilApply(): void
     {

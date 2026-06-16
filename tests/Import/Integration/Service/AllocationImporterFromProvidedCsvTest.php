@@ -29,7 +29,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Filesystem\Filesystem;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 /**
  * Expectations for the sample file (5 rows):
@@ -40,11 +40,9 @@ use Zenstruck\Foundry\Test\ResetDatabase;
  * - Row 5: valid (createdAt prefers Erstellungsdatum)
  *
  * Summary: total=5, ok=4, rejected=1
- */
+ */ #[ResetDatabase]
 final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
 {
-    use ResetDatabase;
-
     private string $fixtureFile = 'allocation_import_sample.csv';
     private string $rejectDir = 'var/tests/rejects';
 

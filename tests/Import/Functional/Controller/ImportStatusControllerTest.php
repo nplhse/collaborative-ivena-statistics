@@ -16,13 +16,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ImportStatusControllerTest extends WebTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testStatusEndpointReturnsExpectedJsonShape(): void
     {

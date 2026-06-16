@@ -8,13 +8,13 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Infrastructure\Factory\PageFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PagePathSubscriberTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testChildPageGetsHierarchicalPathOnFlush(): void
     {

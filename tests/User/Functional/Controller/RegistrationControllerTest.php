@@ -15,16 +15,16 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Mime\Email;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class RegistrationControllerTest extends WebTestCase
 {
     use CookieConsentTestHelper;
     use Factories;
     use HasBrowser;
     use MailerAssertionsTrait;
-    use ResetDatabase;
 
     public function testRegistrationSendsAdminNotificationToNotificationRecipients(): void
     {

@@ -6,18 +6,19 @@ namespace App\Tests\Admin\Functional\Controller;
 
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Browser\Test\HasBrowser;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class AuditLogCrudControllerTest extends WebTestCase
 {
     use Factories;
-    use HasBrowser;
-    use ResetDatabase;
 
     public function testAdminCanOpenAuditLogIndex(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asAdmin()
             ->create([
@@ -25,24 +26,24 @@ final class AuditLogCrudControllerTest extends WebTestCase
             ])
         ;
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin/audit-log')
-            ->assertSuccessful()
-            ->assertSee('Audit log')
-        ;
+        $client->loginUser($admin->_real());
+        $client->request(Request::METHOD_GET, '/admin/audit-log');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Audit log');
     }
 
     public function testNonAdminUserGetsForbiddenOnAuditLogIndex(): void
     {
+        $client = self::createClient();
+
         $user = UserFactory::createOne([
             'username' => 'audit-regular-'.bin2hex(random_bytes(4)),
         ]);
 
-        $this->browser()
-            ->actingAs($user)
-            ->visit('/admin/audit-log')
-            ->assertStatus(403)
-        ;
+        $client->loginUser($user->_real());
+        $client->request(Request::METHOD_GET, '/admin/audit-log');
+
+        self::assertResponseStatusCodeSame(403);
     }
 }

@@ -10,18 +10,18 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PageCrudControllerTest extends WebTestCase
 {
     use Factories;
-    use HasBrowser;
-    use ResetDatabase;
 
     public function testAdminCanOpenPageIndexAndNewForm(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asAdmin()
             ->create([
@@ -29,28 +29,30 @@ final class PageCrudControllerTest extends WebTestCase
             ])
         ;
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin/page')
-            ->assertSuccessful()
-            ->assertSee('Pages')
-            ->visit('/admin/page/new')
-            ->assertSuccessful()
-            ->assertSee('Create Page')
-        ;
+        $client->loginUser($admin->_real());
+        $client->request(Request::METHOD_GET, '/admin/page');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Pages');
+
+        $client->request(Request::METHOD_GET, '/admin/page/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Create Page');
     }
 
     public function testNonAdminUserGetsForbiddenOnPageIndex(): void
     {
+        $client = self::createClient();
+
         $user = UserFactory::createOne([
             'username' => 'page-regular-'.bin2hex(random_bytes(4)),
         ]);
 
-        $this->browser()
-            ->actingAs($user)
-            ->visit('/admin/page')
-            ->assertStatus(403)
-        ;
+        $client->loginUser($user->_real());
+        $client->request(Request::METHOD_GET, '/admin/page');
+
+        self::assertResponseStatusCodeSame(403);
     }
 
     public function testPageContentBlockOrderIsPersistedWhenSubmittedInReverseOrder(): void

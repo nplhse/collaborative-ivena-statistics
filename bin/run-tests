@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PHPUNIT="${ROOT}/bin/phpunit"
+
+SUITE="${SUITE:-all}"
+PATH_ARG="${PATH_ARG:-}"
+GROUP="${GROUP:-}"
+EXCLUDE_GROUP="${EXCLUDE_GROUP:-}"
+EXTRA_ARGS=("$@")
+
+PHPUNIT_ARGS=(-d memory_limit=-1)
+
+if [[ -n "${PATH_ARG}" ]]; then
+    PHPUNIT_ARGS+=("${PATH_ARG}")
+else
+    case "${SUITE}" in
+        all)
+            PHPUNIT_ARGS+=(--testsuite all)
+            ;;
+        unit|integration|functional|fixtures|system)
+            PHPUNIT_ARGS+=(--testsuite "${SUITE}")
+            ;;
+        functional-http)
+            PHPUNIT_ARGS+=(--testsuite functional --exclude-group browser)
+            ;;
+        browser)
+            PHPUNIT_ARGS+=(--group browser)
+            ;;
+        materialized-view)
+            PHPUNIT_ARGS+=(--group materialized-view)
+            ;;
+        *)
+            echo "Unknown SUITE: ${SUITE}" >&2
+            echo "Valid: all, unit, integration, functional, functional-http, browser, fixtures, system, materialized-view" >&2
+            exit 1
+            ;;
+    esac
+fi
+
+if [[ -n "${GROUP}" ]]; then
+    PHPUNIT_ARGS+=(--group "${GROUP}")
+fi
+
+if [[ -n "${EXCLUDE_GROUP}" ]]; then
+    PHPUNIT_ARGS+=(--exclude-group "${EXCLUDE_GROUP}")
+fi
+
+if [[ "${GROUP}" == "browser" || "${SUITE}" == "browser" ]]; then
+    export BROWSER_ALWAYS_START_WEBSERVER=1
+fi
+
+exec "${PHPUNIT}" "${PHPUNIT_ARGS[@]}" "${EXTRA_ARGS[@]}"

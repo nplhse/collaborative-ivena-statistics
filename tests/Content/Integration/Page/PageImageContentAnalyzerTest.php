@@ -9,18 +9,21 @@ use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Factory\PageFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Filesystem\Path;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PageImageContentAnalyzerTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+    }
 
     public function testRecommendsMigratingSmallFullWidthImageToAuto(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'small-image.png',
             'width' => 605,
@@ -54,8 +57,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testAutoSizeImageNeedsNoChange(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'auto-image.png',
             'width' => 605,
@@ -87,8 +88,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testMissingLocalFileIsReported(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'missing-on-disk.png',
             'width' => 400,
@@ -127,8 +126,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testDetectsRichtextSnippetWithLegacyLargeSizeClass(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-richtext-snippet',
             'content' => [
@@ -151,8 +148,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testAnalyzeAllPagesWhenNoPageIdFilter(): void
     {
-        self::bootKernel();
-
         $this->createImagePage('analyzer-all-1');
         $this->createImagePage('analyzer-all-2');
 
@@ -163,15 +158,11 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testReturnsEmptyFindingsForUnknownPageId(): void
     {
-        self::bootKernel();
-
         self::assertSame([], $this->analyzer()->analyze(999_999));
     }
 
     public function testDetectsHighlightBlockWithFloatedSnippet(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne(['filename' => 'highlight-float.png'])->_real();
 
         $page = PageFactory::createOne([
@@ -201,8 +192,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testDetectsAccordionItemWithImageSnippet(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-accordion',
             'content' => [
@@ -229,8 +218,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testDetectsInlineImageWithoutFigureClasses(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne(['filename' => 'inline-only.png'])->_real();
 
         $page = PageFactory::createOne([
@@ -258,8 +245,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testReportsDimensionsUnknownWhenDatabaseMetadataMissing(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'dims-unknown.png',
             'width' => null,
@@ -293,8 +278,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testReportsExternalSrcForNonMediaPath(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-external-src',
             'content' => [
@@ -319,8 +302,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testReportsMissingSrcWhenImageBlockHasNoMediaOrSrc(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-missing-src',
             'content' => [
@@ -344,8 +325,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testResolvesMediaByStringMediaId(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'string-media-id.png',
             'width' => 320,
@@ -378,8 +357,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testResolvesLegacyWidthPresetToSize(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'legacy-preset.png',
             'width' => 400,
@@ -411,8 +388,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testResolvesSmallAndLargeLegacyWidthPresets(): void
     {
-        self::bootKernel();
-
         $small = MediaFactory::createOne([
             'filename' => 'preset-sm.png',
             'width' => 200,
@@ -463,8 +438,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testLargeFullWidthImageRecommendsReviewLayout(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'wide-image.png',
             'width' => 1200,
@@ -496,8 +469,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testUnknownSnippetSizeRecommendsReviewLayout(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne(['filename' => 'xl-snippet.png'])->_real();
 
         $page = PageFactory::createOne([
@@ -525,8 +496,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testSnippetWithoutSrcReportsMissingSrc(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-snippet-no-src',
             'content' => [
@@ -548,8 +517,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testDetectsFloatedLeftSnippetInHtml(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-float-left-snippet',
             'content' => [
@@ -571,8 +538,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testResolvesMediaBySrcFilenameWhenMediaIdMissing(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'src-lookup.png',
             'width' => 200,
@@ -603,8 +568,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testResolvesSrcOnlyImageWhenNoMediaRecordExists(): void
     {
-        self::bootKernel();
-
         $projectDir = self::getContainer()->getParameter('kernel.project_dir');
         $filename = 'orphan-src-only.png';
         $path = Path::join($projectDir, 'public', 'uploads', 'media', $filename);
@@ -639,8 +602,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testSkipsAccordionItemsWithoutHtml(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-accordion-invalid-item',
             'content' => [
@@ -668,8 +629,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testSkipsHtmlBlocksWithEmptyContent(): void
     {
-        self::bootKernel();
-
         $page = PageFactory::createOne([
             'slug' => 'analyzer-empty-html',
             'content' => [
@@ -691,8 +650,6 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testUnreadableLocalFileReportsDimensionsUnknown(): void
     {
-        self::bootKernel();
-
         $media = MediaFactory::createOne([
             'filename' => 'unreadable-dims.png',
             'width' => null,

@@ -8,13 +8,13 @@ use App\Content\Application\Media\MediaDimensionsBackfillService;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Repository\MediaRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class MediaDimensionsBackfillServiceTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testDryRunReportsUpdatableMediaWithoutPersisting(): void
     {

@@ -7,14 +7,14 @@ namespace App\Tests\Admin\Functional\Controller;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class CookieConsentCrudControllerTest extends WebTestCase
 {
     use Factories;
     use HasBrowser;
-    use ResetDatabase;
 
     public function testAdminCanOpenCookieConsentIndex(): void
     {

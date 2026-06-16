@@ -11,17 +11,15 @@ use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class FeedbackSubmitControllerTest extends WebTestCase
 {
     use CookieConsentTestHelper;
     use InteractsWithAuthenticatedUser;
     use Factories;
-    use HasBrowser;
-    use ResetDatabase;
 
     public function testGuestCanSubmitFeedback(): void
     {
@@ -118,16 +116,15 @@ final class FeedbackSubmitControllerTest extends WebTestCase
 
     public function testAuthenticatedUserCanSubmitWithoutGuestEmail(): void
     {
-        UserFactory::new([
+        $user = UserFactory::new([
             'email' => 'participant@example.test',
             'isVerified' => true,
             'username' => 'participant-user',
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), 'participant-user');
-
-        /** @var KernelBrowser $client */
-        $client = $browser->client();
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+        $client->loginUser($user->_real());
         $client->followRedirects(false);
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');

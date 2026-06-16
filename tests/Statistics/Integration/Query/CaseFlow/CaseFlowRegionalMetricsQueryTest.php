@@ -23,13 +23,13 @@ use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowOriginDistributionQuery
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowRegionalMetricsQuery;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class CaseFlowRegionalMetricsQueryTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testAggregatesRegionalAndEmergencyMetricsForHospitalScope(): void
     {

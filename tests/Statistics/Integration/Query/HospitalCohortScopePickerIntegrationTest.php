@@ -33,14 +33,14 @@ use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class HospitalCohortScopePickerIntegrationTest extends KernelTestCase
 {
     use Factories;
     use RefreshesStatisticsMaterializedViewsTrait;
-    use ResetDatabase;
 
     public function testEligibleCohortScopeChoicesShowTranslatedLabels(): void
     {

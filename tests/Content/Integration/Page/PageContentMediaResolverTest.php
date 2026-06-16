@@ -7,13 +7,13 @@ namespace App\Tests\Content\Integration\Page;
 use App\Content\Application\Page\PageContentMediaResolver;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PageContentMediaResolverTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testImageBlockResolvesMediaIdToSrcAndAlt(): void
     {

@@ -21,12 +21,11 @@ use App\Import\Infrastructure\Mapping\AllocationRowMapper;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
+#[ResetDatabase]
 final class DispatchAreaImportMappingTest extends KernelTestCase
 {
-    use ResetDatabase;
-
     private AllocationImportFactory $factory;
     private AllocationRowMapper $mapper;
     private Import $import;

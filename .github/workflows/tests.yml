@@ -10,11 +10,49 @@ permissions:
     contents: read
 
 jobs:
-    tests:
-        name: Tests (PHP ${{ matrix.php-versions }})
+    unit:
+        name: Unit (PHP ${{ matrix.php-version }})
         runs-on: ubuntu-latest
         env:
-            # Console steps run before PHPUnit boot (dev env from .env). Not a production secret.
+            APP_SECRET: ci-test-placeholder-not-for-production
+        strategy:
+            fail-fast: true
+            matrix:
+                php-version: ['8.4']
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+
+            - name: Install PHP with extensions
+              uses: shivammathur/setup-php@v2
+              with:
+                  extensions: "intl, mbstring, zip"
+                  php-version: ${{ matrix.php-version }}
+                  tools: composer:v2
+
+            - name: Set composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+              shell: bash
+
+            - name: Cache composer
+              uses: actions/cache@v5
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --ansi --no-interaction --no-progress
+
+            - name: Execute unit tests via ParaTest
+              run: vendor/bin/paratest --testsuite unit --processes=4 --order-by duration
+
+    database:
+        name: Database tests (PHP ${{ matrix.php-version }})
+        runs-on: ubuntu-latest
+        env:
             APP_SECRET: ci-test-placeholder-not-for-production
         services:
             postgres:
@@ -36,45 +74,49 @@ jobs:
                 php-version: ['8.4']
 
         steps:
-            - name: "Checkout code"
+            - name: Checkout code
               uses: actions/checkout@v6
 
-            - name: "Install PHP with extensions"
+            - name: Install PHP with extensions
               uses: shivammathur/setup-php@v2
               with:
                   coverage: xdebug
-                  extensions: "intl, mbstring, pdo_sqlite, zip"
+                  extensions: "intl, mbstring, pdo_pgsql, zip"
                   php-version: ${{ matrix.php-version }}
                   tools: composer:v2
 
-            - name: "Set composer cache directory"
+            - name: Set composer cache directory
               id: composer-cache
               run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
               shell: bash
 
-            - name: "Cache composer"
+            - name: Cache composer
               uses: actions/cache@v5
               with:
                   path: ${{ steps.composer-cache.outputs.dir }}
                   key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
                   restore-keys: ${{ runner.os }}-composer-
 
-            - name: "Install dependencies"
+            - name: Install dependencies
               run: composer install --ansi --no-interaction --no-progress
 
-            - name: "Build and compile assets"
+            - name: Build and compile assets
               run: |
                   php bin/console importmap:install
                   php bin/console asset-map:compile
 
-            - name: "Prepare Database"
+            - name: Prepare database
               run: |
                   php bin/console doctrine:database:drop --if-exists --force --env test
                   php bin/console doctrine:database:create --env test
-                  php bin/console doctrine:schema:create --env test
+                  php bin/console doctrine:migrations:migrate --no-interaction --env=test
+              env:
+                  DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
 
-            - name: Execute tests via PHPUnit
-              run: bin/phpunit --log-junit junit.xml
+            - name: Execute database-backed tests via PHPUnit
+              run: |
+                  bin/phpunit --testsuite all --exclude-testsuite unit --log-junit junit.xml --order-by duration
+                  php bin/report-slowest-tests 10 || true
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
 

@@ -26,13 +26,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class RebuildAllocationStatsProjectionCommandTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     #[Test]
     public function commandTruncatesAndRebuildsProjectionFromAllocations(): void

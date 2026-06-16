@@ -22,13 +22,13 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class KpiAggregateCommandTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testCommandAggregatesImportsForGivenDate(): void
     {

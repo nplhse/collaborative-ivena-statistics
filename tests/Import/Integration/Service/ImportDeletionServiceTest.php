@@ -29,13 +29,13 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ImportDeletionServiceTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     private EntityManagerInterface $em;
     private ImportRepository $imports;

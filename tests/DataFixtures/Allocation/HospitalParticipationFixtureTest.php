@@ -12,12 +12,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
+#[ResetDatabase]
 final class HospitalParticipationFixtureTest extends KernelTestCase
 {
-    use ResetDatabase;
-
     #[Test]
     public function participationGroupAssignsOwnersAndAssociateGrant(): void
     {

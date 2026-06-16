@@ -9,18 +9,21 @@ use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Browser\Test\HasBrowser;
+use Symfony\Component\DomCrawler\Form;
+use Symfony\Component\DomCrawler\Field\ChoiceFormField;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class UserCrudControllerTest extends WebTestCase
 {
     use Factories;
-    use HasBrowser;
-    use ResetDatabase;
 
     public function testAdminCanDisableAndReenableUser(): void
     {
+        $client = self::createClient();
+
         $target = UserFactory::createOne([
             'username' => 'target-user-'.bin2hex(random_bytes(4)),
         ]);
@@ -31,26 +34,28 @@ final class UserCrudControllerTest extends WebTestCase
             ])
         ;
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin/user/'.$target->getId().'/edit')
-            ->assertSuccessful()
-            ->uncheckField('User[isEnabled]')
-            ->click('Save changes')
-            ->assertSuccessful()
-        ;
+        $client->loginUser($admin->_real());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save changes')->form();
+        $this->setCheckboxValue($form, 'User[isEnabled]', false);
+        $client->submit($form);
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
 
         $target->_refresh();
         self::assertFalse($target->isEnabled());
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin/user/'.$target->getId().'/edit')
-            ->assertSuccessful()
-            ->checkField('User[isEnabled]')
-            ->click('Save changes')
-            ->assertSuccessful()
-        ;
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save changes')->form();
+        $this->setCheckboxValue($form, 'User[isEnabled]', true);
+        $client->submit($form);
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
 
         $target->_refresh();
         self::assertTrue($target->isEnabled());
@@ -58,6 +63,8 @@ final class UserCrudControllerTest extends WebTestCase
 
     public function testAdminCannotDisableOwnAccount(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asAdmin()
             ->create([
@@ -68,14 +75,16 @@ final class UserCrudControllerTest extends WebTestCase
         $adminId = $admin->getId();
         self::assertNotNull($adminId);
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit('/admin/user/'.$adminId.'/edit')
-            ->assertSuccessful()
-            ->uncheckField('User[isEnabled]')
-            ->click('Save changes')
-            ->assertStatus(500)
-        ;
+        $client->loginUser($admin->_real());
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$adminId.'/edit');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save changes')->form();
+        $this->setCheckboxValue($form, 'User[isEnabled]', false);
+        $client->submit($form);
+
+        self::assertResponseStatusCodeSame(500);
 
         self::getContainer()->get(EntityManagerInterface::class)->clear();
         $reloadedAdmin = self::getContainer()->get(UserRepository::class)->find($adminId);
@@ -85,14 +94,27 @@ final class UserCrudControllerTest extends WebTestCase
 
     public function testNonAdminUserGetsForbiddenOnUserIndex(): void
     {
+        $client = self::createClient();
+
         $user = UserFactory::createOne([
             'username' => 'user-regular-'.bin2hex(random_bytes(4)),
         ]);
 
-        $this->browser()
-            ->actingAs($user)
-            ->visit('/admin/user')
-            ->assertStatus(403)
-        ;
+        $client->loginUser($user->_real());
+        $client->request(Request::METHOD_GET, '/admin/user');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    private function setCheckboxValue(Form $form, string $name, bool $checked): void
+    {
+        $field = $form->get($name);
+        self::assertInstanceOf(ChoiceFormField::class, $field);
+
+        if ($checked) {
+            $field->tick();
+        } else {
+            $field->untick();
+        }
     }
 }

@@ -16,13 +16,13 @@ use App\Import\Infrastructure\Repository\ImportRepository;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class ImportCrudControllerTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testDeleteEntityRemovesImportViaDeletionService(): void
     {

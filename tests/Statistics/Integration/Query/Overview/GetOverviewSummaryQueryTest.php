@@ -33,13 +33,13 @@ use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class GetOverviewSummaryQueryTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testSummaryMatchesLegacyQueriesForPeriodAndScope(): void
     {

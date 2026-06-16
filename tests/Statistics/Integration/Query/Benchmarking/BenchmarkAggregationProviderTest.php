@@ -24,13 +24,13 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Benchmarking\Infrastructure\Query\BenchmarkAggregationProvider;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class BenchmarkAggregationProviderTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     public function testAggregatesPrimaryAndComparisonScopesInTwoQueries(): void
     {

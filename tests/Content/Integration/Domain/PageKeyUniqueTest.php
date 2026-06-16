@@ -10,13 +10,13 @@ use App\Content\Infrastructure\Factory\PageFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class PageKeyUniqueTest extends KernelTestCase
 {
     use Factories;
-    use ResetDatabase;
 
     private ValidatorInterface $validator;
 

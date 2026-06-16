@@ -11,14 +11,14 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Zenstruck\Browser\Test\HasBrowser;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
+#[ResetDatabase]
 final class GrantParticipantControllerTest extends WebTestCase
 {
     use Factories;
     use HasBrowser;
-    use ResetDatabase;
 
     public function testAdminCanGrantParticipantRoleViaSignedUrl(): void
     {
