@@ -8,6 +8,8 @@ when@dev: &foundry_factories
 
         App\DataFixtures\:
             resource: '../../src/DataFixtures/'
+            exclude:
+                - '../../src/DataFixtures/Purger/'
 
         App\:
             resource: '../../src/**/Infrastructure/Factory/'

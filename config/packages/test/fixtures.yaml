@@ -1,0 +1,12 @@
+parameters:
+    env(FIXTURES_SCALE): '1'
+    fixtures.scale: '%env(int:FIXTURES_SCALE)%'
+
+    fixtures.baseline:
+        hospitals_active: 15
+        imports: 20
+        allocations: 5000
+        mci_cases: 25
+        period: '-12 months'
+        pattern: urban-full
+        rebuild_projection: true

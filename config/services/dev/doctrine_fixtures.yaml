@@ -1,0 +1,15 @@
+when@dev: &materialized_view_orm_purger
+    services:
+        App\DataFixtures\Purger\VanillaOrmPurgerFactory:
+            class: Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory
+
+        doctrine.fixtures.purger.orm_purger_factory:
+            class: App\DataFixtures\Purger\MaterializedViewAwareOrmPurgerFactory
+            tags:
+                - { name: doctrine.fixtures.purger_factory, alias: default }
+            arguments:
+                $inner: '@App\DataFixtures\Purger\VanillaOrmPurgerFactory'
+                $materializedViewDropper: '@App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper'
+                $materializedViewsInstaller: '@App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller'
+
+when@test: *materialized_view_orm_purger
