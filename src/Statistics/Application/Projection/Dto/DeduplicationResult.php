@@ -12,7 +12,14 @@ final readonly class DeduplicationResult
         public int $deletedAllocations,
         public int $deletedAssessments,
         public int $deletedOrphanProjections,
+        public int $deletedFromCurrentImport = 0,
+        public int $deletedFromOtherImports = 0,
     ) {
+    }
+
+    public function totalDeletedAllocations(): int
+    {
+        return $this->deletedAllocations;
     }
 
     public function totalDeletedRows(): int

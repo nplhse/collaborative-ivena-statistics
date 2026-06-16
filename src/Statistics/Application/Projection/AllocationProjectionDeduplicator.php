@@ -45,8 +45,31 @@ final readonly class AllocationProjectionDeduplicator
 
     public function analyze(?DeduplicationProgressCallback $progress = null): DeduplicationReport
     {
+        return $this->analyzeScoped($progress, null);
+    }
+
+    public function analyzeForHospital(int $hospitalId, ?DeduplicationProgressCallback $progress = null): DeduplicationReport
+    {
+        return $this->analyzeScoped($progress, $hospitalId);
+    }
+
+    public function execute(?DeduplicationProgressCallback $progress = null): DeduplicationResult
+    {
+        return $this->executeScoped($progress, null, null);
+    }
+
+    public function executeForHospital(
+        int $hospitalId,
+        int $triggeringImportId,
+        ?DeduplicationProgressCallback $progress = null,
+    ): DeduplicationResult {
+        return $this->executeScoped($progress, $hospitalId, $triggeringImportId);
+    }
+
+    private function analyzeScoped(?DeduplicationProgressCallback $progress, ?int $hospitalId): DeduplicationReport
+    {
         $this->notify($progress, self::PHASE_ANALYZE_ENR, 0, 2, 'Scanning ENR duplicates…');
-        $enr = $this->analyzeStrategy(self::STRATEGY_ENR);
+        $enr = $this->analyzeStrategy(self::STRATEGY_ENR, $hospitalId);
         $this->notify(
             $progress,
             self::PHASE_ANALYZE_ENR,
@@ -57,7 +80,7 @@ final readonly class AllocationProjectionDeduplicator
         $this->notify($progress, self::PHASE_ANALYZE_ENR, 2, 2, 'ENR analysis complete');
 
         $this->notify($progress, self::PHASE_ANALYZE_FINGERPRINT, 0, 2, 'Scanning fingerprint duplicates…');
-        $fingerprint = $this->analyzeStrategy(self::STRATEGY_FINGERPRINT);
+        $fingerprint = $this->analyzeStrategy(self::STRATEGY_FINGERPRINT, $hospitalId);
         $this->notify(
             $progress,
             self::PHASE_ANALYZE_FINGERPRINT,
@@ -75,10 +98,11 @@ final readonly class AllocationProjectionDeduplicator
             $enr,
             $fingerprint,
             $orphanCount,
-            $this->countEnrHashGroupsSpanningMultipleYears(),
+            $this->countEnrHashGroupsSpanningMultipleYears($hospitalId),
         );
 
         $this->logger->info('projection.deduplicate.analyzed', [
+            'hospital_id' => $hospitalId,
             'enr_duplicate_rows' => $enr->duplicateRows,
             'enr_duplicate_groups' => $enr->duplicateGroups,
             'fingerprint_duplicate_rows' => $fingerprint->duplicateRows,
@@ -90,12 +114,16 @@ final readonly class AllocationProjectionDeduplicator
         return $report;
     }
 
-    public function execute(?DeduplicationProgressCallback $progress = null): DeduplicationResult
-    {
-        $report = $this->analyze($progress);
+    private function executeScoped(
+        ?DeduplicationProgressCallback $progress,
+        ?int $hospitalId,
+        ?int $triggeringImportId,
+    ): DeduplicationResult {
+        $report = $this->analyzeScoped($progress, $hospitalId);
 
-        $duplicateIds = $this->fetchDuplicateAllocationIds();
+        $duplicateIds = $this->fetchDuplicateAllocationIds($hospitalId);
         $totalDuplicates = \count($duplicateIds);
+        $attribution = $this->attributeDuplicateIdsByImport($duplicateIds, $triggeringImportId);
 
         $deletedProjections = 0;
         $deletedAllocations = 0;
@@ -135,6 +163,8 @@ final readonly class AllocationProjectionDeduplicator
                 $this->connection->rollBack();
 
                 $this->logger->error('projection.deduplicate.failed', [
+                    'hospital_id' => $hospitalId,
+                    'triggering_import_id' => $triggeringImportId,
                     'exception' => $e::class,
                     'message' => $e->getMessage(),
                 ]);
@@ -153,6 +183,8 @@ final readonly class AllocationProjectionDeduplicator
                 $this->connection->rollBack();
 
                 $this->logger->error('projection.deduplicate.failed', [
+                    'hospital_id' => $hospitalId,
+                    'triggering_import_id' => $triggeringImportId,
                     'exception' => $e::class,
                     'message' => $e->getMessage(),
                 ]);
@@ -167,23 +199,29 @@ final readonly class AllocationProjectionDeduplicator
             $deletedAllocations,
             $deletedAssessments,
             $deletedOrphans,
+            $attribution['fromCurrent'],
+            $attribution['fromOther'],
         );
 
         $this->logger->info('projection.deduplicate.deleted', [
+            'hospital_id' => $hospitalId,
+            'triggering_import_id' => $triggeringImportId,
             'deleted_projections' => $deletedProjections,
             'deleted_allocations' => $deletedAllocations,
             'deleted_assessments' => $deletedAssessments,
             'deleted_orphan_projections' => $deletedOrphans,
+            'deleted_from_current_import' => $attribution['fromCurrent'],
+            'deleted_from_other_imports' => $attribution['fromOther'],
         ]);
 
         return $result;
     }
 
-    private function analyzeStrategy(string $strategy): DeduplicationStrategySummary
+    private function analyzeStrategy(string $strategy, ?int $hospitalId): DeduplicationStrategySummary
     {
-        $duplicateRows = $this->countDuplicateRows($strategy);
-        $duplicateGroups = $this->countDuplicateGroups($strategy);
-        $sampleIds = $this->fetchSampleDuplicateIds($strategy);
+        $duplicateRows = $this->countDuplicateRows($strategy, $hospitalId);
+        $duplicateGroups = $this->countDuplicateGroups($strategy, $hospitalId);
+        $sampleIds = $this->fetchSampleDuplicateIds($strategy, $hospitalId);
 
         return new DeduplicationStrategySummary(
             $strategy,
@@ -193,16 +231,17 @@ final readonly class AllocationProjectionDeduplicator
         );
     }
 
-    private function countDuplicateRows(string $strategy): int
+    private function countDuplicateRows(string $strategy, ?int $hospitalId): int
     {
         return (int) $this->connection->fetchOne(
-            sprintf('SELECT COUNT(*) FROM (%s) duplicates', $this->duplicateRowsSubquery($strategy)),
+            sprintf('SELECT COUNT(*) FROM (%s) duplicates', $this->duplicateRowsSubquery($strategy, $hospitalId)),
         );
     }
 
-    private function countDuplicateGroups(string $strategy): int
+    private function countDuplicateGroups(string $strategy, ?int $hospitalId): int
     {
         $partitionExpr = $this->partitionKeyExpression($strategy);
+        $where = $this->allocationFilterClause($strategy, $hospitalId);
 
         return (int) $this->connection->fetchOne(
             <<<SQL
@@ -210,7 +249,7 @@ SELECT COUNT(*) FROM (
     SELECT 1
     FROM allocation a
     INNER JOIN import i ON i.id = a.import_id
-    WHERE {$this->strategyWhereClause($strategy)}
+    WHERE {$where}
     GROUP BY {$partitionExpr}
     HAVING COUNT(*) > 1
 ) grouped
@@ -221,13 +260,13 @@ SQL
     /**
      * @return list<int>
      */
-    private function fetchSampleDuplicateIds(string $strategy): array
+    private function fetchSampleDuplicateIds(string $strategy, ?int $hospitalId): array
     {
         /** @var list<int|string> $rows */
         $rows = $this->connection->fetchFirstColumn(
             sprintf(
                 'SELECT id FROM (%s) duplicates ORDER BY id ASC LIMIT %d',
-                $this->duplicateRowsSubquery($strategy),
+                $this->duplicateRowsSubquery($strategy, $hospitalId),
                 self::SAMPLE_LIMIT,
             ),
         );
@@ -238,7 +277,7 @@ SQL
     /**
      * @return list<int>
      */
-    private function fetchDuplicateAllocationIds(): array
+    private function fetchDuplicateAllocationIds(?int $hospitalId): array
     {
         $sql = sprintf(
             <<<'SQL'
@@ -249,8 +288,8 @@ SELECT id FROM (
 ) all_duplicates
 ORDER BY id ASC
 SQL,
-            $this->duplicateRowsSubquery(self::STRATEGY_ENR),
-            $this->duplicateRowsSubquery(self::STRATEGY_FINGERPRINT),
+            $this->duplicateRowsSubquery(self::STRATEGY_ENR, $hospitalId),
+            $this->duplicateRowsSubquery(self::STRATEGY_FINGERPRINT, $hospitalId),
         );
 
         /** @var list<int|string> $rows */
@@ -259,10 +298,34 @@ SQL,
         return array_map(static fn (int|string $id): int => (int) $id, $rows);
     }
 
-    private function duplicateRowsSubquery(string $strategy): string
+    /**
+     * @param list<int> $duplicateIds
+     *
+     * @return array{fromCurrent: int, fromOther: int}
+     */
+    private function attributeDuplicateIdsByImport(array $duplicateIds, ?int $triggeringImportId): array
+    {
+        if ([] === $duplicateIds || null === $triggeringImportId) {
+            return ['fromCurrent' => 0, 'fromOther' => 0];
+        }
+
+        $placeholders = implode(', ', array_fill(0, \count($duplicateIds), '?'));
+
+        $fromCurrent = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM allocation WHERE id IN ('.$placeholders.') AND import_id = ?',
+            [...$duplicateIds, $triggeringImportId],
+        );
+
+        return [
+            'fromCurrent' => $fromCurrent,
+            'fromOther' => \count($duplicateIds) - $fromCurrent,
+        ];
+    }
+
+    private function duplicateRowsSubquery(string $strategy, ?int $hospitalId): string
     {
         $partitionExpr = $this->partitionKeyExpression($strategy);
-        $where = $this->strategyWhereClause($strategy);
+        $where = $this->allocationFilterClause($strategy, $hospitalId);
 
         return <<<SQL
 SELECT ranked.id
@@ -289,6 +352,17 @@ FROM (
 ) ranked
 WHERE ranked.rn > 1
 SQL;
+    }
+
+    private function allocationFilterClause(string $strategy, ?int $hospitalId): string
+    {
+        $clauses = [$this->strategyWhereClause($strategy)];
+
+        if (null !== $hospitalId) {
+            $clauses[] = 'a.hospital_id = '.$hospitalId;
+        }
+
+        return implode(' AND ', $clauses);
     }
 
     private function strategyWhereClause(string $strategy): string
@@ -333,14 +407,18 @@ SQL;
     /**
      * Groups sharing hospital + ENR hash across multiple calendar years (informational; not deduplicated).
      */
-    private function countEnrHashGroupsSpanningMultipleYears(): int
+    private function countEnrHashGroupsSpanningMultipleYears(?int $hospitalId): int
     {
+        $hospitalFilter = null !== $hospitalId
+            ? ' AND a.hospital_id = '.$hospitalId
+            : '';
+
         return (int) $this->connection->fetchOne(
-            <<<'SQL'
+            <<<SQL
 SELECT COUNT(*) FROM (
     SELECT 1
     FROM allocation a
-    WHERE a.case_id_hash IS NOT NULL
+    WHERE a.case_id_hash IS NOT NULL{$hospitalFilter}
     GROUP BY a.hospital_id, a.case_id_hash
     HAVING COUNT(DISTINCT EXTRACT(YEAR FROM a.created_at)) > 1
 ) spanning_years
