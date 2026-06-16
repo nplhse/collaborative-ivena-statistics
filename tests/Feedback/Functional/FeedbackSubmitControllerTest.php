@@ -116,13 +116,14 @@ final class FeedbackSubmitControllerTest extends WebTestCase
 
     public function testAuthenticatedUserCanSubmitWithoutGuestEmail(): void
     {
+        $client = self::createClient();
+
         $user = UserFactory::new([
             'email' => 'participant@example.test',
             'isVerified' => true,
             'username' => 'participant-user',
         ])->create();
 
-        $client = self::createClient();
         $this->acceptEssentialCookiesOnly($client);
         $client->loginUser($user->_real());
         $client->followRedirects(false);

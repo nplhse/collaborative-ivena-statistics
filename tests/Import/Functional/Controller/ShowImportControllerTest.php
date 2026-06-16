@@ -40,8 +40,8 @@ final class ShowImportControllerTest extends WebTestCase
         self::assertSelectorTextContains('.datagrid', 'CSV');
         self::assertSelectorTextContains('.datagrid', 'Mime Type');
         self::assertSelectorTextContains('.datagrid', 'KB');
-        self::assertSelectorTextContains('body', 'PENDING');
-        self::assertSelectorTextContains('body', 'ALLOCATION');
+        self::assertSelectorTextContains('body', 'Pending');
+        self::assertSelectorTextContains('body', 'Allocation');
         self::assertSelectorTextContains('body', '0 ms');
         self::assertSelectorTextContains('body', '4');
         self::assertSelectorTextContains('body', '1');
