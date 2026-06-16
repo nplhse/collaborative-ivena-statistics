@@ -163,23 +163,53 @@
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.rowsPassed'|trans }}</div>
                                     <div class="datagrid-content">
-                                        {{ import.rowsPassed }}
+                                        {{ import.rowsPassed ?? 0 }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.rowsRejected'|trans }}</div>
                                     <div class="datagrid-content">
-                                        {{ import.rowsRejected }}
+                                        {{ import.rowsRejected ?? 0 }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.rejectionRate'|trans }}</div>
                                     <div class="datagrid-content">
                                         {% if import.rowCount > 0 %}
-                                            {{ (import.rowsRejected / import.rowCount * 100)|number_format(2, ',', '.') }}%
+                                            {% set rejectionRate = (import.rowsRejected ?? 0) / import.rowCount * 100 %}
+                                            {{ macros.import_rate(rejectionRate, 'rejection') }}
                                         {% endif %}
                                     </div>
                                 </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicated'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowsDeduplicated ?? 0 }}
+                                    </div>
+                                </div>
+                                {% if (import.rowsDeduplicated ?? 0) > 0 %}
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicatedDiscarded'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowsDeduplicatedDiscarded ?? 0 }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicatedReplaced'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {{ import.rowsDeduplicatedReplaced ?? 0 }}
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'import.field.duplicationRate'|trans }}</div>
+                                    <div class="datagrid-content">
+                                        {% if import.rowCount > 0 %}
+                                            {% set duplicationRate = (import.rowsDeduplicated ?? 0) / import.rowCount * 100 %}
+                                            {{ macros.import_rate(duplicationRate, 'duplication') }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
                         </twig:Card>
                     </div>
