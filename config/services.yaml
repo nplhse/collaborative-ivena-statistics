@@ -23,11 +23,6 @@ parameters:
     env(SENTRY_DSN): ''
     env(SENTRY_TRACES_SAMPLE_RATE): '0'
     env(SENTRY_ENABLE_LOGS): 'true'
-    env(PITCH_DECK_ENABLED): '0'
-    env(PITCH_DECK_PATH): ''
-    env(PITCH_DECK_CONTACT_NAME): ''
-    env(PITCH_DECK_CONTACT_INSTITUTION): ''
-    env(PITCH_DECK_CONTACT_EMAIL): ''
 
 services:
     # default configuration for services in *this* file

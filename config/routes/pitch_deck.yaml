@@ -1,4 +1,0 @@
-app_pitch_deck:
-    path: '%app.pitch_deck.path%'
-    controller: App\Content\UI\Http\Controller\PitchDeckController
-    methods: [GET]
