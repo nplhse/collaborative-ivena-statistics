@@ -52,3 +52,7 @@ phpstan.neon
 SECURITY_AUDIT_REPORT.md
 SECURITY_AUDIT*.md
 security-audit/
+
+# Production DB dumps (never commit)
+/prod-dump.sql.gz
+/var/dumps/

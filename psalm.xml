@@ -70,6 +70,7 @@
                 <directory name="src/*/Application/Contracts/" />
                 <directory name="src/*/Application/MessageHandler/" />
                 <directory name="src/*/Infrastructure/EventSubscriber/" />
+                <directory name="src/*/Infrastructure/Factory/" />
                 <directory name="src/*/UI/Twig/Components" />
                 <directory name="src/*/UI/Twig" />
                 <directory name="src/*/UI/Http/Controller" />
@@ -80,7 +81,6 @@
                 <directory name="src/Import/Infrastructure/Resolver/" />
                 <directory name="src/Import/Infrastructure/Repository/" />
                 <directory name="src/Import/Infrastructure/Analysis/" />
-                <directory name="src/Seed/Infrastructure/Provider/" />
                 <directory name="src/Statistics/" />
             </errorLevel>
         </UnusedClass>
