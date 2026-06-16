@@ -23,11 +23,11 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class AllocationImportFeatureTest extends KernelTestCase
+final class AllocationImportFeatureTest extends DatabaseKernelTestCase
 {
     private EntityManagerInterface $em;
 
@@ -41,7 +41,7 @@ final class AllocationImportFeatureTest extends KernelTestCase
     public function testFullImportPipelinePersistsEntitiesAndWritesRejects(): void
     {
         // Arrange
-        $user = UserFactory::createOne(['username' => 'allocation-import-user-'.bin2hex(random_bytes(6))]);
+        $user = UserFactory::createOne(['username' => 'allocation-import-user']);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([

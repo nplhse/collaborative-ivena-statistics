@@ -8,11 +8,11 @@ use App\Statistics\Application\ComparisonScopeResolver;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-final class ComparisonScopeResolverTest extends KernelTestCase
+final class ComparisonScopeResolverTest extends DatabaseKernelTestCase
 {
     public function testParsesComparisonScopeColonSyntax(): void
     {

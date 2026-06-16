@@ -33,14 +33,14 @@ use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final class ImportAllocationsMessageHandlerTest extends KernelTestCase
+final class ImportAllocationsMessageHandlerTest extends DatabaseKernelTestCase
 {
     private EntityManagerInterface $em;
     private ImportRepository $imports;
@@ -59,7 +59,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
     public function testHandlerRunsImportUpdatesImportEntityAndTracksRejectsInMemory(): void
     {
         // Arrange
-        $owner = UserFactory::createOne(['username' => 'import-handler-owner-'.bin2hex(random_bytes(6))]);
+        $owner = UserFactory::createOne(['username' => 'import-handler-owner']);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -149,7 +149,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 
     public function testRunDeduplicatesOverlappingAllocationsAndRecordsStats(): void
     {
-        $owner = UserFactory::createOne(['username' => 'import-dedup-'.bin2hex(random_bytes(6))]);
+        $owner = UserFactory::createOne(['username' => 'import-dedup']);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -232,7 +232,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 
     public function testImportWithPlaceholderAbcdColumnsDoesNotPersistAssessmentOrAudit(): void
     {
-        $owner = UserFactory::createOne(['username' => 'import-abcd-empty-'.bin2hex(random_bytes(6))]);
+        $owner = UserFactory::createOne(['username' => 'import-abcd-empty']);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -277,7 +277,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 
     public function testImportWithValidAbcdColumnsPersistsAssessment(): void
     {
-        $owner = UserFactory::createOne(['username' => 'import-abcd-valid-'.bin2hex(random_bytes(6))]);
+        $owner = UserFactory::createOne(['username' => 'import-abcd-valid']);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -333,7 +333,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 
     public function testInvokeWithMissingCsvFileMarksImportFailed(): void
     {
-        $owner = UserFactory::createOne(['username' => 'import-missing-'.bin2hex(random_bytes(5))]);
+        $owner = UserFactory::createOne(['username' => 'import-missing']);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'MissingCsv', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -440,7 +440,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
         int $rowsPassed = 0,
         int $rowsRejected = 0,
     ): Import {
-        $owner = UserFactory::createOne(['username' => 'import-status-'.bin2hex(random_bytes(6))]);
+        $owner = UserFactory::createOne(['username' => 'import-status']);
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['name' => 'StatusEvt'.bin2hex(random_bytes(4)), 'state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -562,7 +562,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 
         $owner = UserFactory::createOne(['username' => 'import-csv-'.$suffix]);
         $state = StateFactory::createOne();
-        $dispatch = DispatchAreaFactory::createOne(['name' => 'CsvDisp'.$suffix, 'state' => $state]);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
             'name' => 'Testkrankenhaus Musterstadt',
             'state' => $state,
@@ -649,7 +649,7 @@ final class ImportAllocationsMessageHandlerTest extends KernelTestCase
 
         $owner = UserFactory::createOne(['username' => 'import-csv-'.$suffix]);
         $state = StateFactory::createOne();
-        $dispatch = DispatchAreaFactory::createOne(['name' => 'CsvDisp'.$suffix, 'state' => $state]);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test', 'state' => $state]);
         $hospital = HospitalFactory::createOne([
             'name' => 'Testkrankenhaus Musterstadt',
             'state' => $state,

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\User\Integration\Doctrine;
 
 use App\Allocation\Domain\Entity\State;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-final class BlamableListenerTest extends KernelTestCase
+final class BlamableListenerTest extends DatabaseKernelTestCase
 {
     private EntityManagerInterface $em;
 
@@ -23,7 +23,7 @@ final class BlamableListenerTest extends KernelTestCase
 
     public function testPrePersistSetsCreatedByToCurrentUser(): void
     {
-        $user = UserFactory::createOne(['username' => 'blamable-created-by-'.bin2hex(random_bytes(6))]);
+        $user = UserFactory::createOne(['username' => 'blamable-created-by']);
         $this->loginAs($user);
 
         $state = new State();
@@ -38,7 +38,7 @@ final class BlamableListenerTest extends KernelTestCase
 
     public function testPreUpdateSetsUpdatedByOnUpdate(): void
     {
-        $user = UserFactory::createOne(['username' => 'blamable-updated-by-'.bin2hex(random_bytes(6))]);
+        $user = UserFactory::createOne(['username' => 'blamable-updated-by']);
         $this->loginAs($user);
 
         $state = new State();
@@ -54,8 +54,8 @@ final class BlamableListenerTest extends KernelTestCase
 
     public function testPrePersistDoesNotOverrideExistingCreatedBy(): void
     {
-        $user = UserFactory::createOne(['username' => 'blamable-acting-user-'.bin2hex(random_bytes(6))]);
-        $presetUser = UserFactory::createOne(['username' => 'blamable-preset-user-'.bin2hex(random_bytes(6))]);
+        $user = UserFactory::createOne(['username' => 'blamable-acting-user']);
+        $presetUser = UserFactory::createOne(['username' => 'blamable-preset-user']);
         $this->loginAs($user);
 
         $presetUser = $this->em->getRepository(User::class)->find($presetUser->getId());

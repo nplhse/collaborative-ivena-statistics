@@ -9,10 +9,10 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\StatisticsFilterFactory;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class StatisticsFilterFactoryAccessTest extends KernelTestCase
+final class StatisticsFilterFactoryAccessTest extends DatabaseKernelTestCase
 {
     private StatisticsFilterFactory $factory;
 

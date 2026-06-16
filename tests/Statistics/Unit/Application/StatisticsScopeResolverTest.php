@@ -10,10 +10,10 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class StatisticsScopeResolverTest extends KernelTestCase
+final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
 {
     public function testPublicScopeReturnsUnscopedCriteria(): void
     {

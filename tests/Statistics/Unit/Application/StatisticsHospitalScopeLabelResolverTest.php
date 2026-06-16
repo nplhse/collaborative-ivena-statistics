@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\Application;
 
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class StatisticsHospitalScopeLabelResolverTest extends KernelTestCase
+final class StatisticsHospitalScopeLabelResolverTest extends DatabaseKernelTestCase
 {
     public function testAdminSeesHospitalsLabel(): void
     {

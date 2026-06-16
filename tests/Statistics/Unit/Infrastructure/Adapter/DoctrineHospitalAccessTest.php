@@ -8,10 +8,10 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class DoctrineHospitalAccessTest extends KernelTestCase
+final class DoctrineHospitalAccessTest extends DatabaseKernelTestCase
 {
     private HospitalAccessInterface $access;
 
