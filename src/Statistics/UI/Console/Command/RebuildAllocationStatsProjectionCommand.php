@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Seed\UI\Console\Command;
+namespace App\Statistics\UI\Console\Command;
 
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use Doctrine\DBAL\Connection;
@@ -15,10 +15,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:seed:projection',
+    name: 'app:statistics:rebuild-projection',
     description: 'Rebuild allocation_stats_projection from existing allocations.',
 )]
-final class SeedProjectionCommand extends Command
+final class RebuildAllocationStatsProjectionCommand extends Command
 {
     private const int GC_EVERY_N_IMPORTS = 25;
 
@@ -34,7 +34,7 @@ final class SeedProjectionCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Seeding allocation_stats_projection');
+        $io->title('Rebuilding allocation_stats_projection');
 
         $startedAt = microtime(true);
 
@@ -64,7 +64,7 @@ final class SeedProjectionCommand extends Command
             $progress->finish();
             $output->writeln('');
         } catch (\Throwable $e) {
-            $io->error(sprintf('Projection seed failed: %s', $e->getMessage()));
+            $io->error(sprintf('Projection rebuild failed: %s', $e->getMessage()));
 
             return Command::FAILURE;
         }
