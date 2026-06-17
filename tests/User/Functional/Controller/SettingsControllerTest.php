@@ -152,4 +152,45 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSee('Current password is invalid.')
         ;
     }
+
+    public function testAuthenticatedUserCanOpenNotificationsPage(): void
+    {
+        UserFactory::new([
+            'email' => 'notifications-page@example.test',
+            'isVerified' => true,
+            'username' => 'notifications-page-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'notifications-page-user')
+            ->visit('/settings/notifications')
+            ->assertSuccessful()
+            ->assertSee('Notifications')
+            ->assertSee('Monthly data submission reminder')
+        ;
+    }
+
+    public function testUserCanOptOutOfMonthlyReminder(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'notifications-optout@example.test',
+            'isVerified' => true,
+            'username' => 'notifications-optout-user',
+            'receivesMonthlySubmissionReminder' => true,
+        ])->create();
+
+        self::assertTrue($user->receivesMonthlySubmissionReminder());
+
+        $browser = $this->loginWithConsent($this->browser(), 'notifications-optout-user');
+        $browser
+            ->visit('/settings/notifications')
+            ->assertSuccessful()
+            ->uncheckField('Monthly data submission reminder')
+            ->click('Save')
+            ->assertSuccessful()
+            ->assertSee('Notification preferences saved.')
+        ;
+
+        $user->_refresh();
+        self::assertFalse($user->receivesMonthlySubmissionReminder());
+    }
 }

@@ -25,22 +25,7 @@
         <div class="container-xl">
             <div class="card">
                 <div class="row g-0">
-                    <div class="col-12 col-md-3 border-end">
-                        <div class="card-body">
-                            <h4 class="subheader">{{ 'label.settings.my_account'|trans }}</h4>
-                            <div class="list-group list-group-transparent">
-                                <a class="list-group-item list-group-item-action d-flex align-items-center" href="{{ path('app_settings_index') }}">
-                                    {{ 'label.settings.my_account'|trans }}
-                                </a>
-                                <a class="list-group-item list-group-item-action d-flex align-items-center active" href="{{ path('app_settings_email') }}">
-                                    {{ 'label.settings.change_email'|trans }}
-                                </a>
-                                <a class="list-group-item list-group-item-action d-flex align-items-center" href="{{ path('app_settings_password') }}">
-                                    {{ 'label.settings.set_new_password'|trans }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    {{ include('@User/settings/_sidebar.html.twig', {active: 'email'}) }}
                     <div class="col-12 col-md-9">
                         {{ form_start(emailForm) }}
                         <div class="card-header">
