@@ -26,8 +26,7 @@ final readonly class IndicationGroupMemberCompareService
      *     withPhysicianShare: float,
      *     resusShare: float,
      *     urgencyEmergencyShare: float,
-     *     shareWithinGroup: float,
-     *     compareUrl: null
+     *     shareWithinGroup: float
      * }>
      */
     public function buildMemberRows(
@@ -56,10 +55,53 @@ final readonly class IndicationGroupMemberCompareService
                 'resusShare' => $total > 0 ? round(100 * $row['resus'] / $total, 1) : 0.0,
                 'urgencyEmergencyShare' => $total > 0 ? round(100 * $row['urgencyEmergency'] / $total, 1) : 0.0,
                 'shareWithinGroup' => $groupTotal > 0 ? round(100 * $total / $groupTotal, 1) : 0.0,
-                'compareUrl' => null,
             ];
         }
 
         return $result;
+    }
+
+    /**
+     * @param list<array{
+     *     indicationId: int,
+     *     label: string,
+     *     total: int,
+     *     withPhysicianShare: float,
+     *     resusShare: float,
+     *     urgencyEmergencyShare: float,
+     *     shareWithinGroup: float
+     * }> $memberRows
+     *
+     * @return list<array{indicationId: int, label: string, total: int}>
+     */
+    public function buildComparePickerRows(IndicationSubject $subject, array $memberRows): array
+    {
+        $totalsById = [];
+        foreach ($memberRows as $row) {
+            $totalsById[$row['indicationId']] = $row['total'];
+        }
+
+        $rows = [];
+        foreach ($subject->indicationIds as $indicationId) {
+            $rows[] = [
+                'indicationId' => $indicationId,
+                'label' => $this->indicationRepository->getDatalistLabelById($indicationId) ?? (string) $indicationId,
+                'total' => $totalsById[$indicationId] ?? 0,
+            ];
+        }
+
+        usort(
+            $rows,
+            static function (array $a, array $b): int {
+                $byTotal = $b['total'] <=> $a['total'];
+                if (0 !== $byTotal) {
+                    return $byTotal;
+                }
+
+                return strcmp($a['label'], $b['label']);
+            },
+        );
+
+        return $rows;
     }
 }

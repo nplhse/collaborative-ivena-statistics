@@ -1,0 +1,34 @@
+{% set initialCount = 3 %}
+
+<div data-testid="stats-indication-group-members"
+     {% if memberRows|length > initialCount %}
+         data-controller="benchmark-indication-mix-expand"
+         data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.indication.group.members_show_more'|trans|e('html_attr') }}"
+         data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.indication.group.members_show_less'|trans|e('html_attr') }}"
+     {% endif %}>
+    <h3 class="h4 mb-2">{{ 'stats.indication.group.members_title'|trans }}</h3>
+    <ul class="list-unstyled mb-0">
+        {% for row in memberRows %}
+            <li class="d-flex align-items-baseline justify-content-between gap-3 py-1{{ loop.index > initialCount ? ' d-none' : '' }}"
+                {% if loop.index > initialCount %}data-benchmark-indication-mix-expand-target="hiddenRow"{% endif %}>
+                <a href="{{ row.insightUrl }}" class="text-reset">{{ row.label }}</a>
+                <span class="text-muted text-nowrap small">
+                    {{ row.total|number_format(0, ',', '.') }}
+                    <span class="text-secondary">·</span>
+                    {{ row.shareWithinGroup|number_format(1, ',', '.') }}%
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if memberRows|length > initialCount %}
+        <button type="button"
+                class="btn btn-link btn-sm px-0 mt-1"
+                data-action="benchmark-indication-mix-expand#toggle"
+                data-testid="stats-indication-group-members-show-more">
+            <span data-benchmark-indication-mix-expand-target="expandLabel">
+                {{ 'stats.indication.group.members_show_more'|trans }}
+            </span>
+        </button>
+    {% endif %}
+</div>

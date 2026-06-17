@@ -30,6 +30,23 @@
             <div class="modal-body">
                 <p class="text-muted small mb-3">{{ 'stats.indication.compare.picker_help'|trans }}</p>
 
+                {% if comparePresets is defined and comparePresets is not empty %}
+                    <div class="mb-3" data-testid="{{ testIdPrefix }}-presets">
+                        <p class="form-label mb-2">{{ 'stats.indication.group.compare_presets_label'|trans }}</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for preset in comparePresets %}
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        data-action="indication-compare-picker#applyPreset"
+                                        data-indication-compare-picker-label-a-param="{{ preset.labelA }}"
+                                        data-indication-compare-picker-label-b-param="{{ preset.labelB }}">
+                                    {{ preset.label|trans }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
                 <div class="mb-3">
                     <label class="form-label" for="{{ inputIdPrefix }}-a">
                         {{ 'stats.indication.compare.side_a'|trans }}

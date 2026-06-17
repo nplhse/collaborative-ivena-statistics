@@ -6,7 +6,7 @@
             <button type="button"
                     class="btn btn-outline-primary"
                     data-bs-toggle="modal"
-                    data-bs-target="#stats-indication-compare-launch-modal"
+                    data-bs-target="#{{ statsCompareLaunchModalId|default('stats-indication-compare-launch-modal') }}"
                     data-testid="stats-indication-compare-launch-button">
                 <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
                 {{ 'stats.indication.compare.with'|trans }}

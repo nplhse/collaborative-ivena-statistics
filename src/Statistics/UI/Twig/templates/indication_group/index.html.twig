@@ -41,58 +41,35 @@
 {% block page_content %}
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
+    <div class="card mb-3 d-print-none" data-testid="stats-indication-group-picker-card">
+        <div class="card-body py-3">
+            <div class="row g-3 align-items-start">
+                <div class="col-md-6">
+                    {{ include('@Statistics/indication_group/_group_picker.html.twig') }}
+                </div>
+                {% if memberRows is not empty %}
+                    <div class="col-md-6">
+                        {{ include('@Statistics/indication_group/_group_members_list.html.twig') }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
     <div data-controller="indication-dashboard-charts"
          data-indication-dashboard-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
 
         {{ include('@Statistics/indication_dashboard/_summary_deck.html.twig') }}
-
-        <div class="mb-3 d-print-none d-flex gap-2 flex-wrap">
-            <a href="{{ memberCompareUrl }}" class="btn btn-outline-primary" data-testid="stats-indication-group-compare-members">
-                {{ 'stats.indication.group.compare_members'|trans }}
-            </a>
-        </div>
-
-        {% if memberRows is not empty %}
-            <div class="card mb-3" data-testid="stats-indication-group-members">
-                <div class="card-header py-2">
-                    <h3 class="card-title mb-0">{{ 'stats.indication.group.members_title'|trans }}</h3>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-vcenter card-table mb-0">
-                        <thead>
-                            <tr>
-                                <th>{{ 'stats.reports.table.diagnosis'|trans }}</th>
-                                <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
-                                <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in memberRows %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ path('app_stats_indication_dashboard', {indicationId: row.indicationId}) }}"
-                                           class="link-body link-offset-2 link-underline link-underline-opacity-0 link-underline-opacity-100-hover">
-                                            {{ row.label }}
-                                        </a>
-                                    </td>
-                                    <td class="text-end">{{ row.total|number_format(0, ',', '.') }}</td>
-                                    <td class="text-end">{{ row.shareWithinGroup|number_format(1, ',', '.') }}%</td>
-                                    <td class="text-end">
-                                        {% if row.compareUrl %}
-                                            <a href="{{ row.compareUrl }}" class="btn btn-sm btn-outline-secondary">
-                                                {{ 'stats.indication.compare.submit'|trans }}
-                                            </a>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
-
         {{ include('@Statistics/indication_dashboard/_dashboard_charts.html.twig') }}
     </div>
+
+    {% if statsShowCompareLaunchButton|default(false) and comparePicker is not null %}
+        {{ include('@Statistics/indication_compare/_compare_modal.html.twig', {
+            compareModalId: 'stats-indication-group-compare-launch-modal',
+            compareModalTitleKey: 'stats.indication.compare.launch_modal.title',
+            compareModalInputIdPrefix: 'stats-indication-group-compare-launch',
+            compareModalTestIdPrefix: 'stats-indication-group-compare-launch',
+            comparePresets: comparePresets|default([]),
+        }) }}
+    {% endif %}
 {% endblock %}

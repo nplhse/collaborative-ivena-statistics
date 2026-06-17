@@ -23,6 +23,15 @@ export default class extends Controller {
         window.location.assign(url.toString());
     }
 
+    applyPreset({ params }) {
+        if (!this.hasInputATarget || !this.hasInputBTarget) {
+            return;
+        }
+
+        this.inputATarget.value = params.labelA ?? '';
+        this.inputBTarget.value = params.labelB ?? '';
+    }
+
     resolveId(inputValue) {
         const value = inputValue.trim().toLowerCase();
         if ('' === value) {

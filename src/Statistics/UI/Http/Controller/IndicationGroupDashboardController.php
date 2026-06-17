@@ -12,7 +12,6 @@ use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +35,7 @@ final class IndicationGroupDashboardController extends AbstractController
         private readonly IndicationDashboardChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly IndicationGroupPickerViewModelFactory $groupPickerViewModelFactory,
+        private readonly IndicationGroupComparePickerViewModelFactory $groupComparePickerViewModelFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
     ) {
     }
@@ -75,24 +75,21 @@ final class IndicationGroupDashboardController extends AbstractController
         }
 
         $memberRows = $this->memberCompareService->buildMemberRows($subject, $scope, $period);
-        $memberRows = array_map(function (array $row) use ($request, $memberRows): array {
-            $firstOther = null;
-            foreach ($memberRows as $other) {
-                if ($other['indicationId'] !== $row['indicationId']) {
-                    $firstOther = $other['indicationId'];
-                    break;
-                }
-            }
-
-            $row['compareUrl'] = null !== $firstOther
-                ? $this->navigationUrlBuilder->build($request, 'app_stats_indication_compare', [
-                    StatisticsQueryKeys::INDICATION_A => $row['indicationId'],
-                    StatisticsQueryKeys::INDICATION_B => $firstOther,
-                ])
-                : null;
+        $compareMemberRows = $this->memberCompareService->buildComparePickerRows($subject, $memberRows);
+        $memberRows = array_map(function (array $row) use ($request): array {
+            $row['insightUrl'] = $this->navigationUrlBuilder->build($request, 'app_stats_indication_dashboard', [
+                'indicationId' => $row['indicationId'],
+            ]);
 
             return $row;
         }, $memberRows);
+        $canCompareMembers = \count($compareMemberRows) >= 2;
+        $comparePicker = $canCompareMembers
+            ? $this->groupComparePickerViewModelFactory->create($request, $compareMemberRows)
+            : null;
+        $comparePresets = $canCompareMembers
+            ? $this->groupComparePickerViewModelFactory->createPresets($compareMemberRows)
+            : [];
 
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
@@ -135,7 +132,10 @@ final class IndicationGroupDashboardController extends AbstractController
             'statsFilterDrawerValues' => $drawerState['values'],
             'statsActiveFilterCount' => $drawerState['activeCount'],
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_group_dashboard', ['groupId' => $groupId]),
-            'memberCompareUrl' => $this->generateUrl('app_stats_indication_group_compare', ['groupId' => $groupId]),
+            'comparePicker' => $comparePicker,
+            'comparePresets' => $comparePresets,
+            'statsShowCompareLaunchButton' => $canCompareMembers,
+            'statsCompareLaunchModalId' => 'stats-indication-group-compare-launch-modal',
         ]);
     }
 }
