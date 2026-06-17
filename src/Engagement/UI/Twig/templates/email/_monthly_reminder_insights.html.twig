@@ -1,0 +1,28 @@
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+    {% for insight in content.insights %}
+        <tr>
+            <td style="padding:{% if loop.first %}0{% else %}16px{% endif %} 0 16px;{% if not loop.first %}border-top:1px solid #dce0e5;{% endif %}">
+                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                    <tr>
+                        <td style="width:24px;vertical-align:top;padding-right:12px;">
+                            {% if insight.trend.value == 'up' %}
+                                <span style="color:#2fb344;font-size:16px;">▲</span>
+                            {% elseif insight.trend.value == 'down' %}
+                                <span style="color:#d63939;font-size:16px;">▼</span>
+                            {% else %}
+                                <span style="color:#667382;font-size:16px;">●</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="font-weight:600;color:#232b42;margin-bottom:4px;">{{ insight.title }}</div>
+                            <p style="margin:0 0 8px;color:#3A4859;">{{ insight.body }}</p>
+                            {% if insight.linkUrl %}
+                                <a href="{{ insight.linkUrl }}" style="color:#206bc4;text-decoration:none;font-size:13px;">{{ 'monthly_reminder.insight.link'|trans }}</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
+</table>

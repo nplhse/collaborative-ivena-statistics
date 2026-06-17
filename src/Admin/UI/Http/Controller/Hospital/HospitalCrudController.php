@@ -8,11 +8,14 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Engagement\Application\Dto\MonthlyReminderTrigger;
+use App\Engagement\Application\MonthlyReminderSender;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -21,7 +24,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @extends AbstractCrudController<Hospital>
@@ -31,6 +36,9 @@ final class HospitalCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly AuditContext $auditContext,
+        private readonly MonthlyReminderSender $monthlyReminderSender,
+        private readonly TranslatorInterface $translator,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
     ) {
     }
 
@@ -75,9 +83,42 @@ final class HospitalCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
+        $sendReminder = Action::new('sendMonthlyReminder', 'admin.hospital.action.send_reminder', 'fas fa-envelope')
+            ->linkToCrudAction('sendMonthlyReminder')
+            ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
+            ->setHtmlAttributes([
+                'data-ea-confirm' => 'admin.hospital.action.send_reminder.confirm',
+            ]);
+
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_EDIT, Action::INDEX);
+            ->add(Crud::PAGE_EDIT, Action::INDEX)
+            ->add(Crud::PAGE_DETAIL, $sendReminder);
+    }
+
+    public function sendMonthlyReminder(): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
+        $context = $this->getContext();
+        if (!$context instanceof AdminContext) {
+            throw new \LogicException('EasyAdmin context is missing.');
+        }
+
+        /** @var Hospital $hospital */
+        $hospital = $context->getEntity()->getInstance();
+        $errors = $this->monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
+        if ([] === $errors) {
+            $this->addFlash('success', 'flash.admin.hospital.reminder.sent');
+        } else {
+            $this->addFlash('error', $this->translator->trans($errors[0]));
+        }
+
+        return $this->redirect(
+            $this->adminUrlGenerator
+                ->setController(self::class)
+                ->setAction(Action::DETAIL)
+                ->setEntityId($hospital->getId())
+                ->generateUrl(),
+        );
     }
 
     #[\Override]

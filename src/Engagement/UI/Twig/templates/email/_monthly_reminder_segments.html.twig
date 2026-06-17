@@ -1,0 +1,19 @@
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;height:8px;border-collapse:collapse;">
+    <tr>
+        {% for segment in segments %}
+            {% if segment.percent > 0 %}
+                <td style="width:{{ segment.percent }}%;background-color:{{ segment.color }};font-size:0;line-height:0;{% if loop.first %}border-radius:4px 0 0 4px;{% endif %}{% if loop.last %}border-radius:0 4px 4px 0;{% endif %}">&nbsp;</td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+</table>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-top:8px;border-collapse:collapse;">
+    {% for segment in segments %}
+        <tr>
+            <td style="font-size:12px;color:#667382;padding:2px 0;">
+                <span style="display:inline-block;width:8px;height:8px;background:{{ segment.color }};border-radius:2px;margin-right:6px;vertical-align:middle;"></span>
+                {{ segment.label }}: {{ segment.percent }}%
+            </td>
+        </tr>
+    {% endfor %}
+</table>

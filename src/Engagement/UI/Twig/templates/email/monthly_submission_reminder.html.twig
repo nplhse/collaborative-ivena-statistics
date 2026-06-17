@@ -1,0 +1,159 @@
+{%- set fg = '#3A4859' -%}
+{%- set fgHeading = '#232b42' -%}
+{%- set link = '#206bc4' -%}
+{%- set boxBg = '#ffffff' -%}
+{%- set pageBg = '#f6f7f9' -%}
+{%- set border = '#dce0e5' -%}
+{%- set muted = '#667382' -%}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{{ 'monthly_reminder.subject'|trans({hospital: content.hospitalName, period: content.reportingPeriodLabel}) }}</title>
+</head>
+<body style="margin:0;padding:0;background-color:{{ pageBg }};font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:1.6;color:{{ fg }};">
+<span style="display:none;max-height:0;overflow:hidden;color:transparent;">{{ content.preheader }}</span>
+<center style="width:100%;background-color:{{ pageBg }};">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;max-width:640px;width:100%;border-collapse:collapse;">
+        <tr>
+            <td style="padding:24px 16px 48px;">
+                <div style="background:{{ boxBg }};border:1px solid {{ border }};border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                        <tr>
+                            <td align="center" style="padding:40px 48px 0;">
+                                <h1 style="margin:0;text-align:center;font-size:28px;line-height:1.3;color:{{ fgHeading }};font-weight:600;">
+                                    {{ 'monthly_reminder.heading'|trans({hospital: content.hospitalName}) }}
+                                </h1>
+                                <p style="color:{{ muted }};margin:8px 0 0;text-align:center;">{{ content.reportingPeriodLabel }}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:32px 48px 0;">
+                                {{ include('@Engagement/email/_monthly_reminder_hero_kpis.html.twig') }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding:24px 48px 40px;">
+                                <a href="{{ content.importCreateUrl }}" style="display:inline-block;background-color:{{ link }};color:#ffffff;text-decoration:none;font-weight:500;font-size:15px;border-radius:4px;padding:12px 24px;">
+                                    {{ 'monthly_reminder.cta.upload'|trans({month: content.uploadMonthLabel}) }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:32px 48px;border-top:1px solid {{ border }};margin-top:32px;">
+                                <h4 style="font-weight:600;color:{{ fgHeading }};font-size:16px;margin:0 0 16px;">{{ 'monthly_reminder.section.trend'|trans }}</h4>
+                                {{ include('@Engagement/email/_monthly_reminder_chart.html.twig') }}
+                                {% if content.trendSummary %}
+                                    <p style="color:{{ muted }};margin:16px 0 0;">{{ content.trendSummary }}</p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if content.isPersonalized %}
+                            <tr>
+                                <td style="padding:32px 48px;border-top:1px solid {{ border }};">
+                                    <h4 style="font-weight:600;color:{{ fgHeading }};font-size:16px;margin:0 0 16px;">{{ 'monthly_reminder.section.profile'|trans }}</h4>
+                                    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                                        <tr>
+                                            <td style="width:48%;vertical-align:top;padding-right:12px;">
+                                                <div style="font-weight:600;margin-bottom:8px;">{{ 'monthly_reminder.profile.urgency'|trans }}</div>
+                                                {{ include('@Engagement/email/_monthly_reminder_segments.html.twig', {segments: content.urgencySegments}) }}
+                                                {% if content.urgencyBenchmarkNote %}
+                                                    <p style="color:{{ muted }};font-size:13px;margin:8px 0 0;">{{ content.urgencyBenchmarkNote }}</p>
+                                                {% endif %}
+                                            </td>
+                                            <td style="width:48%;vertical-align:top;padding-left:12px;">
+                                                <div style="font-weight:600;margin-bottom:8px;">{{ 'monthly_reminder.profile.gender'|trans }}</div>
+                                                {{ include('@Engagement/email/_monthly_reminder_segments.html.twig', {segments: content.genderSegments}) }}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td style="padding:32px 48px;border-top:1px solid {{ border }};">
+                                    <h4 style="font-weight:600;color:{{ fgHeading }};font-size:16px;margin:0 0 16px;">{{ 'monthly_reminder.section.platform'|trans }}</h4>
+                                    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                                        <tr>
+                                            <td align="center" style="width:25%;padding:8px;">
+                                                <div style="font-size:20px;font-weight:600;color:{{ fgHeading }};">{{ content.platformAllocationCount|default('—') }}</div>
+                                                <div style="color:{{ muted }};font-size:12px;">{{ 'monthly_reminder.platform.allocations'|trans }}</div>
+                                            </td>
+                                            <td align="center" style="width:25%;padding:8px;">
+                                                <div style="font-size:20px;font-weight:600;color:{{ fgHeading }};">{{ content.platformActiveHospitals|default('—') }}</div>
+                                                <div style="color:{{ muted }};font-size:12px;">{{ 'monthly_reminder.platform.hospitals'|trans }}</div>
+                                            </td>
+                                            <td align="center" style="width:25%;padding:8px;">
+                                                <div style="font-size:20px;font-weight:600;color:{{ fgHeading }};">{{ content.platformImportsLastMonth|default('—') }}</div>
+                                                <div style="color:{{ muted }};font-size:12px;">{{ 'monthly_reminder.platform.imports'|trans }}</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% if content.insights|length > 0 %}
+                            <tr>
+                                <td style="padding:32px 48px;border-top:1px solid {{ border }};">
+                                    <h4 style="font-weight:600;color:{{ fgHeading }};font-size:16px;margin:0 0 16px;">{{ 'monthly_reminder.section.insights'|trans }}</h4>
+                                    {{ include('@Engagement/email/_monthly_reminder_insights.html.twig') }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td style="padding:32px 48px;border-top:1px solid {{ border }};">
+                                <h4 style="font-weight:600;color:{{ fgHeading }};font-size:16px;margin:0 0 8px;">{{ 'monthly_reminder.section.submission'|trans }}</h4>
+                                <p style="color:{{ muted }};margin:0 0 12px;">{{ 'monthly_reminder.submission.progress'|trans({
+                                    completed: content.submissionMonthsCompleted,
+                                    total: content.submissionMonthsTotal,
+                                }) }}</p>
+                                {% set submissionProgress = content.submissionProgressPercent %}
+                                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;height:8px;border-collapse:collapse;">
+                                    <tr>
+                                        {% if submissionProgress > 0 %}
+                                            <td style="width:{{ submissionProgress }}%;background-color:{{ link }};border-radius:{{ submissionProgress >= 100 ? '4px' : '4px 0 0 4px' }};font-size:0;line-height:0;">&nbsp;</td>
+                                        {% endif %}
+                                        {% if submissionProgress < 100 %}
+                                            <td style="width:{{ submissionProgress > 0 ? 100 - submissionProgress : 100 }}%;background-color:#e9f0f9;border-radius:{{ submissionProgress <= 0 ? '4px' : '0 4px 4px 0' }};font-size:0;line-height:0;">&nbsp;</td>
+                                        {% endif %}
+                                    </tr>
+                                </table>
+                                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-top:16px;border-collapse:collapse;">
+                                    <tr>
+                                        {% for monthKey, status in content.submissionMonths %}
+                                            {% set bg = status == 'success' ? '#2fb344' : (status == 'failed' ? '#f59f00' : '#fafafa') %}
+                                            {% set color = status == 'success' ? '#ffffff' : '#667382' %}
+                                            <td style="padding:2px;">
+                                                <div style="background:{{ bg }};color:{{ color }};font-size:10px;text-align:center;border-radius:4px;padding:8px 0;">{{ monthKey|slice(5, 2) }}</div>
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                </table>
+                                {% if content.longestSubmissionGapLabel %}
+                                    <p style="color:{{ muted }};font-size:13px;margin:12px 0 0;">{{ content.longestSubmissionGapLabel }}</p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:0 48px 40px;">
+                                <p style="margin:16px 0 0;text-align:center;">
+                                    <a href="{{ content.statisticsDashboardUrl }}" style="color:{{ link }};text-decoration:none;">{{ 'monthly_reminder.link.dashboard'|trans }}</a>
+                                    &nbsp;·&nbsp;
+                                    <a href="{{ content.benchmarkingUrl }}" style="color:{{ link }};text-decoration:none;">{{ 'monthly_reminder.link.benchmarking'|trans }}</a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="text-align:center;margin-top:20px;font-size:12px;color:#8491a1;">
+                    {{ 'email.footer.transactional'|trans({app: app_title}) }}
+                    <br>
+                    <a href="{{ content.notificationsSettingsUrl }}" style="color:{{ link }};text-decoration:none;">{{ 'monthly_reminder.email.manage_notifications'|trans }}</a>
+                </div>
+            </td>
+        </tr>
+    </table>
+</center>
+</body>
+</html>
