@@ -35,7 +35,7 @@ final class BenchmarkingController extends AbstractController
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
-        private readonly BenchmarkSelectionViewModelFactory $benchmarkSelectionViewModelFactory,
+        private readonly BenchmarkSelectionPickerViewModelFactory $benchmarkSelectionPickerViewModelFactory,
         private readonly BenchmarkChartPayloadFactory $benchmarkChartPayloadFactory,
         private readonly BenchmarkIndicationMixViewModelFactory $benchmarkIndicationMixViewModelFactory,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
@@ -73,7 +73,7 @@ final class BenchmarkingController extends AbstractController
         $criteria = $this->benchmarkCriteriaFactory->create($context, $comparisonFilter);
         $report = $this->benchmarkReportService->build($criteria);
 
-        $selection = $this->benchmarkSelectionViewModelFactory->create(
+        $selectionPicker = $this->benchmarkSelectionPickerViewModelFactory->create(
             $request,
             $user,
             $filter,
@@ -102,7 +102,7 @@ final class BenchmarkingController extends AbstractController
             'dataQualityReport' => $dataQualityReport,
             'report' => $report,
             'chartPayload' => $this->benchmarkChartPayloadFactory->create($report),
-            'selection' => $selection,
+            'selectionPicker' => $selectionPicker,
             'indicationMixViewModel' => $this->benchmarkIndicationMixViewModelFactory->create($request, $report->indicationMix),
             'statsFilterDrawerValues' => $drawerState['values'],
             'statsActiveFilterCount' => $drawerState['activeCount'],
