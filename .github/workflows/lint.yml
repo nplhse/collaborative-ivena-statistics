@@ -16,6 +16,9 @@ jobs:
         env:
             # Required for Symfony console/PHPStan (no .env.local in CI). Not a production secret.
             APP_SECRET: ci-lint-placeholder-not-for-production
+            # PHPStan boots Doctrine via tests/object-manager.php; CI has no PostgreSQL service.
+            DATABASE_URL: 'sqlite:///${{ github.workspace }}/var/lint.db'
+            MESSENGER_TRANSPORT_DSN: sync://
         strategy:
             fail-fast: true
             matrix:
@@ -29,7 +32,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   coverage: "none"
-                  extensions: intl
+                  extensions: intl, pdo_sqlite
                   php-version: ${{ matrix.php-version }}
                   tools: composer:v2
 
