@@ -69,6 +69,24 @@ final readonly class ReferenceYamlLoader
     }
 
     /**
+     * @return list<array{name: string, category: ?string, codes: list<string>}>
+     */
+    public function indicationGroups(): array
+    {
+        /** @var array{indication_groups: list<array{name: string, category?: ?string, codes: list<string>}>} $data */
+        $data = $this->load('indication_groups.yaml');
+
+        return array_map(
+            static fn (array $row): array => [
+                'name' => $row['name'],
+                'category' => $row['category'] ?? null,
+                'codes' => array_map(strval(...), $row['codes']),
+            ],
+            $data['indication_groups'],
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function load(string $filename): array

@@ -91,6 +91,14 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="stats-indication-weekday"]');
         self::assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
         self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
+        self::assertSelectorExists('[data-testid="stats-indication-compare-launch-button"]');
+        self::assertSelectorExists('[data-testid="stats-indication-compare-launch-modal"]');
+        self::assertSelectorNotExists('[data-testid="stats-indication-compare-cta"]');
+        $crawler = $client->getCrawler();
+        self::assertStringContainsString(
+            'Dashboard Test Indication',
+            (string) $crawler->filter('#stats-indication-compare-launch-a')->attr('value'),
+        );
     }
 
     public function testUnknownIndicationReturns404(): void

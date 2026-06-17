@@ -53,4 +53,8 @@ export default class extends Controller {
             window.location.assign(match.url);
         }
     }
+
+    submit() {
+        this.navigateIfMatch(true);
+    }
 }

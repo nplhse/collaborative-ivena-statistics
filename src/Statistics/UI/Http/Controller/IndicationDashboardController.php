@@ -30,6 +30,7 @@ final class IndicationDashboardController extends AbstractController
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly IndicationDashboardChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
+        private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
     ) {
     }
 
@@ -114,6 +115,8 @@ final class IndicationDashboardController extends AbstractController
             'statsActiveFilterCount' => $drawerState['activeCount'],
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_dashboard', $routeParams),
             'indicationId' => $indicationId,
+            'comparePicker' => $this->comparePickerViewModelFactory->create($request, $indicationId),
+            'statsShowCompareLaunchButton' => true,
         ]);
     }
 }

@@ -54,10 +54,17 @@ class IndicationNormalized implements \Stringable
     #[ORM\OneToMany(targetEntity: IndicationRaw::class, mappedBy: 'target')]
     private Collection $children;
 
+    /**
+     * @var Collection<int, IndicationGroup>
+     */
+    #[ORM\ManyToMany(targetEntity: IndicationGroup::class, mappedBy: 'indications')]
+    private Collection $groups;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
         $this->children = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -163,5 +170,11 @@ class IndicationNormalized implements \Stringable
         }
 
         return $this;
+    }
+
+    /** @return Collection<int, IndicationGroup> */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
     }
 }

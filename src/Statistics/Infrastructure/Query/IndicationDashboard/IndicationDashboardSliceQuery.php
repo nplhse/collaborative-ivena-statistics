@@ -9,6 +9,7 @@ use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardSliceData;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -23,18 +24,26 @@ final readonly class IndicationDashboardSliceQuery
     ) {
     }
 
+    /**
+     * @param list<int> $indicationIds
+     */
     public function fetch(
-        int $indicationId,
+        array $indicationIds,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
     ): IndicationDashboardSliceData {
+        if ([] === $indicationIds) {
+            return IndicationDashboardSliceData::empty();
+        }
+
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return IndicationDashboardSliceData::empty();
         }
 
         [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
-        $params['indication_id'] = $indicationId;
+        $types['indication_ids'] = ArrayParameterType::INTEGER;
+        $params['indication_ids'] = array_map(static fn (int $id): int => $id, $indicationIds);
 
         $ageBucketCase = StatisticsAgeGroupBucketSql::CASE_EXPRESSION;
         $transportBucketCase = StatisticsTransportTimeBucketSql::CASE_EXPRESSION;
@@ -54,7 +63,7 @@ WITH slice AS (
         day_time_bucket_code,
         shift_bucket_code
     FROM allocation_stats_projection
-    WHERE {$where} AND indication_normalized_id = :indication_id
+    WHERE {$where} AND indication_normalized_id IN (:indication_ids)
 )
 SELECT 'gender' AS slice_kind, 'male' AS dim1, NULL::text AS dim2, NULL::text AS dim3, COUNT(*)::int AS count
 FROM slice WHERE gender_code = {$maleCode}

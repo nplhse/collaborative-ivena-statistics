@@ -42,7 +42,7 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<int, array{id: int, label: string}>
+     * @return list<array{id: int, label: string}>
      */
     public function getDatalist(): array
     {
@@ -52,14 +52,14 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
 
-        return array_map(static function (array $result): array {
+        return array_values(array_map(static function (array $result): array {
             $label = $result['name'];
             if (!empty($result['code'])) {
                 $label .= ' ('.$result['code'].')';
             }
 
             return ['id' => (int) $result['id'], 'label' => $label];
-        }, $rows);
+        }, $rows));
     }
 
     public function getDatalistLabelById(int $id): ?string

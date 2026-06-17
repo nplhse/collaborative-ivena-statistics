@@ -18,6 +18,7 @@ use App\Admin\UI\Http\Controller\Feedback\FeedbackCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportCrudController;
 use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
+use App\Admin\UI\Http\Controller\IndicationGroup\IndicationGroupCrudController;
 use App\Admin\UI\Http\Controller\IndicationNormalized\IndicationNormalizedCrudController;
 use App\Admin\UI\Http\Controller\IndicationRaw\IndicationRawCrudController;
 use App\Admin\UI\Http\Controller\Infection\InfectionCrudController;
@@ -229,6 +230,7 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkTo(DispatchAreaCrudController::class, 'Dispatch Areas', 'fas fa-list'),
             MenuItem::linkTo(HospitalCrudController::class, 'Hospitals', 'fas fa-list'),
             MenuItem::linkTo(IndicationNormalizedCrudController::class, 'Indication Normalized', 'fas fa-list'),
+            MenuItem::linkTo(IndicationGroupCrudController::class, 'Indication Groups', 'fas fa-object-group'),
             MenuItem::linkTo(IndicationRawCrudController::class, 'Indication Raw', 'fas fa-list'),
             MenuItem::linkTo(InfectionCrudController::class, 'Infections', 'fas fa-list'),
             MenuItem::linkTo(MciCaseCrudController::class, 'MCI Cases', 'fas fa-list'),

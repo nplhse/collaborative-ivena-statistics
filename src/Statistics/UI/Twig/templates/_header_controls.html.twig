@@ -2,6 +2,28 @@
 
 <div class="col-auto ms-auto d-print-none">
     <div class="btn-list">
+        {% if statsShowCompareLaunchButton|default(false) %}
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#{{ statsCompareLaunchModalId|default('stats-indication-compare-launch-modal') }}"
+                    data-testid="stats-indication-compare-launch-button">
+                <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
+                {{ 'stats.indication.compare.with'|trans }}
+            </button>
+        {% endif %}
+
+        {% if statsShowCompareEditButton|default(false) %}
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#stats-indication-compare-edit-modal"
+                    data-testid="stats-indication-compare-edit-button">
+                <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
+                {{ 'stats.indication.compare.edit'|trans }}
+            </button>
+        {% endif %}
+
         {% if statsShowScopeSecondaryPicker|default(false) %}
             <div class="btn-group" role="group" aria-label="{{ 'stats.filter.scope_label'|trans }}">
                 <div class="btn-group" role="group">

@@ -4807,6 +4807,10 @@
         <source>stats.indication.insights.index.top_title</source>
         <target>Top 25 indications</target>
       </trans-unit>
+      <trans-unit id="statsInd66b" resname="stats.indication.insights.index.top_groups_title">
+        <source>stats.indication.insights.index.top_groups_title</source>
+        <target>Top 10 indication groups</target>
+      </trans-unit>
       <trans-unit id="statsInd67" resname="stats.indication.insights.index.picker_title">
         <source>stats.indication.insights.index.picker_title</source>
         <target>Browse all indications</target>
@@ -4842,6 +4846,254 @@
       <trans-unit id="statsInd81" resname="stats.indication.picker.placeholder">
         <source>stats.indication.picker.placeholder</source>
         <target>Search by name or code…</target>
+      </trans-unit>
+      <trans-unit id="statsInd82" resname="stats.indication.picker.submit">
+        <source>stats.indication.picker.submit</source>
+        <target>Open selection</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp01" resname="stats.indication.compare.title">
+        <source>stats.indication.compare.title</source>
+        <target>Indication comparison</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp02" resname="stats.indication.compare.subtitle">
+        <source>stats.indication.compare.subtitle</source>
+        <target>Compare two indications in the same scope</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp03" resname="stats.indication.compare.side_a">
+        <source>stats.indication.compare.side_a</source>
+        <target>Indication A</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp04" resname="stats.indication.compare.side_b">
+        <source>stats.indication.compare.side_b</source>
+        <target>Indication B</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp05" resname="stats.indication.compare.section.kpi">
+        <source>stats.indication.compare.section.kpi</source>
+        <target>Key metrics</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp06" resname="stats.indication.compare.section.insights">
+        <source>stats.indication.compare.section.insights</source>
+        <target>Notable differences</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp06b" resname="stats.indication.compare.insights.empty">
+        <source>stats.indication.compare.insights.empty</source>
+        <target>No notable differences between these two indications in the selected scope.</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp07" resname="stats.indication.compare.insufficient_data">
+        <source>stats.indication.compare.insufficient_data</source>
+        <target>One or both indications have very few cases in this scope. Interpret differences with caution.</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp08" resname="stats.indication.compare.picker_title">
+        <source>stats.indication.compare.picker_title</source>
+        <target>Compare two indications</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp09" resname="stats.indication.compare.picker_help">
+        <source>stats.indication.compare.picker_help</source>
+        <target>Select two indications to compare their profiles side by side.</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp10" resname="stats.indication.compare.submit">
+        <source>stats.indication.compare.submit</source>
+        <target>Compare</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp11" resname="stats.indication.compare.cta">
+        <source>stats.indication.compare.cta</source>
+        <target>Compare with another indication</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp12" resname="stats.indication.compare.error.missing_selection">
+        <source>stats.indication.compare.error.missing_selection</source>
+        <target>Please select two indications to compare.</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp13" resname="stats.indication.compare.error.same_indication">
+        <source>stats.indication.compare.error.same_indication</source>
+        <target>Please select two different indications.</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp14" resname="stats.indication.compare.insight.physician">
+        <source>stats.indication.compare.insight.physician</source>
+        <target>Physician escort occurs {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp14b" resname="stats.indication.compare.insight.physician_neutral">
+        <source>stats.indication.compare.insight.physician_neutral</source>
+        <target>Physician escort rate is in line between the two indications ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp14c" resname="stats.indication.compare.insight.physician_low">
+        <source>stats.indication.compare.insight.physician_low</source>
+        <target>Physician escort occurs less often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp15" resname="stats.indication.compare.insight.resus">
+        <source>stats.indication.compare.insight.resus</source>
+        <target>Resuscitation room admission occurs {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp15b" resname="stats.indication.compare.insight.resus_low">
+        <source>stats.indication.compare.insight.resus_low</source>
+        <target>Resuscitation room admission is lower for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp16" resname="stats.indication.compare.insight.cathlab">
+        <source>stats.indication.compare.insight.cathlab</source>
+        <target>Cath lab indication occurs {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp16b" resname="stats.indication.compare.insight.cathlab_low">
+        <source>stats.indication.compare.insight.cathlab_low</source>
+        <target>Cath lab indication is lower for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp17" resname="stats.indication.compare.insight.urgency_emergency">
+        <source>stats.indication.compare.insight.urgency_emergency</source>
+        <target>Emergency urgency occurs {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp17b" resname="stats.indication.compare.insight.urgency_emergency_low">
+        <source>stats.indication.compare.insight.urgency_emergency_low</source>
+        <target>Emergency urgency is lower for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp18" resname="stats.indication.compare.insight.age_80_plus">
+        <source>stats.indication.compare.insight.age_80_plus</source>
+        <target>Patients aged 80+ occur {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp18b" resname="stats.indication.compare.insight.age_80_plus_low">
+        <source>stats.indication.compare.insight.age_80_plus_low</source>
+        <target>Patients aged 80+ are less common for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp19" resname="stats.indication.compare.insight.night_daytime">
+        <source>stats.indication.compare.insight.night_daytime</source>
+        <target>Night cases occur {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp19b" resname="stats.indication.compare.insight.night_daytime_low">
+        <source>stats.indication.compare.insight.night_daytime_low</source>
+        <target>Night cases are less common for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp20" resname="stats.indication.compare.insight.weekend">
+        <source>stats.indication.compare.insight.weekend</source>
+        <target>Weekend cases occur {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp20b" resname="stats.indication.compare.insight.weekend_low">
+        <source>stats.indication.compare.insight.weekend_low</source>
+        <target>Weekend cases are less common for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp21" resname="stats.indication.compare.insight.infectious">
+        <source>stats.indication.compare.insight.infectious</source>
+        <target>Infectious patients occur {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp21b" resname="stats.indication.compare.insight.infectious_low">
+        <source>stats.indication.compare.insight.infectious_low</source>
+        <target>Infectious patients are less common for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp22" resname="stats.indication.compare.insight.cpr">
+        <source>stats.indication.compare.insight.cpr</source>
+        <target>CPR occurs {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp22b" resname="stats.indication.compare.insight.cpr_low">
+        <source>stats.indication.compare.insight.cpr_low</source>
+        <target>CPR is less common for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp23" resname="stats.indication.compare.insight.ventilation">
+        <source>stats.indication.compare.insight.ventilation</source>
+        <target>Ventilation occurs {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp23b" resname="stats.indication.compare.insight.ventilation_low">
+        <source>stats.indication.compare.insight.ventilation_low</source>
+        <target>Ventilation is less common for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp24" resname="stats.indication.compare.insight.shock">
+        <source>stats.indication.compare.insight.shock</source>
+        <target>Shock occurs {ratio, number, :: .#}× more often for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp24b" resname="stats.indication.compare.insight.shock_low">
+        <source>stats.indication.compare.insight.shock_low</source>
+        <target>Shock is less common for indication A ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp25" resname="stats.indication.compare.insight.age_old">
+        <source>stats.indication.compare.insight.age_old</source>
+        <target>Indication A has a markedly higher median age ({percentA, number} vs. {percentB, number} years).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp26" resname="stats.indication.compare.insight.age_young">
+        <source>stats.indication.compare.insight.age_young</source>
+        <target>Indication A has a markedly lower median age ({percentA, number} vs. {percentB, number} years).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp27" resname="stats.indication.compare.insight.transport_time_long">
+        <source>stats.indication.compare.insight.transport_time_long</source>
+        <target>Median transport time is longer for indication A ({percentA, number} vs. {percentB, number} minutes).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp28" resname="stats.indication.compare.insight.transport_time_short">
+        <source>stats.indication.compare.insight.transport_time_short</source>
+        <target>Median transport time is shorter for indication A ({percentA, number} vs. {percentB, number} minutes).</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp29" resname="stats.indication.compare.edit">
+        <source>stats.indication.compare.edit</source>
+        <target>Edit comparison</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp30" resname="stats.indication.compare.selection_title">
+        <source>stats.indication.compare.selection_title</source>
+        <target>Compared indications</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp31" resname="stats.indication.compare.edit_modal.title">
+        <source>stats.indication.compare.edit_modal.title</source>
+        <target>Edit comparison</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp32" resname="stats.indication.compare.edit_modal.cancel">
+        <source>stats.indication.compare.edit_modal.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp33" resname="stats.indication.compare.side_a_short">
+        <source>stats.indication.compare.side_a_short</source>
+        <target>A</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp34" resname="stats.indication.compare.side_b_short">
+        <source>stats.indication.compare.side_b_short</source>
+        <target>B</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp35" resname="stats.indication.compare.with">
+        <source>stats.indication.compare.with</source>
+        <target>Compare with</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp36" resname="stats.indication.compare.launch_modal.title">
+        <source>stats.indication.compare.launch_modal.title</source>
+        <target>Compare with another indication</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp01" resname="stats.indication.group.dashboard.title">
+        <source>stats.indication.group.dashboard.title</source>
+        <target>Indication group insight</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp02" resname="stats.indication.group.members_title">
+        <source>stats.indication.group.members_title</source>
+        <target>Group members</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp03" resname="stats.indication.group.picker_label">
+        <source>stats.indication.group.picker_label</source>
+        <target>Indication groups</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp04" resname="stats.indication.group.compare_members">
+        <source>stats.indication.group.compare_members</source>
+        <target>Compare members</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp07" resname="stats.indication.group.compare_presets_label">
+        <source>stats.indication.group.compare_presets_label</source>
+        <target>Quick selection</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp08" resname="stats.indication.group.compare_preset_top_two">
+        <source>stats.indication.group.compare_preset_top_two</source>
+        <target>Top 2 by case count</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp09" resname="stats.indication.group.compare_preset_largest_smallest">
+        <source>stats.indication.group.compare_preset_largest_smallest</source>
+        <target>Largest vs smallest</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp10" resname="stats.indication.group.members_show_more">
+        <source>stats.indication.group.members_show_more</source>
+        <target>Show more</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp11" resname="stats.indication.group.members_show_less">
+        <source>stats.indication.group.members_show_less</source>
+        <target>Show less</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp05" resname="stats.indication.group.empty">
+        <source>stats.indication.group.empty</source>
+        <target>This group has no indications assigned yet.</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp06" resname="stats.indication.group.picker_empty">
+        <source>stats.indication.group.picker_empty</source>
+        <target>No indication groups have been set up yet. Administrators can create groups in the admin area.</target>
+      </trans-unit>
+      <trans-unit id="adminIndGrp01" resname="admin.indication_group.action.view_statistics">
+        <source>admin.indication_group.action.view_statistics</source>
+        <target>Open in statistics</target>
       </trans-unit>
       <trans-unit id="statsInd62" resname="stats.indication.summary.gender_title">
         <source>stats.indication.summary.gender_title</source>

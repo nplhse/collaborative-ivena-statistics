@@ -173,6 +173,20 @@ final class ReferenceYamlLoaderTest extends TestCase
         self::assertCount(200, $values);
     }
 
+    #[Test]
+    public function indicationGroupsReturnsExpectedDefinitionsInOrder(): void
+    {
+        $groups = $this->referenceYamlLoader()->indicationGroups();
+
+        self::assertSame('Akute Dyspnoe & respiratorische Notfälle', $groups[0]['name'] ?? null);
+        self::assertSame('Verbrennung & Umweltmedizin', $groups[\count($groups) - 1]['name'] ?? null);
+        self::assertContains('Brustschmerz & akutes Koronarsyndrom', array_map(static fn (array $row): string => $row['name'], $groups));
+        self::assertFalse(
+            array_any($groups, static fn (array $row): bool => str_contains((string) $row['name'], 'Anaphylax')),
+        );
+        self::assertCount(20, $groups);
+    }
+
     /**
      * @param list<array{state: string, name: string}> $rows
      */

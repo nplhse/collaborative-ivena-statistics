@@ -43,7 +43,7 @@
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
     <div class="row g-3 align-items-start">
-        <div class="col-lg-8">
+        <div class="col-lg-7">
             <div class="card" data-testid="stats-indication-insights-top-table">
                 <div class="card-header">
                     <h3 class="card-title mb-0">{{ 'stats.indication.insights.index.top_title'|trans }}</h3>
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
+        <div class="col-lg-5">
             <div class="card" data-testid="stats-indication-insights-picker-card">
                 <div class="card-body">
                     <h3 class="card-title mb-2">{{ 'stats.indication.insights.index.picker_title'|trans }}</h3>
@@ -93,6 +93,9 @@
                     {{ include('@Statistics/indication_dashboard/_indication_picker.html.twig') }}
                 </div>
             </div>
+
+            {{ include('@Statistics/indication_insights/_compare_picker.html.twig') }}
+            {{ include('@Statistics/indication_insights/_group_picker.html.twig') }}
         </div>
     </div>
 

@@ -7,6 +7,7 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\TopDiagnosesQuery;
+use App\Statistics\Application\TopIndicationGroupsQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,14 +21,18 @@ final class IndicationInsightsIndexController extends AbstractController
 {
     private const int TOP_LIMIT = 25;
 
+    private const int TOP_GROUPS_LIMIT = 10;
+
     public function __construct(
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly TopDiagnosesQuery $topDiagnosesQuery,
+        private readonly TopIndicationGroupsQuery $topIndicationGroupsQuery,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly IndicationPickerViewModelFactory $indicationPickerViewModelFactory,
+        private readonly IndicationGroupPickerViewModelFactory $groupPickerViewModelFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
@@ -85,6 +90,27 @@ final class IndicationInsightsIndexController extends AbstractController
             ++$rank;
         }
 
+        $groupsData = $this->topIndicationGroupsQuery->fetch($context, self::TOP_GROUPS_LIMIT);
+        $groupsTotal = $groupsData['totalAllocations'];
+        $topGroupRows = [];
+        $groupRank = 1;
+
+        foreach ($groupsData['rows'] as $row) {
+            $count = $row['count'];
+            $topGroupRows[] = [
+                'rank' => $groupRank,
+                'label' => $row['label'],
+                'count' => $count,
+                'shareDisplay' => sprintf('%.1f%%', $groupsTotal > 0 ? round(100 * $count / $groupsTotal, 1) : 0.0),
+                'url' => $this->navigationUrlBuilder->build(
+                    $request,
+                    'app_stats_indication_group_dashboard',
+                    ['groupId' => $row['groupId']],
+                ),
+            ];
+            ++$groupRank;
+        }
+
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
             $user,
@@ -95,7 +121,11 @@ final class IndicationInsightsIndexController extends AbstractController
         return $this->render('@Statistics/indication_insights/index.html.twig', [
             'dataQualityReport' => $dataQualityReport,
             'topRows' => $topRows,
+            'topGroupRows' => $topGroupRows,
             'indicationPicker' => $this->indicationPickerViewModelFactory->create($request),
+            'comparePickerItems' => $this->indicationPickerViewModelFactory->create($request)->menuItems,
+            'compareBaseUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_indication_compare'),
+            'groupPicker' => $this->groupPickerViewModelFactory->create($request),
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,

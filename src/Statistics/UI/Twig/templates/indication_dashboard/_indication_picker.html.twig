@@ -9,14 +9,23 @@
     <label class="form-label" for="stats-indication-picker-input">
         {{ 'stats.indication.picker.label'|trans }}
     </label>
-    <input type="text"
-           id="stats-indication-picker-input"
-           class="form-control"
-           list="stats-indication-picker-list"
-           placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
-           autocomplete="off"
-           value="{{ indicationPicker.selectedLabel }}"
-           data-indication-picker-target="input">
+    <div class="input-group">
+        <input type="text"
+               id="stats-indication-picker-input"
+               class="form-control"
+               list="stats-indication-picker-list"
+               placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+               autocomplete="off"
+               value="{{ indicationPicker.selectedLabel }}"
+               data-indication-picker-target="input">
+        <button type="button"
+                class="btn"
+                data-action="indication-picker#submit"
+                data-testid="stats-indication-picker-submit"
+                aria-label="{{ 'stats.indication.picker.submit'|trans }}">
+            <twig:ux:icon name="tabler:search" class="icon" />
+        </button>
+    </div>
     <datalist id="stats-indication-picker-list">
         {% for item in indicationPicker.menuItems %}
             <option value="{{ item.label }}"></option>
