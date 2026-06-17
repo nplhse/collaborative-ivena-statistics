@@ -52,3 +52,4 @@ when@test:
                 App\Import\Application\Message\ImportAllocationsMessage: sync
                 App\Statistics\Application\Message\RebuildAllocationStatsProjection: sync
                 App\Kpi\Application\Message\GenerateDailyKpisMessage: sync
+                App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: sync

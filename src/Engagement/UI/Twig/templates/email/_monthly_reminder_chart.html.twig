@@ -1,0 +1,18 @@
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;table-layout:fixed;">
+    <tr valign="bottom">
+        {% for bar in content.chartBars %}
+            {% if not loop.first %}
+                <td style="width:4px;"></td>
+            {% endif %}
+            <td align="center" valign="bottom" style="padding:0;">
+                <div style="font-size:10px;color:#3A4859;padding-bottom:4px;{{ bar.isReportingMonth ? 'font-weight:600;' : '' }}">{{ bar.allocationCount }}</div>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                    <tr>
+                        <td style="height:{{ bar.barHeightPx }}px;background-color:{{ bar.isReportingMonth ? '#206bc4' : '#6b9bd2' }};font-size:0;line-height:0;border-radius:2px 2px 0 0;" title="{{ bar.allocationCount }}">&nbsp;</td>
+                    </tr>
+                </table>
+                <div style="font-size:11px;color:#667382;padding-top:6px;{{ bar.isReportingMonth ? 'font-weight:600;' : '' }}">{{ bar.label }}</div>
+            </td>
+        {% endfor %}
+    </tr>
+</table>

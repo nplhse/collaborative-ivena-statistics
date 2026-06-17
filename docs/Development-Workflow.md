@@ -93,6 +93,8 @@ php bin/console doctrine:migrations:migrate --no-interaction
 ## Tips
 
 - In `dev`, mail is processed synchronously; import jobs stay asynchronous.
+- Local mail UI: start Mailpit with `docker compose up -d mailer`, then open http://127.0.0.1:8025 (`dev` uses `smtp://127.0.0.1:1025`).
+- Preview/send monthly reminder: `php bin/console app:reminder:preview --hospital=ID --send` (add `--ignore-opt-out` if the owner disabled reminders).
 - For reproducible import issues, always note the same input file and import ID.
 - For queue problems, run `messenger:stats` first, then `messenger:failed:show`.
 

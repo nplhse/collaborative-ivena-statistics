@@ -1,0 +1,4 @@
+# Local dev: deliver mail to Mailpit (compose.override.yaml) unless MAILER_DSN is overridden in .env.local.
+framework:
+    mailer:
+        dsn: 'smtp://127.0.0.1:1025'

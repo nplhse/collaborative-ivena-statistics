@@ -58,6 +58,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     #[ORM\Column(options: ['default' => true])]
     private bool $isEnabled = true;
 
+    #[ORM\Column(options: ['default' => true])]
+    private bool $receivesMonthlySubmissionReminder = true;
+
     /**
      * @var Collection<int, Hospital>
      */
@@ -187,6 +190,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function setIsEnabled(bool $isEnabled): static
     {
         $this->isEnabled = $isEnabled;
+
+        return $this;
+    }
+
+    public function receivesMonthlySubmissionReminder(): bool
+    {
+        return $this->receivesMonthlySubmissionReminder;
+    }
+
+    public function setReceivesMonthlySubmissionReminder(bool $receivesMonthlySubmissionReminder): static
+    {
+        $this->receivesMonthlySubmissionReminder = $receivesMonthlySubmissionReminder;
 
         return $this;
     }

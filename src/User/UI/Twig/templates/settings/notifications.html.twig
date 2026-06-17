@@ -1,0 +1,48 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.settings.notifications'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.settings', path: path('app_settings_index') },
+                { label: 'title.settings.notifications' },
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.settings.notifications'|trans }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="row g-0">
+                    {{ include('@User/settings/_sidebar.html.twig', {active: 'notifications'}) }}
+                    <div class="col-12 col-md-9">
+                        {{ form_start(notificationsForm) }}
+                        <div class="card-header">
+                            <h3 class="card-title">{{ 'title.settings.notifications'|trans }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-secondary">{{ 'text.settings.notifications_intro'|trans }}</p>
+                            {{ form_row(notificationsForm.receivesMonthlySubmissionReminder) }}
+                        </div>
+                        <div class="card-footer d-flex justify-content-end gap-2">
+                            <a class="btn btn-link" href="{{ path('app_settings_index') }}">{{ 'btn.cancel'|trans }}</a>
+                            <button class="btn btn-primary">{{ 'label.btn.save'|trans }}</button>
+                        </div>
+                        {{ form_end(notificationsForm) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -313,6 +313,18 @@
         <source>kpi.failure_reason.generic</source>
         <target>Import processing failed</target>
       </trans-unit>
+      <trans-unit id="admMr01" resname="admin.hospital.action.send_reminder">
+        <source>admin.hospital.action.send_reminder</source>
+        <target>Send monthly reminder</target>
+      </trans-unit>
+      <trans-unit id="admMr02" resname="admin.hospital.action.send_reminder.confirm">
+        <source>admin.hospital.action.send_reminder.confirm</source>
+        <target>Send the monthly data submission reminder to the hospital owner now?</target>
+      </trans-unit>
+      <trans-unit id="admMr03" resname="flash.admin.hospital.reminder.sent">
+        <source>flash.admin.hospital.reminder.sent</source>
+        <target>Monthly reminder queued for delivery to the hospital owner.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

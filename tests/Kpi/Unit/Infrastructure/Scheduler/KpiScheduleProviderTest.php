@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Kpi\Unit\Infrastructure\Scheduler;
 
+use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
 use App\Kpi\Application\Message\GenerateDailyKpisMessage;
 use App\Kpi\Infrastructure\Scheduler\KpiScheduleProvider;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,7 @@ final class KpiScheduleProviderTest extends TestCase
 
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
 
-        self::assertCount(1, $recurringMessages);
+        self::assertCount(2, $recurringMessages);
 
         $recurringMessage = $recurringMessages[0];
         self::assertInstanceOf(RecurringMessage::class, $recurringMessage);
@@ -43,5 +44,22 @@ final class KpiScheduleProviderTest extends TestCase
 
         self::assertCount(1, $messages);
         self::assertInstanceOf(GenerateDailyKpisMessage::class, $messages[0]);
+
+        $monthlyMessage = $recurringMessages[1];
+        self::assertInstanceOf(RecurringMessage::class, $monthlyMessage);
+        $monthlyTrigger = $monthlyMessage->getTrigger();
+        self::assertInstanceOf(CronExpressionTrigger::class, $monthlyTrigger);
+        self::assertSame('0 8 1-7 * 1', (string) $monthlyTrigger);
+
+        $monthlyProvider = $monthlyMessage->getProvider();
+        self::assertInstanceOf(StaticMessageProvider::class, $monthlyProvider);
+        $monthlyMessages = iterator_to_array($monthlyProvider->getMessages(new MessageContext(
+            name: 'default',
+            id: 'monthly-test',
+            trigger: $monthlyTrigger,
+            triggeredAt: new \DateTimeImmutable(),
+        )));
+        self::assertCount(1, $monthlyMessages);
+        self::assertInstanceOf(SendMonthlySubmissionRemindersMessage::class, $monthlyMessages[0]);
     }
 }

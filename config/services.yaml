@@ -162,3 +162,10 @@ services:
     App\Content\Application\Page\PageImageContentAnalyzer:
         arguments:
             $contentWidthEstimate: '%app.page_content_width_estimate%'
+
+when@test:
+    services:
+        app.lock.store:
+            class: Symfony\Component\Lock\Store\FlockStore
+            arguments:
+                - '%kernel.cache_dir%/lock'

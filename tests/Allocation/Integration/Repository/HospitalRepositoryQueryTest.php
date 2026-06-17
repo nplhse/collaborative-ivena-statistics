@@ -160,4 +160,34 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         self::assertContains($grantedHospital->getId(), $ids);
         self::assertCount(1, $ids);
     }
+
+    public function testFindParticipatingWithOwnerReturnsOnlyParticipatingHospitalsWithOwner(): void
+    {
+        $owner = UserFactory::createOne(['username' => 'reminder-owner-'.bin2hex(random_bytes(6))]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+
+        $eligible = HospitalFactory::createOne([
+            'owner' => $owner,
+            'isParticipating' => true,
+        ]);
+        HospitalFactory::createOne([
+            'owner' => $owner,
+            'isParticipating' => false,
+        ]);
+        HospitalFactory::createOne([
+            'owner' => null,
+            'isParticipating' => true,
+        ]);
+
+        $result = $this->repo->findParticipatingWithOwner();
+        $ids = array_map(static fn (Hospital $hospital): ?int => $hospital->getId(), $result);
+
+        self::assertContains($eligible->getId(), $ids);
+        self::assertContainsOnlyInstancesOf(Hospital::class, $result);
+        foreach ($result as $hospital) {
+            self::assertTrue($hospital->isParticipating());
+            self::assertNotNull($hospital->getOwner());
+        }
+    }
 }

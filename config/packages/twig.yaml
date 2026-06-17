@@ -18,6 +18,7 @@ twig:
         '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin
         '%kernel.project_dir%/src/Allocation/UI/Twig/templates': Allocation
         '%kernel.project_dir%/src/Content/UI/Twig/templates': Content
+        '%kernel.project_dir%/src/Engagement/UI/Twig/templates': Engagement
         '%kernel.project_dir%/src/Feedback/UI/Twig/templates': Feedback
         '%kernel.project_dir%/src/Import/UI/Twig/templates': Import
         '%kernel.project_dir%/src/User/UI/Twig/templates': User
