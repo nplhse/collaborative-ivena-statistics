@@ -53,6 +53,38 @@ final readonly class BenchmarkMetricBuilder
         ];
     }
 
+    /**
+     * @return list<BenchmarkMetric>
+     */
+    public function buildIndicationCompareKpiMetrics(BenchmarkAggregationResult $result): array
+    {
+        $metricsByKey = [];
+        foreach ($this->buildKpiMetrics($result) as $metric) {
+            $metricsByKey[$metric->key->value] = $metric;
+        }
+
+        $orderedKeys = [
+            BenchmarkMetricKey::Total,
+            BenchmarkMetricKey::WithPhysician,
+            BenchmarkMetricKey::MedianAge,
+            BenchmarkMetricKey::Resus,
+            BenchmarkMetricKey::Cathlab,
+            BenchmarkMetricKey::Age80Plus,
+            BenchmarkMetricKey::NightDaytime,
+            BenchmarkMetricKey::Weekend,
+            BenchmarkMetricKey::MedianTransport,
+        ];
+
+        $metrics = [];
+        foreach ($orderedKeys as $key) {
+            if (isset($metricsByKey[$key->value])) {
+                $metrics[] = $metricsByKey[$key->value];
+            }
+        }
+
+        return $metrics;
+    }
+
     public function buildIndicationMix(BenchmarkAggregationResult $result): BenchmarkDistribution
     {
         $rows = $this->rowsForDimension($result->distributionRows, 'indication');

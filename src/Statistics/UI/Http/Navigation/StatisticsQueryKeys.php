@@ -64,6 +64,14 @@ final class StatisticsQueryKeys
     public const string REPORT = 'report';
     public const string LIMIT = 'limit';
 
+    public const string INDICATION_A = 'indication_a';
+    public const string INDICATION_B = 'indication_b';
+    public const string SUBJECT_A_TYPE = 'subject_a_type';
+    public const string SUBJECT_A_ID = 'subject_a_id';
+    public const string SUBJECT_B_TYPE = 'subject_b_type';
+    public const string SUBJECT_B_ID = 'subject_b_id';
+    public const string INDICATION_GROUP = 'indication_group';
+
     /** @var list<string> */
     public const array REMOVE_SCOPE_DEPENDENT = [
         self::HOSPITAL,
