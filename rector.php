@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Symfony\CodeQuality\Rector\Class_\ControllerMethodInjectionToConstructorRector;
 
 $entityPath = __DIR__.'/src/**/Domain/Entity/*';
 
@@ -29,6 +30,9 @@ return RectorConfig::configure()
         Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
         Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
         Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath],
+        ControllerMethodInjectionToConstructorRector::class => [
+            __DIR__.'/src/Admin/UI/Http/Controller/Hospital/HospitalCrudController.php',
+        ],
     ])
     ->withCache(__DIR__.'/var/cache/rector')
     ->withParallel();

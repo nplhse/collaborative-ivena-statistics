@@ -36,7 +36,6 @@ final class HospitalCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly AuditContext $auditContext,
-        private readonly MonthlyReminderSender $monthlyReminderSender,
         private readonly TranslatorInterface $translator,
         private readonly AdminUrlGenerator $adminUrlGenerator,
     ) {
@@ -96,7 +95,7 @@ final class HospitalCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $sendReminder);
     }
 
-    public function sendMonthlyReminder(): \Symfony\Component\HttpFoundation\RedirectResponse
+    public function sendMonthlyReminder(MonthlyReminderSender $monthlyReminderSender): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $context = $this->getContext();
         if (!$context instanceof AdminContext) {
@@ -105,7 +104,7 @@ final class HospitalCrudController extends AbstractCrudController
 
         /** @var Hospital $hospital */
         $hospital = $context->getEntity()->getInstance();
-        $errors = $this->monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
+        $errors = $monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
         if ([] === $errors) {
             $this->addFlash('success', 'flash.admin.hospital.reminder.sent');
         } else {
