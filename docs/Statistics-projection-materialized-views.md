@@ -74,32 +74,43 @@ If views are missing after a fresh database, run Doctrine migrations first; the 
 
 ## Why tests need special handling
 
+### DAMA Doctrine Test Bundle (transaction rollback)
+
+Tests use [DAMA Doctrine Test Bundle](https://github.com/dmaicher/doctrine-test-bundle) together with Foundry. Each test method runs inside a database transaction that is rolled back automatically when the test finishes. That replaces the previous per-test schema drop/recreate cycle and is the main reason the DB test suite runs much faster.
+
+Implications for materialized views:
+
+- **Schema reset** (drop + recreate + MV install) runs **once per PHPUnit process** when the first `#[ResetDatabase]` test class starts — not before every test method.
+- **MV data** refreshed inside a test (via `RefreshesStatisticsMaterializedViewsTrait`) is rolled back with the test transaction; the view definitions persist.
+- **MV refresh after projection rebuild remains mandatory** when assertions use MV-backed queries or `StatisticsFilterFactory` scope rules.
+
+Configuration: `config/packages/dama_doctrine_test_bundle.yaml`, PHPUnit extension in `phpunit.dist.xml`.
+
 ### Foundry `ResetDatabase` and PostgreSQL
 
-Tests use [Zenstruck Foundry](https://github.com/zenstruck/foundry) with ORM reset mode **`schema`** (`config/packages/zenstruck_foundry.yaml`). Between tests, Foundry runs:
+Tests use [Zenstruck Foundry](https://github.com/zenstruck/foundry) with ORM reset mode **`migrate`** in `test` (`config/packages/zenstruck_foundry.yaml`). Without DAMA, Foundry would run before almost every test method:
 
 ```text
-doctrine:schema:drop --force --full-database
-doctrine:schema:update --force
+doctrine:database:drop --force
+doctrine:database:create
+doctrine:migrations:migrate
 ```
 
-PostgreSQL blocks dropping tables that are still referenced by materialized views. The overview views depend on `allocation_stats_projection`, so a plain schema drop fails with dependency errors.
+With DAMA enabled, Foundry's `DamaDatabaseResetter` performs that migration reset only **once per PHPUnit/ParaTest worker** at the start of the run; subsequent tests rely on transaction rollback.
+
+Overview materialized views are created by migration `Version20260519125102`. The test-only `MaterializedViewAwareOrmResetter` calls `OverviewMaterializedViewsInstaller::ensureInstalled()` after the migrate reset as a safety net when migrations did not run the view DDL.
 
 ### Test-only reset decorator
 
 Registered only when `APP_ENV=test` (`config/services/foundry_test.yaml`):
 
-**`MaterializedViewAwareOrmResetter`** decorates `Zenstruck\Foundry\ORM\ResetDatabase\OrmResetter` and wraps each reset:
+**`MaterializedViewAwareOrmResetter`** decorates `Zenstruck\Foundry\ORM\ResetDatabase\OrmResetter` (inner to Foundry's `DamaDatabaseResetter`, `decoration_priority: 20`) and wraps each migrate reset:
 
-1. **Before reset** — `StatisticsMaterializedViewDropper` runs:
-   ```sql
-   DROP MATERIALIZED VIEW IF EXISTS <view> CASCADE;
-   ```
-   for each overview view, then `OverviewMaterializedViewsInstaller::resetInstallationState()` clears the in-memory “already installed” flag.
+1. **Before reset** — `OverviewMaterializedViewsInstaller::resetInstallationState()` clears the in-memory “already installed” flag.
 
-2. **Foundry reset** — inner resetter drops and recreates the schema as usual.
+2. **Foundry reset** — inner resetter drops the database, recreates it, and runs migrations (DAMA disables static connections before this step).
 
-3. **After reset** — `OverviewMaterializedViewsInstaller::ensureInstalled()` recreates the overview views (same SQL as migrations) if they are absent.
+3. **After reset** — `OverviewMaterializedViewsInstaller::ensureInstalled()` recreates the overview views if they are absent (normally already created by migrations).
 
 This wiring does **not** run in `prod` or `dev`; it does not change runtime behavior outside tests.
 

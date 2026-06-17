@@ -4,5 +4,5 @@ See the full guide: [docs/Statistics-projection-materialized-views.md](../../../
 
 Quick reminders:
 
-- **DROP before Foundry reset** — test-only `MaterializedViewAwareOrmResetter` drops `mv_projection_*` so `doctrine:schema:drop --full-database` can succeed.
+- **DROP before Foundry reset** — not required with `migrate` reset (database drop removes MVs). `MaterializedViewAwareOrmResetter` only ensures views exist after migrate reset.
 - **REFRESH after fixtures** — use `RefreshesStatisticsMaterializedViewsTrait::refreshStatisticsMaterializedViews()` when assertions use MV-backed queries or `StatisticsFilterFactory` state/dispatch scopes.

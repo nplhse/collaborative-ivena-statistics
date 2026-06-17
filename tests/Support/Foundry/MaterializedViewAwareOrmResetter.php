@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Support\Foundry;
 
-use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper;
 use App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Zenstruck\Foundry\ORM\ResetDatabase\OrmResetter;
 
 /**
- * Drops statistics materialized views before Foundry's schema reset and recreates them afterwards.
+ * Ensures overview materialized views exist after Foundry's migrate reset.
+ *
+ * With reset mode `migrate`, the database is dropped and recreated via migrations (which
+ * create the views). MV DROP before reset is not needed and would fail when the worker
+ * database does not exist yet (e.g. ParaTest with TEST_TOKEN).
+ *
+ * Decorated inner to Foundry's DamaDatabaseResetter so DAMA disables static connections
+ * before the migrate reset runs.
  *
  * @see tests/Support/MaterializedView/README.md
  */
@@ -18,33 +24,21 @@ final readonly class MaterializedViewAwareOrmResetter implements OrmResetter
 {
     public function __construct(
         private OrmResetter $decorated,
-        private StatisticsMaterializedViewDropper $materializedViewDropper,
         private OverviewMaterializedViewsInstaller $materializedViewsInstaller,
     ) {
     }
 
     public function resetBeforeFirstTest(KernelInterface $kernel): void
     {
-        $this->prepareSchemaReset();
+        $this->materializedViewsInstaller->resetInstallationState();
         $this->decorated->resetBeforeFirstTest($kernel);
-        $this->finishSchemaReset();
+        $this->materializedViewsInstaller->ensureInstalled();
     }
 
     public function resetBeforeEachTest(KernelInterface $kernel): void
     {
-        $this->prepareSchemaReset();
-        $this->decorated->resetBeforeEachTest($kernel);
-        $this->finishSchemaReset();
-    }
-
-    private function prepareSchemaReset(): void
-    {
-        $this->materializedViewDropper->dropAllForSchemaReset();
         $this->materializedViewsInstaller->resetInstallationState();
-    }
-
-    private function finishSchemaReset(): void
-    {
+        $this->decorated->resetBeforeEachTest($kernel);
         $this->materializedViewsInstaller->ensureInstalled();
     }
 }
