@@ -4807,6 +4807,10 @@
         <source>stats.indication.insights.index.top_title</source>
         <target>Top 25 indications</target>
       </trans-unit>
+      <trans-unit id="statsInd66b" resname="stats.indication.insights.index.top_groups_title">
+        <source>stats.indication.insights.index.top_groups_title</source>
+        <target>Top 10 indication groups</target>
+      </trans-unit>
       <trans-unit id="statsInd67" resname="stats.indication.insights.index.picker_title">
         <source>stats.indication.insights.index.picker_title</source>
         <target>Browse all indications</target>
@@ -4842,6 +4846,10 @@
       <trans-unit id="statsInd81" resname="stats.indication.picker.placeholder">
         <source>stats.indication.picker.placeholder</source>
         <target>Search by name or code…</target>
+      </trans-unit>
+      <trans-unit id="statsInd82" resname="stats.indication.picker.submit">
+        <source>stats.indication.picker.submit</source>
+        <target>Open selection</target>
       </trans-unit>
       <trans-unit id="statsIndCmp01" resname="stats.indication.compare.title">
         <source>stats.indication.compare.title</source>
@@ -5055,9 +5063,37 @@
         <source>stats.indication.group.compare_members</source>
         <target>Compare members</target>
       </trans-unit>
+      <trans-unit id="statsIndGrp07" resname="stats.indication.group.compare_presets_label">
+        <source>stats.indication.group.compare_presets_label</source>
+        <target>Quick selection</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp08" resname="stats.indication.group.compare_preset_top_two">
+        <source>stats.indication.group.compare_preset_top_two</source>
+        <target>Top 2 by case count</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp09" resname="stats.indication.group.compare_preset_largest_smallest">
+        <source>stats.indication.group.compare_preset_largest_smallest</source>
+        <target>Largest vs smallest</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp10" resname="stats.indication.group.members_show_more">
+        <source>stats.indication.group.members_show_more</source>
+        <target>Show more</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp11" resname="stats.indication.group.members_show_less">
+        <source>stats.indication.group.members_show_less</source>
+        <target>Show less</target>
+      </trans-unit>
       <trans-unit id="statsIndGrp05" resname="stats.indication.group.empty">
         <source>stats.indication.group.empty</source>
         <target>This group has no indications assigned yet.</target>
+      </trans-unit>
+      <trans-unit id="statsIndGrp06" resname="stats.indication.group.picker_empty">
+        <source>stats.indication.group.picker_empty</source>
+        <target>No indication groups have been set up yet. Administrators can create groups in the admin area.</target>
+      </trans-unit>
+      <trans-unit id="adminIndGrp01" resname="admin.indication_group.action.view_statistics">
+        <source>admin.indication_group.action.view_statistics</source>
+        <target>Open in statistics</target>
       </trans-unit>
       <trans-unit id="statsInd62" resname="stats.indication.summary.gender_title">
         <source>stats.indication.summary.gender_title</source>

@@ -44,7 +44,21 @@ final class IndicationGroupCrudController extends AbstractCrudController
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_EDIT, Action::INDEX);
+            ->add(Crud::PAGE_EDIT, Action::INDEX)
+            ->add(Crud::PAGE_INDEX, $this->createViewStatisticsAction())
+            ->add(Crud::PAGE_DETAIL, $this->createViewStatisticsAction())
+            ->add(Crud::PAGE_EDIT, $this->createViewStatisticsAction());
+    }
+
+    private function createViewStatisticsAction(): Action
+    {
+        return Action::new('viewStatistics', 'admin.indication_group.action.view_statistics', 'fas fa-chart-line')
+            ->linkToRoute(
+                'app_stats_indication_group_dashboard',
+                static fn (IndicationGroup $group): array => ['groupId' => (int) $group->getId()],
+            )
+            ->setHtmlAttributes(['target' => '_blank', 'rel' => 'noopener noreferrer'])
+            ->displayIf(static fn (IndicationGroup $group): bool => null !== $group->getId());
     }
 
     #[\Override]
