@@ -30,4 +30,51 @@ final class MonthlyReminderChartBuilderTest extends TestCase
         self::assertTrue($bars[1]->isReportingMonth);
         self::assertSame(100.0, $builder->percentChange(20, 10));
     }
+
+    public function testPercentChangeReturnsNullWhenBothMonthsAreZero(): void
+    {
+        $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());
+
+        self::assertNull($builder->percentChange(0, 0));
+    }
+
+    public function testSummarizeTrendDetectsGrowingSeries(): void
+    {
+        $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());
+
+        self::assertSame(
+            'monthly_reminder.trend.growing',
+            $builder->summarizeTrend([5, 8, 12, 16, 20, 30]),
+        );
+    }
+
+    public function testSummarizeTrendDetectsDecliningSeries(): void
+    {
+        $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());
+
+        self::assertSame(
+            'monthly_reminder.trend.declining',
+            $builder->summarizeTrend([30, 25, 20, 15, 10, 5]),
+        );
+    }
+
+    public function testSummarizeTrendDetectsGrowthFromZero(): void
+    {
+        $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());
+
+        self::assertSame(
+            'monthly_reminder.trend.growing_from_zero',
+            $builder->summarizeTrend([0, 0, 0, 5]),
+        );
+    }
+
+    public function testSummarizeTrendReturnsStableForFlatSeries(): void
+    {
+        $builder = new MonthlyReminderChartBuilder(new ChartBucketMapper());
+
+        self::assertSame(
+            'monthly_reminder.trend.stable',
+            $builder->summarizeTrend([10, 10, 10, 10]),
+        );
+    }
 }

@@ -75,6 +75,142 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
         self::assertSame([], $insights);
     }
 
+    public function testVolumeMomInsightIsSelectedWhenChangeIsSignificant(): void
+    {
+        $selector = new MonthlyReminderInsightSelector($this->translator());
+
+        $insights = $selector->select(
+            8.5,
+            null,
+            [],
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, []),
+            null,
+            'https://example.test/stats',
+            'your last 12 months',
+            'May 2026',
+        );
+
+        self::assertCount(1, $insights);
+        self::assertSame('monthly_reminder.insight.volume_mom.title', $insights[0]->title);
+    }
+
+    public function testVolumeYoyInsightTakesPriorityOverMom(): void
+    {
+        $selector = new MonthlyReminderInsightSelector($this->translator());
+
+        $insights = $selector->select(
+            12.0,
+            -6.0,
+            [],
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, []),
+            null,
+            'https://example.test/stats',
+            'your last 12 months',
+            'May 2026',
+        );
+
+        self::assertCount(1, $insights);
+        self::assertSame('monthly_reminder.insight.volume_yoy.title', $insights[0]->title);
+    }
+
+    public function testQualityInsightWhenRejectionRateImproves(): void
+    {
+        $selector = new MonthlyReminderInsightSelector($this->translator());
+
+        $insights = $selector->select(
+            null,
+            null,
+            [],
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, []),
+            -2.4,
+            'https://example.test/stats',
+            'your last 12 months',
+            'May 2026',
+        );
+
+        self::assertCount(1, $insights);
+        self::assertSame('monthly_reminder.insight.quality.title', $insights[0]->title);
+    }
+
+    public function testResusInsightUsesBaselineComparison(): void
+    {
+        $selector = new MonthlyReminderInsightSelector($this->translator());
+
+        $insights = $selector->select(
+            null,
+            null,
+            [
+                new BenchmarkMetric(
+                    BenchmarkMetricKey::Resus,
+                    4.0,
+                    2.0,
+                    2.0,
+                    100.0,
+                    2.0,
+                    BenchmarkMetricFormat::Percent,
+                ),
+            ],
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, []),
+            null,
+            'https://example.test/stats',
+            'your last 12 months',
+            'May 2026',
+        );
+
+        self::assertCount(1, $insights);
+        self::assertSame('monthly_reminder.insight.resus.title', $insights[0]->title);
+    }
+
+    public function testIndicationInsightUsesLargestDeviationBucket(): void
+    {
+        $selector = new MonthlyReminderInsightSelector($this->translator());
+
+        $insights = $selector->select(
+            null,
+            null,
+            [],
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, [
+                new \App\Statistics\Benchmarking\Application\DTO\BenchmarkDistributionBucket(
+                    'a',
+                    'Chest pain',
+                    10,
+                    8,
+                    12.0,
+                    8.0,
+                    1.5,
+                ),
+            ]),
+            null,
+            'https://example.test/stats',
+            'your last 12 months',
+            'May 2026',
+        );
+
+        self::assertCount(1, $insights);
+        self::assertSame('monthly_reminder.insight.indication.title', $insights[0]->title);
+        self::assertStringContainsString('Chest pain', $insights[0]->body);
+    }
+
+    public function testGenderAndUrgencySegmentsReturnPercentages(): void
+    {
+        $selector = new MonthlyReminderInsightSelector($this->translator());
+
+        $genderSegments = $selector->genderSegments([
+            'M' => 30,
+            'F' => 70,
+        ], 100);
+        $urgencySegments = $selector->urgencySegments([
+            1 => 10,
+            2 => 20,
+            3 => 70,
+        ], 100);
+
+        self::assertCount(3, $genderSegments);
+        self::assertSame(30.0, $genderSegments[0]->percent);
+        self::assertCount(3, $urgencySegments);
+        self::assertSame(70.0, $urgencySegments[2]->percent);
+    }
+
     private function translator(): TranslatorInterface
     {
         $translator = $this->createMock(TranslatorInterface::class);
