@@ -13,6 +13,7 @@ use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationGroupFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
@@ -77,8 +78,10 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="stats-indication-insights-title"]');
         self::assertSelectorExists('[data-testid="stats-indication-insights-top-table"]');
+        self::assertSelectorExists('[data-testid="stats-indication-insights-top-groups-table"]');
         self::assertSelectorExists('[data-testid="stats-indication-picker"]');
         self::assertSelectorExists('#stats-indication-picker-input');
+        self::assertSelectorExists('[data-testid="stats-indication-picker-submit"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-insights-top-table"] .card-subtitle');
         self::assertSelectorTextContains('[data-testid="stats-indication-insights-top-table"]', 'Index Test Indication');
         self::assertSelectorExists(
@@ -86,5 +89,88 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
         );
         self::assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
         self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
+        self::assertSelectorExists('[data-testid="stats-indication-group-picker-card"]');
+        self::assertSelectorExists('[data-testid="stats-indication-group-picker-empty"]');
+    }
+
+    public function testIndexRendersTopGroupsTable(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'indication-index-top-groups-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user->_real());
+
+        $state = StateFactory::createOne(['name' => 'InsightsGroupTableState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'InsightsGroupTableDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'InsightsGroupTableHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'InsightsGroupTableSpec']);
+        DepartmentFactory::createOne(['name' => 'InsightsGroupTableDept']);
+        AssignmentFactory::createOne(['name' => 'InsightsGroupTableAssign']);
+        IndicationRawFactory::createOne(['name' => 'InsightsGroupTableRaw', 'code' => 912_366]);
+
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Group Table Indication']);
+        $group = IndicationGroupFactory::createOne(['name' => 'Insights Top Group', 'createdBy' => $user]);
+        $entityManager = self::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
+        $groupEntity = $entityManager->find(\App\Allocation\Domain\Entity\IndicationGroup::class, $group->getId());
+        self::assertNotNull($groupEntity);
+        $groupEntity->addIndication($indication->_real());
+        $entityManager->flush();
+
+        $import = ImportFactory::createOne(['name' => 'InsightsGroupTableImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-04-01 14:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-01 14:25:00'),
+        ]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-insights', [
+            'scope' => 'hospital',
+            'hospital' => (string) $hospital->getId(),
+            'period' => 'all',
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="stats-indication-insights-top-groups-table"]', 'Insights Top Group');
+        self::assertSelectorExists(
+            sprintf('a[href*="/statistics/indication-group/%d"]', $group->getId()),
+        );
+    }
+
+    public function testIndexRendersGroupPickerWhenGroupsExist(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'indication-index-group-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user->_real());
+
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Group Member Indication']);
+        $group = IndicationGroupFactory::createOne(['name' => 'Insights Test Group', 'createdBy' => $user]);
+        $entityManager = self::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
+        $groupEntity = $entityManager->find(\App\Allocation\Domain\Entity\IndicationGroup::class, $group->getId());
+        self::assertNotNull($groupEntity);
+        $groupEntity->addIndication($indication->_real());
+        $entityManager->flush();
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-insights', [
+            'scope' => 'public',
+            'period' => 'all',
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="stats-indication-group-picker-input"]');
+        self::assertSelectorExists('[data-testid="stats-indication-group-picker-submit"]');
+        self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-empty"]');
     }
 }

@@ -1,27 +1,37 @@
-{% set pickerItems = [] %}
-{% for item in groupPickerItems %}
-    {% set pickerItems = pickerItems|merge([{label: item.label, url: item.url}]) %}
-{% endfor %}
+<div class="card mt-3" data-testid="stats-indication-group-picker-card">
+    <div class="card-body">
+        {{ include('@Statistics/indication_group/_group_picker.html.twig') }}
 
-{% if groupPickerItems is not empty %}
-    <div class="card mt-3" data-testid="stats-indication-group-picker-card">
-        <div class="card-body">
-            <h3 class="card-title mb-2">{{ 'stats.indication.group.picker_label'|trans }}</h3>
-            <div data-controller="indication-picker"
-                 data-indication-picker-items-value="{{ pickerItems|json_encode|e('html_attr') }}">
-                <input type="text"
-                       class="form-control"
-                       list="stats-indication-group-picker-list"
-                       placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
-                       autocomplete="off"
-                       data-indication-picker-target="input"
-                       data-testid="stats-indication-group-picker-input">
-                <datalist id="stats-indication-group-picker-list">
-                    {% for item in groupPickerItems %}
-                        <option value="{{ item.label }}"></option>
-                    {% endfor %}
-                </datalist>
-            </div>
+        <div class="mt-3 pt-3 border-top" data-testid="stats-indication-insights-top-groups-table">
+            <h3 class="h5 mb-2">{{ 'stats.indication.insights.index.top_groups_title'|trans }}</h3>
+            {% if topGroupRows is empty %}
+                <p class="text-muted small mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ 'stats.reports.table.rank'|trans }}</th>
+                                <th>{{ 'stats.indication.group.picker_label'|trans }}</th>
+                                <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
+                                <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in topGroupRows %}
+                                <tr>
+                                    <td>{{ row.rank }}</td>
+                                    <td>
+                                        <a href="{{ row.url }}" class="text-reset">{{ row.label }}</a>
+                                    </td>
+                                    <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
+                                    <td class="text-end">{{ row.shareDisplay }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
         </div>
     </div>
-{% endif %}
+</div>
