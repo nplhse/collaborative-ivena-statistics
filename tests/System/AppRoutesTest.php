@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\System;
 
+use App\Tests\Support\System\SystemWebTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AppRoutesTest extends WebTestCase
+class AppRoutesTest extends SystemWebTestCase
 {
     #[DataProvider('getPublicUrls')]
     public function testPublicUrlsAreReachable(string $url): void

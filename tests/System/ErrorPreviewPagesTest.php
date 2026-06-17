@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\System;
 
+use App\Tests\Support\System\SystemWebTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ErrorPreviewPagesTest extends WebTestCase
+final class ErrorPreviewPagesTest extends SystemWebTestCase
 {
     #[DataProvider('providePreviewCodes')]
     public function testErrorPreviewRendersCustomPage(int $code, string $expectedTitleFragment, string $expectedHeader): void
