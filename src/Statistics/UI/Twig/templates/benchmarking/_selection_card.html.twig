@@ -1,26 +1,19 @@
-<div class="card mb-3" data-testid="stats-benchmark-selection-card">
-    <div class="card-body">
-        <div class="row g-4 align-items-start">
-            <div class="col-md-6">
-                {{ include('@Statistics/benchmarking/_filter_column.html.twig', {
-                    columnTitleKey: 'stats.benchmark.primary.label',
-                    pageViewModel: selection.primaryPageViewModel,
-                    overviewPeriodViewModel: selection.primaryPeriodViewModel,
-                    testIdPrefix: 'stats-benchmark-primary',
-                    caseCount: report.header.primaryTotal,
-                    badgeClass: 'bg-primary-lt',
-                }) }}
-            </div>
-            <div class="col-md-6">
-                {{ include('@Statistics/benchmarking/_filter_column.html.twig', {
-                    columnTitleKey: 'stats.benchmark.comparison.label',
-                    pageViewModel: selection.comparisonPageViewModel,
-                    overviewPeriodViewModel: selection.comparisonPeriodViewModel,
-                    testIdPrefix: 'stats-benchmark-comparison',
-                    caseCount: report.header.comparisonTotal,
-                    badgeClass: 'bg-secondary-lt',
-                }) }}
-            </div>
-        </div>
-    </div>
-</div>
+{{ include('@Statistics/_compare_selection_card.html.twig', {
+    testId: 'stats-benchmark-selection',
+    sideATitleKey: 'stats.benchmark.primary.label',
+    sideAHeading: report.header.primaryScopeLabel,
+    sideASubheading: report.header.primaryPeriodLabel,
+    sideATestId: 'stats-benchmark-primary-scope',
+    sideASubheadingTestId: 'stats-benchmark-primary-period',
+    sideACount: report.header.primaryTotal,
+    sideACountLabel: 'stats.benchmark.cases'|trans({count: report.header.primaryTotal}),
+    sideACountTestId: 'stats-benchmark-primary-cases',
+    sideBTitleKey: 'stats.benchmark.comparison.label',
+    sideBHeading: report.header.comparisonScopeLabel,
+    sideBSubheading: report.header.comparisonPeriodLabel,
+    sideBTestId: 'stats-benchmark-comparison-scope',
+    sideBSubheadingTestId: 'stats-benchmark-comparison-period',
+    sideBCount: report.header.comparisonTotal,
+    sideBCountLabel: 'stats.benchmark.cases'|trans({count: report.header.comparisonTotal}),
+    sideBCountTestId: 'stats-benchmark-comparison-cases',
+}) }}
