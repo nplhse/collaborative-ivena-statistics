@@ -110,7 +110,7 @@ final class IndicationDashboardSliceQueryTest extends KernelTestCase
         $scope = new StatisticsScopeCriteria([$hospital->getId()]);
 
         $slice = self::getContainer()->get(IndicationDashboardSliceQuery::class)
-            ->fetch($targetIndication->getId(), $bounds->from, $bounds->toExclusive, $scope);
+            ->fetch([$targetIndication->getId()], $bounds->from, $bounds->toExclusive, $scope);
 
         self::assertSame(3, $slice->genderCounts['male']);
         self::assertSame(2, $slice->genderCounts['female']);
@@ -127,7 +127,7 @@ final class IndicationDashboardSliceQueryTest extends KernelTestCase
         self::bootKernel();
 
         $slice = self::getContainer()->get(IndicationDashboardSliceQuery::class)
-            ->fetch(1, null, null, new StatisticsScopeCriteria([]));
+            ->fetch([1], null, null, new StatisticsScopeCriteria([]));
 
         self::assertSame(['male' => 0, 'female' => 0, 'other' => 0, 'unknown' => 0], $slice->genderCounts);
         self::assertSame([], $slice->monthlyRows);

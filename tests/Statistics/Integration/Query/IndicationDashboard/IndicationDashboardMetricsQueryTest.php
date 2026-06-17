@@ -105,7 +105,7 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
         $scope = new StatisticsScopeCriteria([$hospital->getId()]);
 
         $query = self::getContainer()->get(IndicationDashboardMetricsQuery::class);
-        $row = $query->fetch($targetIndication->getId(), $bounds->from, $bounds->toExclusive, $scope);
+        $row = $query->fetch([$targetIndication->getId()], $bounds->from, $bounds->toExclusive, $scope);
 
         self::assertSame(5, $row->totalIndication);
         self::assertSame(10, $row->totalBaseline);
@@ -164,7 +164,7 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
         );
 
         $row = self::getContainer()->get(IndicationDashboardMetricsQuery::class)
-            ->fetch($targetIndication->getId(), null, null, $scope);
+            ->fetch([$targetIndication->getId()], null, null, $scope);
 
         self::assertSame(1, $row->totalIndication);
     }
@@ -174,7 +174,7 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
         self::bootKernel();
 
         $query = self::getContainer()->get(IndicationDashboardMetricsQuery::class);
-        $row = $query->fetch(1, null, null, new StatisticsScopeCriteria([]));
+        $row = $query->fetch([1], null, null, new StatisticsScopeCriteria([]));
 
         self::assertSame(0, $row->totalIndication);
         self::assertSame(0, $row->totalBaseline);

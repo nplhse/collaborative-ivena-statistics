@@ -6,6 +6,8 @@ namespace App\Statistics\Application\IndicationDashboard;
 
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
+use App\Statistics\Application\DTO\StatisticsPeriodBounds;
+use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardCriteria;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardHeader;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult;
@@ -35,8 +37,8 @@ final readonly class IndicationDashboardService
         $scope = $criteria->scope;
         $indicationId = $criteria->indicationId;
 
-        $metrics = $this->metricsQuery->fetch($indicationId, $from, $toExclusive, $scope);
-        $slice = $this->sliceQuery->fetch($indicationId, $from, $toExclusive, $scope);
+        $metrics = $this->metricsQuery->fetch([$criteria->indicationId], $from, $toExclusive, $scope);
+        $slice = $this->sliceQuery->fetch([$criteria->indicationId], $from, $toExclusive, $scope);
 
         $total = $metrics->totalIndication;
 
@@ -45,6 +47,49 @@ final readonly class IndicationDashboardService
                 $indicationId,
                 $indication->getName() ?? '',
                 $indication->getCode(),
+                $total,
+            ),
+            $this->assembler->buildSummaryDeck($slice->genderCounts, $metrics),
+            $this->insightEngine->build($metrics),
+            $this->assembler->buildTimeSeries($slice->monthlyRows),
+            $this->assembler->buildDayTimeHeatmap($slice->dayTimeHeatmapCells),
+            $this->assembler->buildShiftHeatmap($slice->shiftHeatmapCells),
+            $this->assembler->buildResourcesDistribution($metrics),
+            $this->assembler->buildTransportDistribution($metrics),
+            $this->assembler->buildTransportTimeDistribution($slice->transportTimeBucketCounts, $total),
+            $this->assembler->buildClinicalFeatures($metrics),
+            $this->assembler->buildAgeGroupDistribution($slice->ageGroupCounts, $total),
+            $metrics->medianAgeIndication,
+            $metrics,
+        );
+    }
+
+    public function buildForSubject(
+        IndicationSubject $subject,
+        StatisticsScopeCriteria $scope,
+        StatisticsPeriodBounds $period,
+    ): ?IndicationDashboardResult {
+        if ([] === $subject->indicationIds) {
+            return null;
+        }
+
+        $from = $period->from;
+        $toExclusive = $period->toExclusive;
+
+        $metrics = $this->metricsQuery->fetch($subject->indicationIds, $from, $toExclusive, $scope);
+        $slice = $this->sliceQuery->fetch($subject->indicationIds, $from, $toExclusive, $scope);
+
+        $total = $metrics->totalIndication;
+
+        $indicationCode = IndicationSubjectType::Single === $subject->type && 1 === \count($subject->indicationIds)
+            ? $this->indicationRepository->find($subject->indicationIds[0])?->getCode()
+            : null;
+
+        return new IndicationDashboardResult(
+            new IndicationDashboardHeader(
+                $subject->id,
+                $subject->label,
+                $indicationCode,
                 $total,
             ),
             $this->assembler->buildSummaryDeck($slice->genderCounts, $metrics),

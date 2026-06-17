@@ -11,6 +11,7 @@ use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCod
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -28,12 +29,19 @@ final readonly class IndicationDashboardMetricsQuery
     ) {
     }
 
+    /**
+     * @param list<int> $indicationIds
+     */
     public function fetch(
-        int $indicationId,
+        array $indicationIds,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
     ): IndicationDashboardMetricsRow {
+        if ([] === $indicationIds) {
+            return $this->emptyRow();
+        }
+
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return $this->emptyRow();
         }
@@ -44,6 +52,8 @@ final readonly class IndicationDashboardMetricsQuery
         $workAccidentFilter = $hasExtended ? 'is_work_accident = true' : 'false';
 
         [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        $types['indication_ids'] = ArrayParameterType::INTEGER;
+        $params['indication_ids'] = array_map(static fn (int $id): int => $id, $indicationIds);
 
         $countSelect = $this->countMetricSelectSql(
             $shockFilter,
@@ -51,26 +61,27 @@ final readonly class IndicationDashboardMetricsQuery
             $workAccidentFilter,
         );
 
+        $baselineMedianFilter = '(indication_normalized_id IS NULL OR indication_normalized_id NOT IN (:indication_ids))';
+
         $scopeSql = <<<SQL
 SELECT
     {$countSelect},
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age) FILTER (
-        WHERE indication_normalized_id IS DISTINCT FROM :indication_id AND age IS NOT NULL
+        WHERE {$baselineMedianFilter} AND age IS NOT NULL
     ) AS median_age_baseline,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes) FILTER (
-        WHERE indication_normalized_id IS DISTINCT FROM :indication_id
+        WHERE {$baselineMedianFilter}
     ) AS median_transport_baseline
 FROM allocation_stats_projection
 WHERE {$where}
 SQL;
 
-        $scopeParams = array_merge($params, ['indication_id' => $indicationId]);
-        $scopeRow = $this->connection->fetchAssociative($scopeSql, $scopeParams, $types);
+        $scopeRow = $this->connection->fetchAssociative($scopeSql, $params, $types);
         if (false === $scopeRow) {
             return $this->emptyRow();
         }
 
-        $indicationWhere = $where.' AND indication_normalized_id = :indication_id';
+        $indicationWhere = $where.' AND indication_normalized_id IN (:indication_ids)';
         $indicationSql = <<<SQL
 SELECT
     {$countSelect},
@@ -80,7 +91,7 @@ FROM allocation_stats_projection
 WHERE {$indicationWhere}
 SQL;
 
-        $indicationRow = $this->connection->fetchAssociative($indicationSql, $scopeParams, $types);
+        $indicationRow = $this->connection->fetchAssociative($indicationSql, $params, $types);
         if (false === $indicationRow) {
             return $this->emptyRow();
         }
