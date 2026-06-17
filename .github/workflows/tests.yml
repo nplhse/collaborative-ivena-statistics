@@ -105,20 +105,13 @@ jobs:
                   php bin/console importmap:install
                   php bin/console asset-map:compile
 
-            - name: Prepare database
+            - name: Execute database-backed tests via ParaTest
               run: |
-                  php bin/console doctrine:database:drop --if-exists --force --env test
-                  php bin/console doctrine:database:create --env test
-                  php bin/console doctrine:migrations:migrate --no-interaction --env=test
-              env:
-                  DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
-
-            - name: Execute database-backed tests via PHPUnit
-              run: |
-                  bin/phpunit --testsuite all --exclude-testsuite unit --log-junit junit.xml --order-by duration --stop-on-failure
+                  vendor/bin/paratest --testsuite all --exclude-testsuite unit --processes=4 --log-junit junit.xml --order-by duration --stop-on-failure
                   php bin/report-slowest-tests 10 || true
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
+                  XDEBUG_MODE: coverage
 
             - name: Upload coverage reports to Codecov
               if: success()

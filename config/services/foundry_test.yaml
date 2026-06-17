@@ -3,7 +3,8 @@ when@test:
     services:
         App\Tests\Support\Foundry\MaterializedViewAwareOrmResetter:
             decorates: Zenstruck\Foundry\ORM\ResetDatabase\OrmResetter
+            # Inner to DamaDatabaseResetter (priority 10) so static connections are disabled before migrate reset.
+            decoration_priority: 20
             arguments:
                 $decorated: '@.inner'
-                $materializedViewDropper: '@App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewDropper'
                 $materializedViewsInstaller: '@App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller'
