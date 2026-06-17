@@ -253,4 +253,21 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
 
         return $out;
     }
+
+    /**
+     * @return list<Hospital>
+     */
+    public function findParticipatingWithOwner(): array
+    {
+        /** @var list<Hospital> $hospitals */
+        $hospitals = $this->createQueryBuilder('h')
+            ->addSelect('o')
+            ->innerJoin('h.owner', 'o')
+            ->andWhere('h.isParticipating = true')
+            ->orderBy('h.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $hospitals;
+    }
 }

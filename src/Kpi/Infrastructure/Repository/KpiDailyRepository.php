@@ -123,6 +123,35 @@ final class KpiDailyRepository extends ServiceEntityRepository
         return round($rejected / $total * 100, 2);
     }
 
+    public function rejectionRateForHospitalInRange(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $toExclusive): ?float
+    {
+        /** @var array{recordsRejected: int|string|null, recordsTotal: int|string|null}|null $row */
+        $row = $this->createQueryBuilder('k')
+            ->select(
+                'COALESCE(SUM(k.recordsRejected), 0) AS recordsRejected',
+                'COALESCE(SUM(k.recordsTotal), 0) AS recordsTotal',
+            )
+            ->where('IDENTITY(k.hospital) = :hospitalId')
+            ->andWhere('k.date >= :from')
+            ->andWhere('k.date < :toExclusive')
+            ->setParameter('hospitalId', $hospitalId)
+            ->setParameter('from', $from->setTime(0, 0))
+            ->setParameter('toExclusive', $toExclusive->setTime(0, 0))
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!\is_array($row)) {
+            return null;
+        }
+
+        $total = (int) ($row['recordsTotal'] ?? 0);
+        if ($total <= 0) {
+            return null;
+        }
+
+        return self::calculateRejectionRate((int) ($row['recordsRejected'] ?? 0), $total);
+    }
+
     private function dateDaysAgo(int $days): \DateTimeImmutable
     {
         $tz = new \DateTimeZone(self::TIMEZONE);
