@@ -1,0 +1,166 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.indication.compare.title'|trans }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'link.stats.indication_insights', path: path('app_stats_indication_insights') },
+                { label: 'stats.indication.compare.title' }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-indication-compare-subtitle">
+                        {{ 'stats.indication.compare.subtitle'|trans }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="stats-indication-compare-title">
+                        {{ 'stats.indication.compare.title'|trans }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+
+    <div data-controller="benchmarking-charts"
+         data-benchmarking-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}"
+         data-benchmarking-charts-primary-label-value="{{ report.header.indicationLabelA|e('html_attr') }}"
+         data-benchmarking-charts-comparison-label-value="{{ report.header.indicationLabelB|e('html_attr') }}">
+
+        {{ include('@Statistics/indication_compare/_selection_card.html.twig') }}
+
+        {% if report.hasInsufficientData %}
+            <div class="alert alert-warning" data-testid="stats-indication-compare-insufficient-data">
+                {{ 'stats.indication.compare.insufficient_data'|trans }}
+            </div>
+        {% endif %}
+
+        <div class="row g-3 align-items-start mt-1">
+            <div class="col-lg-8 d-flex flex-column gap-3">
+                {{ include('@Statistics/indication_compare/_kpi_tiles.html.twig') }}
+
+                <div class="card" data-testid="stats-indication-compare-case-distribution">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans }}</h3>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button"
+                                    class="btn active"
+                                    data-benchmarking-charts-target="heatmapModeDayTime"
+                                    data-action="benchmarking-charts#setHeatmapMode"
+                                    data-benchmarking-charts-mode-param="dayTime">
+                                {{ 'stats.benchmark.heatmap.mode.day_time'|trans }}
+                            </button>
+                            <button type="button"
+                                    class="btn"
+                                    data-benchmarking-charts-target="heatmapModeShift"
+                                    data-action="benchmarking-charts#setHeatmapMode"
+                                    data-benchmarking-charts-mode-param="shift">
+                                {{ 'stats.benchmark.heatmap.mode.shift'|trans }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-lg"
+                             data-benchmarking-charts-target="caseDistributionHeatmap"
+                             data-testid="stats-indication-compare-heatmap"></div>
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-compare-age-groups">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-lg" data-benchmarking-charts-target="ageGroupsChart"></div>
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-compare-transport-time">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-lg" data-benchmarking-charts-target="transportTimesChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-flex flex-column gap-3">
+                {{ include('@Statistics/indication_compare/_insights.html.twig') }}
+
+                <div class="card" data-testid="stats-indication-compare-gender">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.gender_title'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.genderDistribution}) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-compare-urgency">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.urgency_title'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.urgencyDistribution}) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-compare-resources">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.resources'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.resourcesDistribution}) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-compare-clinical">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.clinical'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.clinicalFeaturesDistribution}) }}
+                    </div>
+                </div>
+
+                <div class="card" data-testid="stats-indication-compare-transport">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport'|trans }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.transportTypeDistribution}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ include('@Statistics/indication_compare/_compare_modal.html.twig', {
+        compareModalId: 'stats-indication-compare-edit-modal',
+        compareModalTitleKey: 'stats.indication.compare.edit_modal.title',
+        compareModalInputIdPrefix: 'stats-indication-compare-edit',
+        compareModalTestIdPrefix: 'stats-indication-compare-edit',
+    }) }}
+{% endblock %}

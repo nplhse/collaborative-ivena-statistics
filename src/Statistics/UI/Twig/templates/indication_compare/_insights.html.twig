@@ -1,0 +1,29 @@
+{% if report.insights is not empty %}
+    <div class="card" data-testid="stats-indication-compare-insights">
+        <div class="card-header py-2">
+            <h3 class="card-title mb-0">{{ 'stats.indication.compare.section.insights'|trans }}</h3>
+        </div>
+        <div class="card-body d-flex flex-column gap-3 py-3">
+            {% for insight in report.insights %}
+                {% set dotClass = insight.severity.value == 'critical' ? 'bg-red status-dot-animated' : (insight.severity.value == 'elevated' ? 'bg-orange' : 'bg-primary') %}
+                {% set badgeClass = insight.severity.value == 'critical' ? 'bg-red-lt' : (insight.severity.value == 'elevated' ? 'bg-orange-lt' : 'bg-primary-lt') %}
+                <div class="d-flex align-items-start gap-2{% if not loop.last %} pb-3 border-bottom{% endif %}"
+                     data-testid="stats-indication-compare-insight-{{ insight.id }}">
+                    <span class="status-dot {{ dotClass }} d-block mt-1"></span>
+                    <div class="min-w-0">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <span class="badge {{ badgeClass }}">{{ insight.ratio|number_format(1, ',', '.') }}×</span>
+                        </div>
+                        <p class="mb-0 text-secondary small">
+                            {{ insight.translationKey|trans({
+                                ratio: insight.ratio,
+                                percentA: insight.percentA,
+                                percentB: insight.percentB,
+                            }) }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

@@ -28,6 +28,7 @@ final class IndicationInsightsIndexController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly IndicationPickerViewModelFactory $indicationPickerViewModelFactory,
+        private readonly IndicationGroupPickerViewModelFactory $groupPickerViewModelFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
@@ -96,6 +97,9 @@ final class IndicationInsightsIndexController extends AbstractController
             'dataQualityReport' => $dataQualityReport,
             'topRows' => $topRows,
             'indicationPicker' => $this->indicationPickerViewModelFactory->create($request),
+            'comparePickerItems' => $this->indicationPickerViewModelFactory->create($request)->menuItems,
+            'compareBaseUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_indication_compare'),
+            'groupPickerItems' => $this->groupPickerViewModelFactory->create($request)->menuItems,
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,

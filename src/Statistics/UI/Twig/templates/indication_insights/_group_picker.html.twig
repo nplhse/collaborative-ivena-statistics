@@ -1,0 +1,27 @@
+{% set pickerItems = [] %}
+{% for item in groupPickerItems %}
+    {% set pickerItems = pickerItems|merge([{label: item.label, url: item.url}]) %}
+{% endfor %}
+
+{% if groupPickerItems is not empty %}
+    <div class="card mt-3" data-testid="stats-indication-group-picker-card">
+        <div class="card-body">
+            <h3 class="card-title mb-2">{{ 'stats.indication.group.picker_label'|trans }}</h3>
+            <div data-controller="indication-picker"
+                 data-indication-picker-items-value="{{ pickerItems|json_encode|e('html_attr') }}">
+                <input type="text"
+                       class="form-control"
+                       list="stats-indication-group-picker-list"
+                       placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+                       autocomplete="off"
+                       data-indication-picker-target="input"
+                       data-testid="stats-indication-group-picker-input">
+                <datalist id="stats-indication-group-picker-list">
+                    {% for item in groupPickerItems %}
+                        <option value="{{ item.label }}"></option>
+                    {% endfor %}
+                </datalist>
+            </div>
+        </div>
+    </div>
+{% endif %}

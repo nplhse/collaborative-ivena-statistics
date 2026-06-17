@@ -1,0 +1,53 @@
+<div class="mb-3" data-testid="stats-indication-compare-selection">
+    <div class="row g-3 align-items-stretch">
+        <div class="col-md">
+            <div class="rounded-3 p-3 h-100 bg-primary-lt border-start border-4 stats-indication-compare-side-a">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="avatar avatar-md bg-primary text-white fw-bold flex-shrink-0">A</span>
+                    <div class="min-w-0">
+                        <div class="text-primary fw-medium small text-uppercase mb-1">
+                            {{ 'stats.indication.compare.side_a'|trans }}
+                        </div>
+                        <h3 class="h2 mb-2">
+                            <a href="{{ indicationDashboardUrlA }}"
+                               class="text-reset stats-indication-compare-indication-link"
+                               data-testid="stats-indication-compare-label-a">
+                                {{ report.header.indicationLabelA }}
+                            </a>
+                        </h3>
+                        <span class="badge bg-primary text-primary-fg" data-testid="stats-indication-compare-count-a">
+                            {{ report.header.totalA|number_format(0, ',', '.') }} {{ 'stats.indication.kpi.cases'|trans }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-auto d-none d-md-flex align-items-center px-0">
+            <span class="text-muted fw-medium text-uppercase small">vs</span>
+        </div>
+
+        <div class="col-md">
+            <div class="rounded-3 p-3 h-100 bg-secondary-lt border-start border-4 stats-indication-compare-side-b">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="avatar avatar-md bg-secondary text-secondary-fg fw-bold flex-shrink-0">B</span>
+                    <div class="min-w-0">
+                        <div class="text-secondary fw-medium small text-uppercase mb-1">
+                            {{ 'stats.indication.compare.side_b'|trans }}
+                        </div>
+                        <h3 class="h2 mb-2">
+                            <a href="{{ indicationDashboardUrlB }}"
+                               class="text-reset stats-indication-compare-indication-link"
+                               data-testid="stats-indication-compare-label-b">
+                                {{ report.header.indicationLabelB }}
+                            </a>
+                        </h3>
+                        <span class="badge bg-secondary-lt text-secondary" data-testid="stats-indication-compare-count-b">
+                            {{ report.header.totalB|number_format(0, ',', '.') }} {{ 'stats.indication.kpi.cases'|trans }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

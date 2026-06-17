@@ -1,0 +1,85 @@
+{% set pickerItems = [] %}
+{% for item in comparePicker.menuItems %}
+    {% set pickerItems = pickerItems|merge([{id: item.id, label: item.label}]) %}
+{% endfor %}
+{% set modalId = compareModalId|default('stats-indication-compare-modal') %}
+{% set modalTitleKey = compareModalTitleKey|default('stats.indication.compare.edit_modal.title') %}
+{% set inputIdPrefix = compareModalInputIdPrefix|default('stats-indication-compare-modal') %}
+{% set testIdPrefix = compareModalTestIdPrefix|default('stats-indication-compare-modal') %}
+
+<div class="modal modal-blur fade"
+     id="{{ modalId }}"
+     tabindex="-1"
+     aria-labelledby="{{ modalId }}-label"
+     aria-hidden="true"
+     data-testid="{{ testIdPrefix }}-modal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content"
+             data-controller="indication-compare-picker"
+             data-indication-compare-picker-items-value="{{ pickerItems|json_encode|e('html_attr') }}"
+             data-indication-compare-picker-base-url-value="{{ comparePicker.compareBaseUrl|e('html_attr') }}">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modalId }}-label">
+                    {{ modalTitleKey|trans }}
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="{{ 'stats.indication.compare.edit_modal.cancel'|trans }}"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">{{ 'stats.indication.compare.picker_help'|trans }}</p>
+
+                <div class="mb-3">
+                    <label class="form-label" for="{{ inputIdPrefix }}-a">
+                        {{ 'stats.indication.compare.side_a'|trans }}
+                    </label>
+                    <input type="text"
+                           id="{{ inputIdPrefix }}-a"
+                           class="form-control"
+                           list="{{ inputIdPrefix }}-list-a"
+                           value="{{ comparePicker.selectedLabelA }}"
+                           placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+                           autocomplete="off"
+                           data-indication-compare-picker-target="inputA">
+                    <datalist id="{{ inputIdPrefix }}-list-a">
+                        {% for item in comparePicker.menuItems %}
+                            <option value="{{ item.label }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label" for="{{ inputIdPrefix }}-b">
+                        {{ 'stats.indication.compare.side_b'|trans }}
+                    </label>
+                    <input type="text"
+                           id="{{ inputIdPrefix }}-b"
+                           class="form-control"
+                           list="{{ inputIdPrefix }}-list-b"
+                           value="{{ comparePicker.selectedLabelB }}"
+                           placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+                           autocomplete="off"
+                           data-indication-compare-picker-target="inputB">
+                    <datalist id="{{ inputIdPrefix }}-list-b">
+                        {% for item in comparePicker.menuItems %}
+                            <option value="{{ item.label }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-link link-secondary"
+                        data-bs-dismiss="modal">
+                    {{ 'stats.indication.compare.edit_modal.cancel'|trans }}
+                </button>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-action="indication-compare-picker#compare"
+                        data-testid="{{ testIdPrefix }}-submit">
+                    {{ 'stats.indication.compare.submit'|trans }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
