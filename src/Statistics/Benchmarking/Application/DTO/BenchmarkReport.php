@@ -26,6 +26,7 @@ final readonly class BenchmarkReport
         public BenchmarkDistribution $resourceProfile,
         public BenchmarkDistribution $clinicalFeatures,
         public bool $hasInsufficientData,
+        public bool $suppressRatios,
     ) {
     }
 }

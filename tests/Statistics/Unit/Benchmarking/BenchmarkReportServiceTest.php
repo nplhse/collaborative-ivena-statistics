@@ -92,6 +92,45 @@ final class BenchmarkReportServiceTest extends TestCase
         self::assertSame(25, $report->transportTimes->buckets[0]->primaryCount);
 
         self::assertFalse($report->hasInsufficientData);
+        self::assertFalse($report->suppressRatios);
+    }
+
+    public function testSuppressesRatiosWhenEitherSideHasFewerThanTwentyCases(): void
+    {
+        $aggregation = new BenchmarkAggregationResult(
+            new BenchmarkSideCounts(
+                15, 10, 2, 1, 1, 1, 0, 0, 0, 0, 5, 5, 5,
+                5, 5, 5, 10, 8, 0, 65.0, 45.0, 46.0,
+            ),
+            new BenchmarkSideCounts(
+                5000, 2500, 400, 200, 500, 300, 100, 50, 30, 80, 2000, 1500, 1500,
+                1000, 900, 800, 2600, 2100, 0, 65.0, 45.0, 46.0,
+            ),
+            [],
+        );
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $service = new BenchmarkReportService(
+            new FixedBenchmarkAggregationProvider($aggregation),
+            new BenchmarkMetricBuilder(),
+            new BenchmarkHeatmapBuilder($translator),
+            new BenchmarkInsightProvider(),
+        );
+
+        $report = $service->build(new BenchmarkCriteria(
+            StatisticsScopeCriteria::public(),
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            new StatisticsPeriodBounds(null),
+            'Primary',
+            'Comparison',
+            '2024',
+            '2024',
+        ));
+
+        self::assertTrue($report->suppressRatios);
     }
 
     /**

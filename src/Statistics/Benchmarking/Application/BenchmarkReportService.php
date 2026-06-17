@@ -15,6 +15,8 @@ final readonly class BenchmarkReportService
 
     private const int MIN_COMPARISON_CASES = 500;
 
+    private const int MIN_CASES_RATIOS = 20;
+
     public function __construct(
         private BenchmarkAggregationProviderInterface $aggregationProvider,
         private BenchmarkMetricBuilder $metricBuilder,
@@ -32,8 +34,10 @@ final readonly class BenchmarkReportService
             $criteria->comparisonPeriod,
         );
 
-        $kpiMetrics = $this->metricBuilder->buildKpiMetrics($aggregation);
+        $kpiMetrics = $this->metricBuilder->buildIndicationCompareKpiMetrics($aggregation);
         $executiveSummary = $this->insightProvider->build($aggregation, $kpiMetrics);
+        $suppressRatios = $aggregation->primary->total < self::MIN_CASES_RATIOS
+            || $aggregation->comparison->total < self::MIN_CASES_RATIOS;
 
         return new BenchmarkReport(
             new BenchmarkHeader(
@@ -60,6 +64,7 @@ final readonly class BenchmarkReportService
             $this->metricBuilder->buildClinicalFeaturesDistribution($aggregation),
             $aggregation->primary->total < self::MIN_PRIMARY_CASES
                 || $aggregation->comparison->total < self::MIN_COMPARISON_CASES,
+            $suppressRatios,
         );
     }
 }
