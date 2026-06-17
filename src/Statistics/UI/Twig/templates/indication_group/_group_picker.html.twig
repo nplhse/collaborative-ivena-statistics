@@ -1,0 +1,43 @@
+{% set pickerItems = [] %}
+{% for item in groupPicker.menuItems %}
+    {% set pickerItems = pickerItems|merge([{label: item.label, url: item.url}]) %}
+{% endfor %}
+
+<div data-testid="stats-indication-group-picker">
+    <label class="form-label" for="stats-indication-group-picker-input">
+        {{ 'stats.indication.group.picker_label'|trans }}
+    </label>
+
+    {% if groupPicker.menuItems is not empty %}
+        <div data-controller="indication-picker"
+             data-indication-picker-items-value="{{ pickerItems|json_encode|e('html_attr') }}">
+            <div class="input-group">
+                <input type="text"
+                       id="stats-indication-group-picker-input"
+                       class="form-control"
+                       list="stats-indication-group-picker-list"
+                       placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+                       autocomplete="off"
+                       value="{{ groupPicker.selectedLabel }}"
+                       data-indication-picker-target="input"
+                       data-testid="stats-indication-group-picker-input">
+                <button type="button"
+                        class="btn"
+                        data-action="indication-picker#submit"
+                        data-testid="stats-indication-group-picker-submit"
+                        aria-label="{{ 'stats.indication.picker.submit'|trans }}">
+                    <twig:ux:icon name="tabler:search" class="icon" />
+                </button>
+            </div>
+            <datalist id="stats-indication-group-picker-list">
+                {% for item in groupPicker.menuItems %}
+                    <option value="{{ item.label }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
+    {% else %}
+        <p class="text-muted small mb-0" data-testid="stats-indication-group-picker-empty">
+            {{ 'stats.indication.group.picker_empty'|trans }}
+        </p>
+    {% endif %}
+</div>

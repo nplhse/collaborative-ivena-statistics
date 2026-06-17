@@ -23,20 +23,17 @@ final class IndicationGroupRepository extends ServiceEntityRepository
      */
     public function getDatalist(): array
     {
-        /** @var list<array{id: int, name: string, category: ?string, sortOrder: ?int}> $rows */
+        /** @var list<array{id: int, name: string, category: ?string}> $rows */
         $rows = $this->createQueryBuilder('g')
-            ->select('g.id', 'g.name', 'g.category', 'g.sortOrder')
-            ->orderBy('g.sortOrder', 'ASC')
-            ->addOrderBy('g.name', 'ASC')
+            ->select('g.id', 'g.name', 'g.category')
+            ->orderBy('g.name', 'ASC')
             ->getQuery()
             ->getArrayResult();
 
         return array_map(
             static fn (array $row): array => [
                 'id' => (int) $row['id'],
-                'label' => null !== $row['category'] && '' !== $row['category']
-                    ? sprintf('%s (%s)', $row['name'], $row['category'])
-                    : $row['name'],
+                'label' => $row['name'],
             ],
             $rows,
         );

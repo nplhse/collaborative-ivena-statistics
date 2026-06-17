@@ -23,13 +23,14 @@ final readonly class IndicationGroupPickerViewModelFactory
         $menuItems = [];
 
         foreach ($items as $item) {
-            $active = null !== $currentGroupId && $item['id'] === $currentGroupId;
+            $itemId = $item['id'];
+            $active = null !== $currentGroupId && $itemId === $currentGroupId;
             if ($active) {
                 $selectedLabel = $item['label'];
             }
 
             $menuItems[] = [
-                'id' => $item['id'],
+                'id' => $itemId,
                 'label' => $item['label'],
                 'url' => $this->navigationUrlBuilder->build(
                     $request,
