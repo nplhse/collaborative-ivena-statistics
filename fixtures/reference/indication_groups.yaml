@@ -1,0 +1,81 @@
+indication_groups:
+  -
+    name: 'Akute Dyspnoe & respiratorische Notfälle'
+    category: Pneumologie
+    codes: ['311', '312', '315', '316', '317', '318', '348']
+  -
+    name: 'Akute Herzinsuffizienz & kardiogener Schock'
+    category: Kardiologie
+    codes: ['346', '347']
+  -
+    name: 'Akutes Abdomen & GI-Notfall'
+    category: Viszeral
+    codes: ['243', '351', '353', '354']
+  -
+    name: 'Brustschmerz & akutes Koronarsyndrom'
+    category: Kardiologie
+    codes: ['331', '332', '333']
+  -
+    name: 'ECMO & ECLS Transport'
+    category: ECLS
+    codes: ['140', '141', '142', '143', '144', '145']
+  -
+    name: 'Endokrinologischer Notfall'
+    category: Endokrinologie
+    codes: ['391', '392', '393']
+  -
+    name: 'Epilepsie & Krampf'
+    category: Neurologie
+    codes: ['411', '412']
+  -
+    name: 'Gefäßchirurgischer Notfall'
+    category: Gefäßchirurgie
+    codes: ['291', '292', '293', '299']
+  -
+    name: Intoxikation
+    category: Toxikologie
+    codes: ['361', '362', '363', '364', '365', '366', '367', '368', '369', '370']
+  -
+    name: 'Pädiatrische Atemnot'
+    category: Pädiatrie
+    codes: ['511', '512', '513']
+  -
+    name: 'Polytrauma & Schockraum'
+    category: Trauma
+    codes: ['211', '212', '213', '214', '215']
+  -
+    name: 'Psychiatrischer Notfall'
+    category: Psychiatrie
+    codes: ['431', '432', '433', '434', '435']
+  -
+    name: 'Reanimation & ROSC'
+    category: Reanimation
+    codes: ['121', '122', '123', '131', '132', '133', '134']
+  -
+    name: 'Schädel-Hirn-Trauma'
+    category: Trauma
+    codes: ['222', '224']
+  -
+    name: 'Schlaganfall akut'
+    category: Neurologie
+    codes: ['421', '422', '425']
+  -
+    name: 'Sepsis & septischer Schock'
+    category: Infektiologie
+    codes: ['325', '371', '373', '374']
+  -
+    name: 'Synkope, Arrhythmie & Kreislauf'
+    category: Kardiologie
+    codes: ['322', '323', '341', '342', '343']
+  -
+    name: Thoraxtrauma
+    category: Trauma
+    codes: ['231', '232', '233']
+  -
+    name: 'Urologischer Akutnotfall'
+    category: Urologie
+    codes: ['711', '712', '713']
+  -
+    name: 'Verbrennung & Umweltmedizin'
+    category: Umweltmedizin
+    codes: ['281', '286', '287', '288']
