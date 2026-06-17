@@ -1,0 +1,14 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ groupName }} – {{ parent() }}{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl py-4">
+        <div class="alert alert-info" data-testid="stats-indication-group-empty">
+            {{ 'stats.indication.group.empty'|trans }}
+        </div>
+        <a href="{{ path('app_stats_indication_insights') }}" class="btn btn-outline-primary">
+            {{ 'link.stats.indication_insights'|trans }}
+        </a>
+    </div>
+{% endblock %}
