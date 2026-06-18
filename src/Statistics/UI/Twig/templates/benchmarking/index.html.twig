@@ -60,8 +60,6 @@
             </div>
         {% endif %}
 
-        {{ include('@Statistics/benchmarking/_executive_summary.html.twig') }}
-
         <div class="row g-3 align-items-start mt-1">
             <div class="col-lg-8 d-flex flex-column gap-3">
                 {{ include('@Statistics/_kpi_compare_tiles.html.twig', {
@@ -120,6 +118,8 @@
             </div>
 
             <div class="col-lg-4 d-flex flex-column gap-3">
+                {{ include('@Statistics/benchmarking/_insights.html.twig') }}
+
                 <div class="card" data-testid="stats-benchmark-demographics-gender">
                     <div class="card-header py-2">
                         <h3 class="card-title mb-0">{{ 'stats.benchmark.section.gender'|trans }}</h3>

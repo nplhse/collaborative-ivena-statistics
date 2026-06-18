@@ -5447,6 +5447,10 @@
         <source>stats.benchmark.section.executive_summary</source>
         <target>Executive summary</target>
       </trans-unit>
+      <trans-unit id="statsBm08a" resname="stats.benchmark.section.notable_differences">
+        <source>stats.benchmark.section.notable_differences</source>
+        <target>Notable differences</target>
+      </trans-unit>
       <trans-unit id="statsBm09" resname="stats.benchmark.section.kpi">
         <source>stats.benchmark.section.kpi</source>
         <target>KPI comparison</target>
