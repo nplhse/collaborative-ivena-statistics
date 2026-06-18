@@ -54,6 +54,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
             APP_SECRET: ci-test-placeholder-not-for-production
+            SYMFONY_DEPRECATIONS_HELPER: 'max[total]=0&verbose=1'
         services:
             postgres:
                 image: postgres:16
@@ -104,6 +105,9 @@ jobs:
               run: |
                   php bin/console importmap:install
                   php bin/console asset-map:compile
+
+            - name: Warm test cache
+              run: php bin/console cache:warmup --env=test
 
             - name: Execute database-backed tests via ParaTest
               run: |

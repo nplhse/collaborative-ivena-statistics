@@ -137,6 +137,9 @@
         ],
         "upgrade-test-env": [
             "@setup-test-env"
+        ],
+        "check-deprecations": [
+            "@php bin/check-deprecations"
         ]
     },
     "conflict": {

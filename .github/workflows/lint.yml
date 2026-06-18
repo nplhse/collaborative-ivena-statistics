@@ -19,6 +19,7 @@ jobs:
             # PHPStan boots Doctrine via tests/object-manager.php; CI has no PostgreSQL service.
             DATABASE_URL: 'sqlite:///${{ github.workspace }}/var/lint.db'
             MESSENGER_TRANSPORT_DSN: sync://
+            SYMFONY_DEPRECATIONS_HELPER: 'max[total]=0&verbose=1'
         strategy:
             fail-fast: true
             matrix:
@@ -62,8 +63,8 @@ jobs:
             - name: Lint translation contents
               run: ./bin/console lint:translations
 
-            - name: Lint Parameters and Services
-              run: ./bin/console lint:container --no-debug
+            - name: Check Symfony deprecations
+              run: ./bin/check-deprecations
 
             - name: Lint Composer config
               run: composer validate --strict
