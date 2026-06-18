@@ -45,10 +45,16 @@
 
     <div data-controller="benchmarking-charts"
          data-benchmarking-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}"
-         data-benchmarking-charts-primary-label-value="{{ report.header.indicationLabelA|e('html_attr') }}"
-         data-benchmarking-charts-comparison-label-value="{{ report.header.indicationLabelB|e('html_attr') }}">
+         data-benchmarking-charts-primary-label-value="{{ report.header.labelA|e('html_attr') }}"
+         data-benchmarking-charts-comparison-label-value="{{ report.header.labelB|e('html_attr') }}">
 
         {{ include('@Statistics/indication_compare/_selection_card.html.twig') }}
+
+        {% if hasOverlappingIndications|default(false) %}
+            <div class="alert alert-info" data-testid="stats-indication-compare-overlap-notice">
+                {{ 'stats.indication.compare.overlap_notice'|trans }}
+            </div>
+        {% endif %}
 
         {% if report.hasInsufficientData %}
             <div class="alert alert-warning" data-testid="stats-indication-compare-insufficient-data">

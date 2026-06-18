@@ -71,13 +71,18 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertStringContainsString('66,7%', $crawler->filter('[data-testid="stats-indication-group-members"]')->text());
 
         self::assertStringContainsString(
-            'Group Member A',
+            'Cardiology Group',
             (string) $crawler->filter('#stats-indication-group-compare-launch-a')->attr('value'),
         );
         self::assertStringContainsString(
-            'Group Member B',
-            (string) $crawler->filter('#stats-indication-group-compare-launch-b')->attr('value'),
+            '[Group]',
+            (string) $crawler->filter('#stats-indication-group-compare-launch-a')->attr('value'),
         );
+        self::assertStringEndsWith(
+            '[Group]',
+            trim((string) $crawler->filter('#stats-indication-group-compare-launch-a')->attr('value')),
+        );
+        self::assertSame('', (string) $crawler->filter('#stats-indication-group-compare-launch-b')->attr('value'));
     }
 
     public function testGroupMembersListShowsExpandControlWhenMoreThanThreeMembers(): void

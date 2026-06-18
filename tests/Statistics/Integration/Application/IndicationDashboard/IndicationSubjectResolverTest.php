@@ -74,4 +74,18 @@ final class IndicationSubjectResolverTest extends KernelTestCase
 
         self::assertNull(self::getContainer()->get(IndicationSubjectResolver::class)->resolveGroup(999_999));
     }
+
+    public function testResolveDispatchesByType(): void
+    {
+        self::bootKernel();
+
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Dispatch Test', 'code' => 6001]);
+        $resolver = self::getContainer()->get(IndicationSubjectResolver::class);
+
+        $single = $resolver->resolve(IndicationSubjectType::Single, $indication->getId());
+        self::assertNotNull($single);
+        self::assertSame(IndicationSubjectType::Single, $single->type);
+
+        self::assertNull($resolver->resolve(IndicationSubjectType::Group, 999_999));
+    }
 }

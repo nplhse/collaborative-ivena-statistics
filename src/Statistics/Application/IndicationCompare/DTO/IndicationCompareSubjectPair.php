@@ -6,17 +6,18 @@ namespace App\Statistics\Application\IndicationCompare\DTO;
 
 use App\Statistics\Application\IndicationDashboard\IndicationSubjectType;
 
-final readonly class IndicationCompareHeader
+final readonly class IndicationCompareSubjectPair
 {
     public function __construct(
         public IndicationSubjectType $typeA,
         public int $idA,
-        public string $labelA,
         public IndicationSubjectType $typeB,
         public int $idB,
-        public string $labelB,
-        public int $totalA,
-        public int $totalB,
     ) {
+    }
+
+    public function isSameSubject(): bool
+    {
+        return $this->typeA === $this->typeB && $this->idA === $this->idB;
     }
 }

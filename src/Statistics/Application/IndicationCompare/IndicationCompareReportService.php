@@ -36,16 +36,16 @@ final readonly class IndicationCompareReportService
         $scope = $criteria->scope;
 
         $metricsResult = $this->metricsQuery->fetch(
-            $criteria->indicationIdA,
-            $criteria->indicationIdB,
+            $criteria->subjectA->indicationIds,
+            $criteria->subjectB->indicationIds,
             $from,
             $toExclusive,
             $scope,
         );
 
         $sliceRows = $this->sliceQuery->fetch(
-            $criteria->indicationIdA,
-            $criteria->indicationIdB,
+            $criteria->subjectA->indicationIds,
+            $criteria->subjectB->indicationIds,
             $from,
             $toExclusive,
             $scope,
@@ -69,10 +69,12 @@ final readonly class IndicationCompareReportService
 
         return new IndicationCompareReport(
             new IndicationCompareHeader(
-                $criteria->indicationIdA,
-                $criteria->indicationIdB,
-                $criteria->indicationLabelA,
-                $criteria->indicationLabelB,
+                $criteria->subjectA->type,
+                $criteria->subjectA->id,
+                $criteria->subjectA->label,
+                $criteria->subjectB->type,
+                $criteria->subjectB->id,
+                $criteria->subjectB->label,
                 $totalA,
                 $totalB,
             ),

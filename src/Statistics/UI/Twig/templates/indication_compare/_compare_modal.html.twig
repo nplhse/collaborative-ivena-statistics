@@ -1,6 +1,6 @@
 {% set pickerItems = [] %}
 {% for item in comparePicker.menuItems %}
-    {% set pickerItems = pickerItems|merge([{id: item.id, label: item.label}]) %}
+    {% set pickerItems = pickerItems|merge([{type: item.type, id: item.id, label: item.label}]) %}
 {% endfor %}
 {% set modalId = compareModalId|default('stats-indication-compare-modal') %}
 {% set modalTitleKey = compareModalTitleKey|default('stats.indication.compare.edit_modal.title') %}

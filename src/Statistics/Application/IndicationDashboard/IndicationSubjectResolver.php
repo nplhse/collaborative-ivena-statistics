@@ -50,4 +50,12 @@ final readonly class IndicationSubjectResolver
             $indicationIds,
         );
     }
+
+    public function resolve(IndicationSubjectType $type, int $id): ?IndicationSubject
+    {
+        return match ($type) {
+            IndicationSubjectType::Single => $this->resolveSingle($id),
+            IndicationSubjectType::Group => $this->resolveGroup($id),
+        };
+    }
 }

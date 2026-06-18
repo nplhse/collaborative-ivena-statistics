@@ -92,8 +92,8 @@ final class IndicationCompareMetricsQueryTest extends KernelTestCase
         $scope = new StatisticsScopeCriteria([$hospital->getId()]);
 
         $result = self::getContainer()->get(IndicationCompareMetricsQuery::class)->fetch(
-            $indicationA->getId(),
-            $indicationB->getId(),
+            [$indicationA->getId()],
+            [$indicationB->getId()],
             $bounds->from,
             $bounds->toExclusive,
             $scope,
@@ -111,8 +111,8 @@ final class IndicationCompareMetricsQueryTest extends KernelTestCase
         self::bootKernel();
 
         $result = self::getContainer()->get(IndicationCompareMetricsQuery::class)->fetch(
-            1,
-            2,
+            [1],
+            [2],
             null,
             null,
             new StatisticsScopeCriteria([]),
@@ -120,5 +120,80 @@ final class IndicationCompareMetricsQueryTest extends KernelTestCase
 
         self::assertSame(0, $result->sideA->total);
         self::assertSame(0, $result->sideB->total);
+    }
+
+    public function testAggregatesGroupIndicationIds(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'indication-compare-group-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'IndicationCompareGroupState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationCompareGroupDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'IndicationCompareGroupHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'IndicationCompareGroupSpec']);
+        DepartmentFactory::createOne(['name' => 'IndicationCompareGroupDept']);
+        AssignmentFactory::createOne(['name' => 'IndicationCompareGroupAssign']);
+        IndicationRawFactory::createOne(['name' => 'IndicationCompareGroupRaw', 'code' => 912_362]);
+
+        $indicationA = IndicationNormalizedFactory::createOne(['name' => 'Group Member A']);
+        $indicationB = IndicationNormalizedFactory::createOne(['name' => 'Group Member B']);
+        $indicationC = IndicationNormalizedFactory::createOne(['name' => 'Single Compare C']);
+
+        $import = ImportFactory::createOne(['name' => 'IndicationCompareGroupImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createMany(3, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationA,
+            'createdAt' => new \DateTimeImmutable('2026-05-01 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-01 10:20:00'),
+        ]);
+
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationB,
+            'createdAt' => new \DateTimeImmutable('2026-05-02 11:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-02 11:20:00'),
+        ]);
+
+        AllocationFactory::createMany(5, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationC,
+            'createdAt' => new \DateTimeImmutable('2026-05-03 12:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-03 12:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All);
+        $bounds = StatisticsPeriodResolver::resolve($filter);
+        $scope = new StatisticsScopeCriteria([$hospital->getId()]);
+
+        $groupIds = [$indicationA->getId(), $indicationB->getId()];
+        $result = self::getContainer()->get(IndicationCompareMetricsQuery::class)->fetch(
+            $groupIds,
+            [$indicationC->getId()],
+            $bounds->from,
+            $bounds->toExclusive,
+            $scope,
+        );
+
+        self::assertSame(5, $result->sideA->total);
+        self::assertSame(5, $result->sideB->total);
     }
 }

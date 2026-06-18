@@ -4889,7 +4889,7 @@
       </trans-unit>
       <trans-unit id="statsIndCmp09" resname="stats.indication.compare.picker_help">
         <source>stats.indication.compare.picker_help</source>
-        <target>Select two indications to compare their profiles side by side.</target>
+        <target>Select two indications or groups to compare their profiles side by side. Groups are marked with [Group] after the name.</target>
       </trans-unit>
       <trans-unit id="statsIndCmp10" resname="stats.indication.compare.submit">
         <source>stats.indication.compare.submit</source>
@@ -4901,11 +4901,23 @@
       </trans-unit>
       <trans-unit id="statsIndCmp12" resname="stats.indication.compare.error.missing_selection">
         <source>stats.indication.compare.error.missing_selection</source>
-        <target>Please select two indications to compare.</target>
+        <target>Please select two subjects to compare.</target>
       </trans-unit>
       <trans-unit id="statsIndCmp13" resname="stats.indication.compare.error.same_indication">
         <source>stats.indication.compare.error.same_indication</source>
-        <target>Please select two different indications.</target>
+        <target>Please select two different subjects to compare.</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp13b" resname="stats.indication.compare.error.empty_group">
+        <source>stats.indication.compare.error.empty_group</source>
+        <target>The selected group has no indications assigned yet.</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp13c" resname="stats.indication.compare.picker_group_suffix">
+        <source>stats.indication.compare.picker_group_suffix</source>
+        <target> [Group]</target>
+      </trans-unit>
+      <trans-unit id="statsIndCmp13d" resname="stats.indication.compare.overlap_notice">
+        <source>stats.indication.compare.overlap_notice</source>
+        <target>These subjects share one or more indications. Allocations for shared indications are counted on both sides.</target>
       </trans-unit>
       <trans-unit id="statsIndCmp14" resname="stats.indication.compare.insight.physician">
         <source>stats.indication.compare.insight.physician</source>

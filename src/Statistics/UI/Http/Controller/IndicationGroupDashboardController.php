@@ -36,6 +36,7 @@ final class IndicationGroupDashboardController extends AbstractController
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly IndicationGroupPickerViewModelFactory $groupPickerViewModelFactory,
         private readonly IndicationGroupComparePickerViewModelFactory $groupComparePickerViewModelFactory,
+        private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
     ) {
     }
@@ -83,11 +84,7 @@ final class IndicationGroupDashboardController extends AbstractController
 
             return $row;
         }, $memberRows);
-        $canCompareMembers = \count($compareMemberRows) >= 2;
-        $comparePicker = $canCompareMembers
-            ? $this->groupComparePickerViewModelFactory->create($request, $compareMemberRows)
-            : null;
-        $comparePresets = $canCompareMembers
+        $comparePresets = \count($compareMemberRows) >= 2
             ? $this->groupComparePickerViewModelFactory->createPresets($compareMemberRows)
             : [];
 
@@ -132,9 +129,9 @@ final class IndicationGroupDashboardController extends AbstractController
             'statsFilterDrawerValues' => $drawerState['values'],
             'statsActiveFilterCount' => $drawerState['activeCount'],
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_group_dashboard', ['groupId' => $groupId]),
-            'comparePicker' => $comparePicker,
+            'comparePicker' => $this->comparePickerViewModelFactory->create($request, $subject),
             'comparePresets' => $comparePresets,
-            'statsShowCompareLaunchButton' => $canCompareMembers,
+            'statsShowCompareLaunchButton' => true,
             'statsCompareLaunchModalId' => 'stats-indication-group-compare-launch-modal',
         ]);
     }

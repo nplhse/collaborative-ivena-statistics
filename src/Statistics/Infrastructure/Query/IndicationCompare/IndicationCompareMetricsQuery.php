@@ -13,6 +13,7 @@ use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareA
 use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -26,24 +27,34 @@ final readonly class IndicationCompareMetricsQuery
     ) {
     }
 
+    /**
+     * @param list<int> $indicationIdsA
+     * @param list<int> $indicationIdsB
+     */
     public function fetch(
-        int $indicationIdA,
-        int $indicationIdB,
+        array $indicationIdsA,
+        array $indicationIdsB,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
     ): IndicationCompareAggregationResult {
+        if ([] === $indicationIdsA || [] === $indicationIdsB) {
+            return IndicationCompareAggregationResult::empty();
+        }
+
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return IndicationCompareAggregationResult::empty();
         }
 
-        $predA = 'indication_normalized_id = :id_a';
-        $predB = 'indication_normalized_id = :id_b';
+        $predA = 'indication_normalized_id IN (:ids_a)';
+        $predB = 'indication_normalized_id IN (:ids_b)';
 
         [$scopeWhere, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
         $where = sprintf('(%s) AND (%s OR %s)', $scopeWhere, $predA, $predB);
-        $params['id_a'] = $indicationIdA;
-        $params['id_b'] = $indicationIdB;
+        $types['ids_a'] = ArrayParameterType::INTEGER;
+        $types['ids_b'] = ArrayParameterType::INTEGER;
+        $params['ids_a'] = array_map(static fn (int $id): int => $id, $indicationIdsA);
+        $params['ids_b'] = array_map(static fn (int $id): int => $id, $indicationIdsB);
 
         $hasExtended = $this->projectionFeatureQuery->hasExtendedClinicalFeatureColumns();
         $shockFilter = $hasExtended ? 'is_shock = true' : 'false';

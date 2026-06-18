@@ -10,6 +10,7 @@ use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareDistributionRow;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -23,26 +24,35 @@ final readonly class IndicationCompareSliceQuery
     }
 
     /**
+     * @param list<int> $indicationIdsA
+     * @param list<int> $indicationIdsB
+     *
      * @return list<IndicationCompareDistributionRow>
      */
     public function fetch(
-        int $indicationIdA,
-        int $indicationIdB,
+        array $indicationIdsA,
+        array $indicationIdsB,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
     ): array {
+        if ([] === $indicationIdsA || [] === $indicationIdsB) {
+            return [];
+        }
+
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return [];
         }
 
-        $predA = 'indication_normalized_id = :id_a';
-        $predB = 'indication_normalized_id = :id_b';
+        $predA = 'indication_normalized_id IN (:ids_a)';
+        $predB = 'indication_normalized_id IN (:ids_b)';
 
         [$scopeWhere, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
         $where = sprintf('(%s) AND (%s OR %s)', $scopeWhere, $predA, $predB);
-        $params['id_a'] = $indicationIdA;
-        $params['id_b'] = $indicationIdB;
+        $types['ids_a'] = ArrayParameterType::INTEGER;
+        $types['ids_b'] = ArrayParameterType::INTEGER;
+        $params['ids_a'] = array_map(static fn (int $id): int => $id, $indicationIdsA);
+        $params['ids_b'] = array_map(static fn (int $id): int => $id, $indicationIdsB);
 
         $ageBucketCase = StatisticsAgeGroupBucketSql::CASE_EXPRESSION;
         $transportBucketCase = StatisticsTransportTimeBucketSql::CASE_EXPRESSION;
