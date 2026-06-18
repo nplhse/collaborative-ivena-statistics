@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\HospitalLocation;
@@ -13,6 +14,7 @@ use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationGroupFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
@@ -20,6 +22,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -209,5 +212,221 @@ final class IndicationCompareControllerTest extends WebTestCase
         ]);
 
         self::assertResponseRedirects();
+    }
+
+    public function testCompareSingleVsGroupWithSubjectParameters(): void
+    {
+        $client = self::createClient();
+        $fixture = $this->seedGroupCompareFixture($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+            'scope' => 'hospital',
+            'hospital' => (string) $fixture['hospitalId'],
+            'period' => 'all',
+            'subject_a_type' => 'single',
+            'subject_a_id' => (string) $fixture['indicationCId'],
+            'subject_b_type' => 'group',
+            'subject_b_id' => (string) $fixture['groupId'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-label-a"]', 'Compare Single C');
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-label-b"]', 'Compare Group');
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-count-a"]', '5');
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-count-b"]', '5');
+
+        $crawler = $client->getCrawler();
+        self::assertStringContainsString(
+            '/statistics/indication/'.$fixture['indicationCId'],
+            (string) $crawler->filter('[data-testid="stats-indication-compare-label-a"]')->attr('href'),
+        );
+        self::assertStringContainsString(
+            '/statistics/indication-group/'.$fixture['groupId'],
+            (string) $crawler->filter('[data-testid="stats-indication-compare-label-b"]')->attr('href'),
+        );
+    }
+
+    public function testCompareGroupVsGroup(): void
+    {
+        $client = self::createClient();
+        $fixture = $this->seedGroupCompareFixture($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+            'scope' => 'hospital',
+            'hospital' => (string) $fixture['hospitalId'],
+            'period' => 'all',
+            'subject_a_type' => 'group',
+            'subject_a_id' => (string) $fixture['groupId'],
+            'subject_b_type' => 'group',
+            'subject_b_id' => (string) $fixture['otherGroupId'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-label-a"]', 'Compare Group');
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-label-b"]', 'Other Group');
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-count-a"]', '5');
+        self::assertSelectorTextContains('[data-testid="stats-indication-compare-count-b"]', '2');
+    }
+
+    public function testCompareShowsOverlapNoticeWhenSubjectsShareIndications(): void
+    {
+        $client = self::createClient();
+        $fixture = $this->seedGroupCompareFixture($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+            'scope' => 'hospital',
+            'hospital' => (string) $fixture['hospitalId'],
+            'period' => 'all',
+            'subject_a_type' => 'single',
+            'subject_a_id' => (string) $fixture['indicationAId'],
+            'subject_b_type' => 'group',
+            'subject_b_id' => (string) $fixture['groupId'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="stats-indication-compare-overlap-notice"]');
+    }
+
+    public function testRedirectsWhenEmptyGroupSelected(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'indication-compare-empty-group-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Non Group Indication']);
+        $emptyGroup = IndicationGroupFactory::createOne(['name' => 'Empty Compare Group', 'createdBy' => $user]);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_type' => 'single',
+            'subject_a_id' => (string) $indication->getId(),
+            'subject_b_type' => 'group',
+            'subject_b_id' => (string) $emptyGroup->getId(),
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString('/statistics/indication-insights', (string) $client->getResponse()->headers->get('Location'));
+    }
+
+    public function testRedirectsWhenSameGroupSelected(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'indication-compare-same-group-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $group = IndicationGroupFactory::createOne(['name' => 'Same Group', 'createdBy' => $user]);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_type' => 'group',
+            'subject_a_id' => (string) $group->getId(),
+            'subject_b_type' => 'group',
+            'subject_b_id' => (string) $group->getId(),
+        ]);
+
+        self::assertResponseRedirects();
+    }
+
+    /**
+     * @return array{
+     *     groupId: int,
+     *     otherGroupId: int,
+     *     hospitalId: int,
+     *     indicationAId: int,
+     *     indicationBId: int,
+     *     indicationCId: int
+     * }
+     */
+    private function seedGroupCompareFixture(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client): array
+    {
+        $user = UserFactory::createOne(['username' => 'indication-compare-group-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $state = StateFactory::createOne(['name' => 'CompareGroupState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'CompareGroupDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'CompareGroupHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'CompareGroupSpec']);
+        DepartmentFactory::createOne(['name' => 'CompareGroupDept']);
+        AssignmentFactory::createOne(['name' => 'CompareGroupAssign']);
+        IndicationRawFactory::createOne(['name' => 'CompareGroupRaw', 'code' => 912_365]);
+
+        $indicationA = IndicationNormalizedFactory::createOne(['name' => 'Group Member A', 'code' => 4001]);
+        $indicationB = IndicationNormalizedFactory::createOne(['name' => 'Group Member B', 'code' => 4002]);
+        $indicationC = IndicationNormalizedFactory::createOne(['name' => 'Compare Single C', 'code' => 4003]);
+        $indicationD = IndicationNormalizedFactory::createOne(['name' => 'Other Group Member', 'code' => 4004]);
+
+        $group = IndicationGroupFactory::createOne(['name' => 'Compare Group', 'createdBy' => $user]);
+        $otherGroup = IndicationGroupFactory::createOne(['name' => 'Other Group', 'createdBy' => $user]);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $groupEntity = $entityManager->find(IndicationGroup::class, $group->getId());
+        $otherGroupEntity = $entityManager->find(IndicationGroup::class, $otherGroup->getId());
+        self::assertNotNull($groupEntity);
+        self::assertNotNull($otherGroupEntity);
+        $groupEntity->addIndication($indicationA);
+        $groupEntity->addIndication($indicationB);
+        $otherGroupEntity->addIndication($indicationD);
+        $entityManager->flush();
+
+        $import = ImportFactory::createOne(['name' => 'CompareGroupImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createMany(3, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationA,
+            'createdAt' => new \DateTimeImmutable('2026-05-01 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-01 10:20:00'),
+        ]);
+
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationB,
+            'createdAt' => new \DateTimeImmutable('2026-05-02 11:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-02 11:20:00'),
+        ]);
+
+        AllocationFactory::createMany(5, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationC,
+            'createdAt' => new \DateTimeImmutable('2026-05-03 12:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-03 12:20:00'),
+        ]);
+
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationD,
+            'createdAt' => new \DateTimeImmutable('2026-05-04 13:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-04 13:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        return [
+            'groupId' => (int) $group->getId(),
+            'otherGroupId' => (int) $otherGroup->getId(),
+            'hospitalId' => (int) $hospital->getId(),
+            'indicationAId' => (int) $indicationA->getId(),
+            'indicationBId' => (int) $indicationB->getId(),
+            'indicationCId' => (int) $indicationC->getId(),
+        ];
     }
 }
