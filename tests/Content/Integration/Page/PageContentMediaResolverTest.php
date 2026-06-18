@@ -24,7 +24,7 @@ final class PageContentMediaResolverTest extends KernelTestCase
             'altText' => 'From media',
             'width' => 640,
             'height' => 480,
-        ])->_real();
+        ]);
 
         $sut = self::getContainer()->get(PageContentMediaResolver::class);
 
@@ -50,7 +50,7 @@ final class PageContentMediaResolverTest extends KernelTestCase
 
         $media = MediaFactory::new()->asPdf()->create([
             'filename' => 'report.pdf',
-        ])->_real();
+        ]);
 
         $sut = self::getContainer()->get(PageContentMediaResolver::class);
 

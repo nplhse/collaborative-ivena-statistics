@@ -58,7 +58,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->fixRichtextSnippets(false, $pageId);
@@ -99,7 +99,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->fixRichtextSnippets(true, $pageId);
@@ -124,7 +124,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->fixRichtextSnippets(false, $pageId);
@@ -154,7 +154,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->fixRichtextSnippets(false, $pageId);
@@ -179,7 +179,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->fixRichtextSnippets(false);
@@ -209,7 +209,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     'data' => ['html' => ''],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $result = $this->migrationService()->fixRichtextSnippets(false, (int) $page->getId());
 
@@ -223,7 +223,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
             'filename' => 'migrate-with-headline.png',
             'width' => 605,
             'height' => 400,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'migration-headline-and-image',
@@ -245,7 +245,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->migrateSizes(false, $pageId);
@@ -260,7 +260,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
             'filename' => 'migrate-candidate-mix.png',
             'width' => 605,
             'height' => 400,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'migration-lg-and-md',
@@ -288,7 +288,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->migrateSizes(false, $pageId);
@@ -325,7 +325,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->fixRichtextSnippets(false, $pageId);
@@ -348,7 +348,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     'data' => ['variant' => 'info'],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $result = $this->migrationService()->fixRichtextSnippets(false, (int) $page->getId());
 
@@ -361,7 +361,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
             'filename' => 'floated.png',
             'width' => 400,
             'height' => 300,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'migration-floated-lg',
@@ -378,7 +378,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $result = $this->migrationService()->migrateSizes(false, $pageId);
@@ -393,7 +393,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
             'filename' => 'migrate-me.png',
             'width' => 605,
             'height' => 400,
-        ])->_real();
+        ]);
 
         return PageFactory::createOne([
             'slug' => 'migration-lg-image',
@@ -410,7 +410,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
     }
 
     private function reloadPage(int $pageId): \App\Content\Domain\Entity\Page

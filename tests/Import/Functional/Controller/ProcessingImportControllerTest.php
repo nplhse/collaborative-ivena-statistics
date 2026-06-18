@@ -140,6 +140,6 @@ final class ProcessingImportControllerTest extends WebTestCase
             'createdBy' => $createdBy,
         ]);
 
-        return [$owner->_real(), (int) $import->getId()];
+        return [$owner, (int) $import->getId()];
     }
 }

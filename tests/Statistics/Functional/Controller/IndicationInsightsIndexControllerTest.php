@@ -34,7 +34,7 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-index-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'IndicationIndexState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationIndexDispatch', 'state' => $state]);
@@ -97,7 +97,7 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-index-top-groups-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'InsightsGroupTableState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'InsightsGroupTableDispatch', 'state' => $state]);
@@ -119,7 +119,7 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
         $entityManager = self::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
         $groupEntity = $entityManager->find(\App\Allocation\Domain\Entity\IndicationGroup::class, $group->getId());
         self::assertNotNull($groupEntity);
-        $groupEntity->addIndication($indication->_real());
+        $groupEntity->addIndication($indication);
         $entityManager->flush();
 
         $import = ImportFactory::createOne(['name' => 'InsightsGroupTableImport', 'hospital' => $hospital, 'createdBy' => $user]);
@@ -153,14 +153,14 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-index-group-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $indication = IndicationNormalizedFactory::createOne(['name' => 'Group Member Indication']);
         $group = IndicationGroupFactory::createOne(['name' => 'Insights Test Group', 'createdBy' => $user]);
         $entityManager = self::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
         $groupEntity = $entityManager->find(\App\Allocation\Domain\Entity\IndicationGroup::class, $group->getId());
         self::assertNotNull($groupEntity);
-        $groupEntity->addIndication($indication->_real());
+        $groupEntity->addIndication($indication);
         $entityManager->flush();
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-insights', [

@@ -24,8 +24,8 @@ final class IndicationGroupOrmTest extends KernelTestCase
         $group = IndicationGroupFactory::createOne(['name' => 'Cardiology']);
         $indication = IndicationNormalizedFactory::createOne(['name' => 'STEMI']);
 
-        $group->_real()->addIndication($indication->_real());
-        $group->_save();
+        $group->addIndication($indication);
+        \Zenstruck\Foundry\Persistence\save($group);
 
         $ids = self::getContainer()->get(IndicationGroupRepository::class)->getIndicationIds($group->getId());
 

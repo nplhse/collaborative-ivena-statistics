@@ -49,7 +49,7 @@ final class UserRepositoryGrantDatalistTest extends KernelTestCase
         ]);
 
         $datalist = $this->repository->findGrantEligibleUserDatalist(
-            $hospital->_real(),
+            $hospital,
             [(int) $grantee->getId()],
         );
 

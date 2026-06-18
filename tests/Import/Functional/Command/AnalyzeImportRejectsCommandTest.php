@@ -67,9 +67,9 @@ final class AnalyzeImportRejectsCommandTest extends KernelTestCase
         $refMessage = 'REF_NOT_FOUND | Reference not found for "speciality" | field=speciality | value="Innere Medizin"';
         $blankMessage = 'createdAt: This value should not be blank.';
 
-        $this->persistReject($import->_real(), $refMessage, ['fachgebiet' => 'Innere Medizin'], 10);
-        $this->persistReject($import->_real(), $refMessage, ['fachgebiet' => 'Innere Medizin'], 11);
-        $this->persistReject($import->_real(), $blankMessage, ['datum_erstellungsdatum' => ''], 12);
+        $this->persistReject($import, $refMessage, ['fachgebiet' => 'Innere Medizin'], 10);
+        $this->persistReject($import, $refMessage, ['fachgebiet' => 'Innere Medizin'], 11);
+        $this->persistReject($import, $blankMessage, ['datum_erstellungsdatum' => ''], 12);
 
         $output = $this->tempOutputPath('md');
         $tester = $this->commandTester();
@@ -99,7 +99,7 @@ final class AnalyzeImportRejectsCommandTest extends KernelTestCase
         ]);
 
         $this->persistReject(
-            $import->_real(),
+            $import,
             'Unable to detect a supported row type.',
             ['fachgebiet' => 'Test'],
             5,

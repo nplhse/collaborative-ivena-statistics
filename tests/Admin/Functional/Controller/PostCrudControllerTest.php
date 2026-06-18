@@ -26,7 +26,7 @@ final class PostCrudControllerTest extends WebTestCase
             ])
         ;
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin/post');
 
         self::assertResponseIsSuccessful();
@@ -41,7 +41,7 @@ final class PostCrudControllerTest extends WebTestCase
             'username' => 'blog-regular-'.bin2hex(random_bytes(4)),
         ]);
 
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/admin/post');
 
         self::assertResponseStatusCodeSame(403);

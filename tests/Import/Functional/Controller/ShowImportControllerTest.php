@@ -87,7 +87,7 @@ final class ShowImportControllerTest extends WebTestCase
             'createdBy' => $createdBy,
         ]);
 
-        $client->loginUser($intruder->_real());
+        $client->loginUser($intruder);
         $client->request(Request::METHOD_GET, \sprintf('/import/%d', $import->getId()));
 
         self::assertResponseStatusCodeSame(403);
@@ -127,7 +127,7 @@ final class ShowImportControllerTest extends WebTestCase
 
         $import = new Import()
             ->setName($name)
-            ->setHospital($hospital->_real())
+            ->setHospital($hospital)
             ->setCreatedBy($freshOwner)
             ->setType(ImportType::ALLOCATION)
             ->setStatus(ImportStatus::PENDING)

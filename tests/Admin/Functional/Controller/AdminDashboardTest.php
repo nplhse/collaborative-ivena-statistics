@@ -26,7 +26,7 @@ final class AdminDashboardTest extends WebTestCase
             ])
         ;
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin');
 
         self::assertResponseIsSuccessful();

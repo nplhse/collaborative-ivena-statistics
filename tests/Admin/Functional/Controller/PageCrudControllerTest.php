@@ -29,7 +29,7 @@ final class PageCrudControllerTest extends WebTestCase
             ])
         ;
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin/page');
 
         self::assertResponseIsSuccessful();
@@ -49,7 +49,7 @@ final class PageCrudControllerTest extends WebTestCase
             'username' => 'page-regular-'.bin2hex(random_bytes(4)),
         ]);
 
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/admin/page');
 
         self::assertResponseStatusCodeSame(403);
@@ -82,9 +82,9 @@ final class PageCrudControllerTest extends WebTestCase
                     'data' => ['text' => 'Second block', 'level' => 'h2'],
                 ],
             ],
-        ])->_real();
+        ]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $crawler = $client->request(
             Request::METHOD_GET,
             sprintf('/admin/page/%d/edit', $page->getId()),
@@ -114,7 +114,7 @@ final class PageCrudControllerTest extends WebTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
 
-        $updated = PageFactory::repository()->findOneBy(['slug' => 'reorder-test'])?->_real();
+        $updated = PageFactory::repository()->findOneBy(['slug' => 'reorder-test']);
         self::assertInstanceOf(Page::class, $updated);
 
         $content = $updated->getContent();

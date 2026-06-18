@@ -134,7 +134,7 @@ final class CaseFlowControllerTest extends WebTestCase
         DispatchAreaFactory::createOne();
         HospitalFactory::createOne(['owner' => $user]);
         HospitalFactory::createOne(['owner' => $user]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $crawler = $client->request(
             Request::METHOD_GET,

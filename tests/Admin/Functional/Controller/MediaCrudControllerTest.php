@@ -34,7 +34,7 @@ final class MediaCrudControllerTest extends WebTestCase
             'type' => MediaType::IMAGE,
         ]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin/media');
 
         self::assertResponseIsSuccessful();
@@ -55,7 +55,7 @@ final class MediaCrudControllerTest extends WebTestCase
             'originalFilename' => 'detail-test.png',
         ]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin/media/'.$media->getId());
 
         self::assertResponseIsSuccessful();
@@ -70,7 +70,7 @@ final class MediaCrudControllerTest extends WebTestCase
             'username' => 'media-user-'.bin2hex(random_bytes(4)),
         ]);
 
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/admin/media');
 
         self::assertResponseStatusCodeSame(403);

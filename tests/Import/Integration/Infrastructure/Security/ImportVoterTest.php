@@ -46,7 +46,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($owner->_real()), $import->_real(), [ImportVoter::VIEW]),
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::VIEW]),
         );
     }
 
@@ -58,7 +58,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($intruder->_real()), $import->_real(), [ImportVoter::VIEW]),
+            $this->voter->vote($this->createToken($intruder), $import, [ImportVoter::VIEW]),
         );
     }
 
@@ -82,7 +82,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($owner->_real()), $import, [ImportVoter::VIEW]),
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::VIEW]),
         );
     }
 
@@ -93,7 +93,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($owner->_real()), $import->_real(), [ImportVoter::DELETE]),
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DELETE]),
         );
     }
 
@@ -105,7 +105,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($admin->_real()), $import->_real(), [ImportVoter::DELETE]),
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::DELETE]),
         );
     }
 
@@ -117,7 +117,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($creator->_real()), $import->_real(), [ImportVoter::DELETE]),
+            $this->voter->vote($this->createToken($creator), $import, [ImportVoter::DELETE]),
         );
     }
 
@@ -129,7 +129,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($intruder->_real()), $import->_real(), [ImportVoter::DELETE]),
+            $this->voter->vote($this->createToken($intruder), $import, [ImportVoter::DELETE]),
         );
     }
 
@@ -148,7 +148,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($grantee->_real()), $import->_real(), [ImportVoter::VIEW]),
+            $this->voter->vote($this->createToken($grantee), $import, [ImportVoter::VIEW]),
         );
     }
 
@@ -167,7 +167,7 @@ final class ImportVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($grantee->_real()), $import->_real(), [ImportVoter::VIEW]),
+            $this->voter->vote($this->createToken($grantee), $import, [ImportVoter::VIEW]),
         );
     }
 

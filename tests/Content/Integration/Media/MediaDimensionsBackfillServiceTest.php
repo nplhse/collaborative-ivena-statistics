@@ -24,7 +24,7 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
             'filename' => 'backfill-dry-run.png',
             'width' => null,
             'height' => null,
-        ])->_real();
+        ]);
 
         $result = $this->backfillService()->backfill(true);
 
@@ -41,7 +41,7 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
             'filename' => 'backfill-apply.png',
             'width' => null,
             'height' => null,
-        ])->_real();
+        ]);
 
         $result = $this->backfillService()->backfill(false);
 
@@ -76,7 +76,7 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
             'filename' => 'backfill-missing-file.png',
             'width' => null,
             'height' => null,
-        ])->_real();
+        ]);
 
         $projectDir = self::getContainer()->getParameter('kernel.project_dir');
         $path = $projectDir.'/public/uploads/media/backfill-missing-file.png';

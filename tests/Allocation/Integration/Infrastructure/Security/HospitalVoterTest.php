@@ -43,7 +43,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($token, $hospital->_real(), [HospitalVoter::ACCESS]),
+            $this->voter->vote($token, $hospital, [HospitalVoter::ACCESS]),
         );
     }
 
@@ -55,7 +55,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($admin->_real()), $hospital->_real(), [HospitalVoter::ACCESS]),
+            $this->voter->vote($this->createToken($admin), $hospital, [HospitalVoter::ACCESS]),
         );
     }
 
@@ -66,7 +66,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($intruder->_real()), $hospital->_real(), [HospitalVoter::ACCESS]),
+            $this->voter->vote($this->createToken($intruder), $hospital, [HospitalVoter::ACCESS]),
         );
     }
 
@@ -76,7 +76,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($owner), $hospital->_real(), [HospitalVoter::EDIT]),
+            $this->voter->vote($this->createToken($owner), $hospital, [HospitalVoter::EDIT]),
         );
     }
 
@@ -87,7 +87,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($admin->_real()), $hospital->_real(), [HospitalVoter::EDIT]),
+            $this->voter->vote($this->createToken($admin), $hospital, [HospitalVoter::EDIT]),
         );
     }
 
@@ -99,7 +99,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($token, $hospital->_real(), [HospitalVoter::EDIT]),
+            $this->voter->vote($token, $hospital, [HospitalVoter::EDIT]),
         );
     }
 
@@ -111,7 +111,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($owner->_real()), $hospital, [HospitalVoter::ACCESS]),
+            $this->voter->vote($this->createToken($owner), $hospital, [HospitalVoter::ACCESS]),
         );
     }
 
@@ -121,7 +121,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($owner), $hospital->_real(), [HospitalVoter::MANAGE_ACCESS_GRANTS]),
+            $this->voter->vote($this->createToken($owner), $hospital, [HospitalVoter::MANAGE_ACCESS_GRANTS]),
         );
     }
 
@@ -132,7 +132,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_DENIED,
-            $this->voter->vote($this->createToken($intruder->_real()), $hospital->_real(), [HospitalVoter::MANAGE_ACCESS_GRANTS]),
+            $this->voter->vote($this->createToken($intruder), $hospital, [HospitalVoter::MANAGE_ACCESS_GRANTS]),
         );
     }
 
@@ -143,7 +143,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($admin->_real()), $hospital->_real(), [HospitalVoter::MANAGE_ACCESS_GRANTS]),
+            $this->voter->vote($this->createToken($admin), $hospital, [HospitalVoter::MANAGE_ACCESS_GRANTS]),
         );
     }
 
@@ -162,7 +162,7 @@ final class HospitalVoterTest extends KernelTestCase
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
-            $this->voter->vote($this->createToken($grantee->_real()), $hospital->_real(), [HospitalVoter::ACCESS]),
+            $this->voter->vote($this->createToken($grantee), $hospital, [HospitalVoter::ACCESS]),
         );
     }
 
@@ -180,7 +180,7 @@ final class HospitalVoterTest extends KernelTestCase
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $hospital = $this->createHospitalForOwner($owner);
 
-        return [$owner->_real(), $hospital];
+        return [$owner, $hospital];
     }
 
     private function createHospitalForOwner(object $owner): object

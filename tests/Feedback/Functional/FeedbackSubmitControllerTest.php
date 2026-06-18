@@ -125,7 +125,7 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         ])->create();
 
         $this->acceptEssentialCookiesOnly($client);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->followRedirects(false);
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');

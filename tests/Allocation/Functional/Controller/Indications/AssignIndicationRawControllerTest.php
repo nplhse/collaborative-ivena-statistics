@@ -32,7 +32,7 @@ final class AssignIndicationRawControllerTest extends WebTestCase
         $client = self::createClient();
         $raw = IndicationRawFactory::createOne();
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%d', $raw->getId()));
 
@@ -43,7 +43,7 @@ final class AssignIndicationRawControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
 
         $normalized = IndicationNormalizedFactory::createOne([
             'code' => '123',

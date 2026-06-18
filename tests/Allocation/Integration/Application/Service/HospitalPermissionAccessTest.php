@@ -35,9 +35,9 @@ final class HospitalPermissionAccessTest extends KernelTestCase
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $hospital = $this->createHospitalForOwner($owner);
 
-        self::assertTrue($this->access->hasPermission($owner->_real(), (int) $hospital->getId(), HospitalPermission::Import));
-        self::assertTrue($this->access->hasPermission($owner->_real(), (int) $hospital->getId(), HospitalPermission::Benchmarking));
-        self::assertTrue($this->access->canManageAccessGrants($owner->_real(), $hospital->_real()));
+        self::assertTrue($this->access->hasPermission($owner, (int) $hospital->getId(), HospitalPermission::Import));
+        self::assertTrue($this->access->hasPermission($owner, (int) $hospital->getId(), HospitalPermission::Benchmarking));
+        self::assertTrue($this->access->canManageAccessGrants($owner, $hospital));
     }
 
     public function testGrantUserHasOnlyAssignedPermissions(): void
@@ -58,10 +58,10 @@ final class HospitalPermissionAccessTest extends KernelTestCase
 
         $hospitalId = (int) $hospital->getId();
 
-        self::assertTrue($this->access->hasPermission($grantee->_real(), $hospitalId, HospitalPermission::Statistics));
-        self::assertFalse($this->access->hasPermission($grantee->_real(), $hospitalId, HospitalPermission::Benchmarking));
-        self::assertFalse($this->access->hasPermission($grantee->_real(), $hospitalId, HospitalPermission::Import));
-        self::assertFalse($this->access->canManageAccessGrants($grantee->_real(), $hospital->_real()));
+        self::assertTrue($this->access->hasPermission($grantee, $hospitalId, HospitalPermission::Statistics));
+        self::assertFalse($this->access->hasPermission($grantee, $hospitalId, HospitalPermission::Benchmarking));
+        self::assertFalse($this->access->hasPermission($grantee, $hospitalId, HospitalPermission::Import));
+        self::assertFalse($this->access->canManageAccessGrants($grantee, $hospital));
     }
 
     public function testResolveHospitalIdsWithImportPermission(): void
@@ -78,7 +78,7 @@ final class HospitalPermissionAccessTest extends KernelTestCase
             'createdBy' => $owner,
         ]);
 
-        $ids = $this->access->resolveHospitalIdsWithPermission($grantee->_real(), HospitalPermission::Import);
+        $ids = $this->access->resolveHospitalIdsWithPermission($grantee, HospitalPermission::Import);
 
         self::assertSame([(int) $hospital->getId()], $ids);
         self::assertNotContains((int) $foreign->getId(), $ids);
@@ -90,8 +90,8 @@ final class HospitalPermissionAccessTest extends KernelTestCase
         $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
         $hospital = $this->createHospitalForOwner($owner);
 
-        self::assertTrue($this->access->canEditHospital($admin->_real(), $hospital->_real()));
-        self::assertTrue($this->access->canManageAccessGrants($admin->_real(), $hospital->_real()));
+        self::assertTrue($this->access->canEditHospital($admin, $hospital));
+        self::assertTrue($this->access->canManageAccessGrants($admin, $hospital));
     }
 
     private function createHospitalForOwner(object $owner): object

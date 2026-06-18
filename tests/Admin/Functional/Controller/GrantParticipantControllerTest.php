@@ -42,7 +42,7 @@ final class GrantParticipantControllerTest extends WebTestCase
             ->assertSuccessful()
         ;
 
-        $target->_refresh();
+        \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertContains(UserRole::PARTICIPANT, $target->getRoles());
     }
 
@@ -68,7 +68,7 @@ final class GrantParticipantControllerTest extends WebTestCase
             ->assertSuccessful()
         ;
 
-        $target->_refresh();
+        \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertContains(UserRole::PARTICIPANT, $target->getRoles());
     }
 

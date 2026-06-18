@@ -81,7 +81,7 @@ final class ShowHospitalControllerTest extends WebTestCase
         DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $owner, 'name' => 'Owned Clinic']);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
 
         self::assertResponseIsSuccessful();
@@ -98,7 +98,7 @@ final class ShowHospitalControllerTest extends WebTestCase
         DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $owner, 'name' => 'Foreign Clinic']);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
 
         self::assertResponseIsSuccessful();

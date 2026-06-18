@@ -69,7 +69,7 @@ final class DefaultControllerTest extends WebTestCase
     public function testAuthenticatedUsersSeeDashboardOnHomepage(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['username' => 'dashboard-user'])->_real();
+        $user = UserFactory::createOne(['username' => 'dashboard-user']);
 
         $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/');
@@ -93,7 +93,7 @@ final class DefaultControllerTest extends WebTestCase
     public function testAuthenticatedUsersWithoutParticipantDoNotSeeParticipantOnlyLinks(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['username' => 'non-participant-user'])->_real();
+        $user = UserFactory::createOne(['username' => 'non-participant-user']);
 
         $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/');
@@ -121,7 +121,7 @@ final class DefaultControllerTest extends WebTestCase
         $user = UserFactory::createOne([
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
             'username' => 'participant-nav-user',
-        ])->_real();
+        ]);
 
         $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/');
@@ -161,7 +161,7 @@ final class DefaultControllerTest extends WebTestCase
             'state' => $state,
         ]);
 
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();

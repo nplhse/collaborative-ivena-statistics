@@ -23,12 +23,12 @@ final class PagePathSubscriberTest extends KernelTestCase
         $parent = PageFactory::createOne([
             'slug' => 'segment-parent',
             'parent' => null,
-        ])->_real();
+        ]);
 
         $child = PageFactory::createOne([
             'slug' => 'segment-child',
             'parent' => $parent,
-        ])->_real();
+        ]);
 
         self::assertSame('/segment-parent', $parent->getPath());
         self::assertSame('/segment-parent/segment-child', $child->getPath());
@@ -45,9 +45,9 @@ final class PagePathSubscriberTest extends KernelTestCase
         $midSlug = 'm-'.$token;
         $leafSlug = 'l-'.$token;
 
-        $root = PageFactory::createOne(['slug' => $rootSlug, 'parent' => null])->_real();
-        $mid = PageFactory::createOne(['slug' => $midSlug, 'parent' => $root])->_real();
-        $leaf = PageFactory::createOne(['slug' => $leafSlug, 'parent' => $mid])->_real();
+        $root = PageFactory::createOne(['slug' => $rootSlug, 'parent' => null]);
+        $mid = PageFactory::createOne(['slug' => $midSlug, 'parent' => $root]);
+        $leaf = PageFactory::createOne(['slug' => $leafSlug, 'parent' => $mid]);
 
         $rootId = $root->getId();
         $midId = $mid->getId();

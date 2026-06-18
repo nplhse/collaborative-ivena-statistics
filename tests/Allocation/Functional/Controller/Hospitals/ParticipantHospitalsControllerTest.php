@@ -32,7 +32,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         $client = self::createClient();
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
 
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/hospitals');
 
         self::assertResponseStatusCodeSame(403);
@@ -69,7 +69,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $client->request(Request::METHOD_GET, '/hospitals');
 
         self::assertResponseIsSuccessful();
@@ -95,7 +95,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $client->loginUser($otherParticipant->_real());
+        $client->loginUser($otherParticipant);
         $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit');
 
         self::assertResponseStatusCodeSame(403);
@@ -121,7 +121,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit');
         self::assertResponseIsSuccessful();
 
@@ -148,7 +148,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit');
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('Manage access', (string) $client->getResponse()->getContent());
@@ -192,7 +192,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/address');
         self::assertResponseIsSuccessful();
 

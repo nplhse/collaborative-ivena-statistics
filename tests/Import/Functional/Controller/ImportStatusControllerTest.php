@@ -129,7 +129,7 @@ final class ImportStatusControllerTest extends WebTestCase
             'createdBy' => $createdBy,
         ]);
 
-        $client->loginUser($intruder->_real());
+        $client->loginUser($intruder);
         $client->request(Request::METHOD_GET, \sprintf('/import/%d/status', $import->getId()));
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -185,6 +185,6 @@ final class ImportStatusControllerTest extends WebTestCase
             'createdBy' => $createdBy,
         ]);
 
-        return [$owner->_real(), (int) $import->getId()];
+        return [$owner, (int) $import->getId()];
     }
 }

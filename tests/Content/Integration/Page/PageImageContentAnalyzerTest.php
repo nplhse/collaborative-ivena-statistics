@@ -28,7 +28,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'small-image.png',
             'width' => 605,
             'height' => 400,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-small-lg',
@@ -45,7 +45,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -61,7 +61,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'auto-image.png',
             'width' => 605,
             'height' => 400,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-auto',
@@ -78,7 +78,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -92,7 +92,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'missing-on-disk.png',
             'width' => 400,
             'height' => 300,
-        ])->_real();
+        ]);
 
         $projectDir = self::getContainer()->getParameter('kernel.project_dir');
         $path = Path::join($projectDir, 'public', 'uploads', 'media', 'missing-on-disk.png');
@@ -115,7 +115,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -137,7 +137,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -163,7 +163,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testDetectsHighlightBlockWithFloatedSnippet(): void
     {
-        $media = MediaFactory::createOne(['filename' => 'highlight-float.png'])->_real();
+        $media = MediaFactory::createOne(['filename' => 'highlight-float.png']);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-highlight',
@@ -179,7 +179,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -208,7 +208,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -218,7 +218,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testDetectsInlineImageWithoutFigureClasses(): void
     {
-        $media = MediaFactory::createOne(['filename' => 'inline-only.png'])->_real();
+        $media = MediaFactory::createOne(['filename' => 'inline-only.png']);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-inline-img',
@@ -234,7 +234,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -249,7 +249,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'dims-unknown.png',
             'width' => null,
             'height' => null,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-dims-unknown',
@@ -266,7 +266,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -292,7 +292,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -315,7 +315,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -329,7 +329,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'string-media-id.png',
             'width' => 320,
             'height' => 200,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-string-media-id',
@@ -346,7 +346,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -361,7 +361,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'legacy-preset.png',
             'width' => 400,
             'height' => 300,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-legacy-preset',
@@ -378,7 +378,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -392,12 +392,12 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'preset-sm.png',
             'width' => 200,
             'height' => 100,
-        ])->_real();
+        ]);
         $large = MediaFactory::createOne([
             'filename' => 'preset-lg.png',
             'width' => 900,
             'height' => 600,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-preset-sm-lg',
@@ -425,7 +425,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -442,7 +442,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'wide-image.png',
             'width' => 1200,
             'height' => 800,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-wide-lg',
@@ -459,7 +459,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -469,7 +469,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
 
     public function testUnknownSnippetSizeRecommendsReviewLayout(): void
     {
-        $media = MediaFactory::createOne(['filename' => 'xl-snippet.png'])->_real();
+        $media = MediaFactory::createOne(['filename' => 'xl-snippet.png']);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-unknown-snippet-size',
@@ -485,7 +485,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -507,7 +507,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -528,7 +528,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -542,7 +542,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'src-lookup.png',
             'width' => 200,
             'height' => 100,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-src-lookup',
@@ -558,7 +558,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -589,7 +589,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -619,7 +619,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -643,7 +643,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     'data' => ['text' => 'Title only'],
                 ],
             ],
-        ])->_real();
+        ]);
 
         self::assertSame([], $this->analyzer()->analyze($page->getId()));
     }
@@ -654,7 +654,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => 'unreadable-dims.png',
             'width' => null,
             'height' => null,
-        ])->_real();
+        ]);
 
         $projectDir = self::getContainer()->getParameter('kernel.project_dir');
         $path = Path::join($projectDir, 'public', 'uploads', 'media', 'unreadable-dims.png');
@@ -675,7 +675,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $findings = $this->analyzer()->analyze($page->getId());
 
@@ -690,7 +690,7 @@ final class PageImageContentAnalyzerTest extends KernelTestCase
             'filename' => $slug.'.png',
             'width' => 100,
             'height' => 100,
-        ])->_real();
+        ]);
 
         PageFactory::createOne([
             'slug' => $slug,

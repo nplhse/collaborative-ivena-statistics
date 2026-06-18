@@ -209,7 +209,7 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
         DispatchAreaFactory::createOne();
         HospitalFactory::createOne(['owner' => $user]);
         HospitalFactory::createOne(['owner' => $user]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $crawler = $client->request(
             Request::METHOD_GET,
@@ -229,7 +229,7 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
         StateFactory::createOne();
         DispatchAreaFactory::createOne();
         HospitalFactory::createMany(2);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $crawler = $client->request(
             Request::METHOD_GET,

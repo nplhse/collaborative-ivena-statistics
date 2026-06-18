@@ -39,7 +39,7 @@ final class ImportAccessControlTest extends WebTestCase
         $client = self::createClient();
         $participant = UserFactory::createOne([
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
-        ])->_real();
+        ]);
         $client->loginUser($participant);
         $client->request(Request::METHOD_GET, '/import');
 

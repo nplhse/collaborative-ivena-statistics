@@ -34,7 +34,7 @@ final class UserCrudControllerTest extends WebTestCase
             ])
         ;
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
         self::assertResponseIsSuccessful();
@@ -45,7 +45,7 @@ final class UserCrudControllerTest extends WebTestCase
         $client->followRedirect();
         self::assertResponseIsSuccessful();
 
-        $target->_refresh();
+        \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertFalse($target->isEnabled());
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
@@ -57,7 +57,7 @@ final class UserCrudControllerTest extends WebTestCase
         $client->followRedirect();
         self::assertResponseIsSuccessful();
 
-        $target->_refresh();
+        \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertTrue($target->isEnabled());
     }
 
@@ -75,7 +75,7 @@ final class UserCrudControllerTest extends WebTestCase
         $adminId = $admin->getId();
         self::assertNotNull($adminId);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$adminId.'/edit');
         self::assertResponseIsSuccessful();
@@ -100,7 +100,7 @@ final class UserCrudControllerTest extends WebTestCase
             'username' => 'user-regular-'.bin2hex(random_bytes(4)),
         ]);
 
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/admin/user');
 
         self::assertResponseStatusCodeSame(403);

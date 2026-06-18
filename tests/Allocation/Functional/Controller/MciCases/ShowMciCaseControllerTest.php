@@ -84,6 +84,6 @@ final class ShowMciCaseControllerTest extends WebTestCase
             'infection' => InfectionFactory::createOne(),
             'indicationRaw' => IndicationRawFactory::createOne(),
             'indicationNormalized' => IndicationNormalizedFactory::createOne(),
-        ])->_real();
+        ]);
     }
 }

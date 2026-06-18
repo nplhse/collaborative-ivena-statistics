@@ -38,7 +38,7 @@ final class AdminAccessControlTest extends WebTestCase
     {
         $client = self::createClient();
         $client->followRedirects();
-        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']])->_real();
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
         $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin');
 

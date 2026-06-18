@@ -127,7 +127,7 @@ final class RegistrationControllerTest extends WebTestCase
             'slug' => 'legal',
             'status' => Page::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
-        ])->_real();
+        ]);
 
         PageFactory::createOne([
             'parent' => $parent,
@@ -208,7 +208,7 @@ final class RegistrationControllerTest extends WebTestCase
             ->assertSee('Your email address has been confirmed. You can sign in now.')
         ;
 
-        $user->_refresh();
+        \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertTrue($user->isVerified());
     }
 }
