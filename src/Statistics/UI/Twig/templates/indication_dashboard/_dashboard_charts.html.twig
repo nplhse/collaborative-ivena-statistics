@@ -91,7 +91,7 @@
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
                 <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans }}</h3>
                 {% if dashboard.metrics.medianTransportMinutesIndication is not null %}
-                    <span class="text-muted small">{{ 'stats.indication.median_transport'|trans({minutes: dashboard.metrics.medianTransportMinutesIndication|round(0)}) }}</span>
+                    <span class="text-muted small">{{ 'stats.indication.median_transport'|trans({minutes: dashboard.metrics.medianTransportMinutesIndication|number_format(1, ',', '.')}) }}</span>
                 {% endif %}
             </div>
             <div class="card-body">
