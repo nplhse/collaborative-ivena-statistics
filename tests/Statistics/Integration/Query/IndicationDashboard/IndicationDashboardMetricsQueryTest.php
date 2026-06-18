@@ -28,6 +28,7 @@ use App\Statistics\Application\Mapping\AllocationStatsHospitalLocationProjection
 use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardMetricsQuery;
+use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -180,5 +181,70 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
         self::assertSame(0, $row->totalBaseline);
         self::assertNull($row->medianAgeIndication);
         self::assertNull($row->medianAgeBaseline);
+    }
+
+    public function testMedianTransportUsesPreciseTimestampMinutes(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'indication-transport-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'IndicationTransportState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationTransportDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'IndicationTransportHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'IndicationTransportSpec']);
+        DepartmentFactory::createOne(['name' => 'IndicationTransportDept']);
+        AssignmentFactory::createOne(['name' => 'IndicationTransportAssign']);
+        IndicationRawFactory::createOne(['name' => 'IndicationTransportRaw', 'code' => 912_351]);
+
+        $targetIndication = IndicationNormalizedFactory::createOne(['name' => 'Transport Target']);
+        $otherIndication = IndicationNormalizedFactory::createOne(['name' => 'Transport Other']);
+
+        $import = ImportFactory::createOne(['name' => 'IndicationTransportImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        foreach (PreciseTransportTimeScenarios::allocations() as $times) {
+            AllocationFactory::createOne([
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'indicationNormalized' => $targetIndication,
+                'createdAt' => $times['createdAt'],
+                'arrivalAt' => $times['arrivalAt'],
+            ]);
+        }
+
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $otherIndication,
+            'createdAt' => new \DateTimeImmutable('2026-03-02 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-03-02 10:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $scope = new StatisticsScopeCriteria([$hospital->getId()]);
+        $row = self::getContainer()->get(IndicationDashboardMetricsQuery::class)
+            ->fetch([$targetIndication->getId()], null, null, $scope);
+
+        self::assertEqualsWithDelta(
+            PreciseTransportTimeScenarios::PRECISE_MEDIAN_MINUTES,
+            $row->medianTransportMinutesIndication,
+            0.001,
+        );
+        self::assertNotEquals(
+            PreciseTransportTimeScenarios::ROUNDED_MINUTES_MEDIAN,
+            $row->medianTransportMinutesIndication,
+        );
+        self::assertSame(20.0, $row->medianTransportMinutesBaseline);
     }
 }

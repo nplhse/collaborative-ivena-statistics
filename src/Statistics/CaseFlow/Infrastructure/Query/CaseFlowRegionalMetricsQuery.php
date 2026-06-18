@@ -6,6 +6,7 @@ namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowRegionalMetricsRow;
 use Doctrine\DBAL\Connection;
 
@@ -27,6 +28,8 @@ final readonly class CaseFlowRegionalMetricsQuery
 
         [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
         $fullTier = AllocationStatsHospitalTierProjectionCode::Full->value;
+        $meanTransport = StatisticsTransportTimeSql::meanPreciseMinutes('asp');
+        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes('asp');
 
         $sql = <<<SQL
 SELECT
@@ -34,8 +37,8 @@ SELECT
     COUNT(*) FILTER (WHERE asp.dispatch_area_id = h.dispatch_area_id) AS regional_cases,
     COUNT(*) FILTER (WHERE asp.hospital_tier_code = {$fullTier}) AS full_tier_cases,
     COUNT(*) FILTER (WHERE asp.urgency_code = 1) AS emergency_cases,
-    AVG(asp.transport_time_minutes) AS mean_transport_minutes,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY asp.transport_time_minutes) AS median_transport_minutes
+    {$meanTransport} AS mean_transport_minutes,
+    {$medianTransport} AS median_transport_minutes
 FROM allocation_stats_projection asp
 INNER JOIN hospital h ON h.id = asp.hospital_id
 WHERE {$where}

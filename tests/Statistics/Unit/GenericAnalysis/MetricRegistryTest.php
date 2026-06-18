@@ -45,8 +45,9 @@ final class MetricRegistryTest extends TestCase
             self::assertStringContainsString('AS '.$key, $metric->sqlSelectExpression ?? '');
         }
 
-        self::assertStringContainsString('AVG(transport_time_minutes)', $this->registry->get('mean_transport_time')->sqlSelectExpression ?? '');
+        self::assertStringContainsString('AVG(EXTRACT(EPOCH FROM (arrival_at - created_at))', $this->registry->get('mean_transport_time')->sqlSelectExpression ?? '');
         self::assertStringContainsString('PERCENTILE_CONT(0.5)', $this->registry->get('median_transport_time')->sqlSelectExpression ?? '');
+        self::assertStringContainsString('arrival_at - created_at', $this->registry->get('median_transport_time')->sqlSelectExpression ?? '');
     }
 
     public function testRegistersBooleanRateMetrics(): void

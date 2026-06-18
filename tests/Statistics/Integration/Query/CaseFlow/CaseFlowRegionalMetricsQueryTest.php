@@ -21,6 +21,7 @@ use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterfac
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowOriginDistributionQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowRegionalMetricsQuery;
+use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -115,5 +116,59 @@ final class CaseFlowRegionalMetricsQueryTest extends KernelTestCase
             ->fetch(null, null, new StatisticsScopeCriteria([]));
 
         self::assertSame([], $origins);
+    }
+
+    public function testTransportMetricsUsePreciseTimestampMinutes(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'case-flow-transport-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'CaseFlowTransportState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'CaseFlowTransportDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'CaseFlowTransportHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'CaseFlowTransportSpec']);
+        DepartmentFactory::createOne(['name' => 'CaseFlowTransportDept']);
+        AssignmentFactory::createOne(['name' => 'CaseFlowTransportAssign']);
+        IndicationRawFactory::createOne(['name' => 'CaseFlowTransportRaw', 'code' => 912_502]);
+
+        $import = ImportFactory::createOne(['name' => 'CaseFlowTransportImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        foreach (PreciseTransportTimeScenarios::allocations() as $times) {
+            AllocationFactory::createOne([
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'createdAt' => $times['createdAt'],
+                'arrivalAt' => $times['arrivalAt'],
+            ]);
+        }
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $metrics = self::getContainer()->get(CaseFlowRegionalMetricsQuery::class)
+            ->fetch(null, null, new StatisticsScopeCriteria([$hospital->getId()]));
+
+        self::assertEqualsWithDelta(
+            PreciseTransportTimeScenarios::PRECISE_MEDIAN_MINUTES,
+            $metrics->medianTransportMinutes,
+            0.001,
+        );
+        self::assertEqualsWithDelta(
+            PreciseTransportTimeScenarios::PRECISE_MEAN_MINUTES,
+            $metrics->meanTransportMinutes,
+            0.001,
+        );
+        self::assertNotEquals(
+            PreciseTransportTimeScenarios::ROUNDED_MINUTES_MEDIAN,
+            $metrics->medianTransportMinutes,
+        );
     }
 }
