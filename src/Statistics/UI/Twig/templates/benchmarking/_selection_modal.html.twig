@@ -3,11 +3,8 @@
      tabindex="-1"
      aria-labelledby="stats-benchmark-selection-modal-label"
      aria-hidden="true"
-     data-testid="stats-benchmark-selection-modal"
-     data-controller="benchmark-selection-picker"
-     data-benchmark-selection-picker-base-url-value="{{ selectionPicker.baseUrl|e('html_attr') }}"
-     data-benchmark-selection-picker-initial-params-value="{{ selectionPicker.initialParams|json_encode|e('html_attr') }}">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+     data-testid="stats-benchmark-selection-modal">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="stats-benchmark-selection-modal-label">
@@ -18,41 +15,11 @@
                         data-bs-dismiss="modal"
                         aria-label="{{ 'stats.benchmark.selection.modal.cancel'|trans }}"></button>
             </div>
-            <div class="modal-body">
-                <p class="text-muted small mb-3">{{ 'stats.benchmark.selection.summary_hint'|trans }}</p>
-
-                <div class="row g-4 align-items-start">
-                    <div class="col-md-6">
-                        {{ include('@Statistics/benchmarking/_filter_column_picker.html.twig', {
-                            pickerSide: selectionPicker.primary,
-                            columnTitleKey: 'stats.benchmark.primary.label',
-                            testIdPrefix: 'stats-benchmark-primary',
-                            side: 'primary',
-                        }) }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ include('@Statistics/benchmarking/_filter_column_picker.html.twig', {
-                            pickerSide: selectionPicker.comparison,
-                            columnTitleKey: 'stats.benchmark.comparison.label',
-                            testIdPrefix: 'stats-benchmark-comparison',
-                            side: 'comparison',
-                        }) }}
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-link link-secondary"
-                        data-bs-dismiss="modal">
-                    {{ 'stats.benchmark.selection.modal.cancel'|trans }}
-                </button>
-                <button type="button"
-                        class="btn btn-primary"
-                        data-action="benchmark-selection-picker#apply"
-                        data-testid="stats-benchmark-selection-apply">
-                    {{ 'stats.benchmark.selection.modal.apply'|trans }}
-                </button>
-            </div>
+            {{ component('BenchmarkSelectionForm', {
+                initialData: benchmarkSelectionFormData,
+                preservedQuery: benchmarkSelectionPreservedQuery,
+                locale: app.request.locale,
+            }) }}
         </div>
     </div>
 </div>

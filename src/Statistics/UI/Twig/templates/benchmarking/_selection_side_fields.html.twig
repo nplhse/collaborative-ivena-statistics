@@ -1,0 +1,50 @@
+{# @var sideForm \Symfony\Component\Form\FormView #}
+{% set scopeGroup = sideForm.scopeGroup.vars.value %}
+{% set hasScopeDetail = sideForm.scopeDetail is defined %}
+{% set hasPeriodYear = sideForm.periodYear is defined %}
+{% set hasPeriodQuarter = sideForm.periodQuarter is defined %}
+{% set hasPeriodMonth = sideForm.periodMonth is defined %}
+{% set isHospitalScope = 'my_hospitals' == scopeGroup %}
+{% set periodFieldCount = 1
+    + (hasPeriodYear ? 1 : 0)
+    + (hasPeriodQuarter ? 1 : 0)
+    + (hasPeriodMonth ? 1 : 0) %}
+{% set periodColClass = periodFieldCount == 1
+    ? 'col-12'
+    : (periodFieldCount == 2 ? 'col-12 col-sm-6' : (periodFieldCount == 3 ? 'col-12 col-sm-4' : 'col-12 col-sm-3')) %}
+{% set scopeFieldCount = 1 + (hasScopeDetail and not isHospitalScope ? 1 : 0) %}
+{% set scopeColClass = scopeFieldCount == 1 ? 'col-12' : 'col-12 col-sm-6' %}
+
+<div class="d-flex flex-column gap-3" data-testid="{{ testId }}">
+    <div class="row g-3 align-items-end">
+        <div class="{{ scopeColClass }}">
+            {{ form_row(sideForm.scopeGroup) }}
+        </div>
+        {% if hasScopeDetail %}
+            <div class="col-12{% if not isHospitalScope %} col-sm-6{% endif %}">
+                {{ form_row(sideForm.scopeDetail) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-3 align-items-end">
+        <div class="{{ periodColClass }}">
+            {{ form_row(sideForm.period) }}
+        </div>
+        {% if hasPeriodYear %}
+            <div class="{{ periodColClass }}">
+                {{ form_row(sideForm.periodYear) }}
+            </div>
+        {% endif %}
+        {% if hasPeriodQuarter %}
+            <div class="{{ periodColClass }}">
+                {{ form_row(sideForm.periodQuarter) }}
+            </div>
+        {% endif %}
+        {% if hasPeriodMonth %}
+            <div class="{{ periodColClass }}">
+                {{ form_row(sideForm.periodMonth) }}
+            </div>
+        {% endif %}
+    </div>
+</div>

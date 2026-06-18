@@ -1,0 +1,19 @@
+{% set periodTestIdPrefix = periodTestIdPrefix|default(testIdPrefix ~ '-period') %}
+
+<div class="d-flex flex-column gap-2">
+    <div class="fw-semibold">{{ columnTitleKey|trans }}</div>
+
+    <div class="btn-list flex-wrap">
+        {{ include('@Statistics/_scope_controls.html.twig', {
+            pageViewModel: pageViewModel,
+            testIdPrefix: testIdPrefix,
+            pickerMode: pickerMode|default(false),
+        }) }}
+
+        {{ include('@Statistics/dashboard/_overview_period_controls.html.twig', {
+            overviewPeriodViewModel: overviewPeriodViewModel,
+            periodTestIdPrefix: periodTestIdPrefix,
+            pickerMode: pickerMode|default(false),
+        }) }}
+    </div>
+</div>
