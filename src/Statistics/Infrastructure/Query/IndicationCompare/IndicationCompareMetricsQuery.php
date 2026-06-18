@@ -9,6 +9,7 @@ use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCod
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult;
 use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
@@ -62,6 +63,7 @@ final readonly class IndicationCompareMetricsQuery
         $workAccidentFilter = $hasExtended ? 'is_work_accident = true' : 'false';
 
         $countSelect = $this->dualCountSelectSql($predA, $predB, $shockFilter, $pregnantFilter, $workAccidentFilter);
+        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes();
 
         $sql = <<<SQL
 SELECT
@@ -70,9 +72,9 @@ SELECT
         FILTER (WHERE age IS NOT NULL AND {$predA}) AS side_a_median_age,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age)
         FILTER (WHERE age IS NOT NULL AND {$predB}) AS side_b_median_age,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes)
+    {$medianTransport}
         FILTER (WHERE {$predA}) AS side_a_median_transport,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes)
+    {$medianTransport}
         FILTER (WHERE {$predB}) AS side_b_median_transport
 FROM allocation_stats_projection
 WHERE {$where}

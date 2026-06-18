@@ -9,6 +9,7 @@ use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCod
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
 use Doctrine\DBAL\ArrayParameterType;
@@ -62,6 +63,7 @@ final readonly class IndicationDashboardMetricsQuery
         );
 
         $baselineMedianFilter = '(indication_normalized_id IS NULL OR indication_normalized_id NOT IN (:indication_ids))';
+        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes();
 
         $scopeSql = <<<SQL
 SELECT
@@ -69,7 +71,7 @@ SELECT
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age) FILTER (
         WHERE {$baselineMedianFilter} AND age IS NOT NULL
     ) AS median_age_baseline,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes) FILTER (
+    {$medianTransport} FILTER (
         WHERE {$baselineMedianFilter}
     ) AS median_transport_baseline
 FROM allocation_stats_projection
@@ -86,7 +88,7 @@ SQL;
 SELECT
     {$countSelect},
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age) FILTER (WHERE age IS NOT NULL) AS median_age_indication,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes) AS median_transport_indication
+    {$medianTransport} AS median_transport_indication
 FROM allocation_stats_projection
 WHERE {$indicationWhere}
 SQL;

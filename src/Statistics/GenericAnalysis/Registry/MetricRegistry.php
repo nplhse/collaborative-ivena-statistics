@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Registry;
 
+use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\GenericAnalysis\Domain\DTO\MetricDefinition;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricComputationKind;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricFormat;
@@ -95,7 +96,7 @@ final class MetricRegistry
 
     private function registerTransportMetrics(): void
     {
-        $column = 'transport_time_minutes';
+        $column = StatisticsTransportTimeSql::preciseMinutesExpression();
 
         $this->register(new MetricDefinition(
             key: 'mean_transport_time',
@@ -103,7 +104,7 @@ final class MetricRegistry
             metricType: MetricType::NumericAggregate,
             computationKind: MetricComputationKind::SqlAggregate,
             sqlSelectExpression: sprintf('AVG(%s)::DOUBLE PRECISION AS mean_transport_time', $column),
-            sourceColumn: $column,
+            sourceColumn: 'transport_time_minutes',
             requiredSourceType: MetricSourceType::Numeric,
             defaultFormat: MetricFormat::Minutes,
             defaultPrecision: 0,
@@ -116,6 +117,7 @@ final class MetricRegistry
             column: $column,
             percentile: 0.5,
             sortPriority: 31,
+            sourceColumn: 'transport_time_minutes',
         );
         $this->registerPercentileMetric(
             key: 'p25_transport_time',
@@ -123,6 +125,7 @@ final class MetricRegistry
             column: $column,
             percentile: 0.25,
             sortPriority: 32,
+            sourceColumn: 'transport_time_minutes',
         );
         $this->registerPercentileMetric(
             key: 'p75_transport_time',
@@ -130,6 +133,7 @@ final class MetricRegistry
             column: $column,
             percentile: 0.75,
             sortPriority: 33,
+            sourceColumn: 'transport_time_minutes',
         );
         $this->registerPercentileMetric(
             key: 'p90_transport_time',
@@ -137,6 +141,7 @@ final class MetricRegistry
             column: $column,
             percentile: 0.9,
             sortPriority: 34,
+            sourceColumn: 'transport_time_minutes',
         );
     }
 
@@ -146,6 +151,7 @@ final class MetricRegistry
         string $column,
         float $percentile,
         int $sortPriority,
+        ?string $sourceColumn = null,
     ): void {
         $this->register(new MetricDefinition(
             key: $key,
@@ -158,7 +164,7 @@ final class MetricRegistry
                 $column,
                 $key,
             ),
-            sourceColumn: $column,
+            sourceColumn: $sourceColumn ?? $column,
             requiredSourceType: MetricSourceType::Numeric,
             defaultFormat: MetricFormat::Minutes,
             defaultPrecision: 0,

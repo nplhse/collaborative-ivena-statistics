@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use Doctrine\DBAL\Connection;
 
 final readonly class CaseFlowBaselineQuery
@@ -23,11 +24,13 @@ final readonly class CaseFlowBaselineQuery
     ): array {
         $publicScope = StatisticsScopeCriteria::public();
         [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere($from, $toExclusive, $publicScope);
+        $meanTransport = StatisticsTransportTimeSql::meanPreciseMinutes('asp');
+        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes('asp');
 
         $sql = <<<SQL
 SELECT
-    AVG(asp.transport_time_minutes) AS mean_transport_minutes,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY asp.transport_time_minutes) AS median_transport_minutes,
+    {$meanTransport} AS mean_transport_minutes,
+    {$medianTransport} AS median_transport_minutes,
     COUNT(*) FILTER (WHERE asp.hospital_tier_code = 3)::FLOAT / NULLIF(COUNT(*), 0) * 100 AS full_tier_percent
 FROM allocation_stats_projection asp
 WHERE {$where}

@@ -11,6 +11,7 @@ use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\Benchmarking\Application\Contract\BenchmarkAggregationProviderInterface;
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkAggregationResult;
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkDistributionRow;
@@ -102,6 +103,8 @@ final readonly class BenchmarkAggregationProvider implements BenchmarkAggregatio
         );
 
         $unionWhere = sprintf('(%s OR %s)', $primaryPred, $comparisonPred);
+        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes();
+        $meanTransport = StatisticsTransportTimeSql::meanPreciseMinutes();
 
         $sql = <<<SQL
 SELECT
@@ -110,12 +113,12 @@ SELECT
         FILTER (WHERE age IS NOT NULL AND {$primaryPred}) AS primary_median_age,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age)
         FILTER (WHERE age IS NOT NULL AND {$comparisonPred}) AS comparison_median_age,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes)
+    {$medianTransport}
         FILTER (WHERE {$primaryPred}) AS primary_median_transport,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes)
+    {$medianTransport}
         FILTER (WHERE {$comparisonPred}) AS comparison_median_transport,
-    AVG(transport_time_minutes) FILTER (WHERE {$primaryPred}) AS primary_mean_transport,
-    AVG(transport_time_minutes) FILTER (WHERE {$comparisonPred}) AS comparison_mean_transport
+    {$meanTransport} FILTER (WHERE {$primaryPred}) AS primary_mean_transport,
+    {$meanTransport} FILTER (WHERE {$comparisonPred}) AS comparison_mean_transport
 FROM allocation_stats_projection
 WHERE {$unionWhere}
 SQL;
