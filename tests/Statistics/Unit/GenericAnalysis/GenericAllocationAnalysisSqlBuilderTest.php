@@ -143,8 +143,8 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         ));
 
         self::assertStringContainsString('COUNT(*)::INT AS count', $sql);
-        self::assertStringContainsString('PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY transport_time_minutes)', $sql);
-        self::assertStringContainsString('PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY transport_time_minutes)', $sql);
+        self::assertStringContainsString('PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (arrival_at - created_at))', $sql);
+        self::assertStringContainsString('PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (arrival_at - created_at))', $sql);
         self::assertStringNotContainsString('age IS NOT NULL', $sql);
     }
 

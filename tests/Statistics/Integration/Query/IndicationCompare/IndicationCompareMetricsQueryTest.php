@@ -25,6 +25,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Infrastructure\Query\IndicationCompare\IndicationCompareMetricsQuery;
+use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -195,5 +196,75 @@ final class IndicationCompareMetricsQueryTest extends KernelTestCase
 
         self::assertSame(5, $result->sideA->total);
         self::assertSame(5, $result->sideB->total);
+    }
+
+    public function testMedianTransportUsesPreciseTimestampMinutes(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'indication-compare-transport-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'IndicationCompareTransportState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationCompareTransportDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'IndicationCompareTransportHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'IndicationCompareTransportSpec']);
+        DepartmentFactory::createOne(['name' => 'IndicationCompareTransportDept']);
+        AssignmentFactory::createOne(['name' => 'IndicationCompareTransportAssign']);
+        IndicationRawFactory::createOne(['name' => 'IndicationCompareTransportRaw', 'code' => 912_361]);
+
+        $indicationA = IndicationNormalizedFactory::createOne(['name' => 'Compare Transport A']);
+        $indicationB = IndicationNormalizedFactory::createOne(['name' => 'Compare Transport B']);
+
+        $import = ImportFactory::createOne(['name' => 'IndicationCompareTransportImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        foreach (PreciseTransportTimeScenarios::allocations() as $times) {
+            AllocationFactory::createOne([
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'indicationNormalized' => $indicationA,
+                'createdAt' => $times['createdAt'],
+                'arrivalAt' => $times['arrivalAt'],
+            ]);
+        }
+
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indicationB,
+            'createdAt' => new \DateTimeImmutable('2026-05-02 11:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-05-02 11:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $scope = new StatisticsScopeCriteria([$hospital->getId()]);
+        $result = self::getContainer()->get(IndicationCompareMetricsQuery::class)->fetch(
+            [$indicationA->getId()],
+            [$indicationB->getId()],
+            null,
+            null,
+            $scope,
+        );
+
+        self::assertEqualsWithDelta(
+            PreciseTransportTimeScenarios::PRECISE_MEDIAN_MINUTES,
+            $result->sideA->medianTransportMinutes,
+            0.001,
+        );
+        self::assertNotEquals(
+            PreciseTransportTimeScenarios::ROUNDED_MINUTES_MEDIAN,
+            $result->sideA->medianTransportMinutes,
+        );
+        self::assertSame(20.0, $result->sideB->medianTransportMinutes);
     }
 }

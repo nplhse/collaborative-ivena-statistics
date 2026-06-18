@@ -22,6 +22,7 @@ use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterfac
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Benchmarking\Infrastructure\Query\BenchmarkAggregationProvider;
+use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -116,5 +117,71 @@ final class BenchmarkAggregationProviderTest extends KernelTestCase
         );
 
         self::assertTrue($result->hasEmptyPrimaryScope());
+    }
+
+    public function testMedianTransportUsesPreciseTimestampMinutesNotRoundedProjectionField(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'benchmark-transport-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'BenchmarkTransportState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'BenchmarkTransportDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'BenchmarkTransportHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'BenchmarkTransportSpec']);
+        DepartmentFactory::createOne(['name' => 'BenchmarkTransportDept']);
+        AssignmentFactory::createOne(['name' => 'BenchmarkTransportAssign']);
+        IndicationRawFactory::createOne(['name' => 'BenchmarkTransportRaw', 'code' => 912_401]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Benchmark Transport Indication']);
+
+        $import = ImportFactory::createOne(['name' => 'BenchmarkTransportImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        foreach (PreciseTransportTimeScenarios::allocations() as $times) {
+            AllocationFactory::createOne([
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'indicationNormalized' => $indication,
+                'createdAt' => $times['createdAt'],
+                'arrivalAt' => $times['arrivalAt'],
+            ]);
+        }
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        /** @var BenchmarkAggregationProvider $provider */
+        $provider = self::getContainer()->get(BenchmarkAggregationProvider::class);
+
+        $result = $provider->aggregate(
+            new StatisticsScopeCriteria([$hospital->getId()]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-01-01 00:00:00')),
+            new StatisticsScopeCriteria([$hospital->getId()]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-01-01 00:00:00')),
+        );
+
+        self::assertSame(3, $result->primary->total);
+        self::assertNotNull($result->primary->medianTransportMinutes);
+        self::assertEqualsWithDelta(
+            PreciseTransportTimeScenarios::PRECISE_MEDIAN_MINUTES,
+            $result->primary->medianTransportMinutes,
+            0.001,
+        );
+        self::assertNotEquals(
+            PreciseTransportTimeScenarios::ROUNDED_MINUTES_MEDIAN,
+            $result->primary->medianTransportMinutes,
+        );
+        self::assertNotNull($result->primary->meanTransportMinutes);
+        self::assertEqualsWithDelta(
+            PreciseTransportTimeScenarios::PRECISE_MEAN_MINUTES,
+            $result->primary->meanTransportMinutes,
+            0.001,
+        );
     }
 }

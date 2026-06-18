@@ -25,6 +25,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSliceQuery;
+use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -135,5 +136,56 @@ final class IndicationDashboardSliceQueryTest extends KernelTestCase
         self::assertSame([], $slice->transportTimeBucketCounts);
         self::assertSame([], $slice->dayTimeHeatmapCells);
         self::assertSame([], $slice->shiftHeatmapCells);
+    }
+
+    public function testTransportTimeBucketsStillUseRoundedProjectionMinutes(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'indication-bucket-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'IndicationBucketState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationBucketDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'IndicationBucketHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'IndicationBucketSpec']);
+        DepartmentFactory::createOne(['name' => 'IndicationBucketDept']);
+        AssignmentFactory::createOne(['name' => 'IndicationBucketAssign']);
+        IndicationRawFactory::createOne(['name' => 'IndicationBucketRaw', 'code' => 912_353]);
+
+        $targetIndication = IndicationNormalizedFactory::createOne(['name' => 'Bucket Target']);
+
+        $import = ImportFactory::createOne(['name' => 'IndicationBucketImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        $times = PreciseTransportTimeScenarios::subTenMinuteRoundedToTenBucket();
+
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $targetIndication,
+            'createdAt' => $times['createdAt'],
+            'arrivalAt' => $times['arrivalAt'],
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        self::assertSame(10, (int) $connection->fetchOne(
+            'SELECT transport_time_minutes FROM allocation_stats_projection WHERE indication_normalized_id = :id',
+            ['id' => $targetIndication->getId()],
+        ));
+
+        $scope = new StatisticsScopeCriteria([$hospital->getId()]);
+        $slice = self::getContainer()->get(IndicationDashboardSliceQuery::class)
+            ->fetch([$targetIndication->getId()], null, null, $scope);
+
+        self::assertSame(0, $slice->transportTimeBucketCounts['under_10'] ?? 0);
+        self::assertSame(1, $slice->transportTimeBucketCounts['10_20'] ?? 0);
     }
 }
