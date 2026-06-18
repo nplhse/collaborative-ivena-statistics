@@ -243,7 +243,12 @@ final readonly class ImportAllocationsMessageHandler
             $this->managerRegistry->resetManager();
         }
 
-        return $this->managerRegistry->getManager();
+        $em = $this->managerRegistry->getManager();
+        if (!$em instanceof EntityManagerInterface) {
+            throw new \LogicException('Expected Doctrine ORM EntityManager.');
+        }
+
+        return $em;
     }
 
     private function cleanupPreviousRun(Import $import): void

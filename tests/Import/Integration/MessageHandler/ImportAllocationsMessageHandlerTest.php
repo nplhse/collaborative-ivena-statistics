@@ -567,7 +567,10 @@ final class ImportAllocationsMessageHandlerTest extends DatabaseKernelTestCase
         self::assertNotNull($fresh);
         self::assertTrue(
             $fresh->isFinalStatus(),
-            sprintf('Expected final import status, got %s', $fresh->getStatus()?->value ?? 'null'),
+            sprintf(
+                'Expected final import status, got %s',
+                null !== ($status = $fresh->getStatus()) ? $status->value : 'null',
+            ),
         );
     }
 
