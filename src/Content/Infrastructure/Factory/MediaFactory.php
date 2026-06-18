@@ -8,12 +8,12 @@ use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Enum\MediaType;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Media>
+ * @extends PersistentObjectFactory<Media>
  */
-final class MediaFactory extends PersistentProxyObjectFactory
+final class MediaFactory extends PersistentObjectFactory
 {
     private const string SAMPLE_PNG_BYTES = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 

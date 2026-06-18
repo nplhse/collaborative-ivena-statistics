@@ -24,7 +24,7 @@ final class DemoContentLoader
 
     private function loadPages(): void
     {
-        PageFactory::createOne([
+        PageFactory::new()->withoutAutorefresh()->create([
             'title' => 'Imprint',
             'slug' => 'imprint',
             'path' => '/imprint',
@@ -51,7 +51,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             ],
         ]);
 
-        PageFactory::createOne([
+        PageFactory::new()->withoutAutorefresh()->create([
             'title' => 'Terms & Conditions',
             'slug' => 'terms-conditions',
             'path' => '/terms-conditions',
@@ -76,7 +76,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             ],
         ]);
 
-        PageFactory::createOne([
+        PageFactory::new()->withoutAutorefresh()->create([
             'title' => 'About us',
             'slug' => 'about-us',
             'path' => '/about-us',
@@ -117,7 +117,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             ],
         ]);
 
-        PageFactory::createOne([
+        PageFactory::new()->withoutAutorefresh()->create([
             'title' => 'FAQ',
             'slug' => 'faq',
             'path' => '/faq',
@@ -179,7 +179,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             ],
         ]);
 
-        PageFactory::createOne([
+        PageFactory::new()->withoutAutorefresh()->create([
             'title' => 'Features',
             'slug' => 'features',
             'path' => '/features',
@@ -204,16 +204,19 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
 
     private function loadBlog(): void
     {
-        $devlog = PostCategoryFactory::createOne(['name' => 'Devlog', 'slug' => 'devlog']);
-        $news = PostCategoryFactory::createOne(['name' => 'News', 'slug' => 'news']);
-        $platform = PostCategoryFactory::createOne(['name' => 'Platform', 'slug' => 'platform']);
-        $research = PostCategoryFactory::createOne(['name' => 'Research', 'slug' => 'research']);
+        $devlog = PostCategoryFactory::new()->withoutAutorefresh()->create(['name' => 'Devlog', 'slug' => 'devlog']);
+        $news = PostCategoryFactory::new()->withoutAutorefresh()->create(['name' => 'News', 'slug' => 'news']);
+        $platform = PostCategoryFactory::new()->withoutAutorefresh()->create(['name' => 'Platform', 'slug' => 'platform']);
+        $research = PostCategoryFactory::new()->withoutAutorefresh()->create(['name' => 'Research', 'slug' => 'research']);
 
-        $tagRelease = PostTagFactory::createOne(['name' => 'Release', 'slug' => 'release']);
-        $tagStatistics = PostTagFactory::createOne(['name' => 'Statistics', 'slug' => 'statistics']);
-        $tagImport = PostTagFactory::createOne(['name' => 'Import', 'slug' => 'import']);
-        $tagBenchmarking = PostTagFactory::createOne(['name' => 'Benchmarking', 'slug' => 'benchmarking']);
-        $tagCollaboration = PostTagFactory::createOne(['name' => 'Collaboration', 'slug' => 'collaboration']);
+        $tagRelease = PostTagFactory::new()->withoutAutorefresh()->create(['name' => 'Release', 'slug' => 'release']);
+        $tagStatistics = PostTagFactory::new()->withoutAutorefresh()->create(['name' => 'Statistics', 'slug' => 'statistics']);
+        $tagImport = PostTagFactory::new()->withoutAutorefresh()->create(['name' => 'Import', 'slug' => 'import']);
+        $tagBenchmarking = PostTagFactory::new()->withoutAutorefresh()->create(['name' => 'Benchmarking', 'slug' => 'benchmarking']);
+        $tagCollaboration = PostTagFactory::new()->withoutAutorefresh()->create(['name' => 'Collaboration', 'slug' => 'collaboration']);
+
+        $admin = UserFactory::find(['username' => 'admin']);
+        $foo = UserFactory::find(['username' => 'foo']);
 
         $posts = [
             [
@@ -298,7 +301,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
         ];
 
         foreach ($posts as $postData) {
-            $post = PostFactory::createOne([
+            $post = PostFactory::new()->withoutAutorefresh()->create([
                 'title' => $postData['title'],
                 'slug' => $postData['slug'],
                 'content' => $postData['content'],
@@ -306,14 +309,14 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 'tags' => $postData['tags'],
                 'status' => $postData['status'],
                 'publishedAt' => new \DateTimeImmutable('-'.random_int(1, 90).' days'),
-                'createdBy' => UserFactory::random(),
+                'createdBy' => $admin,
             ]);
 
             if (PostStatus::PUBLISHED === $postData['status']) {
-                PostCommentFactory::createOne([
+                PostCommentFactory::new()->withoutAutorefresh()->create([
                     'post' => $post,
                     'content' => 'Thanks for the update — great to see steady progress on the platform.',
-                    'author' => UserFactory::random(),
+                    'author' => $foo,
                 ]);
             }
         }

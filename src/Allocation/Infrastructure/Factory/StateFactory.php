@@ -7,12 +7,12 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\State;
 use App\User\Domain\Factory\UserFactory;
 use Faker\Provider\de_DE\Address;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<State>
+ * @extends PersistentObjectFactory<State>
  */
-final class StateFactory extends PersistentProxyObjectFactory
+final class StateFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

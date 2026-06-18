@@ -9,12 +9,12 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Import>
+ * @extends PersistentObjectFactory<Import>
  */
-final class ImportFactory extends PersistentProxyObjectFactory
+final class ImportFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

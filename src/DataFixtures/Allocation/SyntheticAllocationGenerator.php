@@ -7,8 +7,8 @@ namespace App\DataFixtures\Allocation;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\State;
-use App\Allocation\Infrastructure\Factory\MciCaseFactory;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
@@ -17,7 +17,6 @@ use App\DataFixtures\Reference\ReferenceRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
-use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
@@ -86,16 +85,19 @@ final readonly class SyntheticAllocationGenerator
                 throw new \RuntimeException(sprintf('Hospital "%s" has no owner for synthetic import.', (string) $batch->hospital->getName()));
             }
 
-            $import = ImportFactory::createOne([
-                'name' => $batch->importName,
-                'hospital' => $batch->hospital,
-                'status' => ImportStatus::COMPLETED,
-                'type' => ImportType::ALLOCATION,
-                'rowCount' => $batch->allocationCount,
-                'rowsPassed' => $batch->allocationCount,
-                'rowsRejected' => 0,
-                'createdBy' => $owner,
-            ]);
+            $ownerId = (int) $owner->getId();
+            $managedHospital = $this->entityManager->find(Hospital::class, $hospitalId);
+            $managedOwner = $this->entityManager->find(User::class, $ownerId);
+            if (!$managedHospital instanceof Hospital || !$managedOwner instanceof User) {
+                throw new \RuntimeException(sprintf('Hospital or owner not found for synthetic import (hospital #%d, owner #%d).', $hospitalId, $ownerId));
+            }
+
+            $import = $this->createImport(
+                $batch->importName,
+                $managedHospital,
+                $managedOwner,
+                $batch->allocationCount,
+            );
             $importId = (int) $import->getId();
 
             $hospitalRef = $this->requireReference(Hospital::class, $hospitalId);
@@ -120,9 +122,53 @@ final readonly class SyntheticAllocationGenerator
 
         foreach (range(1, $volume->mciCases) as $_) {
             $hospitalId = $hospitalIds[array_rand($hospitalIds)];
-            MciCaseFactory::createOne([
-                'hospital' => $this->entityManager->getReference(Hospital::class, $hospitalId),
-            ]);
+            $hospital = $this->entityManager->find(Hospital::class, $hospitalId);
+            if (!$hospital instanceof Hospital) {
+                throw new \RuntimeException(sprintf('Hospital #%d not found for MCI case fixture.', $hospitalId));
+            }
+
+            $dispatchArea = $hospital->getDispatchArea();
+            $state = $hospital->getState();
+            if (!$dispatchArea instanceof DispatchArea || !$state instanceof State) {
+                throw new \RuntimeException(sprintf('Hospital #%d is missing dispatch area or state for MCI case fixture.', $hospitalId));
+            }
+
+            $dispatchAreaId = (int) $dispatchArea->getId();
+            $stateId = (int) $state->getId();
+            $managedDispatchArea = $this->entityManager->find(DispatchArea::class, $dispatchAreaId);
+            $managedState = $this->entityManager->find(State::class, $stateId);
+            if (!$managedDispatchArea instanceof DispatchArea || !$managedState instanceof State) {
+                throw new \RuntimeException(sprintf('Hospital #%d is missing dispatch area or state for MCI case fixture.', $hospitalId));
+            }
+
+            $import = $this->entityManager->createQueryBuilder()
+                ->select('i')
+                ->from(Import::class, 'i')
+                ->where('i.hospital = :hospital')
+                ->setParameter('hospital', $hospital, Hospital::class)
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+            if (!$import instanceof Import) {
+                throw new \RuntimeException(sprintf('Hospital #%d has no import for MCI case fixture.', $hospitalId));
+            }
+
+            $managedImport = $this->entityManager->find(Import::class, (int) $import->getId());
+            if (!$managedImport instanceof Import) {
+                throw new \RuntimeException(sprintf('Import for hospital #%d not found for MCI case fixture.', $hospitalId));
+            }
+
+            $this->entityManager->persist(
+                new MciCase()
+                    ->setHospital($hospital)
+                    ->setDispatchArea($managedDispatchArea)
+                    ->setState($managedState)
+                    ->setImport($managedImport)
+                    ->setCreatedAt(new \DateTimeImmutable('-30 days'))
+                    ->setArrivalAt(new \DateTimeImmutable('-29 days'))
+                    ->setMciId(uniqid('mci-', true))
+                    ->setMciTitle('Synthetic MCI case'),
+            );
         }
 
         $this->entityManager->flush();
@@ -217,6 +263,34 @@ final readonly class SyntheticAllocationGenerator
             $activeHospitals,
             static fn (Hospital $hospital): bool => isset($segmentIds[(int) $hospital->getId()]),
         ));
+    }
+
+    private function createImport(
+        string $name,
+        Hospital $hospital,
+        User $createdBy,
+        int $rowCount,
+    ): Import {
+        $import = new Import()
+            ->setName($name)
+            ->setHospital($hospital)
+            ->setStatus(ImportStatus::COMPLETED)
+            ->setType(ImportType::ALLOCATION)
+            ->setFilePath('fixtures/synthetic.csv')
+            ->setFileExtension('.csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize(1)
+            ->setRowCount($rowCount)
+            ->setRowsPassed($rowCount)
+            ->setRowsRejected(0)
+            ->setRunCount(1)
+            ->setRunTime(1)
+            ->setCreatedBy($createdBy);
+
+        $this->entityManager->persist($import);
+        $this->entityManager->flush();
+
+        return $import;
     }
 
     private function rebuildProjection(): void

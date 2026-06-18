@@ -7,12 +7,12 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Infrastructure\Faker\Provider\Area;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<DispatchArea>
+ * @extends PersistentObjectFactory<DispatchArea>
  */
-final class DispatchAreaFactory extends PersistentProxyObjectFactory
+final class DispatchAreaFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

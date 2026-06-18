@@ -7,12 +7,12 @@ namespace App\Content\Infrastructure\Factory;
 use App\Content\Domain\Entity\PostCategory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\String\Slugger\AsciiSlugger;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<PostCategory>
+ * @extends PersistentObjectFactory<PostCategory>
  */
-final class PostCategoryFactory extends PersistentProxyObjectFactory
+final class PostCategoryFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
@@ -31,7 +31,7 @@ final class PostCategoryFactory extends PersistentProxyObjectFactory
 
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::new(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh(),
             'name' => $name,
             'slug' => strtolower(new AsciiSlugger()->slug($name)->toString()),
         ];

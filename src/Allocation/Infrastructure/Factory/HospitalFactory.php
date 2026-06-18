@@ -9,12 +9,12 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Hospital>
+ * @extends PersistentObjectFactory<Hospital>
  */
-final class HospitalFactory extends PersistentProxyObjectFactory
+final class HospitalFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
