@@ -193,7 +193,15 @@ final class BenchmarkingControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-benchmark-comparison-cases"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-selection-edit-button"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-selection-modal"]');
+        self::assertSelectorExists('[data-controller="live"]');
+        self::assertSelectorExists('[data-live-url-value]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-primary-form"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-comparison-form"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-selection-apply"]');
+        self::assertGreaterThan(
+            0,
+            $client->getCrawler()->filter('[data-testid="stats-benchmark-primary-form"] select')->count(),
+        );
         self::assertSelectorNotExists('[data-testid="stats-benchmark-kpi-table"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-demographics-age"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-demographics-gender"]');
