@@ -7,11 +7,12 @@ namespace App\Statistics\Benchmarking\Application\DTO;
 final readonly class BenchmarkReport
 {
     /**
-     * @param list<BenchmarkMetric> $kpiMetrics
+     * @param list<BenchmarkInsight> $insights
+     * @param list<BenchmarkMetric>  $kpiMetrics
      */
     public function __construct(
         public BenchmarkHeader $header,
-        public BenchmarkExecutiveSummary $executiveSummary,
+        public array $insights,
         public array $kpiMetrics,
         public BenchmarkDistribution $indicationMix,
         public BenchmarkHeatmapData $dayTimeCaseDistribution,

@@ -35,7 +35,7 @@ final readonly class BenchmarkReportService
         );
 
         $kpiMetrics = $this->metricBuilder->buildIndicationCompareKpiMetrics($aggregation);
-        $executiveSummary = $this->insightProvider->build($aggregation, $kpiMetrics);
+        $insights = $this->insightProvider->build($aggregation, $kpiMetrics);
         $suppressRatios = $aggregation->primary->total < self::MIN_CASES_RATIOS
             || $aggregation->comparison->total < self::MIN_CASES_RATIOS;
 
@@ -48,7 +48,7 @@ final readonly class BenchmarkReportService
                 $aggregation->primary->total,
                 $aggregation->comparison->total,
             ),
-            $executiveSummary,
+            $insights,
             $kpiMetrics,
             $this->metricBuilder->buildIndicationMix($aggregation),
             $this->heatmapBuilder->buildDayTimeCaseDistribution($aggregation),
