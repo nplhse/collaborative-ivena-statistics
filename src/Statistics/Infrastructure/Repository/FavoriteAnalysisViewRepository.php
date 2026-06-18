@@ -59,7 +59,7 @@ final class FavoriteAnalysisViewRepository extends ServiceEntityRepository
         /** @var list<FavoriteAnalysisView> $items */
         $items = $this->createQueryBuilder('f')
             ->andWhere('f.user = :user')
-            ->setParameter('user', $user)
+            ->setParameter('user', $user, User::class)
             ->orderBy('f.sortOrder', 'ASC')
             ->addOrderBy('f.createdAt', 'ASC')
             ->getQuery()

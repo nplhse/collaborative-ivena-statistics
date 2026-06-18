@@ -39,6 +39,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
         return $this->timeSeriesQuery->countBefore($before);
     }
 
+    #[\Override]
     public function getEarliestCreatedAt(): ?\DateTimeImmutable
     {
         return $this->timeSeriesQuery->getEarliestCreatedAt();
@@ -157,7 +158,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int}
+     * @return array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,work_accident:int}
      */
     public function clinicalFeatureCounts(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
@@ -177,7 +178,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
+     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int,work_accident:int}>
      */
     public function bucketClinicalFeaturesByMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
@@ -187,7 +188,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
+     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int,work_accident:int}>
      */
     public function bucketClinicalFeaturesByDay(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
@@ -197,7 +198,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int}>
+     * @return array<string,array{with_physician:int,cpr:int,ventilated:int,shock:int,pregnant:int,infectious:int,with_any:int,work_accident:int}>
      */
     public function bucketClinicalFeaturesByCalendarMonth(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
@@ -237,7 +238,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return list<array{label:string,count:int}>
+     * @return list<array{label:string,count:int,indicationId:int|null}>
      */
     public function fetchTopDiagnosisAggregates(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
     {

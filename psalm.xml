@@ -91,14 +91,6 @@
                 <file name="src/Shared/Infrastructure/DependencyInjection/AppConfiguration.php" />
             </errorLevel>
         </UnusedMethodCall>
-        <UnusedParam>
-            <errorLevel type="suppress">
-                <directory name="src/*/Infrastructure/EventSubscriber/" />
-                <directory name="src/*/Infrastructure/Repository/" />
-                <directory name="src/*/UI/Console/Command/" />
-                <directory name="src/Import/Infrastructure/Adapter/" />
-            </errorLevel>
-        </UnusedParam>
         <UnusedProperty>
             <errorLevel type="suppress">
                 <directory name="src/Import/Infrastructure/Adapter/" />

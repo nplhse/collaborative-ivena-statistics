@@ -23,6 +23,7 @@ final class DispatchAreaRepository extends ServiceEntityRepository implements Di
         parent::__construct($registry, DispatchArea::class);
     }
 
+    #[\Override]
     public function findById(int $id): ?DispatchArea
     {
         $entity = $this->find($id);

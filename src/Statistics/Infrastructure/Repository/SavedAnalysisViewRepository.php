@@ -62,7 +62,7 @@ final class SavedAnalysisViewRepository extends ServiceEntityRepository
         /** @var list<SavedAnalysisView> $items */
         $items = $this->createQueryBuilder('s')
             ->andWhere('s.owner = :owner')
-            ->setParameter('owner', $user)
+            ->setParameter('owner', $user, User::class)
             ->orderBy('s.updatedAt', 'DESC')
             ->getQuery()
             ->getResult();

@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Import\Domain\Entity\Import;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -26,7 +27,7 @@ final class AllocationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->delete()
             ->where('a.import = :import')
-            ->setParameter('import', $import)
+            ->setParameter('import', $import, Import::class)
             ->getQuery()
             ->execute();
     }
@@ -42,7 +43,7 @@ final class AllocationRepository extends ServiceEntityRepository
 
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
 
         /** @var Allocation[] $rows */
@@ -101,7 +102,7 @@ final class AllocationRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
             ->andWhere('a.hospital IN (:hospitalIds)')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->setParameter('hospitalIds', $hospitalIds)
             ->orderBy('a.createdAt', 'ASC');
 
@@ -149,7 +150,7 @@ final class AllocationRepository extends ServiceEntityRepository
         return (int) $this->createQueryBuilder('a')
             ->select('COUNT(a.id)')
             ->where('a.createdAt < :before')
-            ->setParameter('before', $before)
+            ->setParameter('before', $before, Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -166,12 +167,12 @@ final class AllocationRepository extends ServiceEntityRepository
             return null;
         }
 
-        if ($result instanceof \DateTimeImmutable) {
-            return $result;
-        }
-
         if ($result instanceof \DateTimeInterface) {
             return \DateTimeImmutable::createFromInterface($result);
+        }
+
+        if ('' === (string) $result) {
+            return null;
         }
 
         return new \DateTimeImmutable((string) $result);
@@ -187,7 +188,7 @@ final class AllocationRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('a')
             ->select('COUNT(a.id)')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from);
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
         return (int) $qb->getQuery()->getSingleScalarResult();
@@ -217,7 +218,7 @@ final class AllocationRepository extends ServiceEntityRepository
             ->select('COUNT(a.id)')
             ->where('a.createdAt >= :from')
             ->andWhere('a.hospital IN (:hospitalIds)')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->setParameter('hospitalIds', $hospitalIds);
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -253,7 +254,7 @@ final class AllocationRepository extends ServiceEntityRepository
             ->addSelect('COUNT(a.id) AS cnt')
             ->where('a.createdAt >= :from')
             ->andWhere('a.hospital IN (:hospitalIds)')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->setParameter('hospitalIds', $hospitalIds)
             ->groupBy('a.gender');
         $this->applyCreatedAtBefore($qb, $toExclusive);
@@ -298,7 +299,7 @@ final class AllocationRepository extends ServiceEntityRepository
             ->addSelect('COUNT(a.id) AS cnt')
             ->where('a.createdAt >= :from')
             ->andWhere('a.hospital IN (:hospitalIds)')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->setParameter('hospitalIds', $hospitalIds)
             ->groupBy('a.urgency');
         $this->applyCreatedAtBefore($qb, $toExclusive);
@@ -331,7 +332,7 @@ final class AllocationRepository extends ServiceEntityRepository
             ->select('a.gender AS gender')
             ->addSelect('COUNT(a.id) AS cnt')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->groupBy('a.gender');
         $this->applyCreatedAtBefore($qb, $toExclusive);
         $rows = $qb->getQuery()->getArrayResult();
@@ -363,7 +364,7 @@ final class AllocationRepository extends ServiceEntityRepository
             ->select('a.urgency AS urgency')
             ->addSelect('COUNT(a.id) AS cnt')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->groupBy('a.urgency');
         $this->applyCreatedAtBefore($qb, $toExclusive);
         $rows = $qb->getQuery()->getArrayResult();
@@ -387,7 +388,7 @@ final class AllocationRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -441,7 +442,7 @@ final class AllocationRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
             ->andWhere('a.hospital IN (:hospitalIds)')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->setParameter('hospitalIds', $hospitalIds)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
@@ -607,7 +608,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -652,7 +653,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -815,7 +816,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -869,7 +870,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1192,7 +1193,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1235,7 +1236,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1277,7 +1278,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1322,7 +1323,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1367,7 +1368,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1412,7 +1413,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1457,7 +1458,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1511,7 +1512,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1565,7 +1566,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1577,7 +1578,7 @@ final class AllocationRepository extends ServiceEntityRepository
         /** @var Allocation[] $rows */
         $rows = $qb->getQuery()->getResult();
 
-        return $this->accumulateClinicalBucketsForCalendarMonthKeys($rows);
+        return $this->accumulateClinicalBucketsForCalendarMonthKeys(array_values($rows));
     }
 
     /**
@@ -1592,7 +1593,7 @@ final class AllocationRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('a.createdAt', 'ASC');
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
@@ -1604,7 +1605,7 @@ final class AllocationRepository extends ServiceEntityRepository
         /** @var Allocation[] $rows */
         $rows = $qb->getQuery()->getResult();
 
-        return $this->accumulateClinicalBucketsForDayKeys($rows);
+        return $this->accumulateClinicalBucketsForDayKeys(array_values($rows));
     }
 
     /**
@@ -1734,7 +1735,7 @@ final class AllocationRepository extends ServiceEntityRepository
             ->join('a.indicationRaw', 'inRaw')
             ->leftJoin('a.indicationNormalized', 'inNorm')
             ->where('a.createdAt >= :from')
-            ->setParameter('from', $from);
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE);
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
         if (null !== $hospitalIds) {
@@ -1753,7 +1754,7 @@ final class AllocationRepository extends ServiceEntityRepository
             $normName = $normalized?->getName();
             $label = (null !== $normName && '' !== $normName)
                 ? $normName
-                : (string) ($raw?->getName() ?? '');
+                : ($raw?->getName() ?? '');
             if ('' === $label) {
                 continue;
             }
@@ -1781,6 +1782,6 @@ final class AllocationRepository extends ServiceEntityRepository
         }
 
         $qb->andWhere('a.createdAt < :toExclusive')
-            ->setParameter('toExclusive', $toExclusive);
+            ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
     }
 }

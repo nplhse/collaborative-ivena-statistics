@@ -24,7 +24,7 @@ final class ImportRejectRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('r')
             ->delete()
             ->where('r.import = :import')
-            ->setParameter('import', $import)
+            ->setParameter('import', $import, Import::class)
             ->getQuery()
             ->execute();
     }

@@ -40,7 +40,7 @@ final class PageRepository extends ServiceEntityRepository
         $page = $this->createQueryBuilder('p')
             ->andWhere('p.key = :key')
             ->andWhere('p.status = :status')
-            ->setParameter('key', $key)
+            ->setParameter('key', $key, PageKey::class)
             ->setParameter('status', Page::STATUS_PUBLISHED)
             ->setMaxResults(1)
             ->getQuery()
@@ -73,7 +73,7 @@ final class PageRepository extends ServiceEntityRepository
         /** @var list<Page> $pages */
         $pages = $this->createQueryBuilder('p')
             ->andWhere('p.parent = :parent')
-            ->setParameter('parent', $parent)
+            ->setParameter('parent', $parent, Page::class)
             ->orderBy('p.sortOrder', 'ASC')
             ->addOrderBy('p.id', 'ASC')
             ->getQuery()

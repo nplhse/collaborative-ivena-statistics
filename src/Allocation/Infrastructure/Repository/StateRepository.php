@@ -19,6 +19,7 @@ final class StateRepository extends ServiceEntityRepository implements StateLook
         parent::__construct($registry, State::class);
     }
 
+    #[\Override]
     public function findById(int $id): ?State
     {
         $entity = $this->find($id);

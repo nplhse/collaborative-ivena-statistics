@@ -9,6 +9,7 @@ use App\Content\Domain\Enum\PostStatus;
 use App\Content\UI\Http\DTO\BlogListQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -30,7 +31,7 @@ final class PostRepository extends ServiceEntityRepository
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         return new Paginator($qb)->paginate($query->page, $query->limit);
@@ -47,7 +48,7 @@ final class PostRepository extends ServiceEntityRepository
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $categorySlug)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         return new Paginator($qb)->paginate($query->page, $query->limit);
@@ -64,7 +65,7 @@ final class PostRepository extends ServiceEntityRepository
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $tagSlug)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         return new Paginator($qb)->paginate($query->page, $query->limit);
@@ -82,7 +83,7 @@ final class PostRepository extends ServiceEntityRepository
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         if (null !== $limit) {
@@ -110,7 +111,7 @@ final class PostRepository extends ServiceEntityRepository
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $slug)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('comments.createdAt', 'ASC')
             ->addOrderBy('children.createdAt', 'ASC')
             ->setMaxResults(1)
@@ -149,8 +150,8 @@ final class PostRepository extends ServiceEntityRepository
             ->andWhere('p.publishedAt <= :now')
             ->andWhere('(p.publishedAt < :publishedAt OR (p.publishedAt = :publishedAt AND p.id < :id))')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
-            ->setParameter('publishedAt', $publishedAt)
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('publishedAt', $publishedAt, Types::DATETIME_IMMUTABLE)
             ->setParameter('id', $currentId)
             ->orderBy('p.publishedAt', 'DESC')
             ->addOrderBy('p.id', 'DESC')
@@ -176,8 +177,8 @@ final class PostRepository extends ServiceEntityRepository
             ->andWhere('p.publishedAt <= :now')
             ->andWhere('(p.publishedAt > :publishedAt OR (p.publishedAt = :publishedAt AND p.id > :id))')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
-            ->setParameter('publishedAt', $publishedAt)
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('publishedAt', $publishedAt, Types::DATETIME_IMMUTABLE)
             ->setParameter('id', $currentId)
             ->orderBy('p.publishedAt', 'ASC')
             ->addOrderBy('p.id', 'ASC')

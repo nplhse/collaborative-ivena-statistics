@@ -30,7 +30,7 @@ final class PostCommentRepository extends ServiceEntityRepository
             ->leftJoin('c.children', 'children')
             ->andWhere('c.post = :post')
             ->andWhere('c.parent IS NULL')
-            ->setParameter('post', $post)
+            ->setParameter('post', $post, Post::class)
             ->orderBy('c.createdAt', 'ASC')
             ->addOrderBy('children.createdAt', 'ASC')
             ->getQuery()

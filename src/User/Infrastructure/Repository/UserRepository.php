@@ -102,6 +102,7 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
         return $choices;
     }
 
+    #[\Override]
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof User) {

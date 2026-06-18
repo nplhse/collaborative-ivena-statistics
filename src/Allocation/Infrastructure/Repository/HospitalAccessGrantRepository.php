@@ -32,7 +32,7 @@ final class HospitalAccessGrantRepository extends ServiceEntityRepository
             ->innerJoin('g.user', 'u')
             ->addSelect('u')
             ->andWhere('g.hospital = :hospital')
-            ->setParameter('hospital', $hospital)
+            ->setParameter('hospital', $hospital, Hospital::class)
             ->orderBy('u.username', 'ASC')
             ->getQuery()
             ->getResult();

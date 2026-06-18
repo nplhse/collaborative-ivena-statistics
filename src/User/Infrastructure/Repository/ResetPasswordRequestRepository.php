@@ -23,6 +23,7 @@ final class ResetPasswordRequestRepository extends ServiceEntityRepository imple
         parent::__construct($registry, ResetPasswordRequest::class);
     }
 
+    #[\Override]
     public function createResetPasswordRequest(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken): ResetPasswordRequest
     {
         if (!$user instanceof User) {

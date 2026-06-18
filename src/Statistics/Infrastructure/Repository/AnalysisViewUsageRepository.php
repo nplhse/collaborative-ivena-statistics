@@ -53,7 +53,7 @@ final class AnalysisViewUsageRepository extends ServiceEntityRepository
         /** @var list<AnalysisViewUsage> $items */
         $items = $this->createQueryBuilder('u')
             ->andWhere('u.user = :user')
-            ->setParameter('user', $user)
+            ->setParameter('user', $user, User::class)
             ->orderBy('u.lastUsedAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
@@ -70,7 +70,7 @@ final class AnalysisViewUsageRepository extends ServiceEntityRepository
         /** @var list<AnalysisViewUsage> $items */
         $items = $this->createQueryBuilder('u')
             ->andWhere('u.user = :user')
-            ->setParameter('user', $user)
+            ->setParameter('user', $user, User::class)
             ->orderBy('u.useCount', 'DESC')
             ->addOrderBy('u.lastUsedAt', 'DESC')
             ->setMaxResults($limit)
