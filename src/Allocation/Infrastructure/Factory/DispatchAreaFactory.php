@@ -28,12 +28,12 @@ final class DispatchAreaFactory extends PersistentObjectFactory
     {
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::random(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'updatedAt' => self::faker()->boolean(40)
                 ? \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-6 months', 'now'))
                 : null,
             'name' => Area::dispatchArea(),
-            'state' => StateFactory::random(),
+            'state' => StateFactory::new()->withoutAutorefresh()->randomOrCreate(),
         ];
     }
 }

@@ -32,8 +32,8 @@ final class MciCaseRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('m')
             ->delete()
-            ->where('m.import = :import')
-            ->setParameter('import', $import, Import::class)
+            ->where('IDENTITY(m.import) = :importId')
+            ->setParameter('importId', $import->getId(), Types::INTEGER)
             ->getQuery()
             ->execute();
     }

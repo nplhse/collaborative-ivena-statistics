@@ -28,7 +28,7 @@ final class StateFactory extends PersistentObjectFactory
     {
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::random(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'name' => Address::state(),
         ];
     }

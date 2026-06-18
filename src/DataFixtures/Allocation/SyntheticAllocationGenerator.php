@@ -20,6 +20,7 @@ use App\Import\Domain\Enum\ImportType;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class SyntheticAllocationGenerator
@@ -144,8 +145,8 @@ final readonly class SyntheticAllocationGenerator
             $import = $this->entityManager->createQueryBuilder()
                 ->select('i')
                 ->from(Import::class, 'i')
-                ->where('i.hospital = :hospital')
-                ->setParameter('hospital', $hospital, Hospital::class)
+                ->where('IDENTITY(i.hospital) = :hospitalId')
+                ->setParameter('hospitalId', $hospital->getId(), Types::INTEGER)
                 ->setMaxResults(1)
                 ->getQuery()
                 ->getOneOrNullResult();

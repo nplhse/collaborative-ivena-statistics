@@ -58,6 +58,9 @@ final class NewImportController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
+        $managedHospital = $this->em->getReference(Hospital::class, $hospitalId);
+        $createdBy = $this->em->getReference(User::class, $user->getId());
+
         $name = (string) $form->get('name')->getData();
 
         /** @var UploadedFile $file */
@@ -77,7 +80,8 @@ final class NewImportController extends AbstractController
 
         $import = new Import()
             ->setName($name)
-            ->setHospital($hospital)
+            ->setHospital($managedHospital)
+            ->setCreatedBy($createdBy)
             ->setType(ImportType::ALLOCATION)
             ->setStatus(ImportStatus::PENDING)
             ->setFilePath($targetPath)

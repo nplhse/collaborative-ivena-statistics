@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\HospitalPermissionMask;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -31,8 +32,8 @@ final class HospitalAccessGrantRepository extends ServiceEntityRepository
         $grants = $this->createQueryBuilder('g')
             ->innerJoin('g.user', 'u')
             ->addSelect('u')
-            ->andWhere('g.hospital = :hospital')
-            ->setParameter('hospital', $hospital, Hospital::class)
+            ->andWhere('IDENTITY(g.hospital) = :hospitalId')
+            ->setParameter('hospitalId', $hospital->getId(), Types::INTEGER)
             ->orderBy('u.username', 'ASC')
             ->getQuery()
             ->getResult();

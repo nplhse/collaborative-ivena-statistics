@@ -26,8 +26,8 @@ final class AllocationRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('a')
             ->delete()
-            ->where('a.import = :import')
-            ->setParameter('import', $import, Import::class)
+            ->where('IDENTITY(a.import) = :importId')
+            ->setParameter('importId', $import->getId(), Types::INTEGER)
             ->getQuery()
             ->execute();
     }

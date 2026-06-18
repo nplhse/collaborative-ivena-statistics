@@ -14,7 +14,7 @@ when@dev:
 
 when@test:
     zenstruck_foundry:
-        enable_auto_refresh_with_lazy_objects: true
+        enable_auto_refresh_with_lazy_objects: false
         orm:
             reset:
                 # Align test schema with migrations (incl. materialized views); DAMA rolls back per test.

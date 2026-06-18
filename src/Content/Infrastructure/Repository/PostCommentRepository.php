@@ -7,6 +7,7 @@ namespace App\Content\Infrastructure\Repository;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Entity\PostComment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -28,9 +29,9 @@ final class PostCommentRepository extends ServiceEntityRepository
         $comments = $this->createQueryBuilder('c')
             ->addSelect('children')
             ->leftJoin('c.children', 'children')
-            ->andWhere('c.post = :post')
+            ->andWhere('IDENTITY(c.post) = :postId')
             ->andWhere('c.parent IS NULL')
-            ->setParameter('post', $post, Post::class)
+            ->setParameter('postId', $post->getId(), Types::INTEGER)
             ->orderBy('c.createdAt', 'ASC')
             ->addOrderBy('children.createdAt', 'ASC')
             ->getQuery()
