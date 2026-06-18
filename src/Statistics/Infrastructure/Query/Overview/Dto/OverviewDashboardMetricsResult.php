@@ -6,6 +6,11 @@ namespace App\Statistics\Infrastructure\Query\Overview\Dto;
 
 final readonly class OverviewDashboardMetricsResult
 {
+    /**
+     * @param array<string, int> $genderCounts
+     * @param array<int, int>    $urgencyCounts
+     * @param array<string, int> $ageGroupCounts
+     */
     public function __construct(
         public int $platformTotal,
         public int $scopedTotal,
@@ -18,11 +23,19 @@ final readonly class OverviewDashboardMetricsResult
         public int $infectious,
         public int $cathlab,
         public int $resus,
-        /** @var array<string, int> */
         public array $genderCounts,
-        /** @var array<int, int> */
         public array $urgencyCounts,
+        public int $nightDaytime,
+        public int $weekend,
+        public ?float $medianAge,
+        public ?float $medianTransportMinutes,
+        public array $ageGroupCounts,
     ) {
+    }
+
+    public static function empty(): self
+    {
+        return new self(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], 0, 0, null, null, []);
     }
 
     public function toSummaryResult(): OverviewSummaryResult

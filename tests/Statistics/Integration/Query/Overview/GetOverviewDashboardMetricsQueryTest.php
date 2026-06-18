@@ -130,6 +130,15 @@ final class GetOverviewDashboardMetricsQueryTest extends KernelTestCase
         self::assertSame($summary->resus, $bundle->resus);
         self::assertSame($this->normalizedGender($gender), $bundle->genderCounts);
         self::assertSame($this->normalizedUrgency($urgency), $bundle->urgencyCounts);
+        self::assertGreaterThanOrEqual(0, $bundle->nightDaytime);
+        self::assertGreaterThanOrEqual(0, $bundle->weekend);
+        self::assertArrayHasKey('40_49', $bundle->ageGroupCounts);
+        if (null !== $bundle->medianAge) {
+            self::assertSame(40.0, $bundle->medianAge);
+        }
+        if (null !== $bundle->medianTransportMinutes) {
+            self::assertSame(30.0, $bundle->medianTransportMinutes);
+        }
     }
 
     /**
