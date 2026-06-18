@@ -22,7 +22,7 @@ class Feedback implements \Stringable
     #[ORM\Column(enumType: FeedbackCategory::class)]
     private ?FeedbackCategory $category = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT)]
     private ?string $message = null;
 
     #[ORM\Column(length: 180, nullable: true)]
@@ -39,10 +39,10 @@ class Feedback implements \Stringable
     private ?string $routeName = null;
 
     /** @var array<string, mixed>|null */
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON, nullable: true)]
     private ?array $context = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT, nullable: true)]
     private ?string $userAgent = null;
 
     #[ORM\Column(length: 64, nullable: true)]

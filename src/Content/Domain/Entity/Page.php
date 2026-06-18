@@ -86,7 +86,7 @@ class Page implements \Stringable
      *   enabled?: bool
      * }>
      */
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON)]
     private array $content = [];
 
     #[ORM\Column]

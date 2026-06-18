@@ -28,7 +28,7 @@ class PostComment
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Post $post = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT)]
     private ?string $content = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]

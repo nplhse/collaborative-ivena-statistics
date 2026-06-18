@@ -61,31 +61,31 @@ class AllocationStatsProjection
     #[ORM\Column]
     private \DateTimeImmutable $arrivalAt;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $createdYear;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $createdQuarter;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $createdMonth;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $createdWeek;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $createdDay;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $createdWeekday;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $createdHour;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $dayTimeBucketCode;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $shiftBucketCode;
 
     #[ORM\Column]
@@ -94,19 +94,19 @@ class AllocationStatsProjection
     #[ORM\Column(nullable: true)]
     private ?int $age = null;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT, nullable: true)]
     private ?int $genderCode = null;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
     private int $urgencyCode;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT, nullable: true)]
     private ?int $transportTypeCode = null;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT, nullable: true)]
     private ?int $hospitalTierCode = null;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT, nullable: true)]
     private ?int $hospitalLocationCode = null;
 
     #[ORM\Column(nullable: true)]

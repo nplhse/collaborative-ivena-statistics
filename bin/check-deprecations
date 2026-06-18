@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Fast Symfony deprecation smoke test (container compile paths only).
+# Usage: make check-deprecations  or  composer check-deprecations
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+export SYMFONY_DEPRECATIONS_HELPER="${SYMFONY_DEPRECATIONS_HELPER:-max[total]=0&verbose=1}"
+
+php bin/console cache:warmup --no-debug
+php bin/console cache:warmup --env=test --no-debug
+php bin/console lint:container --no-debug

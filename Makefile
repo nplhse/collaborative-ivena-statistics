@@ -140,6 +140,9 @@ psalm: ## Run Psalm
 rector: ## Run Rector
 	@$(RECTOR)
 
+check-deprecations: ## Run deprecation checks (console + phpunit)
+	@./bin/check-deprecations
+
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
 SUITE ?= all
 PATH_ARG ?=

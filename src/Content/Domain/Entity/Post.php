@@ -35,7 +35,7 @@ class Post implements \Stringable
     #[ORM\Column(length: 200, unique: true)]
     private ?string $slug = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT)]
     private ?string $content = null;
 
     #[ORM\Column(enumType: PostStatus::class)]

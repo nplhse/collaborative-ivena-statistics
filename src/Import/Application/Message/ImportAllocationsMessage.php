@@ -6,7 +6,7 @@ namespace App\Import\Application\Message;
 
 use Symfony\Component\Messenger\Attribute\AsMessage;
 
-#[AsMessage('sync')]
+#[AsMessage('async_priority_high')]
 final readonly class ImportAllocationsMessage
 {
     public function __construct(

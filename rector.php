@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Symfony\CodeQuality\Rector\Class_\ControllerMethodInjectionToConstructorRector;
+use Rector\Symfony\Set\SymfonySetList;
 
 $entityPath = __DIR__.'/src/**/Domain/Entity/*';
 
@@ -17,15 +19,16 @@ return RectorConfig::configure()
         php84: true
     )
     ->withPreparedSets(
-        deadCode: true,
         codeQuality: true,
         typeDeclarations: true,
     )
     ->withSets([
-        Rector\Symfony\Set\SymfonySetList::CONFIGS,
-        Rector\Symfony\Set\SymfonySetList::SYMFONY_CODE_QUALITY,
-        Rector\Symfony\Set\SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        Rector\Symfony\Set\SymfonySetList::SYMFONY_80,
+        SymfonySetList::CONFIGS,
+        SymfonySetList::SYMFONY_CODE_QUALITY,
+        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
+        SymfonySetList::SYMFONY_80,
+        SymfonySetList::SYMFONY_81,
+        DoctrineSetList::DOCTRINE_CODE_QUALITY,
         Zenstruck\Foundry\Utils\Rector\FoundrySetList::FOUNDRY_2_7,
     ])
     ->withSkip([
