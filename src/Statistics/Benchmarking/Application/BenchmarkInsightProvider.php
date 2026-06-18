@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\Benchmarking\Application;
 
-use App\Statistics\Benchmarking\Application\DTO\BenchmarkExecutiveSummary;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkInsightDirection;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkInsightSeverity;
@@ -19,43 +18,34 @@ final readonly class BenchmarkInsightProvider
 
     private const int MIN_COMPARISON_CASES = 500;
 
-    private const int MAX_PER_COLUMN = 3;
+    private const int MAX_VISIBLE = 4;
+
+    private const float MIN_ABSOLUTE_RATE_DELTA = 0.03;
 
     /**
      * @param list<BenchmarkMetric> $kpiMetrics
+     *
+     * @return list<BenchmarkInsight>
      */
-    public function build(BenchmarkAggregationResult $aggregation, array $kpiMetrics): BenchmarkExecutiveSummary
+    public function build(BenchmarkAggregationResult $aggregation, array $kpiMetrics): array
     {
         if ($aggregation->primary->total < self::MIN_PRIMARY_CASES
             || $aggregation->comparison->total < self::MIN_COMPARISON_CASES) {
-            return new BenchmarkExecutiveSummary([], [], []);
+            return [];
         }
 
         $candidates = [];
         $this->addRateInsights($candidates, $aggregation->primary, $aggregation->comparison);
         $this->addMetricInsights($candidates, $kpiMetrics);
 
-        $above = [];
-        $neutral = [];
-        $below = [];
+        usort($candidates, static fn (BenchmarkInsight $a, BenchmarkInsight $b): int => $b->sortScore <=> $a->sortScore);
 
-        foreach ($candidates as $insight) {
-            match ($insight->direction) {
-                BenchmarkInsightDirection::Above => $above[] = $insight,
-                BenchmarkInsightDirection::Below => $below[] = $insight,
-                BenchmarkInsightDirection::Neutral => $neutral[] = $insight,
-            };
-        }
+        $notable = array_values(array_filter(
+            $candidates,
+            $this->isNotable(...),
+        ));
 
-        usort($above, static fn (BenchmarkInsight $a, BenchmarkInsight $b): int => $b->sortScore <=> $a->sortScore);
-        usort($below, static fn (BenchmarkInsight $a, BenchmarkInsight $b): int => $b->sortScore <=> $a->sortScore);
-        usort($neutral, static fn (BenchmarkInsight $a, BenchmarkInsight $b): int => $b->sortScore <=> $a->sortScore);
-
-        return new BenchmarkExecutiveSummary(
-            \array_slice($above, 0, self::MAX_PER_COLUMN),
-            \array_slice($neutral, 0, self::MAX_PER_COLUMN),
-            \array_slice($below, 0, self::MAX_PER_COLUMN),
-        );
+        return \array_slice($notable, 0, self::MAX_VISIBLE);
     }
 
     /**
@@ -176,6 +166,10 @@ final readonly class BenchmarkInsightProvider
             return;
         }
 
+        if (abs($primaryRate - $comparisonRate) < self::MIN_ABSOLUTE_RATE_DELTA) {
+            return;
+        }
+
         if ($ratio >= 1.0) {
             if ($ratio < $minRatio) {
                 return;
@@ -276,6 +270,19 @@ final readonly class BenchmarkInsightProvider
             $comparisonDisplay,
             $sortScore,
         );
+    }
+
+    private function isNotable(BenchmarkInsight $insight): bool
+    {
+        if (BenchmarkInsightDirection::Neutral === $insight->direction) {
+            return false;
+        }
+
+        if ('gender_balance' === $insight->id) {
+            return false;
+        }
+
+        return !str_ends_with($insight->id, '_neutral');
     }
 
     private function sortScore(int $priority, float $ratio, int $primaryTotal): int

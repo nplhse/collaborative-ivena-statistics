@@ -17,8 +17,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
-use App\Statistics\Infrastructure\Query\Overview\GetEligibleDispatchAreaIdsQuery;
-use App\Statistics\Infrastructure\Query\Overview\GetEligibleStateIdsQuery;
+use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModel;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
@@ -37,8 +36,7 @@ final readonly class BenchmarkComparisonPageViewModelFactory
         private TranslatorInterface $translator,
         private StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
-        private GetEligibleStateIdsQuery $eligibleStateIdsQuery,
-        private GetEligibleDispatchAreaIdsQuery $eligibleDispatchAreaIdsQuery,
+        private StatisticsFilterFormChoiceProvider $filterFormChoiceProvider,
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
     ) {
@@ -155,8 +153,8 @@ final readonly class BenchmarkComparisonPageViewModelFactory
             }
         }
 
-        $eligibleStateRows = $this->eligibleStateRows();
-        $eligibleDispatchRows = $this->eligibleDispatchAreaRows();
+        $eligibleStateRows = $this->filterFormChoiceProvider->eligibleStateRows();
+        $eligibleDispatchRows = $this->filterFormChoiceProvider->eligibleDispatchAreaRows();
 
         $scopePrimaryMenu = $this->buildScopePrimaryMenu(
             $request,
@@ -253,46 +251,6 @@ final readonly class BenchmarkComparisonPageViewModelFactory
             $scopePrimaryDropdownLabel,
             $scopeSecondaryDropdownLabel,
         );
-    }
-
-    /**
-     * @return list<array{id: int, name: string}>
-     */
-    private function eligibleStateRows(): array
-    {
-        $ids = ($this->eligibleStateIdsQuery)(2);
-        $rows = [];
-        foreach ($ids as $stateId) {
-            $state = $this->stateRepository->findById($stateId);
-            $name = $state?->getName();
-            if (null === $name || '' === $name) {
-                continue;
-            }
-            $rows[] = ['id' => $stateId, 'name' => $name];
-        }
-        usort($rows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
-
-        return $rows;
-    }
-
-    /**
-     * @return list<array{id: int, name: string}>
-     */
-    private function eligibleDispatchAreaRows(): array
-    {
-        $ids = ($this->eligibleDispatchAreaIdsQuery)(2);
-        $rows = [];
-        foreach ($ids as $dispatchAreaId) {
-            $area = $this->dispatchAreaRepository->findById($dispatchAreaId);
-            $name = $area?->getName();
-            if (null === $name || '' === $name) {
-                continue;
-            }
-            $rows[] = ['id' => $dispatchAreaId, 'name' => $name];
-        }
-        usort($rows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
-
-        return $rows;
     }
 
     /**

@@ -24,41 +24,15 @@
             </button>
         {% endif %}
 
-        {% if statsShowScopeSecondaryPicker|default(false) %}
-            <div class="btn-group" role="group" aria-label="{{ 'stats.filter.scope_label'|trans }}">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ statsScopePrimaryDropdownLabel|default(statisticsHeadingScope) }}
-                    </button>
-                    <div class="dropdown-menu">
-                        {% for item in statsScopePrimaryMenu|default([]) %}
-                            <a class="dropdown-item{% if item.active %} active{% endif %}" href="{{ item.url }}">{{ item.label }}</a>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="btn-group" role="group" data-controller="dropdown-typeahead">
-                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ statsScopeSecondaryDropdownLabel|default('') }}
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-scrollable" data-dropdown-typeahead-target="menu">
-                        {% for row in statsScopeSecondaryMenu|default([]) %}
-                            <a class="dropdown-item{% if row.active %} active{% endif %}" href="{{ row.url }}">{{ row.label }}</a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <div class="btn-group">
-                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ statsScopePrimaryDropdownLabel|default(statisticsHeadingScope) }}
-                </button>
-                <div class="dropdown-menu dropdown-menu-end">
-                    {% for item in statsScopePrimaryMenu|default([]) %}
-                        <a class="dropdown-item{% if item.active %} active{% endif %}" href="{{ item.url }}">{{ item.label }}</a>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
+        {{ include('@Statistics/_scope_controls.html.twig', {
+            pageViewModel: {
+                showScopeSecondaryPicker: statsShowScopeSecondaryPicker|default(false),
+                scopePrimaryMenu: statsScopePrimaryMenu|default([]),
+                scopeSecondaryMenu: statsScopeSecondaryMenu|default([]),
+                scopePrimaryDropdownLabel: statsScopePrimaryDropdownLabel|default(statisticsHeadingScope),
+                scopeSecondaryDropdownLabel: statsScopeSecondaryDropdownLabel|default(''),
+            },
+        }) }}
 
         {% if statsUseOverviewPeriodControls|default(false) %}
             {{ include('@Statistics/dashboard/_overview_period_controls.html.twig') }}

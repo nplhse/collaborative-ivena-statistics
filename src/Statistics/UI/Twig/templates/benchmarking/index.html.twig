@@ -29,6 +29,16 @@
                     <div class="page-pretitle">{{ 'stats.benchmark.subtitle'|trans }}</div>
                     <h2 class="page-title mb-0" data-testid="stats-benchmark-heading">{{ 'stats.benchmark.title'|trans }}</h2>
                 </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#stats-benchmark-selection-modal"
+                            data-testid="stats-benchmark-selection-edit-button">
+                        <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
+                        {{ 'stats.benchmark.selection.edit'|trans }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -50,11 +60,16 @@
             </div>
         {% endif %}
 
-        {{ include('@Statistics/benchmarking/_executive_summary.html.twig') }}
-        {{ include('@Statistics/benchmarking/_kpi_table.html.twig') }}
-
-        <div class="row g-3 mt-1">
+        <div class="row g-3 align-items-start mt-1">
             <div class="col-lg-8 d-flex flex-column gap-3">
+                {{ include('@Statistics/_kpi_compare_tiles.html.twig', {
+                    metrics: report.kpiMetrics,
+                    suppressRatios: report.suppressRatios,
+                    sideAShortKey: 'stats.benchmark.primary.short',
+                    sideBShortKey: 'stats.benchmark.comparison.short',
+                    testIdPrefix: 'stats-benchmark-kpi',
+                }) }}
+
                 <div class="card" data-testid="stats-benchmark-indication-mix">
                     <div class="card-header py-2">
                         <h3 class="card-title mb-0">{{ 'stats.benchmark.section.indication_mix'|trans }}</h3>
@@ -103,6 +118,8 @@
             </div>
 
             <div class="col-lg-4 d-flex flex-column gap-3">
+                {{ include('@Statistics/benchmarking/_insights.html.twig') }}
+
                 <div class="card" data-testid="stats-benchmark-demographics-gender">
                     <div class="card-header py-2">
                         <h3 class="card-title mb-0">{{ 'stats.benchmark.section.gender'|trans }}</h3>
@@ -179,4 +196,6 @@
             </div>
         </div>
     </div>
+
+    {{ include('@Statistics/benchmarking/_selection_modal.html.twig') }}
 {% endblock %}

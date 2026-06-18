@@ -131,7 +131,7 @@ final class BenchmarkingControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="stats-benchmark-heading"]');
-        self::assertSelectorExists('[data-testid="stats-benchmark-selection-card"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-selection"]');
     }
 
     public function testRendersBenchmarkingDashboard(): void
@@ -181,16 +181,28 @@ final class BenchmarkingControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="stats-benchmark-heading"]');
-        self::assertSelectorExists('[data-testid="stats-benchmark-kpi-table"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-kpi-tiles"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-indication-mix"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-indication-mix-table"]');
         self::assertSelectorNotExists('[data-testid="stats-benchmark-indication-mix-over-expand"]');
         self::assertSelectorNotExists('[data-testid="stats-benchmark-indication-mix-under-expand"]');
-        self::assertSelectorExists('[data-testid="stats-benchmark-selection-card"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-selection"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-primary-scope"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-comparison-scope"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-primary-cases"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-comparison-cases"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-selection-edit-button"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-selection-modal"]');
+        self::assertSelectorExists('[data-controller="live"]');
+        self::assertSelectorExists('[data-live-url-value]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-primary-form"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-comparison-form"]');
+        self::assertSelectorExists('[data-testid="stats-benchmark-selection-apply"]');
+        self::assertGreaterThan(
+            0,
+            $client->getCrawler()->filter('[data-testid="stats-benchmark-primary-form"] select')->count(),
+        );
+        self::assertSelectorNotExists('[data-testid="stats-benchmark-kpi-table"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-demographics-age"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-demographics-gender"]');
         self::assertSelectorExists('[data-testid="stats-benchmark-urgency"]');

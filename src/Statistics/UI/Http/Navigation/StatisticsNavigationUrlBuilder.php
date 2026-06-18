@@ -48,4 +48,23 @@ final readonly class StatisticsNavigationUrlBuilder
     {
         return $this->build($request, $target->route, $target->params, $target->removeKeys);
     }
+
+    /**
+     * @param array<string, scalar|null> $replace
+     * @param list<string>               $removeKeys
+     *
+     * @return array<string, scalar>
+     */
+    public function buildParams(Request $request, string $routeName, array $replace = [], array $removeKeys = []): array
+    {
+        $url = $this->build($request, $routeName, $replace, $removeKeys);
+        $query = parse_url($url, PHP_URL_QUERY);
+        if (!\is_string($query) || '' === $query) {
+            return [];
+        }
+
+        parse_str($query, $params);
+
+        return StatisticsQueryParamNormalizer::normalize($params);
+    }
 }

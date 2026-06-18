@@ -5405,7 +5405,31 @@
       </trans-unit>
       <trans-unit id="statsBm04b" resname="stats.benchmark.selection.summary_hint">
         <source>stats.benchmark.selection.summary_hint</source>
-        <target>Active comparison based on the selections above.</target>
+        <target>Configure scope and period for both sides, then apply to reload the comparison.</target>
+      </trans-unit>
+      <trans-unit id="statsBm04c" resname="stats.benchmark.selection.edit">
+        <source>stats.benchmark.selection.edit</source>
+        <target>Edit comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm04d" resname="stats.benchmark.selection.modal.title">
+        <source>stats.benchmark.selection.modal.title</source>
+        <target>Edit scope comparison</target>
+      </trans-unit>
+      <trans-unit id="statsBm04e" resname="stats.benchmark.selection.modal.cancel">
+        <source>stats.benchmark.selection.modal.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="statsBm04f" resname="stats.benchmark.selection.modal.apply">
+        <source>stats.benchmark.selection.modal.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="statsBm04g" resname="stats.benchmark.primary.short">
+        <source>stats.benchmark.primary.short</source>
+        <target>A</target>
+      </trans-unit>
+      <trans-unit id="statsBm04h" resname="stats.benchmark.comparison.short">
+        <source>stats.benchmark.comparison.short</source>
+        <target>B</target>
       </trans-unit>
       <trans-unit id="statsBm05" resname="stats.benchmark.comparison.choose_period">
         <source>stats.benchmark.comparison.choose_period</source>
@@ -5422,6 +5446,10 @@
       <trans-unit id="statsBm08" resname="stats.benchmark.section.executive_summary">
         <source>stats.benchmark.section.executive_summary</source>
         <target>Executive summary</target>
+      </trans-unit>
+      <trans-unit id="statsBm08a" resname="stats.benchmark.section.notable_differences">
+        <source>stats.benchmark.section.notable_differences</source>
+        <target>Notable differences</target>
       </trans-unit>
       <trans-unit id="statsBm09" resname="stats.benchmark.section.kpi">
         <source>stats.benchmark.section.kpi</source>

@@ -1,0 +1,79 @@
+<div class="mb-3" data-testid="{{ testId|default('stats-compare-selection') }}">
+    <div class="row g-3 align-items-stretch">
+        <div class="col-md">
+            <div class="rounded-3 p-3 h-100 bg-primary-lt border-start border-4 stats-indication-compare-side-a">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="avatar avatar-md bg-primary text-white fw-bold flex-shrink-0">{{ sideAAvatar|default('A') }}</span>
+                    <div class="min-w-0">
+                        <div class="text-primary fw-medium small text-uppercase mb-1">
+                            {{ sideATitleKey|trans }}
+                        </div>
+                        <h3 class="h2 mb-{% if sideASubheading is defined and sideASubheading %}1{% else %}2{% endif %}">
+                            {% if sideAUrl is defined and sideAUrl %}
+                                <a href="{{ sideAUrl }}"
+                                   class="text-reset stats-indication-compare-indication-link"
+                                   data-testid="{{ sideATestId|default(testId ~ '-a') }}">
+                                    {{ sideAHeading }}
+                                </a>
+                            {% else %}
+                                <span data-testid="{{ sideATestId|default(testId ~ '-a') }}">{{ sideAHeading }}</span>
+                            {% endif %}
+                        </h3>
+                        {% if sideASubheading is defined and sideASubheading %}
+                            <div class="text-muted mb-2" data-testid="{{ sideASubheadingTestId|default(testId ~ '-period-a') }}">
+                                {{ sideASubheading }}
+                            </div>
+                        {% endif %}
+                        <span class="badge bg-primary text-primary-fg" data-testid="{{ sideACountTestId|default(testId ~ '-count-a') }}">
+                            {% if sideACountLabel is defined and sideACountLabel %}
+                                {{ sideACountLabel }}
+                            {% else %}
+                                {{ sideACount|number_format(0, ',', '.') }} {{ 'stats.indication.kpi.cases'|trans }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-auto d-none d-md-flex align-items-center px-0">
+            <span class="text-muted fw-medium text-uppercase small">vs</span>
+        </div>
+
+        <div class="col-md">
+            <div class="rounded-3 p-3 h-100 bg-secondary-lt border-start border-4 stats-indication-compare-side-b">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="avatar avatar-md bg-secondary text-secondary-fg fw-bold flex-shrink-0">{{ sideBAvatar|default('B') }}</span>
+                    <div class="min-w-0">
+                        <div class="text-secondary fw-medium small text-uppercase mb-1">
+                            {{ sideBTitleKey|trans }}
+                        </div>
+                        <h3 class="h2 mb-{% if sideBSubheading is defined and sideBSubheading %}1{% else %}2{% endif %}">
+                            {% if sideBUrl is defined and sideBUrl %}
+                                <a href="{{ sideBUrl }}"
+                                   class="text-reset stats-indication-compare-indication-link"
+                                   data-testid="{{ sideBTestId|default(testId ~ '-b') }}">
+                                    {{ sideBHeading }}
+                                </a>
+                            {% else %}
+                                <span data-testid="{{ sideBTestId|default(testId ~ '-b') }}">{{ sideBHeading }}</span>
+                            {% endif %}
+                        </h3>
+                        {% if sideBSubheading is defined and sideBSubheading %}
+                            <div class="text-muted mb-2" data-testid="{{ sideBSubheadingTestId|default(testId ~ '-period-b') }}">
+                                {{ sideBSubheading }}
+                            </div>
+                        {% endif %}
+                        <span class="badge bg-secondary-lt text-secondary" data-testid="{{ sideBCountTestId|default(testId ~ '-count-b') }}">
+                            {% if sideBCountLabel is defined and sideBCountLabel %}
+                                {{ sideBCountLabel }}
+                            {% else %}
+                                {{ sideBCount|number_format(0, ',', '.') }} {{ 'stats.indication.kpi.cases'|trans }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

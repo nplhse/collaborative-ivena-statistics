@@ -11,12 +11,15 @@ use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Benchmarking\Application\BenchmarkCriteriaFactory;
 use App\Statistics\Benchmarking\Application\BenchmarkDefaultResolver;
 use App\Statistics\Benchmarking\Application\BenchmarkReportService;
+use App\Statistics\Benchmarking\Application\BenchmarkSelectionQueryBuilder;
+use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerStateFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryParamNormalizer;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +44,7 @@ final class BenchmarkingController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
+        private readonly BenchmarkSelectionFormDataFactory $benchmarkSelectionFormDataFactory,
     ) {
     }
 
@@ -103,10 +107,30 @@ final class BenchmarkingController extends AbstractController
             'report' => $report,
             'chartPayload' => $this->benchmarkChartPayloadFactory->create($report),
             'selection' => $selection,
+            'benchmarkSelectionFormData' => $this->benchmarkSelectionFormDataFactory->fromFilters($filter, $comparisonFilter),
+            'benchmarkSelectionPreservedQuery' => $this->extractPreservedSelectionQuery($request),
             'indicationMixViewModel' => $this->benchmarkIndicationMixViewModelFactory->create($request, $report->indicationMix),
             'statsFilterDrawerValues' => $drawerState['values'],
             'statsActiveFilterCount' => $drawerState['activeCount'],
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_benchmarking'),
         ]);
+    }
+
+    /**
+     * @return array<string, bool|float|int|string>
+     */
+    private function extractPreservedSelectionQuery(Request $request): array
+    {
+        $routeParams = $request->attributes->get('_route_params', []);
+        if (!\is_array($routeParams)) {
+            $routeParams = [];
+        }
+
+        $query = StatisticsQueryParamNormalizer::normalize(array_merge($routeParams, $request->query->all()));
+        foreach (BenchmarkSelectionQueryBuilder::SELECTION_QUERY_KEYS as $key) {
+            unset($query[$key]);
+        }
+
+        return $query;
     }
 }

@@ -1,5 +1,6 @@
 {% set periodVm = overviewPeriodViewModel %}
 {% set periodTestIdPrefix = periodTestIdPrefix|default('stats-period') %}
+{% set usePicker = pickerMode|default(false) %}
 
 <div class="btn-group" role="group" aria-label="{{ 'stats.filter.period_label'|trans }}">
     {% if periodVm.showSecondaryPicker %}
@@ -13,7 +14,11 @@
             </button>
             <div class="dropdown-menu">
                 {% for item in periodVm.primaryMenu %}
-                    <a class="dropdown-item{% if item.active %} active{% endif %}" href="{{ item.url }}">{{ item.label }}</a>
+                    <a class="dropdown-item{% if item.active %} active{% endif %}"
+                       href="{{ item.url }}"
+                       {% if usePicker %}data-action="benchmark-selection-picker#pickLink"{% endif %}>
+                        {{ item.label }}
+                    </a>
                 {% endfor %}
             </div>
         </div>
@@ -30,7 +35,11 @@
                     {% if row.divider|default(false) %}
                         <div class="dropdown-divider"></div>
                     {% else %}
-                        <a class="dropdown-item{% if row.active %} active{% endif %}" href="{{ row.url }}">{{ row.label }}</a>
+                        <a class="dropdown-item{% if row.active %} active{% endif %}"
+                           href="{{ row.url }}"
+                           {% if usePicker %}data-action="benchmark-selection-picker#pickLink"{% endif %}>
+                            {{ row.label }}
+                        </a>
                     {% endif %}
                 {% endfor %}
             </div>
@@ -46,7 +55,11 @@
             </button>
             <div class="dropdown-menu dropdown-menu-end">
                 {% for item in periodVm.primaryMenu %}
-                    <a class="dropdown-item{% if item.active %} active{% endif %}" href="{{ item.url }}">{{ item.label }}</a>
+                    <a class="dropdown-item{% if item.active %} active{% endif %}"
+                       href="{{ item.url }}"
+                       {% if usePicker %}data-action="benchmark-selection-picker#pickLink"{% endif %}>
+                        {{ item.label }}
+                    </a>
                 {% endfor %}
             </div>
         </div>
