@@ -24,7 +24,7 @@ final class BenchmarkInsightProviderTest extends TestCase
         $this->metricBuilder = new BenchmarkMetricBuilder();
     }
 
-    public function testReturnsEmptySummaryWhenSampleSizeTooSmall(): void
+    public function testReturnsEmptyListWhenSampleSizeTooSmall(): void
     {
         $aggregation = new BenchmarkAggregationResult(
             BenchmarkSideCounts::empty(),
@@ -32,11 +32,7 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $summary = $this->provider->build($aggregation, []);
-
-        self::assertSame([], $summary->above);
-        self::assertSame([], $summary->neutral);
-        self::assertSame([], $summary->below);
+        self::assertSame([], $this->provider->build($aggregation, []));
     }
 
     public function testBuildsAboveInsightForHighPhysicianRate(): void
@@ -53,16 +49,15 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $kpiMetrics = $this->metricBuilder->buildKpiMetrics($aggregation);
-        $summary = $this->provider->build($aggregation, $kpiMetrics);
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
 
-        self::assertNotEmpty($summary->above);
-        self::assertSame('physician', $summary->above[0]->id);
-        self::assertSame(BenchmarkInsightDirection::Above, $summary->above[0]->direction);
-        self::assertSame(BenchmarkInsightSeverity::Critical, $summary->above[0]->severity);
+        self::assertNotEmpty($insights);
+        self::assertSame('physician', $insights[0]->id);
+        self::assertSame(BenchmarkInsightDirection::Above, $insights[0]->direction);
+        self::assertSame(BenchmarkInsightSeverity::Critical, $insights[0]->severity);
     }
 
-    public function testBuildsNeutralPhysicianInsightWhenBalanced(): void
+    public function testExcludesNeutralPhysicianInsightWhenBalanced(): void
     {
         $aggregation = new BenchmarkAggregationResult(
             new BenchmarkSideCounts(
@@ -76,11 +71,27 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $kpiMetrics = $this->metricBuilder->buildKpiMetrics($aggregation);
-        $summary = $this->provider->build($aggregation, $kpiMetrics);
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $ids = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $insights);
 
-        $neutralIds = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $summary->neutral);
-        self::assertContains('physician_neutral', $neutralIds);
+        self::assertNotContains('physician_neutral', $ids);
+    }
+
+    public function testReturnsEmptyListWhenOnlyNeutralInsightsExist(): void
+    {
+        $aggregation = new BenchmarkAggregationResult(
+            new BenchmarkSideCounts(
+                500, 200, 20, 10, 5, 4, 3, 0, 0, 2, 100, 80, 80,
+                250, 250, 0, 250, 200, 0, 60.0, 40.0, 41.0,
+            ),
+            new BenchmarkSideCounts(
+                5000, 2100, 200, 100, 80, 60, 40, 0, 0, 20, 1000, 2000, 2000,
+                2500, 2500, 0, 2500, 2000, 0, 60.0, 40.0, 41.0,
+            ),
+            [],
+        );
+
+        self::assertSame([], $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation)));
     }
 
     public function testBuildsBelowInsightForLowPhysicianRate(): void
@@ -97,10 +108,10 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $summary = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $ids = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $insights);
 
-        $belowIds = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $summary->below);
-        self::assertContains('physician_low', $belowIds);
+        self::assertContains('physician_low', $ids);
     }
 
     public function testBuildsTransportAndAgeInsightsFromKpiMetrics(): void
@@ -117,11 +128,11 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $summary = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $ids = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $insights);
 
-        $aboveIds = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $summary->above);
-        self::assertContains('age_old', $aboveIds);
-        self::assertContains('transport_time_long', $aboveIds);
+        self::assertContains('age_old', $ids);
+        self::assertContains('transport_time_long', $ids);
     }
 
     public function testBuildsYoungerAgeAndShorterTransportInsights(): void
@@ -138,10 +149,10 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $summary = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $ids = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $insights);
 
-        $belowIds = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $summary->below);
-        self::assertContains('age_young', $belowIds);
+        self::assertContains('age_young', $ids);
     }
 
     public function testBuildsShorterTransportInsight(): void
@@ -158,13 +169,13 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $summary = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
-        $belowIds = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $summary->below);
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $ids = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $insights);
 
-        self::assertContains('transport_time_short', $belowIds);
+        self::assertContains('transport_time_short', $ids);
     }
 
-    public function testBuildsGenderBalanceNeutralInsight(): void
+    public function testExcludesGenderBalanceNeutralInsight(): void
     {
         $aggregation = new BenchmarkAggregationResult(
             new BenchmarkSideCounts(
@@ -178,13 +189,13 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $summary = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $ids = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $insights);
 
-        $neutralIds = array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkInsight $insight): string => $insight->id, $summary->neutral);
-        self::assertContains('gender_balance', $neutralIds);
+        self::assertNotContains('gender_balance', $ids);
     }
 
-    public function testLimitsInsightsToThreePerColumn(): void
+    public function testLimitsInsightsToMaxVisible(): void
     {
         $aggregation = new BenchmarkAggregationResult(
             new BenchmarkSideCounts(
@@ -198,10 +209,8 @@ final class BenchmarkInsightProviderTest extends TestCase
             [],
         );
 
-        $summary = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
+        $insights = $this->provider->build($aggregation, $this->metricBuilder->buildKpiMetrics($aggregation));
 
-        self::assertLessThanOrEqual(3, \count($summary->above));
-        self::assertLessThanOrEqual(3, \count($summary->below));
-        self::assertLessThanOrEqual(3, \count($summary->neutral));
+        self::assertLessThanOrEqual(4, \count($insights));
     }
 }
