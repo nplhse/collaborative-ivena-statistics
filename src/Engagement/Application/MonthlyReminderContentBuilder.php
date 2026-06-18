@@ -7,14 +7,15 @@ namespace App\Engagement\Application;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Engagement\Application\Dto\MonthlyReminderContent;
-use App\Engagement\Application\Dto\MonthlyReminderInsight;
-use App\Engagement\Application\Dto\MonthlyReminderInsightTrend;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
 use App\Statistics\Application\ChartBucketMapper;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\Insights\HospitalInsight;
+use App\Statistics\Application\Insights\HospitalInsightSelector;
+use App\Statistics\Application\Insights\HospitalInsightTrend;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
 use App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery;
@@ -38,7 +39,8 @@ final readonly class MonthlyReminderContentBuilder
         private ImportRepository $importRepository,
         private GetOverviewDashboardMetricsQuery $overviewMetricsQuery,
         private MonthlyReminderChartBuilder $chartBuilder,
-        private MonthlyReminderInsightSelector $insightSelector,
+        private HospitalInsightSelector $insightSelector,
+        private MonthlyReminderDistributionSegments $distributionSegments,
         private KpiDailyRepository $kpiDailyRepository,
         private ChartBucketMapper $chartBucketMapper,
         private TranslatorInterface $translator,
@@ -206,12 +208,12 @@ final readonly class MonthlyReminderContentBuilder
                 'percent' => number_format(abs($this->averageMonthlyChange($allocationSeries)), 1, '.', ''),
             ]) : '',
             chartBars: $chartBars,
-            urgencySegments: $this->insightSelector->urgencySegments(
+            urgencySegments: $this->distributionSegments->urgencySegments(
                 $overviewMetrics->urgencyCounts,
                 $overviewMetrics->scopedTotal,
             ),
             urgencyBenchmarkNote: $this->urgencyBenchmarkNote($selfReport, $baselinePeriodLabel),
-            genderSegments: $this->insightSelector->genderSegments(
+            genderSegments: $this->distributionSegments->genderSegments(
                 $overviewMetrics->genderCounts,
                 $overviewMetrics->scopedTotal,
             ),
@@ -381,20 +383,20 @@ final readonly class MonthlyReminderContentBuilder
     }
 
     /**
-     * @return list<MonthlyReminderInsight>
+     * @return list<HospitalInsight>
      */
     private function fallbackInsights(string $benchmarkingUrl): array
     {
         return [
-            new MonthlyReminderInsight(
+            new HospitalInsight(
                 $this->translator->trans('monthly_reminder.fallback.insight.upload.title'),
                 $this->translator->trans('monthly_reminder.fallback.insight.upload.body'),
-                MonthlyReminderInsightTrend::Neutral,
+                HospitalInsightTrend::Neutral,
             ),
-            new MonthlyReminderInsight(
+            new HospitalInsight(
                 $this->translator->trans('monthly_reminder.fallback.insight.platform.title'),
                 $this->translator->trans('monthly_reminder.fallback.insight.platform.body'),
-                MonthlyReminderInsightTrend::Neutral,
+                HospitalInsightTrend::Neutral,
                 $benchmarkingUrl,
             ),
         ];
