@@ -30,7 +30,7 @@ final class AnalysisViewRecentServiceTest extends KernelTestCase
 
     public function testLastUsedReturnsRecentlyOpenedView(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $this->usageTracker->recordSystemViewOpen($user, 'allocations_by_month');
 
         $views = $this->recentService->lastUsed($user, 5);
@@ -41,7 +41,7 @@ final class AnalysisViewRecentServiceTest extends KernelTestCase
 
     public function testMostFrequentPrefersRepeatedlyOpenedView(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $this->usageTracker->recordSystemViewOpen($user, 'allocations_by_month');
         $this->usageTracker->recordSystemViewOpen($user, 'urgency_distribution_with_share');
         $this->usageTracker->recordSystemViewOpen($user, 'allocations_by_month');

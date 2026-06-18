@@ -33,7 +33,7 @@ final class BenchmarkingControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'benchmark-ctrl-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $client->request(Request::METHOD_GET, '/statistics/benchmarking');
 
@@ -62,7 +62,7 @@ final class BenchmarkingControllerTest extends WebTestCase
             'location' => HospitalLocation::URBAN,
             'owner' => $user,
         ]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $client->request(Request::METHOD_GET, '/statistics/benchmarking');
 
@@ -123,7 +123,7 @@ final class BenchmarkingControllerTest extends WebTestCase
         ]);
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $client->request(Request::METHOD_GET, '/statistics/benchmarking');
         self::assertResponseRedirects();
@@ -138,7 +138,7 @@ final class BenchmarkingControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'benchmark-render-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'BenchmarkRenderState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'BenchmarkRenderDispatch', 'state' => $state]);

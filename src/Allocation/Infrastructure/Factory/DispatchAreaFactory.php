@@ -7,12 +7,12 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Infrastructure\Faker\Provider\Area;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<DispatchArea>
+ * @extends PersistentObjectFactory<DispatchArea>
  */
-final class DispatchAreaFactory extends PersistentProxyObjectFactory
+final class DispatchAreaFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
@@ -28,12 +28,12 @@ final class DispatchAreaFactory extends PersistentProxyObjectFactory
     {
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::random(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'updatedAt' => self::faker()->boolean(40)
                 ? \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-6 months', 'now'))
                 : null,
             'name' => Area::dispatchArea(),
-            'state' => StateFactory::random(),
+            'state' => StateFactory::new()->withoutAutorefresh()->randomOrCreate(),
         ];
     }
 }

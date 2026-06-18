@@ -7,6 +7,7 @@ namespace App\Content\Infrastructure\Repository;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -40,7 +41,7 @@ final class PageRepository extends ServiceEntityRepository
         $page = $this->createQueryBuilder('p')
             ->andWhere('p.key = :key')
             ->andWhere('p.status = :status')
-            ->setParameter('key', $key)
+            ->setParameter('key', $key->value, Types::STRING)
             ->setParameter('status', Page::STATUS_PUBLISHED)
             ->setMaxResults(1)
             ->getQuery()
@@ -72,8 +73,8 @@ final class PageRepository extends ServiceEntityRepository
     {
         /** @var list<Page> $pages */
         $pages = $this->createQueryBuilder('p')
-            ->andWhere('p.parent = :parent')
-            ->setParameter('parent', $parent)
+            ->andWhere('IDENTITY(p.parent) = :parentId')
+            ->setParameter('parentId', $parent->getId(), Types::INTEGER)
             ->orderBy('p.sortOrder', 'ASC')
             ->addOrderBy('p.id', 'ASC')
             ->getQuery()

@@ -9,12 +9,12 @@ use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\HospitalPermissionMask;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<HospitalAccessGrant>
+ * @extends PersistentObjectFactory<HospitalAccessGrant>
  */
-final class HospitalAccessGrantFactory extends PersistentProxyObjectFactory
+final class HospitalAccessGrantFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
@@ -35,7 +35,7 @@ final class HospitalAccessGrantFactory extends PersistentProxyObjectFactory
                 HospitalPermission::View,
                 HospitalPermission::Statistics,
             ]),
-            'createdBy' => UserFactory::new(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh(),
         ];
     }
 

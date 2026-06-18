@@ -549,6 +549,95 @@ final class ImportAllocationsMessageHandlerTest extends DatabaseKernelTestCase
         self::assertNotSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
+    public function testDispatchViaMessageBusRunsAllocationImportSampleFixture(): void
+    {
+        ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeAllocationImportSampleCsvImport();
+
+        $bus = self::getContainer()->get(MessageBusInterface::class);
+
+        try {
+            $bus->dispatch(new ImportAllocationsMessage($id));
+        } finally {
+            if (is_file($csvPath)) {
+                @unlink($csvPath);
+            }
+        }
+
+        $fresh = $this->imports->find($id);
+        self::assertNotNull($fresh);
+        self::assertTrue(
+            $fresh->isFinalStatus(),
+            sprintf(
+                'Expected final import status, got %s',
+                null !== ($status = $fresh->getStatus()) ? $status->value : 'null',
+            ),
+        );
+    }
+
+    /**
+     * @return array{id: int, csvPath: string}
+     */
+    private function arrangeAllocationImportSampleCsvImport(): array
+    {
+        $owner = UserFactory::createOne(['username' => 'import-sample-'.bin2hex(random_bytes(4))]);
+        $createdBy = UserFactory::createOne(['username' => 'import-sample-creator-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Test Area', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'St. Test Hospital',
+            'owner' => $owner,
+            'createdBy' => $createdBy,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Patient']);
+        AssignmentFactory::createOne(['name' => 'RD']);
+        AssignmentFactory::createOne(['name' => 'ZLST']);
+        OccasionFactory::createOne(['name' => 'aus Arztpraxis']);
+        OccasionFactory::createOne(['name' => 'Häuslicher Einsatz']);
+        OccasionFactory::createOne(['name' => 'Öffentlicher Raum']);
+        OccasionFactory::createOne(['name' => 'Sonstiger Einsatz']);
+        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
+        InfectionFactory::createOne(['name' => 'Noro']);
+        InfectionFactory::createOne(['name' => 'V.a. COVID']);
+        IndicationRawFactory::createOne(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
+
+        $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
+        $fixturePath = $projectDir.'/tests/Import/Fixtures/allocation_import_sample.csv';
+        self::assertFileExists($fixturePath);
+
+        $targetDir = $projectDir.'/var/tests/imports/'.date('Y/m');
+        @mkdir($targetDir, 0775, true);
+        $csvPath = $targetDir.'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
+        copy($fixturePath, $csvPath);
+        $relativePath = ltrim(str_replace('\\', '/', (string) preg_replace('#^'.preg_quote($projectDir, '#').'/?#', '', $csvPath)), '/');
+
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
+        $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
+
+        $import = new Import()
+            ->setName('Allocation import sample fixture')
+            ->setHospital($hospitalRef)
+            ->setCreatedBy($userRef)
+            ->setType(ImportType::ALLOCATION)
+            ->setStatus(ImportStatus::PENDING)
+            ->setFilePath($relativePath)
+            ->setFileExtension('csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize((int) filesize($csvPath))
+            ->setRunCount(0)
+            ->setRunTime(0)
+            ->setRowCount(0);
+
+        $this->em->persist($import);
+        $this->em->flush();
+
+        return ['id' => (int) $import->getId(), 'csvPath' => $csvPath];
+    }
+
     /**
      * @return array{id: int, csvPath: string}
      */

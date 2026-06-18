@@ -195,13 +195,13 @@ final class BlogControllerTest extends WebTestCase
     public function testAuthenticatedUserCanPostComment(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['username' => 'blog-comment-user'])->_real();
+        $user = UserFactory::createOne(['username' => 'blog-comment-user']);
         $post = PostFactory::createOne([
             'title' => 'Comment target',
             'slug' => 'comment-target-auth',
             'status' => PostStatus::PUBLISHED,
             'publishedAt' => new \DateTimeImmutable('-1 hour'),
-        ])->_real();
+        ]);
 
         $client->loginUser($user);
         $crawler = $client->request(Request::METHOD_GET, '/blog/comment-target-auth');
@@ -303,7 +303,7 @@ final class BlogControllerTest extends WebTestCase
 
     public function testCreatingPostWritesAuditLogEntry(): void
     {
-        $author = UserFactory::createOne(['username' => 'audit-post-author'])->_real();
+        $author = UserFactory::createOne(['username' => 'audit-post-author']);
         $category = PostCategoryFactory::createOne(['name' => 'Audit Category', 'slug' => 'audit-category']);
 
         $post = PostFactory::createOne([
@@ -313,7 +313,7 @@ final class BlogControllerTest extends WebTestCase
             'publishedAt' => new \DateTimeImmutable('-1 hour'),
             'category' => $category,
             'createdBy' => $author,
-        ])->_real();
+        ]);
 
         /** @var \Doctrine\ORM\EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get('doctrine')->getManager();
@@ -346,8 +346,8 @@ final class BlogControllerTest extends WebTestCase
     public function testAuthenticatedCommentValidationAndReplyBranches(): void
     {
         $client = self::createClient();
-        $author = UserFactory::createOne(['username' => 'reply-author'])->_real();
-        $replier = UserFactory::createOne(['username' => 'reply-user'])->_real();
+        $author = UserFactory::createOne(['username' => 'reply-author']);
+        $replier = UserFactory::createOne(['username' => 'reply-user']);
 
         $post = PostFactory::createOne([
             'title' => 'Reply target',
@@ -355,14 +355,14 @@ final class BlogControllerTest extends WebTestCase
             'status' => PostStatus::PUBLISHED,
             'publishedAt' => new \DateTimeImmutable('-1 hour'),
             'createdBy' => $author,
-        ])->_real();
+        ]);
 
         $parent = PostCommentFactory::createOne([
             'post' => $post,
             'author' => $author,
             'createdBy' => $author,
             'content' => 'Parent comment',
-        ])->_real();
+        ]);
 
         $client->loginUser($replier);
 

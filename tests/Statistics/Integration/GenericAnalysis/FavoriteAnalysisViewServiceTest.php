@@ -31,7 +31,7 @@ final class FavoriteAnalysisViewServiceTest extends KernelTestCase
 
     public function testToggleSystemViewAddsAndRemovesFavorite(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
 
         self::assertTrue($this->service->toggleSystemView($user, 'allocations_by_month'));
         self::assertTrue($this->service->isSystemFavorite($user, 'allocations_by_month'));
@@ -42,7 +42,7 @@ final class FavoriteAnalysisViewServiceTest extends KernelTestCase
 
     public function testToggleSavedViewAddsAndRemovesFavorite(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $saved = $this->savedViewService->create(
             owner: $user,
             title: 'Favorite saved view',
@@ -58,7 +58,7 @@ final class FavoriteAnalysisViewServiceTest extends KernelTestCase
 
     public function testListForUserReturnsOrderedFavorites(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $this->service->toggleSystemView($user, 'allocations_by_month');
         $this->service->toggleSystemView($user, 'urgency_by_month');
 

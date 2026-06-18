@@ -60,7 +60,7 @@ final class AnalysisViewResolverTest extends KernelTestCase
 
     public function testResolveSavedViewReturnsSavedContext(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $saved = $this->savedViewService->create(
             owner: $user,
             title: 'My urgency view',
@@ -96,7 +96,7 @@ final class AnalysisViewResolverTest extends KernelTestCase
 
     public function testResolveSavedViewThrowsForUnknownId(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $request = Request::create('/statistics/analytics/saved/99999', Request::METHOD_GET);
 
         $this->expectException(UnknownAnalysisViewException::class);

@@ -6,12 +6,12 @@ namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\Infection;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Infection>
+ * @extends PersistentObjectFactory<Infection>
  */
-final class InfectionFactory extends PersistentProxyObjectFactory
+final class InfectionFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

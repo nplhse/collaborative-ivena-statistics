@@ -36,7 +36,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $owner]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access');
 
         self::assertResponseIsSuccessful();
@@ -60,7 +60,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $owner]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access/new');
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('datalist-chooser', (string) $client->getResponse()->getContent());
@@ -76,7 +76,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
 
         /** @var HospitalAccessGrantRepository $repository */
         $repository = self::getContainer()->get(HospitalAccessGrantRepository::class);
-        $grant = $repository->findForUserAndHospital($candidate->_real(), $hospital->_real());
+        $grant = $repository->findForUserAndHospital($candidate, $hospital);
 
         self::assertNotNull($grant);
         self::assertTrue(HospitalPermissionMask::has($grant->getPermissions(), HospitalPermission::View));
@@ -93,7 +93,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $owner]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access/new');
         self::assertResponseIsSuccessful();
 
@@ -108,7 +108,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
 
         /** @var HospitalAccessGrantRepository $repository */
         $repository = self::getContainer()->get(HospitalAccessGrantRepository::class);
-        $grant = $repository->findForUserAndHospital($candidate->_real(), $hospital->_real());
+        $grant = $repository->findForUserAndHospital($candidate, $hospital);
 
         self::assertNotNull($grant);
         self::assertTrue(HospitalPermissionMask::has($grant->getPermissions(), HospitalPermission::View));
@@ -131,7 +131,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
             'createdBy' => $owner,
         ]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $crawler = $client->request(
             Request::METHOD_GET,
             '/hospitals/'.$hospital->getId().'/edit/access/'.$grant->getId(),
@@ -152,7 +152,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
 
         /** @var HospitalAccessGrantRepository $repository */
         $repository = self::getContainer()->get(HospitalAccessGrantRepository::class);
-        $updatedGrant = $repository->findForUserAndHospital($grantee->_real(), $hospital->_real());
+        $updatedGrant = $repository->findForUserAndHospital($grantee, $hospital);
 
         self::assertNotNull($updatedGrant);
         self::assertTrue(HospitalPermissionMask::has($updatedGrant->getPermissions(), HospitalPermission::Statistics));
@@ -176,7 +176,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
             'createdBy' => $owner,
         ]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $crawler = $client->request(
             Request::METHOD_GET,
             '/hospitals/'.$hospital->getId().'/edit/access/'.$grant->getId(),
@@ -196,7 +196,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
 
         /** @var HospitalAccessGrantRepository $repository */
         $repository = self::getContainer()->get(HospitalAccessGrantRepository::class);
-        $updatedGrant = $repository->findForUserAndHospital($grantee->_real(), $hospital->_real());
+        $updatedGrant = $repository->findForUserAndHospital($grantee, $hospital);
 
         self::assertNotNull($updatedGrant);
         self::assertTrue(HospitalPermissionMask::has($updatedGrant->getPermissions(), HospitalPermission::Statistics));
@@ -219,7 +219,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
             'createdBy' => $owner,
         ]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access');
         self::assertResponseIsSuccessful();
 
@@ -231,7 +231,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         /** @var HospitalAccessGrantRepository $repository */
         $repository = self::getContainer()->get(HospitalAccessGrantRepository::class);
 
-        self::assertNull($repository->findForUserAndHospital($grantee->_real(), $hospital->_real()));
+        self::assertNull($repository->findForUserAndHospital($grantee, $hospital));
     }
 
     public function testAdminCanDeleteAccessGrant(): void
@@ -252,7 +252,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
             'createdBy' => $owner,
         ]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access');
         self::assertResponseIsSuccessful();
 
@@ -264,7 +264,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         /** @var HospitalAccessGrantRepository $repository */
         $repository = self::getContainer()->get(HospitalAccessGrantRepository::class);
 
-        self::assertNull($repository->findForUserAndHospital($grantee->_real(), $hospital->_real()));
+        self::assertNull($repository->findForUserAndHospital($grantee, $hospital));
     }
 
     public function testLegacyAccessGrantsUrlRedirectsToEditAccess(): void
@@ -276,7 +276,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $owner]);
 
-        $client->loginUser($owner->_real());
+        $client->loginUser($owner);
         $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/access-grants');
 
         self::assertResponseRedirects('/hospitals/'.$hospital->getId().'/edit/access', Response::HTTP_MOVED_PERMANENTLY);
@@ -292,7 +292,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $owner]);
 
-        $client->loginUser($intruder->_real());
+        $client->loginUser($intruder);
         $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access');
 
         self::assertResponseStatusCodeSame(403);
@@ -308,7 +308,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
         $hospital = HospitalFactory::createOne(['owner' => $owner]);
         $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/access');
 
         self::assertResponseIsSuccessful();
@@ -334,7 +334,7 @@ final class HospitalAccessGrantAccessTest extends WebTestCase
 
         $access = $client->getContainer()->get(HospitalAccessInterface::class);
 
-        self::assertTrue($access->canUseMyHospitalsScope($grantee->_real()));
-        self::assertFalse($access->canUseBenchmarkingScope($grantee->_real()));
+        self::assertTrue($access->canUseMyHospitalsScope($grantee));
+        self::assertFalse($access->canUseBenchmarkingScope($grantee));
     }
 }

@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Controller;
 
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
@@ -68,8 +75,6 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSeeElement('ul.steps.steps-vertical')
             ->assertSeeElement('[data-controller="import-status"]')
             ->assertSee('File uploaded')
-            ->assertSee('View import details')
-            ->assertSeeElement('[data-import-status-target="detailLink"]:not(.d-none)')
             ->use(function (): void {
                 /** @var EntityManagerInterface $em */
                 $em = self::getContainer()->get(EntityManagerInterface::class);
@@ -87,7 +92,9 @@ final class NewImportControllerTest extends WebTestCase
                 self::assertNotSame('', (string) $import->getFileChecksum());
 
                 @\unlink($import->getFilePath());
-            });
+            })
+            ->assertSee('View import details')
+            ->assertSeeElement('[data-import-status-target="detailLink"]:not(.d-none)');
     }
 
     /**
@@ -95,15 +102,15 @@ final class NewImportControllerTest extends WebTestCase
      */
     private function createOwnerWithHospital(): array
     {
-        $owner = UserFactory::createOne([
+        $owner = UserFactory::new()->withoutAutorefresh()->create([
             'username' => 'owner-user',
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
         ]);
-        $createdBy = UserFactory::createOne(['username' => 'area-user']);
-        $state = StateFactory::createOne(['name' => 'Hessen']);
-        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        $createdBy = UserFactory::new()->withoutAutorefresh()->create(['username' => 'area-user']);
+        $state = StateFactory::new()->withoutAutorefresh()->create(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::new()->withoutAutorefresh()->create(['name' => 'Test Area', 'state' => $state]);
 
-        $hospital = HospitalFactory::createOne([
+        $hospital = HospitalFactory::new()->withoutAutorefresh()->create([
             'name' => 'St. Test Hospital',
             'owner' => $owner,
             'createdBy' => $createdBy,
@@ -111,10 +118,25 @@ final class NewImportControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
+        SpecialityFactory::new()->withoutAutorefresh()->create(['name' => 'Innere Medizin']);
+        DepartmentFactory::new()->withoutAutorefresh()->create(['name' => 'Kardiologie']);
+        AssignmentFactory::new()->withoutAutorefresh()->create(['name' => 'Patient']);
+        AssignmentFactory::new()->withoutAutorefresh()->create(['name' => 'RD']);
+        AssignmentFactory::new()->withoutAutorefresh()->create(['name' => 'ZLST']);
+        OccasionFactory::new()->withoutAutorefresh()->create(['name' => 'aus Arztpraxis']);
+        OccasionFactory::new()->withoutAutorefresh()->create(['name' => 'Häuslicher Einsatz']);
+        OccasionFactory::new()->withoutAutorefresh()->create(['name' => 'Öffentlicher Raum']);
+        OccasionFactory::new()->withoutAutorefresh()->create(['name' => 'Sonstiger Einsatz']);
+        SecondaryTransportFactory::new()->withoutAutorefresh()->create(['name' => 'Kapazitätsengpass']);
+        InfectionFactory::new()->withoutAutorefresh()->create(['name' => 'Noro']);
+        InfectionFactory::new()->withoutAutorefresh()->create(['name' => 'V.a. COVID']);
+        IndicationRawFactory::new()->withoutAutorefresh()->create(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
+
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
         /** @var User $freshOwner */
-        $freshOwner = $em->getRepository(User::class)->find($owner->getId());
+        $freshOwner = $em->getRepository(User::class)->findOneBy(['username' => 'owner-user']);
         self::assertNotNull($freshOwner);
 
         return [$freshOwner, (int) $hospital->getId()];

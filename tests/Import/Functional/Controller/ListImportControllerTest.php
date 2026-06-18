@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Controller;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
@@ -243,7 +244,7 @@ final class ListImportControllerTest extends WebTestCase
      */
     private function requestAsUser(KernelBrowser $client, object $user, string $uri): Crawler
     {
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, $uri);
         self::assertResponseIsSuccessful();
 
@@ -253,7 +254,7 @@ final class ListImportControllerTest extends WebTestCase
     /**
      * @param array<string, mixed> $overrides
      */
-    private function createImportForList(string $name, object $hospital, User $createdBy, array $overrides = []): void
+    private function createImportForList(string $name, Hospital $hospital, User $createdBy, array $overrides = []): void
     {
         ImportFactory::createOne(array_merge([
             'name' => $name,
@@ -274,11 +275,7 @@ final class ListImportControllerTest extends WebTestCase
     }
 
     /**
-     * @return array{
-     *      0: User&\Zenstruck\Foundry\Persistence\Proxy<User>,
-     *      1: \App\Allocation\Domain\Entity\Hospital&\Zenstruck\Foundry\Persistence\Proxy<\App\Allocation\Domain\Entity\Hospital>,
-     *      2: User&\Zenstruck\Foundry\Persistence\Proxy<User>
-     *  }
+     * @return array{0: User, 1: Hospital, 2: User}
      */
     private function seedBaseActors(): array
     {
@@ -302,7 +299,7 @@ final class ListImportControllerTest extends WebTestCase
     }
 
     /**
-     * @return array{0:User}
+     * @return array{0: User}
      */
     private function seedImportsWithFactory(int $count): array
     {

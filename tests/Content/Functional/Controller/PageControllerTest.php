@@ -27,7 +27,7 @@ final class PageControllerTest extends WebTestCase
             'status' => Page::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Produkte</p>']]],
-        ])->_real();
+        ]);
 
         PageFactory::createOne([
             'title' => 'Hosting',
@@ -76,7 +76,7 @@ final class PageControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(302);
         self::assertResponseRedirects('/login');
 
-        $user = UserFactory::createOne()->_real();
+        $user = UserFactory::createOne();
         $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/mitgliederbereich');
         self::assertResponseIsSuccessful();
@@ -186,7 +186,7 @@ final class PageControllerTest extends WebTestCase
             'status' => Page::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Öffentlich</p>']]],
-        ])->_real();
+        ]);
 
         PageFactory::createOne([
             'title' => 'Geschwister',
@@ -231,7 +231,7 @@ final class PageControllerTest extends WebTestCase
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
-        $user = UserFactory::createOne()->_real();
+        $user = UserFactory::createOne();
         $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/start');
 

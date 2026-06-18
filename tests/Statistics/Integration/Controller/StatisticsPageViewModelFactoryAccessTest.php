@@ -131,7 +131,7 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         $participating = HospitalFactory::createOne(['owner' => $user]);
         $nonParticipating = HospitalFactory::createOne(['owner' => $user]);
         $nonParticipating->setIsParticipating(false);
-        $nonParticipating->_save();
+        \Zenstruck\Foundry\Persistence\save($nonParticipating);
 
         $model = $this->factory->create(
             new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),
@@ -152,7 +152,7 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         $participating = HospitalFactory::createOne();
         $nonParticipating = HospitalFactory::createOne();
         $nonParticipating->setIsParticipating(false);
-        $nonParticipating->_save();
+        \Zenstruck\Foundry\Persistence\save($nonParticipating);
 
         $model = $this->factory->create(
             new Request(query: ['scope' => 'my_hospitals', 'period' => 'all']),

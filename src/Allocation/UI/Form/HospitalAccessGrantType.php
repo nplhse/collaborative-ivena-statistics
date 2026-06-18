@@ -84,7 +84,7 @@ final class HospitalAccessGrantType extends AbstractType
                 return;
             }
 
-            /** @var list<int|string> $choices */
+            /** @var list<int|string|null> $choices */
             $choices = $data['permissionChoices'] ?? [];
             $statisticsValue = (string) HospitalPermission::Statistics->value;
             $benchmarkingValue = (string) HospitalPermission::Benchmarking->value;
@@ -96,7 +96,7 @@ final class HospitalAccessGrantType extends AbstractType
             if (!\in_array($statisticsValue, $choices, true)) {
                 $choices = array_values(array_filter(
                     $choices,
-                    static fn (int|string $choice): bool => (string) $choice !== $benchmarkingValue,
+                    static fn (int|string|null $choice): bool => null !== $choice && (string) $choice !== $benchmarkingValue,
                 ));
             }
 

@@ -89,10 +89,10 @@ trait EligibleBenchmarkScopeTrait
         $this->refreshStatisticsMaterializedViews();
 
         return [
-            'state' => $state->_real(),
-            'dispatchArea' => $dispatchArea->_real(),
-            'hospitalA' => $hospitalA->_real(),
-            'hospitalB' => $hospitalB->_real(),
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'hospitalA' => $hospitalA,
+            'hospitalB' => $hospitalB,
         ];
     }
 }

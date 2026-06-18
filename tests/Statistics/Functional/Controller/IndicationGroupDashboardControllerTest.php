@@ -84,7 +84,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-group-expand-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'GroupExpandState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'GroupExpandDispatch', 'state' => $state]);
@@ -109,7 +109,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $groupEntity = $entityManager->find(IndicationGroup::class, $group->getId());
         self::assertNotNull($groupEntity);
         foreach ($indications as $indication) {
-            $groupEntity->addIndication($indication->_real());
+            $groupEntity->addIndication($indication);
         }
         $entityManager->flush();
 
@@ -150,7 +150,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-group-empty-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $group = IndicationGroupFactory::createOne(['name' => 'Empty Group', 'createdBy' => $user]);
 
@@ -174,7 +174,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-group-zero-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'GroupZeroState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'GroupZeroDispatch', 'state' => $state]);
@@ -197,8 +197,8 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $groupEntity = $entityManager->find(IndicationGroup::class, $group->getId());
         self::assertNotNull($groupEntity);
-        $groupEntity->addIndication($indicationA->_real());
-        $groupEntity->addIndication($indicationB->_real());
+        $groupEntity->addIndication($indicationA);
+        $groupEntity->addIndication($indicationB);
         $entityManager->flush();
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-group/'.$group->getId(), [
@@ -222,7 +222,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
     private function seedGroupDashboardFixture(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client): array
     {
         $user = UserFactory::createOne(['username' => 'indication-group-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'GroupState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'GroupDispatch', 'state' => $state]);
@@ -245,8 +245,8 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $groupEntity = $entityManager->find(IndicationGroup::class, $group->getId());
         self::assertNotNull($groupEntity);
-        $groupEntity->addIndication($indicationA->_real());
-        $groupEntity->addIndication($indicationB->_real());
+        $groupEntity->addIndication($indicationA);
+        $groupEntity->addIndication($indicationB);
         $entityManager->flush();
 
         $import = ImportFactory::createOne(['name' => 'GroupImport', 'hospital' => $hospital, 'createdBy' => $user]);

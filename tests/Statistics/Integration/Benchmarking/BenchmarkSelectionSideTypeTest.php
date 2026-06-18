@@ -34,7 +34,7 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
     public function testRendersStateScopeDetailAndQuarterFields(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $scope = $this->seedEligibleBenchmarkScope($user->_real(), 'SideTypeState');
+        $scope = $this->seedEligibleBenchmarkScope($user, 'SideTypeState');
 
         $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
             'state',
@@ -56,8 +56,8 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
     public function testRendersHospitalScopeDetailAndMonthFields(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $this->seedEligibleBenchmarkScope($user->_real(), 'SideTypeHospital');
-        $this->loginUser($user->_real());
+        $this->seedEligibleBenchmarkScope($user, 'SideTypeHospital');
+        $this->loginUser($user);
 
         $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
             'my_hospitals',
@@ -81,7 +81,7 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
     public function testPreSubmitAddsDefaultsForNewlyVisibleDynamicFields(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $scope = $this->seedEligibleBenchmarkScope($user->_real(), 'SideTypeSubmit');
+        $scope = $this->seedEligibleBenchmarkScope($user, 'SideTypeSubmit');
 
         $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
             'public',

@@ -24,19 +24,19 @@ final class PageNavigationTreeBuilderTest extends KernelTestCase
         $root = PageFactory::createOne([
             'slug' => 'tree-root',
             'parent' => null,
-        ])->_real();
+        ]);
 
         $later = PageFactory::createOne([
             'slug' => 'later',
             'parent' => $root,
             'sortOrder' => 20,
-        ])->_real();
+        ]);
 
         $earlier = PageFactory::createOne([
             'slug' => 'earlier',
             'parent' => $root,
             'sortOrder' => 10,
-        ])->_real();
+        ]);
 
         $tree = $builder->build([$root, $later, $earlier]);
 
@@ -57,9 +57,9 @@ final class PageNavigationTreeBuilderTest extends KernelTestCase
 
         $builder = self::getContainer()->get(PageNavigationTreeBuilder::class);
 
-        $root = PageFactory::createOne(['slug' => 'r', 'parent' => null])->_real();
-        $mid = PageFactory::createOne(['slug' => 'm', 'parent' => $root])->_real();
-        $leaf = PageFactory::createOne(['slug' => 'l', 'parent' => $mid])->_real();
+        $root = PageFactory::createOne(['slug' => 'r', 'parent' => null]);
+        $mid = PageFactory::createOne(['slug' => 'm', 'parent' => $root]);
+        $leaf = PageFactory::createOne(['slug' => 'l', 'parent' => $mid]);
 
         $tree = $builder->build([$root, $leaf, $mid]);
 

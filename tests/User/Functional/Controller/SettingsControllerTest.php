@@ -44,8 +44,9 @@ final class SettingsControllerTest extends WebTestCase
 
         $browser = $this->loginWithConsent($this->browser(), 'unverified-settings-user');
 
+        \Zenstruck\Foundry\Persistence\refresh($user);
         $user->setIsVerified(false);
-        $user->_save();
+        \Zenstruck\Foundry\Persistence\save($user);
 
         $browser
             ->visit('/settings')
@@ -68,8 +69,9 @@ final class SettingsControllerTest extends WebTestCase
 
         $browser = $this->loginWithConsent($this->browser(), $username);
 
+        \Zenstruck\Foundry\Persistence\refresh($user);
         $user->setIsVerified(false);
-        $user->_save();
+        \Zenstruck\Foundry\Persistence\save($user);
 
         $browser
             ->visit('/settings')
@@ -190,7 +192,7 @@ final class SettingsControllerTest extends WebTestCase
             ->assertSee('Notification preferences saved.')
         ;
 
-        $user->_refresh();
+        \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertFalse($user->receivesMonthlySubmissionReminder());
     }
 }

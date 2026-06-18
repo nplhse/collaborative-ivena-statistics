@@ -42,14 +42,20 @@ final readonly class ParticipatingHospitalProvisioner
         );
 
         foreach ($participating as $hospital) {
-            $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']])->_real();
+            $owner = UserFactory::new()->withoutAutorefresh()->create(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+            if (!$owner instanceof User) {
+                throw new \LogicException('Expected User from UserFactory.');
+            }
             $this->assignOwner($hospital, $owner);
         }
 
-        $associate = UserFactory::createOne([
+        $associate = UserFactory::new()->withoutAutorefresh()->create([
             'username' => 'associate',
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
-        ])->_real();
+        ]);
+        if (!$associate instanceof User) {
+            throw new \LogicException('Expected User from UserFactory.');
+        }
 
         $grant = new HospitalAccessGrant()
             ->setHospital($fooHospital)

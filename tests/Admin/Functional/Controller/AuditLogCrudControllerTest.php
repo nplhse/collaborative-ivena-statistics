@@ -26,7 +26,7 @@ final class AuditLogCrudControllerTest extends WebTestCase
             ])
         ;
 
-        $client->loginUser($admin->_real());
+        $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin/audit-log');
 
         self::assertResponseIsSuccessful();
@@ -41,7 +41,7 @@ final class AuditLogCrudControllerTest extends WebTestCase
             'username' => 'audit-regular-'.bin2hex(random_bytes(4)),
         ]);
 
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(Request::METHOD_GET, '/admin/audit-log');
 
         self::assertResponseStatusCodeSame(403);

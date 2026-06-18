@@ -46,7 +46,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
             'filename' => 'command-backfill.png',
             'width' => null,
             'height' => null,
-        ])->_real();
+        ]);
 
         PageFactory::createOne([
             'slug' => 'command-backfill-page',
@@ -118,7 +118,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $tester = $this->createCommandTester();
         $exitCode = $tester->execute([
@@ -151,7 +151,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $pageId = (int) $page->getId();
         $tester = $this->createCommandTester();
@@ -189,7 +189,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
             'filename' => 'command-migrate.png',
             'width' => 605,
             'height' => 400,
-        ])->_real();
+        ]);
 
         $page = PageFactory::createOne([
             'slug' => 'command-migrate-page',
@@ -206,7 +206,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
                     ],
                 ],
             ],
-        ])->_real();
+        ]);
 
         $tester = $this->createCommandTester();
         $exitCode = $tester->execute([
@@ -229,7 +229,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
             'filename' => 'command-auto.png',
             'width' => 320,
             'height' => 200,
-        ])->_real();
+        ]);
 
         PageFactory::createOne([
             'slug' => 'command-auto-page',

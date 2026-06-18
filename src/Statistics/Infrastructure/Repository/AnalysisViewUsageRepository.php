@@ -9,6 +9,7 @@ use App\Statistics\Domain\Entity\SavedAnalysisView;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewSource;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -52,8 +53,8 @@ final class AnalysisViewUsageRepository extends ServiceEntityRepository
     {
         /** @var list<AnalysisViewUsage> $items */
         $items = $this->createQueryBuilder('u')
-            ->andWhere('u.user = :user')
-            ->setParameter('user', $user)
+            ->andWhere('IDENTITY(u.user) = :userId')
+            ->setParameter('userId', $user->getId(), Types::INTEGER)
             ->orderBy('u.lastUsedAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
@@ -69,8 +70,8 @@ final class AnalysisViewUsageRepository extends ServiceEntityRepository
     {
         /** @var list<AnalysisViewUsage> $items */
         $items = $this->createQueryBuilder('u')
-            ->andWhere('u.user = :user')
-            ->setParameter('user', $user)
+            ->andWhere('IDENTITY(u.user) = :userId')
+            ->setParameter('userId', $user->getId(), Types::INTEGER)
             ->orderBy('u.useCount', 'DESC')
             ->addOrderBy('u.lastUsedAt', 'DESC')
             ->setMaxResults($limit)

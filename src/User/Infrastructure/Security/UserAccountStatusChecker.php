@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\Infrastructure\Security;
 
 use App\User\Domain\Entity\User;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,14 +14,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final class UserAccountStatusChecker implements UserCheckerInterface
 {
     #[\Override]
-    public function checkPreAuth(UserInterface $user): void
+    public function checkPreAuth(UserInterface $user, ?TokenInterface $token = null): void
     {
         $this->assertAccountEnabled($user);
         $this->assertEmailVerified($user);
     }
 
     #[\Override]
-    public function checkPostAuth(UserInterface $user): void
+    public function checkPostAuth(UserInterface $user, ?TokenInterface $token = null): void
     {
         $this->assertAccountEnabled($user);
     }

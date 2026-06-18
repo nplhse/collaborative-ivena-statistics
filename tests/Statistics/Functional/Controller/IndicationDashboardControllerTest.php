@@ -33,7 +33,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-dash-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'IndicationDashState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationDashDispatch', 'state' => $state]);
@@ -105,7 +105,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-dash-404-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/999999', [
             'scope' => 'public',

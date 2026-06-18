@@ -7,6 +7,7 @@ namespace App\Content\Infrastructure\Repository;
 use App\Content\Domain\Entity\PostCategory;
 use App\Content\Domain\Enum\PostStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -34,7 +35,7 @@ final class PostCategoryRepository extends ServiceEntityRepository
             ->select('c AS category', 'COUNT(p.id) AS postCount')
             ->leftJoin('c.posts', 'p', 'WITH', 'p.status = :status AND p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'))
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->groupBy('c.id')
             ->having('COUNT(p.id) > 0')
             ->orderBy('c.name', 'ASC')

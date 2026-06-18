@@ -255,11 +255,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     {
         return $this->getUserIdentifier();
     }
-
-    #[\Override]
-    #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // @deprecated, to be removed when upgrading to Symfony 8
-    }
 }

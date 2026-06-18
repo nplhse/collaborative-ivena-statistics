@@ -84,7 +84,7 @@ final class SavedAnalysisViewControllerTest extends WebTestCase
         $otherUser = UserFactory::createOne([
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
             'username' => 'other-saved-view-user',
-        ])->_real();
+        ]);
         $client->loginUser($otherUser);
         $client->request(
             Request::METHOD_GET,
@@ -97,7 +97,7 @@ final class SavedAnalysisViewControllerTest extends WebTestCase
     public function testDeletedSavedViewIsNoLongerAccessible(): void
     {
         $client = $this->createAuthenticatedClient();
-        $user = UserFactory::first()->_real();
+        $user = UserFactory::first();
         $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/analytics/view/allocations_by_month?scope=public&period=all',
@@ -119,7 +119,7 @@ final class SavedAnalysisViewControllerTest extends WebTestCase
     private function createAuthenticatedClient(): KernelBrowser
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $client->loginUser($user);
 
         return $client;

@@ -22,6 +22,7 @@ use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Path;
@@ -43,6 +44,7 @@ final readonly class ImportAllocationsMessageHandler
         private ImportPreviousRunCleanupService $previousRunCleanupService,
         private ImportAllocationDeduplicationService $deduplicationService,
         private AuditContext $auditContext,
+        private ManagerRegistry $managerRegistry,
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
     ) {
@@ -116,7 +118,7 @@ final readonly class ImportAllocationsMessageHandler
             $importer = $this->importFactory->create($reader, $writer);
             $summary = $importer->import($import);
 
-            $this->em->clear();
+            $this->entityManager()->clear();
             $fresh = $this->importRepository->find($import->getId());
             if (!$fresh instanceof Import) {
                 throw new \RuntimeException('Import not found after refresh');
@@ -141,6 +143,12 @@ final readonly class ImportAllocationsMessageHandler
             return $summary;
         } catch (\Throwable $e) {
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
+
+            $importId = $import->getId();
+            if (null !== $importId) {
+                $this->entityManager();
+                $import = $this->importRepository->find($importId) ?? $import;
+            }
 
             $import->markAsFailed(
                 $runtimeMs,
@@ -172,12 +180,14 @@ final readonly class ImportAllocationsMessageHandler
 
     private function dispatchImportOutcome(int $importId, ?string $failureReason = null): void
     {
-        $import = $this->importRepository->find($importId);
+        $this->entityManager();
+
+        /** @var ImportRepository $importRepository */
+        $importRepository = $this->managerRegistry->getRepository(Import::class);
+        $import = $importRepository->find($importId);
         if (!$import instanceof Import) {
             return;
         }
-
-        $this->em->refresh($import);
 
         $status = $import->getStatus();
         if (ImportStatus::FAILED === $status) {
@@ -216,13 +226,29 @@ final readonly class ImportAllocationsMessageHandler
     /** @param array<string, mixed> $metadata */
     private function flushWithImportIntent(string $intent, Import $import, array $metadata = []): void
     {
+        $em = $this->entityManager();
+
         $meta = array_merge(['import_id' => $import->getId()], $metadata);
         $this->auditContext->beginIntent($intent, $meta);
         try {
-            $this->em->flush();
+            $em->flush();
         } finally {
             $this->auditContext->endIntent();
         }
+    }
+
+    private function entityManager(): EntityManagerInterface
+    {
+        if (!$this->em->isOpen()) {
+            $this->managerRegistry->resetManager();
+        }
+
+        $em = $this->managerRegistry->getManager();
+        if (!$em instanceof EntityManagerInterface) {
+            throw new \LogicException('Expected Doctrine ORM EntityManager.');
+        }
+
+        return $em;
     }
 
     private function cleanupPreviousRun(Import $import): void

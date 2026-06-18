@@ -102,7 +102,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         $participating = HospitalFactory::createOne();
         $nonParticipating = HospitalFactory::createOne();
         $nonParticipating->setIsParticipating(false);
-        $nonParticipating->_save();
+        \Zenstruck\Foundry\Persistence\save($nonParticipating);
 
         $summaries = $this->repo->findAccessibleParticipatingHospitalSummaries($admin);
         $ids = array_column($summaries, 'id');
@@ -122,7 +122,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         $participating = HospitalFactory::createOne(['owner' => $owner]);
         $nonParticipating = HospitalFactory::createOne(['owner' => $owner]);
         $nonParticipating->setIsParticipating(false);
-        $nonParticipating->_save();
+        \Zenstruck\Foundry\Persistence\save($nonParticipating);
         HospitalFactory::createOne(['owner' => $other]);
 
         $summaries = $this->repo->findAccessibleParticipatingHospitalSummaries($owner);
@@ -151,7 +151,7 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         ]);
 
         $result = $this->repo
-            ->getQueryBuilderForHospitalsWithPermission($grantee->_real(), HospitalPermission::View)
+            ->getQueryBuilderForHospitalsWithPermission($grantee, HospitalPermission::View)
             ->getQuery()
             ->getResult();
 

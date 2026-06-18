@@ -6,12 +6,12 @@ namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<SecondaryTransport>
+ * @extends PersistentObjectFactory<SecondaryTransport>
  */
-final class SecondaryTransportFactory extends PersistentProxyObjectFactory
+final class SecondaryTransportFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

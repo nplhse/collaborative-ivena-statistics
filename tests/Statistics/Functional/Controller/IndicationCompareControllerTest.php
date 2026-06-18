@@ -33,7 +33,7 @@ final class IndicationCompareControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-compare-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'CompareState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'CompareDispatch', 'state' => $state]);
@@ -117,7 +117,7 @@ final class IndicationCompareControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-compare-insights-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $state = StateFactory::createOne(['name' => 'CompareInsightsState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'CompareInsightsDispatch', 'state' => $state]);
@@ -197,7 +197,7 @@ final class IndicationCompareControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'indication-compare-same-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
 
         $indication = IndicationNormalizedFactory::createOne(['name' => 'Same Indication']);
 

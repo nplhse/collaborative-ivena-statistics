@@ -7,6 +7,7 @@ namespace App\Import\Infrastructure\Repository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,8 +24,8 @@ final class ImportRejectRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('r')
             ->delete()
-            ->where('r.import = :import')
-            ->setParameter('import', $import)
+            ->where('IDENTITY(r.import) = :importId')
+            ->setParameter('importId', $import->getId(), Types::INTEGER)
             ->getQuery()
             ->execute();
     }

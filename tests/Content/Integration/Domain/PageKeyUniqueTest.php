@@ -67,7 +67,7 @@ final class PageKeyUniqueTest extends KernelTestCase
             'path' => '/legal/privacy-policy',
             'key' => PageKey::Privacy,
             'status' => Page::STATUS_PUBLISHED,
-        ])->_real();
+        ]);
 
         self::assertSame(PageKey::Privacy, $page->getKey());
     }

@@ -13,7 +13,6 @@ use App\Engagement\Application\MonthlyReminderSender;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\Lock\LockFactory;
-use Zenstruck\Foundry\Persistence\Proxy;
 
 final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 {
@@ -29,7 +28,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     {
         $hospital = $this->createHospital(optedOut: true);
 
-        $errors = $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Scheduler);
+        $errors = $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler);
 
         self::assertSame(['monthly_reminder.error.opted_out'], $errors);
     }
@@ -38,7 +37,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     {
         $hospital = $this->createHospital(optedOut: true);
 
-        $errors = $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Cli);
+        $errors = $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Cli);
 
         self::assertSame(['monthly_reminder.error.opted_out'], $errors);
     }
@@ -47,7 +46,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     {
         $hospital = $this->createHospital(optedOut: true);
 
-        $errors = $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Admin);
+        $errors = $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
 
         self::assertSame([], $errors);
     }
@@ -58,7 +57,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
         self::assertSame(
             ['monthly_reminder.error.not_participating'],
-            $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Scheduler),
+            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler),
         );
     }
 
@@ -79,7 +78,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
         self::assertSame(
             ['monthly_reminder.error.no_owner'],
-            $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Scheduler),
+            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler),
         );
     }
 
@@ -94,7 +93,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
         self::assertSame(
             ['monthly_reminder.error.no_email'],
-            $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Scheduler),
+            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler),
         );
     }
 
@@ -109,7 +108,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
         self::assertSame(
             ['monthly_reminder.error.email_not_verified'],
-            $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Scheduler),
+            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler),
         );
     }
 
@@ -123,21 +122,18 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         try {
             self::assertSame(
                 ['monthly_reminder.error.already_sent_recently'],
-                $this->sender->sendForHospital($hospital->_real(), MonthlyReminderTrigger::Admin),
+                $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin),
             );
         } finally {
             $lock->release();
         }
     }
 
-    /**
-     * @return Proxy<Hospital>
-     */
     private function createHospital(
         bool $optedOut,
         bool $participating = true,
         mixed $owner = 'default',
-    ): Proxy {
+    ): Hospital {
         if ('default' === $owner) {
             $owner = UserFactory::createOne([
                 'email' => sprintf('reminder-%s@example.test', bin2hex(random_bytes(4))),

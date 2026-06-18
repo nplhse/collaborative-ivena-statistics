@@ -7,12 +7,12 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Department>
+ * @extends PersistentObjectFactory<Department>
  */
-final class DepartmentFactory extends PersistentProxyObjectFactory
+final class DepartmentFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

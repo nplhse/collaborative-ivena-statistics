@@ -48,7 +48,7 @@ final class DeleteImportControllerTest extends WebTestCase
             'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
         ]);
 
-        $client->loginUser($intruder->_real());
+        $client->loginUser($intruder);
         $client->request(
             Request::METHOD_POST,
             '/import/'.$importId.'/delete',
@@ -139,6 +139,6 @@ final class DeleteImportControllerTest extends WebTestCase
             'runTime' => 100,
         ]);
 
-        return [$owner->_real(), (int) $import->getId()];
+        return [$owner, (int) $import->getId()];
     }
 }

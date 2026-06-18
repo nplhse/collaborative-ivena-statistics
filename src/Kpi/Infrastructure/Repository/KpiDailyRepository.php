@@ -6,6 +6,7 @@ namespace App\Kpi\Infrastructure\Repository;
 
 use App\Kpi\Domain\Entity\KpiDaily;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -26,7 +27,7 @@ final class KpiDailyRepository extends ServiceEntityRepository
         $this->createQueryBuilder('k')
             ->delete()
             ->where('k.date = :date')
-            ->setParameter('date', $date->setTime(0, 0))
+            ->setParameter('date', $date->setTime(0, 0), Types::DATE_IMMUTABLE)
             ->getQuery()
             ->execute();
     }
@@ -53,7 +54,7 @@ final class KpiDailyRepository extends ServiceEntityRepository
             )
             ->where('k.hospital IS NULL')
             ->andWhere('k.date >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATE_IMMUTABLE)
             ->getQuery()
             ->getOneOrNullResult();
 
@@ -74,7 +75,7 @@ final class KpiDailyRepository extends ServiceEntityRepository
             ->where('k.hospital IS NOT NULL')
             ->andWhere('k.date >= :from')
             ->andWhere('k.successfulImportsCount > 0')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATE_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -96,7 +97,7 @@ final class KpiDailyRepository extends ServiceEntityRepository
             )
             ->where('k.hospital IS NULL')
             ->andWhere('k.date >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATE_IMMUTABLE)
             ->orderBy('k.date', 'ASC')
             ->getQuery()
             ->getArrayResult();
@@ -120,7 +121,7 @@ final class KpiDailyRepository extends ServiceEntityRepository
             return 0.0;
         }
 
-        return round($rejected / $total * 100, 2);
+        return round(((float) $rejected / (float) $total) * 100.0, 2);
     }
 
     public function rejectionRateForHospitalInRange(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $toExclusive): ?float
@@ -135,8 +136,8 @@ final class KpiDailyRepository extends ServiceEntityRepository
             ->andWhere('k.date >= :from')
             ->andWhere('k.date < :toExclusive')
             ->setParameter('hospitalId', $hospitalId)
-            ->setParameter('from', $from->setTime(0, 0))
-            ->setParameter('toExclusive', $toExclusive->setTime(0, 0))
+            ->setParameter('from', $from->setTime(0, 0), Types::DATE_IMMUTABLE)
+            ->setParameter('toExclusive', $toExclusive->setTime(0, 0), Types::DATE_IMMUTABLE)
             ->getQuery()
             ->getOneOrNullResult();
 

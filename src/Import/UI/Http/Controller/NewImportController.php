@@ -58,6 +58,16 @@ final class NewImportController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
+        $userId = $user->getId();
+        if (null === $userId) {
+            throw new \LogicException('Authenticated user has no ID.');
+        }
+
+        /** @var Hospital $managedHospital */
+        $managedHospital = $this->em->getReference(Hospital::class, $hospitalId);
+        /** @var User $createdBy */
+        $createdBy = $this->em->getReference(User::class, $userId);
+
         $name = (string) $form->get('name')->getData();
 
         /** @var UploadedFile $file */
@@ -77,7 +87,8 @@ final class NewImportController extends AbstractController
 
         $import = new Import()
             ->setName($name)
-            ->setHospital($hospital)
+            ->setHospital($managedHospital)
+            ->setCreatedBy($createdBy)
             ->setType(ImportType::ALLOCATION)
             ->setStatus(ImportStatus::PENDING)
             ->setFilePath($targetPath)

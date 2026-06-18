@@ -7,12 +7,12 @@ namespace App\Content\Infrastructure\Factory;
 use App\Content\Domain\Entity\PostTag;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\String\Slugger\AsciiSlugger;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<PostTag>
+ * @extends PersistentObjectFactory<PostTag>
  */
-final class PostTagFactory extends PersistentProxyObjectFactory
+final class PostTagFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
@@ -30,7 +30,7 @@ final class PostTagFactory extends PersistentProxyObjectFactory
 
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::new(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh(),
             'name' => ucfirst($name),
             'slug' => strtolower(new AsciiSlugger()->slug($name)->toString()),
         ];

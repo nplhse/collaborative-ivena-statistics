@@ -9,6 +9,7 @@ use App\Statistics\Domain\Entity\SavedAnalysisView;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewSource;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -58,8 +59,8 @@ final class FavoriteAnalysisViewRepository extends ServiceEntityRepository
     {
         /** @var list<FavoriteAnalysisView> $items */
         $items = $this->createQueryBuilder('f')
-            ->andWhere('f.user = :user')
-            ->setParameter('user', $user)
+            ->andWhere('IDENTITY(f.user) = :userId')
+            ->setParameter('userId', $user->getId(), Types::INTEGER)
             ->orderBy('f.sortOrder', 'ASC')
             ->addOrderBy('f.createdAt', 'ASC')
             ->getQuery()

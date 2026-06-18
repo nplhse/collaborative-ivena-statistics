@@ -32,7 +32,7 @@ final class IndicationGroupRepository extends ServiceEntityRepository
 
         return array_map(
             static fn (array $row): array => [
-                'id' => (int) $row['id'],
+                'id' => $row['id'],
                 'label' => $row['name'],
             ],
             $rows,
@@ -53,6 +53,6 @@ final class IndicationGroupRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
 
-        return array_map(static fn (array $row): int => (int) $row['id'], $rows);
+        return array_map(static fn (array $row): int => $row['id'], $rows);
     }
 }

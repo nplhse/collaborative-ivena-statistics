@@ -33,6 +33,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         parent::__construct($registry, Hospital::class);
     }
 
+    #[\Override]
     public function findById(int $id): ?Hospital
     {
         $entity = $this->find($id);
@@ -45,6 +46,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
      *
      * @return array<int, string>
      */
+    #[\Override]
     public function findNamesByIds(array $ids): array
     {
         if ([] === $ids) {
@@ -69,7 +71,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
 
     public function countParticipating(): int
     {
-        return $this->createQueryBuilder('h')
+        return (int) $this->createQueryBuilder('h')
             ->select('COUNT(h.id)')
             ->andWhere('h.isParticipating = true')
             ->getQuery()

@@ -20,8 +20,9 @@ final class ContentScenarioFixture extends Fixture implements DependentFixtureIn
     #[\Override]
     public function load(ObjectManager $manager): void
     {
+        unset($manager);
+
         $this->loader->load();
-        $manager->flush();
     }
 
     /**

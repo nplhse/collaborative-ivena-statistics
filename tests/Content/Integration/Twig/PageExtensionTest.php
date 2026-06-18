@@ -61,7 +61,7 @@ final class PageExtensionTest extends KernelTestCase
             'slug' => 'legal',
             'status' => Page::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
-        ])->_real();
+        ]);
 
         PageFactory::createOne([
             'parent' => $parent,

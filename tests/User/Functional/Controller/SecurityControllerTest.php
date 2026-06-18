@@ -115,8 +115,9 @@ class SecurityControllerTest extends WebTestCase
             ->assertSeeIn('#user_name', 'session-user')
         ;
 
+        \Zenstruck\Foundry\Persistence\refresh($user);
         $user->setIsEnabled(false);
-        $user->_save();
+        \Zenstruck\Foundry\Persistence\save($user);
 
         $this->browser()
             ->visit('/settings')

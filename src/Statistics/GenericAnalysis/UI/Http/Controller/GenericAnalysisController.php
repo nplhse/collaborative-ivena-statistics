@@ -72,7 +72,7 @@ final class GenericAnalysisController extends AbstractController
     {
         $query = [];
         foreach ($request->query->all() as $key => $value) {
-            if (!\is_string($key) || !\is_scalar($value)) {
+            if (!\is_scalar($value)) {
                 continue;
             }
             $query[$key] = (string) $value;

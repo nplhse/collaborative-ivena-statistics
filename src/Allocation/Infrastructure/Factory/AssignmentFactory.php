@@ -6,12 +6,12 @@ namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\Assignment;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Assignment>
+ * @extends PersistentObjectFactory<Assignment>
  */
-final class AssignmentFactory extends PersistentProxyObjectFactory
+final class AssignmentFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

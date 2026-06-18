@@ -9,6 +9,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Application\Service\ImportListAccess;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
@@ -43,7 +44,7 @@ final class HospitalVoter extends Voter
     }
 
     #[\Override]
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
         if (!$user instanceof User) {

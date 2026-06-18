@@ -52,8 +52,8 @@ final class IndicationSubjectResolverTest extends KernelTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $groupEntity = $entityManager->find(IndicationGroup::class, $group->getId());
         self::assertNotNull($groupEntity);
-        $groupEntity->addIndication($indicationA->_real());
-        $groupEntity->addIndication($indicationB->_real());
+        $groupEntity->addIndication($indicationA);
+        $groupEntity->addIndication($indicationB);
         $entityManager->flush();
 
         $subject = self::getContainer()->get(IndicationSubjectResolver::class)->resolveGroup($group->getId());

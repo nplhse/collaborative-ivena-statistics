@@ -8,6 +8,7 @@ use App\Statistics\Domain\Entity\SavedAnalysisView;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -61,8 +62,8 @@ final class SavedAnalysisViewRepository extends ServiceEntityRepository
     {
         /** @var list<SavedAnalysisView> $items */
         $items = $this->createQueryBuilder('s')
-            ->andWhere('s.owner = :owner')
-            ->setParameter('owner', $user)
+            ->andWhere('IDENTITY(s.owner) = :ownerId')
+            ->setParameter('ownerId', $user->getId(), Types::INTEGER)
             ->orderBy('s.updatedAt', 'DESC')
             ->getQuery()
             ->getResult();

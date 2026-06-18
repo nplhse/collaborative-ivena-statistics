@@ -15,6 +15,7 @@ use App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -31,8 +32,8 @@ final class MciCaseRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('m')
             ->delete()
-            ->where('m.import = :import')
-            ->setParameter('import', $import)
+            ->where('IDENTITY(m.import) = :importId')
+            ->setParameter('importId', $import->getId(), Types::INTEGER)
             ->getQuery()
             ->execute();
     }
@@ -116,7 +117,7 @@ final class MciCaseRepository extends ServiceEntityRepository
 
         $qb = $this->createQueryBuilder('m')
             ->where('m.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('m.createdAt', 'ASC');
 
         /** @var MciCase[] $rows */
@@ -168,7 +169,7 @@ final class MciCaseRepository extends ServiceEntityRepository
         return (int) $this->createQueryBuilder('m')
             ->select('COUNT(m.id)')
             ->where('m.createdAt < :before')
-            ->setParameter('before', $before)
+            ->setParameter('before', $before, Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();
     }

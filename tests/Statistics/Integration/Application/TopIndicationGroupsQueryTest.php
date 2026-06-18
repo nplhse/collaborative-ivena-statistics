@@ -61,8 +61,8 @@ final class TopIndicationGroupsQueryTest extends KernelTestCase
         $groupBEntity = $entityManager->find(IndicationGroup::class, $groupB->getId());
         self::assertNotNull($groupAEntity);
         self::assertNotNull($groupBEntity);
-        $groupAEntity->addIndication($indicationA->_real());
-        $groupBEntity->addIndication($indicationB->_real());
+        $groupAEntity->addIndication($indicationA);
+        $groupBEntity->addIndication($indicationB);
         $entityManager->flush();
 
         $import = ImportFactory::createOne(['name' => 'TopGroupsQueryImport', 'hospital' => $hospital, 'createdBy' => $user]);
@@ -91,7 +91,7 @@ final class TopIndicationGroupsQueryTest extends KernelTestCase
 
         $result = self::getContainer()->get(TopIndicationGroupsQuery::class)->fetch(
             new StatisticsContext(
-                $user->_real(),
+                $user,
                 new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All),
             ),
             10,

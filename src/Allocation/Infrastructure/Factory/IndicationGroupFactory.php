@@ -6,12 +6,12 @@ namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<IndicationGroup>
+ * @extends PersistentObjectFactory<IndicationGroup>
  */
-final class IndicationGroupFactory extends PersistentProxyObjectFactory
+final class IndicationGroupFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

@@ -35,7 +35,7 @@ final class SavedAnalysisViewServiceTest extends KernelTestCase
 
     public function testCreatePersistsSavedView(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $config = new AnalysisViewConfig(
             primaryDimensionKey: 'month',
             metricKeys: ['count'],
@@ -58,7 +58,7 @@ final class SavedAnalysisViewServiceTest extends KernelTestCase
 
     public function testUpdateChangesTitleAndConfig(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $saved = $this->service->create(
             owner: $user,
             title: 'Original title',
@@ -80,7 +80,7 @@ final class SavedAnalysisViewServiceTest extends KernelTestCase
 
     public function testDeleteRemovesSavedView(): void
     {
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER']])->_real();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $saved = $this->service->create(
             owner: $user,
             title: 'Delete me',

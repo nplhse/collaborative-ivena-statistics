@@ -10,12 +10,12 @@ use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use Zenstruck\Foundry\LazyValue;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Allocation>
+ * @extends PersistentObjectFactory<Allocation>
  */
-final class AllocationFactory extends PersistentProxyObjectFactory
+final class AllocationFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

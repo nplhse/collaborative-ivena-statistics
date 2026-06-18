@@ -7,6 +7,7 @@ namespace App\Import\Infrastructure\Repository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -31,7 +32,7 @@ final class ImportRepository extends ServiceEntityRepository
 
         $qb = $this->createQueryBuilder('i')
             ->where('i.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('i.createdAt', 'ASC');
 
         /** @var Import[] $rows */
@@ -41,10 +42,6 @@ final class ImportRepository extends ServiceEntityRepository
 
         foreach ($rows as $import) {
             $createdAt = $import->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
             $key = $createdAt->format('Y-m');
 
             if (!isset($buckets[$key])) {
@@ -77,11 +74,11 @@ final class ImportRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('i')
             ->where('i.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('i.createdAt', 'ASC');
         if ($toExclusive instanceof \DateTimeInterface) {
             $qb->andWhere('i.createdAt < :toExclusive')
-                ->setParameter('toExclusive', $toExclusive);
+                ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
         }
 
         /** @var Import[] $rows */
@@ -90,9 +87,6 @@ final class ImportRepository extends ServiceEntityRepository
         $buckets = [];
         foreach ($rows as $import) {
             $createdAt = $import->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
             $key = $createdAt->format('Y-m');
             if (!isset($buckets[$key])) {
                 $buckets[$key] = 0;
@@ -123,12 +117,12 @@ final class ImportRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i')
             ->select('i.createdAt AS createdAt')
             ->where('i.createdAt >= :from')
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('i.createdAt', 'ASC');
 
         if ($toExclusive instanceof \DateTimeInterface) {
             $qb->andWhere('i.createdAt < :toExclusive')
-                ->setParameter('toExclusive', $toExclusive);
+                ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
         }
 
         /** @var list<array{createdAt:\DateTimeInterface}> $rows */
@@ -207,7 +201,7 @@ final class ImportRepository extends ServiceEntityRepository
             ->andWhere('i.createdAt >= :from')
             ->setParameter('hospitalId', $hospitalId)
             ->setParameter('statuses', [ImportStatus::COMPLETED, ImportStatus::PARTIAL])
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('i.createdAt', 'ASC');
 
         /** @var Import[] $rows */
@@ -227,7 +221,7 @@ final class ImportRepository extends ServiceEntityRepository
             ->where('IDENTITY(i.hospital) = :hospitalId')
             ->andWhere('i.createdAt >= :from')
             ->setParameter('hospitalId', $hospitalId)
-            ->setParameter('from', $from)
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->orderBy('i.createdAt', 'ASC');
 
         /** @var Import[] $rows */
@@ -236,9 +230,6 @@ final class ImportRepository extends ServiceEntityRepository
         $statusByMonth = array_fill_keys($monthKeys, 'missing');
         foreach ($rows as $import) {
             $createdAt = $import->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
             $key = $createdAt->format('Y-m');
             if (!\array_key_exists($key, $statusByMonth)) {
                 continue;
@@ -267,9 +258,6 @@ final class ImportRepository extends ServiceEntityRepository
         $buckets = [];
         foreach ($rows as $import) {
             $createdAt = $import->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
             $key = $createdAt->format('Y-m');
             if (!isset($buckets[$key])) {
                 $buckets[$key] = 0;

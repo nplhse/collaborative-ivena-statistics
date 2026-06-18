@@ -7,12 +7,12 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<IndicationRaw>
+ * @extends PersistentObjectFactory<IndicationRaw>
  */
-final class IndicationRawFactory extends PersistentProxyObjectFactory
+final class IndicationRawFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string

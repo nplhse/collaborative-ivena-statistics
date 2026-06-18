@@ -9,12 +9,12 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Hospital>
+ * @extends PersistentObjectFactory<Hospital>
  */
-final class HospitalFactory extends PersistentProxyObjectFactory
+final class HospitalFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
@@ -38,14 +38,14 @@ final class HospitalFactory extends PersistentProxyObjectFactory
         return [
             'address' => AddressFactory::new()->create(),
             'beds' => self::faker()->numberBetween(100, 1250),
-            'owner' => UserFactory::random(),
+            'owner' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::random(),
-            'dispatchArea' => DispatchAreaFactory::random(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'dispatchArea' => DispatchAreaFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'location' => self::faker()->randomElement(HospitalLocation::cases()),
             'name' => $faker->hospital(),
             'size' => self::faker()->randomElement(HospitalSize::cases()),
-            'state' => StateFactory::random(),
+            'state' => StateFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'tier' => self::faker()->randomElement(HospitalTier::cases()),
         ];
     }

@@ -35,7 +35,7 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         $loader = $this->loader();
         $user = UserFactory::createOne();
 
-        $loader->loadAreas($user->_real());
+        $loader->loadAreas($user);
         $this->entityManager()->flush();
 
         $states = $this->entityManager()->getRepository(State::class)->findBy([], ['name' => 'ASC']);
@@ -51,7 +51,7 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         self::assertInstanceOf(DispatchArea::class, $frankfurt);
         self::assertInstanceOf(State::class, $frankfurt->getState());
         self::assertSame('Hessen', $frankfurt->getState()->getName());
-        self::assertSame($user->_real(), $frankfurt->getCreatedBy());
+        self::assertSame($user, $frankfurt->getCreatedBy());
     }
 
     #[Test]
@@ -61,8 +61,8 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         $loader = $this->loader();
         $user = UserFactory::createOne();
 
-        $loader->loadAreas($user->_real());
-        $loader->loadHospitals($user->_real(), all: true);
+        $loader->loadAreas($user);
+        $loader->loadHospitals($user, all: true);
         $this->entityManager()->flush();
 
         /** @var Hospital|null $first */
@@ -76,7 +76,7 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         self::assertSame(HospitalSize::MEDIUM, $first->getSize());
         self::assertSame(HospitalLocation::URBAN, $first->getLocation());
         self::assertNull($first->getOwner());
-        self::assertSame($user->_real(), $first->getCreatedBy());
+        self::assertSame($user, $first->getCreatedBy());
         self::assertInstanceOf(State::class, $first->getState());
         self::assertInstanceOf(DispatchArea::class, $first->getDispatchArea());
 
@@ -98,7 +98,7 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Unknown dispatch area reference: Hessen / Frankfurt');
 
-        $loader->loadHospitals($user->_real(), all: true);
+        $loader->loadHospitals($user, all: true);
     }
 
     #[Test]
@@ -108,7 +108,7 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         $loader = $this->loader();
         $user = UserFactory::createOne();
 
-        $loader->loadIndications($user->_real());
+        $loader->loadIndications($user);
 
         $normalizedCount = $this->entityManager()
             ->getRepository(IndicationNormalized::class)
@@ -157,7 +157,7 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         self::assertNull($raw->getTarget());
         self::assertNull($raw->getNormalized());
 
-        $loader->loadIndications($user->_real());
+        $loader->loadIndications($user);
 
         /** @var IndicationRaw|null $reloaded */
         $reloaded = $this->entityManager()->getRepository(IndicationRaw::class)->findOneBy(['hash' => $hash]);

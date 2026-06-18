@@ -30,9 +30,9 @@ final class StatisticsFilterFormChoiceProviderTest extends KernelTestCase
     public function testExposesEligibleScopeAndPeriodChoicesAfterMaterializedViewRefresh(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $scope = $this->seedEligibleBenchmarkScope($user->_real(), 'ChoiceProvider');
+        $scope = $this->seedEligibleBenchmarkScope($user, 'ChoiceProvider');
 
-        $primaryChoices = $this->provider->scopePrimaryChoices($user->_real(), 'en');
+        $primaryChoices = $this->provider->scopePrimaryChoices($user, 'en');
         self::assertArrayHasKey('state', $primaryChoices);
         self::assertArrayHasKey('dispatch_area', $primaryChoices);
         self::assertArrayHasKey('hospital_cohort', $primaryChoices);
@@ -40,7 +40,7 @@ final class StatisticsFilterFormChoiceProviderTest extends KernelTestCase
 
         $stateDetails = $this->provider->scopeDetailChoices(
             'state',
-            $user->_real(),
+            $user,
             StatisticsFilterSide::Primary,
             'en',
         );
@@ -48,7 +48,7 @@ final class StatisticsFilterFormChoiceProviderTest extends KernelTestCase
 
         $dispatchDetails = $this->provider->scopeDetailChoices(
             'dispatch_area',
-            $user->_real(),
+            $user,
             StatisticsFilterSide::Comparison,
             'en',
         );
@@ -56,7 +56,7 @@ final class StatisticsFilterFormChoiceProviderTest extends KernelTestCase
 
         $cohortDetails = $this->provider->scopeDetailChoices(
             'hospital_cohort',
-            $user->_real(),
+            $user,
             StatisticsFilterSide::Primary,
             'en',
         );
@@ -64,7 +64,7 @@ final class StatisticsFilterFormChoiceProviderTest extends KernelTestCase
 
         $hospitalDetails = $this->provider->scopeDetailChoices(
             'my_hospitals',
-            $user->_real(),
+            $user,
             StatisticsFilterSide::Primary,
             'en',
         );

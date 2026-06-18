@@ -6,12 +6,12 @@ namespace App\Content\Infrastructure\Factory;
 
 use App\Content\Domain\Entity\PostComment;
 use App\User\Domain\Factory\UserFactory;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<PostComment>
+ * @extends PersistentObjectFactory<PostComment>
  */
-final class PostCommentFactory extends PersistentProxyObjectFactory
+final class PostCommentFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
@@ -26,11 +26,11 @@ final class PostCommentFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         return [
-            'author' => UserFactory::new(),
+            'author' => UserFactory::new()->withoutAutorefresh(),
             'content' => self::faker()->paragraph(5),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::new(),
-            'post' => PostFactory::random(),
+            'createdBy' => UserFactory::new()->withoutAutorefresh(),
+            'post' => PostFactory::new()->withoutAutorefresh()->random(),
         ];
     }
 }

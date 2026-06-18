@@ -55,7 +55,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
             'initialData' => $initialData,
             'preservedQuery' => [],
             'locale' => 'en',
-        ])->actingAs($user->_real());
+        ])->actingAs($user);
 
         $initialRender = $testComponent->render();
         self::assertGreaterThan(0, $initialRender->crawler()->filter('[data-controller="live"]')->count());
@@ -88,7 +88,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
     public function testStateQuarterChangeReRendersScopeDetailAndPeriodFields(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $scope = $this->seedEligibleBenchmarkScope($user->_real(), 'LiveStateQuarter');
+        $scope = $this->seedEligibleBenchmarkScope($user, 'LiveStateQuarter');
         $stateId = (string) $scope['state']->getId();
 
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
@@ -98,7 +98,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
             ),
             'preservedQuery' => [],
             'locale' => 'en',
-        ])->actingAs($user->_real());
+        ])->actingAs($user);
 
         $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
         self::assertNotNull($formName);
@@ -132,7 +132,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
     public function testHospitalMonthChangeReRendersHospitalAndMonthFields(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $this->seedEligibleBenchmarkScope($user->_real(), 'LiveHospitalMonth');
+        $this->seedEligibleBenchmarkScope($user, 'LiveHospitalMonth');
 
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
             'initialData' => new BenchmarkSelectionFormData(
@@ -141,7 +141,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
             ),
             'preservedQuery' => ['gender' => 'male'],
             'locale' => 'en',
-        ])->actingAs($user->_real());
+        ])->actingAs($user);
 
         $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
         self::assertNotNull($formName);
@@ -184,7 +184,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
             'initialData' => $initialData,
             'preservedQuery' => [],
             'locale' => 'en',
-        ])->actingAs($user->_real());
+        ])->actingAs($user);
 
         $initialRender = $testComponent->render();
         $formName = $initialRender->crawler()->filter('form[name]')->attr('name');
@@ -216,7 +216,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
     public function testApplyRedirectsWithStateScopeQueryParams(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $scope = $this->seedEligibleBenchmarkScope($user->_real(), 'LiveApplyState');
+        $scope = $this->seedEligibleBenchmarkScope($user, 'LiveApplyState');
         $stateId = (string) $scope['state']->getId();
 
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
@@ -226,7 +226,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
             ),
             'preservedQuery' => ['gender' => 'male'],
             'locale' => 'en',
-        ])->actingAs($user->_real());
+        ])->actingAs($user);
 
         $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
         self::assertNotNull($formName);
@@ -261,7 +261,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
     {
         $client = $this->client();
         $user = UserFactory::createOne(['username' => 'live-benchmark-csrf-'.bin2hex(random_bytes(4))]);
-        $client->loginUser($user->_real());
+        $client->loginUser($user);
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/benchmarking', [
             'scope' => 'public',
             'period' => 'all',

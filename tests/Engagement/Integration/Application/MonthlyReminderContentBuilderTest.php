@@ -42,7 +42,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
         $referenceDate = new \DateTimeImmutable('2026-06-17', new \DateTimeZone('Europe/Berlin'));
         $hospital = $this->seedHospital();
 
-        $content = $this->builder->build($hospital->_real(), $referenceDate);
+        $content = $this->builder->build($hospital, $referenceDate);
 
         self::assertFalse($content->isPersonalized);
         self::assertSame(0, $content->allocationCount);
@@ -93,7 +93,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
             5,
         );
 
-        $content = $this->builder->build($hospital->_real(), $referenceDate);
+        $content = $this->builder->build($hospital, $referenceDate);
 
         self::assertTrue($content->isPersonalized);
         self::assertGreaterThanOrEqual(20, $content->allocationCount);
