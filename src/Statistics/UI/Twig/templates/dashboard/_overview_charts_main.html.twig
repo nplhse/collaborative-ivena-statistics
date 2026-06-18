@@ -1,0 +1,68 @@
+<div class="col-lg-8 d-flex flex-column gap-3">
+    {{ include('@Statistics/dashboard/_executive_kpi_grid.html.twig') }}
+
+    <div class="card" data-testid="stats-overview-time-series">
+        <div class="card-header py-2">
+            <h3 class="card-title mb-0">{{ 'stats.indication.section.time_series'|trans }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-lg"
+                 data-indication-dashboard-charts-target="timeSeriesChart"
+                 data-moving-average-label="{{ 'stats.indication.chart.moving_average'|trans }}"></div>
+        </div>
+    </div>
+
+    <div class="card" data-testid="stats-overview-heatmap">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+            <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans }}</h3>
+            <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans }}">
+                <button type="button"
+                        class="btn active"
+                        data-indication-dashboard-charts-target="heatmapModeDayTime"
+                        data-action="indication-dashboard-charts#setHeatmapMode"
+                        data-indication-dashboard-charts-mode-param="dayTime">
+                    {{ 'stats.indication.heatmap.mode.day_time'|trans }}
+                </button>
+                <button type="button"
+                        class="btn"
+                        data-indication-dashboard-charts-target="heatmapModeShift"
+                        data-action="indication-dashboard-charts#setHeatmapMode"
+                        data-indication-dashboard-charts-mode-param="shift">
+                    {{ 'stats.indication.heatmap.mode.shift'|trans }}
+                </button>
+            </div>
+        </div>
+        <div class="card-body pt-2">
+            <div class="chart-lg" data-indication-dashboard-charts-target="heatmapChart"></div>
+        </div>
+    </div>
+
+    <div class="card" data-testid="stats-overview-age-groups">
+        {% set ageGroupLabels = [] %}
+        {% set ageGroupValues = [] %}
+        {% for row in executiveDashboard.charts.ageGroupDistribution %}
+            {% set ageGroupLabels = ageGroupLabels|merge([row.labelTranslationKey|trans]) %}
+            {% set ageGroupValues = ageGroupValues|merge([row.count]) %}
+        {% endfor %}
+        <div class="card-header py-2">
+            <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-sm"
+                 data-indication-dashboard-charts-target="ageGroupsChart"
+                 data-age-group-labels="{{ ageGroupLabels|json_encode|e('html_attr') }}"
+                 data-age-group-values="{{ ageGroupValues|json_encode|e('html_attr') }}"></div>
+        </div>
+    </div>
+
+    <turbo-frame id="stats-overview-top-reports"
+                 src="{{ overviewTopReportsUrl }}"
+                 loading="lazy"
+                 data-testid="stats-overview-top-reports-frame">
+        <div class="row g-3" data-testid="stats-overview-top-reports">
+            <div class="col-12 text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+            </div>
+        </div>
+    </turbo-frame>
+</div>

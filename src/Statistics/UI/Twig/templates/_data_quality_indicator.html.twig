@@ -1,4 +1,16 @@
-{% if dataQualityReport is defined %}
+{% if dataQualityLazyLoad is defined and dataQualityLazyLoad %}
+    <button type="button"
+            class="btn btn-sm d-inline-flex align-items-center gap-2 data-quality-indicator-btn"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#statsDataQualityDrawer"
+            aria-controls="statsDataQualityDrawer"
+            data-testid="stats-data-quality-indicator">
+        <span class="text-nowrap">
+            {{ 'stats.data_quality.indicator.label'|trans }}
+            <span class="badge d-none" data-testid="stats-data-quality-indicator-badge"></span>
+        </span>
+    </button>
+{% elseif dataQualityReport is defined %}
     <button type="button"
             class="btn btn-sm d-inline-flex align-items-center gap-2 data-quality-indicator-btn"
             data-bs-toggle="offcanvas"

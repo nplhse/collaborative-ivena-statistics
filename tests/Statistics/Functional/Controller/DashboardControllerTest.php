@@ -22,7 +22,7 @@ class DashboardControllerTest extends WebTestCase
     public function testStatisticsOverviewIsDisplayed(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-filter-bar"]');
@@ -30,17 +30,63 @@ class DashboardControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
         $this->assertSelectorTextContains('[data-testid="stats-heading-subtitle"]', 'Dashboard view');
         $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
+        $this->assertSelectorExists('[data-testid="stats-executive-dashboard"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-summary"]');
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Total allocations');
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Gender distribution');
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Emergency');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpis"]');
+        $this->assertCount(6, $crawler->filter('[data-testid="stats-executive-kpis"] .card'));
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-cases_per_day"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_age"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-age_80_plus"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-night_daytime"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-weekend"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_transport"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-indications"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-reports-frame"]');
+        $this->assertSelectorNotExists('[data-testid="stats-overview-top-specialities"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-time-series"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-heatmap"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-age-groups"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-transport"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-transport-time"]');
         $this->assertSelectorExists('[data-testid="stats-overview-features"]');
         $this->assertSelectorExists('[data-testid="stats-overview-resources"]');
-        $this->assertSelectorTextContains('[data-testid="stats-overview-features"]', 'Clinical features');
-        $this->assertSelectorTextContains('[data-testid="stats-overview-resources"]', 'Resources');
         $this->assertSelectorExists('[data-testid="stats-charts"]');
         $this->assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
         $this->assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
+        $this->assertSelectorNotExists('[data-testid="stats-data-quality-dimensions-table"]');
+    }
+
+    public function testOverviewTopReportsLazyEndpointRendersAllCards(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/overview/top-reports?scope=public&period=month&year=2025&month=6',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('turbo-frame#stats-overview-top-reports');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-specialities"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-departments"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-assignments"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-occasions"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-infections"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-secondary-indications"]');
+    }
+
+    public function testDataQualityDrawerEndpointRendersDimensions(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/data-quality/drawer?scope=public&period=month&year=2025&month=6',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-data-quality-dimensions-table"]');
     }
 
     public function testStatisticsOverviewAcceptsScopeAndPeriodQueryParameters(): void

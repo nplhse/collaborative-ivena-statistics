@@ -28,6 +28,7 @@ final readonly class TopEntityQuery
         int $limit,
         string $projectionJoinProperty,
         string $entityFqcn,
+        ?int $totalAllocations = null,
     ): array {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
@@ -41,7 +42,7 @@ final readonly class TopEntityQuery
             $entityFqcn,
         );
 
-        $total = $this->timeSeriesQuery->countCreatedInPeriod(
+        $total = $totalAllocations ?? $this->timeSeriesQuery->countCreatedInPeriod(
             $bounds->from,
             $bounds->toExclusive,
             $scopeCriteria->hospitalIds,
