@@ -35,6 +35,8 @@ framework:
 
             App\Import\Application\Message\ImportAllocationsMessage: async_priority_high
             App\Statistics\Application\Message\RebuildAllocationStatsProjection: async_priority_low
+            App\Kpi\Application\Message\GenerateDailyKpisMessage: async_priority_low
+            App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: async_priority_low
 
 when@dev:
     framework:
