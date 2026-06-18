@@ -9,6 +9,7 @@ use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\TopDiagnosesQuery;
 use App\Statistics\Application\TopIndicationGroupsQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +34,7 @@ final class IndicationInsightsIndexController extends AbstractController
         private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly IndicationPickerViewModelFactory $indicationPickerViewModelFactory,
         private readonly IndicationGroupPickerViewModelFactory $groupPickerViewModelFactory,
+        private readonly IndicationCompareSubjectPickerViewModelFactory $compareSubjectPickerViewModelFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
@@ -123,8 +125,20 @@ final class IndicationInsightsIndexController extends AbstractController
             'topRows' => $topRows,
             'topGroupRows' => $topGroupRows,
             'indicationPicker' => $this->indicationPickerViewModelFactory->create($request),
-            'comparePickerItems' => $this->indicationPickerViewModelFactory->create($request)->menuItems,
-            'compareBaseUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_indication_compare'),
+            'comparePickerItems' => $this->compareSubjectPickerViewModelFactory->buildMenuItems(),
+            'compareBaseUrl' => $this->navigationUrlBuilder->build(
+                $request,
+                'app_stats_indication_compare',
+                [],
+                [
+                    StatisticsQueryKeys::INDICATION_A,
+                    StatisticsQueryKeys::INDICATION_B,
+                    StatisticsQueryKeys::SUBJECT_A_TYPE,
+                    StatisticsQueryKeys::SUBJECT_A_ID,
+                    StatisticsQueryKeys::SUBJECT_B_TYPE,
+                    StatisticsQueryKeys::SUBJECT_B_ID,
+                ],
+            ),
             'groupPicker' => $this->groupPickerViewModelFactory->create($request),
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,

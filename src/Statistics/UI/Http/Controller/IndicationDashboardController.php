@@ -7,6 +7,7 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardCriteria;
 use App\Statistics\Application\IndicationDashboard\IndicationDashboardService;
+use App\Statistics\Application\IndicationDashboard\IndicationSubjectResolver;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
@@ -31,6 +32,7 @@ final class IndicationDashboardController extends AbstractController
         private readonly IndicationDashboardChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
+        private readonly IndicationSubjectResolver $subjectResolver,
     ) {
     }
 
@@ -115,7 +117,10 @@ final class IndicationDashboardController extends AbstractController
             'statsActiveFilterCount' => $drawerState['activeCount'],
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_dashboard', $routeParams),
             'indicationId' => $indicationId,
-            'comparePicker' => $this->comparePickerViewModelFactory->create($request, $indicationId),
+            'comparePicker' => $this->comparePickerViewModelFactory->create(
+                $request,
+                $this->subjectResolver->resolveSingle($indicationId) ?? throw $this->createNotFoundException('Indication not found.'),
+            ),
             'statsShowCompareLaunchButton' => true,
         ]);
     }

@@ -1,6 +1,6 @@
 {% set pickerItems = [] %}
 {% for item in comparePickerItems %}
-    {% set pickerItems = pickerItems|merge([{id: item.id, label: item.label}]) %}
+    {% set pickerItems = pickerItems|merge([{type: item.type, id: item.id, label: item.label}]) %}
 {% endfor %}
 
 <div class="card mt-3" data-testid="stats-indication-compare-picker-card">

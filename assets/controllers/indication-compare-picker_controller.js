@@ -10,16 +10,18 @@ export default class extends Controller {
     };
 
     compare() {
-        const idA = this.resolveId(this.inputATarget.value);
-        const idB = this.resolveId(this.inputBTarget.value);
+        const selectionA = this.resolveSelection(this.inputATarget.value);
+        const selectionB = this.resolveSelection(this.inputBTarget.value);
 
-        if (null === idA || null === idB) {
+        if (null === selectionA || null === selectionB) {
             return;
         }
 
         const url = new URL(this.baseUrlValue, window.location.origin);
-        url.searchParams.set('indication_a', String(idA));
-        url.searchParams.set('indication_b', String(idB));
+        url.searchParams.set('subject_a_type', selectionA.type);
+        url.searchParams.set('subject_a_id', String(selectionA.id));
+        url.searchParams.set('subject_b_type', selectionB.type);
+        url.searchParams.set('subject_b_id', String(selectionB.id));
         window.location.assign(url.toString());
     }
 
@@ -32,7 +34,7 @@ export default class extends Controller {
         this.inputBTarget.value = params.labelB ?? '';
     }
 
-    resolveId(inputValue) {
+    resolveSelection(inputValue) {
         const value = inputValue.trim().toLowerCase();
         if ('' === value) {
             return null;
@@ -48,6 +50,13 @@ export default class extends Controller {
             }
         }
 
-        return match?.id ?? null;
+        if (!match?.type || null == match.id) {
+            return null;
+        }
+
+        return {
+            type: match.type,
+            id: match.id,
+        };
     }
 }
