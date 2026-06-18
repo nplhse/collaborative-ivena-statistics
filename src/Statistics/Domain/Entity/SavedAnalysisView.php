@@ -26,11 +26,11 @@ class SavedAnalysisView
     #[ORM\Column(length: 180)]
     private string $title;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     /** @var array<string, mixed> */
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON)]
     private array $configJson = [];
 
     #[ORM\Column(enumType: AnalysisViewVisibility::class)]

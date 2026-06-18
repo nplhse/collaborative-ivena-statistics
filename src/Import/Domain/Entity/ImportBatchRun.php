@@ -25,7 +25,7 @@ class ImportBatchRun
     /**
      * @var array<string, mixed>
      */
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON)]
     private array $options = [];
 
     #[ORM\Column]
