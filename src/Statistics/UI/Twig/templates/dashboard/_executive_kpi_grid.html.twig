@@ -1,0 +1,13 @@
+<div data-testid="stats-executive-kpis">
+    {{ include('@Statistics/_kpi_compare_tiles.html.twig', {
+        metrics: executiveDashboard.kpiMetrics,
+        suppressRatios: executiveDashboard.benchmarkSuppressRatios,
+        sideAShortKey: 'stats.overview.executive.kpi.current_short',
+        sideBShortKey: 'stats.overview.executive.kpi.base_short',
+        testIdPrefix: 'stats-executive-kpi',
+        columnClass: 'col-12 col-md-4',
+        metricLabelKeys: {
+            cases_per_day: 'stats.overview.executive.kpi.cases_per_day',
+        },
+    }) }}
+</div>

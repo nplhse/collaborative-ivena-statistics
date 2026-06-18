@@ -1,0 +1,66 @@
+<div class="row g-3 mb-4" data-testid="stats-executive-indications">
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">{{ 'stats.overview.executive.section.indications'|trans }}</h3>
+                <a href="{{ executiveDashboard.indication.insightsUrl }}" class="small">
+                    {{ 'stats.overview.executive.indication.link'|trans }}
+                </a>
+            </div>
+            <div class="card-body">
+                {% if executiveDashboard.indication.rows is empty %}
+                    <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>{{ 'stats.reports.table.diagnosis'|trans }}</th>
+                                    <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
+                                    <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
+                                    <th class="text-end">{{ 'stats.overview.executive.indication.trend'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in executiveDashboard.indication.rows %}
+                                    <tr>
+                                        <td>{{ row.rank }}</td>
+                                        <td>
+                                            {% if row.url %}
+                                                <a href="{{ row.url }}" class="text-reset">{{ row.label }}</a>
+                                            {% else %}
+                                                {{ row.label }}
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
+                                        <td class="text-end">{{ row.shareDisplay }}</td>
+                                        <td class="text-end">
+                                            {% if row.trendDisplay %}
+                                                <span class="{{ row.trendTone == 'danger' ? 'text-danger' : (row.trendTone == 'success' ? 'text-success' : 'text-muted') }}">
+                                                    {{ row.trendDisplay }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header py-2">
+                <h3 class="card-title mb-0">{{ 'stats.overview.executive.section.indication_mix'|trans }}</h3>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <div data-dashboard-charts-target="indicationDonutChart" class="chart-sm flex-grow-1"></div>
+            </div>
+        </div>
+    </div>
+</div>

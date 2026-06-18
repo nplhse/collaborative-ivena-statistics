@@ -1,0 +1,31 @@
+{% if executiveDashboard.hospitalInsights is not empty %}
+    {% set hasOwnedHospitals = app.user is not null and app.user.hospitals|length > 0 %}
+    <div class="card" data-testid="stats-overview-hospital-insights">
+        <div class="card-header py-2">
+            <h3 class="card-title mb-0">{{ (hasOwnedHospitals ? 'monthly_reminder.section.insights' : 'stats.overview.executive.section.key_findings')|trans }}</h3>
+        </div>
+        <div class="card-body d-flex flex-column gap-3 py-3">
+            {% for insight in executiveDashboard.hospitalInsights %}
+                <div class="d-flex align-items-start gap-2{% if not loop.last %} pb-3 border-bottom{% endif %}"
+                     data-testid="stats-overview-hospital-insight-{{ loop.index }}">
+                    <span class="mt-1 flex-shrink-0 {% if insight.trend.value == 'up' %}text-success{% elseif insight.trend.value == 'down' %}text-danger{% else %}text-secondary{% endif %}">
+                        {% if insight.trend.value == 'up' %}
+                            <twig:ux:icon name="tabler:arrow-up" class="icon icon-sm" />
+                        {% elseif insight.trend.value == 'down' %}
+                            <twig:ux:icon name="tabler:arrow-down" class="icon icon-sm" />
+                        {% else %}
+                            <twig:ux:icon name="tabler:circle-filled" class="icon icon-xs" />
+                        {% endif %}
+                    </span>
+                    <div class="min-w-0">
+                        <div class="fw-medium mb-1">{{ insight.title }}</div>
+                        <p class="text-secondary small mb-1">{{ insight.body }}</p>
+                        {% if insight.linkUrl %}
+                            <a href="{{ insight.linkUrl }}" class="small">{{ 'monthly_reminder.insight.link'|trans }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

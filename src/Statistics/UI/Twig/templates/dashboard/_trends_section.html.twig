@@ -1,0 +1,27 @@
+<div class="row g-3 mb-4" data-testid="stats-charts">
+    <div class="col-lg-{% if executiveDashboard.trends.indicationTrends.series is not empty %}7{% else %}12{% endif %}">
+        <div class="card h-100">
+            <div class="card-header py-2">
+                <h3 class="card-title mb-0">{{ 'stats.overview.executive.trends.case_volume'|trans }}</h3>
+            </div>
+            <div class="card-body">
+                <div data-dashboard-charts-target="allocationsChart" class="chart-sm"></div>
+                {% if executiveDashboard.trends.showSeasonalHint %}
+                    <p class="text-muted small mb-0 mt-2">{{ 'stats.overview.executive.trends.seasonal_hint'|trans }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% if executiveDashboard.trends.indicationTrends.series is not empty %}
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header py-2">
+                    <h3 class="card-title mb-0">{{ 'stats.overview.executive.trends.indications'|trans }}</h3>
+                </div>
+                <div class="card-body">
+                    <div data-dashboard-charts-target="indicationTrendsChart" class="chart-sm"></div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

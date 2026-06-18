@@ -1,0 +1,26 @@
+<div class="row g-3 mb-4" data-testid="stats-executive-population">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                {{ include('@Statistics/dashboard/_distribution_segments.html.twig', executiveDashboard.population.gender) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                {{ include('@Statistics/dashboard/_distribution_segments.html.twig', executiveDashboard.population.urgency) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="mb-2">{{ 'stats.overview.executive.population.age'|trans }}</p>
+                {{ include('@Statistics/indication_dashboard/_distribution_progress.html.twig', {
+                    rows: executiveDashboard.population.age,
+                }) }}
+            </div>
+        </div>
+    </div>
+</div>

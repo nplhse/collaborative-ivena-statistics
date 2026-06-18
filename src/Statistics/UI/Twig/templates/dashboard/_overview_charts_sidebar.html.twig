@@ -1,0 +1,35 @@
+<div class="col-lg-4 d-flex flex-column gap-3">
+    {{ include('@Statistics/dashboard/_hospital_insights_sidebar.html.twig') }}
+    {% if resourcesWidget is not null %}
+        {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: resourcesWidget}) }}
+    {% endif %}
+    {% if featuresWidget is not null %}
+        {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: featuresWidget}) }}
+    {% endif %}
+
+    {{ include('@Statistics/indication_dashboard/_distribution_card.html.twig', {
+        titleKey: 'stats.indication.section.transport',
+        rows: executiveDashboard.charts.transportDistribution,
+        testId: 'stats-overview-transport',
+    }) }}
+
+    <div class="card" data-testid="stats-overview-transport-time">
+        {% set transportTimeLabels = [] %}
+        {% set transportTimeValues = [] %}
+        {% for row in executiveDashboard.charts.transportTimeDistribution %}
+            {% set transportTimeLabels = transportTimeLabels|merge([row.labelTranslationKey|trans]) %}
+            {% set transportTimeValues = transportTimeValues|merge([row.count]) %}
+        {% endfor %}
+        <div class="card-header py-2">
+            <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-sm"
+                 data-indication-dashboard-charts-target="transportTimeChart"
+                 data-transport-time-labels="{{ transportTimeLabels|json_encode|e('html_attr') }}"
+                 data-transport-time-values="{{ transportTimeValues|json_encode|e('html_attr') }}"></div>
+        </div>
+    </div>
+
+    {{ include('@Statistics/dashboard/_indications_sidebar.html.twig') }}
+</div>

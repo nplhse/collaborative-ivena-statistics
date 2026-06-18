@@ -4,8 +4,8 @@ import { loadApexCharts } from '../lib/load-apexcharts.js';
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
     static values = {
-        allocations: Object, // { labels, monthlyCounts, cumulativeCounts }
-        imports: Object,     // { labels, monthlyCounts }
+        allocations: Object,
+        imports: Object,
     };
 
     static targets = ['allocationsChart', 'importsChart'];
@@ -50,9 +50,7 @@ export default class extends Controller {
         const cumulative = data.cumulativeCounts || [];
 
         const minVal = Math.min(...cumulative);
-        const maxVal = cumulative.length
-            ? Math.max(...cumulative)
-            : 0;
+        const maxVal = cumulative.length ? Math.max(...cumulative) : 0;
 
         let yMin;
         let yMax;
@@ -74,30 +72,15 @@ export default class extends Controller {
                 fontFamily: 'inherit',
                 zoom: { enabled: false },
             },
-            series: [
-                {
-                    name: 'Allocations gesamt',
-                    data: cumulative,
-                }
-            ],
+            series: [{ name: 'Allocations gesamt', data: cumulative }],
             xaxis: {
                 categories: labels,
-                labels: {
-                    rotate: -45,
-                    trim: true,
-                },
+                labels: { rotate: -45, trim: true },
                 axisBorder: { show: false },
                 axisTicks: { show: false },
             },
-            yaxis: {
-                min: yMin,
-                max: yMax,
-                show: false
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 3,
-            },
+            yaxis: { min: yMin, max: yMax, show: false },
+            stroke: { curve: 'smooth', width: 3 },
             fill: {
                 type: 'gradient',
                 gradient: {
@@ -107,20 +90,10 @@ export default class extends Controller {
                     stops: [0, 90, 100],
                 },
             },
-            dataLabels: {
-                enabled: false,
-            },
-            grid: {
-                strokeDashArray: 4,
-                borderColor: 'rgba(0,0,0,0.04)',
-            },
-            tooltip: {
-                shared: true,
-                intersect: false,
-            },
-            legend: {
-                show: false,
-            },
+            dataLabels: { enabled: false },
+            grid: { strokeDashArray: 4, borderColor: 'rgba(0,0,0,0.04)' },
+            tooltip: { shared: true, intersect: false },
+            legend: { show: false },
         };
 
         if (generation !== this._renderGeneration || !this.hasAllocationsChartTarget) {
@@ -130,10 +103,7 @@ export default class extends Controller {
         if (this.allocationsChartInstance) {
             this.allocationsChartInstance.updateOptions(options, true, true);
         } else {
-            this.allocationsChartInstance = new ApexCharts(
-                this.allocationsChartTarget,
-                options
-            );
+            this.allocationsChartInstance = new ApexCharts(this.allocationsChartTarget, options);
             this.allocationsChartInstance.render();
         }
     }
@@ -146,10 +116,7 @@ export default class extends Controller {
         const data = this.importsValue;
         const labels = data.labels || [];
         const monthly = data.monthlyCounts || [];
-
-        const maxVal = monthly.length
-            ? Math.max(...monthly)
-            : 0;
+        const maxVal = monthly.length ? Math.max(...monthly) : 0;
 
         const options = {
             chart: {
@@ -159,12 +126,7 @@ export default class extends Controller {
                 fontFamily: 'inherit',
                 zoom: { enabled: false },
             },
-            series: [
-                {
-                    name: 'Imports',
-                    data: monthly,
-                }
-            ],
+            series: [{ name: 'Imports', data: monthly }],
             plotOptions: {
                 bar: {
                     columnWidth: '45%',
@@ -174,33 +136,19 @@ export default class extends Controller {
             },
             xaxis: {
                 categories: labels,
-                labels: {
-                    rotate: -45,
-                    trim: true,
-                    style: { fontSize: '11px' },
-                },
+                labels: { rotate: -45, trim: true, style: { fontSize: '11px' } },
                 axisBorder: { show: false },
                 axisTicks: { show: false },
             },
             yaxis: {
                 min: 0,
                 max: maxVal === 0 ? undefined : Math.ceil(maxVal * 1.1),
-                show: false
-            },
-            dataLabels: {
-                enabled: false,
-            },
-            grid: {
-                strokeDashArray: 4,
-                borderColor: 'rgba(0,0,0,0.04)',
-            },
-            legend: {
                 show: false,
             },
-            tooltip: {
-                shared: true,
-                intersect: false,
-            },
+            dataLabels: { enabled: false },
+            grid: { strokeDashArray: 4, borderColor: 'rgba(0,0,0,0.04)' },
+            legend: { show: false },
+            tooltip: { shared: true, intersect: false },
         };
 
         if (generation !== this._renderGeneration || !this.hasImportsChartTarget) {
@@ -210,10 +158,7 @@ export default class extends Controller {
         if (this.importsChartInstance) {
             this.importsChartInstance.updateOptions(options, true, true);
         } else {
-            this.importsChartInstance = new ApexCharts(
-                this.importsChartTarget,
-                options
-            );
+            this.importsChartInstance = new ApexCharts(this.importsChartTarget, options);
             this.importsChartInstance.render();
         }
     }

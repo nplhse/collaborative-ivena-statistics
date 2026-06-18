@@ -6,6 +6,8 @@
             {% set deltaBadgeClass = deltaTone == 'danger' ? 'bg-red-lt' : (deltaTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
             {% set ratioTone = metric.ratio > 1 ? 'success' : (metric.ratio < 1 ? 'danger' : 'primary') %}
             {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
+            {% set labelKey = metricLabelKeys[metric.key.value]|default('stats.benchmark.metric.' ~ metric.key.value) %}
+            {% set tileColumnClass = columnClass|default('col-sm-6 col-lg-4') %}
 
             {% if metric.format.value == 'percent' %}
                 {% set primaryLabel = metric.primaryValue|number_format(1, ',', '.') ~ '%' %}
@@ -19,17 +21,21 @@
                 {% set primaryLabel = metric.primaryValue|number_format(1, ',', '.') ~ ' min' %}
                 {% set comparisonLabel = metric.comparisonValue|number_format(1, ',', '.') ~ ' min' %}
                 {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') ~ ' min' %}
+            {% elseif metric.format.value == 'decimal' %}
+                {% set primaryLabel = metric.primaryValue|number_format(1, ',', '.') %}
+                {% set comparisonLabel = metric.comparisonValue|number_format(1, ',', '.') %}
+                {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') %}
             {% else %}
                 {% set primaryLabel = metric.primaryValue|number_format(1, ',', '.') %}
                 {% set comparisonLabel = metric.comparisonValue|number_format(1, ',', '.') %}
                 {% set deltaLabel = (metric.absoluteDelta >= 0 ? '+' : '') ~ metric.absoluteDelta|number_format(1, ',', '.') %}
             {% endif %}
 
-            <div class="col-sm-6 col-lg-4">
+            <div class="{{ tileColumnClass }}">
                 <div class="card h-100" data-testid="{{ testIdPrefix }}-{{ metric.key.value }}">
                     <div class="card-body d-flex flex-column">
                         <div class="subheader mb-2">
-                            {{ ('stats.benchmark.metric.' ~ metric.key.value)|trans }}
+                            {{ labelKey|trans }}
                         </div>
 
                         {% if not suppressRatios %}

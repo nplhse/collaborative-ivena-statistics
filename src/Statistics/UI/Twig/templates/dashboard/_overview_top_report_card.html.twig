@@ -1,0 +1,35 @@
+<div class="card h-100" data-testid="{{ section.testId }}">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">
+            <a href="{{ section.reportUrl }}" class="text-reset">{{ section.titleTranslationKey|trans }}</a>
+        </h3>
+    </div>
+    <div class="card-body{% if section.rows is not empty %} p-0{% endif %}">
+        {% if section.rows is empty %}
+            <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>{{ section.labelColumnTranslationKey|trans }}</th>
+                            <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
+                            <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in section.rows %}
+                            <tr>
+                                <td>{{ row.rank }}</td>
+                                <td>{{ row.label }}</td>
+                                <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
+                                <td class="text-end">{{ row.shareDisplay }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
