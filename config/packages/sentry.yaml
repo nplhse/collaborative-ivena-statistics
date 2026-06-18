@@ -18,7 +18,6 @@ sentry:
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
             - Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
             - Symfony\Component\ErrorHandler\Error\FatalError
-            - Symfony\Component\Debug\Exception\FatalErrorException
 
 when@test:
     sentry:

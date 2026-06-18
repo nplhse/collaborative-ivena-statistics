@@ -25,6 +25,8 @@ return RectorConfig::configure()
         Rector\Symfony\Set\SymfonySetList::CONFIGS,
         Rector\Symfony\Set\SymfonySetList::SYMFONY_CODE_QUALITY,
         Rector\Symfony\Set\SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
+        Rector\Symfony\Set\SymfonySetList::SYMFONY_80,
+        Zenstruck\Foundry\Utils\Rector\FoundrySetList::FOUNDRY_2_7,
     ])
     ->withSkip([
         Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
