@@ -43,7 +43,7 @@
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
     <div class="row g-4 align-items-start">
-        <div class="col-12 min-w-0">
+        <div class="col-12 min-w-0" data-testid="stats-executive-dashboard">
             <div data-testid="stats-hospital-summary">
                 {% for widget in hospitalSummaryWidgets %}
                     {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: widget}) }}
@@ -60,39 +60,13 @@
                 {% endif %}
             {% endfor %}
 
-            {% if chartPairWidget is not null %}
-                {% set p = chartPairWidget.payload %}
-                <div class="row g-3 mt-1"
-                     data-testid="stats-charts"
-                     data-controller="dashboard-charts"
-                     data-dashboard-charts-allocations-value="{{ p.allocationChart|json_encode|e('html_attr') }}"
-                     data-dashboard-charts-imports-value="{{ p.importChart|json_encode|e('html_attr') }}">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h3 class="card-title mb-0">Allocations</h3>
-                                <div data-dashboard-charts-target="allocationsChart" class="chart-lg"></div>
-                            </div>
-                        </div>
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <h3 class="card-title mb-0">Imports</h3>
-                                <div data-dashboard-charts-target="importsChart" class="chart-lg"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        {% if resourcesWidget is not null %}
-                            {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: resourcesWidget}) }}
-                        {% endif %}
-                        {% if featuresWidget is not null %}
-                            <div class="mt-3">
-                                {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: featuresWidget}) }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endif %}
+            <div class="row g-3 mt-1"
+                 data-testid="stats-charts"
+                 data-controller="indication-dashboard-charts"
+                 data-indication-dashboard-charts-payload-value="{{ executiveDashboard.charts.chartPayload|json_encode|e('html_attr') }}">
+                {{ include('@Statistics/dashboard/_overview_charts_main.html.twig') }}
+                {{ include('@Statistics/dashboard/_overview_charts_sidebar.html.twig') }}
+            </div>
 
             {% if overviewPeriodViewModel is defined %}
                 {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}

@@ -25,7 +25,7 @@ final readonly class TopDiagnosesQuery
     /**
      * @return array{rows: list<Row>, totalAllocations: int}
      */
-    public function fetch(StatisticsContext $context, int $limit): array
+    public function fetch(StatisticsContext $context, int $limit, ?int $totalAllocations = null): array
     {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
@@ -37,7 +37,11 @@ final readonly class TopDiagnosesQuery
             $limit,
         );
 
-        $total = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $scopeCriteria->hospitalIds);
+        $total = $totalAllocations ?? $this->timeSeriesQuery->countCreatedInPeriod(
+            $bounds->from,
+            $bounds->toExclusive,
+            $scopeCriteria->hospitalIds,
+        );
 
         return [
             'rows' => $rows,

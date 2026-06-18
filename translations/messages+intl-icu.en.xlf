@@ -3395,6 +3395,182 @@
         <source>stats.overview.table.placeholder</source>
         <target>Table widgets will be available here later.</target>
       </trans-unit>
+      <trans-unit id="statsOvEx01" resname="stats.overview.executive.section.kpis">
+        <source>stats.overview.executive.section.kpis</source>
+        <target>Additional KPIs</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx01b" resname="stats.overview.executive.pretitle">
+        <source>stats.overview.executive.pretitle</source>
+        <target>Executive dashboard</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx02" resname="stats.overview.executive.section.key_findings">
+        <source>stats.overview.executive.section.key_findings</source>
+        <target>Key findings</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx03" resname="stats.overview.executive.section.indications">
+        <source>stats.overview.executive.section.indications</source>
+        <target>Indication overview</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx04" resname="stats.overview.executive.section.indication_mix">
+        <source>stats.overview.executive.section.indication_mix</source>
+        <target>Indication mix</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx05" resname="stats.overview.executive.section.benchmark">
+        <source>stats.overview.executive.section.benchmark</source>
+        <target>Benchmark summary</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx06" resname="stats.overview.executive.section.deviations">
+        <source>stats.overview.executive.section.deviations</source>
+        <target>Largest deviations</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx07" resname="stats.overview.executive.section.population">
+        <source>stats.overview.executive.section.population</source>
+        <target>Population &amp; patient profile</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx08" resname="stats.overview.executive.section.trends">
+        <source>stats.overview.executive.section.trends</source>
+        <target>Trends</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx09" resname="stats.overview.executive.kpi.total_cases">
+        <source>stats.overview.executive.kpi.total_cases</source>
+        <target>Total cases</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx10" resname="stats.overview.executive.kpi.cases_per_day">
+        <source>stats.overview.executive.kpi.cases_per_day</source>
+        <target>Cases per day</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx10b" resname="stats.overview.executive.kpi.current_short">
+        <source>stats.overview.executive.kpi.current_short</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx10c" resname="stats.overview.executive.kpi.base_short">
+        <source>stats.overview.executive.kpi.base_short</source>
+        <target>Base</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx11" resname="stats.overview.executive.kpi.cases_per_day_hint">
+        <source>stats.overview.executive.kpi.cases_per_day_hint</source>
+        <target>Based on selected period length</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx12" resname="stats.overview.executive.kpi.median_age">
+        <source>stats.overview.executive.kpi.median_age</source>
+        <target>Median age</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx12b" resname="stats.overview.executive.kpi.age_80_plus">
+        <source>stats.overview.executive.kpi.age_80_plus</source>
+        <target>Age 80+</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx13" resname="stats.overview.executive.kpi.night_share">
+        <source>stats.overview.executive.kpi.night_share</source>
+        <target>Night shift share</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx14" resname="stats.overview.executive.kpi.weekend_share">
+        <source>stats.overview.executive.kpi.weekend_share</source>
+        <target>Weekend share</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx15" resname="stats.overview.executive.kpi.physician_rate">
+        <source>stats.overview.executive.kpi.physician_rate</source>
+        <target>Physician escort rate</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx16" resname="stats.overview.executive.kpi.median_transport">
+        <source>stats.overview.executive.kpi.median_transport</source>
+        <target>Median transport time</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx17" resname="stats.overview.executive.kpi.data_completeness">
+        <source>stats.overview.executive.kpi.data_completeness</source>
+        <target>Data completeness score</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx18" resname="stats.overview.executive.benchmark.status.above">
+        <source>stats.overview.executive.benchmark.status.above</source>
+        <target>Above baseline</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx19" resname="stats.overview.executive.benchmark.status.within">
+        <source>stats.overview.executive.benchmark.status.within</source>
+        <target>Within baseline</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx20" resname="stats.overview.executive.benchmark.status.below">
+        <source>stats.overview.executive.benchmark.status.below</source>
+        <target>Below baseline</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx21" resname="stats.overview.executive.benchmark.insufficient">
+        <source>stats.overview.executive.benchmark.insufficient</source>
+        <target>Not enough cases for a reliable baseline comparison.</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx22" resname="stats.overview.executive.benchmark.link">
+        <source>stats.overview.executive.benchmark.link</source>
+        <target>Details in Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx23" resname="stats.overview.executive.benchmark.positive">
+        <source>stats.overview.executive.benchmark.positive</source>
+        <target>Top positive deviations</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx24" resname="stats.overview.executive.benchmark.negative">
+        <source>stats.overview.executive.benchmark.negative</source>
+        <target>Top negative deviations</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx25" resname="stats.overview.executive.population.gender">
+        <source>stats.overview.executive.population.gender</source>
+        <target>Sex distribution</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx26" resname="stats.overview.executive.population.urgency">
+        <source>stats.overview.executive.population.urgency</source>
+        <target>Urgency distribution</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx27" resname="stats.overview.executive.population.age">
+        <source>stats.overview.executive.population.age</source>
+        <target>Age distribution</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx28" resname="stats.overview.executive.trends.case_volume">
+        <source>stats.overview.executive.trends.case_volume</source>
+        <target>Case volume over time</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx29" resname="stats.overview.executive.trends.indications">
+        <source>stats.overview.executive.trends.indications</source>
+        <target>Major indication trends</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx30" resname="stats.overview.executive.trends.seasonal_hint">
+        <source>stats.overview.executive.trends.seasonal_hint</source>
+        <target>Longer periods may reveal seasonal patterns.</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx31" resname="stats.overview.executive.indication.trend">
+        <source>stats.overview.executive.indication.trend</source>
+        <target>Trend</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx32" resname="stats.overview.executive.indication.other">
+        <source>stats.overview.executive.indication.other</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx33" resname="stats.overview.executive.indication.link">
+        <source>stats.overview.executive.indication.link</source>
+        <target>All indications</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx34" resname="stats.overview.executive.finding.volume_pop">
+        <source>stats.overview.executive.finding.volume_pop</source>
+        <target>Case volume changed by {percent} compared to the previous period.</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx35" resname="stats.overview.executive.finding.indication_pop">
+        <source>stats.overview.executive.finding.indication_pop</source>
+        <target>{indication} cases changed by {percent} compared to the previous period.</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx36" resname="stats.overview.executive.finding.link.overview">
+        <source>stats.overview.executive.finding.link.overview</source>
+        <target>View overview</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx37" resname="stats.overview.executive.finding.link.indication">
+        <source>stats.overview.executive.finding.link.indication</source>
+        <target>Open indication</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx38" resname="stats.overview.executive.finding.link.benchmarking">
+        <source>stats.overview.executive.finding.link.benchmarking</source>
+        <target>Open benchmarking</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx39" resname="stats.overview.executive.finding.link.data_quality">
+        <source>stats.overview.executive.finding.link.data_quality</source>
+        <target>View data quality</target>
+      </trans-unit>
+      <trans-unit id="statsOvEx40" resname="stats.overview.executive.finding.empty">
+        <source>stats.overview.executive.finding.empty</source>
+        <target>No notable findings for the current selection.</target>
+      </trans-unit>
       <trans-unit id="blog0001" resname="link.blog">
         <source>link.blog</source>
         <target>Blog</target>
@@ -5578,6 +5754,10 @@
       <trans-unit id="statsBm24" resname="stats.benchmark.metric.total">
         <source>stats.benchmark.metric.total</source>
         <target>Case count</target>
+      </trans-unit>
+      <trans-unit id="statsBm24b" resname="stats.benchmark.metric.cases_per_day">
+        <source>stats.benchmark.metric.cases_per_day</source>
+        <target>Cases per day</target>
       </trans-unit>
       <trans-unit id="statsBm25" resname="stats.benchmark.metric.with_physician">
         <source>stats.benchmark.metric.with_physician</source>

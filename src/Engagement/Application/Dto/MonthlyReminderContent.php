@@ -7,11 +7,11 @@ namespace App\Engagement\Application\Dto;
 final readonly class MonthlyReminderContent
 {
     /**
-     * @param list<MonthlyReminderChartBar> $chartBars
-     * @param list<MonthlyReminderSegment>  $urgencySegments
-     * @param list<MonthlyReminderSegment>  $genderSegments
-     * @param list<MonthlyReminderInsight>  $insights
-     * @param array<string, string>         $submissionMonths Y-m => success|failed|missing
+     * @param list<MonthlyReminderChartBar>                              $chartBars
+     * @param list<MonthlyReminderSegment>                               $urgencySegments
+     * @param list<MonthlyReminderSegment>                               $genderSegments
+     * @param list<\App\Statistics\Application\Insights\HospitalInsight> $insights
+     * @param array<string, string>                                      $submissionMonths Y-m => success|failed|missing
      */
     public function __construct(
         public string $hospitalName,

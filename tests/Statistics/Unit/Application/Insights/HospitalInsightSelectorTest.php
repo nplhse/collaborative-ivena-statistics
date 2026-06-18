@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Engagement\Unit\Application;
+namespace App\Tests\Statistics\Unit\Application\Insights;
 
-use App\Engagement\Application\MonthlyReminderInsightSelector;
+use App\Statistics\Application\Insights\HospitalInsightSelector;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricFormat;
@@ -12,11 +12,11 @@ use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class MonthlyReminderInsightSelectorTest extends TestCase
+final class HospitalInsightSelectorTest extends TestCase
 {
     public function testPhysicianInsightUsesBaselineDeltaInPercentagePoints(): void
     {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
+        $selector = new HospitalInsightSelector($this->translator());
 
         $insights = $selector->select(
             null,
@@ -49,7 +49,7 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
 
     public function testMetricInsideBaselineBandProducesNoInsight(): void
     {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
+        $selector = new HospitalInsightSelector($this->translator());
 
         $insights = $selector->select(
             null,
@@ -77,7 +77,7 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
 
     public function testVolumeMomInsightIsSelectedWhenChangeIsSignificant(): void
     {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
+        $selector = new HospitalInsightSelector($this->translator());
 
         $insights = $selector->select(
             8.5,
@@ -96,7 +96,7 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
 
     public function testVolumeYoyInsightTakesPriorityOverMom(): void
     {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
+        $selector = new HospitalInsightSelector($this->translator());
 
         $insights = $selector->select(
             12.0,
@@ -115,7 +115,7 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
 
     public function testQualityInsightWhenRejectionRateImproves(): void
     {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
+        $selector = new HospitalInsightSelector($this->translator());
 
         $insights = $selector->select(
             null,
@@ -134,7 +134,7 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
 
     public function testResusInsightUsesBaselineComparison(): void
     {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
+        $selector = new HospitalInsightSelector($this->translator());
 
         $insights = $selector->select(
             null,
@@ -163,7 +163,7 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
 
     public function testIndicationInsightUsesLargestDeviationBucket(): void
     {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
+        $selector = new HospitalInsightSelector($this->translator());
 
         $insights = $selector->select(
             null,
@@ -189,26 +189,6 @@ final class MonthlyReminderInsightSelectorTest extends TestCase
         self::assertCount(1, $insights);
         self::assertSame('monthly_reminder.insight.indication.title', $insights[0]->title);
         self::assertStringContainsString('Chest pain', $insights[0]->body);
-    }
-
-    public function testGenderAndUrgencySegmentsReturnPercentages(): void
-    {
-        $selector = new MonthlyReminderInsightSelector($this->translator());
-
-        $genderSegments = $selector->genderSegments([
-            'M' => 30,
-            'F' => 70,
-        ], 100);
-        $urgencySegments = $selector->urgencySegments([
-            1 => 10,
-            2 => 20,
-            3 => 70,
-        ], 100);
-
-        self::assertCount(3, $genderSegments);
-        self::assertSame(30.0, $genderSegments[0]->percent);
-        self::assertCount(3, $urgencySegments);
-        self::assertSame(70.0, $urgencySegments[2]->percent);
     }
 
     private function translator(): TranslatorInterface

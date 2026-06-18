@@ -1,0 +1,7 @@
+<div class="row g-3" data-testid="stats-overview-top-reports">
+    {% for section in topReportCards|default(executiveDashboard.topReportCards|default([])) %}
+        <div class="col-md-6">
+            {{ include('@Statistics/dashboard/_overview_top_report_card.html.twig', {section: section}) }}
+        </div>
+    {% endfor %}
+</div>

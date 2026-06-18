@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query\Overview;
 
+use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
 use Doctrine\DBAL\Connection;
@@ -21,7 +24,7 @@ final readonly class GetOverviewDashboardMetricsQuery
     public function __invoke(OverviewQueryCriteria $criteria): OverviewDashboardMetricsResult
     {
         if ($criteria->hasEmptyHospitalScope()) {
-            return new OverviewDashboardMetricsResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], []);
+            return OverviewDashboardMetricsResult::empty();
         }
 
         $hasExtended = $this->projectionFeatureQuery->hasExtendedClinicalFeatureColumns();
@@ -60,6 +63,24 @@ final readonly class GetOverviewDashboardMetricsQuery
             );
         }
 
+        $ageGroupSelects = [];
+        $ageBucketCase = StatisticsAgeGroupBucketSql::CASE_EXPRESSION;
+        foreach (StatisticsAgeGroupBucketSql::BUCKET_KEYS as $bucketKey) {
+            $alias = 'age_group_'.str_replace('-', '_', $bucketKey);
+            $ageGroupSelects[] = sprintf(
+                '%s::int AS %s',
+                $this->scopedCountFilter(sprintf('(%s) = %s', $ageBucketCase, $this->connection->quote($bucketKey)), $scopedHospitalSql),
+                $alias,
+            );
+        }
+
+        $nightCode = AllocationStatsDayTimeBucketProjectionCode::Night->value;
+        $medianAgeExpr = 'PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age) FILTER (WHERE age IS NOT NULL)';
+        $medianTransportExpr = sprintf(
+            '%s FILTER (WHERE arrival_at IS NOT NULL AND created_at IS NOT NULL)',
+            StatisticsTransportTimeSql::medianPreciseMinutes(),
+        );
+
         [$where, $params] = OverviewProjectionSqlFilter::buildWhereClause($criteria);
 
         $sql = sprintf(
@@ -76,6 +97,10 @@ SELECT
     %s::int AS infectious,
     %s::int AS cathlab,
     %s::int AS resus,
+    %s::int AS night_daytime,
+    %s::int AS weekend,
+    %s AS median_age,
+    %s AS median_transport_minutes,
     %s
 FROM allocation_stats_projection
 WHERE %s
@@ -90,13 +115,23 @@ SQL,
             $this->scopedCountFilter('infection_id IS NOT NULL', $scopedHospitalSql),
             $this->scopedCountFilter('requires_cathlab = true', $scopedHospitalSql),
             $this->scopedCountFilter('requires_resus = true', $scopedHospitalSql),
-            implode(",\n    ", [...$genderSelects, ...$urgencySelects]),
+            $this->scopedCountFilter(sprintf('day_time_bucket_code = %d', $nightCode), $scopedHospitalSql),
+            $this->scopedCountFilter('created_weekday IN (6, 7)', $scopedHospitalSql),
+            $medianAgeExpr,
+            $medianTransportExpr,
+            implode(",\n    ", [...$genderSelects, ...$urgencySelects, ...$ageGroupSelects]),
             $where,
         );
 
         $fetched = $this->connection->fetchAssociative($sql, $params);
         /** @var array<string, int|string|null> $row */
         $row = false === $fetched ? [] : $fetched;
+
+        $ageGroupCounts = [];
+        foreach (StatisticsAgeGroupBucketSql::BUCKET_KEYS as $bucketKey) {
+            $alias = 'age_group_'.str_replace('-', '_', $bucketKey);
+            $ageGroupCounts[$bucketKey] = (int) ($row[$alias] ?? 0);
+        }
 
         return new OverviewDashboardMetricsResult(
             (int) ($row['platform_total'] ?? 0),
@@ -120,6 +155,11 @@ SQL,
                 AllocationStatsUrgencyProjectionCode::Inpatient->value => (int) ($row['urgency_2'] ?? 0),
                 AllocationStatsUrgencyProjectionCode::Outpatient->value => (int) ($row['urgency_3'] ?? 0),
             ],
+            (int) ($row['night_daytime'] ?? 0),
+            (int) ($row['weekend'] ?? 0),
+            $this->toFloatOrNull($row['median_age'] ?? null),
+            $this->toFloatOrNull($row['median_transport_minutes'] ?? null),
+            $ageGroupCounts,
         );
     }
 
@@ -144,5 +184,14 @@ SQL,
         }
 
         return sprintf('COUNT(*) FILTER (WHERE %s AND %s)', $condition, $scopedHospitalSql);
+    }
+
+    private function toFloatOrNull(mixed $value): ?float
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        return (float) $value;
     }
 }

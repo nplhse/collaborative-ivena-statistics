@@ -2,13 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Engagement\Application;
+namespace App\Statistics\Application\Insights;
 
-use App\Allocation\Domain\Enum\AllocationGender;
-use App\Allocation\Domain\Enum\AllocationUrgency;
-use App\Engagement\Application\Dto\MonthlyReminderInsight;
-use App\Engagement\Application\Dto\MonthlyReminderInsightTrend;
-use App\Engagement\Application\Dto\MonthlyReminderSegment;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistributionBucket;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric;
@@ -16,7 +11,7 @@ use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricFormat;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final readonly class MonthlyReminderInsightSelector
+final readonly class HospitalInsightSelector
 {
     private const float BASELINE_RATIO_HIGH = 1.1;
 
@@ -32,7 +27,7 @@ final readonly class MonthlyReminderInsightSelector
     /**
      * @param list<BenchmarkMetric> $metrics
      *
-     * @return list<MonthlyReminderInsight>
+     * @return list<HospitalInsight>
      */
     public function select(
         ?float $allocationMomPercent,
@@ -47,20 +42,20 @@ final readonly class MonthlyReminderInsightSelector
         $candidates = [];
 
         if (null !== $allocationYoyPercent && abs($allocationYoyPercent) >= self::VOLUME_CHANGE_THRESHOLD) {
-            $candidates[] = new MonthlyReminderInsight(
+            $candidates[] = new HospitalInsight(
                 $this->translator->trans('monthly_reminder.insight.volume_yoy.title'),
                 $this->translator->trans('monthly_reminder.insight.volume_yoy.body', [
                     'percent' => $this->formatSignedPercent($allocationYoyPercent),
                 ]),
-                $allocationYoyPercent >= 0 ? MonthlyReminderInsightTrend::Up : MonthlyReminderInsightTrend::Down,
+                $allocationYoyPercent >= 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
             );
         } elseif (null !== $allocationMomPercent && abs($allocationMomPercent) >= self::VOLUME_CHANGE_THRESHOLD) {
-            $candidates[] = new MonthlyReminderInsight(
+            $candidates[] = new HospitalInsight(
                 $this->translator->trans('monthly_reminder.insight.volume_mom.title'),
                 $this->translator->trans('monthly_reminder.insight.volume_mom.body', [
                     'percent' => $this->formatSignedPercent($allocationMomPercent),
                 ]),
-                $allocationMomPercent >= 0 ? MonthlyReminderInsightTrend::Up : MonthlyReminderInsightTrend::Down,
+                $allocationMomPercent >= 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
             );
         }
 
@@ -71,7 +66,7 @@ final readonly class MonthlyReminderInsightSelector
                 $baselinePeriodLabel,
                 $reportingPeriodLabel,
             );
-            if ($insight instanceof MonthlyReminderInsight) {
+            if ($insight instanceof HospitalInsight) {
                 $candidates[] = $insight;
             }
         }
@@ -82,73 +77,21 @@ final readonly class MonthlyReminderInsightSelector
             $baselinePeriodLabel,
             $reportingPeriodLabel,
         );
-        if ($indicationInsight instanceof MonthlyReminderInsight) {
+        if ($indicationInsight instanceof HospitalInsight) {
             $candidates[] = $indicationInsight;
         }
 
         if (null !== $rejectionRateDeltaPp && $rejectionRateDeltaPp <= -1.0) {
-            $candidates[] = new MonthlyReminderInsight(
+            $candidates[] = new HospitalInsight(
                 $this->translator->trans('monthly_reminder.insight.quality.title'),
                 $this->translator->trans('monthly_reminder.insight.quality.body', [
                     'delta' => number_format(abs($rejectionRateDeltaPp), 1, '.', ''),
                 ]),
-                MonthlyReminderInsightTrend::Up,
+                HospitalInsightTrend::Up,
             );
         }
 
         return \array_slice($candidates, 0, 3);
-    }
-
-    /**
-     * @param array<string, int> $genderCounts
-     *
-     * @return list<MonthlyReminderSegment>
-     */
-    public function genderSegments(array $genderCounts, int $total): array
-    {
-        $colors = [
-            AllocationGender::MALE->value => '#206bc4',
-            AllocationGender::FEMALE->value => '#d63384',
-            AllocationGender::OTHER->value => '#7950f2',
-        ];
-
-        $segments = [];
-        foreach (AllocationGender::cases() as $case) {
-            $count = $genderCounts[$case->value] ?? 0;
-            $segments[] = new MonthlyReminderSegment(
-                $this->translator->trans($case->label()),
-                $total > 0 ? round(100 * $count / $total, 1) : 0.0,
-                $colors[$case->value] ?? '#667382',
-            );
-        }
-
-        return $segments;
-    }
-
-    /**
-     * @param array<int, int> $urgencyCounts
-     *
-     * @return list<MonthlyReminderSegment>
-     */
-    public function urgencySegments(array $urgencyCounts, int $total): array
-    {
-        $colors = [
-            AllocationUrgency::EMERGENCY->value => '#d63939',
-            AllocationUrgency::INPATIENT->value => '#f59f00',
-            AllocationUrgency::OUTPATIENT->value => '#2fb344',
-        ];
-
-        $segments = [];
-        foreach (AllocationUrgency::cases() as $case) {
-            $count = $urgencyCounts[$case->value] ?? 0;
-            $segments[] = new MonthlyReminderSegment(
-                $this->translator->trans($case->label()),
-                $total > 0 ? round(100 * $count / $total, 1) : 0.0,
-                $colors[$case->value] ?? '#667382',
-            );
-        }
-
-        return $segments;
     }
 
     private function baselineMetricInsight(
@@ -156,7 +99,7 @@ final readonly class MonthlyReminderInsightSelector
         string $benchmarkingUrl,
         string $baselinePeriodLabel,
         string $reportingPeriodLabel,
-    ): ?MonthlyReminderInsight {
+    ): ?HospitalInsight {
         if (BenchmarkMetricFormat::Percent !== $metric->format) {
             return null;
         }
@@ -172,7 +115,7 @@ final readonly class MonthlyReminderInsightSelector
             default => 'monthly_reminder.insight.benchmark',
         };
 
-        return new MonthlyReminderInsight(
+        return new HospitalInsight(
             $this->translator->trans($key.'.title'),
             $this->translator->trans($key.'.body', [
                 'period' => $reportingPeriodLabel,
@@ -181,7 +124,7 @@ final readonly class MonthlyReminderInsightSelector
                 'delta_pp' => $this->formatSignedPercent($metric->absoluteDelta),
                 'baseline' => $baselinePeriodLabel,
             ]),
-            $metric->absoluteDelta >= 0 ? MonthlyReminderInsightTrend::Up : MonthlyReminderInsightTrend::Down,
+            $metric->absoluteDelta >= 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
             $benchmarkingUrl,
         );
     }
@@ -191,7 +134,7 @@ final readonly class MonthlyReminderInsightSelector
         string $benchmarkingUrl,
         string $baselinePeriodLabel,
         string $reportingPeriodLabel,
-    ): ?MonthlyReminderInsight {
+    ): ?HospitalInsight {
         $top = null;
         $maxDeviation = 0.0;
         foreach ($mix->buckets as $bucket) {
@@ -206,7 +149,7 @@ final readonly class MonthlyReminderInsightSelector
             return null;
         }
 
-        return new MonthlyReminderInsight(
+        return new HospitalInsight(
             $this->translator->trans('monthly_reminder.insight.indication.title'),
             $this->translator->trans('monthly_reminder.insight.indication.body', [
                 'period' => $reportingPeriodLabel,
@@ -217,8 +160,8 @@ final readonly class MonthlyReminderInsightSelector
                 'baseline' => $baselinePeriodLabel,
             ]),
             $top->primaryShare >= $top->comparisonShare
-                ? MonthlyReminderInsightTrend::Up
-                : MonthlyReminderInsightTrend::Down,
+                ? HospitalInsightTrend::Up
+                : HospitalInsightTrend::Down,
             $benchmarkingUrl,
         );
     }

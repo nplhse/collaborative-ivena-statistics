@@ -7,6 +7,7 @@ namespace App\Statistics\Benchmarking\Application\DTO;
 enum BenchmarkMetricKey: string
 {
     case Total = 'total';
+    case CasesPerDay = 'cases_per_day';
     case WithPhysician = 'with_physician';
     case Resus = 'resus';
     case Cathlab = 'cathlab';

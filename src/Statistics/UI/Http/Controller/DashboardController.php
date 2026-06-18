@@ -6,14 +6,14 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\ClinicalFeaturesProvider;
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\HospitalSummaryProvider;
-use App\Statistics\Application\OverviewDashboardProvider;
+use App\Statistics\Application\Overview\OverviewExecutiveDashboardAssembler;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
+use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +25,6 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 final class DashboardController extends AbstractController
 {
     public function __construct(
-        private readonly OverviewDashboardProvider $overviewDashboardProvider,
         private readonly HospitalSummaryProvider $hospitalSummaryProvider,
         private readonly ClinicalFeaturesProvider $clinicalFeaturesProvider,
         private readonly StatisticsContextFactory $statisticsContextFactory,
@@ -36,7 +35,8 @@ final class DashboardController extends AbstractController
         private readonly StatisticsScopeResolver $statisticsScopeResolver,
         private readonly GetOverviewDashboardMetricsQuery $overviewDashboardMetricsQuery,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
-        private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
+        private readonly OverviewExecutiveDashboardAssembler $executiveDashboardAssembler,
+        private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
     ) {
     }
 
@@ -72,17 +72,18 @@ final class DashboardController extends AbstractController
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
         $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
-        $chartPairWidget = array_find($this->overviewDashboardProvider->build($context), fn ($widget): bool => StatisticWidgetType::ChartPair === $widget->type);
-        $dataQualityReport = $this->dataQualityReportFactory->create(
-            $filter,
-            $user,
-            $pageViewModel,
-            $overviewPeriodViewModel,
+        $executiveDashboard = $this->executiveDashboardAssembler->build(
+            $request,
+            $context,
+            $overviewMetrics,
+            $overviewPeriodViewModel->headingLabel,
         );
 
         return $this->render('@Statistics/dashboard/index.html.twig', [
-            'dataQualityReport' => $dataQualityReport,
-            'chartPairWidget' => $chartPairWidget,
+            'dataQualityLazyLoad' => true,
+            'dataQualityDrawerUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_data_quality_drawer'),
+            'overviewTopReportsUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_overview_top_reports'),
+            'executiveDashboard' => $executiveDashboard,
             'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context, $overviewMetrics),
             'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context, $overviewMetrics),
             'statisticsFilter' => $pageViewModel->filter,

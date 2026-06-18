@@ -1,0 +1,17 @@
+<p class="mb-2">{{ titleTranslationKey|trans }}</p>
+<div class="progress progress-separated mb-3">
+    {% for seg in segments %}
+        <div class="progress-bar {{ seg.barClass }}"
+             style="width: {{ seg.percent }}%"
+             aria-label="{{ seg.labelTranslationKey|trans }}"></div>
+    {% endfor %}
+</div>
+<div class="row">
+    {% for seg in segments %}
+        <div class="col-auto d-flex align-items-center {% if not loop.first %}px-2{% else %}pe-2{% endif %}">
+            <span class="legend me-2 {{ seg.barClass }}"></span>
+            <span>{{ seg.labelTranslationKey|trans }}</span>
+            <span class="text-muted ms-2">{{ seg.count|number_format(0, ',', '.') }} ({{ seg.percent }}%)</span>
+        </div>
+    {% endfor %}
+</div>
