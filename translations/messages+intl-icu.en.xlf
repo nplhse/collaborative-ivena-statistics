@@ -1597,6 +1597,10 @@
         <source>stats.analytics_builder.section.dimensions_hint</source>
         <target>Choose the main grouping for rows and buckets, and optionally add a series dimension to split the chart.</target>
       </trans-unit>
+      <trans-unit id="statsAlBld02d3" resname="stats.analytics_builder.section.goal_hint">
+        <source>stats.analytics_builder.section.goal_hint</source>
+        <target>Configure hospital-specific options for this analysis.</target>
+      </trans-unit>
       <trans-unit id="statsAlBld02e" resname="stats.analytics_builder.section.metrics">
         <source>stats.analytics_builder.section.metrics</source>
         <target>Metrics</target>
@@ -4974,6 +4978,74 @@
       <trans-unit id="statsGa37" resname="stats.generic_analysis.chart.type.table">
         <source>stats.generic_analysis.chart.type.table</source>
         <target>Table</target>
+      </trans-unit>
+      <trans-unit id="statsGa37a" resname="stats.generic_analysis.chart.type_recommended">
+        <source>stats.generic_analysis.chart.type_recommended</source>
+        <target>Recommended</target>
+      </trans-unit>
+      <trans-unit id="statsGa37b" resname="stats.generic_analysis.series_mode_label">
+        <source>stats.generic_analysis.series_mode_label</source>
+        <target>Series mode</target>
+      </trans-unit>
+      <trans-unit id="statsGa37c" resname="stats.generic_analysis.series_mode.by_dimension">
+        <source>stats.generic_analysis.series_mode.by_dimension</source>
+        <target>Split by category</target>
+      </trans-unit>
+      <trans-unit id="statsGa37d" resname="stats.generic_analysis.series_mode.by_metric">
+        <source>stats.generic_analysis.series_mode.by_metric</source>
+        <target>Compare metrics</target>
+      </trans-unit>
+      <trans-unit id="statsGa37e" resname="stats.generic_analysis.display_mode_label">
+        <source>stats.generic_analysis.display_mode_label</source>
+        <target>Display</target>
+      </trans-unit>
+      <trans-unit id="statsGa37f" resname="stats.generic_analysis.display_mode.chart">
+        <source>stats.generic_analysis.display_mode.chart</source>
+        <target>Chart</target>
+      </trans-unit>
+      <trans-unit id="statsGa37g" resname="stats.generic_analysis.display_mode.table">
+        <source>stats.generic_analysis.display_mode.table</source>
+        <target>Table only</target>
+      </trans-unit>
+      <trans-unit id="statsGa37h" resname="stats.generic_analysis.display_mode.pivot_table">
+        <source>stats.generic_analysis.display_mode.pivot_table</source>
+        <target>Pivot table</target>
+      </trans-unit>
+      <trans-unit id="statsGa37i" resname="stats.generic_analysis.data_source.label">
+        <source>stats.generic_analysis.data_source.label</source>
+        <target>Data source</target>
+      </trans-unit>
+      <trans-unit id="statsGa37j" resname="stats.generic_analysis.data_source.allocations">
+        <source>stats.generic_analysis.data_source.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsGa37k" resname="stats.generic_analysis.data_source.hospitals">
+        <source>stats.generic_analysis.data_source.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsGa37l" resname="stats.generic_analysis.hospital_population.label">
+        <source>stats.generic_analysis.hospital_population.label</source>
+        <target>Hospital population</target>
+      </trans-unit>
+      <trans-unit id="statsGa37m" resname="stats.generic_analysis.hospital_population.all">
+        <source>stats.generic_analysis.hospital_population.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="statsGa37n" resname="stats.generic_analysis.hospital_population.participating">
+        <source>stats.generic_analysis.hospital_population.participating</source>
+        <target>Participating</target>
+      </trans-unit>
+      <trans-unit id="statsGa37o" resname="stats.generic_analysis.hospital_population.compare">
+        <source>stats.generic_analysis.hospital_population.compare</source>
+        <target>Compare</target>
+      </trans-unit>
+      <trans-unit id="statsGa37q" resname="stats.generic_analysis.hospital_population.non_participating">
+        <source>stats.generic_analysis.hospital_population.non_participating</source>
+        <target>Non-participating</target>
+      </trans-unit>
+      <trans-unit id="statsGa37p" resname="stats.generic_analysis.period.allocation_derived_hint">
+        <source>stats.generic_analysis.period.allocation_derived_hint</source>
+        <target>Structural hospital metrics such as bed counts are independent of the selected time period. Allocation-derived metrics respect the period filter.</target>
       </trans-unit>
       <trans-unit id="statsGa38" resname="stats.generic_analysis.chart.warning.numeric_dimension">
         <source>stats.generic_analysis.chart.warning.numeric_dimension</source>

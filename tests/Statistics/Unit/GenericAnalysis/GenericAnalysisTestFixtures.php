@@ -6,16 +6,58 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\GenericAnalysis\Application\AnalysisConfigurationValidator;
+use App\Statistics\GenericAnalysis\Application\AnalysisQueryModifierRegistry;
 use App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow;
 use App\Statistics\GenericAnalysis\Application\DTO\GenericAnalysisTableMetricColumn;
 use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
+use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartRecommendationService;
+use App\Statistics\GenericAnalysis\Application\HospitalPopulationModifier;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
+use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class GenericAnalysisTestFixtures
 {
+    public static function modifierRegistry(): AnalysisQueryModifierRegistry
+    {
+        return new AnalysisQueryModifierRegistry([
+            new HospitalPopulationModifier(),
+        ]);
+    }
+
+    public static function configurationValidator(
+        ?DimensionRegistry $dimensionRegistry = null,
+        ?MetricRegistry $metricRegistry = null,
+        ?TranslatorInterface $translator = null,
+    ): AnalysisConfigurationValidator {
+        $dimensionRegistry ??= new DimensionRegistry();
+        $metricRegistry ??= new MetricRegistry();
+        $translator ??= new class implements TranslatorInterface {
+            public function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
+            {
+                return $id;
+            }
+
+            public function getLocale(): string
+            {
+                return 'en';
+            }
+        };
+
+        return new AnalysisConfigurationValidator(
+            $dimensionRegistry,
+            $metricRegistry,
+            new GenericAnalysisChartRecommendationService($dimensionRegistry, $translator),
+            self::modifierRegistry(),
+        );
+    }
+
     /**
      * @param array<string, int|float|null> $extraMetrics
      */
@@ -112,6 +154,8 @@ final class GenericAnalysisTestFixtures
         string $primary = 'month',
         ?string $series = null,
         array $metricKeys = [],
+        AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
+        HospitalPopulationMode $hospitalPopulationMode = HospitalPopulationMode::All,
     ): AnalysisQuery {
         return new AnalysisQuery(
             primaryDimensionKey: $primary,
@@ -119,6 +163,8 @@ final class GenericAnalysisTestFixtures
             periodBounds: new StatisticsPeriodBounds(null),
             seriesDimensionKey: $series,
             metricKeys: $metricKeys,
+            dataSource: $dataSource,
+            hospitalPopulationMode: $hospitalPopulationMode,
         );
     }
 }
