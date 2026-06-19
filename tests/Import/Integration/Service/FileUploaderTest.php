@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class FileUploaderTest extends TestCase
@@ -90,30 +89,18 @@ final class FileUploaderTest extends TestCase
         self::assertStringEndsWith('.csv', $parts[4]);
     }
 
-    public function testUploadUsesBinFallbackWhenNoExtensionAvailable(): void
+    public function testUploadRejectsUnsupportedFileWhenNoExtensionAvailable(): void
     {
         // Arrange
-        $this->logger->expects($this->once())->method('info');
+        $this->logger->expects($this->never())->method('info');
 
         $file = $this->createMock(UploadedFile::class);
         $file->method('isValid')->willReturn(true);
-        $file->method('getSize')->willReturn(7);
         $file->method('getClientMimeType')->willReturn('application/octet-stream');
         $file->method('getClientOriginalName')->willReturn('noext');
         $file->method('guessExtension')->willReturn(null);
         $file->method('getClientOriginalExtension')->willReturn('');
-
-        $file->expects($this->once())
-            ->method('move')
-            ->willReturnCallback(function (string $dir, ?string $name = null): File {
-                if (!is_dir($dir)) {
-                    @mkdir($dir, 0775, true);
-                }
-                $path = rtrim($dir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$name;
-                @touch($path);
-
-                return new File($path);
-            });
+        $file->expects($this->never())->method('move');
 
         $uploader = new FileUploader(
             $this->baseDir,
@@ -122,15 +109,11 @@ final class FileUploaderTest extends TestCase
             $this->filesystem,
         );
 
-        // Act
-        $returnedRel = $uploader->upload($file);
+        // Act + Assert
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Unsupported import file type. Allowed extensions: csv, txt, xls, xlsx.');
 
-        // Assert
-        self::assertIsString($returnedRel);
-        self::assertStringEndsWith('.bin', $returnedRel);
-
-        $absTarget = Path::join($this->projectDir, $returnedRel);
-        self::assertFileExists($absTarget);
+        $uploader->upload($file);
     }
 
     public function testUploadLogsErrorAndRethrowsOnMoveFailure(): void
