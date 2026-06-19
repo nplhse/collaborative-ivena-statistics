@@ -131,6 +131,7 @@
             "@load-fixtures"
         ],
         "setup-test-env": [
+            "@php bin/console cache:clear --no-warmup --env test",
             "@php bin/console doctrine:database:drop --if-exists --force --env test",
             "@php bin/console doctrine:database:create --env test",
             "@php bin/console doctrine:migrations:migrate --no-interaction --env test"

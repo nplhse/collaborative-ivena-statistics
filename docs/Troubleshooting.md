@@ -49,6 +49,7 @@ php bin/console app:analyze-import-rejects --format=md
 - Different Messenger routing between `dev`, `test`, and `prod`
 - Database wiped unexpectedly: `make warmup` no longer runs `setup-env`. Avoid `make purge`, `make reset`, `symfony composer setup-database`, and `make setup-dev` if you need to keep an existing mirror DB; use `make upgrade-dev` instead.
 - `upgrade-dev` fails on test DB with `Duplicate table` (e.g. `messenger_messages`): the test database was likely created with `schema:create` and is out of sync with migrations. Run `make upgrade-dev` again after updating to the current workflow, or manually `symfony composer setup-test-env` to recreate the test DB. Your dev/mirror database is not affected.
+- Functional tests fail after a dependency upgrade with `Class "Symfony\Component\VarExporter\Internal\Hydrator" not found` (often when rendering UX Icons): the test cache in `var/cache/test` is stale. Run `bin/console cache:clear --env=test` once, or `symfony composer setup-test-env` (also clears the test cache). `make upgrade-dev` runs `setup-test-env` automatically.
 
 ## Further reading
 
