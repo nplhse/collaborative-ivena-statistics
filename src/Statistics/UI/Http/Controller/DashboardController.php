@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\HospitalSummaryProvider;
 use App\Statistics\Application\Overview\OverviewDefaultPeriodResolver;
 use App\Statistics\Application\Overview\OverviewExecutiveDashboardAssembler;
+use App\Statistics\Application\Overview\OverviewKpiPresentationFactory;
 use App\Statistics\Application\Overview\OverviewPortalNavigationFactory;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
@@ -41,6 +42,7 @@ final class DashboardController extends AbstractController
         private readonly OverviewExecutiveDashboardAssembler $executiveDashboardAssembler,
         private readonly OverviewDefaultPeriodResolver $overviewDefaultPeriodResolver,
         private readonly OverviewPortalNavigationFactory $overviewPortalNavigationFactory,
+        private readonly OverviewKpiPresentationFactory $overviewKpiPresentationFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
     ) {
     }
@@ -100,6 +102,9 @@ final class DashboardController extends AbstractController
             'overviewTopReportsUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_overview_top_reports'),
             'executiveDashboard' => $executiveDashboard,
             'overviewPortalLinks' => $this->overviewPortalNavigationFactory->build(),
+            'overviewKpiMetricLabelKeys' => $this->overviewKpiPresentationFactory->metricLabelKeys($filter),
+            'overviewKpiCasesPerDayHintKey' => $this->overviewKpiPresentationFactory->casesPerDayHintTranslationKey($filter),
+            'overviewKpiHintBelowValue' => $user instanceof User && $user->getHospitals()->isEmpty(),
             'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context, $overviewMetrics),
             'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context, $overviewMetrics),
             'statisticsFilter' => $pageViewModel->filter,

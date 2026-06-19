@@ -3439,18 +3439,6 @@
         <source>stats.nav.overview_age_groups_to_analysis</source>
         <target>Open age analysis</target>
       </trans-unit>
-      <trans-unit id="statsNavHmDt" resname="stats.nav.overview_heatmap_daytime_to_analysis">
-        <source>stats.nav.overview_heatmap_daytime_to_analysis</source>
-        <target>Open allocations by hour</target>
-      </trans-unit>
-      <trans-unit id="statsNavHmSh" resname="stats.nav.overview_heatmap_shift_to_analysis">
-        <source>stats.nav.overview_heatmap_shift_to_analysis</source>
-        <target>weekday</target>
-      </trans-unit>
-      <trans-unit id="statsNavAg" resname="stats.nav.overview_age_groups_to_analysis">
-        <source>stats.nav.overview_age_groups_to_analysis</source>
-        <target>Open age analysis</target>
-      </trans-unit>
       <trans-unit id="statsOvEx01" resname="stats.overview.executive.section.kpis">
         <source>stats.overview.executive.section.kpis</source>
         <target>Additional KPIs</target>

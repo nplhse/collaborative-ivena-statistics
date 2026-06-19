@@ -12,6 +12,7 @@ use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
@@ -43,7 +44,7 @@ class DashboardControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-filter-bar"]');
         $this->assertSelectorExists('[data-testid="stats-heading-subtitle"]');
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-subtitle"]', 'Dashboard view');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-subtitle"]', 'Statistics');
         $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
         $this->assertSelectorExists('[data-testid="stats-executive-dashboard"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-summary"]');
@@ -90,6 +91,34 @@ class DashboardControllerTest extends WebTestCase
             1,
             $crawler->filter('[data-testid^="stats-overview-hospital-insight-"]')->count(),
         );
+    }
+
+    public function testOverviewShowsAggregateCasesPerDayHintBelowValueForParticipantWithoutOwnedHospitals(): void
+    {
+        $client = static::createClient();
+        $participant = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospitalOwner = UserFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $hospitalOwner]);
+        HospitalAccessGrantFactory::createOne(['user' => $participant, 'hospital' => $hospital]);
+        $client->loginUser($participant);
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: true);
+    }
+
+    public function testOverviewShowsAggregateCasesPerDayHintAboveValueForHospitalOwner(): void
+    {
+        $client = static::createClient();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        HospitalFactory::createOne(['owner' => $owner]);
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: false);
     }
 
     public function testOverviewRendersPortalNavigationLinks(): void
@@ -409,6 +438,29 @@ class DashboardControllerTest extends WebTestCase
             0,
             $crawler->filter('[data-testid="stats-period-primary"] + .dropdown-menu a[href*="period=all"]')->count(),
         );
+    }
+
+    private function assertCasesPerDayAggregateHintPosition(Crawler $crawler, bool $belowValue): void
+    {
+        $cardBody = $crawler->filter('[data-testid="stats-executive-kpi-cases_per_day"] .card-body');
+        self::assertGreaterThan(0, $cardBody->count());
+
+        $hintText = 'Aggregated across all hospitals in the selected scope.';
+        self::assertStringContainsString($hintText, $cardBody->text());
+
+        $bodyHtml = $cardBody->html();
+        $hintPos = strpos($bodyHtml, $hintText);
+        self::assertNotFalse($hintPos);
+
+        preg_match('/class="h[23]/', $bodyHtml, $matches, PREG_OFFSET_CAPTURE);
+        self::assertNotEmpty($matches);
+        $valuePos = $matches[0][1];
+
+        if ($belowValue) {
+            self::assertGreaterThan($valuePos, $hintPos, 'Expected aggregate hint below the KPI value.');
+        } else {
+            self::assertLessThan($valuePos, $hintPos, 'Expected aggregate hint above the KPI value.');
+        }
     }
 
     private function seedOverviewHospitalInsightsScenario(): void

@@ -7,6 +7,8 @@
             {% set ratioTone = metric.ratio > 1 ? 'success' : (metric.ratio < 1 ? 'danger' : 'primary') %}
             {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
             {% set labelKey = metricLabelKeys[metric.key.value]|default('stats.benchmark.metric.' ~ metric.key.value) %}
+            {% set hintKey = (metricHintKeys|default({}))[metric.key.value]|default(null) %}
+            {% set hintBelowValue = metricHintBelowValue|default(false) %}
             {% set tileColumnClass = columnClass|default('col-sm-6 col-lg-4') %}
 
             {% if metric.format.value == 'percent' %}
@@ -37,6 +39,9 @@
                         <div class="subheader mb-2">
                             {{ labelKey|trans }}
                         </div>
+                        {% if hintKey and not hintBelowValue %}
+                            <p class="text-muted small mb-2">{{ hintKey|trans }}</p>
+                        {% endif %}
 
                         {% if not suppressRatios %}
                             <div class="d-flex align-items-baseline gap-2 mb-3">
@@ -52,6 +57,9 @@
                                     <div class="h3 mb-0 text-muted">{{ comparisonLabel }}</div>
                                 </div>
                             </div>
+                        {% endif %}
+                        {% if hintKey and hintBelowValue %}
+                            <p class="text-muted small mb-2">{{ hintKey|trans }}</p>
                         {% endif %}
 
                         <div class="mt-auto d-flex justify-content-between small">
