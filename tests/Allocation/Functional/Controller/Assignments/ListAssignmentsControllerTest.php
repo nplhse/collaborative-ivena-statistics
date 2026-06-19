@@ -12,7 +12,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-class ListAssignmentsControllerTest extends WebTestCase
+final class ListAssignmentsControllerTest extends WebTestCase
 {
     use InteractsWithAuthenticatedUser;
     use Factories;

@@ -12,7 +12,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-class ShowSecondaryTransportControllerTest extends WebTestCase
+final class ShowSecondaryTransportControllerTest extends WebTestCase
 {
     use InteractsWithAuthenticatedUser;
     use Factories;

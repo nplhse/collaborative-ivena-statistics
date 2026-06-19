@@ -11,7 +11,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-class DataControllerTest extends WebTestCase
+final class DataControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;

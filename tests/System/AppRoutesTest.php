@@ -9,12 +9,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AppRoutesTest extends SystemWebTestCase
+final class AppRoutesTest extends SystemWebTestCase
 {
     #[DataProvider('getPublicUrls')]
     public function testPublicUrlsAreReachable(string $url): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request(Request::METHOD_GET, $url);
 
         self::assertResponseIsSuccessful();
@@ -23,7 +23,7 @@ class AppRoutesTest extends SystemWebTestCase
     #[DataProvider('getSecureUrls')]
     public function testSecureUrlsAreRestricted(string $url): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request(Request::METHOD_GET, $url);
 
         self::assertResponseRedirects(
@@ -34,7 +34,7 @@ class AppRoutesTest extends SystemWebTestCase
 
     public function testLogoutUrlRedirects(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request(Request::METHOD_GET, '/logout');
 
         self::assertResponseRedirects(
@@ -45,7 +45,7 @@ class AppRoutesTest extends SystemWebTestCase
 
     public function testFeaturesRouteIsNotAvailable(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request(Request::METHOD_GET, '/features');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);

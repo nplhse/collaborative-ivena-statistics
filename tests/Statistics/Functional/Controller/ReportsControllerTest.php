@@ -25,7 +25,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-class ReportsControllerTest extends WebTestCase
+final class ReportsControllerTest extends WebTestCase
 {
     use InteractsWithAuthenticatedUser;
     use RefreshesStatisticsFunctionalDataTrait;
