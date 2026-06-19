@@ -11,16 +11,6 @@
 <div class="row row-deck row-cards mb-3">
     <div class="col-sm-6 col-lg-4">
         <div class="card">
-            {% if kpi.actions is defined and kpi.actions is not empty %}
-                <div class="card-header py-2 d-flex justify-content-end align-items-center">
-                    {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {
-                        targets: kpi.actions,
-                        primary_test_id: 'stats-cross-nav-overview-kpi',
-                        secondary_test_id: 'stats-cross-nav-overview-resources',
-                        tertiary_test_id: 'stats-cross-nav-overview-indicators',
-                    }) }}
-                </div>
-            {% endif %}
             <div class="card-body">
                 <div class="subheader">{{ kpi.subheaderTranslationKey|trans }}</div>
                 <div class="h1 mt-2 mb-0">{{ kpi.value|number_format(0, ',', '.') }}</div>
@@ -35,15 +25,15 @@
     </div>
 
     <div class="col-sm-6 col-lg-4">
-        <div class="card">
-            {% if gender.actions is defined and gender.actions is not empty %}
-                <div class="card-header py-2 d-flex justify-content-end align-items-center">
-                    {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {
-                        targets: gender.actions,
-                        primary_test_id: 'stats-cross-nav-overview-gender',
-                    }) }}
-                </div>
-            {% endif %}
+        {% set genderLink = gender.actions[0] ?? null %}
+        {% if genderLink %}
+            <a href="{{ statistics_nav_url(genderLink) }}"
+               class="card card-link h-100 text-reset text-decoration-none"
+               aria-label="{{ genderLink.labelTranslationKey|trans }}"
+               data-testid="stats-cross-nav-overview-gender">
+        {% else %}
+            <div class="card">
+        {% endif %}
             <div class="card-body">
                 <p class="mb-2">{{ gender.titleTranslationKey|trans }}</p>
                 <div class="progress progress-separated mb-3">
@@ -63,19 +53,23 @@
                     {% endfor %}
                 </div>
             </div>
-        </div>
+        {% if genderLink %}
+            </a>
+        {% else %}
+            </div>
+        {% endif %}
     </div>
 
     <div class="col-sm-6 col-lg-4">
-        <div class="card">
-            {% if urgency.actions is defined and urgency.actions is not empty %}
-                <div class="card-header py-2 d-flex justify-content-end align-items-center">
-                    {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {
-                        targets: urgency.actions,
-                        primary_test_id: 'stats-cross-nav-overview-urgency',
-                    }) }}
-                </div>
-            {% endif %}
+        {% set urgencyLink = urgency.actions[0] ?? null %}
+        {% if urgencyLink %}
+            <a href="{{ statistics_nav_url(urgencyLink) }}"
+               class="card card-link h-100 text-reset text-decoration-none"
+               aria-label="{{ urgencyLink.labelTranslationKey|trans }}"
+               data-testid="stats-cross-nav-overview-urgency">
+        {% else %}
+            <div class="card">
+        {% endif %}
             <div class="card-body">
                 <p class="mb-2">{{ urgency.titleTranslationKey|trans }}</p>
                 <div class="progress progress-separated mb-3">
@@ -95,6 +89,10 @@
                     {% endfor %}
                 </div>
             </div>
-        </div>
+        {% if urgencyLink %}
+            </a>
+        {% else %}
+            </div>
+        {% endif %}
     </div>
 </div>

@@ -1,7 +1,10 @@
 <div class="card h-100" data-testid="{{ section.testId }}">
     <div class="card-header py-2">
         <h3 class="card-title mb-0">
-            <a href="{{ section.reportUrl }}" class="text-reset">{{ section.titleTranslationKey|trans }}</a>
+            <a href="{{ section.reportUrl }}" class="text-reset d-inline-flex align-items-center gap-1">
+                <span>{{ section.titleTranslationKey|trans }}</span>
+                <twig:ux:icon name="tabler:external-link" style="height: 0.9em; width: 0.9em;" aria-hidden="true" />
+            </a>
         </h3>
     </div>
     <div class="card-body{% if section.rows is not empty %} p-0{% endif %}">

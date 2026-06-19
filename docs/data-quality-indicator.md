@@ -27,6 +27,17 @@ This is a **read-side transparency feature**. It does not block access to statis
 
 Pages with extra filters (pivot dimensions, comparison scope in benchmarking, analytics dimensions) still show **scope + period** quality only, not filter-specific quality.
 
+## Overview progressive loading
+
+The overview dashboard (`/statistics/`) does **not** compute the data-quality report in the initial HTML response. Instead:
+
+1. The page renders a placeholder indicator button and an empty offcanvas drawer shell.
+2. A Stimulus controller (`data-quality-indicator`) prefetches `/statistics/data-quality/drawer` in the background via `requestIdleCallback` (with a short `setTimeout` fallback).
+3. When the response arrives, the overall badge (`HIGH` / `MEDIUM` / `LOW`) is filled in; the HTML is cached for the drawer.
+4. Opening the drawer reuses the cached HTML when available, so the first open does not trigger a second request.
+
+All other statistics pages still render the full report synchronously in the controller.
+
 ## Scope and inputs
 
 Evaluation uses the same scope and period as the page header controls:
@@ -142,6 +153,8 @@ Namespace: `App\Statistics\DataQuality\`
 | SQL reads | `Infrastructure/Query/DataQuality*Query.php` |
 | Controller wiring | `StatisticsDataQualityReportFactory` |
 | Templates | `_data_quality_indicator.html.twig`, `_data_quality_drawer.html.twig` |
+| Overview prefetch (JS) | `assets/controllers/data-quality-indicator_controller.js`, `assets/lib/data-quality-prefetch.js` |
+| Drawer lazy load (JS) | `assets/controllers/data-quality-drawer_controller.js` |
 | Styles | `assets/styles/app.css` (`.data-quality-*`) |
 | Translations | `stats.data_quality.*` in `translations/messages+intl-icu.en.xlf` |
 
@@ -163,7 +176,7 @@ There is no runtime configuration or admin UI for thresholds yet.
 | Type | Location |
 |---|---|
 | Unit | `tests/Statistics/Unit/DataQuality/` — calculators, cap rules, population resolver, SQL filter |
-| Functional | `IndicationDashboardControllerTest`, `DashboardControllerTest`, `IndicationInsightsIndexControllerTest` — assert `data-testid="stats-data-quality-indicator"` |
+| Functional | `IndicationDashboardControllerTest`, `DashboardControllerTest`, `IndicationInsightsIndexControllerTest` — assert `data-testid="stats-data-quality-indicator"`; overview also asserts `data-controller="data-quality-indicator"` |
 
 ## Related documentation
 

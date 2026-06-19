@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Navigation;
 
+use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
+use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use PHPUnit\Framework\TestCase;
@@ -43,5 +45,35 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
         self::assertSame('public', $params['scope']);
         self::assertSame('all', $params['period']);
         self::assertArrayNotHasKey('hospital', $params);
+    }
+
+    public function testBuildFromTargetPassesMetricArraysToRouter(): void
+    {
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router
+            ->expects(self::once())
+            ->method('generate')
+            ->with(
+                'app_stats_analytics_view',
+                self::callback(static fn (array $params): bool => 'allocations_by_month' === ($params['viewKey'] ?? null)
+                    && isset($params[GenericAnalysisQueryKeys::METRICS])
+                    && ['count', 'resus_rate'] === $params[GenericAnalysisQueryKeys::METRICS]
+                    && 'count' === ($params[GenericAnalysisQueryKeys::VISUAL_METRIC] ?? null)),
+            )
+            ->willReturn('/statistics/analytics/view/allocations_by_month');
+
+        $builder = new StatisticsNavigationUrlBuilder($router);
+        $request = Request::create('/statistics/?scope=public&period=all_time');
+        $target = new StatisticWidgetNavigationTarget(
+            'stats.nav.example',
+            'app_stats_analytics_view',
+            [
+                'viewKey' => 'allocations_by_month',
+                GenericAnalysisQueryKeys::METRICS => ['count', 'resus_rate'],
+                GenericAnalysisQueryKeys::VISUAL_METRIC => 'count',
+            ],
+        );
+
+        $builder->buildFromTarget($request, $target);
     }
 }

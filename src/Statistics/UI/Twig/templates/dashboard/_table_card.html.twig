@@ -6,7 +6,8 @@
             {{ include('@Statistics/dashboard/_widget_nav_actions.html.twig', {targets: widget.actions}) }}
         </div>
     {% endif %}
-    <div class="card-body">
+    {% set hasTableRows = p.rows is defined and p.rows is not empty %}
+    <div class="card-body{% if hasTableRows and p.summaryStats is not defined %} p-0{% endif %}">
         {{ include('@Statistics/dashboard/_analysis_table_inner.html.twig', {
             tablePayload: p,
             tableSummaryTestId: 'stats-analysis-table-summary',

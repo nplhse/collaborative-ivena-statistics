@@ -7,7 +7,7 @@ namespace App\Statistics\Application\DTO;
 /**
  * Navigation link from a StatisticWidget: translation key for label + route + query merge.
  *
- * @phpstan-type Params array<string, scalar|null>
+ * @phpstan-type Params array<string, scalar|list<scalar>|null>
  * @phpstan-type RemoveKeys list<string>
  */
 final readonly class StatisticWidgetNavigationTarget

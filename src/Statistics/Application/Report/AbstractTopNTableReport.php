@@ -7,7 +7,6 @@ namespace App\Statistics\Application\Report;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
-use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
@@ -74,15 +73,6 @@ abstract readonly class AbstractTopNTableReport implements ReportDefinitionInter
             StatisticWidgetType::Table,
             $this->key().'_table',
             $this->widgetPayloadNormalizer->normalize($payload),
-            null,
-            [
-                new StatisticWidgetNavigationTarget(
-                    'stats.nav.report_to_analysis_allocations_by_month',
-                    'app_stats_analytics_view',
-                    ['viewKey' => 'allocations_by_month'],
-                    ['report', 'limit', 'view', 'chart'],
-                ),
-            ],
         );
     }
 

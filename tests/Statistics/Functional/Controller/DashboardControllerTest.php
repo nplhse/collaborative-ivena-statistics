@@ -12,6 +12,7 @@ use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
@@ -43,7 +44,7 @@ class DashboardControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-filter-bar"]');
         $this->assertSelectorExists('[data-testid="stats-heading-subtitle"]');
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
-        $this->assertSelectorTextContains('[data-testid="stats-heading-subtitle"]', 'Dashboard view');
+        $this->assertSelectorTextContains('[data-testid="stats-heading-subtitle"]', 'Statistics');
         $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
         $this->assertSelectorExists('[data-testid="stats-executive-dashboard"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-summary"]');
@@ -90,6 +91,118 @@ class DashboardControllerTest extends WebTestCase
             1,
             $crawler->filter('[data-testid^="stats-overview-hospital-insight-"]')->count(),
         );
+    }
+
+    public function testOverviewDataQualityIndicatorUsesProgressivePrefetch(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+
+        $wrapper = $crawler->filter('[data-controller="data-quality-indicator"]');
+        self::assertGreaterThan(0, $wrapper->count());
+        self::assertStringContainsString(
+            '/statistics/data-quality/drawer',
+            (string) $wrapper->attr('data-data-quality-indicator-url-value'),
+        );
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-data-quality-indicator-target="badge"]')->count(),
+        );
+    }
+
+    public function testOverviewShowsAggregateCasesPerDayHintBelowValueForParticipantWithoutOwnedHospitals(): void
+    {
+        $client = static::createClient();
+        $participant = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospitalOwner = UserFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $hospitalOwner]);
+        HospitalAccessGrantFactory::createOne(['user' => $participant, 'hospital' => $hospital]);
+        $client->loginUser($participant);
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: true);
+    }
+
+    public function testOverviewShowsAggregateCasesPerDayHintAboveValueForHospitalOwner(): void
+    {
+        $client = static::createClient();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        HospitalFactory::createOne(['owner' => $owner]);
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: false);
+    }
+
+    public function testOverviewRendersPortalNavigationLinks(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-cross-nav-overview-benchmarking"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-time-series"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-daytime"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-shift"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-age-groups"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-gender"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-urgency"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-resources"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-indicators"]');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-time-series"]', 'Cases over time');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-age-groups"]', 'Age groups');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-resources"]', 'Resources');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-indicators"]', 'Clinical features');
+    }
+
+    public function testOverviewResourcesAndClinicalFeaturesLinkToAllocationsByMonthAnalysis(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+
+        $resourcesHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->attr('href');
+        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $resourcesHref);
+        self::assertStringContainsString('ga_primary=month', $resourcesHref);
+        self::assertStringContainsString('resus_rate', $resourcesHref);
+        self::assertStringContainsString('cathlab_rate', $resourcesHref);
+
+        $clinicalHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-indicators"]')->attr('href');
+        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $clinicalHref);
+        self::assertStringContainsString('ga_primary=month', $clinicalHref);
+        self::assertStringContainsString('cpr_rate', $clinicalHref);
+        self::assertStringContainsString('with_physician_rate', $clinicalHref);
+    }
+
+    public function testOverviewRedirectsToLast12MonthsWhenEnoughMonthlyDataExists(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedDefaultPeriodScenario(7);
+
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public');
+
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('period=all', $location);
+        self::assertStringContainsString('scope=public', $location);
+    }
+
+    public function testOverviewKeepsAllTimeWhenFewerThanSevenMonthsHaveData(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedDefaultPeriodScenario(3);
+
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public');
+
+        $this->assertResponseIsSuccessful();
+        self::assertStringNotContainsString('period=all', $client->getRequest()->getUri());
     }
 
     public function testOverviewTopReportsLazyEndpointRendersAllCards(): void
@@ -346,6 +459,29 @@ class DashboardControllerTest extends WebTestCase
         );
     }
 
+    private function assertCasesPerDayAggregateHintPosition(Crawler $crawler, bool $belowValue): void
+    {
+        $cardBody = $crawler->filter('[data-testid="stats-executive-kpi-cases_per_day"] .card-body');
+        self::assertGreaterThan(0, $cardBody->count());
+
+        $hintText = 'Aggregated across all hospitals in the selected scope.';
+        self::assertStringContainsString($hintText, $cardBody->text());
+
+        $bodyHtml = $cardBody->html();
+        $hintPos = strpos($bodyHtml, $hintText);
+        self::assertNotFalse($hintPos);
+
+        preg_match('/class="h[23]/', $bodyHtml, $matches, PREG_OFFSET_CAPTURE);
+        self::assertNotEmpty($matches);
+        $valuePos = $matches[0][1];
+
+        if ($belowValue) {
+            self::assertGreaterThan($valuePos, $hintPos, 'Expected aggregate hint below the KPI value.');
+        } else {
+            self::assertLessThan($valuePos, $hintPos, 'Expected aggregate hint above the KPI value.');
+        }
+    }
+
     private function seedOverviewHospitalInsightsScenario(): void
     {
         $user = UserFactory::createOne(['username' => 'overview-insights-'.bin2hex(random_bytes(4))]);
@@ -394,6 +530,51 @@ class DashboardControllerTest extends WebTestCase
             'createdAt' => new \DateTimeImmutable('2026-06-10 11:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-06-10 11:20:00'),
         ]);
+
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+        $this->refreshOverviewMaterializedViews();
+    }
+
+    private function seedDefaultPeriodScenario(int $monthCount): void
+    {
+        $user = UserFactory::createOne(['username' => 'default-period-fn-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'DefaultPeriodFnState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'DefaultPeriodFnDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'DefaultPeriodFnHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'DefaultPeriodFnSpec']);
+        DepartmentFactory::createOne(['name' => 'DefaultPeriodFnDept']);
+        AssignmentFactory::createOne(['name' => 'DefaultPeriodFnAssign']);
+        IndicationRawFactory::createOne(['name' => 'DefaultPeriodFnRaw', 'code' => 912_371]);
+        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'DefaultPeriodFnNorm']);
+
+        $import = ImportFactory::createOne([
+            'name' => 'DefaultPeriodFnImport',
+            'hospital' => $hospital,
+            'createdBy' => $user,
+        ]);
+
+        $start = new \DateTimeImmutable('first day of this month')->modify('-11 months')->setTime(0, 0, 0);
+        for ($offset = 0; $offset < $monthCount; ++$offset) {
+            $createdAt = $start->modify(sprintf('+%d months', $offset))->modify('+10 days');
+            AllocationFactory::createOne([
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'gender' => AllocationGender::MALE,
+                'urgency' => AllocationUrgency::EMERGENCY,
+                'indicationNormalized' => $indicationNormalized,
+                'createdAt' => $createdAt,
+                'arrivalAt' => $createdAt->modify('+20 minutes'),
+            ]);
+        }
 
         $this->rebuildProjectionForImports([(int) $import->getId()]);
         $this->refreshOverviewMaterializedViews();

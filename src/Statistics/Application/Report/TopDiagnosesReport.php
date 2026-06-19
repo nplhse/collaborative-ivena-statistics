@@ -93,15 +93,6 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
             StatisticWidgetType::Table,
             $this->key().'_table',
             $this->widgetPayloadNormalizer->normalize($payload),
-            null,
-            [
-                new StatisticWidgetNavigationTarget(
-                    'stats.nav.report_to_analysis_allocations_by_month',
-                    'app_stats_analytics_view',
-                    ['viewKey' => 'allocations_by_month'],
-                    ['report', 'limit', 'view', 'chart'],
-                ),
-            ],
         );
     }
 

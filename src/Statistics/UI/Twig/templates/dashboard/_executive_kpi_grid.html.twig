@@ -2,12 +2,12 @@
     {{ include('@Statistics/_kpi_compare_tiles.html.twig', {
         metrics: executiveDashboard.kpiMetrics,
         suppressRatios: executiveDashboard.benchmarkSuppressRatios,
-        sideAShortKey: 'stats.overview.executive.kpi.current_short',
-        sideBShortKey: 'stats.overview.executive.kpi.base_short',
+        sideAShortKey: 'stats.overview.kpi.current_short',
+        sideBShortKey: 'stats.overview.kpi.base_short',
         testIdPrefix: 'stats-executive-kpi',
         columnClass: 'col-12 col-md-4',
-        metricLabelKeys: {
-            cases_per_day: 'stats.overview.executive.kpi.cases_per_day',
-        },
+        metricLabelKeys: overviewKpiMetricLabelKeys|default({}),
+        metricHintKeys: overviewKpiCasesPerDayHintKey is defined and overviewKpiCasesPerDayHintKey is not null ? {cases_per_day: overviewKpiCasesPerDayHintKey} : {},
+        metricHintBelowValue: overviewKpiHintBelowValue|default(false),
     }) }}
 </div>

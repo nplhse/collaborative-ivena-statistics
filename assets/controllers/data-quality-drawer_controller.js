@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { fetchDrawerContent, updateIndicatorBadge } from '../lib/data-quality-prefetch.js';
 
 /* stimulusFetch: 'lazy' */
 
@@ -18,21 +19,7 @@ export default class extends Controller {
 
         this.loaded = true;
 
-        const response = await fetch(this.urlValue, {
-            headers: { Accept: 'text/html' },
-        });
-
-        if (!response.ok) {
-            this.loaded = false;
-
-            return;
-        }
-
-        const html = await response.text();
-        const template = document.createElement('template');
-        template.innerHTML = html.trim();
-        const content = template.content.firstElementChild;
-
+        const content = await fetchDrawerContent(this.urlValue);
         if (!(content instanceof HTMLElement)) {
             this.loaded = false;
 
@@ -40,24 +27,6 @@ export default class extends Controller {
         }
 
         this.element.replaceChildren(...content.childNodes);
-        this.updateIndicatorBadge(content);
-    }
-
-    updateIndicatorBadge(content) {
-        const badge = document.querySelector('[data-testid="stats-data-quality-indicator-badge"]');
-        if (!(badge instanceof HTMLElement)) {
-            return;
-        }
-
-        const badgeClass = content.getAttribute('data-quality-indicator-badge-class');
-        const badgeLabel = content.getAttribute('data-quality-indicator-badge-label');
-
-        if (!badgeClass || !badgeLabel) {
-            return;
-        }
-
-        badge.textContent = badgeLabel;
-        badge.className = `badge ${badgeClass}`;
-        badge.classList.remove('d-none');
+        updateIndicatorBadge(content);
     }
 }
