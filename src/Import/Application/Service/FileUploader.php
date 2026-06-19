@@ -94,9 +94,6 @@ final readonly class FileUploader
             }
         }
 
-        throw new FileException(sprintf(
-            'Unsupported import file type. Allowed extensions: %s.',
-            implode(', ', self::ALLOWED_EXTENSIONS),
-        ));
+        throw new FileException(sprintf('Unsupported import file type. Allowed extensions: %s.', implode(', ', self::ALLOWED_EXTENSIONS)));
     }
 }
