@@ -32,6 +32,7 @@ final class OccasionRepository extends ServiceEntityRepository
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 'o.id',
                 'name' => 'o.name',
+                default => 'o.name',
             };
             $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }

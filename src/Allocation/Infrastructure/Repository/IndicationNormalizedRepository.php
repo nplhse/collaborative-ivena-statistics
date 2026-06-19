@@ -33,6 +33,7 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
                 'id' => 'i.id',
                 'name' => 'i.name',
                 'code' => 'i.code',
+                default => 'i.code',
             };
             $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }

@@ -32,6 +32,7 @@ final class DepartmentRepository extends ServiceEntityRepository
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 'd.id',
                 'name' => 'd.name',
+                default => 'd.name',
             };
             $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }

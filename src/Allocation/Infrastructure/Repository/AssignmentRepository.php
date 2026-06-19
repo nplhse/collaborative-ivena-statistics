@@ -32,6 +32,7 @@ final class AssignmentRepository extends ServiceEntityRepository
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 'a.id',
                 'name' => 'a.name',
+                default => 'a.name',
             };
             $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }

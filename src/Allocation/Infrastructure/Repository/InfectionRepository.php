@@ -32,6 +32,7 @@ final class InfectionRepository extends ServiceEntityRepository
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 'i.id',
                 'name' => 'i.name',
+                default => 'i.name',
             };
             $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }

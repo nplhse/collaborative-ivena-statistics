@@ -70,7 +70,7 @@ final readonly class FileUploader
             return $originalExt;
         }
 
-        $mime = strtolower((string) $file->getClientMimeType());
+        $mime = strtolower($file->getClientMimeType());
         $csvMimes = [
             'text/csv',
             'text/plain',

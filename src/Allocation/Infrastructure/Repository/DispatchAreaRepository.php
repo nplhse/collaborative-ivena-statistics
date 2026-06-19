@@ -50,6 +50,7 @@ final class DispatchAreaRepository extends ServiceEntityRepository implements Di
                 'id' => 'da.id',
                 'name' => 'da.name',
                 'state' => 's.name',
+                default => 'da.name',
             };
             $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }

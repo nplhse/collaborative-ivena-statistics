@@ -99,6 +99,7 @@ final class MciCaseRepository extends ServiceEntityRepository
             'arrivalAt' => 'm.arrivalAt',
             'mciTitle' => 'm.mciTitle',
             'createdAt' => 'm.createdAt',
+            default => 'm.createdAt',
         };
 
         $qb->orderBy($field, $queryParametersDTO->orderBy);

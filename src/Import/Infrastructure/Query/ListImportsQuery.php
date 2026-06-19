@@ -91,6 +91,7 @@ final readonly class ListImportsQuery
             'id' => 'i.id',
             'type' => 'i.type',
             'name' => 'i.name',
+            default => 'i.createdAt',
         };
 
         $qb->orderBy($sortField, $query->orderBy);

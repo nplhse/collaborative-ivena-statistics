@@ -172,6 +172,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             'tier' => 'h.tier',
             'size' => 'h.size',
             'lastChange' => 'h.updatedAt',
+            default => 'h.name',
         };
 
         if (null !== $queryParametersDTO->tier && '' !== $queryParametersDTO->tier) {

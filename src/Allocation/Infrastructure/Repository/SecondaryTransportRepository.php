@@ -32,6 +32,7 @@ final class SecondaryTransportRepository extends ServiceEntityRepository
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 'st.id',
                 'name' => 'st.name',
+                default => 'st.name',
             };
             $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }
