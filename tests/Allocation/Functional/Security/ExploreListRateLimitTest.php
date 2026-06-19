@@ -19,7 +19,7 @@ final class ExploreListRateLimitTest extends WebTestCase
 
     public function testExploreAllocationListIsRateLimited(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
 
         UserFactory::new(['username' => 'explore-rate-limit', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']])->create();
         $this->acceptEssentialCookiesOnly($client);

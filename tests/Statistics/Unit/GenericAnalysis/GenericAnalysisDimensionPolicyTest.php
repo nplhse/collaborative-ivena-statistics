@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +23,7 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
     protected function setUp(): void
     {
         $this->hospitalAccess = $this->createMock(HospitalAccessInterface::class);
-        $this->policy = new GenericAnalysisDimensionPolicy($this->hospitalAccess);
+        $this->policy = new GenericAnalysisDimensionPolicy($this->hospitalAccess, new DimensionRegistry());
     }
 
     public function testPublicScopeDisallowsHospitalForParticipant(): void
@@ -82,6 +83,15 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
     {
         self::assertFalse($this->policy->isAllowed(
             'unknown_dimension',
+            $this->filter(StatisticsFilterScope::Public),
+            null,
+        ));
+    }
+
+    public function testRegisteredStandardDimensionIsAllowed(): void
+    {
+        self::assertTrue($this->policy->isAllowed(
+            'hour',
             $this->filter(StatisticsFilterScope::Public),
             null,
         ));

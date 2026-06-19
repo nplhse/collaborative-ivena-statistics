@@ -21,7 +21,7 @@ final class SecurityControllerTest extends WebTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        static::createClient()->getContainer()->get('cache.rate_limiter')->clear();
+        self::createClient()->getContainer()->get('cache.rate_limiter')->clear();
     }
 
     protected function tearDown(): void

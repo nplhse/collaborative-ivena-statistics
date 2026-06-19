@@ -68,7 +68,7 @@ final class GenericAnalysisConfigResolverTest extends TestCase
         return new GenericAnalysisConfigResolver(
             new AnalysisPresetRegistry(),
             $dimensionRegistry,
-            new GenericAnalysisDimensionPolicy($hospitalAccess),
+            new GenericAnalysisDimensionPolicy($hospitalAccess, $dimensionRegistry),
             new GenericAnalysisMetricRequestResolver(
                 $metricRegistry,
                 $dimensionRegistry,
