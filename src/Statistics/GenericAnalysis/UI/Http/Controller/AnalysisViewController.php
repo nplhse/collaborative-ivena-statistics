@@ -45,6 +45,7 @@ final class AnalysisViewController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly GenericAnalysisTableViewModelFactory $tableViewModelFactory,
         private readonly GenericAnalysisChartViewModelFactory $chartViewModelFactory,
+        private readonly GenericAnalysisPivotTableViewModelFactory $pivotTableViewModelFactory,
         private readonly FavoriteAnalysisViewService $favoriteService,
         private readonly AnalysisViewUsageTracker $usageTracker,
         private readonly UrlGeneratorInterface $router,
@@ -137,6 +138,10 @@ final class AnalysisViewController extends AbstractController
                 $resolved->config->query,
                 $result,
                 $routeContext,
+            ),
+            'genericAnalysisPivot' => $this->pivotTableViewModelFactory->create(
+                $resolved->config->query,
+                $result,
             ),
             'customizePage' => $this->customizeViewModelFactory->create(
                 $request,

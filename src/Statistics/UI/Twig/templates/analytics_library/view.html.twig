@@ -34,6 +34,14 @@
                     {% endif %}
                 </div>
                 <div class="col-auto">
+                    {% if customizePage.showHospitalPopulationControl %}
+                        {{ include('@Statistics/generic_analysis/_analysis_context_controls.html.twig', {
+                            page: customizePage,
+                            idPrefix: 'view_',
+                            populationStandaloneForm: true,
+                            populationControlClass: 'd-inline-block me-2 mb-2',
+                        }) }}
+                    {% endif %}
                     <div class="btn-group" role="group" aria-label="{{ 'stats.analytics_library.view_actions'|trans }}">
                         {% if canFavorite and favoriteToggleUrl %}
                             <button type="submit"
@@ -70,7 +78,11 @@
 {% block page_content %}
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
-    {{ include('@Statistics/generic_analysis/_chart_card.html.twig') }}
+    {% if genericAnalysisPivot is defined and genericAnalysisPivot %}
+        {{ include('@Statistics/generic_analysis/_pivot_results_table.html.twig') }}
+    {% elseif customizePage.formDisplayMode != 'table' %}
+        {{ include('@Statistics/generic_analysis/_chart_card.html.twig') }}
+    {% endif %}
     {{ include('@Statistics/generic_analysis/_results_table.html.twig') }}
     {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
 

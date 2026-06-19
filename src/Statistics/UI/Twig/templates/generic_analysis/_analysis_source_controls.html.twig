@@ -1,0 +1,39 @@
+{% set sourcePage = page is defined ? page : customizePage %}
+{% set idPrefix = idPrefix|default('') %}
+
+{% if sourcePage.showDataSourceSelector %}
+    <div class="{{ sourceControlClass|default('') }}">
+        {% if wrapSourceInColumn|default(false) %}
+            <div class="col-12 col-md-6 col-xl-4">
+        {% endif %}
+        <label class="form-label" for="{{ idPrefix }}ga_data_source">{{ 'stats.generic_analysis.data_source.label'|trans }}</label>
+        <select class="form-select"
+                id="{{ idPrefix }}ga_data_source"
+                {% if dataSourceStandaloneForm|default(false) %}
+                    onchange="if (this.value) { window.location.href = this.value; }"
+                    data-testid="{{ dataSourceTestId|default('stats-analytics-drawer-data-source') }}"
+                {% else %}
+                    name="ga_data_source"
+                    {% if dataSourceTestId is defined %}data-testid="{{ dataSourceTestId }}"{% endif %}
+                {% endif %}>
+            {% for option in sourcePage.dataSourceOptions %}
+                <option value="{{ dataSourceStandaloneForm|default(false) ? (option.url ?? option.value) : option.value }}"
+                        {% if option.selected %} selected{% endif %}>
+                    {{ option.label }}
+                </option>
+            {% endfor %}
+        </select>
+        {% if wrapSourceInColumn|default(false) %}
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+{{ include('@Statistics/generic_analysis/_analysis_context_controls.html.twig', {
+    page: sourcePage,
+    customizePage: sourcePage,
+    idPrefix: idPrefix,
+    populationControlClass: populationControlClass|default(''),
+    populationTestId: populationTestId|default(null),
+    populationStandaloneForm: populationStandaloneForm|default(false),
+}) }}

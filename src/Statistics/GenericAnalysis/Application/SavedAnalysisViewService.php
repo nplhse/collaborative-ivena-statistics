@@ -65,9 +65,16 @@ final readonly class SavedAnalysisViewService
             secondaryDimensionKey: $config->seriesDimensionKey,
             metricKeys: $config->query->metricKeys,
             visualMetricKey: $config->query->visualMetricKey,
+            chartType: $config->query->chartType?->value,
             includeNullBuckets: $config->includeNullBuckets,
             layout: $layout,
             top: $top,
+            seriesMode: $config->query->seriesMode->value,
+            displayMode: $config->query->displayMode->value,
+            chartMetricKeys: $config->query->chartMetricKeys,
+            configVersion: 3,
+            dataSource: $config->query->dataSource,
+            hospitalPopulationMode: $config->query->hospitalPopulationMode->value,
         );
     }
 }

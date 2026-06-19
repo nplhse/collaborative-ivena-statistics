@@ -12,6 +12,8 @@ use App\Statistics\GenericAnalysis\Application\AnalysisViewResolver;
 use App\Statistics\GenericAnalysis\Application\AnalysisViewUsageTracker;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisService;
 use App\Statistics\GenericAnalysis\Application\SavedAnalysisViewService;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisViewException;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
@@ -48,6 +50,7 @@ final class SavedAnalysisViewController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly GenericAnalysisTableViewModelFactory $tableViewModelFactory,
         private readonly GenericAnalysisChartViewModelFactory $chartViewModelFactory,
+        private readonly GenericAnalysisPivotTableViewModelFactory $pivotTableViewModelFactory,
         private readonly AnalysisViewUsageTracker $usageTracker,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
@@ -137,6 +140,8 @@ final class SavedAnalysisViewController extends AbstractController
             includeNullBuckets: '1' === (string) $request->request->get('include_null'),
             layout: $this->nullableString($request->request->get('layout')),
             top: $request->request->has('top') ? (int) $request->request->get('top') : null,
+            seriesMode: (string) $request->request->get('series_mode', AnalysisSeriesMode::ByDimension->value),
+            displayMode: (string) $request->request->get('display_mode', AnalysisDisplayMode::Chart->value),
         );
 
         $saved = $this->savedViewService->create(
@@ -223,6 +228,10 @@ final class SavedAnalysisViewController extends AbstractController
                 $config->query,
                 $result,
                 $routeContext,
+            ),
+            'genericAnalysisPivot' => $this->pivotTableViewModelFactory->create(
+                $config->query,
+                $result,
             ),
             'customizePage' => $this->customizeViewModelFactory->create(
                 $request,

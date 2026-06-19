@@ -31,6 +31,28 @@ final readonly class GenericAnalysisPageViewModel
         public array $availableMetrics = [],
         public array $visualMetricOptions = [],
         public string $saveTitleDraft = '',
+        public string $formSeriesMode = 'by_dimension',
+        public string $formChartType = '',
+        public string $formDisplayMode = 'chart',
+        /** @var list<array{value: string, label: string}> */
+        public array $seriesModeOptions = [],
+        /** @var list<array{value: string, label: string}> */
+        public array $chartTypeOptions = [],
+        /** @var list<array{value: string, label: string}> */
+        public array $displayModeOptions = [],
+        public string $defaultBaseMetricKey = 'count',
+        public string $formDataSource = 'allocations',
+        public string $formHospitalPopulation = 'all',
+        public bool $showDataSourceSelector = false,
+        public bool $showHospitalPopulationControl = false,
+        public bool $showPeriodAppliesHint = false,
+        /** @var list<array{value: string, label: string, selected: bool, url?: string}> */
+        public array $dataSourceOptions = [],
+        /** @var list<array{key: string, label: string, url: string, active: bool, testId: string}> */
+        public array $dataSourceHeaderTabs = [],
+        /** @var list<array{value: string, label: string, selected: bool, url: string}> */
+        public array $hospitalPopulationOptions = [],
+        public ?string $launchFormAction = null,
     ) {
     }
 }

@@ -1,0 +1,47 @@
+{# @var genericAnalysisPivot \App\Statistics\GenericAnalysis\UI\Http\Controller\GenericAnalysisPivotTableViewModel #}
+<div class="card mb-4" data-testid="stats-generic-analysis-pivot-table-card">
+    <div class="card-header">
+        <h3 class="card-title mb-0">{{ genericAnalysisPivot.rowDimensionLabel }} × {{ genericAnalysisPivot.columnDimensionLabel }}</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ genericAnalysisPivot.rowDimensionLabel }}</th>
+                        {% for colLabel in genericAnalysisPivot.columnLabels %}
+                            <th scope="col" class="text-end">{{ colLabel }}</th>
+                        {% endfor %}
+                        {% if genericAnalysisPivot.showTotals %}
+                            <th scope="col" class="text-end">{{ genericAnalysisPivot.rowTotalHeaderLabel }}</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rowLabel in genericAnalysisPivot.rowLabels %}
+                        <tr>
+                            <th scope="row">{{ rowLabel }}</th>
+                            {% for v in genericAnalysisPivot.matrix[loop.index0] %}
+                                <td class="text-end">{{ v }}</td>
+                            {% endfor %}
+                            {% if genericAnalysisPivot.showTotals %}
+                                <td class="text-end fw-semibold">{{ genericAnalysisPivot.rowTotals[loop.index0] }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                {% if genericAnalysisPivot.columnLabels is not empty and genericAnalysisPivot.showTotals %}
+                    <tfoot class="table-light">
+                        <tr>
+                            <th scope="row">{{ genericAnalysisPivot.columnTotalFooterLabel }}</th>
+                            {% for v in genericAnalysisPivot.columnTotals %}
+                                <td class="text-end fw-semibold">{{ v }}</td>
+                            {% endfor %}
+                            <td class="text-end fw-bold">{{ genericAnalysisPivot.grandTotal }}</td>
+                        </tr>
+                    </tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</div>

@@ -10,8 +10,9 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\DTO\ResolvedGenericAnalysisConfig;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewConfig;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewDefinition;
-use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisViewException;
+use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
 use App\Statistics\GenericAnalysis\Registry\AnalysisViewRegistry;
+use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\Statistics\Infrastructure\Repository\SavedAnalysisViewRepository;
 use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,6 +47,8 @@ final readonly class AnalysisViewResolver
             $filter,
             $user,
         );
+
+        $config = $this->withViewQueryDefaults($config, $view, $request);
 
         return new ResolvedAnalysisViewContext(
             view: $view,
@@ -101,8 +104,8 @@ final readonly class AnalysisViewResolver
             metricKeys: $viewConfig->metricKeys,
             visualMetricKey: $viewConfig->visualMetricKey,
             chartType: null !== $viewConfig->chartType
-                ? \App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType::from($viewConfig->chartType)
-                : ($baseView instanceof AnalysisViewDefinition ? $baseView->chartType : \App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType::Bar),
+                ? GenericAnalysisChartType::from($viewConfig->chartType)
+                : ($baseView instanceof AnalysisViewDefinition ? $baseView->chartType : GenericAnalysisChartType::Bar),
             allowedChartTypes: $baseView instanceof AnalysisViewDefinition ? $baseView->allowedChartTypes : [],
             includeNullBuckets: $viewConfig->includeNullBuckets,
             legacyPresetKey: $sourceSystemViewKey,
@@ -114,6 +117,52 @@ final readonly class AnalysisViewResolver
             sourceKey: (string) $saved->getId(),
             isSaved: true,
             savedViewId: $saved->getId(),
+        );
+    }
+
+    private function withViewQueryDefaults(
+        ResolvedGenericAnalysisConfig $config,
+        AnalysisViewDefinition $view,
+        Request $request,
+    ): ResolvedGenericAnalysisConfig {
+        $query = $config->query;
+        $patchedQuery = new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery(
+            primaryDimensionKey: $query->primaryDimensionKey,
+            scopeCriteria: $query->scopeCriteria,
+            periodBounds: $query->periodBounds,
+            seriesDimensionKey: $query->seriesDimensionKey,
+            metricKeys: [] === $query->metricKeys ? $view->resolvedMetricKeys() : $query->metricKeys,
+            visualMetricKey: $query->visualMetricKey ?? $view->visualMetricKey,
+            filters: $query->filters,
+            includeNullBuckets: $query->includeNullBuckets,
+            seriesMode: $request->query->has(GenericAnalysisQueryKeys::SERIES_MODE)
+                ? $query->seriesMode
+                : $view->seriesMode,
+            chartType: $request->query->has(GenericAnalysisQueryKeys::CHART)
+                ? $query->chartType
+                : $view->chartType,
+            displayMode: $request->query->has(GenericAnalysisQueryKeys::DISPLAY)
+                ? $query->displayMode
+                : $view->displayMode,
+            chartMetricKeys: $query->chartMetricKeys,
+            configVersion: $query->configVersion,
+            dataSource: $request->query->has(GenericAnalysisQueryKeys::DATA_SOURCE)
+                ? $query->dataSource
+                : $view->dataSource,
+            hospitalPopulationMode: $request->query->has(GenericAnalysisQueryKeys::HOSPITAL_POPULATION)
+                ? $query->hospitalPopulationMode
+                : $view->hospitalPopulationMode,
+        );
+
+        return new ResolvedGenericAnalysisConfig(
+            query: $patchedQuery,
+            displayTitle: $config->displayTitle,
+            isCustom: $config->isCustom,
+            routePresetKey: $config->routePresetKey,
+            referencePresetKey: $config->referencePresetKey,
+            primaryDimensionKey: $config->primaryDimensionKey,
+            seriesDimensionKey: $config->seriesDimensionKey,
+            includeNullBuckets: $config->includeNullBuckets,
         );
     }
 
@@ -140,19 +189,29 @@ final readonly class AnalysisViewResolver
     private function applySavedConfigToRequest(Request $request, AnalysisViewConfig $viewConfig): Request
     {
         $query = $request->query->all();
-        $query[\App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys::PRIMARY] = $viewConfig->primaryDimensionKey;
-        $query[\App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys::SERIES] = $viewConfig->secondaryDimensionKey ?? '';
-        $query[\App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys::INCLUDE_NULL] = $viewConfig->includeNullBuckets ? '1' : '0';
-        $query[\App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys::METRICS] = $viewConfig->resolvedMetricKeys();
+        $query[GenericAnalysisQueryKeys::PRIMARY] = $viewConfig->primaryDimensionKey;
+        $query[GenericAnalysisQueryKeys::SERIES] = $viewConfig->secondaryDimensionKey ?? '';
+        $query[GenericAnalysisQueryKeys::INCLUDE_NULL] = $viewConfig->includeNullBuckets ? '1' : '0';
+        $query[GenericAnalysisQueryKeys::METRICS] = $viewConfig->resolvedMetricKeys();
         if (null !== $viewConfig->visualMetricKey) {
-            $query[\App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys::VISUAL_METRIC] = $viewConfig->visualMetricKey;
+            $query[GenericAnalysisQueryKeys::VISUAL_METRIC] = $viewConfig->visualMetricKey;
         }
         if (null !== $viewConfig->layout) {
-            $query[\App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys::LAYOUT] = $viewConfig->layout;
+            $query[GenericAnalysisQueryKeys::LAYOUT] = $viewConfig->layout;
         }
         if (null !== $viewConfig->top) {
-            $query[\App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys::TOP] = (string) $viewConfig->top;
+            $query[GenericAnalysisQueryKeys::TOP] = (string) $viewConfig->top;
         }
+        if (null !== $viewConfig->chartType) {
+            $query[GenericAnalysisQueryKeys::CHART] = $viewConfig->chartType;
+        }
+        $query[GenericAnalysisQueryKeys::SERIES_MODE] = $viewConfig->seriesMode;
+        $query[GenericAnalysisQueryKeys::DISPLAY] = $viewConfig->displayMode;
+        if ([] !== $viewConfig->chartMetricKeys) {
+            $query[GenericAnalysisQueryKeys::CHART_METRICS] = $viewConfig->chartMetricKeys;
+        }
+        $query[GenericAnalysisQueryKeys::DATA_SOURCE] = $viewConfig->dataSource->value;
+        $query[GenericAnalysisQueryKeys::HOSPITAL_POPULATION] = $viewConfig->hospitalPopulationMode;
 
         return $request->duplicate(query: $query);
     }

@@ -78,7 +78,7 @@ final class AnalysisBuilderController extends AbstractController
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
 
-        $routeContext = GenericAnalysisRouteContext::forAnalyticsView(self::REFERENCE_VIEW_KEY);
+        $routeContext = GenericAnalysisRouteContext::forBuilder();
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
             'app_stats_analytics_builder',
@@ -111,6 +111,7 @@ final class AnalysisBuilderController extends AbstractController
                 $filter,
                 $user,
                 $routeContext,
+                self::REFERENCE_VIEW_KEY,
             ),
             'libraryUrl' => $this->router->generate('app_stats_analytics_library', $this->scopeQuery($request)),
             'statisticsFilter' => $pageViewModel->filter,

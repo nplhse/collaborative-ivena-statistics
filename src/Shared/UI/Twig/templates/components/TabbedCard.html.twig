@@ -1,0 +1,28 @@
+<div class="{{ this.cssClass }}"{% if testId %} data-testid="{{ testId }}"{% endif %}>
+    {% if title or headerTabs %}
+        <div class="card-header{% if headerTabs %} border-bottom-0{% endif %}">
+            {% if headerTabs %}
+                <ul class="nav nav-tabs card-header-tabs"
+                    role="tablist"
+                    {% if headerTabsTestId %}data-testid="{{ headerTabsTestId }}"{% endif %}>
+                    {% for tab in headerTabs %}
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link{% if tab.active %} active{% endif %}"
+                               href="{{ tab.url }}"
+                               role="tab"
+                               {% if tab.active %}aria-current="page"{% endif %}
+                               {% if tab.testId %}data-testid="{{ tab.testId }}"{% endif %}>
+                                {{ tab.label }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% elseif title %}
+                <h3 class="card-title mb-0">{{ title }}</h3>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="card-body">
+        {% block content %}{% endblock %}
+    </div>
+</div>

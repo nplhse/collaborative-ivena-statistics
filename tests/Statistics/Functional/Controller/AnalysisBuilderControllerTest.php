@@ -66,6 +66,35 @@ final class AnalysisBuilderControllerTest extends WebTestCase
         self::assertSame('all', $periodInput->attr('value'));
     }
 
+    public function testBuilderShowsDataSourceSelector(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/builder?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        self::assertGreaterThan(0, $crawler->filter('[data-testid="stats-analytics-builder-data-source"] .nav-link')->count());
+        self::assertGreaterThan(0, $crawler->filter('[data-testid="stats-analytics-data-source-hospitals"]')->count());
+        self::assertGreaterThan(0, $crawler->filter('[data-testid="stats-analytics-builder-primary"]')->count());
+    }
+
+    public function testBuilderDataSourceSwitchReloadsWithHospitalDimensions(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/builder?scope=public&period=all&ga_data_source=hospitals',
+        );
+
+        $this->assertResponseIsSuccessful();
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-analytics-builder-primary"] option[value="hospital_tier"]')->count(),
+        );
+    }
+
     /**
      * @return list<string>
      */

@@ -30,7 +30,15 @@
             {% if page.formReferencePreset %}
                 <input type="hidden" name="ga_ref" value="{{ page.formReferencePreset }}">
             {% endif %}
-            <input type="hidden" name="ga_metrics[]" value="count">
+            <input type="hidden" name="ga_metrics[]" value="{{ page.defaultBaseMetricKey }}">
+
+            {{ include('@Statistics/generic_analysis/_analysis_source_controls.html.twig', {
+                page: page,
+                idPrefix: 'drawer_',
+                dataSourceStandaloneForm: true,
+                populationStandaloneForm: true,
+                populationTestId: 'stats-analytics-drawer-hospital-population',
+            }) }}
 
             <div>
                 <label class="form-label" for="drawer_ga_primary">{{ 'stats.generic_analysis.primary_dimension'|trans }}</label>
@@ -76,7 +84,7 @@
                 <div class="d-flex flex-wrap gap-2" data-generic-analysis-metrics-target="metricList">
                     {% for metric in page.availableMetrics %}
                         <div class="form-check">
-                            {% if metric.key == 'count' %}
+                            {% if metric.key == page.defaultBaseMetricKey %}
                                 <input class="form-check-input" type="checkbox" checked disabled>
                             {% else %}
                                 <input class="form-check-input"
@@ -106,6 +114,34 @@
                 </select>
             </div>
 
+            <div>
+                <label class="form-label" for="drawer_ga_series_mode">{{ 'stats.generic_analysis.series_mode_label'|trans }}</label>
+                <select class="form-select" id="drawer_ga_series_mode" name="ga_series_mode">
+                    {% for option in page.seriesModeOptions %}
+                        <option value="{{ option.value }}"{% if option.selected %} selected{% endif %}>{{ option.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" for="drawer_ga_chart">{{ 'stats.generic_analysis.chart.type_selector_label'|trans }}</label>
+                <select class="form-select" id="drawer_ga_chart" name="ga_chart">
+                    <option value="">{{ 'stats.generic_analysis.chart.type_recommended'|trans }}</option>
+                    {% for option in page.chartTypeOptions %}
+                        <option value="{{ option.value }}"{% if option.value == page.formChartType %} selected{% endif %}>{{ option.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" for="drawer_ga_display">{{ 'stats.generic_analysis.display_mode_label'|trans }}</label>
+                <select class="form-select" id="drawer_ga_display" name="ga_display">
+                    {% for option in page.displayModeOptions %}
+                        <option value="{{ option.value }}"{% if option.selected %} selected{% endif %}>{{ option.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="d-flex flex-wrap gap-2">
                 <button type="submit" class="btn btn-primary">{{ 'stats.analytics_library.apply'|trans }}</button>
                 {% if page.resetToPresetUrl %}
@@ -124,9 +160,12 @@
                 <input type="hidden" name="secondary_dimension" value="{{ page.formSeries }}" data-analytics-customize-drawer-target="saveSeries">
                 <input type="hidden" name="include_null" value="{{ page.formIncludeNull ? '1' : '0' }}" data-analytics-customize-drawer-target="saveIncludeNull">
                 <input type="hidden" name="visual_metric" value="{{ page.formVisualMetric }}" data-analytics-customize-drawer-target="saveVisualMetric">
+                <input type="hidden" name="series_mode" value="{{ page.formSeriesMode }}">
+                <input type="hidden" name="display_mode" value="{{ page.formDisplayMode }}">
+                <input type="hidden" name="chart_type" value="{{ page.formChartType }}">
                 <div data-analytics-customize-drawer-target="saveMetrics">
                     {% for metric in page.availableMetrics %}
-                        {% if metric.selected and metric.key != 'count' %}
+                        {% if metric.selected and metric.key != page.defaultBaseMetricKey %}
                             <input type="hidden" name="metrics[]" value="{{ metric.key }}">
                         {% endif %}
                     {% endfor %}

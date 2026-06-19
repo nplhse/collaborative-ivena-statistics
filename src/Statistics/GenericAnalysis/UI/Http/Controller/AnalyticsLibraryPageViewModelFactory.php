@@ -13,6 +13,7 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewDefinition;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewCategory;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Registry\AnalysisDataSourceRegistry;
 use App\Statistics\GenericAnalysis\Registry\AnalysisViewRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\AnalyticsLibraryQueryKeys;
@@ -33,6 +34,7 @@ final readonly class AnalyticsLibraryPageViewModelFactory
         private UrlGeneratorInterface $router,
         private TranslatorInterface $translator,
         private CustomAnalysisAccessInterface $customAnalysisAccess,
+        private AnalysisDataSourceRegistry $dataSourceRegistry,
     ) {
     }
 
@@ -208,6 +210,8 @@ final readonly class AnalyticsLibraryPageViewModelFactory
             allowedChartTypes: $baseView instanceof AnalysisViewDefinition ? $baseView->allowedChartTypes : [],
             includeNullBuckets: $config->includeNullBuckets,
             legacyPresetKey: $sourceKey,
+            dataSource: $config->dataSource,
+            hospitalPopulationMode: $config->resolvedHospitalPopulationMode(),
         );
     }
 
@@ -240,10 +244,13 @@ final readonly class AnalyticsLibraryPageViewModelFactory
             }
         }
 
+        $dataSourceDefinition = $this->dataSourceRegistry->get($view->dataSource);
+
         return [
             'key' => $view->key,
             'title' => $view->title,
             'description' => $view->description,
+            'dataSourceLabel' => $this->translator->trans($dataSourceDefinition->labelTranslationKey),
             'category' => $this->translator->trans('stats.analytics_library.category.'.$view->category->value),
             'categoryKey' => $view->category->value,
             'categoryUrl' => $this->router->generate('app_stats_analytics_library', $this->categoriesTabQuery(

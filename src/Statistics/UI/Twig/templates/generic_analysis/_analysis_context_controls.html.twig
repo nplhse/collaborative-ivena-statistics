@@ -1,0 +1,32 @@
+{% set sourcePage = page is defined ? page : customizePage %}
+{% set idPrefix = idPrefix|default('') %}
+{% set populationStandaloneForm = populationStandaloneForm|default(false) %}
+
+{% if sourcePage.showHospitalPopulationControl %}
+    <div class="{{ populationControlClass|default('mb-3') }}">
+        <label class="form-label{% if populationStandaloneForm %} mb-1{% endif %}"
+               for="{{ idPrefix }}ga_hospital_population">
+            {{ 'stats.generic_analysis.hospital_population.label'|trans }}
+        </label>
+        <select class="form-select{% if populationStandaloneForm %} form-select-sm{% endif %}"
+                id="{{ idPrefix }}ga_hospital_population"
+                {% if populationStandaloneForm %}
+                    onchange="if (this.value) { window.location.href = this.value; }"
+                    data-testid="{{ populationTestId|default('stats-hospital-population-select') }}"
+                {% else %}
+                    name="ga_hospital_population"
+                    {% if populationTestId is defined %}data-testid="{{ populationTestId }}"{% endif %}
+                {% endif %}>
+            {% for option in sourcePage.hospitalPopulationOptions %}
+                <option value="{{ populationStandaloneForm ? option.url : option.value }}"
+                        {% if option.selected %} selected{% endif %}>
+                    {{ option.label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}
+
+{% if sourcePage.showPeriodAppliesHint %}
+    <p class="text-secondary small mb-0">{{ 'stats.generic_analysis.period.allocation_derived_hint'|trans }}</p>
+{% endif %}

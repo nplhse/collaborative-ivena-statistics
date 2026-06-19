@@ -9,7 +9,15 @@ use App\Statistics\GenericAnalysis\Application\AnalysisPresetRegistry;
 use App\Statistics\GenericAnalysis\Application\DTO\ResolvedGenericAnalysisConfig;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisPeriodAppliesTo;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
+use App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants;
+use App\Statistics\GenericAnalysis\Registry\AnalysisDataSourceRegistry;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
@@ -45,6 +53,7 @@ final readonly class GenericAnalysisPageViewModelFactory
         private MetricRegistry $metricRegistry,
         private MetricCompatibilityChecker $metricCompatibilityChecker,
         private GenericAnalysisDimensionPolicy $dimensionPolicy,
+        private AnalysisDataSourceRegistry $dataSourceRegistry,
         private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private UrlGeneratorInterface $router,
         private TranslatorInterface $translator,
@@ -58,6 +67,7 @@ final readonly class GenericAnalysisPageViewModelFactory
         StatisticsFilter $filter,
         ?User $user,
         ?GenericAnalysisRouteContext $routeContext = null,
+        ?string $launchViewKey = null,
     ): GenericAnalysisPageViewModel {
         $routeContext ??= GenericAnalysisRouteContext::forPreset($routePresetKey);
         $presetMenu = [];
@@ -88,10 +98,23 @@ final readonly class GenericAnalysisPageViewModelFactory
             $request->getLocale(),
             $filter,
             $user,
+            $config->query->dataSource,
         );
 
+        $dataSourceDefinition = $this->dataSourceRegistry->get($config->query->dataSource);
+        $baseMetricKey = $dataSourceDefinition->defaultMetricKey();
         $selectedMetricKeys = $config->query->resolvedMetricKeys();
         $availableMetrics = $this->buildAvailableMetrics($config, $selectedMetricKeys);
+        $hospitalPopulationOptions = $this->buildHospitalPopulationOptions(
+            $request,
+            $routeContext,
+            $config->query->hospitalPopulationMode,
+        );
+        $dataSourceOptions = $this->buildDataSourceOptions(
+            $request,
+            $routeContext,
+            $config->query->dataSource,
+        );
 
         return new GenericAnalysisPageViewModel(
             presetMenu: $presetMenu,
@@ -118,6 +141,29 @@ final readonly class GenericAnalysisPageViewModelFactory
                 $config->seriesDimensionKey,
                 $config->query->resolvedVisualMetricKey(),
             ),
+            formSeriesMode: $config->query->seriesMode->value,
+            formChartType: $config->query->chartType?->value ?? '',
+            formDisplayMode: $config->query->displayMode->value,
+            seriesModeOptions: $this->buildSeriesModeOptions($config->query->seriesMode),
+            chartTypeOptions: $this->buildChartTypeOptions(),
+            displayModeOptions: $this->buildDisplayModeOptions($config->query->displayMode),
+            defaultBaseMetricKey: $baseMetricKey,
+            formDataSource: $config->query->dataSource->value,
+            formHospitalPopulation: $config->query->hospitalPopulationMode->value,
+            showDataSourceSelector: $config->isCustom
+                || AnalysisDataSource::Hospitals === $config->query->dataSource
+                || $routeContext->isBuilder(),
+            showHospitalPopulationControl: $dataSourceDefinition->supportsPopulationModifier,
+            showPeriodAppliesHint: AnalysisPeriodAppliesTo::AllocationDerivedOnly === $dataSourceDefinition->periodAppliesTo,
+            dataSourceOptions: $dataSourceOptions,
+            dataSourceHeaderTabs: $this->buildDataSourceHeaderTabs($dataSourceOptions, $routeContext),
+            hospitalPopulationOptions: $hospitalPopulationOptions,
+            launchFormAction: null !== $launchViewKey
+                ? $this->router->generate(
+                    GenericAnalysisRouteContext::ANALYTICS_VIEW_ROUTE,
+                    ['viewKey' => $launchViewKey],
+                )
+                : null,
         );
     }
 
@@ -189,11 +235,19 @@ final readonly class GenericAnalysisPageViewModelFactory
     /**
      * @return array{0: list<array{type: string, label: string, options: list<array{key: string, label: string}>}>, 1: bool}
      */
-    private function buildDimensionGroups(string $locale, StatisticsFilter $filter, ?User $user): array
-    {
+    private function buildDimensionGroups(
+        string $locale,
+        StatisticsFilter $filter,
+        ?User $user,
+        AnalysisDataSource $dataSource,
+    ): array {
         $grouped = [];
         $hadRestricted = false;
-        foreach ($this->dimensionRegistry->all() as $dimension) {
+        foreach ($this->dimensionRegistry->forDataSource($dataSource) as $dimension) {
+            if (HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY === $dimension->key) {
+                continue;
+            }
+
             if (!$this->dimensionPolicy->isAllowed($dimension->key, $filter, $user)) {
                 $hadRestricted = true;
 
@@ -282,11 +336,11 @@ final readonly class GenericAnalysisPageViewModelFactory
         }
 
         if ([] === $options) {
-            $count = $this->metricRegistry->get('count');
+            $defaultMetric = $this->metricRegistry->get($availableMetrics[0]['key'] ?? 'count');
 
             return [[
-                'key' => 'count',
-                'label' => $count->label,
+                'key' => $defaultMetric->key,
+                'label' => $defaultMetric->label,
                 'selected' => true,
             ]];
         }
@@ -322,9 +376,12 @@ final readonly class GenericAnalysisPageViewModelFactory
         }
 
         if ($request->query->has(GenericAnalysisQueryKeys::METRICS)) {
+            $dataSource = AnalysisDataSource::tryFrom($request->query->getString(GenericAnalysisQueryKeys::DATA_SOURCE))
+                ?? AnalysisDataSource::Allocations;
+            $baseMetricKey = $this->dataSourceRegistry->get($dataSource)->defaultMetricKey();
             $metricKeys = array_values($request->query->all(GenericAnalysisQueryKeys::METRICS));
             foreach ($metricKeys as $metricKey) {
-                if (!\is_string($metricKey) || '' === $metricKey || 'count' === $metricKey) {
+                if (!\is_string($metricKey) || '' === $metricKey || $metricKey === $baseMetricKey) {
                     continue;
                 }
                 $fields[] = [
@@ -334,6 +391,210 @@ final readonly class GenericAnalysisPageViewModelFactory
             }
         }
 
+        foreach ([
+            GenericAnalysisQueryKeys::CHART,
+            GenericAnalysisQueryKeys::SERIES_MODE,
+            GenericAnalysisQueryKeys::DISPLAY,
+            GenericAnalysisQueryKeys::DATA_SOURCE,
+            GenericAnalysisQueryKeys::HOSPITAL_POPULATION,
+        ] as $key) {
+            if ($request->query->has($key)) {
+                $fields[] = ['key' => $key, 'value' => $request->query->getString($key)];
+            }
+        }
+
+        if ($request->query->has(GenericAnalysisQueryKeys::CHART_METRICS)) {
+            foreach (array_values($request->query->all(GenericAnalysisQueryKeys::CHART_METRICS)) as $metricKey) {
+                if (!\is_string($metricKey) || '' === $metricKey) {
+                    continue;
+                }
+                $fields[] = [
+                    'key' => GenericAnalysisQueryKeys::CHART_METRICS.'[]',
+                    'value' => $metricKey,
+                ];
+            }
+        }
+
         return $fields;
+    }
+
+    /**
+     * @return list<array{value: string, label: string, selected: bool}>
+     */
+    private function buildSeriesModeOptions(AnalysisSeriesMode $selected): array
+    {
+        return [
+            [
+                'value' => AnalysisSeriesMode::ByDimension->value,
+                'label' => $this->translator->trans('stats.generic_analysis.series_mode.by_dimension'),
+                'selected' => AnalysisSeriesMode::ByDimension === $selected,
+            ],
+            [
+                'value' => AnalysisSeriesMode::ByMetric->value,
+                'label' => $this->translator->trans('stats.generic_analysis.series_mode.by_metric'),
+                'selected' => AnalysisSeriesMode::ByMetric === $selected,
+            ],
+        ];
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function buildChartTypeOptions(): array
+    {
+        $options = [];
+        foreach ([
+            GenericAnalysisChartType::Line,
+            GenericAnalysisChartType::Bar,
+            GenericAnalysisChartType::StackedBar,
+            GenericAnalysisChartType::GroupedBar,
+            GenericAnalysisChartType::HorizontalBar,
+            GenericAnalysisChartType::PercentStackedBar,
+            GenericAnalysisChartType::Pie,
+            GenericAnalysisChartType::Heatmap,
+        ] as $type) {
+            $options[] = [
+                'value' => $type->value,
+                'label' => $this->translator->trans(match ($type) {
+                    GenericAnalysisChartType::Line => 'stats.generic_analysis.chart.type.line',
+                    GenericAnalysisChartType::Bar => 'stats.generic_analysis.chart.type.bar',
+                    GenericAnalysisChartType::StackedBar => 'stats.generic_analysis.chart.type.stacked_bar',
+                    GenericAnalysisChartType::GroupedBar => 'stats.generic_analysis.chart.type.grouped_bar',
+                    GenericAnalysisChartType::HorizontalBar => 'stats.generic_analysis.chart.type.horizontal_bar',
+                    GenericAnalysisChartType::PercentStackedBar => 'stats.generic_analysis.chart.type.percent_stacked_bar',
+                    GenericAnalysisChartType::Pie => 'stats.generic_analysis.chart.type.pie',
+                    GenericAnalysisChartType::Heatmap => 'stats.generic_analysis.chart.type.heatmap',
+                    default => 'stats.generic_analysis.chart.type.bar',
+                }),
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * @return list<array{value: string, label: string, selected: bool}>
+     */
+    private function buildDisplayModeOptions(AnalysisDisplayMode $selected): array
+    {
+        return [
+            [
+                'value' => AnalysisDisplayMode::Chart->value,
+                'label' => $this->translator->trans('stats.generic_analysis.display_mode.chart'),
+                'selected' => AnalysisDisplayMode::Chart === $selected,
+            ],
+            [
+                'value' => AnalysisDisplayMode::Table->value,
+                'label' => $this->translator->trans('stats.generic_analysis.display_mode.table'),
+                'selected' => AnalysisDisplayMode::Table === $selected,
+            ],
+            [
+                'value' => AnalysisDisplayMode::PivotTable->value,
+                'label' => $this->translator->trans('stats.generic_analysis.display_mode.pivot_table'),
+                'selected' => AnalysisDisplayMode::PivotTable === $selected,
+            ],
+        ];
+    }
+
+    /**
+     * @return list<array{value: string, label: string, selected: bool, url: string}>
+     */
+    private function buildHospitalPopulationOptions(
+        Request $request,
+        GenericAnalysisRouteContext $routeContext,
+        HospitalPopulationMode $selected,
+    ): array {
+        $options = [];
+        foreach ([
+            HospitalPopulationMode::All,
+            HospitalPopulationMode::Participating,
+            HospitalPopulationMode::Compare,
+        ] as $mode) {
+            $options[] = [
+                'value' => $mode->value,
+                'label' => $this->translator->trans(match ($mode) {
+                    HospitalPopulationMode::All => 'stats.generic_analysis.hospital_population.all',
+                    HospitalPopulationMode::Participating => 'stats.generic_analysis.hospital_population.participating',
+                    HospitalPopulationMode::Compare => 'stats.generic_analysis.hospital_population.compare',
+                }),
+                'selected' => $mode === $selected,
+                'url' => $this->navigationUrlBuilder->build(
+                    $request,
+                    $routeContext->routeName,
+                    array_merge(
+                        $routeContext->routeParams,
+                        [GenericAnalysisQueryKeys::HOSPITAL_POPULATION => $mode->value],
+                    ),
+                    HospitalPopulationMode::Compare === $mode ? [GenericAnalysisQueryKeys::SERIES] : [],
+                ),
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * @return list<array{value: string, label: string, selected: bool, url?: string}>
+     */
+    private function buildDataSourceOptions(
+        Request $request,
+        GenericAnalysisRouteContext $routeContext,
+        AnalysisDataSource $selected,
+    ): array {
+        $options = [];
+        foreach ($this->dataSourceRegistry->all() as $definition) {
+            $option = [
+                'value' => $definition->source->value,
+                'label' => $this->translator->trans($definition->labelTranslationKey),
+                'selected' => $definition->source === $selected,
+            ];
+
+            if ($routeContext->usesDataSourceNavigationUrls()) {
+                $option['url'] = $this->navigationUrlBuilder->build(
+                    $request,
+                    $routeContext->routeName,
+                    array_merge(
+                        $routeContext->routeParams,
+                        [GenericAnalysisQueryKeys::DATA_SOURCE => $definition->source->value],
+                    ),
+                    GenericAnalysisQueryKeys::REMOVE_CUSTOM,
+                );
+            }
+
+            $options[] = $option;
+        }
+
+        return $options;
+    }
+
+    /**
+     * @param list<array{value: string, label: string, selected: bool, url?: string}> $dataSourceOptions
+     *
+     * @return list<array{key: string, label: string, url: string, active: bool, testId: string}>
+     */
+    private function buildDataSourceHeaderTabs(
+        array $dataSourceOptions,
+        GenericAnalysisRouteContext $routeContext,
+    ): array {
+        if (!$routeContext->isBuilder()) {
+            return [];
+        }
+
+        $tabs = [];
+        foreach ($dataSourceOptions as $option) {
+            if (!isset($option['url'])) {
+                continue;
+            }
+
+            $tabs[] = [
+                'key' => $option['value'],
+                'label' => $option['label'],
+                'url' => $option['url'],
+                'active' => $option['selected'],
+                'testId' => 'stats-analytics-data-source-'.$option['value'],
+            ];
+        }
+
+        return $tabs;
     }
 }

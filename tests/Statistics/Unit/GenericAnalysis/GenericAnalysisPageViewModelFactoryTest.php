@@ -17,10 +17,12 @@ use App\Statistics\GenericAnalysis\Application\GenericAnalysisConfigResolver;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisMetricRequestResolver;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
+use App\Statistics\GenericAnalysis\Registry\AnalysisDataSourceRegistry;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Controller\GenericAnalysisPageViewModelFactory;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
+use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisRouteContext;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,6 +60,7 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
             $metricRegistry,
             new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
             new GenericAnalysisDimensionPolicy($hospitalAccess, $dimensionRegistry),
+            new AnalysisDataSourceRegistry(),
             new StatisticsNavigationUrlBuilder($router),
             $router,
             $translator,
@@ -160,6 +163,45 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
         self::assertContains('ga_visual_metric', $keys);
     }
 
+    public function testAnalyticsViewDataSourceOptionsIncludeNavigationUrls(): void
+    {
+        $request = Request::create(
+            '/statistics/analytics/view/allocations_by_month',
+            Request::METHOD_GET,
+            [
+                'scope' => 'public',
+                GenericAnalysisQueryKeys::DATA_SOURCE => 'allocations',
+                GenericAnalysisQueryKeys::PRIMARY => 'month',
+            ],
+            [
+                'viewKey' => 'allocations_by_month',
+                '_route' => GenericAnalysisRouteContext::ANALYTICS_VIEW_ROUTE,
+                '_route_params' => ['viewKey' => 'allocations_by_month'],
+            ],
+        );
+
+        $config = $this->resolvedConfig('month', null);
+        $viewModel = $this->factory->create(
+            $request,
+            'allocations_by_month',
+            $config,
+            $this->publicFilter(),
+            null,
+            GenericAnalysisRouteContext::forAnalyticsView('allocations_by_month'),
+        );
+
+        $hospitalsOption = array_values(array_filter(
+            $viewModel->dataSourceOptions,
+            static fn (array $option): bool => 'hospitals' === $option['value'],
+        ))[0];
+
+        self::assertArrayHasKey('url', $hospitalsOption);
+        self::assertStringContainsString('ga_data_source=hospitals', $hospitalsOption['url']);
+        self::assertStringContainsString('scope=public', $hospitalsOption['url']);
+        self::assertStringNotContainsString('ga_primary', $hospitalsOption['url']);
+        self::assertStringNotContainsString('ga_series', $hospitalsOption['url']);
+    }
+
     private function resolvedPresetConfig(string $presetKey): ResolvedGenericAnalysisConfig
     {
         return $this->configResolver()->resolve(
@@ -183,6 +225,8 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
         $customAnalysisAccess = $this->createMock(CustomAnalysisAccessInterface::class);
         $customAnalysisAccess->method('canUseCustomAnalysis')->willReturn(true);
 
+        $translator = $this->createMock(TranslatorInterface::class);
+
         return new GenericAnalysisConfigResolver(
             new AnalysisPresetRegistry(),
             $dimensionRegistry,
@@ -193,7 +237,9 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
                 new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
             ),
             $customAnalysisAccess,
-            $this->createMock(TranslatorInterface::class),
+            GenericAnalysisTestFixtures::configurationValidator($dimensionRegistry, $metricRegistry, $translator),
+            new AnalysisDataSourceRegistry(),
+            $translator,
         );
     }
 

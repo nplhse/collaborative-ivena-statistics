@@ -66,6 +66,28 @@ final class AnalyticsLibraryControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analytics-save-view-title"]');
     }
 
+    public function testCustomizeDrawerRefreshesContextControlsViaNavigation(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analytics/view/hospitals_by_tier?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+
+        $dataSourceSelect = $crawler->filter('[data-testid="stats-analytics-drawer-data-source"]');
+        self::assertGreaterThan(0, $dataSourceSelect->count());
+        self::assertStringContainsString('window.location.href', (string) $dataSourceSelect->attr('onchange'));
+
+        $hospitalsOption = $dataSourceSelect->filter('option[value*="ga_data_source=allocations"]');
+        self::assertGreaterThan(0, $hospitalsOption->count());
+
+        $populationSelect = $crawler->filter('[data-testid="stats-analytics-drawer-hospital-population"]');
+        self::assertGreaterThan(0, $populationSelect->count());
+        self::assertStringContainsString('window.location.href', (string) $populationSelect->attr('onchange'));
+    }
+
     public function testCategoriesTabSearchFiltersViews(): void
     {
         $client = $this->createClientAsRoleUser();

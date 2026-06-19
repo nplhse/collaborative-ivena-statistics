@@ -23,6 +23,7 @@
         <h3 class="card-title mb-1">{{ card.title }}</h3>
         <p class="text-secondary small mb-3">{{ card.description }}</p>
         <div class="d-flex flex-wrap gap-1 mb-3">
+            <span class="badge bg-azure-lt">{{ card.dataSourceLabel }}</span>
             {% for tag in card.tags %}
                 <span class="badge bg-secondary-lt">{{ tag }}</span>
             {% endfor %}
