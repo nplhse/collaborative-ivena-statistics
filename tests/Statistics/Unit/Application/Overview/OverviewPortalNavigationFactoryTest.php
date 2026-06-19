@@ -33,37 +33,25 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         $this->factory = new OverviewPortalNavigationFactory();
     }
 
-    public function testResourcesOverTimeTargetPointsToAllocationsByMonthWithResourceRates(): void
+    public function testResourcesOverTimeTargetPointsToClinicalRatesByMonth(): void
     {
         $request = Request::create('/statistics/?scope=public&period=all_time&dimension=resources');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->resourcesOverTimeTarget());
 
-        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $url);
-        self::assertStringContainsString('ga_ref=allocations_by_month', $url);
-        self::assertStringContainsString('ga_primary=month', $url);
-        self::assertStringContainsString('ga_visual_metric=count', $url);
-        self::assertStringContainsString('resus_rate', $url);
-        self::assertStringContainsString('cathlab_rate', $url);
+        self::assertStringContainsString('/statistics/analytics/view/clinical_rates_by_month', $url);
         self::assertStringNotContainsString('dimension=resources', $url);
     }
 
-    public function testClinicalFeaturesOverTimeTargetPointsToAllocationsByMonthWithClinicalRates(): void
+    public function testClinicalFeaturesOverTimeTargetPointsToClinicalRatesByMonth(): void
     {
         $request = Request::create('/statistics/?scope=public&period=all_time&dimension=features');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->clinicalFeaturesOverTimeTarget());
 
-        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $url);
-        self::assertStringContainsString('ga_ref=allocations_by_month', $url);
-        self::assertStringContainsString('ga_primary=month', $url);
-        self::assertStringContainsString('ga_visual_metric=count', $url);
-        self::assertStringContainsString('cpr_rate', $url);
-        self::assertStringContainsString('shock_rate', $url);
-        self::assertStringContainsString('ventilation_rate', $url);
-        self::assertStringContainsString('with_physician_rate', $url);
+        self::assertStringContainsString('/statistics/analytics/view/clinical_rates_by_month', $url);
         self::assertStringNotContainsString('dimension=features', $url);
     }
 
-    public function testClinicalFeaturesTargetReplacesExistingGenericAnalysisOverrides(): void
+    public function testClinicalFeaturesTargetRemovesExistingGenericAnalysisOverrides(): void
     {
         $request = Request::create('/statistics/?'.http_build_query([
             GenericAnalysisQueryKeys::PRIMARY => 'hour',
@@ -72,9 +60,9 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         ]));
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->clinicalFeaturesOverTimeTarget());
 
-        self::assertStringContainsString('ga_primary=month', $url);
-        self::assertStringContainsString('cpr_rate', $url);
+        self::assertStringContainsString('/statistics/analytics/view/clinical_rates_by_month', $url);
         self::assertStringNotContainsString('percent_of_total', $url);
+        self::assertStringNotContainsString('ga_primary=hour', $url);
     }
 
     public function testBuildProvidesAnalyticsTargetsForOverviewCharts(): void
@@ -92,7 +80,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         self::assertStringNotContainsString('report=legacy', $timeSeriesUrl);
 
         $heatmapDayUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapDayTime[0]);
-        self::assertStringContainsString('/statistics/analytics/view/allocations_by_hour', $heatmapDayUrl);
+        self::assertStringContainsString('/statistics/analytics/view/hour_weekday_heatmap', $heatmapDayUrl);
 
         $heatmapShiftUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapShift[0]);
         self::assertStringContainsString('/statistics/analytics/view/allocations_by_weekday', $heatmapShiftUrl);

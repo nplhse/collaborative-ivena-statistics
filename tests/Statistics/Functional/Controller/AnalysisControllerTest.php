@@ -31,7 +31,22 @@ final class AnalysisControllerTest extends WebTestCase
         $this->assertStringContainsString('period=all', $location);
     }
 
-    public function testLegacyHospitalPivotRedirectsToPivotTables(): void
+    public function testLegacyPivotUrlRedirectsToAnalyticsLibrary(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/pivot?scope=public&period=all',
+        );
+
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('/statistics/analytics/library', $location);
+        $this->assertStringContainsString('scope=public', $location);
+        $this->assertStringContainsString('period=all', $location);
+    }
+
+    public function testLegacyHospitalPivotAnalysisRedirectsToAnalyticsLibrary(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(
@@ -41,7 +56,8 @@ final class AnalysisControllerTest extends WebTestCase
 
         $this->assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
-        $this->assertStringContainsString('/statistics/pivot', $location);
-        $this->assertStringContainsString('analysis=hospital_pivot', $location);
+        $this->assertStringContainsString('/statistics/analytics/library', $location);
+        $this->assertStringContainsString('scope=public', $location);
+        $this->assertStringNotContainsString('analysis=', $location);
     }
 }

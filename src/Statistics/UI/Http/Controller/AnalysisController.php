@@ -12,19 +12,14 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AnalysisController extends AbstractController
 {
     #[Route('/statistics/analysis', name: 'app_stats_analysis', methods: ['GET'])]
-    public function __invoke(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
+    public function analysisLegacy(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
-        $analysis = $request->query->getString(StatisticsQueryKeys::ANALYSIS);
+        return $this->redirectToRoute('app_stats_analytics_library', $this->libraryQuery($request));
+    }
 
-        if (\in_array($analysis, ['allocation_pivot', 'hospital_pivot', 'pivot'], true)) {
-            $query = $request->query->all();
-            if ('pivot' === $analysis) {
-                $query[StatisticsQueryKeys::ANALYSIS] = 'allocation_pivot';
-            }
-
-            return $this->redirectToRoute('app_stats_pivot_tables', $query);
-        }
-
+    #[Route('/statistics/pivot', name: 'app_stats_pivot_tables', methods: ['GET'])]
+    public function pivotLegacy(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
         return $this->redirectToRoute('app_stats_analytics_library', $this->libraryQuery($request));
     }
 

@@ -32,7 +32,7 @@ final readonly class OverviewPortalNavigationFactory
             heatmapDayTime: [
                 $this->analyticsTarget(
                     'stats.nav.overview_heatmap_daytime_to_analysis',
-                    'allocations_by_hour',
+                    'hour_weekday_heatmap',
                 ),
             ],
             heatmapShift: [
@@ -52,25 +52,17 @@ final readonly class OverviewPortalNavigationFactory
 
     public function resourcesOverTimeTarget(): StatisticWidgetNavigationTarget
     {
-        return $this->analyticsTargetWithMetrics(
+        return $this->analyticsTarget(
             'stats.nav.overview_resources_to_analysis',
-            metrics: ['count', 'resus_rate', 'cathlab_rate'],
+            'clinical_rates_by_month',
         );
     }
 
     public function clinicalFeaturesOverTimeTarget(): StatisticWidgetNavigationTarget
     {
-        return $this->analyticsTargetWithMetrics(
+        return $this->analyticsTarget(
             'stats.nav.overview_indicators_to_analysis',
-            metrics: [
-                'count',
-                'cpr_rate',
-                'shock_rate',
-                'ventilation_rate',
-                'pregnancy_rate',
-                'work_accident_rate',
-                'with_physician_rate',
-            ],
+            'clinical_rates_by_month',
         );
     }
 
