@@ -6,8 +6,12 @@ namespace App\Statistics\GenericAnalysis\Domain\DTO;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewCategory;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
 
 final readonly class AnalysisViewDefinition
 {
@@ -37,6 +41,10 @@ final readonly class AnalysisViewDefinition
         public bool $isFeatured = false,
         public array $recommendedScopes = [],
         public array $recommendedPeriods = [],
+        public AnalysisSeriesMode $seriesMode = AnalysisSeriesMode::ByDimension,
+        public AnalysisDisplayMode $displayMode = AnalysisDisplayMode::Chart,
+        public AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
+        public HospitalPopulationMode $hospitalPopulationMode = HospitalPopulationMode::All,
     ) {
     }
 
@@ -53,6 +61,11 @@ final readonly class AnalysisViewDefinition
             visualMetricKey: $this->visualMetricKey,
             filters: $this->defaultFilters,
             includeNullBuckets: $this->includeNullBuckets,
+            seriesMode: $this->seriesMode,
+            chartType: $this->chartType,
+            displayMode: $this->displayMode,
+            dataSource: $this->dataSource,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
         );
     }
 
@@ -67,7 +80,7 @@ final readonly class AnalysisViewDefinition
     public function resolvedMetricKeys(): array
     {
         if ([] === $this->metricKeys) {
-            return ['count'];
+            return [$this->dataSource->defaultMetricKey()];
         }
 
         return $this->metricKeys;

@@ -17,6 +17,7 @@ use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisMetricRequestResolver;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
+use App\Statistics\GenericAnalysis\Registry\AnalysisDataSourceRegistry;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
@@ -75,6 +76,8 @@ final class GenericAnalysisConfigResolverTest extends TestCase
                 new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
             ),
             $customAnalysisAccess ?? $this->allowCustomAnalysis(),
+            GenericAnalysisTestFixtures::configurationValidator($dimensionRegistry, $metricRegistry, $translator),
+            new AnalysisDataSourceRegistry(),
             $translator,
         );
     }
@@ -147,6 +150,48 @@ final class GenericAnalysisConfigResolverTest extends TestCase
         self::assertTrue($config->isCustom);
         self::assertSame('hour', $config->primaryDimensionKey);
         self::assertSame('allocations_by_month', $config->referencePresetKey);
+    }
+
+    public function testDataSourceOverrideRemapsInvalidAllocationDimensions(): void
+    {
+        $request = Request::create('/statistics/analytics/view/allocations_by_month', Request::METHOD_GET, [
+            GenericAnalysisQueryKeys::DATA_SOURCE => 'hospitals',
+        ]);
+
+        $config = $this->resolver->resolve(
+            'allocations_by_month',
+            $request,
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            $this->publicFilter(),
+            null,
+        );
+
+        self::assertTrue($config->isCustom);
+        self::assertSame('hospital_tier', $config->primaryDimensionKey);
+        self::assertNull($config->seriesDimensionKey);
+    }
+
+    public function testDataSourceOverrideRemapsExplicitInvalidDimensions(): void
+    {
+        $request = Request::create('/statistics/analytics/view/allocations_by_month', Request::METHOD_GET, [
+            GenericAnalysisQueryKeys::DATA_SOURCE => 'hospitals',
+            GenericAnalysisQueryKeys::PRIMARY => 'month',
+            GenericAnalysisQueryKeys::SERIES => 'weekday',
+        ]);
+
+        $config = $this->resolver->resolve(
+            'allocations_by_month',
+            $request,
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            $this->publicFilter(),
+            null,
+        );
+
+        self::assertTrue($config->isCustom);
+        self::assertSame('hospital_tier', $config->primaryDimensionKey);
+        self::assertNull($config->seriesDimensionKey);
     }
 
     public function testCustomRouteUsesQueryDimensions(): void
@@ -239,5 +284,28 @@ final class GenericAnalysisConfigResolverTest extends TestCase
 
         self::assertNotNull($match);
         self::assertSame('allocations_by_month', $match->key);
+    }
+
+    public function testHospitalCompareModeSetsPopulationGroupSeries(): void
+    {
+        $request = Request::create('/statistics/analytics/view/allocations_by_month', Request::METHOD_GET, [
+            GenericAnalysisQueryKeys::DATA_SOURCE => 'hospitals',
+            GenericAnalysisQueryKeys::HOSPITAL_POPULATION => 'compare',
+            GenericAnalysisQueryKeys::PRIMARY => 'hospital_tier',
+            GenericAnalysisQueryKeys::METRICS => ['hospital_count'],
+            GenericAnalysisQueryKeys::REF_PRESET => 'allocations_by_month',
+        ]);
+
+        $config = $this->resolver->resolve(
+            'allocations_by_month',
+            $request,
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            $this->publicFilter(),
+            $this->createMock(User::class),
+        );
+
+        self::assertSame('hospital_population_group', $config->query->seriesDimensionKey);
+        self::assertSame('hospital_population_group', $config->seriesDimensionKey);
     }
 }

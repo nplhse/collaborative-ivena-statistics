@@ -34,6 +34,16 @@ services:
             string $projectDir: '%kernel.project_dir%'
             Doctrine\DBAL\Connection $defaultConnection: '@doctrine.dbal.default_connection'
 
+    _instanceof:
+        App\Statistics\GenericAnalysis\Application\Contract\AnalysisQueryExecutorInterface:
+            tags: ['app.generic_analysis.query_executor']
+        App\Statistics\GenericAnalysis\Application\Contract\AnalysisQueryModifierInterface:
+            tags: ['app.generic_analysis.query_modifier']
+        App\Statistics\Application\Analysis\AnalysisDefinitionInterface:
+            tags: ['app.statistics.analysis_definition']
+        App\Statistics\Application\Report\ReportDefinitionInterface:
+            tags: ['app.statistics.report_definition']
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -54,11 +64,6 @@ services:
         public: true
         arguments:
             $kernelEnvironment: '%kernel.environment%'
-    _instanceof:
-        App\Statistics\Application\Analysis\AnalysisDefinitionInterface:
-            tags: ['app.statistics.analysis_definition']
-        App\Statistics\Application\Report\ReportDefinitionInterface:
-            tags: ['app.statistics.report_definition']
 
     App\Statistics\Application\Analysis\AnalysisDefinitionRegistry:
         arguments:
@@ -67,6 +72,14 @@ services:
     App\Statistics\Application\Report\ReportDefinitionRegistry:
         arguments:
             $definitions: !tagged_iterator 'app.statistics.report_definition'
+
+    App\Statistics\GenericAnalysis\Application\AnalysisQueryExecutorRegistry:
+        arguments:
+            $executors: !tagged_iterator app.generic_analysis.query_executor
+
+    App\Statistics\GenericAnalysis\Application\AnalysisQueryModifierRegistry:
+        arguments:
+            $modifiers: !tagged_iterator app.generic_analysis.query_modifier
 
     App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver:
         tags:

@@ -11,8 +11,15 @@ use App\Statistics\GenericAnalysis\Application\Contract\CustomAnalysisAccessInte
 use App\Statistics\GenericAnalysis\Application\DTO\ResolvedGenericAnalysisConfig;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisPreset;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisPresetException;
+use App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants;
+use App\Statistics\GenericAnalysis\Registry\AnalysisDataSourceRegistry;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 use App\User\Domain\Entity\User;
@@ -28,6 +35,8 @@ final readonly class GenericAnalysisConfigResolver
         private GenericAnalysisDimensionPolicy $dimensionPolicy,
         private GenericAnalysisMetricRequestResolver $metricRequestResolver,
         private CustomAnalysisAccessInterface $customAnalysisAccess,
+        private AnalysisConfigurationValidator $configurationValidator,
+        private AnalysisDataSourceRegistry $dataSourceRegistry,
         private TranslatorInterface $translator,
     ) {
     }
@@ -51,9 +60,13 @@ final readonly class GenericAnalysisConfigResolver
             || $request->query->has(GenericAnalysisQueryKeys::SERIES)
             || $request->query->has(GenericAnalysisQueryKeys::INCLUDE_NULL);
 
+        $dataSourceOverride = $this->queryDataSource($request);
+        $hasDataSourceOverride = null !== $dataSourceOverride
+            && $dataSourceOverride !== $routePreset->dataSource;
+
         $isCustomRoute = GenericAnalysisQueryKeys::PRESET_CUSTOM === $presetKey;
 
-        if ($isCustomRoute || ($hasExplicitOverrides && $this->differsFromPreset(
+        if ($isCustomRoute || $hasDataSourceOverride || ($hasExplicitOverrides && $this->differsFromPreset(
             $routePreset,
             $overridePrimary,
             $overrideSeries,
@@ -91,7 +104,14 @@ final readonly class GenericAnalysisConfigResolver
             $routePreset->includeNullBuckets,
             $scopeCriteria,
             $periodBounds,
+            $routePreset->seriesMode ?? AnalysisSeriesMode::ByDimension,
+            $routePreset->displayMode ?? AnalysisDisplayMode::Chart,
+            $routePreset->chartType ?? null,
+            $routePreset->dataSource,
+            $routePreset->hospitalPopulationMode,
         );
+
+        $this->configurationValidator->validateQuery($query);
 
         return new ResolvedGenericAnalysisConfig(
             query: $query,
@@ -100,7 +120,7 @@ final readonly class GenericAnalysisConfigResolver
             routePresetKey: $routePreset->key,
             referencePresetKey: null,
             primaryDimensionKey: $routePreset->primaryDimensionKey,
-            seriesDimensionKey: $routePreset->seriesDimensionKey,
+            seriesDimensionKey: $query->seriesDimensionKey,
             includeNullBuckets: $routePreset->includeNullBuckets,
         );
     }
@@ -133,9 +153,19 @@ final readonly class GenericAnalysisConfigResolver
         Request $request,
     ): ResolvedGenericAnalysisConfig {
         $basePreset = $this->resolveBasePreset($routePreset, $referencePresetKey);
+        $dataSource = $this->queryDataSource($request) ?? $basePreset->dataSource;
 
         $primaryKey = $overridePrimary ?? $basePreset->primaryDimensionKey;
+        if ($this->dimensionRegistry->has($primaryKey)
+            && !$this->isDimensionValidForDataSource($primaryKey, $dataSource)) {
+            $primaryKey = $this->dataSourceRegistry->get($dataSource)->defaultPrimaryDimensionKey;
+        }
         $seriesKey = $overrideSeries ?? $basePreset->seriesDimensionKey;
+        if (null !== $seriesKey && '' !== $seriesKey
+            && $this->dimensionRegistry->has($seriesKey)
+            && !$this->isDimensionValidForDataSource($seriesKey, $dataSource)) {
+            $seriesKey = null;
+        }
         $includeNull = $overrideIncludeNull ?? $basePreset->includeNullBuckets;
 
         $this->assertDimensionKey($primaryKey, $filter, $user);
@@ -155,7 +185,14 @@ final readonly class GenericAnalysisConfigResolver
             $includeNull,
             $scopeCriteria,
             $periodBounds,
+            $this->querySeriesMode($request) ?? $basePreset->seriesMode ?? AnalysisSeriesMode::ByDimension,
+            $this->queryDisplayMode($request) ?? $basePreset->displayMode ?? AnalysisDisplayMode::Chart,
+            $this->queryChartType($request) ?? $basePreset->chartType ?? null,
+            $this->queryDataSource($request) ?? $basePreset->dataSource,
+            $this->queryHospitalPopulationMode($request) ?? $basePreset->hospitalPopulationMode,
         );
+
+        $this->configurationValidator->validateQuery($query);
 
         return new ResolvedGenericAnalysisConfig(
             query: $query,
@@ -164,7 +201,7 @@ final readonly class GenericAnalysisConfigResolver
             routePresetKey: GenericAnalysisQueryKeys::PRESET_CUSTOM,
             referencePresetKey: $referenceKey,
             primaryDimensionKey: $primaryKey,
-            seriesDimensionKey: $seriesKey,
+            seriesDimensionKey: $query->seriesDimensionKey,
             includeNullBuckets: $includeNull,
         );
     }
@@ -177,13 +214,36 @@ final readonly class GenericAnalysisConfigResolver
         bool $includeNull,
         StatisticsScopeCriteria $scopeCriteria,
         StatisticsPeriodBounds $periodBounds,
+        AnalysisSeriesMode $defaultSeriesMode = AnalysisSeriesMode::ByDimension,
+        AnalysisDisplayMode $defaultDisplayMode = AnalysisDisplayMode::Chart,
+        ?GenericAnalysisChartType $defaultChartType = null,
+        AnalysisDataSource $defaultDataSource = AnalysisDataSource::Allocations,
+        HospitalPopulationMode $defaultHospitalPopulationMode = HospitalPopulationMode::All,
     ): AnalysisQuery {
+        $dataSource = $this->queryDataSource($request) ?? $defaultDataSource;
+        $hospitalPopulationMode = $this->queryHospitalPopulationMode($request) ?? $defaultHospitalPopulationMode;
+
+        $seriesMode = $this->querySeriesMode($request) ?? $defaultSeriesMode;
+        if (AnalysisSeriesMode::ByMetric === $seriesMode) {
+            $seriesKey = null;
+        }
+
+        if (AnalysisDataSource::Hospitals === $dataSource
+            && HospitalPopulationMode::Compare === $hospitalPopulationMode) {
+            $seriesKey = HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY;
+        }
+
         $draftQuery = new AnalysisQuery(
             primaryDimensionKey: $primaryKey,
             scopeCriteria: $scopeCriteria,
             periodBounds: $periodBounds,
             seriesDimensionKey: $seriesKey,
             includeNullBuckets: $includeNull,
+            seriesMode: $seriesMode,
+            chartType: $this->queryChartType($request) ?? $defaultChartType,
+            displayMode: $this->queryDisplayMode($request) ?? $defaultDisplayMode,
+            dataSource: $dataSource,
+            hospitalPopulationMode: $hospitalPopulationMode,
         );
 
         $metricKeys = $this->metricRequestResolver->resolveMetricKeys($request, $draftQuery, $metricPreset);
@@ -191,7 +251,9 @@ final readonly class GenericAnalysisConfigResolver
             $request,
             $metricKeys,
             $metricPreset->visualMetricKey,
+            $dataSource,
         );
+        $chartMetricKeys = $this->queryChartMetricKeys($request, $metricKeys);
 
         return new AnalysisQuery(
             primaryDimensionKey: $primaryKey,
@@ -201,6 +263,12 @@ final readonly class GenericAnalysisConfigResolver
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
             includeNullBuckets: $includeNull,
+            seriesMode: $seriesMode,
+            chartType: $this->queryChartType($request) ?? $defaultChartType,
+            displayMode: $this->queryDisplayMode($request) ?? $defaultDisplayMode,
+            chartMetricKeys: $chartMetricKeys,
+            dataSource: $dataSource,
+            hospitalPopulationMode: $hospitalPopulationMode,
         );
     }
 
@@ -312,5 +380,80 @@ final readonly class GenericAnalysisConfigResolver
         }
 
         return '1' === (string) $request->query->get(GenericAnalysisQueryKeys::INCLUDE_NULL);
+    }
+
+    private function querySeriesMode(Request $request): ?AnalysisSeriesMode
+    {
+        if (!$request->query->has(GenericAnalysisQueryKeys::SERIES_MODE)) {
+            return null;
+        }
+
+        $value = $request->query->getString(GenericAnalysisQueryKeys::SERIES_MODE);
+
+        return AnalysisSeriesMode::tryFrom($value);
+    }
+
+    private function queryDisplayMode(Request $request): ?AnalysisDisplayMode
+    {
+        if (!$request->query->has(GenericAnalysisQueryKeys::DISPLAY)) {
+            return null;
+        }
+
+        $value = $request->query->getString(GenericAnalysisQueryKeys::DISPLAY);
+
+        return AnalysisDisplayMode::tryFrom($value);
+    }
+
+    private function queryChartType(Request $request): ?GenericAnalysisChartType
+    {
+        if (!$request->query->has(GenericAnalysisQueryKeys::CHART)) {
+            return null;
+        }
+
+        $value = $request->query->getString(GenericAnalysisQueryKeys::CHART);
+
+        return GenericAnalysisChartType::tryFrom($value);
+    }
+
+    /**
+     * @param list<string> $resolvedMetricKeys
+     *
+     * @return list<string>
+     */
+    private function queryChartMetricKeys(Request $request, array $resolvedMetricKeys): array
+    {
+        if (!$request->query->has(GenericAnalysisQueryKeys::CHART_METRICS)) {
+            return [];
+        }
+
+        $keys = array_values($request->query->all(GenericAnalysisQueryKeys::CHART_METRICS));
+
+        return array_values(array_filter(
+            array_map(strval(...), $keys),
+            static fn (string $key): bool => \in_array($key, $resolvedMetricKeys, true),
+        ));
+    }
+
+    private function queryDataSource(Request $request): ?AnalysisDataSource
+    {
+        if (!$request->query->has(GenericAnalysisQueryKeys::DATA_SOURCE)) {
+            return null;
+        }
+
+        return AnalysisDataSource::tryFrom($request->query->getString(GenericAnalysisQueryKeys::DATA_SOURCE));
+    }
+
+    private function queryHospitalPopulationMode(Request $request): ?HospitalPopulationMode
+    {
+        if (!$request->query->has(GenericAnalysisQueryKeys::HOSPITAL_POPULATION)) {
+            return null;
+        }
+
+        return HospitalPopulationMode::fromRequestValue($request->query->getString(GenericAnalysisQueryKeys::HOSPITAL_POPULATION));
+    }
+
+    private function isDimensionValidForDataSource(string $key, AnalysisDataSource $dataSource): bool
+    {
+        return array_any($this->dimensionRegistry->forDataSource($dataSource), fn ($dimension): bool => $dimension->key === $key);
     }
 }

@@ -45,6 +45,41 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         self::assertSame('my_hospitals', $input->scope);
     }
 
+    public function testDefaultScopeIsPublicForHospitalDataSourceAnalysis(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['owner' => $user]);
+
+        $request = Request::create('/statistics/analytics/view/allocations_by_month', Request::METHOD_GET, [
+            'ga_data_source' => 'hospitals',
+        ]);
+
+        $input = $this->factory->fromRequest($request, $user);
+
+        self::assertSame('public', $input->scope);
+        self::assertFalse($input->hasScopeQueryParameter);
+    }
+
+    public function testExplicitMyHospitalsScopeIsPreservedForHospitalDataSource(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['owner' => $user]);
+
+        $request = Request::create('/statistics/analytics/builder', Request::METHOD_GET, [
+            'ga_data_source' => 'hospitals',
+            'scope' => 'my_hospitals',
+        ]);
+
+        $input = $this->factory->fromRequest($request, $user);
+
+        self::assertSame('my_hospitals', $input->scope);
+        self::assertTrue($input->hasScopeQueryParameter);
+    }
+
     /**
      * @param array<string, string> $parameters
      *

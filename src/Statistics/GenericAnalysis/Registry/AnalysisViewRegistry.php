@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Statistics\GenericAnalysis\Registry;
 
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewDefinition;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewCategory;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisViewException;
 
 final class AnalysisViewRegistry
@@ -137,8 +141,8 @@ final class AnalysisViewRegistry
             category: AnalysisViewCategory::Patients,
             tags: ['gender', 'patients'],
             primary: 'gender',
-            chart: GenericAnalysisChartType::Bar,
-            allowed: $bar,
+            chart: GenericAnalysisChartType::Pie,
+            allowed: [GenericAnalysisChartType::Pie, GenericAnalysisChartType::Bar, GenericAnalysisChartType::HorizontalBar],
             includeNullBuckets: false,
         ));
 
@@ -443,6 +447,123 @@ final class AnalysisViewRegistry
             allowed: $bar,
             metrics: ['count', 'percent_of_total'],
         ));
+
+        $this->register($this->view(
+            key: 'clinical_rates_by_month',
+            title: 'Clinical rates by month',
+            description: 'How do resuscitation, cath lab and CPR rates develop over time?',
+            category: AnalysisViewCategory::Clinical,
+            tags: ['clinical', 'rates', 'month', 'resus', 'cathlab', 'cpr'],
+            primary: 'month',
+            chart: GenericAnalysisChartType::Line,
+            allowed: [GenericAnalysisChartType::Line, GenericAnalysisChartType::GroupedBar, GenericAnalysisChartType::Bar],
+            metrics: ['count', 'resus_rate', 'cathlab_rate', 'cpr_rate'],
+            visualMetricKey: 'resus_rate',
+            seriesMode: AnalysisSeriesMode::ByMetric,
+        ));
+
+        $this->register($this->view(
+            key: 'hour_weekday_heatmap',
+            title: 'Allocations by weekday and hour',
+            description: 'When do allocations occur across weekdays and hours?',
+            category: AnalysisViewCategory::TimeAndTrends,
+            tags: ['time', 'hour', 'weekday', 'heatmap', 'audience:operations'],
+            primary: 'weekday',
+            chart: GenericAnalysisChartType::Heatmap,
+            allowed: [GenericAnalysisChartType::Heatmap, GenericAnalysisChartType::StackedBar, GenericAnalysisChartType::GroupedBar],
+            secondary: 'hour',
+        ));
+
+        $this->register($this->view(
+            key: 'top_indications',
+            title: 'Top indications',
+            description: 'Which indications occur most frequently?',
+            category: AnalysisViewCategory::Clinical,
+            tags: ['indication', 'clinical', 'top'],
+            primary: 'indication',
+            chart: GenericAnalysisChartType::HorizontalBar,
+            allowed: [GenericAnalysisChartType::HorizontalBar, GenericAnalysisChartType::Bar],
+        ));
+
+        $this->register($this->view(
+            key: 'transport_type_distribution',
+            title: 'Transport type distribution',
+            description: 'How are allocations distributed across transport types?',
+            category: AnalysisViewCategory::Operations,
+            tags: ['transport', 'operations'],
+            primary: 'transport_type',
+            chart: GenericAnalysisChartType::Pie,
+            allowed: [GenericAnalysisChartType::Pie, GenericAnalysisChartType::Bar, GenericAnalysisChartType::HorizontalBar],
+        ));
+
+        $this->register($this->view(
+            key: 'hospitals_by_tier',
+            title: 'Hospitals by tier',
+            description: 'How many hospitals exist per care tier?',
+            category: AnalysisViewCategory::Hospitals,
+            tags: ['hospital', 'tier', 'population'],
+            primary: 'hospital_tier',
+            chart: GenericAnalysisChartType::Bar,
+            allowed: $bar,
+            metrics: ['hospital_count'],
+            dataSource: AnalysisDataSource::Hospitals,
+        ));
+
+        $this->register($this->view(
+            key: 'hospitals_by_size',
+            title: 'Hospitals by size',
+            description: 'How are hospitals distributed by size class?',
+            category: AnalysisViewCategory::Hospitals,
+            tags: ['hospital', 'size', 'beds'],
+            primary: 'hospital_size',
+            chart: GenericAnalysisChartType::Bar,
+            allowed: $bar,
+            metrics: ['hospital_count', 'avg_beds'],
+            dataSource: AnalysisDataSource::Hospitals,
+        ));
+
+        $this->register($this->view(
+            key: 'hospitals_by_tier_compare',
+            title: 'Hospitals by tier (participation compare)',
+            description: 'Compare participating vs non-participating hospitals per tier.',
+            category: AnalysisViewCategory::Hospitals,
+            tags: ['hospital', 'tier', 'participation', 'compare'],
+            primary: 'hospital_tier',
+            chart: GenericAnalysisChartType::GroupedBar,
+            allowed: [GenericAnalysisChartType::GroupedBar, GenericAnalysisChartType::Bar, GenericAnalysisChartType::Table],
+            metrics: ['hospital_count'],
+            dataSource: AnalysisDataSource::Hospitals,
+            hospitalPopulationMode: HospitalPopulationMode::Compare,
+        ));
+
+        $this->register($this->view(
+            key: 'hospital_tier_by_location',
+            title: 'Hospital tier by location',
+            description: 'Pivot of hospital tiers across location types.',
+            category: AnalysisViewCategory::Hospitals,
+            tags: ['hospital', 'tier', 'location', 'pivot'],
+            primary: 'hospital_tier',
+            chart: GenericAnalysisChartType::Table,
+            allowed: [GenericAnalysisChartType::Table],
+            secondary: 'hospital_location',
+            metrics: ['hospital_count'],
+            displayMode: AnalysisDisplayMode::PivotTable,
+            dataSource: AnalysisDataSource::Hospitals,
+        ));
+
+        $this->register($this->view(
+            key: 'allocations_per_hospital_tier',
+            title: 'Allocations per hospital tier',
+            description: 'How many allocations do participating hospitals handle per tier?',
+            category: AnalysisViewCategory::Hospitals,
+            tags: ['hospital', 'tier', 'allocations'],
+            primary: 'hospital_tier',
+            chart: GenericAnalysisChartType::Bar,
+            allowed: $bar,
+            metrics: ['total_allocations', 'avg_allocations_per_hospital'],
+            dataSource: AnalysisDataSource::Hospitals,
+            hospitalPopulationMode: HospitalPopulationMode::Participating,
+        ));
     }
 
     /**
@@ -464,6 +585,10 @@ final class AnalysisViewRegistry
         ?string $visualMetricKey = null,
         bool $featured = false,
         bool $includeNullBuckets = false,
+        AnalysisSeriesMode $seriesMode = AnalysisSeriesMode::ByDimension,
+        AnalysisDisplayMode $displayMode = AnalysisDisplayMode::Chart,
+        AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
+        HospitalPopulationMode $hospitalPopulationMode = HospitalPopulationMode::All,
     ): AnalysisViewDefinition {
         return new AnalysisViewDefinition(
             key: $key,
@@ -480,6 +605,10 @@ final class AnalysisViewRegistry
             includeNullBuckets: $includeNullBuckets,
             legacyPresetKey: $key,
             isFeatured: $featured,
+            seriesMode: $seriesMode,
+            displayMode: $displayMode,
+            dataSource: $dataSource,
+            hospitalPopulationMode: $hospitalPopulationMode,
         );
     }
 }

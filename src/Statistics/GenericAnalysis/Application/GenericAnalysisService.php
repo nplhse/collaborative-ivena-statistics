@@ -7,12 +7,12 @@ namespace App\Statistics\GenericAnalysis\Application;
 use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisPreset;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
-use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisQuery;
 
 final readonly class GenericAnalysisService
 {
     public function __construct(
-        private GenericAllocationAnalysisQuery $analysisQuery,
+        private AnalysisQueryExecutorRegistry $executorRegistry,
+        private AnalysisQueryModifierRegistry $modifierRegistry,
         private MetricCompatibilityChecker $metricCompatibilityChecker,
         private RelativeDistributionCalculator $relativeDistributionCalculator,
         private ResultNormalizer $resultNormalizer,
@@ -26,10 +26,12 @@ final readonly class GenericAnalysisService
 
     public function run(string $title, AnalysisQuery $query): NormalizedAnalysisResult
     {
-        $this->metricCompatibilityChecker->resolveAndValidate($query);
-        $raw = $this->analysisQuery->execute($query);
+        $this->modifierRegistry->validate($query);
+        $sqlQuery = $this->modifierRegistry->prepareForExecution($query);
+        $this->metricCompatibilityChecker->resolveAndValidate($sqlQuery);
+        $raw = $this->executorRegistry->get($sqlQuery->dataSource)->execute($sqlQuery);
         $enriched = $this->relativeDistributionCalculator->enrich($raw, $raw->metricKeys);
 
-        return $this->resultNormalizer->normalize($raw, $title, $enriched, $query);
+        return $this->resultNormalizer->normalize($raw, $title, $enriched, $sqlQuery);
     }
 }

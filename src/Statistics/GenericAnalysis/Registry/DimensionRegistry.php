@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Registry;
 
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Statistics\Application\Cohort\HospitalCohortKey;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 
@@ -37,6 +41,17 @@ final class DimensionRegistry
     public function all(): array
     {
         return array_values($this->dimensions);
+    }
+
+    /**
+     * @return list<AnalysisDimension>
+     */
+    public function forDataSource(AnalysisDataSource $dataSource): array
+    {
+        return array_values(array_filter(
+            $this->dimensions,
+            static fn (AnalysisDimension $dimension): bool => $dimension->dataSource === $dataSource,
+        ));
     }
 
     private function register(AnalysisDimension $dimension): void
@@ -128,6 +143,7 @@ SQL;
             ],
             nullBucketKeys: ['unknown'],
             requiresNonNullSourceColumn: 'age',
+            preserveAllBuckets: true,
         ));
 
         $this->register(new AnalysisDimension(
@@ -160,6 +176,7 @@ SQL;
         $this->register($categorical('hospital', 'hospital_id', 'Hospital'));
         $this->register($categorical('dispatchArea', 'dispatch_area_id', 'Dispatch area'));
         $this->register($categorical('state', 'state_id', 'State'));
+        $this->register($categorical('transport_type', 'transport_type_code', 'Transport type'));
 
         $boolean = static fn (string $key, string $column, string $label): AnalysisDimension => new AnalysisDimension(
             key: $key,
@@ -180,6 +197,126 @@ SQL;
         $this->register($boolean('shock', 'is_shock', 'Shock'));
         $this->register($boolean('workAccident', 'is_work_accident', 'Work accident'));
         $this->register($boolean('pregnancy', 'is_pregnant', 'Pregnancy'));
+
+        $this->registerHospitalDimensions();
+    }
+
+    private function registerHospitalDimensions(): void
+    {
+        $source = AnalysisDataSource::Hospitals;
+
+        $enumTranslationKeys = static fn (string $prefix, array $cases): array => array_combine(
+            array_map(static fn (\BackedEnum $case): string => $case->value, $cases),
+            array_map(static fn (\BackedEnum $case): string => $prefix.$case->value, $cases),
+        );
+
+        $this->register(new AnalysisDimension(
+            key: 'hospital_tier',
+            column: 'tier',
+            label: 'Hospital tier',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: 'h.tier',
+            valueLabelTranslationKeys: $enumTranslationKeys('hospital.tier.', HospitalTier::cases()),
+            dataSource: $source,
+        ));
+
+        $this->register(new AnalysisDimension(
+            key: 'hospital_size',
+            column: 'size',
+            label: 'Hospital size',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: 'h.size',
+            valueLabelTranslationKeys: $enumTranslationKeys('hospital.size.', HospitalSize::cases()),
+            dataSource: $source,
+        ));
+
+        $this->register(new AnalysisDimension(
+            key: 'hospital_location',
+            column: 'location',
+            label: 'Hospital location',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: 'h.location',
+            valueLabelTranslationKeys: $enumTranslationKeys('hospital.location.', HospitalLocation::cases()),
+            dataSource: $source,
+        ));
+
+        $this->register(new AnalysisDimension(
+            key: 'hospital_state',
+            column: 'state_id',
+            label: 'State',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: 's.id',
+            dataSource: $source,
+        ));
+
+        $this->register(new AnalysisDimension(
+            key: 'hospital_dispatch_area',
+            column: 'dispatch_area_id',
+            label: 'Dispatch area',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: 'da.id',
+            dataSource: $source,
+        ));
+
+        $this->register(new AnalysisDimension(
+            key: 'hospital_entity',
+            column: 'id',
+            label: 'Hospital',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: 'h.id',
+            dataSource: $source,
+        ));
+
+        $this->register($this->hospitalMasterCohortDimension());
+
+        $this->register(new AnalysisDimension(
+            key: \App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY,
+            column: 'population_group',
+            label: 'Participation group',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: 'g.population_group',
+            fixedBuckets: [
+                \App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants::POPULATION_GROUP_PARTICIPATING,
+                \App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants::POPULATION_GROUP_NON_PARTICIPATING,
+            ],
+            valueLabelTranslationKeys: [
+                \App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants::POPULATION_GROUP_PARTICIPATING => 'stats.generic_analysis.hospital_population.participating',
+                \App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants::POPULATION_GROUP_NON_PARTICIPATING => 'stats.generic_analysis.hospital_population.non_participating',
+            ],
+            dataSource: $source,
+        ));
+    }
+
+    private function hospitalMasterCohortDimension(): AnalysisDimension
+    {
+        $branches = [];
+        foreach (HospitalCohortKey::all() as $cohortKey) {
+            $branches[] = sprintf(
+                "WHEN h.location = '%s' AND h.tier = '%s' THEN '%s'",
+                $cohortKey->location->value,
+                $cohortKey->tier->value,
+                $cohortKey->value(),
+            );
+        }
+
+        $cohortSql = 'CASE '.implode(' ', $branches).' ELSE NULL END';
+
+        $cohortBuckets = [];
+        foreach (HospitalCohortKey::all() as $cohortKey) {
+            $cohortBuckets[] = $cohortKey->value();
+        }
+
+        return new AnalysisDimension(
+            key: 'hospital_master_cohort',
+            column: 'location',
+            label: 'Hospital cohort',
+            type: AnalysisDimensionType::Categorical,
+            recommendedChartType: 'bar',
+            sqlExpression: $cohortSql,
+            fixedBuckets: $cohortBuckets,
+            requiresNonNullSourceColumn: 'h.tier',
+            dataSource: AnalysisDataSource::Hospitals,
+        );
     }
 
     /**

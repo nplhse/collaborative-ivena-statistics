@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace App\Statistics\GenericAnalysis\Application;
 
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisPreset;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisPresetException;
 
 final class AnalysisPresetRegistry
@@ -233,6 +238,80 @@ final class AnalysisPresetRegistry
             title: 'Allocations by weekday (with share)',
             primaryDimensionKey: 'weekday',
             metricKeys: ['count', 'percent_of_total'],
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'allocations_by_weekday_with_share',
+            title: 'Allocations by weekday (with share)',
+            primaryDimensionKey: 'weekday',
+            metricKeys: ['count', 'percent_of_total'],
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'clinical_rates_by_month',
+            title: 'Clinical rates by month',
+            primaryDimensionKey: 'month',
+            metricKeys: ['count', 'resus_rate', 'cathlab_rate', 'cpr_rate'],
+            visualMetricKey: 'resus_rate',
+            chartType: GenericAnalysisChartType::Line,
+            seriesMode: AnalysisSeriesMode::ByMetric,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'hour_weekday_heatmap',
+            title: 'Allocations by weekday and hour',
+            primaryDimensionKey: 'weekday',
+            seriesDimensionKey: 'hour',
+            chartType: GenericAnalysisChartType::Heatmap,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'top_indications',
+            title: 'Top indications',
+            primaryDimensionKey: 'indication',
+            chartType: GenericAnalysisChartType::HorizontalBar,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'transport_type_distribution',
+            title: 'Transport type distribution',
+            primaryDimensionKey: 'transport_type',
+            chartType: GenericAnalysisChartType::Pie,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'hospitals_by_tier',
+            title: 'Hospitals by tier',
+            primaryDimensionKey: 'hospital_tier',
+            metricKeys: ['hospital_count'],
+            dataSource: AnalysisDataSource::Hospitals,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'hospitals_by_size',
+            title: 'Hospitals by size',
+            primaryDimensionKey: 'hospital_size',
+            metricKeys: ['hospital_count', 'avg_beds'],
+            dataSource: AnalysisDataSource::Hospitals,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'hospitals_by_tier_compare',
+            title: 'Hospitals by tier (participation compare)',
+            primaryDimensionKey: 'hospital_tier',
+            metricKeys: ['hospital_count'],
+            chartType: GenericAnalysisChartType::GroupedBar,
+            dataSource: AnalysisDataSource::Hospitals,
+            hospitalPopulationMode: HospitalPopulationMode::Compare,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'hospital_tier_by_location',
+            title: 'Hospital tier by location',
+            primaryDimensionKey: 'hospital_tier',
+            seriesDimensionKey: 'hospital_location',
+            metricKeys: ['hospital_count'],
+            displayMode: AnalysisDisplayMode::PivotTable,
+            dataSource: AnalysisDataSource::Hospitals,
+        ));
+        $this->register(new AnalysisPreset(
+            key: 'allocations_per_hospital_tier',
+            title: 'Allocations per hospital tier',
+            primaryDimensionKey: 'hospital_tier',
+            metricKeys: ['total_allocations', 'avg_allocations_per_hospital'],
+            dataSource: AnalysisDataSource::Hospitals,
+            hospitalPopulationMode: HospitalPopulationMode::Participating,
         ));
         $this->register(new AnalysisPreset(
             key: 'custom',

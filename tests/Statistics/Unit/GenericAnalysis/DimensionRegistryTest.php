@@ -37,7 +37,7 @@ final class DimensionRegistryTest extends TestCase
         self::assertStringNotContainsString('100p', $ageGroup->sqlExpression);
         self::assertSame('age', $ageGroup->column);
         self::assertNotContains('100p', $ageGroup->fixedBuckets);
-        self::assertArrayNotHasKey('100p', $ageGroup->valueLabels);
+        self::assertTrue($ageGroup->preserveAllBuckets);
     }
 
     public function testHospitalCohortUsesCaseExpression(): void

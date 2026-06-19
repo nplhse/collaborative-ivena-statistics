@@ -35,7 +35,7 @@ final readonly class StatisticsFilterValueResolver implements ValueResolverInter
         $domainUser = $user instanceof User ? $user : null;
 
         yield $this->statisticsFilterFactory->createFromInput(
-            $this->statisticsFilterInputFactory->fromQuery($request->query, $domainUser),
+            $this->statisticsFilterInputFactory->fromRequest($request, $domainUser),
             $domainUser,
         );
     }

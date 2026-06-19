@@ -7,14 +7,18 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\GenericAnalysis\Application\AnalysisQueryExecutorRegistry;
+use App\Statistics\GenericAnalysis\Application\AnalysisQueryModifierRegistry;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisService;
+use App\Statistics\GenericAnalysis\Application\HospitalPopulationModifier;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Application\RelativeDistributionCalculator;
 use App\Statistics\GenericAnalysis\Application\ResultNormalizer;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisPreset;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Infrastructure\Query\AllocationAnalysisQueryExecutor;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisQuery;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisSqlBuilder;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
@@ -76,15 +80,22 @@ final class GenericAnalysisServiceTest extends TestCase
         $metricRegistry = new MetricRegistry();
 
         return new GenericAnalysisService(
-            new GenericAllocationAnalysisQuery(
-                $connection,
-                new GenericAllocationAnalysisSqlBuilder(
-                    $dimensionRegistry,
-                    $metricRegistry,
-                    new GenericAnalysisScopeSqlFilter(),
+            new AnalysisQueryExecutorRegistry([
+                new AllocationAnalysisQueryExecutor(
+                    new GenericAllocationAnalysisQuery(
+                        $connection,
+                        new GenericAllocationAnalysisSqlBuilder(
+                            $dimensionRegistry,
+                            $metricRegistry,
+                            new GenericAnalysisScopeSqlFilter(),
+                        ),
+                        $metricRegistry,
+                    ),
                 ),
-                $metricRegistry,
-            ),
+            ]),
+            new AnalysisQueryModifierRegistry([
+                new HospitalPopulationModifier(),
+            ]),
             new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
             new RelativeDistributionCalculator(),
             $this->createResultNormalizer($dimensionRegistry, $metricRegistry),
