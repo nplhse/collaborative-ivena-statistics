@@ -10,6 +10,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Builds statistics URLs from the current request query plus replacements (same semantics as the previous trait-based approach).
+ *
+ * @phpstan-type QueryReplace array<string, scalar|list<scalar>|null>
  */
 final readonly class StatisticsNavigationUrlBuilder
 {
@@ -19,8 +21,8 @@ final readonly class StatisticsNavigationUrlBuilder
     }
 
     /**
-     * @param array<string, scalar|null> $replace
-     * @param list<string>               $removeKeys
+     * @param QueryReplace $replace
+     * @param list<string> $removeKeys
      */
     public function build(Request $request, string $routeName, array $replace = [], array $removeKeys = []): string
     {
@@ -50,8 +52,8 @@ final readonly class StatisticsNavigationUrlBuilder
     }
 
     /**
-     * @param array<string, scalar|null> $replace
-     * @param list<string>               $removeKeys
+     * @param QueryReplace $replace
+     * @param list<string> $removeKeys
      *
      * @return array<string, scalar>
      */

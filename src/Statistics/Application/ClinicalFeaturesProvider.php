@@ -9,6 +9,7 @@ use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\DistributionWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
+use App\Statistics\Application\Overview\OverviewPortalNavigationFactory;
 use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 
 final readonly class ClinicalFeaturesProvider
@@ -16,6 +17,7 @@ final readonly class ClinicalFeaturesProvider
     public function __construct(
         private ClinicalFeaturesQuery $clinicalFeaturesQuery,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
+        private OverviewPortalNavigationFactory $overviewPortalNavigationFactory,
     ) {
     }
 
@@ -33,8 +35,12 @@ final readonly class ClinicalFeaturesProvider
                     $this->clinicalFeaturesQuery->fetchResourceRows($metrics),
                     [
                         'testId' => 'stats-overview-resources',
+                        'actionTestId' => 'stats-cross-nav-overview-resources',
                     ],
                 )),
+                actions: [
+                    $this->overviewPortalNavigationFactory->resourcesOverTimeTarget(),
+                ],
             ),
             new StatisticWidget(
                 StatisticWidgetType::Distribution,
@@ -44,8 +50,12 @@ final readonly class ClinicalFeaturesProvider
                     $this->clinicalFeaturesQuery->fetchClinicalRows($metrics),
                     [
                         'testId' => 'stats-overview-features',
+                        'actionTestId' => 'stats-cross-nav-overview-indicators',
                     ],
                 )),
+                actions: [
+                    $this->overviewPortalNavigationFactory->clinicalFeaturesOverTimeTarget(),
+                ],
             ),
         ];
     }

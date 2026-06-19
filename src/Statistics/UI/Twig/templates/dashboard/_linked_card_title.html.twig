@@ -1,0 +1,14 @@
+{# link: StatisticWidgetNavigationTarget; title: descriptive translation key; optional test_id #}
+<h3 class="card-title mb-0">
+    {% if link is defined and link is not null %}
+        <a href="{{ statistics_nav_url(link) }}"
+           class="text-reset d-inline-flex align-items-center gap-1"
+           aria-label="{{ link.labelTranslationKey|trans }}"
+           {% if test_id is defined %}data-testid="{{ test_id }}"{% endif %}>
+            <span>{{ title|trans }}</span>
+            <twig:ux:icon name="tabler:external-link" style="height: 0.9em; width: 0.9em;" aria-hidden="true" />
+        </a>
+    {% else %}
+        {{ title|trans }}
+    {% endif %}
+</h3>

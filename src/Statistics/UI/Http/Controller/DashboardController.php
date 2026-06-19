@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\HospitalSummaryProvider;
 use App\Statistics\Application\Overview\OverviewDefaultPeriodResolver;
 use App\Statistics\Application\Overview\OverviewExecutiveDashboardAssembler;
+use App\Statistics\Application\Overview\OverviewPortalNavigationFactory;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
@@ -39,6 +40,7 @@ final class DashboardController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly OverviewExecutiveDashboardAssembler $executiveDashboardAssembler,
         private readonly OverviewDefaultPeriodResolver $overviewDefaultPeriodResolver,
+        private readonly OverviewPortalNavigationFactory $overviewPortalNavigationFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
     ) {
     }
@@ -97,6 +99,7 @@ final class DashboardController extends AbstractController
             'dataQualityDrawerUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_data_quality_drawer'),
             'overviewTopReportsUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_overview_top_reports'),
             'executiveDashboard' => $executiveDashboard,
+            'overviewPortalLinks' => $this->overviewPortalNavigationFactory->build(),
             'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context, $overviewMetrics),
             'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context, $overviewMetrics),
             'statisticsFilter' => $pageViewModel->filter,

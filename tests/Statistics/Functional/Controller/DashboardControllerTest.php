@@ -92,6 +92,47 @@ class DashboardControllerTest extends WebTestCase
         );
     }
 
+    public function testOverviewRendersPortalNavigationLinks(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-cross-nav-overview-benchmarking"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-time-series"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-daytime"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-shift"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-age-groups"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-gender"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-urgency"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-resources"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-indicators"]');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-time-series"]', 'Cases over time');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-age-groups"]', 'Age groups');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-resources"]', 'Resources');
+        $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-indicators"]', 'Clinical features');
+    }
+
+    public function testOverviewResourcesAndClinicalFeaturesLinkToAllocationsByMonthAnalysis(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+
+        $resourcesHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->attr('href');
+        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $resourcesHref);
+        self::assertStringContainsString('ga_primary=month', $resourcesHref);
+        self::assertStringContainsString('resus_rate', $resourcesHref);
+        self::assertStringContainsString('cathlab_rate', $resourcesHref);
+
+        $clinicalHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-indicators"]')->attr('href');
+        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $clinicalHref);
+        self::assertStringContainsString('ga_primary=month', $clinicalHref);
+        self::assertStringContainsString('cpr_rate', $clinicalHref);
+        self::assertStringContainsString('with_physician_rate', $clinicalHref);
+    }
+
     public function testOverviewRedirectsToLast12MonthsWhenEnoughMonthlyDataExists(): void
     {
         $client = $this->createClientAsRoleUser();

@@ -3,7 +3,11 @@
 
     <div class="card" data-testid="stats-overview-time-series">
         <div class="card-header py-2">
-            <h3 class="card-title mb-0">{{ 'stats.indication.section.time_series'|trans }}</h3>
+            {{ include('@Statistics/dashboard/_linked_card_title.html.twig', {
+                link: overviewPortalLinks.timeSeries[0] ?? null,
+                test_id: 'stats-cross-nav-overview-time-series',
+                title: 'stats.indication.section.time_series',
+            }) }}
         </div>
         <div class="card-body">
             <div class="chart-lg"
@@ -13,9 +17,11 @@
     </div>
 
     <div class="card" data-testid="stats-overview-heatmap">
+        {% set heatmapHourLink = overviewPortalLinks.heatmapDayTime[0] ?? null %}
+        {% set heatmapWeekdayLink = overviewPortalLinks.heatmapShift[0] ?? null %}
         <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
             <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans }}</h3>
-            <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans }}">
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans }}">
                 <button type="button"
                         class="btn active"
                         data-indication-dashboard-charts-target="heatmapModeDayTime"
@@ -32,8 +38,17 @@
                 </button>
             </div>
         </div>
-        <div class="card-body pt-2">
+        <div class="card-body pt-2 d-flex flex-column">
             <div class="chart-lg" data-indication-dashboard-charts-target="heatmapChart"></div>
+            {% if heatmapHourLink and heatmapWeekdayLink %}
+                <div class="text-end small pt-2">
+                    <a href="{{ statistics_nav_url(heatmapHourLink) }}"
+                       class="link-primary"
+                       data-testid="stats-cross-nav-overview-heatmap-daytime">{{ heatmapHourLink.labelTranslationKey|trans }}</a><span class="text-muted"> / </span><a href="{{ statistics_nav_url(heatmapWeekdayLink) }}"
+                       class="link-primary"
+                       data-testid="stats-cross-nav-overview-heatmap-shift">{{ heatmapWeekdayLink.labelTranslationKey|trans }}</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -45,7 +60,11 @@
             {% set ageGroupValues = ageGroupValues|merge([row.count]) %}
         {% endfor %}
         <div class="card-header py-2">
-            <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans }}</h3>
+            {{ include('@Statistics/dashboard/_linked_card_title.html.twig', {
+                link: overviewPortalLinks.ageGroups[0] ?? null,
+                test_id: 'stats-cross-nav-overview-age-groups',
+                title: 'stats.indication.section.age_groups',
+            }) }}
         </div>
         <div class="card-body">
             <div class="chart-sm"

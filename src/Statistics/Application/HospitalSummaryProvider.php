@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\HospitalSummaryData;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticWidget;
+use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\SummaryDeckWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
@@ -16,6 +17,9 @@ use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsRes
 
 final readonly class HospitalSummaryProvider
 {
+    /** @var list<string> */
+    private const array ANALYTICS_REMOVE_KEYS = ['report', 'limit', 'view', 'chart'];
+
     /** @var array<string, string> AllocationGender::value => Tabler progress-bar class */
     private const array GENDER_BAR_CLASSES = [
         'M' => 'bg-primary',
@@ -99,10 +103,26 @@ final readonly class HospitalSummaryProvider
                 [
                     'titleTranslationKey' => 'stats.overview.hospital_summary.gender_card_title',
                     'segments' => $genderSegments,
+                    'actions' => [
+                        new StatisticWidgetNavigationTarget(
+                            'stats.nav.overview_gender_to_analysis',
+                            'app_stats_analytics_view',
+                            ['viewKey' => 'gender_distribution'],
+                            self::ANALYTICS_REMOVE_KEYS,
+                        ),
+                    ],
                 ],
                 [
                     'titleTranslationKey' => 'stats.overview.hospital_summary.urgency_card_title',
                     'segments' => $urgencySegments,
+                    'actions' => [
+                        new StatisticWidgetNavigationTarget(
+                            'stats.nav.overview_urgency_to_analysis',
+                            'app_stats_analytics_view',
+                            ['viewKey' => 'urgency_by_month'],
+                            self::ANALYTICS_REMOVE_KEYS,
+                        ),
+                    ],
                 ],
                 ['showUnscopedHint' => false],
             )),

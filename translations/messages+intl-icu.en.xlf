@@ -3317,7 +3317,7 @@
       </trans-unit>
       <trans-unit id="statsNavRes" resname="stats.nav.overview_resources_to_analysis">
         <source>stats.nav.overview_resources_to_analysis</source>
-        <target>Open resources over time</target>
+        <target>Open in analysis</target>
       </trans-unit>
       <trans-unit id="statsNavGn" resname="stats.nav.overview_gender_to_analysis">
         <source>stats.nav.overview_gender_to_analysis</source>
@@ -3394,6 +3394,62 @@
       <trans-unit id="statsOvTbl01" resname="stats.overview.table.placeholder">
         <source>stats.overview.table.placeholder</source>
         <target>Table widgets will be available here later.</target>
+      </trans-unit>
+      <trans-unit id="statsOvPr01" resname="stats.overview.pretitle">
+        <source>stats.overview.pretitle</source>
+        <target>Statistics</target>
+      </trans-unit>
+      <trans-unit id="statsOvKf01" resname="stats.overview.section.key_findings">
+        <source>stats.overview.section.key_findings</source>
+        <target>Key findings</target>
+      </trans-unit>
+      <trans-unit id="statsOvIn01" resname="stats.overview.indication.link">
+        <source>stats.overview.indication.link</source>
+        <target>All indications</target>
+      </trans-unit>
+      <trans-unit id="statsOvKp01" resname="stats.overview.kpi.cases_per_day">
+        <source>stats.overview.kpi.cases_per_day</source>
+        <target>Cases per day</target>
+      </trans-unit>
+      <trans-unit id="statsOvKp02" resname="stats.overview.kpi.cases_per_day_aggregate">
+        <source>stats.overview.kpi.cases_per_day_aggregate</source>
+        <target>Average daily volume</target>
+      </trans-unit>
+      <trans-unit id="statsOvKp03" resname="stats.overview.kpi.cases_per_day_aggregate_hint">
+        <source>stats.overview.kpi.cases_per_day_aggregate_hint</source>
+        <target>Aggregated across all hospitals in the selected scope.</target>
+      </trans-unit>
+      <trans-unit id="statsOvKp04" resname="stats.overview.kpi.current_short">
+        <source>stats.overview.kpi.current_short</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="statsOvKp05" resname="stats.overview.kpi.base_short">
+        <source>stats.overview.kpi.base_short</source>
+        <target>Base</target>
+      </trans-unit>
+      <trans-unit id="statsNavHmDt" resname="stats.nav.overview_heatmap_daytime_to_analysis">
+        <source>stats.nav.overview_heatmap_daytime_to_analysis</source>
+        <target>Open allocations by hour</target>
+      </trans-unit>
+      <trans-unit id="statsNavHmSh" resname="stats.nav.overview_heatmap_shift_to_analysis">
+        <source>stats.nav.overview_heatmap_shift_to_analysis</source>
+        <target>weekday</target>
+      </trans-unit>
+      <trans-unit id="statsNavAg" resname="stats.nav.overview_age_groups_to_analysis">
+        <source>stats.nav.overview_age_groups_to_analysis</source>
+        <target>Open age analysis</target>
+      </trans-unit>
+      <trans-unit id="statsNavHmDt" resname="stats.nav.overview_heatmap_daytime_to_analysis">
+        <source>stats.nav.overview_heatmap_daytime_to_analysis</source>
+        <target>Open allocations by hour</target>
+      </trans-unit>
+      <trans-unit id="statsNavHmSh" resname="stats.nav.overview_heatmap_shift_to_analysis">
+        <source>stats.nav.overview_heatmap_shift_to_analysis</source>
+        <target>weekday</target>
+      </trans-unit>
+      <trans-unit id="statsNavAg" resname="stats.nav.overview_age_groups_to_analysis">
+        <source>stats.nav.overview_age_groups_to_analysis</source>
+        <target>Open age analysis</target>
       </trans-unit>
       <trans-unit id="statsOvEx01" resname="stats.overview.executive.section.kpis">
         <source>stats.overview.executive.section.kpis</source>
