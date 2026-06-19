@@ -1,5 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
-import { fetchDrawerContent, scheduleIdle, updateIndicatorBadge } from '../lib/data-quality-prefetch.js';
+import {
+    fetchDrawerContent,
+    scheduleIdle,
+    updateIndicatorBadge,
+} from '../lib/data-quality-prefetch.js';
 
 /* stimulusFetch: 'lazy' */
 

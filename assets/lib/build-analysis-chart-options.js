@@ -65,8 +65,7 @@ export function buildAnalysisChartOptions(data) {
         return `${str}%`;
     };
 
-    const stackedBars =
-        !isLine && multi && chartType === 'bar' && (percentScale || !barGrouped);
+    const stackedBars = !isLine && multi && chartType === 'bar' && (percentScale || !barGrouped);
 
     let maxVal = 0;
     if (stackedBars) {

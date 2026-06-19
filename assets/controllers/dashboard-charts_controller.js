@@ -41,7 +41,11 @@ export default class extends Controller {
     }
 
     renderAllocationsChart(ApexCharts, generation) {
-        if (generation !== this._renderGeneration || !this.hasAllocationsChartTarget || !this.allocationsValue) {
+        if (
+            generation !== this._renderGeneration ||
+            !this.hasAllocationsChartTarget ||
+            !this.allocationsValue
+        ) {
             return;
         }
 
@@ -109,7 +113,11 @@ export default class extends Controller {
     }
 
     renderImportsChart(ApexCharts, generation) {
-        if (generation !== this._renderGeneration || !this.hasImportsChartTarget || !this.importsValue) {
+        if (
+            generation !== this._renderGeneration ||
+            !this.hasImportsChartTarget ||
+            !this.importsValue
+        ) {
             return;
         }
 

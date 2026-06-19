@@ -116,9 +116,8 @@ export default class extends Controller {
                 shared: true,
                 intersect: false,
                 y: {
-                    formatter: (value, { seriesIndex }) => (
-                        seriesIndex === 1 ? `${value.toFixed(2)}%` : Math.round(value).toString()
-                    ),
+                    formatter: (value, { seriesIndex }) =>
+                        seriesIndex === 1 ? `${value.toFixed(2)}%` : Math.round(value).toString(),
                 },
             },
         };

@@ -7,11 +7,7 @@ export default class extends Controller {
         payload: Object,
     };
 
-    static targets = [
-        'flowStackedBarChart',
-        'originBarChart',
-        'transportTimeChart',
-    ];
+    static targets = ['flowStackedBarChart', 'originBarChart', 'transportTimeChart'];
 
     connect() {
         this.instances = [];
@@ -34,15 +30,30 @@ export default class extends Controller {
         const payload = this.payloadValue ?? {};
 
         if (this.hasFlowStackedBarChartTarget && payload.flowStackedBar?.categories?.length) {
-            this.renderStackedBar(ApexCharts, this.flowStackedBarChartTarget, payload.flowStackedBar, generation);
+            this.renderStackedBar(
+                ApexCharts,
+                this.flowStackedBarChartTarget,
+                payload.flowStackedBar,
+                generation,
+            );
         }
 
         if (this.hasOriginBarChartTarget && payload.originBar?.labels?.length) {
-            this.renderHorizontalBar(ApexCharts, this.originBarChartTarget, payload.originBar, generation);
+            this.renderHorizontalBar(
+                ApexCharts,
+                this.originBarChartTarget,
+                payload.originBar,
+                generation,
+            );
         }
 
         if (this.hasTransportTimeChartTarget && payload.transportTime?.values?.length) {
-            this.renderTransportTimeChart(ApexCharts, this.transportTimeChartTarget, payload.transportTime, generation);
+            this.renderTransportTimeChart(
+                ApexCharts,
+                this.transportTimeChartTarget,
+                payload.transportTime,
+                generation,
+            );
         }
     }
 

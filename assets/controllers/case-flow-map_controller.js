@@ -69,7 +69,8 @@ export default class extends Controller {
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 18,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             }).addTo(this.map);
 
             this.geoLayer = L.geoJSON(geojson, {
@@ -95,7 +96,9 @@ export default class extends Controller {
             return this.geoJsonCache;
         }
 
-        const response = await fetch(this.geoUrlValue, { headers: { Accept: 'application/geo+json, application/json' } });
+        const response = await fetch(this.geoUrlValue, {
+            headers: { Accept: 'application/geo+json, application/json' },
+        });
         if (!response.ok) {
             throw new Error(`GeoJSON request failed (${response.status})`);
         }

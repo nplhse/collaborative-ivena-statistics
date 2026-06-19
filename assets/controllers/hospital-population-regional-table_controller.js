@@ -25,7 +25,10 @@ export default class extends Controller {
                     return (parseFloat(aValue) || 0) - (parseFloat(bValue) || 0);
                 }
 
-                return aValue.localeCompare(bValue, undefined, { sensitivity: 'base', numeric: true });
+                return aValue.localeCompare(bValue, undefined, {
+                    sensitivity: 'base',
+                    numeric: true,
+                });
             },
         });
 

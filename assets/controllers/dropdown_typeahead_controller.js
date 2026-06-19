@@ -87,7 +87,9 @@ export default class extends Controller {
     }
 
     menuItems() {
-        return Array.from(this.menuTarget.querySelectorAll('a.dropdown-item, button.dropdown-item'));
+        return Array.from(
+            this.menuTarget.querySelectorAll('a.dropdown-item, button.dropdown-item'),
+        );
     }
 
     itemLabel(item) {

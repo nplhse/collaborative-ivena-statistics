@@ -5,7 +5,7 @@ export default class extends Controller {
     static values = {
         listId: String,
         hiddenSelector: String,
-    }
+    };
 
     connect() {
         this.hidden = document.querySelector(this.hiddenSelectorValue);
@@ -22,8 +22,12 @@ export default class extends Controller {
         this.element.removeEventListener('blur', this.onBlur);
     }
 
-    onInput() { this.sync(false); }
-    onBlur()  { this.sync(true);  }
+    onInput() {
+        this.sync(false);
+    }
+    onBlur() {
+        this.sync(true);
+    }
 
     sync(allowPrefix) {
         if (!this.hidden || !this.listEl) return;
@@ -31,9 +35,9 @@ export default class extends Controller {
         const val = this.element.value.trim().toLowerCase();
         const opts = Array.from(this.listEl.options);
 
-        let match = opts.find(o => o.value.trim().toLowerCase() === val);
+        let match = opts.find((o) => o.value.trim().toLowerCase() === val);
         if (!match && allowPrefix && val) {
-            match = opts.find(o => o.value.trim().toLowerCase().startsWith(val));
+            match = opts.find((o) => o.value.trim().toLowerCase().startsWith(val));
         }
 
         if (match) {

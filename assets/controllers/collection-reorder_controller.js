@@ -67,8 +67,9 @@ export default class extends Controller {
 
     decorateItems() {
         this.getItems().forEach((item) => {
-            const header = item.querySelector(':scope > .accordion-item > .accordion-header')
-                ?? item.querySelector('.accordion-header');
+            const header =
+                item.querySelector(':scope > .accordion-item > .accordion-header') ??
+                item.querySelector('.accordion-header');
             if (!header || header.querySelector('[data-collection-reorder-control]')) {
                 return;
             }
@@ -240,7 +241,9 @@ export default class extends Controller {
 
     refreshCollectionItemClasses() {
         const items = this.getItems();
-        items.forEach((item) => item.classList.remove('field-collection-item-first', 'field-collection-item-last'));
+        items.forEach((item) =>
+            item.classList.remove('field-collection-item-first', 'field-collection-item-last'),
+        );
 
         if (items.length === 0) {
             return;
@@ -249,8 +252,8 @@ export default class extends Controller {
         items[0].classList.add('field-collection-item-first');
         items[items.length - 1].classList.add('field-collection-item-last');
 
-        if (typeof EaCollectionProperty !== 'undefined') {
-            EaCollectionProperty.updateCollectionItemCssClasses(this.collection);
+        if (typeof globalThis.EaCollectionProperty !== 'undefined') {
+            globalThis.EaCollectionProperty.updateCollectionItemCssClasses(this.collection);
         }
     }
 
