@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Security\Voter;
 
+use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Import\Application\Service\ImportListAccess;
 use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
@@ -24,6 +25,7 @@ final class ImportVoter extends Voter
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly ImportListAccess $importListAccess,
+        private readonly HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
     }
 
@@ -61,8 +63,17 @@ final class ImportVoter extends Voter
             return true;
         }
 
-        if (null !== $hospitalId && $this->importListAccess->canAccessImportHospital($user, $hospitalId)) {
+        $hospital = $subject->getHospital();
+        if (null === $hospital || null === $hospitalId) {
+            return false;
+        }
+
+        if ($this->hospitalPermissionAccess->isOwner($user, $hospital)) {
             return true;
+        }
+
+        if (!$this->importListAccess->canAccessImportHospital($user, $hospitalId)) {
+            return false;
         }
 
         $createdBy = $subject->getCreatedBy();

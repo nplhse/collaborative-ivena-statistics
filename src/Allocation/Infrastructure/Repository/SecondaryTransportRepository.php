@@ -29,7 +29,12 @@ final class SecondaryTransportRepository extends ServiceEntityRepository
         if ('lastChange' === $queryParametersDTO->sortBy) {
             $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
         } else {
-            $qb->orderBy('st.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+            $sortField = match ($queryParametersDTO->sortBy) {
+                'id' => 'st.id',
+                'name' => 'st.name',
+                default => 'st.name',
+            };
+            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }
 
         if (null !== $queryParametersDTO->search && '' !== trim($queryParametersDTO->search)) {

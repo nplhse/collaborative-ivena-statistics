@@ -7,7 +7,7 @@ namespace App\Tests\User\Unit\Infrastructure\Security;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\UserAccountStatusChecker;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 
 final class UserAccountStatusCheckerTest extends TestCase
@@ -35,8 +35,8 @@ final class UserAccountStatusCheckerTest extends TestCase
     {
         $user = $this->createUser(false, true);
 
-        $this->expectException(CustomUserMessageAccountStatusException::class);
-        $this->expectExceptionMessage('Account is disabled.');
+        $this->expectException(BadCredentialsException::class);
+        $this->expectExceptionMessage('Invalid credentials.');
 
         $this->checker->checkPreAuth($user);
     }
@@ -45,8 +45,8 @@ final class UserAccountStatusCheckerTest extends TestCase
     {
         $user = $this->createUser(false, true);
 
-        $this->expectException(CustomUserMessageAccountStatusException::class);
-        $this->expectExceptionMessage('Account is disabled.');
+        $this->expectException(BadCredentialsException::class);
+        $this->expectExceptionMessage('Invalid credentials.');
 
         $this->checker->checkPostAuth($user);
     }
@@ -55,8 +55,8 @@ final class UserAccountStatusCheckerTest extends TestCase
     {
         $user = $this->createUser(true, false);
 
-        $this->expectException(CustomUserMessageAccountStatusException::class);
-        $this->expectExceptionMessage('flash.security.email_not_verified');
+        $this->expectException(BadCredentialsException::class);
+        $this->expectExceptionMessage('Invalid credentials.');
 
         $this->checker->checkPreAuth($user);
     }

@@ -46,7 +46,13 @@ final class DispatchAreaRepository extends ServiceEntityRepository implements Di
         if ('lastChange' === $queryParametersDTO->sortBy) {
             $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
         } else {
-            $qb->orderBy('da.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+            $sortField = match ($queryParametersDTO->sortBy) {
+                'id' => 'da.id',
+                'name' => 'da.name',
+                'state' => 's.name',
+                default => 'da.name',
+            };
+            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }
 
         if (null !== $queryParametersDTO->search) {

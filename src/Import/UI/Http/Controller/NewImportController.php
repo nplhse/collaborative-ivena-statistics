@@ -44,6 +44,10 @@ final class NewImportController extends AbstractController
         $form = $this->createForm(ImportCreateType::class);
         $form->handleRequest($request);
 
+        if ($request->isMethod('POST')) {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        }
+
         if (!$form->isSubmitted() || !$form->isValid()) {
             return $this->render('@Import/new.html.twig', [
                 'form' => $form->createView(),

@@ -164,9 +164,15 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         ;
 
         $field = match ($queryParametersDTO->sortBy) {
-            'dispatchArea' => 'd.name',
+            'dispatchArea' => 'da.name',
             'state' => 's.name',
-            default => 'h.'.$queryParametersDTO->sortBy,
+            'id' => 'h.id',
+            'name' => 'h.name',
+            'location' => 'h.location',
+            'tier' => 'h.tier',
+            'size' => 'h.size',
+            'lastChange' => 'h.updatedAt',
+            default => 'h.name',
         };
 
         if (null !== $queryParametersDTO->tier && '' !== $queryParametersDTO->tier) {

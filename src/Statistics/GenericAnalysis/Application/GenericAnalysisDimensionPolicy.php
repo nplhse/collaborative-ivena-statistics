@@ -7,12 +7,14 @@ namespace App\Statistics\GenericAnalysis\Application;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\User\Domain\Entity\User;
 
 final readonly class GenericAnalysisDimensionPolicy
 {
     public function __construct(
         private HospitalAccessInterface $hospitalAccess,
+        private DimensionRegistry $dimensionRegistry,
     ) {
     }
 
@@ -23,7 +25,7 @@ final readonly class GenericAnalysisDimensionPolicy
             'state' => $this->allowsState($filter, $user),
             'dispatchArea' => $this->allowsDispatchArea($filter, $user),
             'hospital_cohort' => true,
-            default => true,
+            default => $this->dimensionRegistry->has($dimensionKey),
         };
     }
 

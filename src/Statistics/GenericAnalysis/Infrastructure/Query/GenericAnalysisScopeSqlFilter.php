@@ -36,8 +36,12 @@ final class GenericAnalysisScopeSqlFilter
         }
 
         if (\is_array($scope->hospitalIds)) {
-            $conditions[] = 'hospital_id IN (:scope_hospital_ids)';
-            $params['scope_hospital_ids'] = $scope->hospitalIds;
+            if ([] === $scope->hospitalIds) {
+                $conditions[] = '1 = 0';
+            } else {
+                $conditions[] = 'hospital_id IN (:scope_hospital_ids)';
+                $params['scope_hospital_ids'] = $scope->hospitalIds;
+            }
         }
 
         if (null !== $scope->locationCodes) {

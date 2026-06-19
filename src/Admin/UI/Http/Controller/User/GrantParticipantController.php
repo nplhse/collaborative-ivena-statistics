@@ -29,6 +29,7 @@ final class GrantParticipantController extends AbstractController
     }
 
     #[Route('/admin/users/{id}/grant-participant', name: 'app_admin_user_grant_participant', requirements: ['id' => '\d+'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function __invoke(int $id, Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         if (!$this->uriSigner->check($request->getUri())) {

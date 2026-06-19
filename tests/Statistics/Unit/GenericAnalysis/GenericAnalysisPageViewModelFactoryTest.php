@@ -57,7 +57,7 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
             $dimensionRegistry,
             $metricRegistry,
             new MetricCompatibilityChecker($metricRegistry, $dimensionRegistry),
-            new GenericAnalysisDimensionPolicy($hospitalAccess),
+            new GenericAnalysisDimensionPolicy($hospitalAccess, $dimensionRegistry),
             new StatisticsNavigationUrlBuilder($router),
             $router,
             $translator,
@@ -186,7 +186,7 @@ final class GenericAnalysisPageViewModelFactoryTest extends TestCase
         return new GenericAnalysisConfigResolver(
             new AnalysisPresetRegistry(),
             $dimensionRegistry,
-            new GenericAnalysisDimensionPolicy($hospitalAccess),
+            new GenericAnalysisDimensionPolicy($hospitalAccess, $dimensionRegistry),
             new GenericAnalysisMetricRequestResolver(
                 $metricRegistry,
                 $dimensionRegistry,

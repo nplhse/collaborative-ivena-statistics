@@ -161,4 +161,34 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         self::assertStringContainsString('NULLIF(COUNT(*), 0)', $sql);
         self::assertStringContainsString('AS resus_rate', $sql);
     }
+
+    public function testEmptyHospitalScopeUsesImpossibleCondition(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: new StatisticsScopeCriteria([]),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+
+        self::assertStringContainsString('1 = 0', $sql);
+    }
+
+    public function testFilterValuesAreParameterizedAgainstInjection(): void
+    {
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            filters: [
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'urgency',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::Equals,
+                    value: "'; DROP TABLE allocation_stats_projection; --",
+                ),
+            ],
+        ));
+
+        self::assertStringNotContainsString('DROP TABLE', $sql);
+        self::assertContains("'; DROP TABLE allocation_stats_projection; --", $params);
+    }
 }

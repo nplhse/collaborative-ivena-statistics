@@ -1,5 +1,5 @@
 security:
-    expose_security_errors: account_status
+    expose_security_errors: none
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'

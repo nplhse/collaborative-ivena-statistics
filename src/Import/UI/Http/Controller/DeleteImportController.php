@@ -22,6 +22,7 @@ final class DeleteImportController extends AbstractController
     }
 
     #[Route('/import/{id}/delete', name: 'app_import_delete', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[IsGranted(ImportVoter::DELETE, subject: 'import')]
     public function __invoke(Import $import, Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {

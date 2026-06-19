@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\User\UI\Form;
 
+use App\User\Domain\Validator\UserPasswordConstraints;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @extends AbstractType<array<string, mixed>>
@@ -26,10 +25,7 @@ final class ForceChangePasswordType extends AbstractType
             'invalid_message' => 'The password fields must match.',
             'first_options' => ['label' => 'New password'],
             'second_options' => ['label' => 'Repeat new password'],
-            'constraints' => [
-                new NotBlank(),
-                new Length(min: 8, max: 4096),
-            ],
+            'constraints' => UserPasswordConstraints::forPlainPassword(),
         ]);
     }
 

@@ -6,7 +6,7 @@ namespace App\User\Infrastructure\Security;
 
 use App\User\Domain\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -32,7 +32,7 @@ final class UserAccountStatusChecker implements UserCheckerInterface
             return;
         }
 
-        throw new CustomUserMessageAccountStatusException('Account is disabled.');
+        throw new BadCredentialsException('Invalid credentials.');
     }
 
     private function assertEmailVerified(UserInterface $user): void
@@ -41,6 +41,6 @@ final class UserAccountStatusChecker implements UserCheckerInterface
             return;
         }
 
-        throw new CustomUserMessageAccountStatusException('flash.security.email_not_verified');
+        throw new BadCredentialsException('Invalid credentials.');
     }
 }

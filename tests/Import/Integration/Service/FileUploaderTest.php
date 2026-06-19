@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Import\Integration\Service;
 
 use App\Import\Application\Service\FileUploader;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class FileUploaderTest extends TestCase
@@ -90,30 +90,18 @@ final class FileUploaderTest extends TestCase
         self::assertStringEndsWith('.csv', $parts[4]);
     }
 
-    public function testUploadUsesBinFallbackWhenNoExtensionAvailable(): void
+    public function testUploadRejectsUnsupportedFileWhenNoExtensionAvailable(): void
     {
         // Arrange
-        $this->logger->expects($this->once())->method('info');
+        $this->logger->expects($this->never())->method('info');
 
         $file = $this->createMock(UploadedFile::class);
         $file->method('isValid')->willReturn(true);
-        $file->method('getSize')->willReturn(7);
         $file->method('getClientMimeType')->willReturn('application/octet-stream');
         $file->method('getClientOriginalName')->willReturn('noext');
         $file->method('guessExtension')->willReturn(null);
         $file->method('getClientOriginalExtension')->willReturn('');
-
-        $file->expects($this->once())
-            ->method('move')
-            ->willReturnCallback(function (string $dir, ?string $name = null): File {
-                if (!is_dir($dir)) {
-                    @mkdir($dir, 0775, true);
-                }
-                $path = rtrim($dir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$name;
-                @touch($path);
-
-                return new File($path);
-            });
+        $file->expects($this->never())->method('move');
 
         $uploader = new FileUploader(
             $this->baseDir,
@@ -122,15 +110,88 @@ final class FileUploaderTest extends TestCase
             $this->filesystem,
         );
 
-        // Act
-        $returnedRel = $uploader->upload($file);
+        // Act + Assert
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Unsupported import file type. Allowed extensions: csv, txt, xls, xlsx.');
 
-        // Assert
-        self::assertIsString($returnedRel);
-        self::assertStringEndsWith('.bin', $returnedRel);
+        $uploader->upload($file);
+    }
 
-        $absTarget = Path::join($this->projectDir, $returnedRel);
-        self::assertFileExists($absTarget);
+    /**
+     * @param list<string> $allowedSuffixes
+     */
+    #[DataProvider('mimeTypeExtensionProvider')]
+    public function testUploadResolvesExtensionFromMimeType(string $mime, array $allowedSuffixes): void
+    {
+        $this->logger->expects($this->once())->method('info');
+
+        $uploader = new FileUploader(
+            $this->baseDir,
+            $this->projectDir,
+            $this->logger,
+            $this->filesystem,
+        );
+
+        $returnedRel = $uploader->upload($this->createMockUploadedFile(
+            originalName: 'upload',
+            mimeType: $mime,
+            guessedExtension: null,
+        ));
+
+        self::assertTrue(
+            array_any($allowedSuffixes, static fn (string $suffix): bool => str_ends_with($returnedRel, $suffix)),
+            sprintf('Expected path ending with one of [%s], got %s', implode(', ', $allowedSuffixes), $returnedRel),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: list<string>}>
+     */
+    public static function mimeTypeExtensionProvider(): iterable
+    {
+        yield 'spreadsheet mime' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ['.xlsx']];
+        yield 'excel mime' => ['application/vnd.ms-excel', ['.xls']];
+        yield 'plain text mime' => ['text/plain', ['.csv']];
+    }
+
+    public function testUploadUsesGuessedExtensionWhenMimeTypeIsUnknown(): void
+    {
+        $this->logger->expects($this->once())->method('info');
+
+        $uploader = new FileUploader(
+            $this->baseDir,
+            $this->projectDir,
+            $this->logger,
+            $this->filesystem,
+        );
+
+        $returnedRel = $uploader->upload($this->createMockUploadedFile(
+            originalName: 'upload',
+            mimeType: 'application/octet-stream',
+            guessedExtension: 'txt',
+        ));
+
+        self::assertStringEndsWith('.txt', $returnedRel);
+    }
+
+    public function testUploadIgnoresDisallowedOriginalExtensionAndUsesMimeType(): void
+    {
+        $this->logger->expects($this->once())->method('info');
+
+        $uploader = new FileUploader(
+            $this->baseDir,
+            $this->projectDir,
+            $this->logger,
+            $this->filesystem,
+        );
+
+        $returnedRel = $uploader->upload($this->createMockUploadedFile(
+            originalName: 'payload.php',
+            mimeType: 'text/csv',
+            guessedExtension: null,
+        ));
+
+        self::assertStringEndsWith('.csv', $returnedRel);
     }
 
     public function testUploadLogsErrorAndRethrowsOnMoveFailure(): void
@@ -161,5 +222,35 @@ final class FileUploaderTest extends TestCase
         // Act + Assert
         $this->expectException(FileException::class);
         $uploader->upload($file);
+    }
+
+    /**
+     * @return MockObject&UploadedFile
+     */
+    private function createMockUploadedFile(
+        string $originalName,
+        string $mimeType,
+        ?string $guessedExtension,
+    ): MockObject {
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('isValid')->willReturn(true);
+        $file->method('getSize')->willReturn(12);
+        $file->method('getClientMimeType')->willReturn($mimeType);
+        $file->method('getClientOriginalName')->willReturn($originalName);
+        $file->method('guessExtension')->willReturn($guessedExtension);
+        $file->method('getClientOriginalExtension')->willReturn(pathinfo($originalName, PATHINFO_EXTENSION));
+        $file->expects($this->once())
+            ->method('move')
+            ->willReturnCallback(function (string $dir, ?string $name = null): \Symfony\Component\HttpFoundation\File\File {
+                if (!is_dir($dir)) {
+                    @mkdir($dir, 0775, true);
+                }
+                $path = rtrim($dir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$name;
+                @touch($path);
+
+                return new \Symfony\Component\HttpFoundation\File\File($path);
+            });
+
+        return $file;
     }
 }

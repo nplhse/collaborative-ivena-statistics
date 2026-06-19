@@ -84,7 +84,7 @@ final class SettingsControllerTest extends WebTestCase
         $browser->click('Resend verification email')->assertSee('Please wait before requesting another verification email.');
     }
 
-    public function testRememberMeUserCanOpenSettingsOverviewAndPasswordPage(): void
+    public function testRememberMeUserIsRedirectedToConfirmPasswordForPasswordPage(): void
     {
         UserFactory::new([
             'email' => 'remember-settings@example.test',
@@ -103,7 +103,7 @@ final class SettingsControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/settings/password');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h2', 'Change password');
+        self::assertSelectorTextContains('h2', 'Confirm your password');
     }
 
     public function testAuthenticatedUserCanOpenChangeEmailPage(): void

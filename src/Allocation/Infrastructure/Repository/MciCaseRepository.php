@@ -98,6 +98,7 @@ final class MciCaseRepository extends ServiceEntityRepository
         $field = match ($queryParametersDTO->sortBy) {
             'arrivalAt' => 'm.arrivalAt',
             'mciTitle' => 'm.mciTitle',
+            'createdAt' => 'm.createdAt',
             default => 'm.createdAt',
         };
 

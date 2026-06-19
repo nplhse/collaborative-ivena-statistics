@@ -25,6 +25,7 @@ final class DeleteHospitalAccessGrantController extends AbstractController
 
     #[Route('/hospitals/{id}/edit/access/{grantId}/delete', name: 'app_hospitals_edit_access_grant_delete', requirements: ['grantId' => '\d+'], methods: ['POST'])]
     #[Route('/hospitals/{id}/access-grants/{grantId}/delete', name: 'app_hospitals_access_grants_delete', requirements: ['grantId' => '\d+'], methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function __invoke(Request $request, Hospital $hospital, int $grantId): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $this->denyAccessUnlessGranted(HospitalVoter::MANAGE_ACCESS_GRANTS, $hospital);

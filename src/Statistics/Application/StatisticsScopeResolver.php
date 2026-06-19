@@ -75,7 +75,7 @@ final class StatisticsScopeResolver
         } else {
             $ids = $this->resolveMyHospitalIds($context->user);
 
-            $criteria = [] === $ids ? StatisticsScopeCriteria::public() : new StatisticsScopeCriteria($ids);
+            $criteria = [] === $ids ? new StatisticsScopeCriteria([]) : new StatisticsScopeCriteria($ids);
         }
 
         $this->resolvedCacheKey = $cacheKey;

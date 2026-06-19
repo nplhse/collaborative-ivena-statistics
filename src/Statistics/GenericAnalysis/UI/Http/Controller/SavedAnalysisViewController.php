@@ -111,6 +111,7 @@ final class SavedAnalysisViewController extends AbstractController
     }
 
     #[IsGranted('ROLE_PARTICIPANT')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/statistics/analytics/saved', name: 'app_stats_analytics_saved_create', methods: ['POST'])]
     public function create(
         Request $request,
@@ -150,6 +151,7 @@ final class SavedAnalysisViewController extends AbstractController
     }
 
     #[IsGranted('ROLE_PARTICIPANT')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/statistics/analytics/saved/{id}', name: 'app_stats_analytics_saved_delete', methods: ['DELETE'])]
     public function delete(
         int $id,

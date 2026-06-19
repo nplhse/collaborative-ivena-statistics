@@ -49,6 +49,9 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
         return \in_array($dimensionKey, self::ENTITY_DIMENSION_KEYS, true);
     }
 
+    /** Maximum entity IDs resolved in one label lookup batch. */
+    private const int MAX_RESOLVE_IDS = 500;
+
     /**
      * @param list<int> $ids
      *
@@ -62,6 +65,9 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
         }
 
         $uniqueIds = array_values(array_unique($ids));
+        if (\count($uniqueIds) > self::MAX_RESOLVE_IDS) {
+            $uniqueIds = \array_slice($uniqueIds, 0, self::MAX_RESOLVE_IDS);
+        }
 
         return match ($dimensionKey) {
             'hospital' => $this->hospitalLookup->findNamesByIds($uniqueIds),
