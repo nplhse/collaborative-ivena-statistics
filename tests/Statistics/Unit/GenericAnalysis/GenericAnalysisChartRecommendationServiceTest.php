@@ -103,7 +103,8 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
         $recommendation = $this->service->recommend($query, $result);
 
         self::assertTrue($recommendation->hasChart);
-        self::assertSame(GenericAnalysisChartType::Bar, $recommendation->defaultChartType);
+        self::assertSame(GenericAnalysisChartType::Pie, $recommendation->defaultChartType);
+        self::assertContains(GenericAnalysisChartType::Pie, $recommendation->allowedChartTypes);
         self::assertSame([], $recommendation->warnings);
     }
 
@@ -199,7 +200,7 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
         self::assertTrue($recommendation->hasChart);
     }
 
-    public function testHourWithWeekdaySeriesRecommendsHeatmapPlaceholder(): void
+    public function testHourWithWeekdaySeriesRecommendsHeatmap(): void
     {
         $query = $this->query('hour', 'weekday');
         $result = $this->normalizedResult(
@@ -211,9 +212,9 @@ final class GenericAnalysisChartRecommendationServiceTest extends TestCase
 
         $recommendation = $this->service->recommend($query, $result);
 
-        self::assertFalse($recommendation->hasChart);
+        self::assertTrue($recommendation->hasChart);
         self::assertSame(GenericAnalysisChartType::Heatmap, $recommendation->defaultChartType);
-        self::assertContains('stats.generic_analysis.chart.warning.heatmap_not_implemented', $recommendation->warnings);
+        self::assertContains(GenericAnalysisChartType::Heatmap, $recommendation->allowedChartTypes);
     }
 
     private function query(string $primary, ?string $series = null): AnalysisQuery

@@ -35,6 +35,8 @@ final readonly class GenericAllocationAnalysisQuery
                 metricKeys: $metricKeys,
                 seriesDimensionKey: $query->seriesDimensionKey,
                 includeNullBuckets: $query->includeNullBuckets,
+                distributionBaseMetricKey: $query->dataSource->distributionBaseMetricKey(),
+                dataSource: $query->dataSource,
             );
         }
 
@@ -63,6 +65,8 @@ final readonly class GenericAllocationAnalysisQuery
             metricKeys: $metricKeys,
             seriesDimensionKey: $query->seriesDimensionKey,
             includeNullBuckets: $query->includeNullBuckets,
+            distributionBaseMetricKey: $query->dataSource->distributionBaseMetricKey(),
+            dataSource: $query->dataSource,
         );
     }
 

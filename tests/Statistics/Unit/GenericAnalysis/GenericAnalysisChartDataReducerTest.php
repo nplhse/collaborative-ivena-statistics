@@ -35,6 +35,19 @@ final class GenericAnalysisChartDataReducerTest extends TestCase
         );
     }
 
+    public function testDoesNotLimitPreserveAllBucketsDimension(): void
+    {
+        $query = $this->query('age_group');
+        $labels = ['0_18', '19_29', '30_39', '40_49', '50_59', '60_69', '70_79', '80_89'];
+        $values = [50, 40, 30, 20, 10, 5, 3, 1];
+        $result = $this->normalizedResult($labels, $values);
+
+        $reduced = $this->reducer->reduce($query, $result);
+
+        self::assertFalse($reduced->limitedPrimaryBuckets);
+        self::assertCount(8, $reduced->labels);
+    }
+
     public function testLimitsCategoricalPrimaryBucketsToTopFivePlusOther(): void
     {
         $query = $this->query('hospital');

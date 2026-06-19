@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Application\DTO;
 
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+
 final readonly class NormalizedAnalysisResult
 {
     /**
@@ -23,6 +25,8 @@ final readonly class NormalizedAnalysisResult
         public array $metricColumns,
         public string $visualMetricKey,
         public string $recommendedChartType = 'bar',
+        public string $distributionBaseMetricKey = 'count',
+        public AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
     ) {
     }
 }

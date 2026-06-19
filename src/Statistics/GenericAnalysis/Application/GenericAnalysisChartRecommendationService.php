@@ -70,14 +70,26 @@ final readonly class GenericAnalysisChartRecommendationService
         }
 
         if ('hour' === $primary->key && $series instanceof AnalysisDimension && 'weekday' === $series->key) {
-            $warnings[] = $this->translator->trans('stats.generic_analysis.chart.warning.heatmap_not_implemented');
+            $allowed = [GenericAnalysisChartType::Heatmap, GenericAnalysisChartType::StackedBar, GenericAnalysisChartType::GroupedBar, GenericAnalysisChartType::Table];
 
             return new GenericAnalysisChartRecommendation(
-                hasChart: false,
+                hasChart: true,
                 defaultChartType: GenericAnalysisChartType::Heatmap,
-                allowedChartTypes: [GenericAnalysisChartType::Heatmap, GenericAnalysisChartType::Table],
+                allowedChartTypes: $allowed,
                 warnings: $warnings,
                 reason: 'hour_weekday_heatmap',
+            );
+        }
+
+        if ('weekday' === $primary->key && $series instanceof AnalysisDimension && 'hour' === $series->key) {
+            $allowed = [GenericAnalysisChartType::Heatmap, GenericAnalysisChartType::StackedBar, GenericAnalysisChartType::GroupedBar, GenericAnalysisChartType::Table];
+
+            return new GenericAnalysisChartRecommendation(
+                hasChart: true,
+                defaultChartType: GenericAnalysisChartType::Heatmap,
+                allowedChartTypes: $allowed,
+                warnings: $warnings,
+                reason: 'weekday_hour_heatmap',
             );
         }
 
@@ -176,9 +188,18 @@ final readonly class GenericAnalysisChartRecommendationService
             $allowed[] = GenericAnalysisChartType::HorizontalBar;
         }
 
+        if ('pie' === $primary->recommendedChartType && !$manyBuckets) {
+            $allowed[] = GenericAnalysisChartType::Pie;
+        }
+
+        $default = $manyBuckets ? GenericAnalysisChartType::HorizontalBar : GenericAnalysisChartType::Bar;
+        if ('pie' === $primary->recommendedChartType && !$manyBuckets) {
+            $default = GenericAnalysisChartType::Pie;
+        }
+
         return new GenericAnalysisChartRecommendation(
             hasChart: true,
-            defaultChartType: $manyBuckets ? GenericAnalysisChartType::HorizontalBar : GenericAnalysisChartType::Bar,
+            defaultChartType: $default,
             allowedChartTypes: $allowed,
             warnings: $warnings,
             reason: 'categorical_no_series',

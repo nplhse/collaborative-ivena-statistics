@@ -179,7 +179,7 @@ final class GenericAnalysisTableViewModelFactoryTest extends TestCase
         self::assertSame('percent_of_total', $viewModel->metricColumns[1]->key);
     }
 
-    public function testLimitsCategoricalBucketsToTopFivePlusOtherByDefault(): void
+    public function testAgeGroupShowsAllBucketsByDefault(): void
     {
         $rows = [];
         for ($i = 1; $i <= 8; ++$i) {
@@ -191,11 +191,10 @@ final class GenericAnalysisTableViewModelFactoryTest extends TestCase
 
         $viewModel = $this->factory->create($request, 'age_group_distribution', $result, 'age_group');
 
-        self::assertCount(6, $viewModel->stackedRows);
-        self::assertSame('Other', $viewModel->stackedRows[5]->bucketLabel);
+        self::assertCount(8, $viewModel->stackedRows);
     }
 
-    public function testRowLimitAllShowsEveryBucket(): void
+    public function testHospitalDimensionStillLimitsToTopFivePlusOtherByDefault(): void
     {
         $rows = [];
         for ($i = 1; $i <= 8; ++$i) {
@@ -203,11 +202,27 @@ final class GenericAnalysisTableViewModelFactoryTest extends TestCase
         }
 
         $result = GenericAnalysisTestFixtures::normalizedResult(rows: $rows, grandTotal: 36);
-        $request = Request::create('/statistics/generic-analysis/age_group_distribution', Request::METHOD_GET, [
+        $request = Request::create('/statistics/generic-analysis/allocations_by_hospital', Request::METHOD_GET);
+
+        $viewModel = $this->factory->create($request, 'allocations_by_hospital', $result, 'hospital');
+
+        self::assertCount(6, $viewModel->stackedRows);
+        self::assertSame('Other', $viewModel->stackedRows[5]->bucketLabel);
+    }
+
+    public function testRowLimitAllShowsEveryBucketForUnboundedDimension(): void
+    {
+        $rows = [];
+        for ($i = 1; $i <= 8; ++$i) {
+            $rows[] = GenericAnalysisTestFixtures::enrichedRow((string) $i, 'Bucket '.$i, $i);
+        }
+
+        $result = GenericAnalysisTestFixtures::normalizedResult(rows: $rows, grandTotal: 36);
+        $request = Request::create('/statistics/generic-analysis/allocations_by_hospital', Request::METHOD_GET, [
             GenericAnalysisQueryKeys::TOP => 'all',
         ]);
 
-        $viewModel = $this->factory->create($request, 'age_group_distribution', $result, 'age_group');
+        $viewModel = $this->factory->create($request, 'allocations_by_hospital', $result, 'hospital');
 
         self::assertCount(8, $viewModel->stackedRows);
     }

@@ -1,3 +1,5 @@
+import { buildHeatmapSeries } from './build-heatmap-series.js';
+
 /**
  * Builds ApexCharts options from the analysis chart spec payload.
  *
@@ -7,6 +9,14 @@
 export function buildAnalysisChartOptions(data) {
     if (!data || typeof data !== 'object') {
         return null;
+    }
+
+    if (data.chartType === 'pie') {
+        return buildPieChartOptions(data);
+    }
+
+    if (data.chartType === 'heatmap') {
+        return buildHeatmapChartOptions(data);
     }
 
     const labels = Array.isArray(data.labels) ? data.labels : [];
@@ -48,6 +58,7 @@ export function buildAnalysisChartOptions(data) {
     const multi = series.length > 1;
     const percentScale = data.percentScale === true;
     const barGrouped = data.barGrouped === true && !percentScale;
+    const forceStacked = data.stacked === true;
 
     const formatPercentValue = (val) => {
         const n = typeof val === 'number' ? val : Number(val);
@@ -65,7 +76,8 @@ export function buildAnalysisChartOptions(data) {
         return `${str}%`;
     };
 
-    const stackedBars = !isLine && multi && chartType === 'bar' && (percentScale || !barGrouped);
+    const stackedBars =
+        !isLine && multi && chartType === 'bar' && (forceStacked || percentScale || !barGrouped);
 
     let maxVal = 0;
     if (stackedBars) {
@@ -207,6 +219,138 @@ export function buildAnalysisChartOptions(data) {
                       offsetY: 4,
                   }
                 : {}),
+        },
+    };
+}
+
+/**
+ * @param {Record<string, unknown>} data
+ * @returns {import('apexcharts').ApexOptions | null}
+ */
+function buildPieChartOptions(data) {
+    const labels = Array.isArray(data.labels) ? data.labels : [];
+    if (labels.length === 0) {
+        return null;
+    }
+
+    let values = [];
+    if (Array.isArray(data.series) && data.series.length > 0) {
+        const first = data.series[0];
+        if (first && Array.isArray(first.data)) {
+            values = first.data.map((v) => {
+                const n = typeof v === 'number' ? v : Number(v);
+                return Number.isFinite(n) ? n : 0;
+            });
+        }
+    }
+
+    const percentScale = data.percentScale === true;
+
+    return {
+        chart: {
+            type: 'pie',
+            height: 320,
+            toolbar: { show: false },
+            fontFamily: 'inherit',
+        },
+        labels,
+        series: values,
+        colors: [
+            '#206bc4',
+            '#d63939',
+            '#74b816',
+            '#fab005',
+            '#ae3ec9',
+            '#15aabf',
+            '#fd7e14',
+            '#7048e8',
+        ],
+        dataLabels: {
+            enabled: true,
+            formatter: (val) => {
+                const n = typeof val === 'number' ? val : Number(val);
+                if (!Number.isFinite(n)) {
+                    return '';
+                }
+                return percentScale ? `${Math.round(n * 100) / 100}%` : `${Math.round(n)}`;
+            },
+        },
+        legend: {
+            show: true,
+            position: 'bottom',
+            fontSize: '12px',
+        },
+        tooltip: {
+            y: {
+                formatter: (val) => {
+                    const n = typeof val === 'number' ? val : Number(val);
+                    if (!Number.isFinite(n)) {
+                        return '—';
+                    }
+                    return percentScale ? `${Math.round(n * 100) / 100}%` : String(Math.round(n));
+                },
+            },
+        },
+    };
+}
+
+/**
+ * @param {Record<string, unknown>} data
+ * @returns {import('apexcharts').ApexOptions | null}
+ */
+function buildHeatmapChartOptions(data) {
+    const rowLabels = Array.isArray(data.rowLabels) ? data.rowLabels : [];
+    const columnLabels = Array.isArray(data.columnLabels) ? data.columnLabels : [];
+    const matrix = Array.isArray(data.matrix) ? data.matrix : [];
+
+    if (rowLabels.length === 0 || columnLabels.length === 0) {
+        return null;
+    }
+
+    let maxVal = 0;
+    for (const row of matrix) {
+        if (!Array.isArray(row)) {
+            continue;
+        }
+        for (const cell of row) {
+            const n = typeof cell === 'number' ? cell : Number(cell);
+            if (Number.isFinite(n) && n > maxVal) {
+                maxVal = n;
+            }
+        }
+    }
+
+    const series = buildHeatmapSeries(columnLabels, rowLabels, matrix);
+
+    return {
+        chart: {
+            type: 'heatmap',
+            height: 320,
+            toolbar: { show: false },
+            fontFamily: 'inherit',
+        },
+        colors: ['#206bc4'],
+        plotOptions: {
+            heatmap: {
+                radius: 2,
+                enableShades: true,
+                colorScale: {
+                    ranges: [
+                        { from: 0, to: 0, color: '#f1f5f9', name: '0' },
+                        { from: 1, to: maxVal, color: '#206bc4', name: 'count' },
+                    ],
+                },
+            },
+        },
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        series,
+        xaxis: { type: 'category' },
+        tooltip: {
+            y: {
+                formatter: (val) =>
+                    String(Math.round(typeof val === 'number' ? val : Number(val) || 0)),
+            },
         },
     };
 }

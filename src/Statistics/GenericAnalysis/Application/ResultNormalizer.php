@@ -15,6 +15,7 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -72,7 +73,7 @@ final class ResultNormalizer
         foreach ($bucketKeys as $bucketKey) {
             foreach ($seriesKeys as $seriesKey) {
                 $item = $indexed[$this->compositeKey($bucketKey, $seriesKey)] ?? null;
-                $metrics = $this->buildRowMetrics($item, $metricKeys);
+                $metrics = $this->buildRowMetrics($item, $metricKeys, $result->distributionBaseMetricKey);
                 $normalizedRows[] = new EnrichedAnalysisRow(
                     bucketKey: $this->bucketKey($bucketKey),
                     bucketLabel: $this->labelFor($primary, $this->bucketKey($bucketKey)),
@@ -86,7 +87,12 @@ final class ResultNormalizer
             }
         }
 
-        $hasSeries = $series instanceof AnalysisDimension;
+        $hasSeries = $series instanceof AnalysisDimension
+            && AnalysisSeriesMode::ByDimension === $query->seriesMode;
+
+        $chartData = AnalysisSeriesMode::ByMetric === $query->seriesMode
+            ? $this->buildChartDataByMetric($primary, $normalizedRows, $query->resolvedChartMetricKeys())
+            : $this->buildChartData($primary, $normalizedRows, $hasSeries, $visualMetricKey);
 
         return new NormalizedAnalysisResult(
             title: $title,
@@ -94,11 +100,13 @@ final class ResultNormalizer
             seriesDimensionLabel: $series?->label,
             grandTotal: $result->grandTotal,
             rows: $normalizedRows,
-            chartData: $this->buildChartData($primary, $normalizedRows, $hasSeries, $visualMetricKey),
+            chartData: $chartData,
             metricKeys: $metricKeys,
             metricColumns: $metricColumns,
             visualMetricKey: $visualMetricKey,
             recommendedChartType: $primary->recommendedChartType,
+            distributionBaseMetricKey: $result->distributionBaseMetricKey,
+            dataSource: $result->dataSource,
         );
     }
 
@@ -134,12 +142,12 @@ final class ResultNormalizer
      *
      * @return array<string, int|float|null>
      */
-    private function buildRowMetrics(?array $item, array $metricKeys): array
+    private function buildRowMetrics(?array $item, array $metricKeys, string $baseMetricKey): array
     {
         $metrics = [];
         foreach ($metricKeys as $key) {
             if (null === $item) {
-                $metrics[$key] = 'count' === $key ? 0 : null;
+                $metrics[$key] = $key === $baseMetricKey ? 0 : null;
 
                 continue;
             }
@@ -150,7 +158,7 @@ final class ResultNormalizer
                 continue;
             }
 
-            $metrics[$key] = $item['row']->metrics[$key] ?? ('count' === $key ? 0 : null);
+            $metrics[$key] = $item['row']->metrics[$key] ?? ($key === $baseMetricKey ? 0 : null);
         }
 
         return $metrics;
@@ -352,6 +360,49 @@ final class ResultNormalizer
             'labels' => $labels,
             'series' => $series,
             'visualMetricKey' => $visualMetricKey,
+        ];
+    }
+
+    /**
+     * @param list<EnrichedAnalysisRow> $rows
+     * @param list<string>              $chartMetricKeys
+     *
+     * @return array<string, mixed>
+     */
+    private function buildChartDataByMetric(
+        AnalysisDimension $primary,
+        array $rows,
+        array $chartMetricKeys,
+    ): array {
+        $bucketRows = array_values(array_filter(
+            $rows,
+            static fn (EnrichedAnalysisRow $row): bool => null === $row->seriesKey,
+        ));
+
+        $labels = array_map(
+            static fn (EnrichedAnalysisRow $row): string => $row->bucketLabel,
+            $bucketRows,
+        );
+
+        $series = [];
+        foreach ($chartMetricKeys as $metricKey) {
+            $metric = $this->metricRegistry->get($metricKey);
+            $data = array_map(
+                fn (EnrichedAnalysisRow $row): int|float => $this->visualMetricValue($row, $metricKey),
+                $bucketRows,
+            );
+            $series[] = [
+                'name' => $metric->label,
+                'data' => $data,
+            ];
+        }
+
+        return [
+            'type' => $primary->recommendedChartType,
+            'labels' => $labels,
+            'series' => $series,
+            'visualMetricKey' => $chartMetricKeys[0] ?? 'count',
+            'seriesMode' => AnalysisSeriesMode::ByMetric->value,
         ];
     }
 

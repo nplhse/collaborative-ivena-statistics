@@ -6,6 +6,7 @@ namespace App\Statistics\GenericAnalysis\Application;
 
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisPreset;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
@@ -39,9 +40,13 @@ final readonly class GenericAnalysisMetricRequestResolver
     /**
      * @param list<string> $metricKeys
      */
-    public function resolveVisualMetricKey(Request $request, array $metricKeys, ?string $presetVisualMetricKey): ?string
-    {
-        $resolvedKeys = [] === $metricKeys ? ['count'] : $metricKeys;
+    public function resolveVisualMetricKey(
+        Request $request,
+        array $metricKeys,
+        ?string $presetVisualMetricKey,
+        AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
+    ): ?string {
+        $resolvedKeys = [] === $metricKeys ? [$dataSource->defaultMetricKey()] : $metricKeys;
         $override = $this->queryString($request, GenericAnalysisQueryKeys::VISUAL_METRIC);
         if (null !== $override && \in_array($override, $resolvedKeys, true)) {
             return $override;
@@ -67,10 +72,11 @@ final readonly class GenericAnalysisMetricRequestResolver
      */
     public function normalizeRequestedMetrics(AnalysisQuery $draftQuery, array $requestedKeys): array
     {
-        $keys = ['count'];
+        $baseMetricKey = $draftQuery->dataSource->defaultMetricKey();
+        $keys = [$baseMetricKey];
 
         foreach ($requestedKeys as $key) {
-            if ('' === $key || 'count' === $key) {
+            if ('' === $key || $key === $baseMetricKey || 'count' === $key || 'hospital_count' === $key) {
                 continue;
             }
 

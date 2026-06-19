@@ -20,9 +20,14 @@ final readonly class EnrichedAnalysisRow
     ) {
     }
 
+    public function baseMetricValue(string $baseMetricKey): int
+    {
+        return (int) ($this->metrics[$baseMetricKey] ?? 0);
+    }
+
     public function countValue(): int
     {
-        return (int) ($this->metrics['count'] ?? 0);
+        return $this->baseMetricValue('count');
     }
 
     #[\Deprecated(message: "Use countValue() or metrics['count']")]

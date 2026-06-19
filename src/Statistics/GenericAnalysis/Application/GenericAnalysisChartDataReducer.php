@@ -65,6 +65,10 @@ final readonly class GenericAnalysisChartDataReducer
 
     private function shouldLimitPrimaryBuckets(AnalysisDimension $primary, int $labelCount, ?int $cap): bool
     {
+        if ($primary->preserveAllBuckets) {
+            return false;
+        }
+
         if (null === $cap || $labelCount <= $cap) {
             return false;
         }

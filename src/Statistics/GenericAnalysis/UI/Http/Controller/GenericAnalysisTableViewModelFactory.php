@@ -51,13 +51,21 @@ final readonly class GenericAnalysisTableViewModelFactory
         $primary = $this->dimensionRegistry->get($primaryDimensionKey);
         $primaryIsTemporal = AnalysisDimensionType::Temporal === $primary->type;
         $distinctBucketCount = $this->countDistinctPrimaryBuckets($result->rows);
-        $rowLimit = GenericAnalysisTableRowLimit::resolve($request, $distinctBucketCount, $primaryIsTemporal);
+        $rowLimit = GenericAnalysisTableRowLimit::resolve(
+            $request,
+            $distinctBucketCount,
+            $primaryIsTemporal,
+            $primary->preserveAllBuckets,
+        );
+
+        $baseMetricKey = $result->distributionBaseMetricKey;
 
         [$stackedRows] = $this->tableRowLimiter->limit(
             $result->rows,
             $rowLimit->cap(),
             $result->grandTotal,
             $result->metricKeys,
+            $baseMetricKey,
         );
 
         $seriesColumns = $this->extractSeriesColumns($stackedRows);
@@ -68,6 +76,7 @@ final readonly class GenericAnalysisTableViewModelFactory
             $seriesColumns,
             $showPercentOfBucket,
             $showPercentOfTotal,
+            $baseMetricKey,
         );
 
         $seriesColumnCount = \count($seriesColumns);
@@ -77,6 +86,7 @@ final readonly class GenericAnalysisTableViewModelFactory
             $seriesColumns,
             $result->grandTotal,
             $showPercentOfTotal,
+            $baseMetricKey,
         );
 
         return new GenericAnalysisTableViewModel(
@@ -124,10 +134,11 @@ final readonly class GenericAnalysisTableViewModelFactory
         array $seriesColumns,
         int $grandTotal,
         bool $showPercentOfTotal,
+        string $baseMetricKey,
     ): GenericAnalysisTableFooterTotals {
         $totalValue = 0;
         foreach ($stackedRows as $row) {
-            $totalValue += $row->countValue();
+            $totalValue += $row->baseMetricValue($baseMetricKey);
         }
 
         $seriesCells = [];
@@ -217,6 +228,7 @@ final readonly class GenericAnalysisTableViewModelFactory
         array $seriesColumns,
         bool $showPercentOfBucket,
         bool $showPercentOfTotal,
+        string $baseMetricKey,
     ): array {
         if ([] === $seriesColumns) {
             return [];
@@ -241,7 +253,7 @@ final readonly class GenericAnalysisTableViewModelFactory
 
             if (null !== $row->seriesKey) {
                 $byBucket[$bucketKey]['cells'][$row->seriesKey] = new GenericAnalysisGroupedSeriesCell(
-                    value: $row->countValue(),
+                    value: $row->baseMetricValue($baseMetricKey),
                     percentOfTotal: $showPercentOfTotal
                         ? (float) ($row->metrics['percent_of_total'] ?? 0.0)
                         : 0.0,

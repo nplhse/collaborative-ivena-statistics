@@ -7,7 +7,6 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
-use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartRecommendationService;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
@@ -48,7 +47,11 @@ final class GenericAnalysisChartViewModelFactoryTest extends TestCase
             $translator,
         );
         $this->factory = new GenericAnalysisChartViewModelFactory(
-            new GenericAnalysisChartRecommendationService(new DimensionRegistry(), $translator),
+            GenericAnalysisTestFixtures::configurationValidator(
+                new DimensionRegistry(),
+                new MetricRegistry(),
+                $translator,
+            ),
             new GenericAnalysisChartSpecBuilder($reducer, new MetricRegistry()),
             $reducer,
             new DimensionRegistry(),
@@ -150,9 +153,9 @@ final class GenericAnalysisChartViewModelFactoryTest extends TestCase
 
         $viewModel = $this->factory->create(
             Request::create('/'),
-            'age_group_distribution',
+            'allocations_by_hospital',
             new AnalysisQuery(
-                primaryDimensionKey: 'age_group',
+                primaryDimensionKey: 'hospital',
                 scopeCriteria: StatisticsScopeCriteria::public(),
                 periodBounds: new StatisticsPeriodBounds(null),
             ),
@@ -165,5 +168,37 @@ final class GenericAnalysisChartViewModelFactoryTest extends TestCase
             'ga_top=5',
             $viewModel->rowLimitUrls[5],
         );
+    }
+
+    public function testAgeGroupShowsAllBucketsWithoutRowLimitControl(): void
+    {
+        $rows = [];
+        for ($i = 1; $i <= 8; ++$i) {
+            $rows[] = GenericAnalysisTestFixtures::enrichedRow((string) $i, 'Bucket '.$i, $i);
+        }
+
+        $result = GenericAnalysisTestFixtures::normalizedResult(
+            rows: $rows,
+            grandTotal: 36,
+            chartData: [
+                'labels' => array_map(static fn (int $i): string => 'Bucket '.$i, range(1, 8)),
+                'values' => range(1, 8),
+            ],
+        );
+
+        $viewModel = $this->factory->create(
+            Request::create('/'),
+            'age_group_distribution',
+            new AnalysisQuery(
+                primaryDimensionKey: 'age_group',
+                scopeCriteria: StatisticsScopeCriteria::public(),
+                periodBounds: new StatisticsPeriodBounds(null),
+            ),
+            $result,
+        );
+
+        self::assertFalse($viewModel->showRowLimitControl);
+        self::assertSame(GenericAnalysisTableRowLimit::All, $viewModel->activeRowLimit);
+        self::assertEmpty($viewModel->warnings);
     }
 }

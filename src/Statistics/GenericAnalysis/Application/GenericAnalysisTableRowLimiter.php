@@ -26,13 +26,18 @@ final readonly class GenericAnalysisTableRowLimiter
      *
      * @return array{0: list<EnrichedAnalysisRow>, 1: bool}
      */
-    public function limit(array $rows, ?int $cap, int $grandTotal, array $metricKeys): array
-    {
+    public function limit(
+        array $rows,
+        ?int $cap,
+        int $grandTotal,
+        array $metricKeys,
+        string $baseMetricKey = 'count',
+    ): array {
         if (null === $cap) {
             return [$rows, false];
         }
 
-        $bucketTotals = $this->bucketTotals($rows);
+        $bucketTotals = $this->bucketTotals($rows, $baseMetricKey);
         if (\count($bucketTotals) <= $cap) {
             return [$rows, false];
         }
@@ -41,7 +46,7 @@ final readonly class GenericAnalysisTableRowLimiter
         $topBucketKeys = array_slice(array_keys($bucketTotals), 0, $cap);
         $topBucketKeys = array_fill_keys($topBucketKeys, true);
 
-        /** @var array<string, array{count: int, seriesKey: ?string, seriesLabel: ?string}> $otherBySeries */
+        /** @var array<string, array{baseValue: int, seriesKey: ?string, seriesLabel: ?string}> $otherBySeries */
         $otherBySeries = [];
 
         $kept = [];
@@ -55,31 +60,31 @@ final readonly class GenericAnalysisTableRowLimiter
             $seriesKey = $row->seriesKey ?? '';
             if (!isset($otherBySeries[$seriesKey])) {
                 $otherBySeries[$seriesKey] = [
-                    'count' => 0,
+                    'baseValue' => 0,
                     'seriesKey' => $row->seriesKey,
                     'seriesLabel' => $row->seriesLabel,
                 ];
             }
-            $otherBySeries[$seriesKey]['count'] += $row->countValue();
+            $otherBySeries[$seriesKey]['baseValue'] += $row->baseMetricValue($baseMetricKey);
         }
 
         $otherLabel = $this->translator->trans('stats.generic_analysis.chart.remainder_bucket');
         foreach ($otherBySeries as $aggregate) {
-            if ($aggregate['count'] <= 0) {
+            if ($aggregate['baseValue'] <= 0) {
                 continue;
             }
 
             $kept[] = new EnrichedAnalysisRow(
                 bucketKey: self::OTHER_BUCKET_KEY,
                 bucketLabel: $otherLabel,
-                metrics: ['count' => $aggregate['count']],
+                metrics: [$baseMetricKey => $aggregate['baseValue']],
                 formattedMetrics: [],
                 seriesKey: $aggregate['seriesKey'],
                 seriesLabel: $aggregate['seriesLabel'],
             );
         }
 
-        return [$this->recomputePercents($kept, $grandTotal, $metricKeys), true];
+        return [$this->recomputePercents($kept, $grandTotal, $metricKeys, $baseMetricKey), true];
     }
 
     /**
@@ -87,11 +92,11 @@ final readonly class GenericAnalysisTableRowLimiter
      *
      * @return array<string, int>
      */
-    private function bucketTotals(array $rows): array
+    private function bucketTotals(array $rows, string $baseMetricKey): array
     {
         $totals = [];
         foreach ($rows as $row) {
-            $totals[$row->bucketKey] = ($totals[$row->bucketKey] ?? 0) + $row->countValue();
+            $totals[$row->bucketKey] = ($totals[$row->bucketKey] ?? 0) + $row->baseMetricValue($baseMetricKey);
         }
 
         return $totals;
@@ -103,27 +108,33 @@ final readonly class GenericAnalysisTableRowLimiter
      *
      * @return list<EnrichedAnalysisRow>
      */
-    private function recomputePercents(array $rows, int $grandTotal, array $metricKeys): array
-    {
+    private function recomputePercents(
+        array $rows,
+        int $grandTotal,
+        array $metricKeys,
+        string $baseMetricKey,
+    ): array {
         $includePercentOfTotal = \in_array('percent_of_total', $metricKeys, true);
         $includePercentOfBucket = \in_array('percent_of_bucket', $metricKeys, true);
 
         $bucketTotals = [];
         if ($includePercentOfBucket) {
             foreach ($rows as $row) {
-                $bucketTotals[$row->bucketKey] = ($bucketTotals[$row->bucketKey] ?? 0) + $row->countValue();
+                $bucketTotals[$row->bucketKey] = ($bucketTotals[$row->bucketKey] ?? 0)
+                    + $row->baseMetricValue($baseMetricKey);
             }
         }
 
         $enriched = [];
         foreach ($rows as $row) {
-            $metrics = ['count' => $row->countValue()];
+            $baseValue = $row->baseMetricValue($baseMetricKey);
+            $metrics = [$baseMetricKey => $baseValue];
             if ($includePercentOfTotal) {
-                $metrics['percent_of_total'] = $this->percent($row->countValue(), $grandTotal);
+                $metrics['percent_of_total'] = $this->percent($baseValue, $grandTotal);
             }
             if ($includePercentOfBucket) {
                 $metrics['percent_of_bucket'] = $this->percent(
-                    $row->countValue(),
+                    $baseValue,
                     $bucketTotals[$row->bucketKey] ?? 0,
                 );
             }

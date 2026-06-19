@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Domain\DTO;
 
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+
 final readonly class AnalysisResult
 {
     /**
@@ -17,6 +19,13 @@ final readonly class AnalysisResult
         public array $metricKeys,
         public ?string $seriesDimensionKey = null,
         public bool $includeNullBuckets = false,
+        public string $distributionBaseMetricKey = 'count',
+        public AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
     ) {
+    }
+
+    public function distributionBaseMetricKey(): string
+    {
+        return $this->distributionBaseMetricKey;
     }
 }

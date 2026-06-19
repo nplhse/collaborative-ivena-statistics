@@ -44,15 +44,24 @@
                              aria-label="{{ 'stats.generic_analysis.chart.type_selector_label'|trans }}"
                              data-testid="stats-generic-analysis-chart-type">
                             {% for option in genericAnalysisChart.chartTypeOptions %}
-                                <button type="button"
-                                        class="btn btn-outline-secondary{% if option.value == genericAnalysisChart.defaultChartType %} active{% endif %}"
-                                        data-generic-analysis-chart-target="typeButton"
-                                        data-chart-type="{{ option.value }}"
-                                        data-action="generic-analysis-chart#selectType"
-                                        aria-pressed="{{ option.value == genericAnalysisChart.defaultChartType ? 'true' : 'false' }}"
-                                        data-testid="stats-generic-analysis-chart-type-{{ option.value }}">
-                                    {{ option.label }}
-                                </button>
+                                {% set typeUrl = genericAnalysisChart.chartTypeUrls[option.value]|default(null) %}
+                                {% if typeUrl %}
+                                    <a href="{{ typeUrl }}"
+                                       class="btn btn-outline-secondary{% if option.value == genericAnalysisChart.defaultChartType %} active{% endif %}"
+                                       data-testid="stats-generic-analysis-chart-type-{{ option.value }}">
+                                        {{ option.label }}
+                                    </a>
+                                {% else %}
+                                    <button type="button"
+                                            class="btn btn-outline-secondary{% if option.value == genericAnalysisChart.defaultChartType %} active{% endif %}"
+                                            data-generic-analysis-chart-target="typeButton"
+                                            data-chart-type="{{ option.value }}"
+                                            data-action="generic-analysis-chart#selectType"
+                                            aria-pressed="{{ option.value == genericAnalysisChart.defaultChartType ? 'true' : 'false' }}"
+                                            data-testid="stats-generic-analysis-chart-type-{{ option.value }}">
+                                        {{ option.label }}
+                                    </button>
+                                {% endif %}
                             {% endfor %}
                         </div>
                     {% endif %}

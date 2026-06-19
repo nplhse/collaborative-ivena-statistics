@@ -36,6 +36,8 @@ final readonly class GenericAnalysisChartViewModel
         public bool $showRowLimitControl = false,
         public GenericAnalysisTableRowLimit $activeRowLimit = GenericAnalysisTableRowLimit::All,
         public array $rowLimitUrls = [],
+        /** @var array<string, string> */
+        public array $chartTypeUrls = [],
     ) {
     }
 }

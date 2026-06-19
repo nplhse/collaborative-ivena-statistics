@@ -46,6 +46,8 @@ final readonly class GenericAnalysisChartSpecBuilder
             GenericAnalysisChartType::HorizontalBar => $this->buildHorizontalBarSpec($data, $percentScale),
             GenericAnalysisChartType::StackedBar => $this->buildStackedBarSpec($data, $percentScale),
             GenericAnalysisChartType::Bar => $this->buildBarSpec($data, $percentScale),
+            GenericAnalysisChartType::Pie => $this->buildPieSpec($data, $percentScale),
+            GenericAnalysisChartType::Heatmap => $this->buildHeatmapSpec($data),
             default => null,
         };
     }
@@ -73,6 +75,65 @@ final readonly class GenericAnalysisChartSpecBuilder
         }
 
         return $specs;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPieSpec(GenericAnalysisReducedChartData $data, bool $percentScale): array
+    {
+        $values = [];
+        if (null !== $data->counts && [] !== $data->counts) {
+            $values = $data->counts;
+        } elseif (null !== $data->series && [] !== $data->series) {
+            $values = $data->series[0]['data'] ?? [];
+        }
+
+        $spec = [
+            'chartType' => 'pie',
+            'labels' => $data->labels,
+            'series' => [
+                [
+                    'name' => 'Total',
+                    'data' => $values,
+                ],
+            ],
+        ];
+
+        return $this->applyPercentScale($spec, $percentScale);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function buildHeatmapSpec(GenericAnalysisReducedChartData $data): ?array
+    {
+        if (null === $data->series || [] === $data->series) {
+            return null;
+        }
+
+        $rowLabels = $data->labels;
+        $columnLabels = array_map(
+            static fn (array $item): string => $item['name'],
+            $data->series,
+        );
+
+        $matrix = [];
+        foreach (array_keys($rowLabels) as $rowIndex) {
+            $row = [];
+            foreach ($data->series as $seriesItem) {
+                $row[] = $seriesItem['data'][$rowIndex] ?? 0;
+            }
+            $matrix[] = $row;
+        }
+
+        return [
+            'chartType' => 'heatmap',
+            'rowLabels' => $rowLabels,
+            'columnLabels' => $columnLabels,
+            'matrix' => $matrix,
+            'valueFormat' => 'integer',
+        ];
     }
 
     /**

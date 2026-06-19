@@ -45,4 +45,16 @@ final class AnalysisQueryTest extends TestCase
 
         self::assertSame('percent_of_total', $query->resolvedVisualMetricKey());
     }
+
+    public function testCompareModeInjectsPopulationGroupSeriesForHospitals(): void
+    {
+        $query = GenericAnalysisTestFixtures::defaultQuery(
+            dataSource: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource::Hospitals,
+            hospitalPopulationMode: \App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode::Compare,
+        );
+
+        $prepared = GenericAnalysisTestFixtures::modifierRegistry()->prepareForExecution($query);
+
+        self::assertSame('hospital_population_group', $prepared->seriesDimensionKey);
+    }
 }

@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\UI\Http\Controller;
 
+use App\Statistics\GenericAnalysis\Application\AnalysisConfigurationValidator;
 use App\Statistics\GenericAnalysis\Application\DTO\EnrichedAnalysisRow;
+use App\Statistics\GenericAnalysis\Application\DTO\GenericAnalysisChartRecommendation;
 use App\Statistics\GenericAnalysis\Application\DTO\NormalizedAnalysisResult;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
-use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartRecommendationService;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
 use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisTableRowLimit;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricFormat;
@@ -25,7 +27,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class GenericAnalysisChartViewModelFactory
 {
     public function __construct(
-        private GenericAnalysisChartRecommendationService $recommendationService,
+        private AnalysisConfigurationValidator $configurationValidator,
         private GenericAnalysisChartSpecBuilder $specBuilder,
         private GenericAnalysisChartDataReducer $chartDataReducer,
         private DimensionRegistry $dimensionRegistry,
@@ -43,7 +45,17 @@ final readonly class GenericAnalysisChartViewModelFactory
         ?GenericAnalysisRouteContext $routeContext = null,
     ): GenericAnalysisChartViewModel {
         $routeContext ??= GenericAnalysisRouteContext::forPreset($presetKey);
-        $recommendation = $this->recommendationService->recommend($query, $result);
+        $recommendation = $this->configurationValidator->resolveAllowedChartTypes($query, $result);
+
+        if (AnalysisDisplayMode::PivotTable === $query->displayMode || AnalysisDisplayMode::Table === $query->displayMode) {
+            $recommendation = new GenericAnalysisChartRecommendation(
+                hasChart: false,
+                defaultChartType: GenericAnalysisChartType::Table,
+                allowedChartTypes: [GenericAnalysisChartType::Table],
+                warnings: $recommendation->warnings,
+                reason: $query->displayMode->value,
+            );
+        }
 
         $allowedTypes = array_values(array_filter(
             $recommendation->allowedChartTypes,
@@ -64,7 +76,7 @@ final readonly class GenericAnalysisChartViewModelFactory
             ? $this->specBuilder->buildSpecsForTypes($allowedTypes, $query, $result, $primaryBucketCap)
             : [];
 
-        $defaultType = $recommendation->defaultChartType->value;
+        $defaultType = $query->chartType?->value ?? $recommendation->defaultChartType->value;
         if ($recommendation->hasChart && !isset($specsByChartType[$defaultType]) && [] !== $specsByChartType) {
             $defaultType = array_key_first($specsByChartType);
         }
@@ -96,10 +108,11 @@ final readonly class GenericAnalysisChartViewModelFactory
         $visualMetric = $this->metricRegistry->get($result->visualMetricKey);
         $isRelative = MetricFormat::Percent === $visualMetric->defaultFormat;
         $metricLabel = $visualMetric->label;
-        $yAxisLabel = 'count' === $result->visualMetricKey
+        $baseMetricKey = $result->distributionBaseMetricKey;
+        $yAxisLabel = $result->visualMetricKey === $baseMetricKey && 'count' === $baseMetricKey
             ? $this->translator->trans('stats.generic_analysis.chart.y_axis_allocations')
             : $metricLabel;
-        $valueLabel = 'count' === $result->visualMetricKey
+        $valueLabel = $result->visualMetricKey === $baseMetricKey && 'count' === $baseMetricKey
             ? $this->translator->trans('stats.generic_analysis.chart.value_allocations')
             : $metricLabel;
 
@@ -129,6 +142,7 @@ final readonly class GenericAnalysisChartViewModelFactory
             showRowLimitControl: $showRowLimitControl,
             activeRowLimit: $rowLimit,
             rowLimitUrls: $this->rowLimitUrls($request, $routeContext),
+            chartTypeUrls: $this->chartTypeUrls($request, $routeContext, $chartTypeOptions),
         );
     }
 
@@ -146,12 +160,17 @@ final readonly class GenericAnalysisChartViewModelFactory
         $distinctBucketCount = \count($seen);
         $primary = $this->dimensionRegistry->get($query->primaryDimensionKey);
         $primaryIsTemporal = AnalysisDimensionType::Temporal === $primary->type;
-        $rowLimit = GenericAnalysisTableRowLimit::resolve($request, $distinctBucketCount, $primaryIsTemporal);
+        $rowLimit = GenericAnalysisTableRowLimit::resolve(
+            $request,
+            $distinctBucketCount,
+            $primaryIsTemporal,
+            $primary->preserveAllBuckets,
+        );
 
         return [
             $rowLimit->cap(),
             $rowLimit,
-            !$primaryIsTemporal && $distinctBucketCount > 5,
+            !$primary->preserveAllBuckets && !$primaryIsTemporal && $distinctBucketCount > 5,
         ];
     }
 
@@ -171,6 +190,31 @@ final readonly class GenericAnalysisChartViewModelFactory
                 array_merge(
                     $routeContext->routeParams,
                     [GenericAnalysisQueryKeys::TOP => $limit->value],
+                ),
+            );
+        }
+
+        return $urls;
+    }
+
+    /**
+     * @param list<array{value: string, label: string}> $chartTypeOptions
+     *
+     * @return array<string, string>
+     */
+    private function chartTypeUrls(
+        Request $request,
+        GenericAnalysisRouteContext $routeContext,
+        array $chartTypeOptions,
+    ): array {
+        $urls = [];
+        foreach ($chartTypeOptions as $option) {
+            $urls[$option['value']] = $this->navigationUrlBuilder->build(
+                $request,
+                $routeContext->routeName,
+                array_merge(
+                    $routeContext->routeParams,
+                    [GenericAnalysisQueryKeys::CHART => $option['value']],
                 ),
             );
         }

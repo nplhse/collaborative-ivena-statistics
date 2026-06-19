@@ -6,6 +6,11 @@ namespace App\Statistics\GenericAnalysis\Domain\DTO;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDisplayMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisSeriesMode;
+use App\Statistics\GenericAnalysis\Domain\Enum\GenericAnalysisChartType;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
 
 final readonly class AnalysisPreset
 {
@@ -20,6 +25,11 @@ final readonly class AnalysisPreset
         public bool $includeNullBuckets = false,
         public array $metricKeys = [],
         public ?string $visualMetricKey = null,
+        public ?GenericAnalysisChartType $chartType = null,
+        public AnalysisSeriesMode $seriesMode = AnalysisSeriesMode::ByDimension,
+        public AnalysisDisplayMode $displayMode = AnalysisDisplayMode::Chart,
+        public AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
+        public HospitalPopulationMode $hospitalPopulationMode = HospitalPopulationMode::All,
     ) {
     }
 
@@ -35,6 +45,11 @@ final readonly class AnalysisPreset
             metricKeys: $this->metricKeys,
             visualMetricKey: $this->visualMetricKey,
             includeNullBuckets: $this->includeNullBuckets,
+            seriesMode: $this->seriesMode,
+            chartType: $this->chartType,
+            displayMode: $this->displayMode,
+            dataSource: $this->dataSource,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
         );
     }
 }

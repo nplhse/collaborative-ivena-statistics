@@ -35,12 +35,13 @@ enum GenericAnalysisTableRowLimit: string
         Request $request,
         int $distinctPrimaryBuckets,
         bool $primaryIsTemporal,
+        bool $preserveAllBuckets = false,
     ): self {
         if ($request->query->has(GenericAnalysisQueryKeys::TOP)) {
             return self::fromRequestValue($request->query->getString(GenericAnalysisQueryKeys::TOP));
         }
 
-        if ($primaryIsTemporal || $distinctPrimaryBuckets <= 5) {
+        if ($preserveAllBuckets || $primaryIsTemporal || $distinctPrimaryBuckets <= 5) {
             return self::All;
         }
 

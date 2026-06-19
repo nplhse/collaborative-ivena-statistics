@@ -18,9 +18,6 @@ enum GenericAnalysisChartType: string
 
     public function supportsApexChart(): bool
     {
-        return match ($this) {
-            self::Table, self::Heatmap, self::Pie => false,
-            default => true,
-        };
+        return self::Table !== $this;
     }
 }
