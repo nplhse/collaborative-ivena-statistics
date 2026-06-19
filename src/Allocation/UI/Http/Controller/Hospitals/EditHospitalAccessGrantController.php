@@ -38,6 +38,10 @@ final class EditHospitalAccessGrantController extends AbstractController
         ]);
         $form->handleRequest($request);
 
+        if ($request->isMethod('POST')) {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $this->getUser();
             if ($user instanceof User) {

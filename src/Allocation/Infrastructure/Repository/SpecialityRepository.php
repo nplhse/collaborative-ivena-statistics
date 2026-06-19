@@ -29,7 +29,11 @@ final class SpecialityRepository extends ServiceEntityRepository
         if ('lastChange' === $queryParametersDTO->sortBy) {
             $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
         } else {
-            $qb->orderBy('s.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+            $sortField = match ($queryParametersDTO->sortBy) {
+                'id' => 's.id',
+                'name' => 's.name',
+            };
+            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }
 
         if (null !== $queryParametersDTO->search) {

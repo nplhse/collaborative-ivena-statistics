@@ -81,7 +81,7 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
         self::assertNotEmpty($criteria->tierCodes);
     }
 
-    public function testMyHospitalsScopeWithoutAccessFallsBackToPublicCriteria(): void
+    public function testMyHospitalsScopeWithoutAccessReturnsEmptyHospitalScope(): void
     {
         self::bootKernel();
         $resolver = self::getContainer()->get(StatisticsScopeResolver::class);
@@ -92,6 +92,6 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
             new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
         ));
 
-        self::assertNull($criteria->hospitalIds);
+        self::assertSame([], $criteria->hospitalIds);
     }
 }

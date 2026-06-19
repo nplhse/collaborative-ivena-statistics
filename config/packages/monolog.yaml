@@ -2,6 +2,7 @@ monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
         - import
+        - security
 
 when@dev:
     monolog:
@@ -38,6 +39,11 @@ when@dev:
                 id: app.monolog.sentry_logs_main
                 level: warning
                 channels: ["!event", "!import"]
+            security:
+                type: stream
+                path: "%kernel.logs_dir%/security.dev.log"
+                level: info
+                channels: ["security"]
 
 when@test:
     monolog:
@@ -67,6 +73,11 @@ when@test:
                 id: app.monolog.sentry_logs_main
                 level: warning
                 channels: ["!event", "!import"]
+            security:
+                type: stream
+                path: "%kernel.logs_dir%/security.test.log"
+                level: info
+                channels: ["security"]
 
 when@prod:
     monolog:
@@ -107,3 +118,9 @@ when@prod:
                 id: app.monolog.sentry_logs_main
                 level: warning
                 channels: ["!event", "!import"]
+            security:
+                type: stream
+                path: php://stderr
+                level: info
+                formatter: monolog.formatter.json
+                channels: ["security"]

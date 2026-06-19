@@ -4,6 +4,10 @@ framework:
             policy: fixed_window
             limit: 3
             interval: '15 minutes'
+        explore_list:
+            policy: fixed_window
+            limit: 100
+            interval: '10 minutes'
         feedback_submit:
             policy: fixed_window
             limit: 5
@@ -20,6 +24,10 @@ framework:
 when@test:
     framework:
         rate_limiter:
+            explore_list:
+                policy: fixed_window
+                limit: 3
+                interval: '15 minutes'
             feedback_submit:
                 policy: fixed_window
                 limit: 10000

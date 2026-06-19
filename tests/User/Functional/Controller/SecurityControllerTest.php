@@ -18,6 +18,18 @@ final class SecurityControllerTest extends WebTestCase
     use Factories;
     use HasBrowser;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        static::createClient()->getContainer()->get('cache.rate_limiter')->clear();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        self::ensureKernelShutdown();
+    }
+
     public function testLoginIsBlockedWithoutConsentDecision(): void
     {
         UserFactory::new(['username' => 'foo'])->create();
@@ -58,7 +70,7 @@ final class SecurityControllerTest extends WebTestCase
             ->fillField('Password', 'password')
             ->click('Sign in')
             ->assertSuccessful()
-            ->assertSeeIn('.alert.alert-danger', 'Account is disabled.')
+            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
             ->assertSee('Login')
         ;
     }
@@ -76,7 +88,7 @@ final class SecurityControllerTest extends WebTestCase
             ->fillField('Password', 'password')
             ->click('Sign in')
             ->assertSuccessful()
-            ->assertSeeIn('.alert.alert-danger', 'Please confirm your email address before signing in.')
+            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
             ->assertSee('Login')
         ;
     }

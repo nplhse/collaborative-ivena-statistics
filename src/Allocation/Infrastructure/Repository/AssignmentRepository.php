@@ -29,7 +29,11 @@ final class AssignmentRepository extends ServiceEntityRepository
         if ('lastChange' === $queryParametersDTO->sortBy) {
             $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
         } else {
-            $qb->orderBy('a.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+            $sortField = match ($queryParametersDTO->sortBy) {
+                'id' => 'a.id',
+                'name' => 'a.name',
+            };
+            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }
 
         if (null !== $queryParametersDTO->search) {

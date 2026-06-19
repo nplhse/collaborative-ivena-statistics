@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\UI\Form;
 
+use App\User\Domain\Validator\UserPasswordConstraints;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -39,10 +40,7 @@ final class RegistrationFormType extends AbstractType
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
-                'constraints' => [
-                    new NotBlank(),
-                    new Length(min: 8, max: 4096),
-                ],
+                'constraints' => UserPasswordConstraints::forPlainPassword(),
             ])
             ->add('acceptTerms', CheckboxType::class, [
                 'mapped' => false,

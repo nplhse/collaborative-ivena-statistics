@@ -29,7 +29,12 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
         if ('lastChange' === $queryParametersDTO->sortBy) {
             $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
         } else {
-            $qb->orderBy('i.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+            $sortField = match ($queryParametersDTO->sortBy) {
+                'id' => 'i.id',
+                'name' => 'i.name',
+                'code' => 'i.code',
+            };
+            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }
 
         if (null !== $queryParametersDTO->search) {

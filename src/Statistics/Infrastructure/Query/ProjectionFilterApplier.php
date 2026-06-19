@@ -36,6 +36,12 @@ final class ProjectionFilterApplier
             return;
         }
 
+        if ([] === $hospitalIds) {
+            $qb->andWhere('1 = 0');
+
+            return;
+        }
+
         $qb->andWhere(sprintf('%s IN (:hospitalIds)', $field))
             ->setParameter('hospitalIds', $hospitalIds);
     }

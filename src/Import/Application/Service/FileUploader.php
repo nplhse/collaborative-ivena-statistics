@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /** @psalm-suppress ClassMustBeFinal */
 final readonly class FileUploader
 {
+    /** @var list<string> */
+    private const array ALLOWED_EXTENSIONS = ['csv', 'txt', 'xls', 'xlsx'];
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         #[Autowire(param: 'app.imports_base_dir')] private string $baseDir,
@@ -43,7 +46,6 @@ final readonly class FileUploader
             $relative = str_replace('\\', '/', $relative);
 
             $this->logger->info('upload.success', [
-                'target_abs' => $targetAbs,
                 'target_rel' => $relative,
                 'size' => $size,
                 'mime' => $mime,
@@ -53,7 +55,7 @@ final readonly class FileUploader
             return $relative;
         } catch (FileException $e) {
             $this->logger->error('upload.failed', [
-                'target_abs' => $targetAbs,
+                'target_rel' => Path::makeRelative($targetAbs, $this->projectDir),
                 'error' => $e->getMessage(),
                 'orig' => $file->getClientOriginalName(),
             ]);
@@ -64,26 +66,37 @@ final readonly class FileUploader
     private function resolveExtension(UploadedFile $file): string
     {
         $originalExt = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
-        if ('' !== $originalExt) {
+        if ('' !== $originalExt && \in_array($originalExt, self::ALLOWED_EXTENSIONS, true)) {
             return $originalExt;
         }
 
-        $mime = strtolower($file->getClientMimeType());
+        $mime = strtolower((string) $file->getClientMimeType());
         $csvMimes = [
             'text/csv',
             'text/plain',
             'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ];
 
-        if (in_array($mime, $csvMimes, true)) {
-            return 'csv';
+        if (\in_array($mime, $csvMimes, true)) {
+            return match ($mime) {
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+                'application/vnd.ms-excel' => 'xls',
+                default => 'csv',
+            };
         }
 
         $guessed = $file->guessExtension();
         if (is_string($guessed) && '' !== $guessed) {
-            return strtolower($guessed);
+            $guessed = strtolower($guessed);
+            if (\in_array($guessed, self::ALLOWED_EXTENSIONS, true)) {
+                return $guessed;
+            }
         }
 
-        return 'bin';
+        throw new FileException(sprintf(
+            'Unsupported import file type. Allowed extensions: %s.',
+            implode(', ', self::ALLOWED_EXTENSIONS),
+        ));
     }
 }

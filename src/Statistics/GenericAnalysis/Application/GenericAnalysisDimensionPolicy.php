@@ -23,7 +23,7 @@ final readonly class GenericAnalysisDimensionPolicy
             'state' => $this->allowsState($filter, $user),
             'dispatchArea' => $this->allowsDispatchArea($filter, $user),
             'hospital_cohort' => true,
-            default => true,
+            default => false,
         };
     }
 

@@ -36,7 +36,7 @@ final class ConfirmPasswordControllerTest extends WebTestCase
         self::assertStringNotContainsString('Confirm your password', (string) $client->getResponse()->getContent());
     }
 
-    public function testRememberMeUserCanAccessChangePasswordWithoutConfirm(): void
+    public function testRememberMeUserMustConfirmPasswordBeforeChangingPassword(): void
     {
         UserFactory::new([
             'email' => 'remember-pwd@example.test',
@@ -49,8 +49,8 @@ final class ConfirmPasswordControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/settings/password');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h2', 'Change password');
-        self::assertStringNotContainsString('Confirm your password', (string) $client->getResponse()->getContent());
+        self::assertSelectorTextContains('h2', 'Confirm your password');
+        self::assertStringNotContainsString('Change password', (string) $client->getResponse()->getContent());
     }
 
     public function testRememberMeUserIsRedirectedToConfirmPasswordWhenAccessingChangeEmail(): void

@@ -55,6 +55,10 @@ final class NewHospitalAccessGrantController extends AbstractController
         ]);
         $form->handleRequest($request);
 
+        if ($request->isMethod('POST')) {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $selectedUser = $grant->getUser();
             if (!$selectedUser instanceof User) {

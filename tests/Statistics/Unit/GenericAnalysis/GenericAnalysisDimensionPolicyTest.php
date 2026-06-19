@@ -78,6 +78,15 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
         ));
     }
 
+    public function testUnknownDimensionIsDenied(): void
+    {
+        self::assertFalse($this->policy->isAllowed(
+            'unknown_dimension',
+            $this->filter(StatisticsFilterScope::Public),
+            null,
+        ));
+    }
+
     public function testHospitalCohortDimensionAlwaysAllowed(): void
     {
         self::assertTrue($this->policy->isAllowed(

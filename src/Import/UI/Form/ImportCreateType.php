@@ -64,7 +64,12 @@ final class ImportCreateType extends AbstractType
                     new Assert\NotNull(),
                     new FileConstraint(
                         maxSize: $this->maxSize,
-                        mimeTypes: ['text/csv', 'application/vnd.ms-excel', 'text/plain'],
+                        mimeTypes: [
+                            'text/csv',
+                            'application/vnd.ms-excel',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'text/plain',
+                        ],
                         mimeTypesMessage: 'label.import.mimeTypes',
                     ),
                 ],

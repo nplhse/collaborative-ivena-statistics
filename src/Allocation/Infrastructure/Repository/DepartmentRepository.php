@@ -29,7 +29,11 @@ final class DepartmentRepository extends ServiceEntityRepository
         if ('lastChange' === $queryParametersDTO->sortBy) {
             $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
         } else {
-            $qb->orderBy('d.'.$queryParametersDTO->sortBy, $queryParametersDTO->orderBy);
+            $sortField = match ($queryParametersDTO->sortBy) {
+                'id' => 'd.id',
+                'name' => 'd.name',
+            };
+            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
         }
 
         if (null !== $queryParametersDTO->search) {

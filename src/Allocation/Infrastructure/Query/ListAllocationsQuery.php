@@ -104,7 +104,6 @@ final readonly class ListAllocationsQuery
         $sortField = match ($queryParametersDTO->sortBy) {
             'arrivalAt' => 'a.arrivalAt',
             'age' => 'a.age',
-            default => 'h.'.$queryParametersDTO->sortBy,
         };
 
         if (null !== $queryParametersDTO->tier && '' !== $queryParametersDTO->tier) {

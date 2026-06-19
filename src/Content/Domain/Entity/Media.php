@@ -25,7 +25,6 @@ class Media implements \Stringable
         'image/jpeg',
         'image/png',
         'image/webp',
-        'image/gif',
         'application/pdf',
     ];
 

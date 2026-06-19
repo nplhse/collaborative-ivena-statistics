@@ -115,6 +115,7 @@ final class SettingsController extends AbstractController
     }
 
     #[Route('/settings/password', name: 'app_settings_password')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function password(
         Request $request,
     ): Response {
@@ -188,6 +189,7 @@ final class SettingsController extends AbstractController
     }
 
     #[Route('/settings/force-password-change', name: 'app_force_change_password')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function forceChangePassword(
         Request $request,
     ): Response {

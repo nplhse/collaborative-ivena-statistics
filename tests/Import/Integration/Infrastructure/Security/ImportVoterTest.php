@@ -97,6 +97,25 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
+    public function testDeleteGrantedForHospitalOwnerEvenWhenNotCreator(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, $creator);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $import->getHospital(),
+            'user' => $creator,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::Import]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DELETE]),
+        );
+    }
+
     public function testDeleteGrantedForAdmin(): void
     {
         $admin = UserFactory::new()->asAdmin()->create();
@@ -109,11 +128,30 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
-    public function testDeleteGrantedForCreatorWithoutHospitalAccess(): void
+    public function testDeleteDeniedForCreatorWithoutHospitalAccess(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $import = $this->createImportForOwner($owner, $creator);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($creator), $import, [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testDeleteGrantedForCreatorWithImportGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, $creator);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $import->getHospital(),
+            'user' => $creator,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::Import]),
+            'createdBy' => $owner,
+        ]);
 
         self::assertSame(
             Voter::ACCESS_GRANTED,
@@ -130,6 +168,26 @@ final class ImportVoterTest extends KernelTestCase
         self::assertSame(
             Voter::ACCESS_DENIED,
             $this->voter->vote($this->createToken($intruder), $import, [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testDeleteDeniedForGranteeWithImportPermissionButNotCreator(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, $creator);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $import->getHospital(),
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::Import]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($grantee), $import, [ImportVoter::DELETE]),
         );
     }
 
@@ -179,7 +237,7 @@ final class ImportVoterTest extends KernelTestCase
 
     private function createImportForOwner(object $owner, ?object $createdBy = null): object
     {
-        $createdBy ??= UserFactory::createOne();
+        $createdBy ??= $owner;
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne();
         $hospital = HospitalFactory::createOne([
