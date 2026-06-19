@@ -65,6 +65,7 @@ class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-explorer-sidebar"]');
         $this->assertSelectorExists('[data-testid="stats-reports-widget"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-table-card"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-table-card"] .card-header');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Rank');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Indication');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Count');
