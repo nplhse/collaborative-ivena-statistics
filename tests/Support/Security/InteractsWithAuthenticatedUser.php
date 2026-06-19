@@ -10,6 +10,15 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 trait InteractsWithAuthenticatedUser
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        static::bootKernel();
+        static::getContainer()->get('cache.rate_limiter')->clear();
+        static::ensureKernelShutdown();
+    }
+
     protected function createClientAsRoleUser(): KernelBrowser
     {
         $client = static::createClient();
