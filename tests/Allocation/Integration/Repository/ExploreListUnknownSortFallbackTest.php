@@ -53,7 +53,7 @@ final class ExploreListUnknownSortFallbackTest extends KernelTestCase
 
         $paginator = self::getContainer()
             ->get(HospitalRepository::class)
-            ->getHospitalListPaginator(new HospitalQueryParametersDTO(sortBy: 'unknown', orderBy: 'asc'));
+            ->getHospitalListPaginator(new HospitalQueryParametersDTO(orderBy: 'asc', sortBy: 'unknown'));
 
         self::assertSame(2, $paginator->getNumResults());
     }
