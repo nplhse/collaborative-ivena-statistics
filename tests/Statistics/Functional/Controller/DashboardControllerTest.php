@@ -61,6 +61,10 @@ class DashboardControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_transport"]');
         $this->assertSelectorExists('[data-testid="stats-executive-indications"]');
         $this->assertSelectorExists('[data-testid="stats-overview-top-reports-frame"]');
+        self::assertSame(
+            '_top',
+            $crawler->filter('[data-testid="stats-overview-top-reports-frame"]')->attr('target'),
+        );
         $this->assertSelectorNotExists('[data-testid="stats-overview-top-specialities"]');
         $this->assertSelectorExists('[data-testid="stats-overview-time-series"]');
         $this->assertSelectorExists('[data-testid="stats-overview-heatmap"]');
