@@ -16,7 +16,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class GenericAnalysisChartDataReducer
 {
-    public const int TOP_SERIES_LIMIT = 5;
+    private const int TOP_SERIES_LIMIT = 5;
 
     public function __construct(
         private DimensionRegistry $dimensionRegistry,

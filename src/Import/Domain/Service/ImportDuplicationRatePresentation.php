@@ -8,11 +8,11 @@ use App\Import\Domain\DTO\ImportRateBadge;
 
 final class ImportDuplicationRatePresentation
 {
-    public const float LOW_MAX_RATIO = 0.10;
+    private const float LOW_MAX_RATIO = 0.10;
 
-    public const float ELEVATED_MAX_RATIO = 0.35;
+    private const float ELEVATED_MAX_RATIO = 0.35;
 
-    public const float HIGH_MIN_RATIO = 0.50;
+    private const float HIGH_MIN_RATIO = 0.50;
 
     public static function forPercent(float $percent): ImportRateBadge
     {

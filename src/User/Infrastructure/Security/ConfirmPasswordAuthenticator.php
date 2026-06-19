@@ -26,7 +26,7 @@ final class ConfirmPasswordAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    public const string LOGIN_ROUTE = 'app_confirm_password';
+    private const string LOGIN_ROUTE = 'app_confirm_password';
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

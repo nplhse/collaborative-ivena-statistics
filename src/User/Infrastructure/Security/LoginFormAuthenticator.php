@@ -29,7 +29,7 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    public const string LOGIN_ROUTE = 'app_login';
+    private const string LOGIN_ROUTE = 'app_login';
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

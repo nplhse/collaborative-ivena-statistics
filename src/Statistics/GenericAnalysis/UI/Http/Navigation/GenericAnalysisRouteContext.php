@@ -6,11 +6,11 @@ namespace App\Statistics\GenericAnalysis\UI\Http\Navigation;
 
 final readonly class GenericAnalysisRouteContext
 {
-    public const string GENERIC_ROUTE = 'app_stats_generic_analysis';
+    private const string GENERIC_ROUTE = 'app_stats_generic_analysis';
 
     public const string ANALYTICS_VIEW_ROUTE = 'app_stats_analytics_view';
 
-    public const string ANALYTICS_SAVED_ROUTE = 'app_stats_analytics_saved';
+    private const string ANALYTICS_SAVED_ROUTE = 'app_stats_analytics_saved';
 
     /**
      * @param array<string, string> $routeParams

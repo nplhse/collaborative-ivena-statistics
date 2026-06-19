@@ -26,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class PageContentBlockDataFieldsConfigurator
 {
     /** @var list<string> */
-    public const array DATA_FIELD_NAMES = [
+    private const array DATA_FIELD_NAMES = [
         'html', 'src', 'alt', 'caption', 'headline', 'buttonLabel', 'buttonUrl',
         'mediaId', 'linkType', 'openInNewTab', 'text',
         'level', 'align', 'spacingBefore', 'spacingAfter',
