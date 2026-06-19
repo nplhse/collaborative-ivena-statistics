@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /** @psalm-suppress ClassMustBeFinal */
-readonly class FileUploader
+final readonly class FileUploader
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

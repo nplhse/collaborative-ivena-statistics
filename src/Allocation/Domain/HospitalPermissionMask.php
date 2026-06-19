@@ -8,7 +8,7 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 
 final class HospitalPermissionMask
 {
-    public const int ALL = 31;
+    private const int ALL = 31;
 
     public static function has(int $mask, HospitalPermission $permission): bool
     {

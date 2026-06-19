@@ -29,7 +29,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-class DashboardControllerTest extends WebTestCase
+final class DashboardControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
@@ -118,7 +118,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewShowsAggregateCasesPerDayHintBelowValueForParticipantWithoutOwnedHospitals(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $participant = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $hospitalOwner = UserFactory::createOne();
         $hospital = HospitalFactory::createOne(['owner' => $hospitalOwner]);
@@ -133,7 +133,7 @@ class DashboardControllerTest extends WebTestCase
 
     public function testOverviewShowsAggregateCasesPerDayHintAboveValueForHospitalOwner(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         HospitalFactory::createOne(['owner' => $owner]);
         $client->loginUser($owner);

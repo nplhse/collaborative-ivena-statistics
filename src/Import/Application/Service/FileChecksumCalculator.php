@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Path;
 
 /** @psalm-suppress ClassMustBeFinal */
-readonly class FileChecksumCalculator
+final readonly class FileChecksumCalculator
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(

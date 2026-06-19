@@ -20,12 +20,6 @@ final class StatisticsTransportTimeBucketSql
         'over_60',
     ];
 
-    /** @var list<string> */
-    public const array BUCKET_KEYS = [
-        ...self::DISPLAY_BUCKET_KEYS,
-        'unknown',
-    ];
-
     public const string CASE_EXPRESSION = <<<'SQL'
 CASE
     WHEN transport_time_minutes IS NULL OR transport_time_minutes < 0 THEN 'unknown'

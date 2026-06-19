@@ -167,6 +167,7 @@
         "psalm/plugin-phpunit": "^0.19.7",
         "psalm/plugin-symfony": "^5.3",
         "rector/rector": "^2.4.5",
+        "rector/swiss-knife": "^2.4",
         "roave/security-advisories": "dev-latest",
         "symfony/browser-kit": "8.1.*",
         "symfony/css-selector": "8.1.*",

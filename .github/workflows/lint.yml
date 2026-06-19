@@ -72,6 +72,15 @@ jobs:
             - name: Check if any dependencies are compromised
               run: composer audit
 
+            - name: Check for git merge conflicts
+              run: vendor/bin/swiss-knife check-conflicts . --exclude vendor --exclude var
+
+            - name: Check for commented-out code
+              run: vendor/bin/swiss-knife check-commented-code src tests
+
+            - name: Check for non-final classes
+              run: vendor/bin/swiss-knife finalize-classes src tests --dry-run --skip-mocked --skip-file 'src/**/Domain/Entity/*' --skip-file 'src/**/Infrastructure/Entity/*'
+
             - name: Check if rector finds any issues
               run: vendor/bin/rector --dry-run
 

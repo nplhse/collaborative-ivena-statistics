@@ -11,6 +11,4 @@ final class AnalyticsLibraryQueryKeys
     public const string SEARCH = 'q';
 
     public const string CATEGORY = 'category';
-
-    public const string TAG = 'tag';
 }

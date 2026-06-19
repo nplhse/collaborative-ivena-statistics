@@ -12,7 +12,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-class SecurityControllerTest extends WebTestCase
+final class SecurityControllerTest extends WebTestCase
 {
     use CookieConsentTestHelper;
     use Factories;

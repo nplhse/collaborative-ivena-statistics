@@ -26,7 +26,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-class ListAllocationsControllerTest extends WebTestCase
+final class ListAllocationsControllerTest extends WebTestCase
 {
     use InteractsWithAuthenticatedUser;
     use Factories;
