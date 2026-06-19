@@ -172,6 +172,15 @@ final class ListImportsQueryTest extends KernelTestCase
         self::assertSame(['Earlier', 'Later'], $names);
     }
 
+    public function testUnknownSortByFallsBackToCreatedAt(): void
+    {
+        [$owner] = $this->seedTwoOwnersWithImports();
+
+        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(sortBy: 'unknown'));
+
+        self::assertGreaterThanOrEqual(1, $paginator->getNumResults());
+    }
+
     /**
      * @return array{0: User, 1: Import}
      */
