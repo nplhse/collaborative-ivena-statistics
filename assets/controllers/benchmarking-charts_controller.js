@@ -1,5 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
-import { buildHeatmapSeries, heatmapColumnIndexFromSeriesIndex } from '../lib/build-heatmap-series.js';
+import {
+    buildHeatmapSeries,
+    heatmapColumnIndexFromSeriesIndex,
+} from '../lib/build-heatmap-series.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -87,13 +90,16 @@ export default class extends Controller {
     }) {
         const formatPercent = (value) => this.formatPercent(value);
         const formatDelta = (value) => this.formatDelta(value);
-        const deltaClass = delta > 0 ? 'text-danger' : (delta < 0 ? 'text-success' : 'text-secondary');
+        const deltaClass =
+            delta > 0 ? 'text-danger' : delta < 0 ? 'text-success' : 'text-secondary';
 
-        return ''
-            + `<div class="fw-medium mb-1">${weekday} · ${bucket}</div>`
-            + `<div class="small text-secondary">${primaryLabel}: ${formatPercent(primaryShare)}%</div>`
-            + `<div class="small text-secondary">${comparisonLabel}: ${formatPercent(comparisonShare)}%</div>`
-            + `<div class="fw-bold mt-1 ${deltaClass}">Δ ${formatDelta(delta)}%</div>`;
+        return (
+            '' +
+            `<div class="fw-medium mb-1">${weekday} · ${bucket}</div>` +
+            `<div class="small text-secondary">${primaryLabel}: ${formatPercent(primaryShare)}%</div>` +
+            `<div class="small text-secondary">${comparisonLabel}: ${formatPercent(comparisonShare)}%</div>` +
+            `<div class="fw-bold mt-1 ${deltaClass}">Δ ${formatDelta(delta)}%</div>`
+        );
     }
 
     buildDeltaHeatmapColorScale(maxAbsDelta) {
@@ -116,8 +122,6 @@ export default class extends Controller {
 
     setHeatmapMode(event) {
         this.heatmapModeValue = event.params.mode;
-        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
-        void this.renderHeatmapOnly(this._renderGeneration);
     }
 
     heatmapModeValueChanged() {
@@ -190,10 +194,16 @@ export default class extends Controller {
 
     syncHeatmapModeButtons() {
         if (this.hasHeatmapModeDayTimeTarget) {
-            this.heatmapModeDayTimeTarget.classList.toggle('active', this.heatmapModeValue === 'dayTime');
+            this.heatmapModeDayTimeTarget.classList.toggle(
+                'active',
+                this.heatmapModeValue === 'dayTime',
+            );
         }
         if (this.hasHeatmapModeShiftTarget) {
-            this.heatmapModeShiftTarget.classList.toggle('active', this.heatmapModeValue === 'shift');
+            this.heatmapModeShiftTarget.classList.toggle(
+                'active',
+                this.heatmapModeValue === 'shift',
+            );
         }
     }
 
@@ -260,7 +270,10 @@ export default class extends Controller {
                 events: {
                     dataPointMouseEnter(event, _chartContext, config) {
                         const rowIndex = config.dataPointIndex;
-                        const colIndex = heatmapColumnIndexFromSeriesIndex(config.seriesIndex, columnCount);
+                        const colIndex = heatmapColumnIndexFromSeriesIndex(
+                            config.seriesIndex,
+                            columnCount,
+                        );
                         const content = controller.buildHeatmapTooltipContent({
                             weekday: rowLabels[rowIndex] ?? '',
                             bucket: columnLabels[colIndex] ?? '',
@@ -280,7 +293,10 @@ export default class extends Controller {
                     },
                     mouseMove(event) {
                         if (controller._activeHeatmapTooltipContent) {
-                            controller.showHeatmapTooltip(event, controller._activeHeatmapTooltipContent);
+                            controller.showHeatmapTooltip(
+                                event,
+                                controller._activeHeatmapTooltipContent,
+                            );
                         }
                     },
                 },
@@ -306,7 +322,6 @@ export default class extends Controller {
 
         chart.render();
         this.heatmapInstance = chart;
-        this.instances.push(chart);
     }
 
     renderGroupedBar(ApexCharts, element, categories, series, options, generation) {
@@ -337,14 +352,10 @@ export default class extends Controller {
             series,
             xaxis: {
                 categories,
-                labels: horizontal
-                    ? { formatter: percentFormatter }
-                    : { trim: true },
+                labels: horizontal ? { formatter: percentFormatter } : { trim: true },
             },
             yaxis: {
-                labels: horizontal
-                    ? { trim: true }
-                    : { formatter: percentFormatter },
+                labels: horizontal ? { trim: true } : { formatter: percentFormatter },
             },
             tooltip: {
                 y: {
