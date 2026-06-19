@@ -6,7 +6,9 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\ClinicalFeaturesProvider;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\HospitalSummaryProvider;
+use App\Statistics\Application\Overview\OverviewDefaultPeriodResolver;
 use App\Statistics\Application\Overview\OverviewExecutiveDashboardAssembler;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
@@ -36,6 +38,7 @@ final class DashboardController extends AbstractController
         private readonly GetOverviewDashboardMetricsQuery $overviewDashboardMetricsQuery,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly OverviewExecutiveDashboardAssembler $executiveDashboardAssembler,
+        private readonly OverviewDefaultPeriodResolver $overviewDefaultPeriodResolver,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
     ) {
     }
@@ -53,6 +56,16 @@ final class DashboardController extends AbstractController
             }
 
             return $this->redirectToRoute('app_stats_dashboard', $publicRedirect['query']);
+        }
+
+        if (!$request->query->has('period')) {
+            $contextForPeriod = $this->statisticsContextFactory->create($user, $filter);
+            if (StatisticsFilterPeriod::All === $this->overviewDefaultPeriodResolver->resolveDefaultPeriod($contextForPeriod)) {
+                $query = $request->query->all();
+                $query['period'] = StatisticsFilterPeriod::All->value;
+
+                return $this->redirectToRoute('app_stats_dashboard', $query);
+            }
         }
 
         $context = $this->statisticsContextFactory->create($user, $filter);

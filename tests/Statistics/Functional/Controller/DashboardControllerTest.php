@@ -92,6 +92,30 @@ class DashboardControllerTest extends WebTestCase
         );
     }
 
+    public function testOverviewRedirectsToLast12MonthsWhenEnoughMonthlyDataExists(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedDefaultPeriodScenario(7);
+
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public');
+
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('period=all', $location);
+        self::assertStringContainsString('scope=public', $location);
+    }
+
+    public function testOverviewKeepsAllTimeWhenFewerThanSevenMonthsHaveData(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedDefaultPeriodScenario(3);
+
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public');
+
+        $this->assertResponseIsSuccessful();
+        self::assertStringNotContainsString('period=all', $client->getRequest()->getUri());
+    }
+
     public function testOverviewTopReportsLazyEndpointRendersAllCards(): void
     {
         $client = $this->createClientAsRoleUser();
@@ -394,6 +418,51 @@ class DashboardControllerTest extends WebTestCase
             'createdAt' => new \DateTimeImmutable('2026-06-10 11:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-06-10 11:20:00'),
         ]);
+
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+        $this->refreshOverviewMaterializedViews();
+    }
+
+    private function seedDefaultPeriodScenario(int $monthCount): void
+    {
+        $user = UserFactory::createOne(['username' => 'default-period-fn-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'DefaultPeriodFnState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'DefaultPeriodFnDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'DefaultPeriodFnHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'DefaultPeriodFnSpec']);
+        DepartmentFactory::createOne(['name' => 'DefaultPeriodFnDept']);
+        AssignmentFactory::createOne(['name' => 'DefaultPeriodFnAssign']);
+        IndicationRawFactory::createOne(['name' => 'DefaultPeriodFnRaw', 'code' => 912_371]);
+        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'DefaultPeriodFnNorm']);
+
+        $import = ImportFactory::createOne([
+            'name' => 'DefaultPeriodFnImport',
+            'hospital' => $hospital,
+            'createdBy' => $user,
+        ]);
+
+        $start = new \DateTimeImmutable('first day of this month')->modify('-11 months')->setTime(0, 0, 0);
+        for ($offset = 0; $offset < $monthCount; ++$offset) {
+            $createdAt = $start->modify(sprintf('+%d months', $offset))->modify('+10 days');
+            AllocationFactory::createOne([
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $dispatchArea,
+                'gender' => AllocationGender::MALE,
+                'urgency' => AllocationUrgency::EMERGENCY,
+                'indicationNormalized' => $indicationNormalized,
+                'createdAt' => $createdAt,
+                'arrivalAt' => $createdAt->modify('+20 minutes'),
+            ]);
+        }
 
         $this->rebuildProjectionForImports([(int) $import->getId()]);
         $this->refreshOverviewMaterializedViews();
