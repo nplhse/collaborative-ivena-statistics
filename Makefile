@@ -16,6 +16,8 @@ PHPSTAN       = ./vendor/bin/phpstan
 PHP_CS_FIXER  = ./vendor/bin/php-cs-fixer
 PSALM         = ./vendor/bin/psalm
 RECTOR        = ./vendor/bin/rector
+SWISS_KNIFE   = ./vendor/bin/swiss-knife
+SWISS_KNIFE_FINALIZE_OPTS = --skip-mocked --skip-file 'src/**/Domain/Entity/*' --skip-file 'src/**/Infrastructure/Entity/*'
 TWIG_CS_FIXER = ./vendor/bin/twig-cs-fixer
 
 ## —— 🎵 🐳 The Symfony Docker makefile 🐳 🎵 ——————————————————————————————————
@@ -109,7 +111,7 @@ lint: lint-container lint-php lint-twig lint-trans static-analysis ## Run contin
 
 cs: rector fix-php ## Run all coding standards checks
 
-ci: rector fix-php fix-twig static-analysis
+ci: swiss-knife rector fix-php fix-twig static-analysis
 
 static-analysis: phpstan psalm ## Run the static analysis
 
@@ -139,6 +141,11 @@ psalm: ## Run Psalm
 
 rector: ## Run Rector
 	@$(RECTOR)
+
+swiss-knife: ## Apply Swiss Knife fixes (conflicts, commented code, finalize)
+	@$(SWISS_KNIFE) check-conflicts . --exclude vendor --exclude var
+	@$(SWISS_KNIFE) check-commented-code src tests
+	@$(SWISS_KNIFE) finalize-classes src tests $(SWISS_KNIFE_FINALIZE_OPTS)
 
 check-deprecations: ## Run deprecation checks (console + phpunit)
 	@./bin/check-deprecations
