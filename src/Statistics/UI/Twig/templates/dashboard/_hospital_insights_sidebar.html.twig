@@ -2,7 +2,7 @@
     {% set hasOwnedHospitals = app.user is not null and app.user.hospitals|length > 0 %}
     <div class="card" data-testid="stats-overview-hospital-insights">
         <div class="card-header py-2">
-            <h3 class="card-title mb-0">{{ (hasOwnedHospitals ? 'monthly_reminder.section.insights' : 'stats.overview.executive.section.key_findings')|trans }}</h3>
+            <h3 class="card-title mb-0">{{ (hasOwnedHospitals ? 'monthly_reminder.section.insights' : 'stats.overview.section.key_findings')|trans }}</h3>
         </div>
         <div class="card-body d-flex flex-column gap-3 py-3">
             {% for insight in executiveDashboard.hospitalInsights %}
