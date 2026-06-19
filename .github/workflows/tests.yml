@@ -47,7 +47,7 @@ jobs:
               run: composer install --ansi --no-interaction --no-progress
 
             - name: Execute unit tests via ParaTest
-              run: vendor/bin/paratest --testsuite unit --processes=4 --order-by duration --stop-on-failure
+              run: vendor/bin/paratest --testsuite unit --processes=4 --no-coverage --order-by duration --stop-on-failure
 
     database:
         name: Database tests (PHP ${{ matrix.php-version }})

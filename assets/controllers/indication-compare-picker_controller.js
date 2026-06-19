@@ -44,7 +44,9 @@ export default class extends Controller {
         let match = items.find((item) => item.label.trim().toLowerCase() === value);
 
         if (!match) {
-            const prefixMatches = items.filter((item) => item.label.trim().toLowerCase().startsWith(value));
+            const prefixMatches = items.filter((item) =>
+                item.label.trim().toLowerCase().startsWith(value),
+            );
             if (1 === prefixMatches.length) {
                 match = prefixMatches[0];
             }

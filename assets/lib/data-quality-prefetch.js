@@ -27,7 +27,8 @@ export function parseDrawerHtml(html) {
 }
 
 export function updateIndicatorBadge(content, badge = null) {
-    const badgeElement = badge ?? document.querySelector('[data-testid="stats-data-quality-indicator-badge"]');
+    const badgeElement =
+        badge ?? document.querySelector('[data-testid="stats-data-quality-indicator-badge"]');
     if (!(badgeElement instanceof HTMLElement)) {
         return;
     }

@@ -44,6 +44,9 @@ phpstan.neon
 # macOS
 .DS_Store
 
+# Node (JS dev tooling only)
+/node_modules/
+
 ###> deployer/deployer ###
 /hosts.yaml
 ###< deployer/deployer ###

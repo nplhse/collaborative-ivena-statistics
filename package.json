@@ -1,0 +1,19 @@
+{
+    "name": "collaborative-ivena-statistics",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "lint": "eslint assets/",
+        "lint:fix": "eslint assets/ --fix",
+        "format": "prettier --write \"assets/**/*.js\"",
+        "format:check": "prettier --check \"assets/**/*.js\"",
+        "check:js": "npm run format:check && npm run lint"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.1",
+        "eslint": "^9.39.1",
+        "eslint-config-prettier": "^10.1.8",
+        "globals": "^16.5.0",
+        "prettier": "^3.6.2"
+    }
+}

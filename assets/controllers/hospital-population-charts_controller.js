@@ -43,16 +43,24 @@ export default class extends Controller {
         await this.renderSplitBoxPlots(
             ApexCharts,
             payload.bedsBoxPlotByCareLevel,
-            this.hasBedsCareLevelPopulationBoxPlotTarget ? this.bedsCareLevelPopulationBoxPlotTarget : null,
-            this.hasBedsCareLevelParticipantsBoxPlotTarget ? this.bedsCareLevelParticipantsBoxPlotTarget : null,
+            this.hasBedsCareLevelPopulationBoxPlotTarget
+                ? this.bedsCareLevelPopulationBoxPlotTarget
+                : null,
+            this.hasBedsCareLevelParticipantsBoxPlotTarget
+                ? this.bedsCareLevelParticipantsBoxPlotTarget
+                : null,
             generation,
         );
 
         await this.renderSplitBoxPlots(
             ApexCharts,
             payload.bedsBoxPlotByLocation,
-            this.hasBedsLocationPopulationBoxPlotTarget ? this.bedsLocationPopulationBoxPlotTarget : null,
-            this.hasBedsLocationParticipantsBoxPlotTarget ? this.bedsLocationParticipantsBoxPlotTarget : null,
+            this.hasBedsLocationPopulationBoxPlotTarget
+                ? this.bedsLocationPopulationBoxPlotTarget
+                : null,
+            this.hasBedsLocationParticipantsBoxPlotTarget
+                ? this.bedsLocationParticipantsBoxPlotTarget
+                : null,
             generation,
         );
 
@@ -79,7 +87,13 @@ export default class extends Controller {
         );
     }
 
-    async renderSplitBoxPlots(ApexCharts, data, populationElement, participantsElement, generation) {
+    async renderSplitBoxPlots(
+        ApexCharts,
+        data,
+        populationElement,
+        participantsElement,
+        generation,
+    ) {
         if (generation !== this._renderGeneration || !data) {
             return;
         }

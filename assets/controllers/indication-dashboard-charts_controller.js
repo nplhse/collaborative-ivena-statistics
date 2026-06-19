@@ -64,8 +64,12 @@ export default class extends Controller {
         }
 
         if (this.hasTransportTimeChartTarget) {
-            const labels = JSON.parse(this.transportTimeChartTarget.dataset.transportTimeLabels ?? '[]');
-            const values = JSON.parse(this.transportTimeChartTarget.dataset.transportTimeValues ?? '[]');
+            const labels = JSON.parse(
+                this.transportTimeChartTarget.dataset.transportTimeLabels ?? '[]',
+            );
+            const values = JSON.parse(
+                this.transportTimeChartTarget.dataset.transportTimeValues ?? '[]',
+            );
             this.renderBarChart(
                 ApexCharts,
                 this.transportTimeChartTarget,
@@ -82,8 +86,6 @@ export default class extends Controller {
 
     setHeatmapMode(event) {
         this.heatmapModeValue = event.params.mode;
-        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
-        void this.renderHeatmapOnly(this._renderGeneration);
     }
 
     async renderHeatmapOnly(generation) {
@@ -114,10 +116,16 @@ export default class extends Controller {
 
     syncHeatmapModeButtons() {
         if (this.hasHeatmapModeDayTimeTarget) {
-            this.heatmapModeDayTimeTarget.classList.toggle('active', this.heatmapModeValue === 'dayTime');
+            this.heatmapModeDayTimeTarget.classList.toggle(
+                'active',
+                this.heatmapModeValue === 'dayTime',
+            );
         }
         if (this.hasHeatmapModeShiftTarget) {
-            this.heatmapModeShiftTarget.classList.toggle('active', this.heatmapModeValue === 'shift');
+            this.heatmapModeShiftTarget.classList.toggle(
+                'active',
+                this.heatmapModeValue === 'shift',
+            );
         }
     }
 
@@ -164,11 +172,10 @@ export default class extends Controller {
                 labels: {
                     rotate: 0,
                     hideOverlappingLabels: true,
-                    formatter: (value) => (
+                    formatter: (value) =>
                         typeof value === 'string' && value.includes('-')
                             ? value.slice(2).replace('-', '/')
-                            : value
-                    ),
+                            : value,
                 },
             },
             stroke: showMovingAverage
@@ -209,11 +216,10 @@ export default class extends Controller {
                 labels: {
                     rotate: options.labelRotate ?? 0,
                     hideOverlappingLabels: true,
-                    formatter: (value) => (
+                    formatter: (value) =>
                         options.sparseTicks && typeof value === 'string' && value.includes('-')
                             ? value.slice(2).replace('-', '/')
-                            : value
-                    ),
+                            : value,
                 },
             },
             dataLabels: { enabled: false },
@@ -245,7 +251,10 @@ export default class extends Controller {
         const EMPTY = '#f1f5f9';
         const COLORS = ['#2fb344', '#74b816', '#f59f00', '#f76707', '#d63939'];
 
-        const values = matrix.flat().filter((value) => value > 0).sort((a, b) => a - b);
+        const values = matrix
+            .flat()
+            .filter((value) => value > 0)
+            .sort((a, b) => a - b);
         const ranges = [{ from: 0, to: 0, color: EMPTY }];
 
         if (!values.length) {
@@ -340,6 +349,5 @@ export default class extends Controller {
 
         chart.render();
         this.heatmapInstance = chart;
-        this.instances.push(chart);
     }
 }
