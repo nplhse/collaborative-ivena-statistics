@@ -1,8 +1,9 @@
 .DEFAULT_GOAL = help
-.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade
+.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules
 
 # Executables
 COMPOSER      = composer
+NPM           = npm
 DOCKER        = docker
 SYMFONY       = symfony
 
@@ -25,11 +26,12 @@ help: ## Outputs this help screen
 	@grep -E '(^[a-zA-Z0-9\./_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
 ## —— Project setup 🚀 ——————————————————————————————————————————————————————————
-setup-dev: ## Full dev install (fresh DB, fixtures, test DB)
+setup-dev: ## Full dev install (fresh DB, fixtures, test DB, npm)
 	@$(COMPOSER) install --no-interaction
 	@$(SYMFONY) composer setup-env
 	@$(SYMFONY) composer setup-test-env
 	@$(CONSOLE) asset-map:compile
+	@$(MAKE) node_modules
 
 setup-prod: ## Prod-like install (empty DB, no fixtures, requires .env.local)
 	@$(PROD_ENV) $(COMPOSER) install --prefer-dist --no-dev --no-progress --no-interaction --no-scripts
@@ -49,6 +51,7 @@ upgrade-dev: ## Update deps and schema (dev, keeps existing DB data)
 	@$(CONSOLE) asset-map:compile
 	@$(CONSOLE) cache:clear
 	@$(CONSOLE) cache:warmup
+	@$(MAKE) node_modules
 
 upgrade-prod: ## Update deps and schema (prod-like, keeps existing DB data)
 	@$(PROD_ENV) $(COMPOSER) install --prefer-dist --no-dev --no-progress --no-interaction --no-scripts
@@ -74,6 +77,10 @@ warmup: ## Warm cache and compiled assets only (does not touch the database)
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 vendor: composer.lock ## Install vendors according to the current composer.lock file
 	@$(COMPOSER) install --prefer-dist --no-dev --no-progress --no-interaction
+
+## —— Node / npm 📦 ———————————————————————————————————————————————————————————
+node_modules: package-lock.json ## Install npm dev dependencies according to package-lock.json
+	@$(NPM) install
 
 ## —— Docker 🐳 ————————————————————————————————————————————————————————————————
 start: build up ## Build and start the containers
@@ -107,11 +114,11 @@ trans: ## Extract translations from symfony
 	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc en
 
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
-lint: lint-container lint-php lint-twig lint-trans static-analysis ## Run continuous integration pipeline
+lint: lint-container lint-php lint-twig lint-trans lint-js static-analysis ## Run continuous integration pipeline
 
 cs: rector fix-php ## Run all coding standards checks
 
-ci: swiss-knife rector fix-php fix-twig static-analysis
+ci: swiss-knife rector fix-php fix-twig fix-js static-analysis
 
 static-analysis: phpstan psalm ## Run the static analysis
 
@@ -132,6 +139,13 @@ lint-trans: ## Lint translations
 
 lint-twig: ## Lint files with twig-cs-fixer
 	@$(TWIG_CS_FIXER)
+
+lint-js: ## Lint JavaScript (Prettier + ESLint)
+	@npm run check:js
+
+fix-js: ## Fix JavaScript formatting and auto-fixable ESLint issues
+	@npm run format
+	@npm run lint:fix
 
 phpstan: ## Run PHPStan
 	@$(PHPSTAN) analyse --memory-limit=-1

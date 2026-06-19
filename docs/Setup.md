@@ -5,6 +5,7 @@
 - PHP `>=8.4`
 - PostgreSQL `>=16`
 - Composer
+- Node.js `>=22` and npm (required for JavaScript linting in development)
 - Symfony CLI (recommended)
 - Optional Docker/Compose
 
@@ -18,19 +19,24 @@ cp .env.example .env.local
 make setup-dev
 ```
 
+`make setup-dev` installs Composer and npm dependencies, prepares the database, and compiles assets.
+
 `make install` is an alias for `make setup-dev`.
 
 ### Make targets
 
 | Target | Use when |
 |--------|----------|
-| `setup-dev` | New machine: dev dependencies, fresh DB, fixtures, test DB |
+| `setup-dev` | New machine: dev dependencies (`vendor` + `node_modules`), fresh DB, fixtures, test DB |
 | `setup-prod` | Prod-like local run: `--no-dev`, empty DB, no fixtures |
-| `upgrade-dev` | Pull/update: keep existing dev DB, recreate test DB (incl. test cache clear), migrate, refresh assets |
+| `upgrade-dev` | Pull/update: keep existing dev DB, recreate test DB (incl. test cache clear), migrate, refresh assets, `make node_modules` |
 | `upgrade-prod` | Same as upgrade-dev with prod env and `--no-dev` |
 | `purge` | Remove assets, uploads, `var/imports`, logs, cache; empty DB; no fixtures |
 | `reset` | Like `purge`, then load fixtures |
 | `warmup` | Recompile assets and warm cache only (no DB changes) |
+| `node_modules` | Install npm dev dependencies from `package-lock.json` (ESLint, Prettier) |
+| `lint-js` | Check JavaScript formatting (Prettier) and ESLint rules |
+| `fix-js` | Auto-fix JavaScript formatting and fixable ESLint issues |
 
 All variables: [Configuration.md](Configuration.md)
 
@@ -73,6 +79,8 @@ symfony composer upgrade-test-env   # same as setup-test-env; used by make upgra
 make test
 make lint
 ```
+
+`make lint` includes `lint-js` (Prettier check + ESLint). Use `make fix-js` or `make ci` to auto-fix JavaScript before committing.
 
 If both pass, the local development environment is ready.
 

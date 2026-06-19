@@ -11,6 +11,12 @@ updates:
       schedule:
           interval: "weekly"
 
+    # Enable version updates for npm (JS dev tooling)
+    - package-ecosystem: "npm"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+
     # Enable version updates for Docker
     - package-ecosystem: "docker"
       directory: "/"
