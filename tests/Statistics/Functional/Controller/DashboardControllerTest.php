@@ -93,6 +93,25 @@ class DashboardControllerTest extends WebTestCase
         );
     }
 
+    public function testOverviewDataQualityIndicatorUsesProgressivePrefetch(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+
+        $wrapper = $crawler->filter('[data-controller="data-quality-indicator"]');
+        self::assertGreaterThan(0, $wrapper->count());
+        self::assertStringContainsString(
+            '/statistics/data-quality/drawer',
+            (string) $wrapper->attr('data-data-quality-indicator-url-value'),
+        );
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-data-quality-indicator-target="badge"]')->count(),
+        );
+    }
+
     public function testOverviewShowsAggregateCasesPerDayHintBelowValueForParticipantWithoutOwnedHospitals(): void
     {
         $client = static::createClient();
