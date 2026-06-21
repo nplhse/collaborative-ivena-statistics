@@ -4,7 +4,7 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
         <div>
             <h3 class="card-title mb-0">{{ 'stats.analysis_explorer.table.title'|trans }}</h3>
-            {% if table and table.formattedTotals is not empty %}
+            {% if table and table.formattedTotals is not empty and not table.hasMetricSubRows %}
                 <div class="text-secondary small mt-1" data-testid="stats-analysis-explorer-results-count">
                     {% for column in table.metricColumns %}
                         {{ column.label }}: {{ table.formattedTotals[column.key] ?? '—' }}{% if not loop.last %} · {% endif %}
@@ -19,8 +19,13 @@
                    data-testid="stats-analysis-explorer-table-body">
                 <thead>
                     <tr>
-                        <th>{{ table ? table.primaryDimensionLabel : '' }}</th>
-                        {% if table and table.hasSeries %}
+                        <th>{{ table ? table.rowAxisLabel|default(table.primaryDimensionLabel) : '' }}</th>
+                        {% if table and table.hasMetricSubRows %}
+                            <th>{{ 'stats.analysis_explorer.table.metric'|trans }}</th>
+                            {% for seriesLabel in table.seriesLabels %}
+                                <th class="text-end">{{ seriesLabel }}</th>
+                            {% endfor %}
+                        {% elseif table and table.hasSeries %}
                             {% for seriesLabel in table.seriesLabels %}
                                 <th class="text-end">{{ seriesLabel }}</th>
                             {% endfor %}
@@ -37,7 +42,12 @@
                         {% for row in table.rows %}
                             <tr>
                                 <td>{{ row.bucketLabel }}</td>
-                                {% if table.hasSeries %}
+                                {% if table.hasMetricSubRows %}
+                                    <td>{{ row.metricSubRowLabel }}</td>
+                                    {% for seriesLabel in table.seriesLabels %}
+                                        <td class="text-end">{{ row.seriesValues[seriesLabel]|default(0)|number_format(1, ',', '.') }}</td>
+                                    {% endfor %}
+                                {% elseif table.hasSeries %}
                                     {% for seriesLabel in table.seriesLabels %}
                                         <td class="text-end">{{ row.seriesValues[seriesLabel]|default(0)|number_format(1, ',', '.') }}</td>
                                     {% endfor %}
@@ -71,20 +81,23 @@
                         </tr>
                     {% endif %}
                 </tbody>
-                {% if table and table.hasData %}
+                {% if table and table.hasData and table.hasSeries and not table.hasMetricSubRows %}
                     <tfoot>
                         <tr class="fw-semibold border-top" data-testid="stats-analysis-explorer-table-footer">
                             <td>{{ 'stats.analysis_explorer.table.footer_total'|trans }}</td>
-                            {% if table.hasSeries %}
-                                {% for seriesLabel in table.seriesLabels %}
-                                    <td class="text-end">{{ table.formattedSeriesTotals[seriesLabel] ?? '—' }}</td>
-                                {% endfor %}
-                                <td class="text-end">{{ table.formattedGrandTotal }}</td>
-                            {% else %}
-                                {% for column in table.metricColumns %}
-                                    <td class="text-end">{{ table.formattedTotals[column.key] ?? '—' }}</td>
-                                {% endfor %}
-                            {% endif %}
+                            {% for seriesLabel in table.seriesLabels %}
+                                <td class="text-end">{{ table.formattedSeriesTotals[seriesLabel] ?? '—' }}</td>
+                            {% endfor %}
+                            <td class="text-end">{{ table.formattedGrandTotal }}</td>
+                        </tr>
+                    </tfoot>
+                {% elseif table and table.hasData and not table.hasSeries %}
+                    <tfoot>
+                        <tr class="fw-semibold border-top" data-testid="stats-analysis-explorer-table-footer">
+                            <td>{{ 'stats.analysis_explorer.table.footer_total'|trans }}</td>
+                            {% for column in table.metricColumns %}
+                                <td class="text-end">{{ table.formattedTotals[column.key] ?? '—' }}</td>
+                            {% endfor %}
                         </tr>
                     </tfoot>
                 {% endif %}

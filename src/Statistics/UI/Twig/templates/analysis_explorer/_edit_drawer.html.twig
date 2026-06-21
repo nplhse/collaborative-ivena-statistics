@@ -3,6 +3,7 @@
     'data-action': 'change->live#action',
     'data-live-action-param': 'refreshEditForm',
 } %}
+{% set structure = this.editFormSummary %}
 
 <div class="offcanvas offcanvas-end analysis-explorer-edit-drawer{% if isEditOpen %} show{% endif %}"
      tabindex="-1"
@@ -85,22 +86,61 @@
                                 aria-expanded="true"
                                 aria-controls="analysisExplorerEditAnalysisPanel"
                                 data-testid="stats-analysis-explorer-edit-section-analysis">
-                            {{ 'stats.analysis_explorer.edit.section.analysis'|trans }}
+                            {{ 'stats.analysis_explorer.edit.section.matrix'|trans }}
                         </button>
                     </h3>
                     <div id="analysisExplorerEditAnalysisPanel"
                          class="accordion-collapse collapse show"
                          aria-labelledby="analysisExplorerEditAnalysisHeading">
                         <div class="accordion-body">
-                            {{ form_row(form.dimension, compactRow|merge({attr: refreshAttrs})) }}
-                            {{ form_row(form.metric, compactRow|merge({attr: refreshAttrs})) }}
-                            <div data-testid="stats-analysis-explorer-show-percent-field">
-                                {{ form_row(form.showPercentOfTotal, compactRow) }}
+                            <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.matrix_intro'|trans }}</p>
+
+                            <div class="border rounded p-3 mb-4 bg-body-secondary"
+                                 data-testid="stats-analysis-explorer-structure-preview">
+                                <div class="small text-secondary mb-2">{{ 'stats.analysis_explorer.edit.structure_preview_label'|trans }}</div>
+                                <dl class="row g-2 mb-0 small">
+                                    <dt class="col-sm-3 mb-0">{{ 'stats.analysis_explorer.edit.structure_rows'|trans }}</dt>
+                                    <dd class="col-sm-9 mb-0" data-testid="stats-analysis-explorer-structure-row">{{ structure.row }}</dd>
+                                    <dt class="col-sm-3 mb-0">{{ 'stats.analysis_explorer.edit.structure_columns'|trans }}</dt>
+                                    <dd class="col-sm-9 mb-0" data-testid="stats-analysis-explorer-structure-column">{{ structure.column }}</dd>
+                                    <dt class="col-sm-3 mb-0">{{ 'stats.analysis_explorer.edit.structure_metric'|trans }}</dt>
+                                    <dd class="col-sm-9 mb-0" data-testid="stats-analysis-explorer-structure-metric">{{ structure.metric }}</dd>
+                                </dl>
                             </div>
-                            <div data-testid="stats-analysis-explorer-time-grain-field">
-                                {{ form_row(form.timeGrain, compactRow|merge({attr: refreshAttrs})) }}
-                            </div>
-                            {{ form_row(form.chartType, compactRow) }}
+
+                            <fieldset class="border-0 p-0 mb-4">
+                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.rows'|trans }}</legend>
+                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.rows_help'|trans }}</p>
+                                {{ form_row(form.rowDimension, compactRow|merge({attr: refreshAttrs})) }}
+                                <div data-testid="stats-analysis-explorer-row-grain-field">
+                                    {{ form_row(form.rowGrain, compactRow|merge({attr: refreshAttrs})) }}
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="border-0 p-0 mb-4">
+                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.columns'|trans }}</legend>
+                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.columns_help'|trans }}</p>
+                                {{ form_row(form.columnDimension, compactRow|merge({attr: refreshAttrs})) }}
+                                <div data-testid="stats-analysis-explorer-column-grain-field">
+                                    {{ form_row(form.columnGrain, compactRow|merge({attr: refreshAttrs})) }}
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="border-0 p-0 mb-4">
+                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.metric'|trans }}</legend>
+                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.metric_help'|trans }}</p>
+                                {{ form_row(form.metric, compactRow|merge({attr: refreshAttrs})) }}
+                                <div data-testid="stats-analysis-explorer-show-percent-field">
+                                    {{ form_row(form.showPercentOfTotal, compactRow) }}
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="border-0 p-0 mb-0">
+                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.presentation'|trans }}</legend>
+                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.presentation_help'|trans }}</p>
+                                {{ form_row(form.tableLayout, compactRow|merge({attr: refreshAttrs})) }}
+                                {{ form_row(form.chartType, compactRow) }}
+                            </fieldset>
                         </div>
                     </div>
                 </div>

@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\UI\Form;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
+use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerStatisticsFilterInputFactory;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
@@ -33,6 +36,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 final class ExplorerEditFormType extends AbstractType
 {
+    private const string NONE_COLUMN = '';
+
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly AllocationsCapabilitiesProvider $capabilitiesProvider,
@@ -40,6 +45,7 @@ final class ExplorerEditFormType extends AbstractType
         private readonly ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private readonly ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
+        private readonly AnalysisAxisResolver $axisResolver,
         private readonly Security $security,
     ) {
     }
@@ -56,26 +62,17 @@ final class ExplorerEditFormType extends AbstractType
                 'locale' => $locale,
                 'scope_choice_policy' => StatisticsFilterScopeChoicePolicy::AllocationStatistics,
             ])
-            ->add('dimension', ChoiceType::class, [
-                'label' => 'stats.analysis_explorer.edit.dimension',
-                'choices' => [],
-            ])
-            ->add('metric', ChoiceType::class, [
-                'label' => 'stats.analysis_explorer.edit.metric',
-                'choices' => [],
-            ])
+            ->add('rowDimension', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.rows', 'choices' => []])
+            ->add('rowGrain', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.row_grain', 'choices' => []])
+            ->add('columnDimension', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.columns', 'choices' => []])
+            ->add('columnGrain', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.column_grain', 'choices' => []])
+            ->add('metric', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.metric', 'choices' => []])
             ->add('showPercentOfTotal', CheckboxType::class, [
                 'label' => 'stats.analysis_explorer.edit.show_percent_of_total',
                 'required' => false,
             ])
-            ->add('timeGrain', ChoiceType::class, [
-                'label' => 'stats.analysis_explorer.edit.time_grain',
-                'choices' => [],
-            ])
-            ->add('chartType', ChoiceType::class, [
-                'label' => 'stats.analysis_explorer.edit.chart_type',
-                'choices' => [],
-            ])
+            ->add('chartType', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.chart_type', 'choices' => []])
+            ->add('tableLayout', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.table_layout', 'choices' => []])
         ;
 
         $scopePeriodField = $builder->get('scopePeriod');
@@ -102,16 +99,7 @@ final class ExplorerEditFormType extends AbstractType
                 return;
             }
 
-            $preview = new ExplorerEditFormData(
-                scopePeriod: $current->scopePeriod,
-                dimension: \is_string($submitted['dimension'] ?? null) ? $submitted['dimension'] : $current->dimension,
-                metric: \is_string($submitted['metric'] ?? null) ? $submitted['metric'] : $current->metric,
-                showPercentOfTotal: (bool) ($submitted['showPercentOfTotal'] ?? $current->showPercentOfTotal),
-                timeGrain: \array_key_exists('timeGrain', $submitted)
-                    ? (\is_string($submitted['timeGrain']) ? $submitted['timeGrain'] : null)
-                    : $current->timeGrain,
-                chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $current->chartType,
-            );
+            $preview = $this->previewFromSubmitted($submitted, $current);
 
             /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
             $form = $event->getForm();
@@ -143,6 +131,30 @@ final class ExplorerEditFormType extends AbstractType
     }
 
     /**
+     * @param array<string, mixed> $submitted
+     */
+    private function previewFromSubmitted(array $submitted, ExplorerEditFormData $current): ExplorerEditFormData
+    {
+        return new ExplorerEditFormData(
+            scopePeriod: $current->scopePeriod,
+            rowDimension: \is_string($submitted['rowDimension'] ?? null) ? $submitted['rowDimension'] : $current->rowDimension,
+            rowGrain: \array_key_exists('rowGrain', $submitted)
+                ? (\is_string($submitted['rowGrain']) ? $submitted['rowGrain'] : null)
+                : $current->rowGrain,
+            columnDimension: \array_key_exists('columnDimension', $submitted)
+                ? (\is_string($submitted['columnDimension']) ? $submitted['columnDimension'] : null)
+                : $current->columnDimension,
+            columnGrain: \array_key_exists('columnGrain', $submitted)
+                ? (\is_string($submitted['columnGrain']) ? $submitted['columnGrain'] : null)
+                : $current->columnGrain,
+            metric: \is_string($submitted['metric'] ?? null) ? $submitted['metric'] : $current->metric,
+            showPercentOfTotal: (bool) ($submitted['showPercentOfTotal'] ?? $current->showPercentOfTotal),
+            chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $current->chartType,
+            tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $current->tableLayout,
+        );
+    }
+
+    /**
      * @param \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form
      */
     private function configureDynamicChoices(\Symfony\Component\Form\FormInterface $form, ExplorerEditFormData $formData): void
@@ -156,22 +168,53 @@ final class ExplorerEditFormType extends AbstractType
             $user instanceof User ? $user : null,
             $filter,
         );
-        $dimension = AnalysisDimensionKey::tryFrom($formData->dimension) ?? AnalysisDimensionKey::Time;
-        $grain = AnalysisDimensionGrain::tryFrom($formData->timeGrain ?? '') ?? AnalysisDimensionGrain::Month;
+
+        $rowAxis = $this->axisResolver->resolveFromStrings(
+            $formData->rowDimension,
+            $formData->rowGrain,
+            $capabilities,
+        );
+        $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities);
         $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
-        $previewConfig = $this->previewFactory->fromFormData($capabilities, $dimension, $metric, $grain, $formData);
+        $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
 
-        $grainLabel = $dimension->isTemporalPrimary()
-            ? 'stats.analysis_explorer.edit.time_grain'
-            : 'stats.analysis_explorer.edit.group_by';
-
-        $form->add('dimension', ChoiceType::class, [
-            'label' => 'stats.analysis_explorer.edit.dimension',
+        $form->add('rowDimension', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.row_dimension',
+            'help' => 'stats.analysis_explorer.edit.row_dimension_help',
             'choices' => $this->dimensionChoices($capabilities->dimensions),
         ]);
 
+        $form->add('rowGrain', ChoiceType::class, [
+            'label' => $rowAxis->dimensionKey->isTemporalPrimary()
+                ? 'stats.analysis_explorer.edit.time_grain'
+                : 'stats.analysis_explorer.edit.group_by',
+            'help' => $rowAxis->dimensionKey->isTemporalPrimary()
+                ? 'stats.analysis_explorer.edit.row_grain_time_help'
+                : 'stats.analysis_explorer.edit.row_grain_breakdown_help',
+            'choices' => $this->grainChoices($rowAxis->dimensionKey, $capabilities),
+        ]);
+
+        $form->add('columnDimension', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.column_dimension',
+            'help' => 'stats.analysis_explorer.edit.column_dimension_help',
+            'choices' => $this->columnDimensionChoices($rowAxis, $capabilities),
+        ]);
+
+        $columnGrainChoices = [];
+        if ($columnAxis instanceof AnalysisAxisRef) {
+            $columnGrainChoices = $this->grainChoices($columnAxis->dimensionKey, $capabilities);
+        }
+
+        $form->add('columnGrain', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.column_grain',
+            'help' => 'stats.analysis_explorer.edit.column_grain_help',
+            'choices' => $columnGrainChoices,
+            'disabled' => !$columnAxis instanceof AnalysisAxisRef,
+        ]);
+
         $form->add('metric', ChoiceType::class, [
-            'label' => 'stats.analysis_explorer.edit.metric',
+            'label' => 'stats.analysis_explorer.edit.chart_metric',
+            'help' => 'stats.analysis_explorer.edit.chart_metric_help',
             'choices' => $this->metricChoices($capabilities->primaryMetrics),
         ]);
 
@@ -181,15 +224,39 @@ final class ExplorerEditFormType extends AbstractType
             'disabled' => !$this->metricCapabilityPolicy->canShowPercentOfTotal($previewConfig),
         ]);
 
-        $form->add('timeGrain', ChoiceType::class, [
-            'label' => $grainLabel,
-            'choices' => $this->timeGrainChoices($dimension, $capabilities),
-        ]);
-
         $form->add('chartType', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.chart_type',
             'choices' => $this->chartTypeChoices($capabilities->chartTypesFor($previewConfig)),
         ]);
+
+        $form->add('tableLayout', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.table_layout',
+            'help' => 'stats.analysis_explorer.edit.table_layout_help',
+            'choices' => $this->tableLayoutChoices(),
+            'disabled' => !$columnAxis instanceof AnalysisAxisRef,
+        ]);
+    }
+
+    private function resolveColumnAxis(
+        ExplorerEditFormData $formData,
+        AnalysisAxisRef $rowAxis,
+        \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+    ): ?AnalysisAxisRef {
+        if (null === $formData->columnDimension || self::NONE_COLUMN === $formData->columnDimension) {
+            return null;
+        }
+
+        $candidate = $this->axisResolver->resolveFromStrings(
+            $formData->columnDimension,
+            $formData->columnGrain,
+            $capabilities,
+        );
+
+        if (!$capabilities->supportsColumnAxis($rowAxis, $candidate)) {
+            return null;
+        }
+
+        return $candidate;
     }
 
     /**
@@ -201,6 +268,24 @@ final class ExplorerEditFormType extends AbstractType
     {
         $choices = [];
         foreach ($dimensions as $dimension) {
+            $choices[$this->translator->trans('stats.analysis_explorer.dimension.'.$dimension->value)] = $dimension->value;
+        }
+
+        return $choices;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function columnDimensionChoices(
+        AnalysisAxisRef $rowAxis,
+        \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+    ): array {
+        $choices = [
+            $this->translator->trans('stats.analysis_explorer.edit.columns_none') => self::NONE_COLUMN,
+        ];
+
+        foreach ($capabilities->columnDimensionsFor($rowAxis) as $dimension) {
             $choices[$this->translator->trans('stats.analysis_explorer.dimension.'.$dimension->value)] = $dimension->value;
         }
 
@@ -240,7 +325,7 @@ final class ExplorerEditFormType extends AbstractType
     /**
      * @return array<string, string>
      */
-    private function timeGrainChoices(
+    private function grainChoices(
         AnalysisDimensionKey $dimension,
         \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
     ): array {
@@ -257,5 +342,17 @@ final class ExplorerEditFormType extends AbstractType
         }
 
         return $choices;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function tableLayoutChoices(): array
+    {
+        return [
+            $this->translator->trans('stats.analysis_explorer.table_layout.flat') => TableLayout::Flat->value,
+            $this->translator->trans('stats.analysis_explorer.table_layout.matrix') => TableLayout::Matrix->value,
+            $this->translator->trans('stats.analysis_explorer.table_layout.matrix_metrics_as_rows') => TableLayout::MatrixMetricsAsRows->value,
+        ];
     }
 }

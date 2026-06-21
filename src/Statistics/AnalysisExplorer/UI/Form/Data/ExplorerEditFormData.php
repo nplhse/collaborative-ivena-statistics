@@ -10,12 +10,14 @@ final class ExplorerEditFormData
 {
     public function __construct(
         public StatisticsScopePeriodFormData $scopePeriod = new StatisticsScopePeriodFormData(),
-        public string $dimension = 'time',
+        public string $rowDimension = 'time',
+        public ?string $rowGrain = 'month',
+        public ?string $columnDimension = null,
+        public ?string $columnGrain = null,
         public string $metric = 'allocation_count',
         public bool $showPercentOfTotal = false,
-        /** UI label: group-by grain (serialized as query.grain in config state). */
-        public ?string $timeGrain = 'month',
         public string $chartType = 'bar',
+        public string $tableLayout = 'flat',
     ) {
     }
 }

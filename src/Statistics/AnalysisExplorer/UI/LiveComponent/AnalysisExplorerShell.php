@@ -13,10 +13,12 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
@@ -157,6 +159,7 @@ final class AnalysisExplorerShell
         private readonly SavedExplorerViewService $savedViewService,
         private readonly SavedExplorerViewRepository $savedViewRepository,
         private readonly ExplorerDescriptionFactory $descriptionFactory,
+        private readonly ExplorerEditFormSummaryFactory $editFormSummaryFactory,
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -228,6 +231,25 @@ final class AnalysisExplorerShell
         }
 
         return $this->configMapper->viewConfigFromState($this->appliedConfigState, $this->resolveUser());
+    }
+
+    /**
+     * @return array{row: string, column: string, metric: string}
+     */
+    public function editFormSummary(): array
+    {
+        if ($this->isEditOpen) {
+            $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
+        } elseif ($this->editFormData instanceof ExplorerEditFormData) {
+            $formData = $this->editFormData;
+        } else {
+            $config = $this->appliedConfig();
+            $formData = $config instanceof AnalysisViewConfig
+                ? $this->configMapper->toFormData($config)
+                : new ExplorerEditFormData();
+        }
+
+        return $this->editFormSummaryFactory->summarize($formData, $this->resolveUser());
     }
 
     /**
@@ -519,12 +541,20 @@ final class AnalysisExplorerShell
 
         return new ExplorerEditFormData(
             scopePeriod: $scopePeriod,
-            dimension: \is_string($submitted['dimension'] ?? null) ? $submitted['dimension'] : $formData->dimension,
+            rowDimension: \is_string($submitted['rowDimension'] ?? null) ? $submitted['rowDimension'] : $formData->rowDimension,
+            rowGrain: \array_key_exists('rowGrain', $submitted)
+                ? (\is_string($submitted['rowGrain']) ? $submitted['rowGrain'] : null)
+                : $formData->rowGrain,
+            columnDimension: \array_key_exists('columnDimension', $submitted)
+                ? (\is_string($submitted['columnDimension']) ? $submitted['columnDimension'] : null)
+                : $formData->columnDimension,
+            columnGrain: \array_key_exists('columnGrain', $submitted)
+                ? (\is_string($submitted['columnGrain']) ? $submitted['columnGrain'] : null)
+                : $formData->columnGrain,
             metric: \is_string($submitted['metric'] ?? null) ? $submitted['metric'] : $formData->metric,
-            timeGrain: \array_key_exists('timeGrain', $submitted)
-                ? (\is_string($submitted['timeGrain']) ? $submitted['timeGrain'] : null)
-                : $formData->timeGrain,
+            showPercentOfTotal: (bool) ($submitted['showPercentOfTotal'] ?? $formData->showPercentOfTotal),
             chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $formData->chartType,
+            tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $formData->tableLayout,
         );
     }
 
@@ -568,10 +598,10 @@ final class AnalysisExplorerShell
             title: $config->title,
             metricKeys: $config->metricKeys,
             visualMetricKey: $config->visualMetricKey,
-            dimensionKey: $config->dimensionKey,
-            timeGrain: $config->timeGrain,
+            rowAxis: $config->rowAxis,
+            columnAxis: $config->columnAxis,
             rows: [],
-            totals: [],
+            totals: new AnalysisTotals(grand: []),
         );
     }
 

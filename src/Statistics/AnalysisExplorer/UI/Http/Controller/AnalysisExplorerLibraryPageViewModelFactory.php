@@ -83,6 +83,9 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         $config = $view->getConfigJson();
         $query = $config['query'] ?? [];
         $presentation = $config['presentation'] ?? [];
+        $rowAxis = \is_array($query['rows'] ?? null) ? $query['rows'] : [];
+        $dimension = (string) ($rowAxis['dimension'] ?? $query['dimension'] ?? '');
+        $grain = (string) ($rowAxis['grain'] ?? $query['grain'] ?? '');
         $viewId = $view->getId();
         $canFavorite = $user instanceof User && null !== $viewId;
 
@@ -90,8 +93,8 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             'id' => $viewId,
             'title' => $view->getTitle(),
             'description' => $view->getDescription() ?? '',
-            'dimension' => $this->dimensionLabel((string) ($query['dimension'] ?? '')),
-            'grain' => $this->grainLabel((string) ($query['grain'] ?? '')),
+            'dimension' => $this->dimensionLabel($dimension),
+            'grain' => $this->grainLabel($grain),
             'chartType' => $this->chartTypeLabel((string) ($presentation['chartType'] ?? '')),
             'isSystem' => $view->isSystem(),
             'viewTypeLabel' => $view->isSystem()
