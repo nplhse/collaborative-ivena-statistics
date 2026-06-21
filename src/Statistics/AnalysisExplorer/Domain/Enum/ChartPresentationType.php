@@ -8,4 +8,6 @@ enum ChartPresentationType: string
 {
     case Bar = 'bar';
     case Line = 'line';
+    case GroupedBar = 'grouped_bar';
+    case StackedBar = 'stacked_bar';
 }

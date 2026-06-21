@@ -36,11 +36,39 @@ final readonly class DataSourceCapabilities
      */
     public function timeGrainsFor(AnalysisDimensionKey $dimension): array
     {
-        if (AnalysisDimensionKey::Time !== $dimension) {
-            return [];
+        return match ($dimension) {
+            AnalysisDimensionKey::Time => $this->timeGrains,
+            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => [
+                AnalysisDimensionGrain::Total,
+                AnalysisDimensionGrain::Month,
+                AnalysisDimensionGrain::Year,
+            ],
+        };
+    }
+
+    /**
+     * @return list<ChartPresentationType>
+     */
+    public function chartTypesFor(AnalysisViewConfig $config): array
+    {
+        if ($this->usesMultiSeriesChart($config)) {
+            return [
+                ChartPresentationType::GroupedBar,
+                ChartPresentationType::StackedBar,
+                ChartPresentationType::Line,
+            ];
         }
 
-        return $this->timeGrains;
+        return [ChartPresentationType::Bar, ChartPresentationType::Line];
+    }
+
+    public function defaultChartTypeFor(AnalysisViewConfig $config): ChartPresentationType
+    {
+        if ($this->usesMultiSeriesChart($config)) {
+            return ChartPresentationType::GroupedBar;
+        }
+
+        return ChartPresentationType::Bar;
     }
 
     public function supports(AnalysisViewConfig $config): bool
@@ -53,15 +81,29 @@ final readonly class DataSourceCapabilities
             return false;
         }
 
-        if (!\in_array($config->presentation->chartType, $this->chartTypes, true)) {
+        if (!\in_array($config->presentation->chartType, $this->chartTypesFor($config), true)) {
             return false;
         }
 
-        if (AnalysisDimensionKey::Time === $config->dimensionKey) {
-            return $config->timeGrain instanceof AnalysisDimensionGrain
-                && \in_array($config->timeGrain, $this->timeGrains, true);
+        $grain = $config->timeGrain;
+        if (!$grain instanceof AnalysisDimensionGrain) {
+            return false;
         }
 
-        return !$config->timeGrain instanceof AnalysisDimensionGrain;
+        if (!\in_array($grain, $this->timeGrainsFor($config->dimensionKey), true)) {
+            return false;
+        }
+
+        return !(AnalysisDimensionKey::Time === $config->dimensionKey && AnalysisDimensionGrain::Total === $grain);
+    }
+
+    public function usesMultiSeriesChart(AnalysisViewConfig $config): bool
+    {
+        if (AnalysisDimensionKey::Time === $config->dimensionKey) {
+            return false;
+        }
+
+        return $config->timeGrain instanceof AnalysisDimensionGrain
+            && $config->timeGrain->isTemporal();
     }
 }
