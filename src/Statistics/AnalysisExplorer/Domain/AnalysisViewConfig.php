@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\Domain;
 
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\Application\DTO\StatisticsFilter;
 
@@ -14,7 +15,8 @@ final readonly class AnalysisViewConfig
     public function __construct(
         public AnalysisDataSourceKey $dataSourceKey,
         public AnalysisMetricKey $metricKey,
-        public AnalysisDimensionGrain $dimensionGrain,
+        public AnalysisDimensionKey $dimensionKey,
+        public ?AnalysisDimensionGrain $timeGrain,
         public StatisticsFilter $statisticsFilter,
         public PresentationConfig $presentation,
         public string $title,
@@ -26,10 +28,12 @@ final readonly class AnalysisViewConfig
         return new self(
             dataSourceKey: $this->dataSourceKey,
             metricKey: $this->metricKey,
-            dimensionGrain: $this->dimensionGrain,
+            dimensionKey: $this->dimensionKey,
+            timeGrain: $this->timeGrain,
             statisticsFilter: $this->statisticsFilter,
             presentation: new PresentationConfig(
                 chartType: $this->presentation->chartType,
+                mode: $this->presentation->mode,
             ),
             title: $this->title,
         );
@@ -40,19 +44,47 @@ final readonly class AnalysisViewConfig
         return new self(
             dataSourceKey: $this->dataSourceKey,
             metricKey: $this->metricKey,
-            dimensionGrain: $this->dimensionGrain,
+            dimensionKey: $this->dimensionKey,
+            timeGrain: $this->timeGrain,
             statisticsFilter: $statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
         );
     }
 
-    public function withDimensionGrain(AnalysisDimensionGrain $dimensionGrain): self
+    public function withDimension(AnalysisDimensionKey $dimensionKey, ?AnalysisDimensionGrain $timeGrain): self
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
             metricKey: $this->metricKey,
-            dimensionGrain: $dimensionGrain,
+            dimensionKey: $dimensionKey,
+            timeGrain: $timeGrain,
+            statisticsFilter: $this->statisticsFilter,
+            presentation: $this->presentation,
+            title: $this->title,
+        );
+    }
+
+    public function withMetric(AnalysisMetricKey $metricKey): self
+    {
+        return new self(
+            dataSourceKey: $this->dataSourceKey,
+            metricKey: $metricKey,
+            dimensionKey: $this->dimensionKey,
+            timeGrain: $this->timeGrain,
+            statisticsFilter: $this->statisticsFilter,
+            presentation: $this->presentation,
+            title: $this->title,
+        );
+    }
+
+    public function withTimeGrain(?AnalysisDimensionGrain $timeGrain): self
+    {
+        return new self(
+            dataSourceKey: $this->dataSourceKey,
+            metricKey: $this->metricKey,
+            dimensionKey: $this->dimensionKey,
+            timeGrain: $timeGrain,
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
@@ -64,10 +96,24 @@ final readonly class AnalysisViewConfig
         return new self(
             dataSourceKey: $this->dataSourceKey,
             metricKey: $this->metricKey,
-            dimensionGrain: $this->dimensionGrain,
+            dimensionKey: $this->dimensionKey,
+            timeGrain: $this->timeGrain,
             statisticsFilter: $this->statisticsFilter,
             presentation: $presentation,
             title: $this->title,
+        );
+    }
+
+    public function withTitle(string $title): self
+    {
+        return new self(
+            dataSourceKey: $this->dataSourceKey,
+            metricKey: $this->metricKey,
+            dimensionKey: $this->dimensionKey,
+            timeGrain: $this->timeGrain,
+            statisticsFilter: $this->statisticsFilter,
+            presentation: $this->presentation,
+            title: $title,
         );
     }
 }
