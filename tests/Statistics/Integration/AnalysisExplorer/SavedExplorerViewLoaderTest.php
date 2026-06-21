@@ -1,0 +1,112 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Statistics\Integration\AnalysisExplorer;
+
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
+use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
+use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
+
+#[ResetDatabase]
+final class SavedExplorerViewLoaderTest extends KernelTestCase
+{
+    use SeedsExplorerSystemViewsTrait;
+
+    private SavedExplorerViewLoader $loader;
+
+    private SavedExplorerViewRepository $repository;
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+        $container = self::getContainer();
+        $this->loader = $container->get(SavedExplorerViewLoader::class);
+        $this->repository = $container->get(SavedExplorerViewRepository::class);
+        $this->seedExplorerSystemViews();
+    }
+
+    public function testLoadBySlugReturnsSavedConfig(): void
+    {
+        $filter = $this->publicFilter();
+        $result = $this->loader->load('gender-over-time', $filter, null);
+
+        self::assertFalse($result->notFound);
+        self::assertFalse($result->usedFallback);
+        self::assertSame('gender', $result->state['query']['dimension'] ?? null);
+        self::assertSame('month', $result->state['query']['grain'] ?? null);
+        self::assertSame('grouped_bar', $result->state['presentation']['chartType'] ?? null);
+    }
+
+    public function testLoadByNumericId(): void
+    {
+        $view = $this->repository->findBySlug('allocations-by-year');
+        self::assertInstanceOf(SavedExplorerView::class, $view);
+
+        $result = $this->loader->load((string) $view->getId(), $this->publicFilter(), null);
+
+        self::assertFalse($result->notFound);
+        self::assertSame('year', $result->state['query']['grain'] ?? null);
+        self::assertSame('line', $result->state['presentation']['chartType'] ?? null);
+    }
+
+    public function testUnknownViewIsNotFound(): void
+    {
+        $result = $this->loader->load('missing-view', $this->publicFilter(), null);
+
+        self::assertTrue($result->notFound);
+    }
+
+    public function testInvalidConfigUsesFallbackWithWarning(): void
+    {
+        $view = $this->repository->findBySlug('urgency-distribution');
+        self::assertInstanceOf(SavedExplorerView::class, $view);
+
+        $view->update(
+            title: $view->getTitle(),
+            category: $view->getCategory(),
+            configJson: ['broken' => true],
+            description: $view->getDescription(),
+            isSystem: true,
+        );
+        $this->repository->save($view);
+
+        $result = $this->loader->load('urgency-distribution', $this->publicFilter(), null);
+
+        self::assertTrue($result->usedFallback);
+        self::assertSame(['stats.analysis_explorer.saved_view.invalid_config'], $result->warnings);
+        self::assertSame('time', $result->state['query']['dimension'] ?? null);
+    }
+
+    public function testFilterOverlayReplacesScopeInState(): void
+    {
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::Year,
+            referenceYear: 2024,
+        );
+
+        $result = $this->loader->load('allocations-over-time', $filter, null);
+
+        self::assertSame('year', $result->state['query']['period']['type'] ?? null);
+        self::assertSame(2024, $result->state['query']['period']['year'] ?? null);
+    }
+
+    private function publicFilter(): StatisticsFilter
+    {
+        return new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+    }
+}
