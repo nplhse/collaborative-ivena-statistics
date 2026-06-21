@@ -6,19 +6,25 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
+use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Repository\UserRepository;
 
 final readonly class ExplorerSystemViewSeeder
 {
     private const string CATEGORY_ALLOCATIONS = 'Allocations';
 
+    private const string ADMIN_USERNAME = 'admin';
+
     public function __construct(
         private SavedExplorerViewRepository $repository,
         private ExplorerConfigMapper $configMapper,
+        private UserRepository $userRepository,
     ) {
     }
 
     public function sync(): ExplorerSystemViewSyncResult
     {
+        $admin = $this->resolveAdminUser();
         $created = 0;
         $updated = 0;
         $skipped = 0;
@@ -35,19 +41,21 @@ final readonly class ExplorerSystemViewSeeder
 
             $existing = $this->repository->findBySlug($definition['slug']);
             if (!$existing instanceof SavedExplorerView) {
-                $this->repository->save(new SavedExplorerView(
+                $view = new SavedExplorerView(
                     slug: $definition['slug'],
                     title: $definition['title'],
                     category: self::CATEGORY_ALLOCATIONS,
                     configJson: $configJson,
                     description: $definition['description'],
                     isSystem: true,
-                ));
+                );
+                $view->setCreatedBy($admin);
+                $this->repository->save($view);
                 ++$created;
                 continue;
             }
 
-            if ($this->isUpToDate($existing, $definition, $configJson)) {
+            if ($this->isUpToDate($existing, $definition, $configJson, $admin)) {
                 ++$skipped;
                 continue;
             }
@@ -57,8 +65,11 @@ final readonly class ExplorerSystemViewSeeder
                 category: self::CATEGORY_ALLOCATIONS,
                 configJson: $configJson,
                 description: $definition['description'],
-                isSystem: true,
             );
+            if (!$existing->getCreatedBy() instanceof User) {
+                $existing->setCreatedBy($admin);
+            }
+            $existing->setUpdatedBy($admin);
             $this->repository->save($existing);
             ++$updated;
         }
@@ -157,16 +168,27 @@ final readonly class ExplorerSystemViewSeeder
         ];
     }
 
+    private function resolveAdminUser(): User
+    {
+        $admin = $this->userRepository->findOneBy(['username' => self::ADMIN_USERNAME]);
+        if (!$admin instanceof User) {
+            throw new \RuntimeException(sprintf('Explorer system views require an admin user with username "%s".', self::ADMIN_USERNAME));
+        }
+
+        return $admin;
+    }
+
     /**
      * @param array{slug: string, title: string, description: string, preferences: array<string, mixed>} $definition
      * @param array<string, mixed>                                                                       $configJson
      */
-    private function isUpToDate(SavedExplorerView $existing, array $definition, array $configJson): bool
+    private function isUpToDate(SavedExplorerView $existing, array $definition, array $configJson, User $admin): bool
     {
         return $existing->getTitle() === $definition['title']
             && $existing->getDescription() === $definition['description']
             && self::CATEGORY_ALLOCATIONS === $existing->getCategory()
             && $existing->isSystem()
-            && $existing->getConfigJson() === $configJson;
+            && $existing->getConfigJson() === $configJson
+            && $existing->wasCreatedBy($admin);
     }
 }

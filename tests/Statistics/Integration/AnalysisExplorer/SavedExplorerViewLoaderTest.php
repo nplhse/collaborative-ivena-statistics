@@ -11,6 +11,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
@@ -73,7 +74,6 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
             category: $view->getCategory(),
             configJson: ['broken' => true],
             description: $view->getDescription(),
-            isSystem: true,
         );
         $this->repository->save($view);
 
@@ -98,6 +98,27 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
         self::assertSame('year', $result->state['query']['period']['type'] ?? null);
         self::assertSame(2024, $result->state['query']['period']['year'] ?? null);
+    }
+
+    public function testForeignUserViewIsNotFoundForOtherUsers(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $other = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+
+        $view = new SavedExplorerView(
+            slug: null,
+            title: 'Private view',
+            category: 'My views',
+            configJson: $this->repository->findBySlug('allocations-over-time')?->getConfigJson() ?? [],
+            isSystem: false,
+        );
+        $view->setCreatedBy($owner);
+        $this->repository->save($view);
+        self::assertNotNull($view->getId());
+
+        $result = $this->loader->load((string) $view->getId(), $this->publicFilter(), $other);
+
+        self::assertTrue($result->notFound);
     }
 
     private function publicFilter(): StatisticsFilter

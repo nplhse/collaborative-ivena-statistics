@@ -4,21 +4,26 @@ declare(strict_types=1);
 
 namespace App\Statistics\Domain\Entity;
 
+use App\Shared\Domain\Traits\Blamable;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SavedExplorerViewRepository::class)]
 #[ORM\Table(name: 'saved_explorer_view')]
 #[ORM\UniqueConstraint(name: 'uniq_saved_explorer_view_slug', columns: ['slug'])]
+#[ORM\HasLifecycleCallbacks]
 class SavedExplorerView
 {
+    use Blamable;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 120)]
-    private string $slug;
+    #[ORM\Column(length: 120, nullable: true)]
+    private ?string $slug = null;
 
     #[ORM\Column(length: 180)]
     private string $title;
@@ -42,11 +47,20 @@ class SavedExplorerView
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
 
+    /** @psalm-suppress PropertyNotSetInConstructor */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    protected ?User $createdBy = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    protected ?User $updatedBy = null;
+
     /**
      * @param array<string, mixed> $configJson
      */
     public function __construct(
-        string $slug,
+        ?string $slug,
         string $title,
         string $category,
         array $configJson,
@@ -69,7 +83,7 @@ class SavedExplorerView
         return $this->id;
     }
 
-    public function getSlug(): string
+    public function getSlug(): ?string
     {
         return $this->slug;
     }
@@ -112,6 +126,32 @@ class SavedExplorerView
         return $this->updatedAt;
     }
 
+    public function wasCreatedBy(User $user): bool
+    {
+        $creator = $this->getCreatedBy();
+
+        return $creator instanceof User
+            && null !== $creator->getId()
+            && null !== $user->getId()
+            && $creator->getId() === $user->getId();
+    }
+
+    public function isEditableBy(?User $user): bool
+    {
+        return !$this->isSystem
+            && $user instanceof User
+            && $this->wasCreatedBy($user);
+    }
+
+    public function isAccessibleBy(?User $user): bool
+    {
+        if ($this->isSystem) {
+            return true;
+        }
+
+        return $user instanceof User && $this->wasCreatedBy($user);
+    }
+
     /**
      * @param array<string, mixed> $configJson
      */
@@ -120,17 +160,15 @@ class SavedExplorerView
         string $category,
         array $configJson,
         ?string $description = null,
-        bool $isSystem = false,
     ): void {
         $this->title = $title;
         $this->category = $category;
         $this->configJson = $configJson;
         $this->description = $description;
-        $this->isSystem = $isSystem;
-        $this->touch();
     }
 
-    private function touch(): void
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
     }
