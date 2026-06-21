@@ -20,7 +20,14 @@
                 <thead>
                     <tr>
                         <th>{{ table ? table.primaryDimensionLabel : '' }}</th>
-                        <th class="text-end">{{ table ? table.metricLabel : '' }}</th>
+                        {% if table and table.hasSeries %}
+                            {% for seriesLabel in table.seriesLabels %}
+                                <th class="text-end">{{ seriesLabel }}</th>
+                            {% endfor %}
+                            <th class="text-end">{{ 'stats.generic_analysis.table.footer_total'|trans }}</th>
+                        {% else %}
+                            <th class="text-end">{{ table ? table.metricLabel : '' }}</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -28,11 +35,18 @@
                         {% for row in table.rows %}
                             <tr>
                                 <td>{{ row.bucketLabel }}</td>
-                                <td class="text-end">{{ row.value|number_format(0, ',', '.') }}</td>
+                                {% if table.hasSeries %}
+                                    {% for seriesLabel in table.seriesLabels %}
+                                        <td class="text-end">{{ (row.seriesValues[seriesLabel] ?? 0)|number_format(0, ',', '.') }}</td>
+                                    {% endfor %}
+                                    <td class="text-end fw-semibold">{{ row.rowTotal|number_format(0, ',', '.') }}</td>
+                                {% else %}
+                                    <td class="text-end">{{ row.value|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="2" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
+                                <td colspan="{{ table.hasSeries ? (table.seriesLabels|length + 2) : 2 }}" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
                                     {{ 'stats.generic_analysis.no_data'|trans }}
                                 </td>
                             </tr>
@@ -49,7 +63,14 @@
                     <tfoot>
                         <tr class="fw-semibold border-top" data-testid="stats-analysis-explorer-table-footer">
                             <td>{{ 'stats.generic_analysis.table.footer_total'|trans }}</td>
-                            <td class="text-end">{{ table.total|number_format(0, ',', '.') }}</td>
+                            {% if table.hasSeries %}
+                                {% for seriesLabel in table.seriesLabels %}
+                                    <td class="text-end">{{ (table.seriesTotals[seriesLabel] ?? 0)|number_format(0, ',', '.') }}</td>
+                                {% endfor %}
+                                <td class="text-end">{{ table.total|number_format(0, ',', '.') }}</td>
+                            {% else %}
+                                <td class="text-end">{{ table.total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                     {% endif %}
             </table>

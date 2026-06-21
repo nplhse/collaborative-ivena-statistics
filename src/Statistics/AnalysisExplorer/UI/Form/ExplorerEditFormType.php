@@ -5,13 +5,25 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\UI\Form;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
+use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
+use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Statistics\UI\Form\StatisticsScopePeriodType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -31,7 +43,6 @@ final class ExplorerEditFormType extends AbstractType
     {
         /** @var string $locale */
         $locale = $options['locale'];
-        $capabilities = $this->capabilitiesProvider->capabilities();
 
         $builder
             ->add('scopePeriod', StatisticsScopePeriodType::class, [
@@ -45,18 +56,28 @@ final class ExplorerEditFormType extends AbstractType
             ])
             ->add('metric', ChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.metric',
-                'choices' => $this->metricChoices($capabilities->metrics),
+                'choices' => $this->metricChoices($this->capabilitiesProvider->capabilities()->metrics),
             ])
             ->add('timeGrain', ChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.time_grain',
-                'choices' => $this->timeGrainChoices(),
-                'required' => false,
+                'choices' => [],
             ])
             ->add('chartType', ChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.chart_type',
-                'choices' => $this->chartTypeChoices($capabilities->chartTypes),
+                'choices' => [],
             ])
         ;
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            $formData = $event->getData();
+            if (!$formData instanceof ExplorerEditFormData) {
+                return;
+            }
+
+            /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
+            $form = $event->getForm();
+            $this->configureDynamicChoices($form, $formData);
+        });
     }
 
     #[\Override]
@@ -72,6 +93,54 @@ final class ExplorerEditFormType extends AbstractType
     }
 
     /**
+     * @param \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form
+     */
+    private function configureDynamicChoices(\Symfony\Component\Form\FormInterface $form, ExplorerEditFormData $formData): void
+    {
+        $capabilities = $this->capabilitiesProvider->capabilities();
+        $dimension = AnalysisDimensionKey::tryFrom($formData->dimension) ?? AnalysisDimensionKey::Time;
+        $grain = AnalysisDimensionGrain::tryFrom($formData->timeGrain ?? '') ?? AnalysisDimensionGrain::Month;
+        $previewConfig = $this->previewConfig($formData, $dimension, $grain);
+
+        $grainLabel = AnalysisDimensionKey::Time === $dimension
+            ? 'stats.analysis_explorer.edit.time_grain'
+            : 'stats.analysis_explorer.edit.group_by';
+
+        $form->add('timeGrain', ChoiceType::class, [
+            'label' => $grainLabel,
+            'choices' => $this->timeGrainChoices($dimension),
+        ]);
+
+        $form->add('chartType', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.chart_type',
+            'choices' => $this->chartTypeChoices($capabilities->chartTypesFor($previewConfig)),
+        ]);
+    }
+
+    private function previewConfig(
+        ExplorerEditFormData $formData,
+        AnalysisDimensionKey $dimension,
+        AnalysisDimensionGrain $grain,
+    ): AnalysisViewConfig {
+        return new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKey: AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount,
+            dimensionKey: $dimension,
+            timeGrain: $grain,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar,
+            ),
+            title: '',
+        );
+    }
+
+    /**
      * @return array<string, string>
      */
     private function dimensionChoices(): array
@@ -84,7 +153,7 @@ final class ExplorerEditFormType extends AbstractType
     }
 
     /**
-     * @param list<\App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey> $metrics
+     * @param list<AnalysisMetricKey> $metrics
      *
      * @return array<string, string>
      */
@@ -99,7 +168,7 @@ final class ExplorerEditFormType extends AbstractType
     }
 
     /**
-     * @param list<\App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType> $chartTypes
+     * @param list<ChartPresentationType> $chartTypes
      *
      * @return array<string, string>
      */
@@ -116,11 +185,18 @@ final class ExplorerEditFormType extends AbstractType
     /**
      * @return array<string, string>
      */
-    private function timeGrainChoices(): array
+    private function timeGrainChoices(AnalysisDimensionKey $dimension): array
     {
-        return [
-            $this->translator->trans('stats.analysis_explorer.dimension.month') => 'month',
-            $this->translator->trans('stats.analysis_explorer.dimension.year') => 'year',
-        ];
+        $choices = [];
+        foreach ($this->capabilitiesProvider->capabilities()->timeGrainsFor($dimension) as $grain) {
+            $labelKey = match ($grain) {
+                AnalysisDimensionGrain::Total => 'stats.analysis_explorer.grain.total',
+                AnalysisDimensionGrain::Year => 'stats.analysis_explorer.dimension.year',
+                default => 'stats.analysis_explorer.dimension.month',
+            };
+            $choices[$this->translator->trans($labelKey)] = $grain->value;
+        }
+
+        return $choices;
     }
 }

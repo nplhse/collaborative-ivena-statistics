@@ -7315,6 +7315,30 @@
         <source>stats.analysis_explorer.unsupported_config</source>
         <target>This analysis configuration is not supported.</target>
       </trans-unit>
+      <trans-unit id="statsAex30" resname="stats.analysis_explorer.grain.total">
+        <source>stats.analysis_explorer.grain.total</source>
+        <target>Total (entire period)</target>
+      </trans-unit>
+      <trans-unit id="statsAex31" resname="stats.analysis_explorer.edit.group_by">
+        <source>stats.analysis_explorer.edit.group_by</source>
+        <target>Group by</target>
+      </trans-unit>
+      <trans-unit id="statsAex32" resname="stats.analysis_explorer.chart.grouped_bar">
+        <source>stats.analysis_explorer.chart.grouped_bar</source>
+        <target>Grouped bar</target>
+      </trans-unit>
+      <trans-unit id="statsAex33" resname="stats.analysis_explorer.chart.stacked_bar">
+        <source>stats.analysis_explorer.chart.stacked_bar</source>
+        <target>Stacked bar</target>
+      </trans-unit>
+      <trans-unit id="statsAex34" resname="stats.analysis_explorer.allocations_by_gender_over_time">
+        <source>stats.analysis_explorer.allocations_by_gender_over_time</source>
+        <target>Allocations by gender over time</target>
+      </trans-unit>
+      <trans-unit id="statsAex35" resname="stats.analysis_explorer.allocations_by_urgency_over_time">
+        <source>stats.analysis_explorer.allocations_by_urgency_over_time</source>
+        <target>Allocations by urgency over time</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

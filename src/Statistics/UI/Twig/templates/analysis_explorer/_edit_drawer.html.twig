@@ -3,7 +3,6 @@
     'data-action': 'change->live#action',
     'data-live-action-param': 'refreshEditForm',
 } %}
-{% set isTimeDimension = 'time' == form.dimension.vars.value %}
 
 <div class="offcanvas offcanvas-end analysis-explorer-edit-drawer{% if isEditOpen %} show{% endif %}"
      tabindex="-1"
@@ -99,11 +98,9 @@
                         <div class="accordion-body">
                             {{ form_row(form.dimension, compactRow|merge({attr: refreshAttrs})) }}
                             {{ form_row(form.metric, compactRow) }}
-                            {% if isTimeDimension %}
-                                <div data-testid="stats-analysis-explorer-time-grain-field">
-                                    {{ form_row(form.timeGrain, compactRow) }}
-                                </div>
-                            {% endif %}
+                            <div data-testid="stats-analysis-explorer-time-grain-field">
+                                {{ form_row(form.timeGrain, compactRow|merge({attr: refreshAttrs})) }}
+                            </div>
                             {{ form_row(form.chartType, compactRow) }}
                         </div>
                     </div>

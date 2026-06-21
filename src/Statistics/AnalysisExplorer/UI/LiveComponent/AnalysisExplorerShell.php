@@ -196,6 +196,11 @@ final class AnalysisExplorerShell
         }
 
         $this->normalizeSubmittedFormValues();
+        $this->submitForm(false);
+
+        $formData = $this->editFormNormalizer->normalize($this->getForm()->getData());
+        $this->editFormData = $formData;
+        $this->resetForm();
         $this->submitForm(true);
 
         $formData = $this->editFormNormalizer->normalize($this->getForm()->getData());
@@ -261,7 +266,7 @@ final class AnalysisExplorerShell
                 metricKey: $currentConfig->metricKey,
                 dimensionKey: $currentConfig->dimensionKey,
                 timeGrain: $currentConfig->timeGrain,
-                dataPoints: [],
+                rows: [],
                 total: 0,
             );
         }
