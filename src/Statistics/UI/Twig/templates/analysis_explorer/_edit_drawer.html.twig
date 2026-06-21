@@ -1,0 +1,136 @@
+{% set compactRow = {label: false, row_attr: {class: 'mb-0'}} %}
+
+<div class="offcanvas offcanvas-end analysis-explorer-edit-drawer{% if isEditOpen %} show{% endif %}"
+     tabindex="-1"
+     id="analysisExplorerEditDrawer"
+     aria-labelledby="analysisExplorerEditDrawerLabel"
+     data-testid="stats-analysis-explorer-edit-drawer">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="analysisExplorerEditDrawerLabel">
+            {{ 'stats.analysis_explorer.edit.title'|trans }}
+        </h2>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                data-action="live#action"
+                data-live-action-param="cancelEdit"
+                aria-label="{{ 'action.close'|trans }}"
+                data-testid="stats-analysis-explorer-edit-close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {{ form_start(form, {attr: {
+            'data-testid': 'stats-analysis-explorer-edit-form',
+            'data-model': 'norender|on(change)|*',
+        }}) }}
+            <div class="accordion accordion-flush" id="analysisExplorerEditAccordion">
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="analysisExplorerEditScopeHeading">
+                        <button class="accordion-button"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#analysisExplorerEditScopePanel"
+                                aria-expanded="true"
+                                aria-controls="analysisExplorerEditScopePanel"
+                                data-testid="stats-analysis-explorer-edit-section-scope">
+                            {{ 'stats.analysis_explorer.edit.section.scope'|trans }}
+                        </button>
+                    </h3>
+                    <div id="analysisExplorerEditScopePanel"
+                         class="accordion-collapse collapse show"
+                         aria-labelledby="analysisExplorerEditScopeHeading">
+                        <div class="accordion-body">
+                            {{ include('@Statistics/analysis_explorer/_explorer_edit_scope_fields.html.twig', {
+                                sideForm: form.scopePeriod,
+                                testId: 'stats-analysis-explorer-scope-form',
+                            }) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="analysisExplorerEditPeriodHeading">
+                        <button class="accordion-button"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#analysisExplorerEditPeriodPanel"
+                                aria-expanded="true"
+                                aria-controls="analysisExplorerEditPeriodPanel"
+                                data-testid="stats-analysis-explorer-edit-section-period">
+                            {{ 'stats.analysis_explorer.edit.section.period'|trans }}
+                        </button>
+                    </h3>
+                    <div id="analysisExplorerEditPeriodPanel"
+                         class="accordion-collapse collapse show"
+                         aria-labelledby="analysisExplorerEditPeriodHeading">
+                        <div class="accordion-body">
+                            {{ include('@Statistics/analysis_explorer/_explorer_edit_period_fields.html.twig', {
+                                sideForm: form.scopePeriod,
+                                testId: 'stats-analysis-explorer-period-form',
+                            }) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="analysisExplorerEditChartHeading">
+                        <button class="accordion-button"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#analysisExplorerEditChartPanel"
+                                aria-expanded="true"
+                                aria-controls="analysisExplorerEditChartPanel"
+                                data-testid="stats-analysis-explorer-edit-section-chart">
+                            {{ 'stats.analysis_explorer.edit.section.chart_type'|trans }}
+                        </button>
+                    </h3>
+                    <div id="analysisExplorerEditChartPanel"
+                         class="accordion-collapse collapse show"
+                         aria-labelledby="analysisExplorerEditChartHeading">
+                        <div class="accordion-body">
+                            {{ form_row(form.chartType, compactRow) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="analysisExplorerEditGrainHeading">
+                        <button class="accordion-button"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#analysisExplorerEditGrainPanel"
+                                aria-expanded="true"
+                                aria-controls="analysisExplorerEditGrainPanel"
+                                data-testid="stats-analysis-explorer-edit-section-grain">
+                            {{ 'stats.analysis_explorer.edit.section.time_grain'|trans }}
+                        </button>
+                    </h3>
+                    <div id="analysisExplorerEditGrainPanel"
+                         class="accordion-collapse collapse show"
+                         aria-labelledby="analysisExplorerEditGrainHeading">
+                        <div class="accordion-body">
+                            {{ form_row(form.dimensionGrain, compactRow) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+    <div class="offcanvas-footer border-top p-3 d-flex justify-content-end gap-2">
+        <button type="button"
+                class="btn btn-link link-secondary"
+                data-bs-dismiss="offcanvas"
+                data-action="live#action"
+                data-live-action-param="cancelEdit"
+                data-testid="stats-analysis-explorer-edit-cancel">
+            {{ 'action.cancel'|trans }}
+        </button>
+        <button type="button"
+                class="btn btn-primary"
+                data-bs-dismiss="offcanvas"
+                data-action="live#action"
+                data-live-action-param="applyEdit"
+                data-testid="stats-analysis-explorer-edit-apply">
+            {{ 'stats.analysis_explorer.edit.apply'|trans }}
+        </button>
+    </div>
+</div>

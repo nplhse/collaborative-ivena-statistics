@@ -1,0 +1,19 @@
+{# @var sideForm \Symfony\Component\Form\FormView #}
+{% set hasScopeDetail = sideForm.scopeDetail is defined %}
+{% set isHospitalScope = 'my_hospitals' == sideForm.scopeGroup.vars.value %}
+{% set refreshAttrs = {
+    'data-action': 'change->live#action',
+    'data-live-action-param': 'refreshEditForm',
+} %}
+{% set compactRow = {label: false, row_attr: {class: 'mb-0'}} %}
+
+<div class="row g-1" data-testid="{{ testId }}">
+    <div class="col-12{% if hasScopeDetail and not isHospitalScope %} col-sm-6{% endif %}">
+        {{ form_row(sideForm.scopeGroup, compactRow|merge({attr: refreshAttrs})) }}
+    </div>
+    {% if hasScopeDetail %}
+        <div class="col-12{% if not isHospitalScope %} col-sm-6{% endif %}">
+            {{ form_row(sideForm.scopeDetail, compactRow|merge({attr: refreshAttrs})) }}
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,20 @@
+<div class="card mb-4" data-testid="stats-analysis-explorer-chart-card">
+    <div class="card-header">
+        <h3 class="card-title mb-0" data-testid="stats-analysis-explorer-chart-title">{{ result ? result.title : '' }}</h3>
+    </div>
+    <div class="card-body" data-live-id="analysis-explorer-chart-{{ analysisRevision }}">
+        {% if hasChart %}
+            <div data-controller="generic-analysis-chart"
+                 data-generic-analysis-chart-specs-value="{{ chartSpecs|json_encode|e('html_attr') }}"
+                 data-generic-analysis-chart-default-type-value="{{ defaultChartType }}">
+                <div class="chart-lg"
+                     data-generic-analysis-chart-target="chart"
+                     data-testid="stats-analysis-explorer-chart"></div>
+            </div>
+        {% else %}
+            <div class="text-center text-secondary py-5" data-testid="stats-analysis-explorer-chart-empty">
+                <p class="mb-0">{{ 'stats.analysis_explorer.empty_state'|trans }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<div {{ attributes }}>
+    <div class="d-flex justify-content-end mb-3 d-print-none">
+        <button type="button"
+                class="btn btn-outline-primary"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#analysisExplorerEditDrawer"
+                data-action="live#action"
+                data-live-action-param="openEdit"
+                data-testid="stats-analysis-explorer-edit-open">
+            <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
+            {{ 'stats.analysis_explorer.edit.button'|trans }}
+        </button>
+    </div>
+    {{ include('@Statistics/analysis_explorer/_chart_card.html.twig') }}
+    {{ include('@Statistics/analysis_explorer/_results_table.html.twig') }}
+    {{ include('@Statistics/analysis_explorer/_edit_drawer.html.twig') }}
+</div>
