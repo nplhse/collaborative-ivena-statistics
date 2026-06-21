@@ -7567,6 +7567,134 @@
         <source>stats.analysis_explorer.description.grain.year</source>
         <target>Yearly</target>
       </trans-unit>
+      <trans-unit id="statsAex92" resname="stats.analysis_explorer.allocations_by_dimension">
+        <source>stats.analysis_explorer.allocations_by_dimension</source>
+        <target>Allocations by {dimension}</target>
+      </trans-unit>
+      <trans-unit id="statsAex93" resname="stats.analysis_explorer.allocations_by_dimension_over_time">
+        <source>stats.analysis_explorer.allocations_by_dimension_over_time</source>
+        <target>Allocations by {dimension} over time</target>
+      </trans-unit>
+      <trans-unit id="statsAex94" resname="stats.analysis_explorer.description.temporal_primary">
+        <source>stats.analysis_explorer.description.temporal_primary</source>
+        <target>{grain} allocation totals.</target>
+      </trans-unit>
+      <trans-unit id="statsAex95" resname="stats.analysis_explorer.description.breakdown_over_time">
+        <source>stats.analysis_explorer.description.breakdown_over_time</source>
+        <target>{grain} allocation counts by {dimension}, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex96" resname="stats.analysis_explorer.description.breakdown_total">
+        <source>stats.analysis_explorer.description.breakdown_total</source>
+        <target>Allocation counts grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex97" resname="stats.analysis_explorer.dimension.age_group">
+        <source>stats.analysis_explorer.dimension.age_group</source>
+        <target>Age group</target>
+      </trans-unit>
+      <trans-unit id="statsAex98" resname="stats.analysis_explorer.dimension.department">
+        <source>stats.analysis_explorer.dimension.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="statsAex99" resname="stats.analysis_explorer.dimension.hospital_cohort">
+        <source>stats.analysis_explorer.dimension.hospital_cohort</source>
+        <target>Hospital cohort</target>
+      </trans-unit>
+      <trans-unit id="statsAex100" resname="stats.analysis_explorer.dimension.speciality">
+        <source>stats.analysis_explorer.dimension.speciality</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="statsAex101" resname="stats.analysis_explorer.dimension.occasion">
+        <source>stats.analysis_explorer.dimension.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="statsAex102" resname="stats.analysis_explorer.dimension.assignment">
+        <source>stats.analysis_explorer.dimension.assignment</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="statsAex103" resname="stats.analysis_explorer.dimension.indication">
+        <source>stats.analysis_explorer.dimension.indication</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="statsAex104" resname="stats.analysis_explorer.dimension.secondary_indication">
+        <source>stats.analysis_explorer.dimension.secondary_indication</source>
+        <target>Secondary indication</target>
+      </trans-unit>
+      <trans-unit id="statsAex105" resname="stats.analysis_explorer.dimension.infection">
+        <source>stats.analysis_explorer.dimension.infection</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="statsAex106" resname="stats.analysis_explorer.dimension.weekday">
+        <source>stats.analysis_explorer.dimension.weekday</source>
+        <target>Weekday</target>
+      </trans-unit>
+      <trans-unit id="statsAex107" resname="stats.analysis_explorer.dimension.hour">
+        <source>stats.analysis_explorer.dimension.hour</source>
+        <target>Hour</target>
+      </trans-unit>
+      <trans-unit id="statsAex108" resname="stats.analysis_explorer.dimension.transport_type">
+        <source>stats.analysis_explorer.dimension.transport_type</source>
+        <target>Transport type</target>
+      </trans-unit>
+      <trans-unit id="statsAex109" resname="stats.analysis_explorer.dimension.day_time_bucket">
+        <source>stats.analysis_explorer.dimension.day_time_bucket</source>
+        <target>Day-time bucket</target>
+      </trans-unit>
+      <trans-unit id="statsAex110" resname="stats.analysis_explorer.dimension.shift_bucket">
+        <source>stats.analysis_explorer.dimension.shift_bucket</source>
+        <target>Shift bucket</target>
+      </trans-unit>
+      <trans-unit id="statsAex111" resname="stats.analysis_explorer.dimension.resus">
+        <source>stats.analysis_explorer.dimension.resus</source>
+        <target>Resuscitation required</target>
+      </trans-unit>
+      <trans-unit id="statsAex112" resname="stats.analysis_explorer.dimension.cathlab">
+        <source>stats.analysis_explorer.dimension.cathlab</source>
+        <target>Cath lab required</target>
+      </trans-unit>
+      <trans-unit id="statsAex113" resname="stats.analysis_explorer.dimension.cpr">
+        <source>stats.analysis_explorer.dimension.cpr</source>
+        <target>CPR</target>
+      </trans-unit>
+      <trans-unit id="statsAex114" resname="stats.analysis_explorer.dimension.ventilation">
+        <source>stats.analysis_explorer.dimension.ventilation</source>
+        <target>Ventilation</target>
+      </trans-unit>
+      <trans-unit id="statsAex115" resname="stats.analysis_explorer.dimension.shock">
+        <source>stats.analysis_explorer.dimension.shock</source>
+        <target>Shock</target>
+      </trans-unit>
+      <trans-unit id="statsAex116" resname="stats.analysis_explorer.dimension.workAccident">
+        <source>stats.analysis_explorer.dimension.workAccident</source>
+        <target>Work accident</target>
+      </trans-unit>
+      <trans-unit id="statsAex117" resname="stats.analysis_explorer.dimension.pregnancy">
+        <source>stats.analysis_explorer.dimension.pregnancy</source>
+        <target>Pregnancy</target>
+      </trans-unit>
+      <trans-unit id="statsAex118" resname="stats.analysis_explorer.dimension.with_physician">
+        <source>stats.analysis_explorer.dimension.with_physician</source>
+        <target>Physician accompaniment</target>
+      </trans-unit>
+      <trans-unit id="statsAex119" resname="stats.analysis_explorer.dimension.hospital">
+        <source>stats.analysis_explorer.dimension.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="statsAex120" resname="stats.analysis_explorer.dimension.state">
+        <source>stats.analysis_explorer.dimension.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="statsAex121" resname="stats.analysis_explorer.dimension.dispatchArea">
+        <source>stats.analysis_explorer.dimension.dispatchArea</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsAex122" resname="stats.analysis_explorer.dimension.quarter">
+        <source>stats.analysis_explorer.dimension.quarter</source>
+        <target>Quarter</target>
+      </trans-unit>
+      <trans-unit id="statsAex123" resname="stats.analysis_explorer.dimension.week">
+        <source>stats.analysis_explorer.dimension.week</source>
+        <target>Calendar week</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
