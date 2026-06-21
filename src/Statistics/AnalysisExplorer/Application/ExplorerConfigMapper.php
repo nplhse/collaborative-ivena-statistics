@@ -59,7 +59,7 @@ final readonly class ExplorerConfigMapper
             ->withDimension($dimensionKey, $timeGrain)
             ->withMetric($metricKey)
             ->withPresentation(new PresentationConfig(chartType: $chartType, mode: PresentationMode::Chart))
-            ->withTitle($this->titleFactory->titleFor($dimensionKey));
+            ->withTitle($this->titleFactory->titleFor($dimensionKey, $timeGrain));
     }
 
     /**
@@ -106,7 +106,7 @@ final readonly class ExplorerConfigMapper
             scopePeriod: $scopePeriod,
             dimension: $dimensionKey->value,
             metric: (string) ($state['query']['metric'] ?? AnalysisMetricKey::AllocationCount->value),
-            timeGrain: $timeGrain?->value,
+            timeGrain: $timeGrain->value,
             chartType: (string) ($state['presentation']['chartType'] ?? ChartPresentationType::Bar->value),
         );
 
@@ -309,12 +309,32 @@ final readonly class ExplorerConfigMapper
         };
     }
 
-    private function parseTimeGrain(AnalysisDimensionKey $dimensionKey, ?string $grain): ?AnalysisDimensionGrain
+    private function parseTimeGrain(AnalysisDimensionKey $dimensionKey, ?string $grain): AnalysisDimensionGrain
     {
-        if (AnalysisDimensionKey::Time !== $dimensionKey) {
-            return null;
+        $parsed = null !== $grain && '' !== $grain
+            ? AnalysisDimensionGrain::tryFrom($grain)
+            : null;
+
+        if (AnalysisDimensionKey::Time !== $dimensionKey && null === $parsed) {
+            return AnalysisDimensionGrain::Total;
         }
 
-        return AnalysisDimensionGrain::tryFrom($grain ?? '') ?? AnalysisDimensionGrain::Month;
+        $allowed = match ($dimensionKey) {
+            AnalysisDimensionKey::Time => [AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
+            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => [
+                AnalysisDimensionGrain::Total,
+                AnalysisDimensionGrain::Month,
+                AnalysisDimensionGrain::Year,
+            ],
+        };
+
+        if ($parsed instanceof AnalysisDimensionGrain && \in_array($parsed, $allowed, true)) {
+            return $parsed;
+        }
+
+        return match ($dimensionKey) {
+            AnalysisDimensionKey::Time => AnalysisDimensionGrain::Month,
+            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => AnalysisDimensionGrain::Month,
+        };
     }
 }

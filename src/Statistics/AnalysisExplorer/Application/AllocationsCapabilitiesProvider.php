@@ -26,7 +26,12 @@ final class AllocationsCapabilitiesProvider
             ],
             metrics: [AnalysisMetricKey::AllocationCount],
             timeGrains: [AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
-            chartTypes: [ChartPresentationType::Bar, ChartPresentationType::Line],
+            chartTypes: [
+                ChartPresentationType::Bar,
+                ChartPresentationType::Line,
+                ChartPresentationType::GroupedBar,
+                ChartPresentationType::StackedBar,
+            ],
             defaultDimension: AnalysisDimensionKey::Time,
             defaultMetric: AnalysisMetricKey::AllocationCount,
             defaultTimeGrain: AnalysisDimensionGrain::Month,

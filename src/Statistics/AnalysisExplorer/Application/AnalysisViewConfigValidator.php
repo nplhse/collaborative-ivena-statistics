@@ -36,19 +36,23 @@ final readonly class AnalysisViewConfigValidator
             return sprintf('Unsupported metric "%s".', $config->metricKey->value);
         }
 
-        if (!\in_array($config->presentation->chartType, $capabilities->chartTypes, true)) {
+        $allowedCharts = $capabilities->chartTypesFor($config);
+        if (!\in_array($config->presentation->chartType, $allowedCharts, true)) {
             return sprintf('Unsupported chart type "%s".', $config->presentation->chartType->value);
         }
 
-        if (AnalysisDimensionKey::Time === $config->dimensionKey) {
-            if (!$config->timeGrain instanceof AnalysisDimensionGrain) {
-                return 'Time dimension requires a grain.';
-            }
-            if (!\in_array($config->timeGrain, $capabilities->timeGrains, true)) {
-                return sprintf('Unsupported grain "%s" for time dimension.', $config->timeGrain->value);
-            }
-        } elseif ($config->timeGrain instanceof AnalysisDimensionGrain) {
-            return sprintf('Grain is not allowed for dimension "%s".', $config->dimensionKey->value);
+        $grain = $config->timeGrain;
+        if (!$grain instanceof AnalysisDimensionGrain) {
+            return 'A grain is required.';
+        }
+
+        $allowedGrains = $capabilities->timeGrainsFor($config->dimensionKey);
+        if (!\in_array($grain, $allowedGrains, true)) {
+            return sprintf('Unsupported grain "%s" for dimension "%s".', $grain->value, $config->dimensionKey->value);
+        }
+
+        if (AnalysisDimensionKey::Time === $config->dimensionKey && AnalysisDimensionGrain::Total === $grain) {
+            return 'Total grain is not allowed for the time dimension.';
         }
 
         return 'Invalid analysis configuration.';
