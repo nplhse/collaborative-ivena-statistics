@@ -6,10 +6,10 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\DTO\StatisticsFilter;
@@ -20,28 +20,36 @@ final readonly class ExplorerConfigPreviewFactory
 {
     public function fromFormData(
         DataSourceCapabilities $capabilities,
-        AnalysisDimensionKey $dimension,
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
         AnalysisMetricKey $metric,
-        AnalysisDimensionGrain $timeGrain,
         ExplorerEditFormData $formData,
     ): AnalysisViewConfig {
-        return $this->buildConfig($capabilities, $dimension, $metric, $timeGrain, $formData->showPercentOfTotal, new PresentationConfig(
-            chartType: ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar,
-        ));
+        return $this->buildConfig(
+            $capabilities,
+            $rowAxis,
+            $columnAxis,
+            $metric,
+            $formData->showPercentOfTotal,
+            new PresentationConfig(
+                chartType: ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar,
+                tableLayout: TableLayout::tryFrom($formData->tableLayout) ?? TableLayout::Flat,
+            ),
+        );
     }
 
     public function fromConfig(
         DataSourceCapabilities $capabilities,
-        AnalysisDimensionKey $dimensionKey,
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
         AnalysisMetricKey $metricKey,
-        AnalysisDimensionGrain $timeGrain,
         AnalysisViewConfig $config,
     ): AnalysisViewConfig {
         return $this->buildConfig(
             $capabilities,
-            $dimensionKey,
+            $rowAxis,
+            $columnAxis,
             $metricKey,
-            $timeGrain,
             $config->showsPercentOfTotal(),
             $config->presentation,
             $config->statisticsFilter,
@@ -51,9 +59,9 @@ final readonly class ExplorerConfigPreviewFactory
 
     private function buildConfig(
         DataSourceCapabilities $capabilities,
-        AnalysisDimensionKey $dimensionKey,
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
         AnalysisMetricKey $visualMetricKey,
-        AnalysisDimensionGrain $timeGrain,
         bool $showPercentOfTotal,
         PresentationConfig $presentation,
         ?StatisticsFilter $statisticsFilter = null,
@@ -65,8 +73,8 @@ final readonly class ExplorerConfigPreviewFactory
             dataSourceKey: $capabilities->dataSourceKey,
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
-            dimensionKey: $dimensionKey,
-            timeGrain: $timeGrain,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
             statisticsFilter: $statisticsFilter ?? new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,

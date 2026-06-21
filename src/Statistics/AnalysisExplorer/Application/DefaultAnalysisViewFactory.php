@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
@@ -22,17 +22,19 @@ final readonly class DefaultAnalysisViewFactory
 
     public function createDefault(StatisticsFilter $statisticsFilter): AnalysisViewConfig
     {
+        $rowAxis = AnalysisAxisRef::time(AnalysisDimensionGrain::Month);
+
         return new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: $rowAxis,
+            columnAxis: null,
             statisticsFilter: $statisticsFilter,
             presentation: new PresentationConfig(
                 chartType: ChartPresentationType::Bar,
             ),
-            title: $this->titleFactory->titleFor(AnalysisDimensionKey::Time),
+            title: $this->titleFactory->titleForAxes($rowAxis, null),
         );
     }
 }

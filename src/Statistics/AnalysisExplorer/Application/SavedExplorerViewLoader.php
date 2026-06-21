@@ -50,10 +50,10 @@ final readonly class SavedExplorerViewLoader
         try {
             $state = $configJson;
             $this->applyFilterOverlay($state, $filter);
-            $this->configMapper->viewConfigFromState($state, $user);
+            $config = $this->configMapper->viewConfigFromState($state, $user);
 
             return new SavedExplorerViewLoadResult(
-                state: $state,
+                state: $this->configMapper->toStateArray($config),
                 view: $savedView,
             );
         } catch (\Throwable) {
@@ -94,7 +94,7 @@ final readonly class SavedExplorerViewLoader
             return false;
         }
 
-        if (!isset($configJson['query']['dimension'])) {
+        if (!isset($configJson['query']['rows']) && !isset($configJson['query']['dimension'])) {
             return false;
         }
 

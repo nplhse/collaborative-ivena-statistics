@@ -7,7 +7,6 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
 
 final readonly class AllocationsAnalysisRunner implements Contract\AnalysisRunnerInterface
@@ -15,6 +14,7 @@ final readonly class AllocationsAnalysisRunner implements Contract\AnalysisRunne
     public function __construct(
         private AllocationsCountQuery $countQuery,
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private AnalysisTotalsCalculator $totalsCalculator,
     ) {
     }
 
@@ -28,27 +28,15 @@ final readonly class AllocationsAnalysisRunner implements Contract\AnalysisRunne
     public function run(AnalysisQuery $query): AnalysisRunResult
     {
         $rows = $this->countQuery->execute($query);
-        $totals = [];
-
-        foreach ($query->metricKeys as $metricKey) {
-            $total = 0.0;
-            foreach ($rows as $row) {
-                $value = $row->valueFor($metricKey);
-                if (null !== $value) {
-                    $total += (float) $value;
-                }
-            }
-            $totals[$metricKey->value] = AnalysisMetricKey::PercentOfTotal === $metricKey ? round($total, 2) : $total;
-        }
 
         return new AnalysisRunResult(
             title: '',
             metricKeys: $query->metricKeys,
             visualMetricKey: $query->visualMetricKey,
-            dimensionKey: $query->dimensionKey,
-            timeGrain: $query->timeGrain,
+            rowAxis: $query->rowAxis,
+            columnAxis: $query->columnAxis,
             rows: $rows,
-            totals: $totals,
+            totals: $this->totalsCalculator->calculate($rows, $query->metricKeys),
         );
     }
 }

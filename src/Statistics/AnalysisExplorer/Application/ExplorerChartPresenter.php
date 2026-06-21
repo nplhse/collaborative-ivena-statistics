@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
-use App\Statistics\AnalysisExplorer\Application\DTO\MultiSeriesPivot;
+use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
@@ -79,7 +79,7 @@ final readonly class ExplorerChartPresenter
      */
     private function buildMultiSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
     {
-        $pivot = MultiSeriesPivot::fromResult($result, $result->visualMetricKey);
+        $matrix = AnalysisMatrix::fromRunResult($result);
 
         $chartType = match ($presentation->chartType) {
             ChartPresentationType::Line => 'line',
@@ -88,8 +88,8 @@ final readonly class ExplorerChartPresenter
 
         $spec = [
             'chartType' => $chartType,
-            'labels' => $pivot->labels,
-            'series' => $pivot->series,
+            'labels' => $matrix->chartLabels(),
+            'series' => $matrix->chartSeries($result->visualMetricKey),
             'valueLabel' => $this->metricLabel($result->visualMetricKey),
             'valueFormat' => $this->metricFormat($result->visualMetricKey),
             'percentScale' => 'percent' === $this->metricFormat($result->visualMetricKey),

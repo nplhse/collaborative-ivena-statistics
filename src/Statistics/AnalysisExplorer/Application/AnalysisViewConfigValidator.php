@@ -6,7 +6,6 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\User\Domain\Entity\User;
@@ -57,7 +56,12 @@ final readonly class AnalysisViewConfigValidator
 
     private function buildMessageKey(AnalysisViewConfig $config, DataSourceCapabilities $capabilities): string
     {
-        if (!\in_array($config->dimensionKey, $capabilities->dimensions, true)) {
+        if (!$capabilities->supportsAxis($config->rowAxis)) {
+            return 'stats.analysis_explorer.validation.unsupported_dimension';
+        }
+
+        if ($config->columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef
+            && !$capabilities->supportsColumnAxis($config->rowAxis, $config->columnAxis)) {
             return 'stats.analysis_explorer.validation.unsupported_dimension';
         }
 
@@ -72,20 +76,6 @@ final readonly class AnalysisViewConfigValidator
             return 'stats.analysis_explorer.validation.unsupported_chart';
         }
 
-        $grain = $config->timeGrain;
-        if (!$grain instanceof AnalysisDimensionGrain) {
-            return 'stats.analysis_explorer.validation.grain_required';
-        }
-
-        $allowedGrains = $capabilities->timeGrainsFor($config->dimensionKey);
-        if (!\in_array($grain, $allowedGrains, true)) {
-            return 'stats.analysis_explorer.validation.unsupported_grain';
-        }
-
-        if ($config->dimensionKey->isTemporalPrimary() && AnalysisDimensionGrain::Total === $grain) {
-            return 'stats.analysis_explorer.validation.total_grain_for_time';
-        }
-
         return 'stats.analysis_explorer.validation.invalid';
     }
 
@@ -95,10 +85,11 @@ final readonly class AnalysisViewConfigValidator
     private function buildParameters(AnalysisViewConfig $config): array
     {
         return [
-            'dimension' => $config->dimensionKey->value,
+            'rows' => $config->rowAxis->dimensionKey->value,
+            'columns' => $config->columnAxis?->dimensionKey->value ?? '',
             'metric' => $config->visualMetricKey->value,
             'chart' => $config->presentation->chartType->value,
-            'grain' => $config->timeGrain instanceof AnalysisDimensionGrain ? $config->timeGrain->value : '',
+            'grain' => $config->rowAxis->resolvedGrain()->value,
         ];
     }
 

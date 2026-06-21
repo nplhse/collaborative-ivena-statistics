@@ -26,8 +26,8 @@ final readonly class AnalysisRunnerRegistry
                     title: $config->title,
                     metricKeys: $result->metricKeys,
                     visualMetricKey: $result->visualMetricKey,
-                    dimensionKey: $result->dimensionKey,
-                    timeGrain: $result->timeGrain,
+                    rowAxis: $result->rowAxis,
+                    columnAxis: $result->columnAxis,
                     rows: $result->rows,
                     totals: $result->totals,
                 );

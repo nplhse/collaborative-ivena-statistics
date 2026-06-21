@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableMetricColumn;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableRow;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
-use App\Statistics\AnalysisExplorer\Application\DTO\MultiSeriesPivot;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -29,10 +30,18 @@ final readonly class ExplorerResultsTablePresenter
 
     public function create(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
-        if ($result->hasSeries()) {
-            return $this->createPivotTable($viewConfig, $result);
+        if (!$result->hasColumnAxis()) {
+            return $this->createFlatTable($viewConfig, $result);
         }
 
+        return match ($viewConfig->presentation->tableLayout) {
+            TableLayout::MatrixMetricsAsRows => $this->createMatrixMetricsAsRowsTable($viewConfig, $result),
+            default => $this->createMatrixTable($viewConfig, $result),
+        };
+    }
+
+    private function createFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
+    {
         $metricColumns = $this->metricColumns($result->metricKeys);
         $rows = [];
         foreach ($result->rows as $row) {
@@ -43,34 +52,37 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         return new ExplorerResultsTableViewModel(
-            primaryDimensionLabel: $this->dimensionLabel($viewConfig->dimensionKey, $viewConfig->timeGrain),
+            primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
             metricColumns: $metricColumns,
             rows: $rows,
             formattedTotals: $this->formatTotals($result),
+            tableLayout: TableLayout::Flat,
+            rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
         );
     }
 
-    private function createPivotTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
+    private function createMatrixTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
-        $pivot = MultiSeriesPivot::fromResult($result, $result->visualMetricKey);
+        $matrix = AnalysisMatrix::fromRunResult($result);
         $metricColumns = $this->metricColumns([$result->visualMetricKey]);
-
+        $columnLabels = array_values($matrix->columnLabels);
         $rows = [];
-        $seriesTotals = [];
+        $columnTotals = [];
 
-        foreach ($pivot->bucketOrder as $bucket) {
+        foreach ($matrix->orderedRowKeys as $rowKey) {
             $seriesValues = [];
             $rowTotal = 0.0;
 
-            foreach ($pivot->seriesLabels as $seriesKey => $seriesLabel) {
-                $value = (float) ($pivot->valuesByBucket[$bucket][$seriesKey] ?? 0.0);
-                $seriesValues[$seriesLabel] = $value;
+            foreach ($matrix->orderedColumnKeys as $colKey) {
+                $value = $matrix->valueFor($rowKey, $colKey, $result->visualMetricKey);
+                $label = $matrix->columnLabels[$colKey];
+                $seriesValues[$label] = $value;
                 $rowTotal += $value;
-                $seriesTotals[$seriesLabel] = ($seriesTotals[$seriesLabel] ?? 0.0) + $value;
+                $columnTotals[$label] = ($columnTotals[$label] ?? 0.0) + $value;
             }
 
             $rows[] = new ExplorerResultsTableRow(
-                bucketLabel: $pivot->bucketLabels[$bucket],
+                bucketLabel: $matrix->rowLabels[$rowKey],
                 formattedMetricValues: [
                     $result->visualMetricKey->value => $this->formatMetricValue($result->visualMetricKey, $rowTotal),
                 ],
@@ -81,22 +93,66 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         $formattedSeriesTotals = [];
-        foreach ($pivot->seriesLabels as $seriesLabel) {
+        foreach ($columnLabels as $seriesLabel) {
             $formattedSeriesTotals[$seriesLabel] = $this->formatMetricValue(
                 $result->visualMetricKey,
-                (float) ($seriesTotals[$seriesLabel] ?? 0),
+                (float) ($columnTotals[$seriesLabel] ?? 0),
             );
         }
 
         return new ExplorerResultsTableViewModel(
-            primaryDimensionLabel: $this->temporalDimensionLabel($viewConfig->timeGrain),
+            primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
             metricColumns: $metricColumns,
             rows: $rows,
             formattedTotals: $this->formatTotals($result),
             hasSeries: true,
-            seriesLabels: array_values($pivot->seriesLabels),
+            seriesLabels: $columnLabels,
             formattedSeriesTotals: $formattedSeriesTotals,
             formattedGrandTotal: $this->formatMetricValue($result->visualMetricKey, $result->primaryTotal()),
+            tableLayout: TableLayout::Matrix,
+            rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
+            columnAxisLabel: $viewConfig->columnAxis instanceof AnalysisAxisRef
+                ? $this->axisLabel($viewConfig->columnAxis)
+                : '',
+        );
+    }
+
+    private function createMatrixMetricsAsRowsTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
+    {
+        $matrix = AnalysisMatrix::fromRunResult($result);
+        $columnLabels = array_values($matrix->columnLabels);
+        $rows = [];
+
+        foreach ($matrix->orderedRowKeys as $rowKey) {
+            foreach ($result->metricKeys as $metricKey) {
+                $seriesValues = [];
+                foreach ($matrix->orderedColumnKeys as $colKey) {
+                    $label = $matrix->columnLabels[$colKey];
+                    $seriesValues[$label] = $matrix->valueFor($rowKey, $colKey, $metricKey);
+                }
+
+                $rows[] = new ExplorerResultsTableRow(
+                    bucketLabel: $matrix->rowLabels[$rowKey],
+                    formattedMetricValues: [],
+                    seriesValues: $seriesValues,
+                    metricSubRowLabel: $this->metricLabel($metricKey),
+                );
+            }
+        }
+
+        return new ExplorerResultsTableViewModel(
+            primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
+            metricColumns: [],
+            rows: $rows,
+            formattedTotals: $this->formatTotals($result),
+            hasSeries: true,
+            seriesLabels: $columnLabels,
+            tableLayout: TableLayout::MatrixMetricsAsRows,
+            rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
+            columnAxisLabel: $viewConfig->columnAxis instanceof AnalysisAxisRef
+                ? $this->axisLabel($viewConfig->columnAxis)
+                : '',
+            hasMetricSubRows: true,
         );
     }
 
@@ -163,18 +219,18 @@ final readonly class ExplorerResultsTablePresenter
         );
     }
 
-    private function dimensionLabel(AnalysisDimensionKey $dimensionKey, ?AnalysisDimensionGrain $timeGrain): string
+    private function axisLabel(AnalysisAxisRef $axis): string
     {
-        if ($dimensionKey->isTemporalPrimary()) {
-            return $this->temporalDimensionLabel($timeGrain);
+        if ($axis->dimensionKey->isTemporalPrimary()) {
+            return $this->temporalDimensionLabel($axis->resolvedGrain());
         }
 
-        return $this->translator->trans('stats.analysis_explorer.dimension.'.$dimensionKey->value);
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value);
     }
 
-    private function temporalDimensionLabel(?AnalysisDimensionGrain $timeGrain): string
+    private function temporalDimensionLabel(AnalysisDimensionGrain $grain): string
     {
-        return match ($timeGrain) {
+        return match ($grain) {
             AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
             AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
             AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),

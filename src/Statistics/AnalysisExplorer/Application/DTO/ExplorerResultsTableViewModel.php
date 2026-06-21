@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application\DTO;
 
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
+
 final readonly class ExplorerResultsTableViewModel
 {
     /**
@@ -22,6 +24,10 @@ final readonly class ExplorerResultsTableViewModel
         public array $seriesLabels = [],
         public array $formattedSeriesTotals = [],
         public string $formattedGrandTotal = '0',
+        public TableLayout $tableLayout = TableLayout::Flat,
+        public string $rowAxisLabel = '',
+        public string $columnAxisLabel = '',
+        public bool $hasMetricSubRows = false,
     ) {
     }
 
@@ -32,6 +38,10 @@ final readonly class ExplorerResultsTableViewModel
 
     public function columnCount(): int
     {
+        if ($this->hasMetricSubRows) {
+            return 2 + \count($this->seriesLabels);
+        }
+
         if ($this->hasSeries) {
             return \count($this->seriesLabels) + 2;
         }

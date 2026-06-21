@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -20,34 +20,44 @@ final readonly class ExplorerDescriptionFactory
 
     public function descriptionForConfig(AnalysisViewConfig $config): string
     {
-        return $this->descriptionFor(
-            $config->dimensionKey,
-            $config->timeGrain ?? AnalysisDimensionGrain::Month,
+        return $this->descriptionForAxes(
+            $config->rowAxis,
+            $config->columnAxis,
             $config->presentation->chartType,
         );
     }
 
-    public function descriptionFor(
-        AnalysisDimensionKey $dimensionKey,
-        AnalysisDimensionGrain $grain,
+    public function descriptionForAxes(
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
         ChartPresentationType $chartType,
     ): string {
-        if ($dimensionKey->isTemporalPrimary()) {
+        if (!$columnAxis instanceof AnalysisAxisRef && $rowAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.description.temporal_primary', [
-                'grain' => $this->grainLabel($grain),
+                'grain' => $this->grainLabel($rowAxis->resolvedGrain()),
             ]);
         }
 
-        if ($grain->isTemporal()) {
+        if ($columnAxis instanceof AnalysisAxisRef && $rowAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.description.breakdown_over_time', [
-                'dimension' => $this->titleFactory->titleFor($dimensionKey, AnalysisDimensionGrain::Total),
-                'grain' => $this->grainLabel($grain),
+                'dimension' => $this->titleFactory->titleForAxes(
+                    AnalysisAxisRef::breakdown($columnAxis->dimensionKey),
+                    null,
+                ),
+                'grain' => $this->grainLabel($rowAxis->resolvedGrain()),
                 'chart' => $this->chartLabel($chartType),
             ]);
         }
 
+        if ($columnAxis instanceof AnalysisAxisRef && $columnAxis->dimensionKey->isTemporalPrimary()) {
+            return $this->translator->trans('stats.analysis_explorer.description.breakdown_by_temporal', [
+                'dimension' => $this->titleFactory->titleForAxes($rowAxis, null),
+                'temporal' => $this->grainLabel($columnAxis->resolvedGrain()),
+            ]);
+        }
+
         return $this->translator->trans('stats.analysis_explorer.description.breakdown_total', [
-            'dimension' => $this->titleFactory->titleFor($dimensionKey, AnalysisDimensionGrain::Total),
+            'dimension' => $this->titleFactory->titleForAxes($rowAxis, null),
         ]);
     }
 

@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\PresentationMode;
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\DTO\StatisticsFilter;
@@ -22,16 +24,18 @@ use App\User\Domain\Entity\User;
 
 final readonly class ExplorerConfigMapper
 {
-    private const int SCHEMA_VERSION = 2;
+    private const int SCHEMA_VERSION = 3;
 
     public function __construct(
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private StatisticsFilterFactory $statisticsFilterFactory,
         private ExplorerTitleFactory $titleFactory,
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
-        private AnalysisDimensionGrainResolver $grainResolver,
+        private AnalysisAxisResolver $axisResolver,
+        private AnalysisAxisUpgradeMapper $axisUpgradeMapper,
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
+        private ExplorerTableLayoutResolver $tableLayoutResolver,
     ) {
     }
 
@@ -39,11 +43,14 @@ final readonly class ExplorerConfigMapper
     {
         return new ExplorerEditFormData(
             scopePeriod: $this->sideFromFilter($config->statisticsFilter),
-            dimension: $config->dimensionKey->value,
+            rowDimension: $config->rowAxis->dimensionKey->value,
+            rowGrain: $config->rowAxis->resolvedGrain()->value,
+            columnDimension: $config->columnAxis?->dimensionKey->value,
+            columnGrain: $config->columnAxis?->resolvedGrain()->value,
             metric: $config->visualMetricKey->value,
             showPercentOfTotal: $config->showsPercentOfTotal(),
-            timeGrain: $config->timeGrain?->value,
             chartType: $config->presentation->chartType->value,
+            tableLayout: $config->presentation->tableLayout->value,
         );
     }
 
@@ -54,21 +61,18 @@ final readonly class ExplorerConfigMapper
             $user,
         );
 
-        $dimensionKey = AnalysisDimensionKey::tryFrom($formData->dimension) ?? AnalysisDimensionKey::Time;
         $visualMetricKey = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
         $chartType = ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar;
+        $tableLayout = TableLayout::tryFrom($formData->tableLayout) ?? TableLayout::Flat;
         $capabilities = $this->capabilitiesProvider->capabilitiesFor($user, $filter);
-        $timeGrain = $this->grainResolver->resolveFromString(
-            $dimensionKey,
-            $formData->timeGrain,
-            $capabilities,
-        );
+
+        [$rowAxis, $columnAxis] = $this->axesFromFormData($formData, $capabilities);
 
         $preview = $this->previewFactory->fromFormData(
             $capabilities,
-            $dimensionKey,
+            $rowAxis,
+            $columnAxis,
             $visualMetricKey,
-            $timeGrain,
             $formData,
         );
 
@@ -77,12 +81,20 @@ final readonly class ExplorerConfigMapper
             $visualMetricKey = $metricKeys[0];
         }
 
+        if (TableLayout::Flat === $tableLayout && null !== $columnAxis) {
+            $tableLayout = $this->tableLayoutResolver->resolveForConfig($preview);
+        }
+
         return $base
             ->withStatisticsFilter($filter)
-            ->withDimension($dimensionKey, $timeGrain)
+            ->withAxes($rowAxis, $columnAxis)
             ->withMetrics($metricKeys, $visualMetricKey)
-            ->withPresentation(new PresentationConfig(chartType: $chartType, mode: PresentationMode::Chart))
-            ->withTitle($this->titleFactory->titleFor($dimensionKey, $timeGrain));
+            ->withPresentation(new PresentationConfig(
+                chartType: $chartType,
+                mode: PresentationMode::Chart,
+                tableLayout: $tableLayout,
+            ))
+            ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis));
     }
 
     /**
@@ -90,20 +102,23 @@ final readonly class ExplorerConfigMapper
      */
     public function toStateArray(AnalysisViewConfig $config): array
     {
+        $query = [
+            'scope' => $this->scopeToStateArray($config->statisticsFilter),
+            'period' => $this->periodToStateArray($config->statisticsFilter),
+            'metrics' => array_map(static fn (AnalysisMetricKey $key): string => $key->value, $config->metricKeys),
+            'visualMetric' => $config->visualMetricKey->value,
+            'rows' => $config->rowAxis->toStateArray(),
+            'columns' => $config->columnAxis?->toStateArray(),
+        ];
+
         return [
             'schemaVersion' => self::SCHEMA_VERSION,
             'dataSource' => $config->dataSourceKey->value,
-            'query' => [
-                'scope' => $this->scopeToStateArray($config->statisticsFilter),
-                'period' => $this->periodToStateArray($config->statisticsFilter),
-                'metrics' => array_map(static fn (AnalysisMetricKey $key): string => $key->value, $config->metricKeys),
-                'visualMetric' => $config->visualMetricKey->value,
-                'dimension' => $config->dimensionKey->value,
-                'grain' => $config->timeGrain?->value,
-            ],
+            'query' => $query,
             'presentation' => [
                 'mode' => $config->presentation->mode->value,
                 'chartType' => $config->presentation->chartType->value,
+                'tableLayout' => $config->presentation->tableLayout->value,
             ],
             'title' => $config->title,
         ];
@@ -119,37 +134,36 @@ final readonly class ExplorerConfigMapper
         }
 
         $state = $this->upgradeMetricState($state);
+        $state = $this->upgradeAxisState($state);
+
         $scopePeriod = $this->scopePeriodFromState($state);
         $filter = $this->statisticsFilterFactory->createFromInput(
             $this->filterInputFactory->fromSideFormData($scopePeriod),
             $user,
         );
-        $dimensionKey = AnalysisDimensionKey::tryFrom((string) ($state['query']['dimension'] ?? 'time')) ?? AnalysisDimensionKey::Time;
-        $grainValue = $state['query']['grain'] ?? null;
         $capabilities = $this->capabilitiesProvider->capabilitiesFor($user, $filter);
-        $timeGrain = $this->grainResolver->resolveFromString(
-            $dimensionKey,
-            \is_string($grainValue) ? $grainValue : null,
-            $capabilities,
-        );
 
         [$metricKeys, $visualMetricKey] = $this->metricKeysFromState($state['query'] ?? []);
+        [$rowAxis, $columnAxis] = $this->axesFromState($state['query'] ?? [], $capabilities);
 
         $formData = new ExplorerEditFormData(
             scopePeriod: $scopePeriod,
-            dimension: $dimensionKey->value,
+            rowDimension: $rowAxis->dimensionKey->value,
+            rowGrain: $rowAxis->resolvedGrain()->value,
+            columnDimension: $columnAxis?->dimensionKey->value,
+            columnGrain: $columnAxis?->resolvedGrain()->value,
             metric: $visualMetricKey->value,
             showPercentOfTotal: \in_array(AnalysisMetricKey::PercentOfTotal, $metricKeys, true),
-            timeGrain: $timeGrain->value,
             chartType: (string) ($state['presentation']['chartType'] ?? ChartPresentationType::Bar->value),
+            tableLayout: (string) ($state['presentation']['tableLayout'] ?? TableLayout::Flat->value),
         );
 
         $base = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::tryFrom((string) ($state['dataSource'] ?? 'allocations')) ?? AnalysisDataSourceKey::Allocations,
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: null,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -157,10 +171,16 @@ final readonly class ExplorerConfigMapper
                 period: StatisticsFilterPeriod::All,
             ),
             presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
-            title: (string) ($state['title'] ?? $this->titleFactory->titleFor(AnalysisDimensionKey::Time)),
+            title: (string) ($state['title'] ?? $this->titleFactory->titleForAxes(AnalysisAxisRef::time(AnalysisDimensionGrain::Month), null)),
         );
 
-        return $this->toViewConfig($formData, $base, $user);
+        $config = $this->toViewConfig($formData, $base, $user);
+
+        if ('' !== trim((string) ($state['title'] ?? ''))) {
+            $config = $config->withTitle((string) $state['title']);
+        }
+
+        return $config;
     }
 
     /**
@@ -169,18 +189,36 @@ final readonly class ExplorerConfigMapper
      */
     public function buildViewConfig(array $filterState, array $viewPreferences, ?User $user): AnalysisViewConfig
     {
+        $query = array_merge($filterState, [
+            'metrics' => $viewPreferences['metrics'] ?? [AnalysisMetricKey::AllocationCount->value],
+            'visualMetric' => $viewPreferences['visualMetric'] ?? ($viewPreferences['metric'] ?? AnalysisMetricKey::AllocationCount->value),
+        ]);
+
+        if (isset($viewPreferences['rows']) && \is_array($viewPreferences['rows'])) {
+            $query['rows'] = $viewPreferences['rows'];
+            $query['columns'] = $viewPreferences['columns'] ?? null;
+        } elseif (isset($viewPreferences['dimension'])) {
+            $dimensionKey = AnalysisDimensionKey::tryFrom((string) $viewPreferences['dimension']) ?? AnalysisDimensionKey::Time;
+            $grain = $this->resolveLegacyGrain($dimensionKey, $viewPreferences['grain'] ?? null);
+            [$rowAxis, $columnAxis] = $this->axisUpgradeMapper->fromLegacyDimension($dimensionKey, $grain);
+            $query['rows'] = $rowAxis->toStateArray();
+            $query['columns'] = $columnAxis?->toStateArray();
+        } else {
+            $query['rows'] = [
+                'dimension' => AnalysisDimensionKey::Time->value,
+                'grain' => AnalysisDimensionGrain::Month->value,
+            ];
+            $query['columns'] = null;
+        }
+
         $state = [
             'schemaVersion' => self::SCHEMA_VERSION,
             'dataSource' => AnalysisDataSourceKey::Allocations->value,
-            'query' => array_merge($filterState, [
-                'metrics' => $viewPreferences['metrics'] ?? [AnalysisMetricKey::AllocationCount->value],
-                'visualMetric' => $viewPreferences['visualMetric'] ?? ($viewPreferences['metric'] ?? AnalysisMetricKey::AllocationCount->value),
-                'dimension' => $viewPreferences['dimension'] ?? AnalysisDimensionKey::Time->value,
-                'grain' => $viewPreferences['grain'] ?? AnalysisDimensionGrain::Month->value,
-            ]),
+            'query' => $query,
             'presentation' => [
                 'mode' => PresentationMode::Chart->value,
                 'chartType' => $viewPreferences['chartType'] ?? ChartPresentationType::Bar->value,
+                'tableLayout' => $viewPreferences['tableLayout'] ?? TableLayout::Flat->value,
             ],
             'title' => $viewPreferences['title'] ?? '',
         ];
@@ -207,11 +245,91 @@ final readonly class ExplorerConfigMapper
         return [
             'metrics' => array_map(static fn (AnalysisMetricKey $key): string => $key->value, $config->metricKeys),
             'visualMetric' => $config->visualMetricKey->value,
-            'dimension' => $config->dimensionKey->value,
-            'grain' => $config->timeGrain?->value,
+            'rows' => $config->rowAxis->toStateArray(),
+            'columns' => $config->columnAxis?->toStateArray(),
             'chartType' => $config->presentation->chartType->value,
+            'tableLayout' => $config->presentation->tableLayout->value,
             'title' => $config->title,
         ];
+    }
+
+    /**
+     * @return array{0: AnalysisAxisRef, 1: ?AnalysisAxisRef}
+     */
+    private function axesFromFormData(ExplorerEditFormData $formData, \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities): array
+    {
+        $rowAxis = $this->axisResolver->resolveFromStrings(
+            $formData->rowDimension,
+            $formData->rowGrain,
+            $capabilities,
+        );
+
+        $columnAxis = null;
+        if (null !== $formData->columnDimension && '' !== $formData->columnDimension) {
+            $columnAxis = $this->axisResolver->resolveFromStrings(
+                $formData->columnDimension,
+                $formData->columnGrain,
+                $capabilities,
+            );
+        }
+
+        return [$rowAxis, $columnAxis];
+    }
+
+    /**
+     * @param array<string, mixed> $queryState
+     *
+     * @return array{0: AnalysisAxisRef, 1: ?AnalysisAxisRef}
+     */
+    private function axesFromState(array $queryState, \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities): array
+    {
+        if (isset($queryState['rows']) && \is_array($queryState['rows'])) {
+            $rowAxis = $this->axisResolver->resolve(AnalysisAxisRef::fromStateArray($queryState['rows']), $capabilities);
+            $columnAxis = null;
+            if (isset($queryState['columns']) && \is_array($queryState['columns'])) {
+                $columnAxis = $this->axisResolver->resolve(AnalysisAxisRef::fromStateArray($queryState['columns']), $capabilities);
+            }
+
+            return [$rowAxis, $columnAxis];
+        }
+
+        $dimensionKey = AnalysisDimensionKey::tryFrom((string) ($queryState['dimension'] ?? 'time')) ?? AnalysisDimensionKey::Time;
+        $grain = $this->resolveLegacyGrain($dimensionKey, $queryState['grain'] ?? null);
+        [$rowAxis, $columnAxis] = $this->axisUpgradeMapper->fromLegacyDimension($dimensionKey, $grain);
+
+        return [
+            $this->axisResolver->resolve($rowAxis, $capabilities),
+            null !== $columnAxis ? $this->axisResolver->resolve($columnAxis, $capabilities) : null,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     *
+     * @return array<string, mixed>
+     */
+    private function upgradeAxisState(array $state): array
+    {
+        if (!isset($state['query']) || !\is_array($state['query'])) {
+            return $state;
+        }
+
+        if (isset($state['query']['rows'])) {
+            return $state;
+        }
+
+        if (!isset($state['query']['dimension'])) {
+            return $state;
+        }
+
+        $dimensionKey = AnalysisDimensionKey::tryFrom((string) $state['query']['dimension']) ?? AnalysisDimensionKey::Time;
+        $grain = $this->resolveLegacyGrain($dimensionKey, $state['query']['grain'] ?? null);
+        [$rowAxis, $columnAxis] = $this->axisUpgradeMapper->fromLegacyDimension($dimensionKey, $grain);
+
+        $state['query']['rows'] = $rowAxis->toStateArray();
+        $state['query']['columns'] = $columnAxis?->toStateArray();
+
+        return $state;
     }
 
     /**
@@ -402,5 +520,17 @@ final readonly class ExplorerConfigMapper
             StatisticsFilterScope::MyHospitals => ['my_hospitals', null],
             StatisticsFilterScope::Hospital => ['my_hospitals', null !== $filter->hospitalId ? (string) $filter->hospitalId : null],
         };
+    }
+
+    private function resolveLegacyGrain(AnalysisDimensionKey $dimensionKey, mixed $grainValue): AnalysisDimensionGrain
+    {
+        if (\is_string($grainValue) && '' !== $grainValue) {
+            return AnalysisDimensionGrain::tryFrom($grainValue)
+                ?? ($dimensionKey->isTemporalPrimary() ? AnalysisDimensionGrain::Month : AnalysisDimensionGrain::Total);
+        }
+
+        return $dimensionKey->isTemporalPrimary()
+            ? AnalysisDimensionGrain::Month
+            : AnalysisDimensionGrain::Total;
     }
 }

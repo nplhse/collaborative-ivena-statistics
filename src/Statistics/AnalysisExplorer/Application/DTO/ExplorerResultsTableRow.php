@@ -16,6 +16,7 @@ final readonly class ExplorerResultsTableRow
         public array $seriesValues = [],
         public string $formattedRowTotal = '0',
         public float $rowTotal = 0.0,
+        public string $metricSubRowLabel = '',
     ) {
     }
 }

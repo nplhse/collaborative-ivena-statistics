@@ -6,7 +6,6 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerMetricCategory;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
@@ -40,11 +39,11 @@ final readonly class ExplorerMetricCapabilityPolicy
 
     public function canShowPercentOfTotal(AnalysisViewConfig $config): bool
     {
-        if ($config->dimensionKey->isTemporalPrimary()) {
+        if ($config->hasColumnAxis()) {
             return false;
         }
 
-        if (!$config->timeGrain instanceof AnalysisDimensionGrain || AnalysisDimensionGrain::Total !== $config->timeGrain) {
+        if ($config->rowAxis->dimensionKey->isTemporalPrimary()) {
             return false;
         }
 
@@ -102,15 +101,11 @@ final readonly class ExplorerMetricCapabilityPolicy
     private function isMetricAllowedForConfig(AnalysisMetricKey $metricKey, AnalysisViewConfig $config): bool
     {
         if (AnalysisMetricKey::PercentOfTotal === $metricKey) {
-            if ($config->dimensionKey->isTemporalPrimary()) {
+            if ($config->hasColumnAxis()) {
                 return false;
             }
 
-            if (!$config->timeGrain instanceof AnalysisDimensionGrain || AnalysisDimensionGrain::Total !== $config->timeGrain) {
-                return false;
-            }
-
-            return true;
+            return !$config->rowAxis->dimensionKey->isTemporalPrimary();
         }
 
         if (AnalysisMetricKey::AllocationCount === $metricKey) {
@@ -136,8 +131,8 @@ final readonly class ExplorerMetricCapabilityPolicy
             dataSourceKey: $config->dataSourceKey,
             metricKeys: $metricKeys,
             visualMetricKey: $metricKeys[0],
-            dimensionKey: $config->dimensionKey,
-            timeGrain: $config->timeGrain,
+            rowAxis: $config->rowAxis,
+            columnAxis: $config->columnAxis,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
         );

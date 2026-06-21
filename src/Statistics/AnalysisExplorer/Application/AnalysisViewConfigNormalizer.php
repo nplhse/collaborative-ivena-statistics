@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
-use App\Statistics\AnalysisExplorer\Domain\Enum\PresentationMode;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -15,9 +16,10 @@ final readonly class AnalysisViewConfigNormalizer
     public function __construct(
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
         private ExplorerTitleFactory $titleFactory,
-        private AnalysisDimensionGrainResolver $grainResolver,
+        private AnalysisAxisResolver $axisResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
+        private ExplorerTableLayoutResolver $tableLayoutResolver,
         private Security $security,
     ) {
     }
@@ -26,21 +28,28 @@ final readonly class AnalysisViewConfigNormalizer
     {
         $capabilities = $this->capabilitiesFor($config);
 
-        $dimensionKey = \in_array($config->dimensionKey, $capabilities->dimensions, true)
-            ? $config->dimensionKey
-            : $capabilities->defaultDimension;
+        $rowAxis = $capabilities->supportsAxis($config->rowAxis)
+            ? $this->axisResolver->resolve($config->rowAxis, $capabilities)
+            : AnalysisAxisRef::time($capabilities->defaultTimeGrain);
+
+        $columnAxis = $config->columnAxis;
+        if ($columnAxis instanceof AnalysisAxisRef) {
+            if (!$capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
+                $columnAxis = null;
+            } else {
+                $columnAxis = $this->axisResolver->resolve($columnAxis, $capabilities);
+            }
+        }
 
         $visualMetricKey = \in_array($config->visualMetricKey, $capabilities->primaryMetrics, true)
             ? $config->visualMetricKey
             : $capabilities->defaultMetric;
 
-        $timeGrain = $this->grainResolver->resolveFromEnum($dimensionKey, $config->timeGrain, $capabilities);
-
         $previewConfig = $this->previewFactory->fromConfig(
             $capabilities,
-            $dimensionKey,
+            $rowAxis,
+            $columnAxis,
             $visualMetricKey,
-            $timeGrain,
             $config,
         );
 
@@ -56,18 +65,26 @@ final readonly class AnalysisViewConfigNormalizer
             ? $config->presentation->chartType
             : $capabilities->defaultChartTypeFor($previewConfig);
 
+        $tableLayout = $config->presentation->tableLayout;
+        if (!$columnAxis instanceof AnalysisAxisRef && TableLayout::Flat !== $tableLayout) {
+            $tableLayout = TableLayout::Flat;
+        } elseif ($columnAxis instanceof AnalysisAxisRef && TableLayout::Flat === $tableLayout) {
+            $tableLayout = $this->tableLayoutResolver->resolveForConfig($previewConfig);
+        }
+
         return new AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
-            dimensionKey: $dimensionKey,
-            timeGrain: $timeGrain,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
             statisticsFilter: $config->statisticsFilter,
             presentation: new PresentationConfig(
                 chartType: $chartType,
-                mode: PresentationMode::Chart,
+                mode: $config->presentation->mode,
+                tableLayout: $tableLayout,
             ),
-            title: $this->titleFactory->titleFor($dimensionKey, $timeGrain),
+            title: $this->titleFactory->titleForAxes($rowAxis, $columnAxis),
         );
     }
 
@@ -78,11 +95,14 @@ final readonly class AnalysisViewConfigNormalizer
     {
         $warnings = [];
 
-        if ($original->dimensionKey !== $normalized->dimensionKey) {
-            $warnings[] = 'dimension';
+        if ($original->rowAxis->dimensionKey !== $normalized->rowAxis->dimensionKey
+            || $original->rowAxis->resolvedGrain() !== $normalized->rowAxis->resolvedGrain()) {
+            $warnings[] = 'rows';
         }
-        if ($original->timeGrain !== $normalized->timeGrain) {
-            $warnings[] = 'grain';
+        $origCol = $original->columnAxis?->dimensionKey->value ?? '';
+        $normCol = $normalized->columnAxis?->dimensionKey->value ?? '';
+        if ($origCol !== $normCol) {
+            $warnings[] = 'columns';
         }
         if ($original->presentation->chartType !== $normalized->presentation->chartType) {
             $warnings[] = 'chartType';

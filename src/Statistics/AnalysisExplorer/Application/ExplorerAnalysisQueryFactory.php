@@ -27,8 +27,8 @@ final readonly class ExplorerAnalysisQueryFactory
             dataSourceKey: $config->dataSourceKey,
             metricKeys: $config->metricKeys,
             visualMetricKey: $config->visualMetricKey,
-            dimensionKey: $config->dimensionKey,
-            timeGrain: $config->timeGrain,
+            rowAxis: $config->rowAxis,
+            columnAxis: $config->columnAxis,
             scopeCriteria: $this->statisticsScopeResolver->resolveCriteria($context),
             periodBounds: StatisticsPeriodResolver::resolve($config->statisticsFilter),
         );
