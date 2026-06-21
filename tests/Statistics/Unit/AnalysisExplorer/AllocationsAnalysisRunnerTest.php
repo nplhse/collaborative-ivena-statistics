@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsAnalysisRunner;
-use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
@@ -16,29 +15,30 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
-use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
-use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AllocationsAnalysisRunnerTest extends TestCase
 {
+    use AnalysisExplorerTestSupport;
+
     public function testRunAggregatesMonthlyAllocationCounts(): void
     {
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
         $result->method('fetchAllAssociative')->willReturn([
-            ['bucket' => '2024-06', 'allocation_count' => 12],
-            ['bucket' => '2024-07', 'allocation_count' => 8],
+            ['bucket' => '2024-06', 'count' => 12],
+            ['bucket' => '2024-07', 'count' => 8],
         ]);
         $connection->method('executeQuery')->willReturn($result);
 
         $runner = new AllocationsAnalysisRunner(
-            new AllocationsCountQuery($connection, new GenericAnalysisScopeSqlFilter(), $this->createTranslator()),
-            new AllocationsCapabilitiesProvider(),
+            $this->createAllocationsCountQuery($connection, $this->createTranslator()),
+            $this->createAllocationsCapabilitiesProvider(),
         );
 
         $runResult = $runner->run(new AnalysisQuery(
@@ -53,7 +53,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         self::assertSame('allocation_count', $runResult->metricKey->value);
         self::assertSame(20, $runResult->total);
         self::assertCount(2, $runResult->rows);
-        self::assertSame('Jun 2024', $runResult->rows[0]->bucketLabel);
+        self::assertSame('2024-06', $runResult->rows[0]->bucketLabel);
         self::assertSame(12, $runResult->rows[0]->value);
     }
 
@@ -62,7 +62,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
         $result->method('fetchAllAssociative')->willReturn([
-            ['bucket' => '2024', 'allocation_count' => 5],
+            ['bucket' => '2024', 'count' => 5],
         ]);
         $connection->expects(self::once())
             ->method('executeQuery')
@@ -70,8 +70,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
             ->willReturn($result);
 
         $runner = new AllocationsAnalysisRunner(
-            new AllocationsCountQuery($connection, new GenericAnalysisScopeSqlFilter(), $this->createTranslator()),
-            new AllocationsCapabilitiesProvider(),
+            $this->createAllocationsCountQuery($connection, $this->createTranslator()),
+            $this->createAllocationsCapabilitiesProvider(),
         );
 
         $runResult = $runner->run(new AnalysisQuery(
@@ -91,7 +91,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
         $result->method('fetchAllAssociative')->willReturn([
-            ['bucket' => 1, 'allocation_count' => 3],
+            ['bucket' => 1, 'count' => 3],
         ]);
         $connection->expects(self::once())
             ->method('executeQuery')
@@ -102,8 +102,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $translator->method('trans')->willReturn('Male');
 
         $runner = new AllocationsAnalysisRunner(
-            new AllocationsCountQuery($connection, new GenericAnalysisScopeSqlFilter(), $translator),
-            new AllocationsCapabilitiesProvider(),
+            $this->createAllocationsCountQuery($connection, $translator),
+            $this->createAllocationsCapabilitiesProvider(),
         );
 
         $runResult = $runner->run(new AnalysisQuery(
@@ -123,7 +123,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
         $result->method('fetchAllAssociative')->willReturn([
-            ['bucket' => '2024-06', 'series' => 1, 'allocation_count' => 3],
+            ['bucket' => '2024-06', 'series' => 1, 'count' => 3],
         ]);
         $connection->expects(self::once())
             ->method('executeQuery')
@@ -136,8 +136,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $translator->method('trans')->willReturn('Male');
 
         $runner = new AllocationsAnalysisRunner(
-            new AllocationsCountQuery($connection, new GenericAnalysisScopeSqlFilter(), $translator),
-            new AllocationsCapabilitiesProvider(),
+            $this->createAllocationsCountQuery($connection, $translator),
+            $this->createAllocationsCapabilitiesProvider(),
         );
 
         $runResult = $runner->run(new AnalysisQuery(
@@ -150,7 +150,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         ));
 
         self::assertTrue($runResult->hasSeries());
-        self::assertSame('Jun 2024', $runResult->rows[0]->bucketLabel);
+        self::assertSame('2024-06', $runResult->rows[0]->bucketLabel);
         self::assertSame('Male', $runResult->rows[0]->seriesLabel);
     }
 
@@ -204,7 +204,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
         $result->method('fetchAllAssociative')->willReturn([
-            ['bucket' => '2024', 'series' => 2, 'allocation_count' => 7],
+            ['bucket' => '2024', 'series' => 2, 'count' => 7],
         ]);
         $connection->expects(self::once())
             ->method('executeQuery')
@@ -216,8 +216,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $translator->method('trans')->willReturn('Inpatient');
 
         $runner = new AllocationsAnalysisRunner(
-            new AllocationsCountQuery($connection, new GenericAnalysisScopeSqlFilter(), $translator),
-            new AllocationsCapabilitiesProvider(),
+            $this->createAllocationsCountQuery($connection, $translator),
+            $this->createAllocationsCapabilitiesProvider(),
         );
 
         $runResult = $runner->run(new AnalysisQuery(
