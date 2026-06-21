@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
+use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
+use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
@@ -27,9 +29,12 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
 
+        $capabilitiesProvider = new AllocationsCapabilitiesProvider();
         $normalizer = new AnalysisViewConfigNormalizer(
-            new AllocationsCapabilitiesProvider(),
+            $capabilitiesProvider,
             new ExplorerTitleFactory($translator),
+            new AnalysisDimensionGrainResolver(),
+            new ExplorerConfigPreviewFactory(),
         );
 
         $config = new AnalysisViewConfig(
@@ -59,9 +64,12 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
 
+        $capabilitiesProvider = new AllocationsCapabilitiesProvider();
         $normalizer = new AnalysisViewConfigNormalizer(
-            new AllocationsCapabilitiesProvider(),
+            $capabilitiesProvider,
             new ExplorerTitleFactory($translator),
+            new AnalysisDimensionGrainResolver(),
+            new ExplorerConfigPreviewFactory(),
         );
 
         $config = new AnalysisViewConfig(

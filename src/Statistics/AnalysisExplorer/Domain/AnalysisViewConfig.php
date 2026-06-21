@@ -23,22 +23,6 @@ final readonly class AnalysisViewConfig
     ) {
     }
 
-    public function duplicate(): self
-    {
-        return new self(
-            dataSourceKey: $this->dataSourceKey,
-            metricKey: $this->metricKey,
-            dimensionKey: $this->dimensionKey,
-            timeGrain: $this->timeGrain,
-            statisticsFilter: $this->statisticsFilter,
-            presentation: new PresentationConfig(
-                chartType: $this->presentation->chartType,
-                mode: $this->presentation->mode,
-            ),
-            title: $this->title,
-        );
-    }
-
     public function withStatisticsFilter(StatisticsFilter $statisticsFilter): self
     {
         return new self(
@@ -72,19 +56,6 @@ final readonly class AnalysisViewConfig
             metricKey: $metricKey,
             dimensionKey: $this->dimensionKey,
             timeGrain: $this->timeGrain,
-            statisticsFilter: $this->statisticsFilter,
-            presentation: $this->presentation,
-            title: $this->title,
-        );
-    }
-
-    public function withTimeGrain(?AnalysisDimensionGrain $timeGrain): self
-    {
-        return new self(
-            dataSourceKey: $this->dataSourceKey,
-            metricKey: $this->metricKey,
-            dimensionKey: $this->dimensionKey,
-            timeGrain: $timeGrain,
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,

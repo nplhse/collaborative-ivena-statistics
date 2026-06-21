@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
-use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\PresentationMode;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 
@@ -16,6 +13,8 @@ final readonly class AnalysisViewConfigNormalizer
     public function __construct(
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
         private ExplorerTitleFactory $titleFactory,
+        private AnalysisDimensionGrainResolver $grainResolver,
+        private ExplorerConfigPreviewFactory $previewFactory,
     ) {
     }
 
@@ -31,24 +30,16 @@ final readonly class AnalysisViewConfigNormalizer
             ? $config->metricKey
             : $capabilities->defaultMetric;
 
-        $timeGrain = $this->resolveTimeGrain($dimensionKey, $config->timeGrain, $capabilities);
+        $timeGrain = $this->grainResolver->resolveFromEnum($dimensionKey, $config->timeGrain, $capabilities);
 
-        $previewConfig = new AnalysisViewConfig(
-            dataSourceKey: $capabilities->dataSourceKey,
-            metricKey: $metricKey,
-            dimensionKey: $dimensionKey,
-            timeGrain: $timeGrain,
-            statisticsFilter: $config->statisticsFilter,
-            presentation: $config->presentation,
-            title: $config->title,
-        );
+        $previewConfig = $this->previewFactory->fromConfig($capabilities, $dimensionKey, $metricKey, $timeGrain, $config);
 
         $allowedChartTypes = $capabilities->chartTypesFor($previewConfig);
         $chartType = \in_array($config->presentation->chartType, $allowedChartTypes, true)
             ? $config->presentation->chartType
             : $capabilities->defaultChartTypeFor($previewConfig);
 
-        $normalized = new AnalysisViewConfig(
+        return new AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
             metricKey: $metricKey,
             dimensionKey: $dimensionKey,
@@ -60,8 +51,6 @@ final readonly class AnalysisViewConfigNormalizer
             ),
             title: $this->titleFactory->titleFor($dimensionKey, $timeGrain),
         );
-
-        return $normalized;
     }
 
     /**
@@ -82,22 +71,5 @@ final readonly class AnalysisViewConfigNormalizer
         }
 
         return $warnings;
-    }
-
-    private function resolveTimeGrain(
-        AnalysisDimensionKey $dimensionKey,
-        ?AnalysisDimensionGrain $timeGrain,
-        DataSourceCapabilities $capabilities,
-    ): AnalysisDimensionGrain {
-        $allowed = $capabilities->timeGrainsFor($dimensionKey);
-
-        if ($timeGrain instanceof AnalysisDimensionGrain && \in_array($timeGrain, $allowed, true)) {
-            return $timeGrain;
-        }
-
-        return match ($dimensionKey) {
-            AnalysisDimensionKey::Time => $capabilities->defaultTimeGrain,
-            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => AnalysisDimensionGrain::Total,
-        };
     }
 }

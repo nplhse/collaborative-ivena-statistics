@@ -5,17 +5,12 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\UI\Form;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
-use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
+use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
-use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
-use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\DTO\StatisticsFilterPeriod;
-use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Statistics\UI\Form\StatisticsScopePeriodType;
@@ -35,6 +30,7 @@ final class ExplorerEditFormType extends AbstractType
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private readonly ExplorerConfigPreviewFactory $previewFactory,
     ) {
     }
 
@@ -68,6 +64,45 @@ final class ExplorerEditFormType extends AbstractType
             ])
         ;
 
+        $scopePeriodField = $builder->get('scopePeriod');
+        $scopePeriodField->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event): void {
+            $data = $event->getData();
+            if (!\is_array($data)) {
+                return;
+            }
+
+            if (isset($data['scopeDetail']) && (\is_int($data['scopeDetail']) || \is_float($data['scopeDetail']))) {
+                $data['scopeDetail'] = (string) $data['scopeDetail'];
+                $event->setData($data);
+            }
+        });
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $submitted = $event->getData();
+            if (!\is_array($submitted)) {
+                return;
+            }
+
+            $current = $event->getForm()->getData();
+            if (!$current instanceof ExplorerEditFormData) {
+                return;
+            }
+
+            $preview = new ExplorerEditFormData(
+                scopePeriod: $current->scopePeriod,
+                dimension: \is_string($submitted['dimension'] ?? null) ? $submitted['dimension'] : $current->dimension,
+                metric: \is_string($submitted['metric'] ?? null) ? $submitted['metric'] : $current->metric,
+                timeGrain: \array_key_exists('timeGrain', $submitted)
+                    ? (\is_string($submitted['timeGrain']) ? $submitted['timeGrain'] : null)
+                    : $current->timeGrain,
+                chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $current->chartType,
+            );
+
+            /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
+            $form = $event->getForm();
+            $this->configureDynamicChoices($form, $preview);
+        });
+
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
             $formData = $event->getData();
             if (!$formData instanceof ExplorerEditFormData) {
@@ -100,7 +135,13 @@ final class ExplorerEditFormType extends AbstractType
         $capabilities = $this->capabilitiesProvider->capabilities();
         $dimension = AnalysisDimensionKey::tryFrom($formData->dimension) ?? AnalysisDimensionKey::Time;
         $grain = AnalysisDimensionGrain::tryFrom($formData->timeGrain ?? '') ?? AnalysisDimensionGrain::Month;
-        $previewConfig = $this->previewConfig($formData, $dimension, $grain);
+        $previewConfig = $this->previewFactory->fromFormData(
+            $capabilities,
+            $dimension,
+            AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount,
+            $grain,
+            $formData,
+        );
 
         $grainLabel = AnalysisDimensionKey::Time === $dimension
             ? 'stats.analysis_explorer.edit.time_grain'
@@ -115,29 +156,6 @@ final class ExplorerEditFormType extends AbstractType
             'label' => 'stats.analysis_explorer.edit.chart_type',
             'choices' => $this->chartTypeChoices($capabilities->chartTypesFor($previewConfig)),
         ]);
-    }
-
-    private function previewConfig(
-        ExplorerEditFormData $formData,
-        AnalysisDimensionKey $dimension,
-        AnalysisDimensionGrain $grain,
-    ): AnalysisViewConfig {
-        return new AnalysisViewConfig(
-            dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount,
-            dimensionKey: $dimension,
-            timeGrain: $grain,
-            statisticsFilter: new StatisticsFilter(
-                scope: StatisticsFilterScope::Public,
-                hospitalId: null,
-                cohortType: null,
-                period: StatisticsFilterPeriod::All,
-            ),
-            presentation: new PresentationConfig(
-                chartType: ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar,
-            ),
-            title: '',
-        );
     }
 
     /**

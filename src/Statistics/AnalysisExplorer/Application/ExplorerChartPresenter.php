@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Application\DTO\MultiSeriesPivot;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
@@ -66,40 +67,7 @@ final readonly class ExplorerChartPresenter
      */
     private function buildMultiSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
     {
-        /** @var list<string> $labels */
-        $labels = [];
-        /** @var array<string, string> $labelByBucket */
-        $labelByBucket = [];
-        /** @var array<string, array<string, int>> $valuesBySeries */
-        $valuesBySeries = [];
-        /** @var array<string, string> $seriesLabels */
-        $seriesLabels = [];
-
-        foreach ($result->rows as $row) {
-            if (!isset($labelByBucket[$row->bucket])) {
-                $labelByBucket[$row->bucket] = $row->bucketLabel;
-                $labels[] = $row->bucketLabel;
-            }
-
-            $seriesKey = $row->seriesKey ?? '';
-            $seriesLabels[$seriesKey] = $row->seriesLabel ?? $seriesKey;
-            $valuesBySeries[$seriesKey][$row->bucket] = $row->value;
-        }
-
-        $bucketOrder = array_keys($labelByBucket);
-        $series = [];
-
-        foreach ($seriesLabels as $seriesKey => $seriesLabel) {
-            $data = [];
-            foreach ($bucketOrder as $bucket) {
-                $data[] = $valuesBySeries[$seriesKey][$bucket] ?? 0;
-            }
-
-            $series[] = [
-                'name' => $seriesLabel,
-                'data' => $data,
-            ];
-        }
+        $pivot = MultiSeriesPivot::fromResult($result);
 
         $chartType = match ($presentation->chartType) {
             ChartPresentationType::Line => 'line',
@@ -108,8 +76,8 @@ final readonly class ExplorerChartPresenter
 
         $spec = [
             'chartType' => $chartType,
-            'labels' => $labels,
-            'series' => $series,
+            'labels' => $pivot->labels,
+            'series' => $pivot->series,
         ];
 
         if (ChartPresentationType::GroupedBar === $presentation->chartType) {

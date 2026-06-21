@@ -96,6 +96,29 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame(ChartPresentationType::Line, $restored->presentation->chartType);
     }
 
+    public function testStateRoundTripPreservesGenderTotalWithGroupedBar(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+
+        $config = $viewFactory->createDefault(new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        ))
+            ->withDimension(AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month)
+            ->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(chartType: ChartPresentationType::GroupedBar));
+
+        $state = $mapper->toStateArray($config);
+        $restored = $mapper->viewConfigFromState($state, null);
+
+        self::assertSame(AnalysisDimensionKey::Gender, $restored->dimensionKey);
+        self::assertSame(AnalysisDimensionGrain::Month, $restored->timeGrain);
+        self::assertSame(ChartPresentationType::GroupedBar, $restored->presentation->chartType);
+    }
+
     public function testLegacyGenderStateWithoutGrainNormalizesToTotal(): void
     {
         self::bootKernel();

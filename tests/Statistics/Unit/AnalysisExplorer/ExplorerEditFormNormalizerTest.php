@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
+use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionGrainResolver;
+use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
@@ -16,7 +18,12 @@ final class ExplorerEditFormNormalizerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->normalizer = new ExplorerEditFormNormalizer(new AllocationsCapabilitiesProvider());
+        $capabilitiesProvider = new AllocationsCapabilitiesProvider();
+        $this->normalizer = new ExplorerEditFormNormalizer(
+            $capabilitiesProvider,
+            new AnalysisDimensionGrainResolver(),
+            new ExplorerConfigPreviewFactory(),
+        );
     }
 
     public function testGenderWithEmptyGrainDefaultsToTotal(): void

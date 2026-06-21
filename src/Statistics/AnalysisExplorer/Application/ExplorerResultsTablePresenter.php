@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableRow;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
+use App\Statistics\AnalysisExplorer\Application\DTO\MultiSeriesPivot;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
@@ -44,46 +45,31 @@ final readonly class ExplorerResultsTablePresenter
 
     private function createPivotTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
-        /** @var array<string, string> $bucketLabels */
-        $bucketLabels = [];
-        /** @var array<string, array<string, int>> $valuesByBucket */
-        $valuesByBucket = [];
-        /** @var array<string, string> $seriesLabels */
-        $seriesLabels = [];
-        /** @var array<string, int> $seriesTotals */
-        $seriesTotals = [];
-
-        foreach ($result->rows as $row) {
-            $bucketLabels[$row->bucket] = $row->bucketLabel;
-            $seriesKey = $row->seriesKey ?? '';
-            $seriesLabels[$seriesKey] = $row->seriesLabel ?? $seriesKey;
-            $valuesByBucket[$row->bucket][$seriesKey] = $row->value;
-            $seriesTotals[$seriesKey] = ($seriesTotals[$seriesKey] ?? 0) + $row->value;
-        }
+        $pivot = MultiSeriesPivot::fromResult($result);
 
         $rows = [];
-        foreach ($bucketLabels as $bucket => $bucketLabel) {
+        $seriesTotals = [];
+
+        foreach ($pivot->bucketOrder as $bucket) {
             $seriesValues = [];
             $rowTotal = 0;
-            foreach ($seriesLabels as $seriesKey => $seriesLabel) {
-                $value = $valuesByBucket[$bucket][$seriesKey] ?? 0;
+
+            foreach ($pivot->seriesLabels as $seriesKey => $seriesLabel) {
+                $value = $pivot->valuesByBucket[$bucket][$seriesKey] ?? 0;
                 $seriesValues[$seriesLabel] = $value;
                 $rowTotal += $value;
+                $seriesTotals[$seriesLabel] = ($seriesTotals[$seriesLabel] ?? 0) + $value;
             }
 
             $rows[] = new ExplorerResultsTableRow(
-                bucketLabel: $bucketLabel,
+                bucketLabel: $pivot->bucketLabels[$bucket],
                 value: $rowTotal,
                 seriesValues: $seriesValues,
                 rowTotal: $rowTotal,
             );
         }
 
-        $orderedSeriesLabels = array_values($seriesLabels);
-        $orderedSeriesTotals = [];
-        foreach ($seriesLabels as $seriesKey => $seriesLabel) {
-            $orderedSeriesTotals[$seriesLabel] = $seriesTotals[$seriesKey] ?? 0;
-        }
+        $orderedSeriesLabels = array_values($pivot->seriesLabels);
 
         return new ExplorerResultsTableViewModel(
             primaryDimensionLabel: $this->temporalDimensionLabel($viewConfig->timeGrain),
@@ -92,7 +78,7 @@ final readonly class ExplorerResultsTablePresenter
             total: $result->total,
             hasSeries: true,
             seriesLabels: $orderedSeriesLabels,
-            seriesTotals: $orderedSeriesTotals,
+            seriesTotals: $seriesTotals,
         );
     }
 

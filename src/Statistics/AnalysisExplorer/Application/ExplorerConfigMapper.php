@@ -28,6 +28,8 @@ final readonly class ExplorerConfigMapper
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private StatisticsFilterFactory $statisticsFilterFactory,
         private ExplorerTitleFactory $titleFactory,
+        private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private AnalysisDimensionGrainResolver $grainResolver,
     ) {
     }
 
@@ -52,7 +54,11 @@ final readonly class ExplorerConfigMapper
         $dimensionKey = AnalysisDimensionKey::tryFrom($formData->dimension) ?? AnalysisDimensionKey::Time;
         $metricKey = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
         $chartType = ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar;
-        $timeGrain = $this->parseTimeGrain($dimensionKey, $formData->timeGrain);
+        $timeGrain = $this->grainResolver->resolveFromString(
+            $dimensionKey,
+            $formData->timeGrain,
+            $this->capabilitiesProvider->capabilities(),
+        );
 
         return $base
             ->withStatisticsFilter($filter)
@@ -97,9 +103,10 @@ final readonly class ExplorerConfigMapper
         $scopePeriod = $this->scopePeriodFromState($state);
         $dimensionKey = AnalysisDimensionKey::tryFrom((string) ($state['query']['dimension'] ?? 'time')) ?? AnalysisDimensionKey::Time;
         $grainValue = $state['query']['grain'] ?? null;
-        $timeGrain = $this->parseTimeGrain(
+        $timeGrain = $this->grainResolver->resolveFromString(
             $dimensionKey,
             \is_string($grainValue) ? $grainValue : null,
+            $this->capabilitiesProvider->capabilities(),
         );
 
         $formData = new ExplorerEditFormData(
@@ -306,35 +313,6 @@ final readonly class ExplorerConfigMapper
             ],
             StatisticsFilterScope::MyHospitals => ['my_hospitals', null],
             StatisticsFilterScope::Hospital => ['my_hospitals', null !== $filter->hospitalId ? (string) $filter->hospitalId : null],
-        };
-    }
-
-    private function parseTimeGrain(AnalysisDimensionKey $dimensionKey, ?string $grain): AnalysisDimensionGrain
-    {
-        $parsed = null !== $grain && '' !== $grain
-            ? AnalysisDimensionGrain::tryFrom($grain)
-            : null;
-
-        if (AnalysisDimensionKey::Time !== $dimensionKey && null === $parsed) {
-            return AnalysisDimensionGrain::Total;
-        }
-
-        $allowed = match ($dimensionKey) {
-            AnalysisDimensionKey::Time => [AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
-            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => [
-                AnalysisDimensionGrain::Total,
-                AnalysisDimensionGrain::Month,
-                AnalysisDimensionGrain::Year,
-            ],
-        };
-
-        if ($parsed instanceof AnalysisDimensionGrain && \in_array($parsed, $allowed, true)) {
-            return $parsed;
-        }
-
-        return match ($dimensionKey) {
-            AnalysisDimensionKey::Time => AnalysisDimensionGrain::Month,
-            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => AnalysisDimensionGrain::Month,
         };
     }
 }
