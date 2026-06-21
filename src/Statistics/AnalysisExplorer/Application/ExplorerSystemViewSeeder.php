@@ -154,6 +154,94 @@ final readonly class ExplorerSystemViewSeeder
                     'title' => 'Urgency over time',
                 ],
             ],
+            [
+                'slug' => 'age-group-distribution',
+                'title' => 'Age group distribution',
+                'description' => 'Allocation counts grouped by patient age group.',
+                'preferences' => [
+                    'dimension' => 'age_group',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Age group distribution',
+                ],
+            ],
+            [
+                'slug' => 'allocations-by-weekday',
+                'title' => 'Allocations by weekday',
+                'description' => 'Allocation counts distributed across weekdays.',
+                'preferences' => [
+                    'dimension' => 'weekday',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Allocations by weekday',
+                ],
+            ],
+            [
+                'slug' => 'allocations-by-department',
+                'title' => 'Allocations by department',
+                'description' => 'Which departments handle the most allocations.',
+                'preferences' => [
+                    'dimension' => 'department',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Allocations by department',
+                ],
+            ],
+            [
+                'slug' => 'transport-type-distribution',
+                'title' => 'Transport type distribution',
+                'description' => 'Ground versus air transport allocation counts.',
+                'preferences' => [
+                    'dimension' => 'transport_type',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Transport type distribution',
+                ],
+            ],
+            [
+                'slug' => 'day-time-bucket-distribution',
+                'title' => 'Day-time distribution',
+                'description' => 'Allocation counts by time-of-day bucket.',
+                'preferences' => [
+                    'dimension' => 'day_time_bucket',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Day-time distribution',
+                ],
+            ],
+            [
+                'slug' => 'shift-bucket-distribution',
+                'title' => 'Shift distribution',
+                'description' => 'Allocation counts by shift bucket.',
+                'preferences' => [
+                    'dimension' => 'shift_bucket',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Shift distribution',
+                ],
+            ],
+            [
+                'slug' => 'with-physician-distribution',
+                'title' => 'Physician accompaniment',
+                'description' => 'Allocations with versus without physician accompaniment.',
+                'preferences' => [
+                    'dimension' => 'with_physician',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Physician accompaniment',
+                ],
+            ],
+            [
+                'slug' => 'secondary-indication-distribution',
+                'title' => 'Secondary indication distribution',
+                'description' => 'Allocation counts grouped by secondary indication.',
+                'preferences' => [
+                    'dimension' => 'secondary_indication',
+                    'grain' => 'total',
+                    'chartType' => 'bar',
+                    'title' => 'Secondary indication distribution',
+                ],
+            ],
         ];
     }
 
