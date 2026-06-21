@@ -33,6 +33,50 @@
         <source>stats.analysis_explorer.metric.allocation_count</source>
         <target>Verlegungen</target>
       </trans-unit>
+      <trans-unit id="statsAexM01" resname="stats.analysis_explorer.metric.percent_of_total">
+        <source>stats.analysis_explorer.metric.percent_of_total</source>
+        <target>Anteil am Gesamt</target>
+      </trans-unit>
+      <trans-unit id="statsAexM02" resname="stats.analysis_explorer.metric.resus_rate">
+        <source>stats.analysis_explorer.metric.resus_rate</source>
+        <target>Reanimationsrate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM03" resname="stats.analysis_explorer.metric.cpr_rate">
+        <source>stats.analysis_explorer.metric.cpr_rate</source>
+        <target>CPR-Rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM04" resname="stats.analysis_explorer.metric.shock_rate">
+        <source>stats.analysis_explorer.metric.shock_rate</source>
+        <target>Schockraumrate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM05" resname="stats.analysis_explorer.metric.ventilation_rate">
+        <source>stats.analysis_explorer.metric.ventilation_rate</source>
+        <target>Ventilationsrate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM06" resname="stats.analysis_explorer.metric.cathlab_rate">
+        <source>stats.analysis_explorer.metric.cathlab_rate</source>
+        <target>Herzkatheter-Rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM07" resname="stats.analysis_explorer.metric.pregnancy_rate">
+        <source>stats.analysis_explorer.metric.pregnancy_rate</source>
+        <target>Schwangerschaftsrate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM08" resname="stats.analysis_explorer.metric.work_accident_rate">
+        <source>stats.analysis_explorer.metric.work_accident_rate</source>
+        <target>Arbeitsunfallrate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM09" resname="stats.analysis_explorer.metric.with_physician_rate">
+        <source>stats.analysis_explorer.metric.with_physician_rate</source>
+        <target>Notarztbegleitungsrate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM10" resname="stats.analysis_explorer.edit.show_percent_of_total">
+        <source>stats.analysis_explorer.edit.show_percent_of_total</source>
+        <target>Anteil am Gesamt anzeigen</target>
+      </trans-unit>
+      <trans-unit id="statsAexM11" resname="stats.analysis_explorer.validation.incompatible_metrics">
+        <source>stats.analysis_explorer.validation.incompatible_metrics</source>
+        <target>Diese Kennzahlen können nicht kombiniert werden.</target>
+      </trans-unit>
       <trans-unit id="statsAex07" resname="stats.analysis_explorer.dimension.year">
         <source>stats.analysis_explorer.dimension.year</source>
         <target>Jahr</target>
