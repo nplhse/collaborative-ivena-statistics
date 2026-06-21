@@ -7271,6 +7271,50 @@
         <source>stats.analysis_explorer.edit.section.time_grain</source>
         <target>Time grain</target>
       </trans-unit>
+      <trans-unit id="statsAex19" resname="stats.analysis_explorer.dimension.time">
+        <source>stats.analysis_explorer.dimension.time</source>
+        <target>Time</target>
+      </trans-unit>
+      <trans-unit id="statsAex20" resname="stats.analysis_explorer.dimension.gender">
+        <source>stats.analysis_explorer.dimension.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsAex21" resname="stats.analysis_explorer.dimension.urgency">
+        <source>stats.analysis_explorer.dimension.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsAex22" resname="stats.analysis_explorer.allocations_by_gender">
+        <source>stats.analysis_explorer.allocations_by_gender</source>
+        <target>Allocations by gender</target>
+      </trans-unit>
+      <trans-unit id="statsAex23" resname="stats.analysis_explorer.allocations_by_urgency">
+        <source>stats.analysis_explorer.allocations_by_urgency</source>
+        <target>Allocations by urgency</target>
+      </trans-unit>
+      <trans-unit id="statsAex24" resname="stats.analysis_explorer.edit.dimension">
+        <source>stats.analysis_explorer.edit.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsAex25" resname="stats.analysis_explorer.edit.metric">
+        <source>stats.analysis_explorer.edit.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex26" resname="stats.analysis_explorer.edit.time_grain">
+        <source>stats.analysis_explorer.edit.time_grain</source>
+        <target>Time grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex27" resname="stats.analysis_explorer.edit.section.analysis">
+        <source>stats.analysis_explorer.edit.section.analysis</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAex28" resname="stats.analysis_explorer.config_normalized">
+        <source>stats.analysis_explorer.config_normalized</source>
+        <target>Some analysis settings were adjusted to supported values.</target>
+      </trans-unit>
+      <trans-unit id="statsAex29" resname="stats.analysis_explorer.unsupported_config">
+        <source>stats.analysis_explorer.unsupported_config</source>
+        <target>This analysis configuration is not supported.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

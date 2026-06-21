@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 
 use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
+use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
+use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
@@ -36,7 +41,7 @@ final class AnalysisExplorerShell
     use DefaultActionTrait;
 
     /**
-     * Applied analysis configuration (scope, period, grain, chart). Updated on mount and Apply only.
+     * Applied analysis configuration. Updated on mount and Apply only.
      *
      * @var array<string, mixed>
      */
@@ -48,6 +53,9 @@ final class AnalysisExplorerShell
 
     #[LiveProp]
     public int $analysisRevision = 0;
+
+    #[LiveProp]
+    public ?string $configWarning = null;
 
     public ?AnalysisRunResult $result = null;
 
@@ -76,6 +84,9 @@ final class AnalysisExplorerShell
         private readonly ExplorerResultsTablePresenter $tablePresenter,
         private readonly ExplorerConfigMapper $configMapper,
         private readonly AnalysisViewConfigValidator $configValidator,
+        private readonly AnalysisViewConfigNormalizer $configNormalizer,
+        private readonly ExplorerEditFormNormalizer $editFormNormalizer,
+        private readonly TranslatorInterface $translator,
         private readonly Security $security,
     ) {
     }
@@ -148,6 +159,7 @@ final class AnalysisExplorerShell
 
         $this->editFormData = $this->configMapper->toFormData($config);
         $this->isEditOpen = true;
+        $this->configWarning = null;
         $this->resetForm();
     }
 
@@ -156,6 +168,7 @@ final class AnalysisExplorerShell
     {
         $this->editFormData = null;
         $this->isEditOpen = false;
+        $this->configWarning = null;
         $this->resetForm();
     }
 
@@ -170,7 +183,7 @@ final class AnalysisExplorerShell
 
         /** @var ExplorerEditFormData $formData */
         $formData = $this->getForm()->getData();
-        $this->editFormData = $formData;
+        $this->editFormData = $this->editFormNormalizer->normalize($formData);
         $this->resetForm();
     }
 
@@ -185,14 +198,21 @@ final class AnalysisExplorerShell
         $this->normalizeSubmittedFormValues();
         $this->submitForm(true);
 
-        /** @var ExplorerEditFormData $formData */
-        $formData = $this->getForm()->getData();
+        $formData = $this->editFormNormalizer->normalize($this->getForm()->getData());
         $newConfig = $this->configMapper->toViewConfig($formData, $currentConfig, $this->resolveUser());
-        $this->configValidator->validate($newConfig);
+
+        try {
+            $this->configValidator->validate($newConfig);
+        } catch (InvalidExplorerConfigException $exception) {
+            $this->configWarning = $exception->getMessage();
+
+            return;
+        }
 
         $this->appliedConfigState = $this->configMapper->toStateArray($newConfig);
         $this->editFormData = null;
         $this->isEditOpen = false;
+        $this->configWarning = null;
         $this->resetForm();
         $this->rerunAnalysis();
     }
@@ -221,8 +241,31 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $query = $this->queryFactory->create($currentConfig, $this->resolveUser());
-        $this->result = $this->runnerRegistry->run($currentConfig, $query);
+        $originalConfig = $currentConfig;
+        $normalizedConfig = $this->configNormalizer->normalize($currentConfig);
+        $warnings = $this->configNormalizer->diffWarnings($originalConfig, $normalizedConfig);
+
+        if ([] !== $warnings) {
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.config_normalized');
+            $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
+            $currentConfig = $normalizedConfig;
+        }
+
+        try {
+            $query = $this->queryFactory->create($currentConfig, $this->resolveUser());
+            $this->result = $this->runnerRegistry->run($currentConfig, $query);
+        } catch (UnsupportedAnalysisException) {
+            $this->configWarning ??= $this->translator->trans('stats.analysis_explorer.unsupported_config');
+            $this->result = new AnalysisRunResult(
+                title: $currentConfig->title,
+                metricKey: $currentConfig->metricKey,
+                dimensionKey: $currentConfig->dimensionKey,
+                timeGrain: $currentConfig->timeGrain,
+                dataPoints: [],
+                total: 0,
+            );
+        }
+
         $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $currentConfig->presentation);
         $this->defaultChartType = $this->chartPresenter->defaultChartType($currentConfig->presentation);
         $this->hasChart = $this->chartPresenter->hasChart($this->result);

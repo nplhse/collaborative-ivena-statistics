@@ -1,4 +1,9 @@
 {% set compactRow = {label: false, row_attr: {class: 'mb-0'}} %}
+{% set refreshAttrs = {
+    'data-action': 'change->live#action',
+    'data-live-action-param': 'refreshEditForm',
+} %}
+{% set isTimeDimension = 'time' == form.dimension.vars.value %}
 
 <div class="offcanvas offcanvas-end analysis-explorer-edit-drawer{% if isEditOpen %} show{% endif %}"
      tabindex="-1"
@@ -18,6 +23,11 @@
                 data-testid="stats-analysis-explorer-edit-close"></button>
     </div>
     <div class="offcanvas-body">
+        {% if configWarning %}
+            <div class="alert alert-warning py-2 mb-3" data-testid="stats-analysis-explorer-config-warning">
+                {{ configWarning }}
+            </div>
+        {% endif %}
         {{ form_start(form, {attr: {
             'data-testid': 'stats-analysis-explorer-edit-form',
             'data-model': 'norender|on(change)|*',
@@ -72,43 +82,29 @@
                 </div>
 
                 <div class="accordion-item">
-                    <h3 class="accordion-header" id="analysisExplorerEditChartHeading">
+                    <h3 class="accordion-header" id="analysisExplorerEditAnalysisHeading">
                         <button class="accordion-button"
                                 type="button"
                                 data-bs-toggle="collapse"
-                                data-bs-target="#analysisExplorerEditChartPanel"
+                                data-bs-target="#analysisExplorerEditAnalysisPanel"
                                 aria-expanded="true"
-                                aria-controls="analysisExplorerEditChartPanel"
-                                data-testid="stats-analysis-explorer-edit-section-chart">
-                            {{ 'stats.analysis_explorer.edit.section.chart_type'|trans }}
+                                aria-controls="analysisExplorerEditAnalysisPanel"
+                                data-testid="stats-analysis-explorer-edit-section-analysis">
+                            {{ 'stats.analysis_explorer.edit.section.analysis'|trans }}
                         </button>
                     </h3>
-                    <div id="analysisExplorerEditChartPanel"
+                    <div id="analysisExplorerEditAnalysisPanel"
                          class="accordion-collapse collapse show"
-                         aria-labelledby="analysisExplorerEditChartHeading">
+                         aria-labelledby="analysisExplorerEditAnalysisHeading">
                         <div class="accordion-body">
+                            {{ form_row(form.dimension, compactRow|merge({attr: refreshAttrs})) }}
+                            {{ form_row(form.metric, compactRow) }}
+                            {% if isTimeDimension %}
+                                <div data-testid="stats-analysis-explorer-time-grain-field">
+                                    {{ form_row(form.timeGrain, compactRow) }}
+                                </div>
+                            {% endif %}
                             {{ form_row(form.chartType, compactRow) }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item">
-                    <h3 class="accordion-header" id="analysisExplorerEditGrainHeading">
-                        <button class="accordion-button"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#analysisExplorerEditGrainPanel"
-                                aria-expanded="true"
-                                aria-controls="analysisExplorerEditGrainPanel"
-                                data-testid="stats-analysis-explorer-edit-section-grain">
-                            {{ 'stats.analysis_explorer.edit.section.time_grain'|trans }}
-                        </button>
-                    </h3>
-                    <div id="analysisExplorerEditGrainPanel"
-                         class="accordion-collapse collapse show"
-                         aria-labelledby="analysisExplorerEditGrainHeading">
-                        <div class="accordion-body">
-                            {{ form_row(form.dimensionGrain, compactRow) }}
                         </div>
                     </div>
                 </div>
