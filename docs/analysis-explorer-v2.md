@@ -61,7 +61,7 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 ## Current limitations (intentional)
 
 - No sharing, dashboards, or recommended views.
-- No hospitals data source or additional metrics/dimensions.
+- No hospitals data source or additional metrics beyond `allocation_count`.
 - No URL-encoded config sharing.
 - No delete workflow for saved views.
 - No pivot feature expansion beyond results table.
@@ -77,10 +77,15 @@ AnalysisExplorerController
             ├─ ExplorerConfigMapper (state ↔ AnalysisViewConfig)
             ├─ AnalysisViewConfigNormalizer / AnalysisViewConfigValidator
             ├─ ExplorerEditFormType + ExplorerEditFormNormalizer
+            ├─ AllocationsCapabilitiesProvider (scoped via GenericAnalysisDimensionPolicy)
             ├─ AllocationsAnalysisRunner → AllocationsCountQuery
+            │     ├─ ExplorerAllocationQueryMapper → GenericAllocationAnalysisQuery
+            │     └─ ExplorerAllocationResultMapper + AnalysisDimensionLabelResolver
             ├─ ExplorerChartPresenter
             └─ ExplorerResultsTablePresenter
 ```
+
+Explorer queries reuse **Generic Analysis** aggregation (`GenericAllocationAnalysisQuery` + `DimensionRegistry`) via a thin bridge layer instead of per-dimension SQL in `AllocationsCountQuery`. Label resolution is shared through `AnalysisDimensionLabelResolver` (entity IDs, projection-code buckets, boolean yes/no, month names).
 
 UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
 
@@ -115,30 +120,36 @@ Legacy flat state (`scopeGroup`, `period`, `dimensionGrain`, …) is upgraded on
 |---|---|
 | Data source | `allocations` |
 | Metric | `allocation_count` |
-| Dimensions | `time`, `gender`, `urgency` |
-| Grains | `time`: month, year; `gender`/`urgency`: total, month, year |
-| Charts | `bar`, `line`; multi-series (gender/urgency + month/year): `grouped_bar`, `stacked_bar`, `line` |
+| Temporal dimension | `time` — grains: `month`, `year`, `quarter`, `week` |
+| Breakdown dimensions | `gender`, `urgency`, `age_group`, `department`, `hospital_cohort`, `speciality`, `occasion`, `assignment`, `indication`, `infection`, `weekday`, `hour`, `resus`, `cathlab`, `cpr`, `ventilation`, `shock`, `workAccident`, `pregnancy`, `with_physician`, `secondary_indication`, `transport_type`, `day_time_bucket`, `shift_bucket` |
+| Scope-gated breakdowns | `hospital`, `state`, `dispatchArea` (visible when `GenericAnalysisDimensionPolicy` allows for user + filter scope) |
+| Grains (breakdown dims) | `total` (default); `month`, `year` for multi-series over time |
+| Charts | `bar`, `line`; multi-series (breakdown + month/year): `grouped_bar`, `stacked_bar`, `line` |
 
-Multi-series: when dimension is not `time` and grain is `month` or `year`, the query groups by time bucket and series (gender/urgency code).
+Multi-series: when dimension is not `time` and grain is `month` or `year`, the query groups by time bucket and series (breakdown dimension value).
 
-## Current limitations (intentional)
+### System demo views (14)
 
-- No sharing, dashboards, or recommended views.
-- No hospitals data source or additional metrics/dimensions.
-- No URL-encoded config sharing.
-- No delete workflow for saved views.
-- No pivot feature expansion beyond results table.
-- No migration of existing Generic Analysis pages.
-- Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
+Six original views (`allocations-over-time`, `gender-over-time`, …) plus eight Phase 6A demos: `age-group-distribution`, `allocations-by-weekday`, `allocations-by-department`, `transport-type-distribution`, `day-time-bucket-distribution`, `shift-bucket-distribution`, `with-physician-distribution`, `secondary-indication-distribution`.
+
+### Discovery handoff (Phase 6A)
+
+| Source | Notes |
+|---|---|
+| `DimensionRegistry` | 27 existing keys + 5 new registry entries (`secondary_indication`, `transport_type`, `day_time_bucket`, `shift_bucket`, `with_physician`) — analysis-layer only, columns already in `allocation_stats_projection` |
+| Excluded | `age` (numeric/histogram), standalone `year`/`month` keys (covered by `time` + grain), `with_physician_rate` (boolean `with_physician` instead) |
+| Scope policy | `hospital`, `state`, `dispatchArea` filtered via `GenericAnalysisDimensionPolicy` |
 
 ## How to add another allocations dimension
 
-1. Add `AnalysisDimensionKey` enum case.
-2. Extend `AllocationsCapabilitiesProvider` (`dimensions`, `timeGrainsFor()` if needed).
-3. Update `AllocationsCountQuery` GROUP BY / labels for the new column.
-4. Extend `ExplorerTitleFactory` and chart/table presenters if label logic differs.
-5. Add form choice + i18n keys under `stats.analysis_explorer.*`.
-6. Add unit/integration tests.
+1. Register the dimension in `DimensionRegistry` (if not already present) with projection column and label metadata.
+2. Add `AnalysisDimensionKey` enum case to `allocationsCatalog()`.
+3. Capabilities are derived automatically; scope-gated dims need `GenericAnalysisDimensionPolicy` rules.
+4. Add i18n key `stats.analysis_explorer.dimension.{key}` (EN + DE).
+5. Optionally add a system demo view in `ExplorerSystemViewSeeder`.
+6. Add unit tests (capabilities, query mapper, label resolver) and integration coverage.
+
+No changes to `AllocationsCountQuery` SQL are required when the dimension is in `DimensionRegistry` — the GA bridge handles aggregation and labeling.
 
 Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
 
@@ -161,7 +172,9 @@ Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
 | Config | `src/Statistics/AnalysisExplorer/Application/ExplorerConfigMapper.php` |
 | Normalizer / Validator | `AnalysisViewConfigNormalizer.php`, `AnalysisViewConfigValidator.php` |
 | Grain resolver | `AnalysisDimensionGrainResolver.php` |
-| Runner / Query | `AllocationsAnalysisRunner.php`, `Infrastructure/Query/AllocationsCountQuery.php` |
+| Capabilities | `AllocationsCapabilitiesProvider.php`, `DataSourceCapabilities.php` |
+| Query bridge | `ExplorerAllocationQueryMapper.php`, `ExplorerAllocationResultMapper.php`, `AnalysisDimensionLabelResolver.php` |
+| Runner / Query | `AllocationsAnalysisRunner.php`, `Infrastructure/Query/AllocationsCountQuery.php` (delegates to `GenericAllocationAnalysisQuery`) |
 | Presenters | `ExplorerChartPresenter.php`, `ExplorerResultsTablePresenter.php` |
 | Templates | `src/Statistics/UI/Twig/templates/analysis_explorer/`, `analysis_explorer_library/` |
 | Scope/period form | `src/Statistics/UI/Form/StatisticsScopePeriodType.php` |
