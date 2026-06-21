@@ -7443,6 +7443,130 @@
         <source>stats.analysis_explorer.saved_view.invalid_config</source>
         <target>The saved view configuration is invalid. Showing the default analysis instead.</target>
       </trans-unit>
+      <trans-unit id="statsAex61" resname="stats.analysis_explorer.save">
+        <source>stats.analysis_explorer.save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="statsAex62" resname="stats.analysis_explorer.save_as">
+        <source>stats.analysis_explorer.save_as</source>
+        <target>Save as</target>
+      </trans-unit>
+      <trans-unit id="statsAex63" resname="stats.analysis_explorer.saved">
+        <source>stats.analysis_explorer.saved</source>
+        <target>View saved.</target>
+      </trans-unit>
+      <trans-unit id="statsAex64" resname="stats.analysis_explorer.save_as.title">
+        <source>stats.analysis_explorer.save_as.title</source>
+        <target>Save as personal view</target>
+      </trans-unit>
+      <trans-unit id="statsAex65" resname="stats.analysis_explorer.save_as.submit">
+        <source>stats.analysis_explorer.save_as.submit</source>
+        <target>Save view</target>
+      </trans-unit>
+      <trans-unit id="statsAex66" resname="stats.analysis_explorer.save_as.title_label">
+        <source>stats.analysis_explorer.save_as.title_label</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="statsAex67" resname="stats.analysis_explorer.save_as.description_label">
+        <source>stats.analysis_explorer.save_as.description_label</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="statsAex68" resname="stats.analysis_explorer.save_as.title_required">
+        <source>stats.analysis_explorer.save_as.title_required</source>
+        <target>Please enter a title.</target>
+      </trans-unit>
+      <trans-unit id="statsAex69" resname="stats.analysis_explorer.view_type.system">
+        <source>stats.analysis_explorer.view_type.system</source>
+        <target>System view</target>
+      </trans-unit>
+      <trans-unit id="statsAex70" resname="stats.analysis_explorer.view_type.user">
+        <source>stats.analysis_explorer.view_type.user</source>
+        <target>My view</target>
+      </trans-unit>
+      <trans-unit id="statsAex71" resname="stats.analysis_explorer.favorite.add">
+        <source>stats.analysis_explorer.favorite.add</source>
+        <target>Add to favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAex72" resname="stats.analysis_explorer.favorite.remove">
+        <source>stats.analysis_explorer.favorite.remove</source>
+        <target>Remove from favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAex73" resname="stats.analysis_explorer.library.section.favorites">
+        <source>stats.analysis_explorer.library.section.favorites</source>
+        <target>Favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAex74" resname="stats.analysis_explorer.library.section.my_views">
+        <source>stats.analysis_explorer.library.section.my_views</source>
+        <target>My views</target>
+      </trans-unit>
+      <trans-unit id="statsAex75" resname="stats.analysis_explorer.library.section.system">
+        <source>stats.analysis_explorer.library.section.system</source>
+        <target>System views</target>
+      </trans-unit>
+      <trans-unit id="statsAex76" resname="stats.analysis_explorer.library.category.my_views">
+        <source>stats.analysis_explorer.library.category.my_views</source>
+        <target>My views</target>
+      </trans-unit>
+      <trans-unit id="statsAex77" resname="stats.analysis_explorer.library.empty.favorites">
+        <source>stats.analysis_explorer.library.empty.favorites</source>
+        <target>You have not favorited any views yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex78" resname="stats.analysis_explorer.library.empty.my_views">
+        <source>stats.analysis_explorer.library.empty.my_views</source>
+        <target>You have not saved any personal views yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex79" resname="stats.analysis_explorer.library.empty.system">
+        <source>stats.analysis_explorer.library.empty.system</source>
+        <target>No system views are available.</target>
+      </trans-unit>
+      <trans-unit id="statsAex80" resname="stats.analysis_explorer.save.forbidden">
+        <source>stats.analysis_explorer.save.forbidden</source>
+        <target>You cannot save this view.</target>
+      </trans-unit>
+      <trans-unit id="statsAex81" resname="stats.analysis_explorer.description.time_month">
+        <source>stats.analysis_explorer.description.time_month</source>
+        <target>Monthly allocation counts over the selected period.</target>
+      </trans-unit>
+      <trans-unit id="statsAex82" resname="stats.analysis_explorer.description.time_year_line">
+        <source>stats.analysis_explorer.description.time_year_line</source>
+        <target>Yearly allocation totals as a line chart.</target>
+      </trans-unit>
+      <trans-unit id="statsAex83" resname="stats.analysis_explorer.description.time_year">
+        <source>stats.analysis_explorer.description.time_year</source>
+        <target>Yearly allocation counts over the selected period, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex84" resname="stats.analysis_explorer.description.time_total">
+        <source>stats.analysis_explorer.description.time_total</source>
+        <target>{title}, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex85" resname="stats.analysis_explorer.description.gender_total">
+        <source>stats.analysis_explorer.description.gender_total</source>
+        <target>Allocation counts grouped by patient gender.</target>
+      </trans-unit>
+      <trans-unit id="statsAex86" resname="stats.analysis_explorer.description.gender_over_time">
+        <source>stats.analysis_explorer.description.gender_over_time</source>
+        <target>{grain} allocation counts split by gender.</target>
+      </trans-unit>
+      <trans-unit id="statsAex87" resname="stats.analysis_explorer.description.urgency_total">
+        <source>stats.analysis_explorer.description.urgency_total</source>
+        <target>Allocation counts grouped by urgency level.</target>
+      </trans-unit>
+      <trans-unit id="statsAex88" resname="stats.analysis_explorer.description.urgency_year_stacked">
+        <source>stats.analysis_explorer.description.urgency_year_stacked</source>
+        <target>Yearly allocation counts stacked by urgency.</target>
+      </trans-unit>
+      <trans-unit id="statsAex89" resname="stats.analysis_explorer.description.urgency_over_time">
+        <source>stats.analysis_explorer.description.urgency_over_time</source>
+        <target>{grain} allocation counts by urgency level, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex90" resname="stats.analysis_explorer.description.grain.month">
+        <source>stats.analysis_explorer.description.grain.month</source>
+        <target>Monthly</target>
+      </trans-unit>
+      <trans-unit id="statsAex91" resname="stats.analysis_explorer.description.grain.year">
+        <source>stats.analysis_explorer.description.grain.year</source>
+        <target>Yearly</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
