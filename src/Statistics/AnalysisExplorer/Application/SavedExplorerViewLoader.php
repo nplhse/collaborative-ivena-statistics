@@ -30,6 +30,13 @@ final readonly class SavedExplorerViewLoader
             );
         }
 
+        if (!$savedView->isAccessibleBy($user)) {
+            return new SavedExplorerViewLoadResult(
+                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($filter)),
+                notFound: true,
+            );
+        }
+
         $configJson = $savedView->getConfigJson();
         if (!$this->isStructurallyValid($configJson)) {
             return new SavedExplorerViewLoadResult(

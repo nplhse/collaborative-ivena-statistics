@@ -1,0 +1,85 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Statistics\Unit\AnalysisExplorer;
+
+use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+final class ExplorerDescriptionFactoryTest extends TestCase
+{
+    public function testDescriptionForGenderTotal(): void
+    {
+        $factory = $this->factory([
+            'stats.analysis_explorer.description.gender_total' => 'Allocation counts grouped by patient gender.',
+        ]);
+
+        self::assertSame(
+            'Allocation counts grouped by patient gender.',
+            $factory->descriptionFor(
+                AnalysisDimensionKey::Gender,
+                AnalysisDimensionGrain::Total,
+                ChartPresentationType::Bar,
+            ),
+        );
+    }
+
+    public function testDescriptionForGenderOverTimeUsesGrainLabel(): void
+    {
+        $factory = $this->factory([
+            'stats.analysis_explorer.description.gender_over_time' => '{grain} allocation counts split by gender.',
+            'stats.analysis_explorer.description.grain.month' => 'Monthly',
+        ]);
+
+        self::assertSame(
+            'Monthly allocation counts split by gender.',
+            $factory->descriptionFor(
+                AnalysisDimensionKey::Gender,
+                AnalysisDimensionGrain::Month,
+                ChartPresentationType::GroupedBar,
+            ),
+        );
+    }
+
+    public function testDescriptionForTimeYearLineUsesDedicatedText(): void
+    {
+        $factory = $this->factory([
+            'stats.analysis_explorer.description.time_year_line' => 'Yearly allocation totals as a line chart.',
+        ]);
+
+        self::assertSame(
+            'Yearly allocation totals as a line chart.',
+            $factory->descriptionFor(
+                AnalysisDimensionKey::Time,
+                AnalysisDimensionGrain::Year,
+                ChartPresentationType::Line,
+            ),
+        );
+    }
+
+    /**
+     * @param array<string, string> $map
+     */
+    private function factory(array $map): ExplorerDescriptionFactory
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static function (string $id, array $parameters = []) use ($map): string {
+                $template = $map[$id] ?? $id;
+
+                return strtr($template, array_combine(
+                    array_map(static fn (string $key): string => '{'.$key.'}', array_keys($parameters)),
+                    array_values($parameters),
+                ));
+            },
+        );
+
+        return new ExplorerDescriptionFactory($translator, new ExplorerTitleFactory($translator));
+    }
+}
