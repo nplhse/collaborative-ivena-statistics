@@ -20,7 +20,7 @@ Navigation label: `link.stats.analysis_explorer` in `translations/messages+intl-
 - In-memory editing is supported; changes are not persisted yet.
 - Read-only: does not change projection data or legacy analysis pages.
 
-## Saved views (phase 5A)
+## Saved views (phase 5A–5C)
 
 System demo views are stored in `saved_explorer_view` (`SavedExplorerView` entity). Seed or refresh them with:
 
@@ -28,16 +28,45 @@ System demo views are stored in `saved_explorer_view` (`SavedExplorerView` entit
 bin/console statistics:explorer-views:sync
 ```
 
+The seeder assigns `createdBy` to the admin user (`username: admin`).
+
+### Access model
+
+| View type | `isSystem` | `createdBy` | Read | Save | Save As |
+|---|---|---|---|---|---|
+| System view | `true` | admin | everyone | no | yes (participants) |
+| User view | `false` | creator | creator only | yes (creator) | yes (creator) |
+
+User views are referenced by **numeric id** in URLs (`/statistics/analysis/explorer/{id}`). System views keep legacy slugs for seeding and backward-compatible URLs.
+
+### Favorites
+
+Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to `saved_explorer_view` (no duplicated config).
+
+### Library sections
+
+The analysis library page lists **Favorites**, **My views**, and **System views**.
+
 Loading flow:
 
 ```text
 AnalysisExplorerController (saved view route)
-  └─ SavedExplorerViewLoader (slug or numeric id)
+  └─ SavedExplorerViewLoader (id or legacy slug)
        └─ ExplorerConfigMapper + URL scope/period overlay
             └─ AnalysisExplorerShell
 ```
 
 Invalid saved config falls back to the default analysis and shows `stats.analysis_explorer.saved_view.invalid_config`.
+
+## Current limitations (intentional)
+
+- No sharing, dashboards, or recommended views.
+- No hospitals data source or additional metrics/dimensions.
+- No URL-encoded config sharing.
+- No delete workflow for saved views.
+- No pivot feature expansion beyond results table.
+- No migration of existing Generic Analysis pages.
+- Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
 
 ## Architecture
 
@@ -94,10 +123,10 @@ Multi-series: when dimension is not `time` and grain is `month` or `year`, the q
 
 ## Current limitations (intentional)
 
-- No user-created saved views, favorites, or dashboards.
+- No sharing, dashboards, or recommended views.
 - No hospitals data source or additional metrics/dimensions.
 - No URL-encoded config sharing.
-- No persistence of in-memory edits (“save changes”).
+- No delete workflow for saved views.
 - No pivot feature expansion beyond results table.
 - No migration of existing Generic Analysis pages.
 - Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
@@ -125,8 +154,9 @@ Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
 
 | Layer | Path |
 |---|---|
-| Controllers | `AnalysisExplorerController.php`, `AnalysisExplorerLibraryController.php` |
-| Saved views | `SavedExplorerView.php`, `SavedExplorerViewRepository.php`, `ExplorerSystemViewSeeder.php`, `SavedExplorerViewLoader.php` |
+| Controllers | `AnalysisExplorerController.php`, `AnalysisExplorerLibraryController.php`, `SavedExplorerViewFavoriteController.php` |
+| Saved views | `SavedExplorerView.php`, `SavedExplorerViewRepository.php`, `ExplorerSystemViewSeeder.php`, `SavedExplorerViewLoader.php`, `SavedExplorerViewService.php` |
+| Favorites | `SavedExplorerViewFavorite.php`, `SavedExplorerViewFavoriteService.php` |
 | LiveComponent | `src/Statistics/AnalysisExplorer/UI/LiveComponent/AnalysisExplorerShell.php` |
 | Config | `src/Statistics/AnalysisExplorer/Application/ExplorerConfigMapper.php` |
 | Normalizer / Validator | `AnalysisViewConfigNormalizer.php`, `AnalysisViewConfigValidator.php` |
