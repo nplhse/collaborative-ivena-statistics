@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionGrainResolver;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 
 final class AnalysisDimensionGrainResolverTest extends TestCase
 {
-    private AnalysisDimensionGrainResolver $resolver;
+    use AnalysisExplorerTestSupport;
 
-    private AllocationsCapabilitiesProvider $capabilitiesProvider;
+    private AnalysisDimensionGrainResolver $resolver;
 
     protected function setUp(): void
     {
         $this->resolver = new AnalysisDimensionGrainResolver();
-        $this->capabilitiesProvider = new AllocationsCapabilitiesProvider();
     }
 
     public function testTimeDimensionDefaultsToMonthWhenGrainMissing(): void
@@ -27,7 +26,7 @@ final class AnalysisDimensionGrainResolverTest extends TestCase
         $grain = $this->resolver->resolveFromString(
             AnalysisDimensionKey::Time,
             null,
-            $this->capabilitiesProvider->capabilities(),
+            $this->createAllocationsCapabilitiesProvider()->capabilities(),
         );
 
         self::assertSame(AnalysisDimensionGrain::Month, $grain);
@@ -38,7 +37,7 @@ final class AnalysisDimensionGrainResolverTest extends TestCase
         $grain = $this->resolver->resolveFromString(
             AnalysisDimensionKey::Time,
             'total',
-            $this->capabilitiesProvider->capabilities(),
+            $this->createAllocationsCapabilitiesProvider()->capabilities(),
         );
 
         self::assertSame(AnalysisDimensionGrain::Month, $grain);
@@ -49,7 +48,7 @@ final class AnalysisDimensionGrainResolverTest extends TestCase
         $grain = $this->resolver->resolveFromString(
             AnalysisDimensionKey::Gender,
             null,
-            $this->capabilitiesProvider->capabilities(),
+            $this->createAllocationsCapabilitiesProvider()->capabilities(),
         );
 
         self::assertSame(AnalysisDimensionGrain::Total, $grain);
@@ -60,7 +59,7 @@ final class AnalysisDimensionGrainResolverTest extends TestCase
         $grain = $this->resolver->resolveFromString(
             AnalysisDimensionKey::Gender,
             'invalid',
-            $this->capabilitiesProvider->capabilities(),
+            $this->createAllocationsCapabilitiesProvider()->capabilities(),
         );
 
         self::assertSame(AnalysisDimensionGrain::Total, $grain);
@@ -71,7 +70,7 @@ final class AnalysisDimensionGrainResolverTest extends TestCase
         $grain = $this->resolver->resolveFromString(
             AnalysisDimensionKey::Urgency,
             'year',
-            $this->capabilitiesProvider->capabilities(),
+            $this->createAllocationsCapabilitiesProvider()->capabilities(),
         );
 
         self::assertSame(AnalysisDimensionGrain::Year, $grain);

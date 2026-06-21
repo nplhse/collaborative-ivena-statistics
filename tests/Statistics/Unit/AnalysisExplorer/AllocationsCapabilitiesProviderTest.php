@@ -4,24 +4,33 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 
 final class AllocationsCapabilitiesProviderTest extends TestCase
 {
+    use AnalysisExplorerTestSupport;
+
     public function testCapabilitiesIncludeExpectedDimensionsAndGrains(): void
     {
-        $capabilities = new AllocationsCapabilitiesProvider()->capabilities();
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
 
+        self::assertCount(\count(AnalysisDimensionKey::allocationsCatalog()), $capabilities->dimensions);
         self::assertContains(AnalysisDimensionKey::Time, $capabilities->dimensions);
         self::assertContains(AnalysisDimensionKey::Gender, $capabilities->dimensions);
         self::assertContains(AnalysisDimensionKey::Urgency, $capabilities->dimensions);
+        self::assertContains(AnalysisDimensionKey::AgeGroup, $capabilities->dimensions);
         self::assertSame(
-            [AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
+            [
+                AnalysisDimensionGrain::Month,
+                AnalysisDimensionGrain::Year,
+                AnalysisDimensionGrain::Quarter,
+                AnalysisDimensionGrain::Week,
+            ],
             $capabilities->timeGrainsFor(AnalysisDimensionKey::Time),
         );
         self::assertSame(
@@ -32,7 +41,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
 
     public function testSupportsValidTimeConfiguration(): void
     {
-        $capabilities = new AllocationsCapabilitiesProvider()->capabilities();
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
         $config = $this->createConfig($capabilities, AnalysisDimensionKey::Time, AnalysisDimensionGrain::Month);
 
         self::assertTrue($capabilities->supports($config));
@@ -40,7 +49,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
 
     public function testChartTypesForGenderMonthIncludeGroupedBar(): void
     {
-        $capabilities = new AllocationsCapabilitiesProvider()->capabilities();
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
         $config = $this->createConfig($capabilities, AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month)
             ->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(chartType: ChartPresentationType::GroupedBar));
 
@@ -50,7 +59,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
 
     public function testChartTypesForGenderTotalExcludeGroupedBar(): void
     {
-        $capabilities = new AllocationsCapabilitiesProvider()->capabilities();
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
         $config = $this->createConfig($capabilities, AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Total);
 
         self::assertSame(

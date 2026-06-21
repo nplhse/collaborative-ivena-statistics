@@ -35,7 +35,7 @@ final readonly class AnalysisDimensionGrainResolver
         ?AnalysisDimensionGrain $grain,
         DataSourceCapabilities $capabilities,
     ): AnalysisDimensionGrain {
-        if (AnalysisDimensionKey::Time !== $dimensionKey && !$grain instanceof AnalysisDimensionGrain) {
+        if (!$dimensionKey->isTemporalPrimary() && !$grain instanceof AnalysisDimensionGrain) {
             $grain = AnalysisDimensionGrain::Total;
         }
 
@@ -44,9 +44,10 @@ final readonly class AnalysisDimensionGrainResolver
             return $grain;
         }
 
-        return match ($dimensionKey) {
-            AnalysisDimensionKey::Time => $capabilities->defaultTimeGrain,
-            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => AnalysisDimensionGrain::Total,
-        };
+        if ($dimensionKey->isTemporalPrimary()) {
+            return $capabilities->defaultTimeGrain;
+        }
+
+        return AnalysisDimensionGrain::Total;
     }
 }

@@ -10,22 +10,58 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\User\Domain\Entity\User;
 
 final class AllocationsCapabilitiesProvider
 {
-    private ?DataSourceCapabilities $capabilities = null;
+    private ?DataSourceCapabilities $defaultCapabilities = null;
+
+    public function __construct(
+        private readonly GenericAnalysisDimensionPolicy $dimensionPolicy,
+    ) {
+    }
 
     public function capabilities(): DataSourceCapabilities
     {
-        return $this->capabilities ??= new DataSourceCapabilities(
+        return $this->defaultCapabilities ??= $this->buildCapabilities(
+            AnalysisDimensionKey::allocationsCatalog(),
+        );
+    }
+
+    public function capabilitiesFor(?User $user, StatisticsFilter $filter): DataSourceCapabilities
+    {
+        $dimensions = [];
+        foreach (AnalysisDimensionKey::allocationsCatalog() as $dimension) {
+            if ($dimension->isTemporalPrimary()) {
+                $dimensions[] = $dimension;
+                continue;
+            }
+
+            if ($this->dimensionPolicy->isAllowed($dimension->registryKey(), $filter, $user)) {
+                $dimensions[] = $dimension;
+            }
+        }
+
+        return $this->buildCapabilities($dimensions);
+    }
+
+    /**
+     * @param list<AnalysisDimensionKey> $dimensions
+     */
+    private function buildCapabilities(array $dimensions): DataSourceCapabilities
+    {
+        return new DataSourceCapabilities(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            dimensions: [
-                AnalysisDimensionKey::Time,
-                AnalysisDimensionKey::Gender,
-                AnalysisDimensionKey::Urgency,
-            ],
+            dimensions: $dimensions,
             metrics: [AnalysisMetricKey::AllocationCount],
-            timeGrains: [AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
+            timeGrains: [
+                AnalysisDimensionGrain::Month,
+                AnalysisDimensionGrain::Year,
+                AnalysisDimensionGrain::Quarter,
+                AnalysisDimensionGrain::Week,
+            ],
             chartTypes: [
                 ChartPresentationType::Bar,
                 ChartPresentationType::Line,

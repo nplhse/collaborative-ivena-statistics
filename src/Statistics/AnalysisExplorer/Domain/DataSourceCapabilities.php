@@ -36,14 +36,15 @@ final readonly class DataSourceCapabilities
      */
     public function timeGrainsFor(AnalysisDimensionKey $dimension): array
     {
-        return match ($dimension) {
-            AnalysisDimensionKey::Time => $this->timeGrains,
-            AnalysisDimensionKey::Gender, AnalysisDimensionKey::Urgency => [
-                AnalysisDimensionGrain::Total,
-                AnalysisDimensionGrain::Month,
-                AnalysisDimensionGrain::Year,
-            ],
-        };
+        if ($dimension->isTemporalPrimary()) {
+            return $this->timeGrains;
+        }
+
+        return [
+            AnalysisDimensionGrain::Total,
+            AnalysisDimensionGrain::Month,
+            AnalysisDimensionGrain::Year,
+        ];
     }
 
     /**
@@ -99,7 +100,7 @@ final readonly class DataSourceCapabilities
 
     public function usesMultiSeriesChart(AnalysisViewConfig $config): bool
     {
-        if (AnalysisDimensionKey::Time === $config->dimensionKey) {
+        if ($config->dimensionKey->isTemporalPrimary()) {
             return false;
         }
 
