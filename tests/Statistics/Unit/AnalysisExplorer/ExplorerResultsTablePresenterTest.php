@@ -10,6 +10,7 @@ use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisDataPoint;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
@@ -33,7 +34,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         $viewConfig = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKey: AnalysisMetricKey::AllocationCount,
-            dimensionGrain: AnalysisDimensionGrain::Month,
+            dimensionKey: AnalysisDimensionKey::Time,
+            timeGrain: AnalysisDimensionGrain::Month,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -49,7 +51,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             new AnalysisRunResult(
                 title: 'Allocations over time',
                 metricKey: AnalysisMetricKey::AllocationCount,
-                dimensionGrain: AnalysisDimensionGrain::Month,
+                dimensionKey: AnalysisDimensionKey::Time,
+                timeGrain: AnalysisDimensionGrain::Month,
                 dataPoints: [
                     new AnalysisDataPoint(bucket: '2024-06', label: 'Jun 2024', value: 12),
                     new AnalysisDataPoint(bucket: '2024-07', label: 'Jul 2024', value: 8),
@@ -79,7 +82,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         $viewConfig = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKey: AnalysisMetricKey::AllocationCount,
-            dimensionGrain: AnalysisDimensionGrain::Year,
+            dimensionKey: AnalysisDimensionKey::Time,
+            timeGrain: AnalysisDimensionGrain::Year,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -95,7 +99,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             new AnalysisRunResult(
                 title: 'Allocations over time',
                 metricKey: AnalysisMetricKey::AllocationCount,
-                dimensionGrain: AnalysisDimensionGrain::Year,
+                dimensionKey: AnalysisDimensionKey::Time,
+                timeGrain: AnalysisDimensionGrain::Year,
                 dataPoints: [],
                 total: 0,
             ),

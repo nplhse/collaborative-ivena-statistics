@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -27,12 +29,13 @@ final class DefaultAnalysisViewFactoryTest extends TestCase
             period: StatisticsFilterPeriod::All,
         );
 
-        $factory = new DefaultAnalysisViewFactory($translator);
+        $factory = new DefaultAnalysisViewFactory(new ExplorerTitleFactory($translator));
         $config = $factory->createDefault($filter);
 
         self::assertSame('allocations', $config->dataSourceKey->value);
         self::assertSame('allocation_count', $config->metricKey->value);
-        self::assertSame(AnalysisDimensionGrain::Month, $config->dimensionGrain);
+        self::assertSame(AnalysisDimensionKey::Time, $config->dimensionKey);
+        self::assertSame(AnalysisDimensionGrain::Month, $config->timeGrain);
         self::assertSame($filter, $config->statisticsFilter);
         self::assertSame(ChartPresentationType::Bar, $config->presentation->chartType);
         self::assertSame('Allocations over time', $config->title);

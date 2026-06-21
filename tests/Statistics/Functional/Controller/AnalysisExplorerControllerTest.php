@@ -59,6 +59,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-drawer"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-section-scope"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-section-period"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-section-analysis"]');
         $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table-body"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table-footer"]');

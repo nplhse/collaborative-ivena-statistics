@@ -8,6 +8,7 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
@@ -29,7 +30,8 @@ final class ExplorerAnalysisQueryFactoryTest extends KernelTestCase
             new AnalysisViewConfig(
                 dataSourceKey: AnalysisDataSourceKey::Allocations,
                 metricKey: AnalysisMetricKey::AllocationCount,
-                dimensionGrain: AnalysisDimensionGrain::Month,
+                dimensionKey: AnalysisDimensionKey::Time,
+                timeGrain: AnalysisDimensionGrain::Month,
                 statisticsFilter: new StatisticsFilter(
                     scope: StatisticsFilterScope::Public,
                     hospitalId: null,
@@ -43,5 +45,6 @@ final class ExplorerAnalysisQueryFactoryTest extends KernelTestCase
         );
 
         self::assertSame(StatisticsPeriod::overviewPeriodStart()->format('Y-m-d'), $query->periodBounds->from?->format('Y-m-d'));
+        self::assertSame(AnalysisDimensionKey::Time, $query->dimensionKey);
     }
 }

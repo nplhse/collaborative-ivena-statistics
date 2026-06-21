@@ -6,7 +6,7 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerStatisticsFilterInputFactory;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
+use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use PHPUnit\Framework\TestCase;
 
 final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
@@ -20,7 +20,7 @@ final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
 
     public function testPublicScopeMapsToStatisticsFilterInput(): void
     {
-        $input = $this->factory->fromSideFormData(new BenchmarkSelectionSideFormData(
+        $input = $this->factory->fromSideFormData(new StatisticsScopePeriodFormData(
             'public',
             null,
             'all',
@@ -34,7 +34,7 @@ final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
 
     public function testStateScopeMapsDetailToStateField(): void
     {
-        $input = $this->factory->fromSideFormData(new BenchmarkSelectionSideFormData(
+        $input = $this->factory->fromSideFormData(new StatisticsScopePeriodFormData(
             'state',
             '42',
             'year',
@@ -49,7 +49,7 @@ final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
 
     public function testMyHospitalsWithoutDetailMapsToAggregateScope(): void
     {
-        $input = $this->factory->fromSideFormData(new BenchmarkSelectionSideFormData(
+        $input = $this->factory->fromSideFormData(new StatisticsScopePeriodFormData(
             'my_hospitals',
             null,
             'all',
@@ -61,7 +61,7 @@ final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
 
     public function testMyHospitalsWithDetailMapsToHospitalScope(): void
     {
-        $input = $this->factory->fromSideFormData(new BenchmarkSelectionSideFormData(
+        $input = $this->factory->fromSideFormData(new StatisticsScopePeriodFormData(
             'my_hospitals',
             '7',
             'all',

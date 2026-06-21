@@ -25,41 +25,13 @@ final class AnalysisExplorerShellTest extends WebTestCase
 
     public function testApplyEditChangesChartType(): void
     {
-        $user = UserFactory::createOne(['username' => 'explorer-live-'.bin2hex(random_bytes(4))]);
-        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
-        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
-        $filter = new StatisticsFilter(
-            scope: StatisticsFilterScope::Public,
-            hospitalId: null,
-            cohortType: null,
-            period: StatisticsFilterPeriod::All,
-        );
-        $defaultConfig = $viewFactory->createDefault($filter);
-
-        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
-            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
-            'locale' => 'en',
-        ])->actingAs($user);
-
+        $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
-        $render = $testComponent->render();
-        self::assertGreaterThan(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-edit-form"]')->count());
-
-        $formName = $render->crawler()->filter('form[name]')->attr('name');
-        self::assertNotNull($formName);
+        $formName = $this->formName($testComponent->render());
 
         $updatedRender = $testComponent
-            ->submitForm([
-                $formName => [
-                    'scopePeriod' => [
-                        'scopeGroup' => 'public',
-                        'period' => 'all',
-                    ],
-                    'dimensionGrain' => 'month',
-                    'chartType' => 'line',
-                ],
-            ])
+            ->submitForm($this->formPayload($formName, ['chartType' => 'line']))
             ->call('applyEdit')
             ->render();
 
@@ -70,135 +42,56 @@ final class AnalysisExplorerShellTest extends WebTestCase
             self::assertStringContainsString('"line"', $specsRaw);
             self::assertSame('line', $chart->attr('data-generic-analysis-chart-default-type-value'));
         } else {
-            self::assertSame('line', $testComponent->component()->appliedConfigState['chartType'] ?? null);
+            self::assertSame('line', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
         }
     }
 
     public function testCancelEditClosesDrawerWithoutApplying(): void
     {
-        $user = UserFactory::createOne(['username' => 'explorer-cancel-'.bin2hex(random_bytes(4))]);
-        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
-        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
-        $filter = new StatisticsFilter(
-            scope: StatisticsFilterScope::Public,
-            hospitalId: null,
-            cohortType: null,
-            period: StatisticsFilterPeriod::All,
-        );
-        $defaultConfig = $viewFactory->createDefault($filter);
-
-        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
-            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
-            'locale' => 'en',
-        ])->actingAs($user);
-
+        $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
         self::assertTrue($testComponent->component()->isEditOpen);
 
         $testComponent->call('cancelEdit');
         self::assertFalse($testComponent->component()->isEditOpen);
-        self::assertSame('bar', $testComponent->component()->appliedConfigState['chartType'] ?? null);
+        self::assertSame('bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
     }
 
     public function testApplyEditWorksWhenDrawerWasNotOpenedViaOpenEdit(): void
     {
-        $user = UserFactory::createOne(['username' => 'explorer-apply-no-open-'.bin2hex(random_bytes(4))]);
-        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
-        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
-        $filter = new StatisticsFilter(
-            scope: StatisticsFilterScope::Public,
-            hospitalId: null,
-            cohortType: null,
-            period: StatisticsFilterPeriod::All,
-        );
-        $defaultConfig = $viewFactory->createDefault($filter);
-
-        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
-            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
-            'locale' => 'en',
-        ])->actingAs($user);
-
+        $testComponent = $this->createShellComponent();
         $render = $testComponent->render();
         self::assertFalse($testComponent->component()->isEditOpen);
 
-        $formName = $render->crawler()->filter('form[name]')->attr('name');
-        self::assertNotNull($formName);
-
+        $formName = $this->formName($render);
         $testComponent
-            ->submitForm([
-                $formName => [
-                    'scopePeriod' => [
-                        'scopeGroup' => 'public',
-                        'period' => 'all',
-                    ],
-                    'dimensionGrain' => 'month',
-                    'chartType' => 'line',
-                ],
-            ])
+            ->submitForm($this->formPayload($formName, ['chartType' => 'line']))
             ->call('applyEdit');
 
-        self::assertSame('line', $testComponent->component()->appliedConfigState['chartType'] ?? null);
+        self::assertSame('line', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
         self::assertFalse($testComponent->component()->isEditOpen);
     }
 
     public function testFormChangeWithoutApplyDoesNotUpdateAppliedConfig(): void
     {
-        $user = UserFactory::createOne(['username' => 'explorer-defer-'.bin2hex(random_bytes(4))]);
-        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
-        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
-        $filter = new StatisticsFilter(
-            scope: StatisticsFilterScope::Public,
-            hospitalId: null,
-            cohortType: null,
-            period: StatisticsFilterPeriod::All,
-        );
-        $defaultConfig = $viewFactory->createDefault($filter);
-
-        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
-            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
-            'locale' => 'en',
-        ])->actingAs($user);
-
+        $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
 
-        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
-        self::assertNotNull($formName);
+        $formName = $this->formName($testComponent->render());
+        $testComponent->submitForm($this->formPayload($formName, [
+            'timeGrain' => 'year',
+            'chartType' => 'line',
+        ]));
 
-        $testComponent->submitForm([
-            $formName => [
-                'scopePeriod' => [
-                    'scopeGroup' => 'public',
-                    'period' => 'all',
-                ],
-                'dimensionGrain' => 'year',
-                'chartType' => 'line',
-            ],
-        ]);
-
-        self::assertSame('bar', $testComponent->component()->appliedConfigState['chartType'] ?? null);
-        self::assertSame('month', $testComponent->component()->appliedConfigState['dimensionGrain'] ?? null);
+        self::assertSame('bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
+        self::assertSame('month', $testComponent->component()->appliedConfigState['query']['grain'] ?? null);
     }
 
     public function testPeriodChangeRefreshesYearFieldInDrawer(): void
     {
-        $user = UserFactory::createOne(['username' => 'explorer-period-'.bin2hex(random_bytes(4))]);
-        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
-        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
-        $filter = new StatisticsFilter(
-            scope: StatisticsFilterScope::Public,
-            hospitalId: null,
-            cohortType: null,
-            period: StatisticsFilterPeriod::All,
-        );
-        $defaultConfig = $viewFactory->createDefault($filter);
-
-        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
-            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
-            'locale' => 'en',
-        ])->actingAs($user);
-
+        $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
 
@@ -208,9 +101,7 @@ final class AnalysisExplorerShellTest extends WebTestCase
             $initialRender->crawler()->filter('[data-testid="stats-analysis-explorer-period-form"] select[name$="[periodYear]"]'),
         );
 
-        $formName = $initialRender->crawler()->filter('form[name]')->attr('name');
-        self::assertNotNull($formName);
-
+        $formName = $this->formName($initialRender);
         $updatedRender = $testComponent
             ->submitForm([
                 $formName => [
@@ -218,7 +109,9 @@ final class AnalysisExplorerShellTest extends WebTestCase
                         'scopeGroup' => 'public',
                         'period' => 'year',
                     ],
-                    'dimensionGrain' => 'month',
+                    'dimension' => 'time',
+                    'metric' => 'allocation_count',
+                    'timeGrain' => 'month',
                     'chartType' => 'bar',
                 ],
             ])
@@ -229,74 +122,63 @@ final class AnalysisExplorerShellTest extends WebTestCase
             0,
             $updatedRender->crawler()->filter('[data-testid="stats-analysis-explorer-period-form"] select[name$="[periodYear]"]')->count(),
         );
-        self::assertSame('bar', $testComponent->component()->appliedConfigState['chartType'] ?? null);
+        self::assertSame('bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
     }
 
-    public function testApplyEditChangesDimensionGrainInChartSpecs(): void
+    public function testApplyEditChangesTimeGrainInAppliedState(): void
     {
-        $user = UserFactory::createOne(['username' => 'explorer-year-'.bin2hex(random_bytes(4))]);
-        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
-        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
-        $filter = new StatisticsFilter(
-            scope: StatisticsFilterScope::Public,
-            hospitalId: null,
-            cohortType: null,
-            period: StatisticsFilterPeriod::All,
-        );
-        $defaultConfig = $viewFactory->createDefault($filter);
-
-        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
-            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
-            'locale' => 'en',
-        ])->actingAs($user);
-
+        $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
 
-        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
-        self::assertNotNull($formName);
+        $formName = $this->formName($testComponent->render());
+        $testComponent
+            ->submitForm($this->formPayload($formName, ['timeGrain' => 'year']))
+            ->call('applyEdit');
 
-        $updatedRender = $testComponent
-            ->submitForm([
-                $formName => [
-                    'scopePeriod' => [
-                        'scopeGroup' => 'public',
-                        'period' => 'all',
-                    ],
-                    'dimensionGrain' => 'year',
-                    'chartType' => 'bar',
-                ],
-            ])
-            ->call('applyEdit')
+        self::assertSame('year', $testComponent->component()->appliedConfigState['query']['grain'] ?? null);
+    }
+
+    public function testApplyEditChangesDimensionToGender(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $formName = $this->formName($testComponent->render());
+        $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'dimension' => 'gender',
+                'timeGrain' => null,
+            ]))
+            ->call('applyEdit');
+
+        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['dimension'] ?? null);
+        self::assertNull($testComponent->component()->appliedConfigState['query']['grain'] ?? null);
+    }
+
+    public function testDimensionChangeHidesTimeGrainField(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $formName = $this->formName($testComponent->render());
+        $render = $testComponent
+            ->submitForm($this->formPayload($formName, ['dimension' => 'urgency', 'timeGrain' => null]))
+            ->call('refreshEditForm')
             ->render();
 
-        self::assertSame('year', $testComponent->component()->appliedConfigState['dimensionGrain'] ?? null);
+        self::assertCount(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-time-grain-field"]'));
     }
 
     public function testApplyEditShowsEmptyStateWhenNoData(): void
     {
-        $user = UserFactory::createOne(['username' => 'explorer-empty-'.bin2hex(random_bytes(4))]);
-        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
-        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
-        $filter = new StatisticsFilter(
-            scope: StatisticsFilterScope::Public,
-            hospitalId: null,
-            cohortType: null,
-            period: StatisticsFilterPeriod::All,
-        );
-        $defaultConfig = $viewFactory->createDefault($filter);
-
-        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
-            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
-            'locale' => 'en',
-        ])->actingAs($user);
-
+        $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
 
-        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
-        self::assertNotNull($formName);
-
+        $formName = $this->formName($testComponent->render());
         $render = $testComponent
             ->submitForm([
                 $formName => [
@@ -304,7 +186,9 @@ final class AnalysisExplorerShellTest extends WebTestCase
                         'scopeGroup' => 'public',
                         'period' => 'year',
                     ],
-                    'dimensionGrain' => 'month',
+                    'dimension' => 'time',
+                    'metric' => 'allocation_count',
+                    'timeGrain' => 'month',
                     'chartType' => 'bar',
                 ],
             ])
@@ -340,9 +224,7 @@ final class AnalysisExplorerShellTest extends WebTestCase
         $testComponent->render();
         $testComponent->call('openEdit');
 
-        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
-        self::assertNotNull($formName);
-
+        $formName = $this->formName($testComponent->render());
         $testComponent
             ->submitForm([
                 $formName => [
@@ -351,14 +233,64 @@ final class AnalysisExplorerShellTest extends WebTestCase
                         'scopeDetail' => (string) $stateId,
                         'period' => 'all',
                     ],
-                    'dimensionGrain' => 'month',
+                    'dimension' => 'time',
+                    'metric' => 'allocation_count',
+                    'timeGrain' => 'month',
                     'chartType' => 'bar',
                 ],
             ])
             ->call('applyEdit');
 
-        self::assertSame('state', $testComponent->component()->appliedConfigState['scopeGroup'] ?? null);
-        self::assertSame((string) $stateId, $testComponent->component()->appliedConfigState['scopeDetail'] ?? null);
+        self::assertSame('state', $testComponent->component()->appliedConfigState['query']['scope']['group'] ?? null);
+        self::assertSame((string) $stateId, $testComponent->component()->appliedConfigState['query']['scope']['detail'] ?? null);
         self::assertFalse($testComponent->component()->isEditOpen);
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function formPayload(string $formName, array $overrides = []): array
+    {
+        return [
+            $formName => array_merge([
+                'scopePeriod' => [
+                    'scopeGroup' => 'public',
+                    'period' => 'all',
+                ],
+                'dimension' => 'time',
+                'metric' => 'allocation_count',
+                'timeGrain' => 'month',
+                'chartType' => 'bar',
+            ], $overrides),
+        ];
+    }
+
+    private function formName(object $render): string
+    {
+        $formName = $render->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        return $formName;
+    }
+
+    private function createShellComponent(): \Symfony\UX\LiveComponent\Test\TestLiveComponent
+    {
+        $user = UserFactory::createOne(['username' => 'explorer-live-'.bin2hex(random_bytes(4))]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+        $defaultConfig = $viewFactory->createDefault($filter);
+
+        return $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
+            'locale' => 'en',
+        ])->actingAs($user);
     }
 }

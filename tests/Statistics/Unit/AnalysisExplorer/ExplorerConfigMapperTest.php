@@ -7,6 +7,7 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -33,10 +34,12 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         $state = $mapper->toStateArray($config);
         $restored = $mapper->viewConfigFromState($state, null);
 
+        self::assertSame(1, $state['schemaVersion']);
         self::assertSame($config->title, $restored->title);
         self::assertSame($config->dataSourceKey, $restored->dataSourceKey);
         self::assertSame($config->metricKey, $restored->metricKey);
-        self::assertSame($config->dimensionGrain, $restored->dimensionGrain);
+        self::assertSame($config->dimensionKey, $restored->dimensionKey);
+        self::assertSame($config->timeGrain, $restored->timeGrain);
         self::assertSame($config->presentation->chartType, $restored->presentation->chartType);
         self::assertSame($config->statisticsFilter->scope, $restored->statisticsFilter->scope);
         self::assertSame($config->statisticsFilter->period, $restored->statisticsFilter->period);
@@ -81,15 +84,33 @@ final class ExplorerConfigMapperTest extends KernelTestCase
             cohortType: null,
             period: StatisticsFilterPeriod::All,
         ))
-            ->withDimensionGrain(AnalysisDimensionGrain::Year)
+            ->withDimension(AnalysisDimensionKey::Time, AnalysisDimensionGrain::Year)
             ->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(chartType: ChartPresentationType::Line));
 
         $state = $mapper->toStateArray($config);
-        self::assertSame('year', $state['dimensionGrain']);
-        self::assertSame('line', $state['chartType']);
+        self::assertSame('year', $state['query']['grain']);
+        self::assertSame('line', $state['presentation']['chartType']);
 
         $restored = $mapper->viewConfigFromState($state, null);
-        self::assertSame(AnalysisDimensionGrain::Year, $restored->dimensionGrain);
+        self::assertSame(AnalysisDimensionGrain::Year, $restored->timeGrain);
         self::assertSame(ChartPresentationType::Line, $restored->presentation->chartType);
+    }
+
+    public function testLegacyFlatStateIsUpgraded(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $config = $mapper->viewConfigFromState([
+            'scopeGroup' => 'public',
+            'period' => 'all',
+            'dimensionGrain' => 'year',
+            'chartType' => 'line',
+            'title' => 'Allocations over time',
+        ], null);
+
+        self::assertSame(AnalysisDimensionKey::Time, $config->dimensionKey);
+        self::assertSame(AnalysisDimensionGrain::Year, $config->timeGrain);
+        self::assertSame(ChartPresentationType::Line, $config->presentation->chartType);
     }
 }
