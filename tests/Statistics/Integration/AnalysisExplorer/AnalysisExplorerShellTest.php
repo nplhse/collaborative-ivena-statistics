@@ -6,10 +6,12 @@ namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Tests\Statistics\Support\Benchmarking\EligibleBenchmarkScopeTrait;
+use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\UX\LiveComponent\Test\InteractsWithLiveComponents;
@@ -22,6 +24,49 @@ final class AnalysisExplorerShellTest extends WebTestCase
     use Factories;
     use InteractsWithLiveComponents;
     use EligibleBenchmarkScopeTrait;
+    use SeedsExplorerSystemViewsTrait;
+
+    public function testMountWithSavedGroupedBarConfig(): void
+    {
+        self::bootKernel();
+        $this->seedExplorerSystemViews();
+        $loader = self::getContainer()->get(SavedExplorerViewLoader::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+        $result = $loader->load('gender-over-time', $filter, null);
+
+        $user = UserFactory::createOne(['username' => 'explorer-saved-'.bin2hex(random_bytes(4))]);
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $result->state,
+            'locale' => 'en',
+        ])->actingAs($user);
+
+        $testComponent->render();
+
+        self::assertSame('grouped_bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
+        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['dimension'] ?? null);
+    }
+
+    public function testOpenEditKeepsLibraryLinkVisible(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-library-link"]')->count(),
+        );
+        self::assertSame(
+            '/statistics/analysis/library',
+            $testComponent->component()->libraryUrl,
+        );
+    }
 
     public function testApplyEditChangesChartType(): void
     {
@@ -317,6 +362,7 @@ final class AnalysisExplorerShellTest extends WebTestCase
         return $this->createLiveComponent('AnalysisExplorerShell', [
             'appliedConfigState' => $mapper->toStateArray($defaultConfig),
             'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
         ])->actingAs($user);
     }
 }

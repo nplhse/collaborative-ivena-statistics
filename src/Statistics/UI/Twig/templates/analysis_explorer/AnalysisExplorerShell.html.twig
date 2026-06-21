@@ -1,7 +1,15 @@
 <div {{ attributes }}>
-    <div class="d-flex justify-content-end mb-3 d-print-none">
+    <div class="d-flex justify-content-end gap-2 mb-3 d-print-none" data-testid="stats-analysis-explorer-actions">
+        {% if libraryUrl %}
+            <a href="{{ libraryUrl }}"
+               class="btn btn-outline-primary d-inline-flex align-items-center gap-1"
+               data-testid="stats-analysis-explorer-library-link">
+                <twig:ux:icon name="tabler:books" style="height: 1.2em;" />
+                {{ 'stats.analysis_explorer.open_library'|trans }}
+            </a>
+        {% endif %}
         <button type="button"
-                class="btn btn-outline-primary"
+                class="btn btn-outline-primary d-inline-flex align-items-center gap-1"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#analysisExplorerEditDrawer"
                 data-action="live#action"

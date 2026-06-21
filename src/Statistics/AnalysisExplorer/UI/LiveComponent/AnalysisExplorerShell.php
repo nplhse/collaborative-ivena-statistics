@@ -62,6 +62,9 @@ final class AnalysisExplorerShell
     #[LiveProp]
     public string $locale = 'en';
 
+    #[LiveProp(writable: false)]
+    public string $libraryUrl = '';
+
     public ?AnalysisRunResult $result = null;
 
     /** @var array<string, array<string, mixed>> */
@@ -96,15 +99,24 @@ final class AnalysisExplorerShell
     /**
      * @param array<string, mixed> $appliedConfigState
      */
-    public function mount(array $appliedConfigState = [], string $locale = 'en'): void
-    {
+    public function mount(
+        array $appliedConfigState = [],
+        string $locale = 'en',
+        ?string $initialConfigWarning = null,
+        string $libraryUrl = '',
+    ): void {
         $this->locale = $locale;
+        $this->libraryUrl = $libraryUrl;
 
         if ([] !== $appliedConfigState) {
             $this->appliedConfigState = $appliedConfigState;
         }
 
         $this->rerunAnalysis();
+
+        if (null !== $initialConfigWarning) {
+            $this->configWarning = $initialConfigWarning;
+        }
     }
 
     #[PreReRender(priority: -100)]
@@ -185,6 +197,7 @@ final class AnalysisExplorerShell
 
         $this->editFormData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
         $this->resetForm();
+        $this->submitForm(false);
     }
 
     #[LiveAction]
