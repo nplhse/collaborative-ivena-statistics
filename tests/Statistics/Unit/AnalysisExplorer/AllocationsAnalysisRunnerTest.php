@@ -8,7 +8,7 @@ use App\Statistics\AnalysisExplorer\Application\AllocationsAnalysisRunner;
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
-use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisDataPoint;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
@@ -52,9 +52,9 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
         self::assertSame('allocation_count', $runResult->metricKey->value);
         self::assertSame(20, $runResult->total);
-        self::assertCount(2, $runResult->dataPoints);
-        self::assertSame('Jun 2024', $runResult->dataPoints[0]->label);
-        self::assertSame(12, $runResult->dataPoints[0]->value);
+        self::assertCount(2, $runResult->rows);
+        self::assertSame('Jun 2024', $runResult->rows[0]->bucketLabel);
+        self::assertSame(12, $runResult->rows[0]->value);
     }
 
     public function testYearGrainUsesCreatedYearColumn(): void
@@ -83,10 +83,10 @@ final class AllocationsAnalysisRunnerTest extends TestCase
             periodBounds: new StatisticsPeriodBounds(null),
         ));
 
-        self::assertSame('2024', $runResult->dataPoints[0]->label);
+        self::assertSame('2024', $runResult->rows[0]->bucketLabel);
     }
 
-    public function testGenderDimensionUsesGenderCodeColumn(): void
+    public function testGenderTotalUsesGenderCodeColumn(): void
     {
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
@@ -110,15 +110,51 @@ final class AllocationsAnalysisRunnerTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: null,
+            timeGrain: AnalysisDimensionGrain::Total,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
         ));
 
-        self::assertSame('Male', $runResult->dataPoints[0]->label);
+        self::assertSame('Male', $runResult->rows[0]->bucketLabel);
     }
 
-    public function testChartPresenterBuildsBarAndLineSpecs(): void
+    public function testGenderMonthUsesTimeAndSeriesGrouping(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $result = $this->createMock(\Doctrine\DBAL\Result::class);
+        $result->method('fetchAllAssociative')->willReturn([
+            ['bucket' => '2024-06', 'series' => 1, 'allocation_count' => 3],
+        ]);
+        $connection->expects(self::once())
+            ->method('executeQuery')
+            ->with(self::callback(static fn (string $sql): bool => str_contains($sql, 'created_month AS bucket')
+                && str_contains($sql, 'gender_code AS series')
+                && str_contains($sql, 'GROUP BY bucket, series')))
+            ->willReturn($result);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Male');
+
+        $runner = new AllocationsAnalysisRunner(
+            new AllocationsCountQuery($connection, new GenericAnalysisScopeSqlFilter(), $translator),
+            new AllocationsCapabilitiesProvider(),
+        );
+
+        $runResult = $runner->run(new AnalysisQuery(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKey: AnalysisMetricKey::AllocationCount,
+            dimensionKey: AnalysisDimensionKey::Gender,
+            timeGrain: AnalysisDimensionGrain::Month,
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+
+        self::assertTrue($runResult->hasSeries());
+        self::assertSame('Jun 2024', $runResult->rows[0]->bucketLabel);
+        self::assertSame('Male', $runResult->rows[0]->seriesLabel);
+    }
+
+    public function testChartPresenterBuildsBarLineAndGroupedSpecs(): void
     {
         $presenter = new ExplorerChartPresenter();
         $result = new AnalysisRunResult(
@@ -126,8 +162,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
             metricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Month,
-            dataPoints: [
-                new AnalysisDataPoint(bucket: '2024-06', label: 'Jun 2024', value: 5),
+            rows: [
+                new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: null, seriesLabel: null, value: 5),
             ],
             total: 5,
         );
@@ -139,6 +175,63 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $lineSpecs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Line));
         self::assertArrayHasKey('line', $lineSpecs);
         self::assertSame('line', $lineSpecs['line']['chartType']);
+
+        $seriesResult = new AnalysisRunResult(
+            title: 'Allocations by gender over time',
+            metricKey: AnalysisMetricKey::AllocationCount,
+            dimensionKey: AnalysisDimensionKey::Gender,
+            timeGrain: AnalysisDimensionGrain::Month,
+            rows: [
+                new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '1', seriesLabel: 'Male', value: 5),
+                new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '2', seriesLabel: 'Female', value: 3),
+            ],
+            total: 8,
+        );
+
+        $groupedSpecs = $presenter->buildSpecs($seriesResult, new PresentationConfig(chartType: ChartPresentationType::GroupedBar));
+        self::assertArrayHasKey('grouped_bar', $groupedSpecs);
+        self::assertTrue($groupedSpecs['grouped_bar']['barGrouped']);
+        self::assertCount(2, $groupedSpecs['grouped_bar']['series']);
+
+        $stackedSpecs = $presenter->buildSpecs($seriesResult, new PresentationConfig(chartType: ChartPresentationType::StackedBar));
+        self::assertArrayHasKey('stacked_bar', $stackedSpecs);
+        self::assertArrayNotHasKey('barGrouped', $stackedSpecs['stacked_bar']);
+        self::assertCount(2, $stackedSpecs['stacked_bar']['series']);
+    }
+
+    public function testUrgencyYearUsesCreatedYearAndSeriesGrouping(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $result = $this->createMock(\Doctrine\DBAL\Result::class);
+        $result->method('fetchAllAssociative')->willReturn([
+            ['bucket' => '2024', 'series' => 2, 'allocation_count' => 7],
+        ]);
+        $connection->expects(self::once())
+            ->method('executeQuery')
+            ->with(self::callback(static fn (string $sql): bool => str_contains($sql, 'created_year AS bucket')
+                && str_contains($sql, 'urgency_code AS series')))
+            ->willReturn($result);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Inpatient');
+
+        $runner = new AllocationsAnalysisRunner(
+            new AllocationsCountQuery($connection, new GenericAnalysisScopeSqlFilter(), $translator),
+            new AllocationsCapabilitiesProvider(),
+        );
+
+        $runResult = $runner->run(new AnalysisQuery(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKey: AnalysisMetricKey::AllocationCount,
+            dimensionKey: AnalysisDimensionKey::Urgency,
+            timeGrain: AnalysisDimensionGrain::Year,
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+
+        self::assertTrue($runResult->hasSeries());
+        self::assertSame('2024', $runResult->rows[0]->bucketLabel);
+        self::assertSame('Inpatient', $runResult->rows[0]->seriesLabel);
     }
 
     private function createTranslator(): TranslatorInterface

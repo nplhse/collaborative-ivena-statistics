@@ -8,6 +8,7 @@ use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use PHPUnit\Framework\TestCase;
 
 final class AllocationsCapabilitiesProviderTest extends TestCase
@@ -23,7 +24,10 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
             [AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
             $capabilities->timeGrainsFor(AnalysisDimensionKey::Time),
         );
-        self::assertSame([], $capabilities->timeGrainsFor(AnalysisDimensionKey::Gender));
+        self::assertSame(
+            [AnalysisDimensionGrain::Total, AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
+            $capabilities->timeGrainsFor(AnalysisDimensionKey::Gender),
+        );
     }
 
     public function testSupportsValidTimeConfiguration(): void
@@ -34,10 +38,31 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
         self::assertTrue($capabilities->supports($config));
     }
 
+    public function testChartTypesForGenderMonthIncludeGroupedBar(): void
+    {
+        $capabilities = new AllocationsCapabilitiesProvider()->capabilities();
+        $config = $this->createConfig($capabilities, AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month)
+            ->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(chartType: ChartPresentationType::GroupedBar));
+
+        self::assertContains(ChartPresentationType::GroupedBar, $capabilities->chartTypesFor($config));
+        self::assertTrue($capabilities->supports($config));
+    }
+
+    public function testChartTypesForGenderTotalExcludeGroupedBar(): void
+    {
+        $capabilities = new AllocationsCapabilitiesProvider()->capabilities();
+        $config = $this->createConfig($capabilities, AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Total);
+
+        self::assertSame(
+            [ChartPresentationType::Bar, ChartPresentationType::Line],
+            $capabilities->chartTypesFor($config),
+        );
+    }
+
     private function createConfig(
         DataSourceCapabilities $capabilities,
         AnalysisDimensionKey $dimension,
-        ?AnalysisDimensionGrain $grain,
+        AnalysisDimensionGrain $grain,
     ): \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig {
         return new \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,

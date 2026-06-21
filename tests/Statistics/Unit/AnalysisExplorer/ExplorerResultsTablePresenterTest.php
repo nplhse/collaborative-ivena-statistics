@@ -6,7 +6,7 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
-use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisDataPoint;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
@@ -53,9 +53,9 @@ final class ExplorerResultsTablePresenterTest extends TestCase
                 metricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Time,
                 timeGrain: AnalysisDimensionGrain::Month,
-                dataPoints: [
-                    new AnalysisDataPoint(bucket: '2024-06', label: 'Jun 2024', value: 12),
-                    new AnalysisDataPoint(bucket: '2024-07', label: 'Jul 2024', value: 8),
+                rows: [
+                    new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: null, seriesLabel: null, value: 12),
+                    new AnalysisResultRow(bucket: '2024-07', bucketLabel: 'Jul 2024', seriesKey: null, seriesLabel: null, value: 8),
                 ],
                 total: 20,
             ),
@@ -70,7 +70,53 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertSame(12, $table->rows[0]->value);
     }
 
-    public function testCreateBuildsEmptyTableFromResultWithoutDataPoints(): void
+    public function testCreateBuildsPivotTableForSeriesResult(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
+            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+        ]);
+
+        $presenter = new ExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKey: AnalysisMetricKey::AllocationCount,
+            dimensionKey: AnalysisDimensionKey::Gender,
+            timeGrain: AnalysisDimensionGrain::Month,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::GroupedBar),
+            title: 'Allocations by gender over time',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Allocations by gender over time',
+                metricKey: AnalysisMetricKey::AllocationCount,
+                dimensionKey: AnalysisDimensionKey::Gender,
+                timeGrain: AnalysisDimensionGrain::Month,
+                rows: [
+                    new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '1', seriesLabel: 'Male', value: 4),
+                    new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '2', seriesLabel: 'Female', value: 2),
+                ],
+                total: 6,
+            ),
+        );
+
+        self::assertTrue($table->hasSeries);
+        self::assertSame(['Male', 'Female'], $table->seriesLabels);
+        self::assertCount(1, $table->rows);
+        self::assertSame(6, $table->rows[0]->rowTotal);
+        self::assertSame(4, $table->rows[0]->seriesValues['Male']);
+    }
+
+    public function testCreateBuildsEmptyTableFromResultWithoutRows(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnMap([
@@ -101,7 +147,7 @@ final class ExplorerResultsTablePresenterTest extends TestCase
                 metricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Time,
                 timeGrain: AnalysisDimensionGrain::Year,
-                dataPoints: [],
+                rows: [],
                 total: 0,
             ),
         );

@@ -22,7 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AnalysisViewConfigNormalizerTest extends TestCase
 {
-    public function testNormalizesInvalidGenderGrainToNull(): void
+    public function testNormalizesGenderBarToGroupedBarForMonthGrain(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
@@ -50,6 +50,37 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $normalized = $normalizer->normalize($config);
 
         self::assertSame(AnalysisDimensionKey::Gender, $normalized->dimensionKey);
-        self::assertNull($normalized->timeGrain);
+        self::assertSame(AnalysisDimensionGrain::Month, $normalized->timeGrain);
+        self::assertSame(ChartPresentationType::GroupedBar, $normalized->presentation->chartType);
+    }
+
+    public function testNormalizesLegacyNullGenderGrainToTotal(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Title');
+
+        $normalizer = new AnalysisViewConfigNormalizer(
+            new AllocationsCapabilitiesProvider(),
+            new ExplorerTitleFactory($translator),
+        );
+
+        $config = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKey: AnalysisMetricKey::AllocationCount,
+            dimensionKey: AnalysisDimensionKey::Gender,
+            timeGrain: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            title: 'Old title',
+        );
+
+        $normalized = $normalizer->normalize($config);
+
+        self::assertSame(AnalysisDimensionGrain::Total, $normalized->timeGrain);
     }
 }

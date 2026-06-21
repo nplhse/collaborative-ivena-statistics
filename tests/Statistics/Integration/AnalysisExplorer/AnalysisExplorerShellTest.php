@@ -139,7 +139,7 @@ final class AnalysisExplorerShellTest extends WebTestCase
         self::assertSame('year', $testComponent->component()->appliedConfigState['query']['grain'] ?? null);
     }
 
-    public function testApplyEditChangesDimensionToGender(): void
+    public function testApplyEditChangesDimensionToGenderWithTotalGrain(): void
     {
         $testComponent = $this->createShellComponent();
         $testComponent->render();
@@ -149,15 +149,41 @@ final class AnalysisExplorerShellTest extends WebTestCase
         $testComponent
             ->submitForm($this->formPayload($formName, [
                 'dimension' => 'gender',
-                'timeGrain' => null,
+                'timeGrain' => 'total',
+                'chartType' => 'bar',
             ]))
             ->call('applyEdit');
 
         self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['dimension'] ?? null);
-        self::assertNull($testComponent->component()->appliedConfigState['query']['grain'] ?? null);
+        self::assertSame('total', $testComponent->component()->appliedConfigState['query']['grain'] ?? null);
     }
 
-    public function testDimensionChangeHidesTimeGrainField(): void
+    public function testApplyEditGenderMonthUsesGroupedBarChart(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $formName = $this->formName($testComponent->render());
+        $updatedRender = $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'dimension' => 'gender',
+                'timeGrain' => 'month',
+                'chartType' => 'grouped_bar',
+            ]))
+            ->call('applyEdit')
+            ->render();
+
+        self::assertSame('grouped_bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
+        $chart = $updatedRender->crawler()->filter('[data-controller="generic-analysis-chart"]');
+        if ($chart->count() > 0) {
+            $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
+            self::assertNotNull($specsRaw);
+            self::assertStringContainsString('"grouped_bar"', $specsRaw);
+        }
+    }
+
+    public function testDimensionChangeShowsTimeGrainField(): void
     {
         $testComponent = $this->createShellComponent();
         $testComponent->render();
@@ -165,11 +191,11 @@ final class AnalysisExplorerShellTest extends WebTestCase
 
         $formName = $this->formName($testComponent->render());
         $render = $testComponent
-            ->submitForm($this->formPayload($formName, ['dimension' => 'urgency', 'timeGrain' => null]))
+            ->submitForm($this->formPayload($formName, ['dimension' => 'urgency', 'timeGrain' => 'month']))
             ->call('refreshEditForm')
             ->render();
 
-        self::assertCount(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-time-grain-field"]'));
+        self::assertGreaterThan(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-time-grain-field"]')->count());
     }
 
     public function testApplyEditShowsEmptyStateWhenNoData(): void

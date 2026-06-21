@@ -96,6 +96,29 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame(ChartPresentationType::Line, $restored->presentation->chartType);
     }
 
+    public function testLegacyGenderStateWithoutGrainNormalizesToTotal(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $config = $mapper->viewConfigFromState([
+            'schemaVersion' => 1,
+            'dataSource' => 'allocations',
+            'query' => [
+                'scope' => ['group' => 'public', 'detail' => null],
+                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'metric' => 'allocation_count',
+                'dimension' => 'gender',
+                'grain' => null,
+            ],
+            'presentation' => ['mode' => 'chart', 'chartType' => 'bar'],
+            'title' => 'Allocations by gender',
+        ], null);
+
+        self::assertSame(AnalysisDimensionKey::Gender, $config->dimensionKey);
+        self::assertSame(AnalysisDimensionGrain::Total, $config->timeGrain);
+    }
+
     public function testLegacyFlatStateIsUpgraded(): void
     {
         self::bootKernel();
