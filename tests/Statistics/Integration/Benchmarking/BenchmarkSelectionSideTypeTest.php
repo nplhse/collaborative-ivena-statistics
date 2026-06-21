@@ -105,6 +105,38 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
         self::assertNotNull($form->get('periodQuarter')->getData());
     }
 
+    public function testSubmitAcceptsIntegerScopeDetail(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'SideTypeIntDetail');
+        $this->loginUser($user);
+
+        $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
+            'public',
+            null,
+            'all',
+        ), [
+            'side' => StatisticsFilterSide::Primary,
+            'locale' => 'en',
+            'csrf_protection' => false,
+        ]);
+
+        $stateId = $scope['state']->getId();
+        self::assertNotNull($stateId);
+
+        $form->submit([
+            'scopeGroup' => 'state',
+            'period' => 'all',
+            'scopeDetail' => $stateId,
+        ]);
+
+        self::assertTrue($form->isSynchronized());
+        self::assertTrue($form->isValid());
+        $data = $form->getData();
+        self::assertInstanceOf(BenchmarkSelectionSideFormData::class, $data);
+        self::assertSame((string) $stateId, $data->scopeDetail);
+    }
+
     private function loginUser(\App\User\Domain\Entity\User $user): void
     {
         $tokenStorage = self::getContainer()->get(TokenStorageInterface::class);

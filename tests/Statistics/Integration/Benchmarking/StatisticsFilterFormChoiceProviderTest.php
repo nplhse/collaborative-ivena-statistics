@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Integration\Benchmarking;
 
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
+use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Tests\Statistics\Support\Benchmarking\EligibleBenchmarkScopeTrait;
 use App\User\Domain\Factory\UserFactory;
@@ -79,5 +83,47 @@ final class StatisticsFilterFormChoiceProviderTest extends KernelTestCase
     {
         self::assertFalse($this->provider->scopeDetailRequired('public', null, StatisticsFilterSide::Primary));
         self::assertSame([], $this->provider->scopeDetailChoices('public', null, StatisticsFilterSide::Primary, 'en'));
+    }
+
+    public function testAllocationStatisticsPolicyExcludesScopesWithoutProjectionData(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'ChoicePolicyData');
+        $stateId = (string) $scope['state']->getId();
+        $dispatchAreaId = (string) $scope['dispatchArea']->getId();
+
+        self::assertArrayHasKey(
+            $stateId,
+            $this->provider->scopeDetailChoices('state', $user, StatisticsFilterSide::Primary, 'en', StatisticsFilterScopeChoicePolicy::AllocationStatistics),
+        );
+        self::assertArrayHasKey(
+            $dispatchAreaId,
+            $this->provider->scopeDetailChoices('dispatch_area', $user, StatisticsFilterSide::Primary, 'en', StatisticsFilterScopeChoicePolicy::AllocationStatistics),
+        );
+
+        $emptyState = StateFactory::createOne(['name' => 'ChoicePolicyEmptyState']);
+        $emptyDispatchArea = DispatchAreaFactory::createOne([
+            'name' => 'ChoicePolicyEmptyDispatch',
+            'state' => $emptyState,
+        ]);
+        HospitalFactory::createOne([
+            'name' => 'ChoicePolicyEmptyHospitalA',
+            'state' => $emptyState,
+            'dispatchArea' => $emptyDispatchArea,
+            'owner' => $user,
+        ]);
+        HospitalFactory::createOne([
+            'name' => 'ChoicePolicyEmptyHospitalB',
+            'state' => $emptyState,
+            'dispatchArea' => $emptyDispatchArea,
+            'owner' => $user,
+        ]);
+        $this->refreshStatisticsMaterializedViews();
+
+        $registeredDispatchId = (string) $emptyDispatchArea->getId();
+        self::assertArrayNotHasKey(
+            $registeredDispatchId,
+            $this->provider->scopeDetailChoices('dispatch_area', $user, StatisticsFilterSide::Primary, 'en', StatisticsFilterScopeChoicePolicy::AllocationStatistics),
+        );
     }
 }
