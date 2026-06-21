@@ -15,28 +15,13 @@ final readonly class ExplorerChartPresenter
      */
     public function buildSpecs(AnalysisRunResult $result, PresentationConfig $presentation): array
     {
-        if ([] === $result->dataPoints) {
+        if ([] === $result->rows) {
             return [];
         }
 
-        $labels = [];
-        $counts = [];
-
-        foreach ($result->dataPoints as $point) {
-            $labels[] = $point->label;
-            $counts[] = $point->value;
-        }
-
-        $chartType = match ($presentation->chartType) {
-            ChartPresentationType::Bar => 'bar',
-            ChartPresentationType::Line => 'line',
-        };
-
-        $spec = [
-            'chartType' => $chartType,
-            'labels' => $labels,
-            'counts' => $counts,
-        ];
+        $spec = $result->hasSeries()
+            ? $this->buildMultiSeriesSpec($result, $presentation)
+            : $this->buildSingleSeriesSpec($result, $presentation);
 
         return [
             $presentation->chartType->value => $spec,
@@ -50,6 +35,87 @@ final readonly class ExplorerChartPresenter
 
     public function hasChart(AnalysisRunResult $result): bool
     {
-        return [] !== $result->dataPoints;
+        return [] !== $result->rows;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildSingleSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
+    {
+        $labels = [];
+        $counts = [];
+
+        foreach ($result->rows as $row) {
+            $labels[] = $row->bucketLabel;
+            $counts[] = $row->value;
+        }
+
+        return [
+            'chartType' => match ($presentation->chartType) {
+                ChartPresentationType::Line => 'line',
+                default => 'bar',
+            },
+            'labels' => $labels,
+            'counts' => $counts,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildMultiSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
+    {
+        /** @var list<string> $labels */
+        $labels = [];
+        /** @var array<string, string> $labelByBucket */
+        $labelByBucket = [];
+        /** @var array<string, array<string, int>> $valuesBySeries */
+        $valuesBySeries = [];
+        /** @var array<string, string> $seriesLabels */
+        $seriesLabels = [];
+
+        foreach ($result->rows as $row) {
+            if (!isset($labelByBucket[$row->bucket])) {
+                $labelByBucket[$row->bucket] = $row->bucketLabel;
+                $labels[] = $row->bucketLabel;
+            }
+
+            $seriesKey = $row->seriesKey ?? '';
+            $seriesLabels[$seriesKey] = $row->seriesLabel ?? $seriesKey;
+            $valuesBySeries[$seriesKey][$row->bucket] = $row->value;
+        }
+
+        $bucketOrder = array_keys($labelByBucket);
+        $series = [];
+
+        foreach ($seriesLabels as $seriesKey => $seriesLabel) {
+            $data = [];
+            foreach ($bucketOrder as $bucket) {
+                $data[] = $valuesBySeries[$seriesKey][$bucket] ?? 0;
+            }
+
+            $series[] = [
+                'name' => $seriesLabel,
+                'data' => $data,
+            ];
+        }
+
+        $chartType = match ($presentation->chartType) {
+            ChartPresentationType::Line => 'line',
+            default => 'bar',
+        };
+
+        $spec = [
+            'chartType' => $chartType,
+            'labels' => $labels,
+            'series' => $series,
+        ];
+
+        if (ChartPresentationType::GroupedBar === $presentation->chartType) {
+            $spec['barGrouped'] = true;
+        }
+
+        return $spec;
     }
 }

@@ -28,7 +28,7 @@ final readonly class AnalysisRunnerRegistry
                     metricKey: $result->metricKey,
                     dimensionKey: $result->dimensionKey,
                     timeGrain: $result->timeGrain,
-                    dataPoints: $result->dataPoints,
+                    rows: $result->rows,
                     total: $result->total,
                 );
             }
