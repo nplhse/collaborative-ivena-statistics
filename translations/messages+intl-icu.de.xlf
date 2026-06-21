@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="statsLnkAe01" resname="link.stats.analysis_explorer">
+        <source>link.stats.analysis_explorer</source>
+        <target>Analyse-Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex01" resname="stats.analysis_explorer.title">
+        <source>stats.analysis_explorer.title</source>
+        <target>Analyse-Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex02" resname="stats.analysis_explorer.pretitle">
+        <source>stats.analysis_explorer.pretitle</source>
+        <target>Statistik</target>
+      </trans-unit>
+      <trans-unit id="statsAex03" resname="stats.analysis_explorer.allocations_over_time">
+        <source>stats.analysis_explorer.allocations_over_time</source>
+        <target>Verlegungen über die Zeit</target>
+      </trans-unit>
+      <trans-unit id="statsAex04" resname="stats.analysis_explorer.empty_state">
+        <source>stats.analysis_explorer.empty_state</source>
+        <target>Keine Daten für den gewählten Bereich verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAex05" resname="stats.analysis_explorer.dimension.month">
+        <source>stats.analysis_explorer.dimension.month</source>
+        <target>Monat</target>
+      </trans-unit>
+      <trans-unit id="statsAex06" resname="stats.analysis_explorer.metric.allocation_count">
+        <source>stats.analysis_explorer.metric.allocation_count</source>
+        <target>Verlegungen</target>
+      </trans-unit>
+      <trans-unit id="statsAex07" resname="stats.analysis_explorer.dimension.year">
+        <source>stats.analysis_explorer.dimension.year</source>
+        <target>Jahr</target>
+      </trans-unit>
+      <trans-unit id="statsAex08" resname="stats.analysis_explorer.chart.bar">
+        <source>stats.analysis_explorer.chart.bar</source>
+        <target>Balkendiagramm</target>
+      </trans-unit>
+      <trans-unit id="statsAex09" resname="stats.analysis_explorer.chart.line">
+        <source>stats.analysis_explorer.chart.line</source>
+        <target>Liniendiagramm</target>
+      </trans-unit>
+      <trans-unit id="statsAex10" resname="stats.analysis_explorer.edit.button">
+        <source>stats.analysis_explorer.edit.button</source>
+        <target>Bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="statsAex11" resname="stats.analysis_explorer.edit.title">
+        <source>stats.analysis_explorer.edit.title</source>
+        <target>Analyse bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="statsAex12" resname="stats.analysis_explorer.edit.apply">
+        <source>stats.analysis_explorer.edit.apply</source>
+        <target>Übernehmen</target>
+      </trans-unit>
+      <trans-unit id="statsAex13" resname="stats.analysis_explorer.edit.dimension_grain">
+        <source>stats.analysis_explorer.edit.dimension_grain</source>
+        <target>Zeitliche Auflösung</target>
+      </trans-unit>
+      <trans-unit id="statsAex14" resname="stats.analysis_explorer.edit.chart_type">
+        <source>stats.analysis_explorer.edit.chart_type</source>
+        <target>Diagrammtyp</target>
+      </trans-unit>
+      <trans-unit id="statsAex15" resname="stats.analysis_explorer.edit.section.scope">
+        <source>stats.analysis_explorer.edit.section.scope</source>
+        <target>Bereich</target>
+      </trans-unit>
+      <trans-unit id="statsAex16" resname="stats.analysis_explorer.edit.section.period">
+        <source>stats.analysis_explorer.edit.section.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="statsAex17" resname="stats.analysis_explorer.edit.section.chart_type">
+        <source>stats.analysis_explorer.edit.section.chart_type</source>
+        <target>Diagrammtyp</target>
+      </trans-unit>
+      <trans-unit id="statsAex18" resname="stats.analysis_explorer.edit.section.time_grain">
+        <source>stats.analysis_explorer.edit.section.time_grain</source>
+        <target>Zeitliche Auflösung</target>
+      </trans-unit>
+      <trans-unit id="statsAex19" resname="stats.analysis_explorer.dimension.time">
+        <source>stats.analysis_explorer.dimension.time</source>
+        <target>Zeit</target>
+      </trans-unit>
+      <trans-unit id="statsAex20" resname="stats.analysis_explorer.dimension.gender">
+        <source>stats.analysis_explorer.dimension.gender</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="statsAex21" resname="stats.analysis_explorer.dimension.urgency">
+        <source>stats.analysis_explorer.dimension.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="statsAex22" resname="stats.analysis_explorer.allocations_by_gender">
+        <source>stats.analysis_explorer.allocations_by_gender</source>
+        <target>Verlegungen nach Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="statsAex23" resname="stats.analysis_explorer.allocations_by_urgency">
+        <source>stats.analysis_explorer.allocations_by_urgency</source>
+        <target>Verlegungen nach Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="statsAex24" resname="stats.analysis_explorer.edit.dimension">
+        <source>stats.analysis_explorer.edit.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsAex25" resname="stats.analysis_explorer.edit.metric">
+        <source>stats.analysis_explorer.edit.metric</source>
+        <target>Kennzahl</target>
+      </trans-unit>
+      <trans-unit id="statsAex26" resname="stats.analysis_explorer.edit.time_grain">
+        <source>stats.analysis_explorer.edit.time_grain</source>
+        <target>Zeitliche Auflösung</target>
+      </trans-unit>
+      <trans-unit id="statsAex27" resname="stats.analysis_explorer.edit.section.analysis">
+        <source>stats.analysis_explorer.edit.section.analysis</source>
+        <target>Analyse</target>
+      </trans-unit>
+      <trans-unit id="statsAex28" resname="stats.analysis_explorer.config_normalized">
+        <source>stats.analysis_explorer.config_normalized</source>
+        <target>Einige Analyse-Einstellungen wurden auf unterstützte Werte angepasst.</target>
+      </trans-unit>
+      <trans-unit id="statsAex29" resname="stats.analysis_explorer.unsupported_config">
+        <source>stats.analysis_explorer.unsupported_config</source>
+        <target>Diese Analyse-Konfiguration wird nicht unterstützt.</target>
+      </trans-unit>
+      <trans-unit id="statsAex30" resname="stats.analysis_explorer.grain.total">
+        <source>stats.analysis_explorer.grain.total</source>
+        <target>Gesamt (gesamter Zeitraum)</target>
+      </trans-unit>
+      <trans-unit id="statsAex31" resname="stats.analysis_explorer.edit.group_by">
+        <source>stats.analysis_explorer.edit.group_by</source>
+        <target>Gruppieren nach</target>
+      </trans-unit>
+      <trans-unit id="statsAex32" resname="stats.analysis_explorer.chart.grouped_bar">
+        <source>stats.analysis_explorer.chart.grouped_bar</source>
+        <target>Gruppierte Balken</target>
+      </trans-unit>
+      <trans-unit id="statsAex33" resname="stats.analysis_explorer.chart.stacked_bar">
+        <source>stats.analysis_explorer.chart.stacked_bar</source>
+        <target>Gestapelte Balken</target>
+      </trans-unit>
+      <trans-unit id="statsAex34" resname="stats.analysis_explorer.allocations_by_gender_over_time">
+        <source>stats.analysis_explorer.allocations_by_gender_over_time</source>
+        <target>Verlegungen nach Geschlecht über die Zeit</target>
+      </trans-unit>
+      <trans-unit id="statsAex35" resname="stats.analysis_explorer.allocations_by_urgency_over_time">
+        <source>stats.analysis_explorer.allocations_by_urgency_over_time</source>
+        <target>Verlegungen nach Dringlichkeit über die Zeit</target>
+      </trans-unit>
+      <trans-unit id="statsAex36" resname="stats.analysis_explorer.empty_state.no_data">
+        <source>stats.analysis_explorer.empty_state.no_data</source>
+        <target>Keine Daten für den gewählten Bereich und Zeitraum verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAex37" resname="stats.analysis_explorer.empty_state.unsupported">
+        <source>stats.analysis_explorer.empty_state.unsupported</source>
+        <target>Diese Analyse-Konfiguration kann nicht angezeigt werden.</target>
+      </trans-unit>
+      <trans-unit id="statsAex38" resname="stats.analysis_explorer.empty_state.query_error">
+        <source>stats.analysis_explorer.empty_state.query_error</source>
+        <target>Die Analyse konnte nicht geladen werden. Bitte versuchen Sie es erneut oder passen Sie die Filter an.</target>
+      </trans-unit>
+      <trans-unit id="statsAex39" resname="stats.analysis_explorer.empty_state.no_config">
+        <source>stats.analysis_explorer.empty_state.no_config</source>
+        <target>Keine Analyse-Konfiguration verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAex40" resname="stats.analysis_explorer.query_failed">
+        <source>stats.analysis_explorer.query_failed</source>
+        <target>Die Analyse-Abfrage ist fehlgeschlagen. Bitte versuchen Sie es erneut oder passen Sie die Filter an.</target>
+      </trans-unit>
+      <trans-unit id="statsAex41" resname="stats.analysis_explorer.table.title">
+        <source>stats.analysis_explorer.table.title</source>
+        <target>Ergebnisse</target>
+      </trans-unit>
+      <trans-unit id="statsAex42" resname="stats.analysis_explorer.table.results_count">
+        <source>stats.analysis_explorer.table.results_count</source>
+        <target>{count} Verlegungen</target>
+      </trans-unit>
+      <trans-unit id="statsAex43" resname="stats.analysis_explorer.table.footer_total">
+        <source>stats.analysis_explorer.table.footer_total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="statsAex44" resname="stats.analysis_explorer.validation.unsupported_dimension">
+        <source>stats.analysis_explorer.validation.unsupported_dimension</source>
+        <target>Nicht unterstützte Dimension „{dimension}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex45" resname="stats.analysis_explorer.validation.unsupported_metric">
+        <source>stats.analysis_explorer.validation.unsupported_metric</source>
+        <target>Nicht unterstützte Kennzahl „{metric}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex46" resname="stats.analysis_explorer.validation.unsupported_chart">
+        <source>stats.analysis_explorer.validation.unsupported_chart</source>
+        <target>Nicht unterstützter Diagrammtyp „{chart}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex47" resname="stats.analysis_explorer.validation.unsupported_grain">
+        <source>stats.analysis_explorer.validation.unsupported_grain</source>
+        <target>Nicht unterstützte Auflösung „{grain}" für Dimension „{dimension}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex48" resname="stats.analysis_explorer.validation.grain_required">
+        <source>stats.analysis_explorer.validation.grain_required</source>
+        <target>Eine Auflösung ist erforderlich.</target>
+      </trans-unit>
+      <trans-unit id="statsAex49" resname="stats.analysis_explorer.validation.total_grain_for_time">
+        <source>stats.analysis_explorer.validation.total_grain_for_time</source>
+        <target>Die Gesamt-Auflösung ist für die Zeit-Dimension nicht zulässig.</target>
+      </trans-unit>
+      <trans-unit id="statsAex50" resname="stats.analysis_explorer.validation.invalid">
+        <source>stats.analysis_explorer.validation.invalid</source>
+        <target>Ungültige Analyse-Konfiguration.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
