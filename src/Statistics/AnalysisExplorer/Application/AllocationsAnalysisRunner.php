@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
 
 final readonly class AllocationsAnalysisRunner implements Contract\AnalysisRunnerInterface
@@ -27,19 +28,27 @@ final readonly class AllocationsAnalysisRunner implements Contract\AnalysisRunne
     public function run(AnalysisQuery $query): AnalysisRunResult
     {
         $rows = $this->countQuery->execute($query);
-        $total = 0;
+        $totals = [];
 
-        foreach ($rows as $row) {
-            $total += $row->value;
+        foreach ($query->metricKeys as $metricKey) {
+            $total = 0.0;
+            foreach ($rows as $row) {
+                $value = $row->valueFor($metricKey);
+                if (null !== $value) {
+                    $total += (float) $value;
+                }
+            }
+            $totals[$metricKey->value] = AnalysisMetricKey::PercentOfTotal === $metricKey ? round($total, 2) : $total;
         }
 
         return new AnalysisRunResult(
             title: '',
-            metricKey: $query->metricKey,
+            metricKeys: $query->metricKeys,
+            visualMetricKey: $query->visualMetricKey,
             dimensionKey: $query->dimensionKey,
             timeGrain: $query->timeGrain,
             rows: $rows,
-            total: $total,
+            totals: $totals,
         );
     }
 }

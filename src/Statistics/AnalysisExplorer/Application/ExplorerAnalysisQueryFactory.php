@@ -25,7 +25,8 @@ final readonly class ExplorerAnalysisQueryFactory
 
         return new AnalysisQuery(
             dataSourceKey: $config->dataSourceKey,
-            metricKey: $config->metricKey,
+            metricKeys: $config->metricKeys,
+            visualMetricKey: $config->visualMetricKey,
             dimensionKey: $config->dimensionKey,
             timeGrain: $config->timeGrain,
             scopeCriteria: $this->statisticsScopeResolver->resolveCriteria($context),

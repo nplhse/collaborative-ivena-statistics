@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
-use App\Statistics\AnalysisExplorer\Application\Contract\AnalysisRunnerInterface;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
@@ -25,11 +24,12 @@ final readonly class AnalysisRunnerRegistry
 
                 return new AnalysisRunResult(
                     title: $config->title,
-                    metricKey: $result->metricKey,
+                    metricKeys: $result->metricKeys,
+                    visualMetricKey: $result->visualMetricKey,
                     dimensionKey: $result->dimensionKey,
                     timeGrain: $result->timeGrain,
                     rows: $result->rows,
-                    total: $result->total,
+                    totals: $result->totals,
                 );
             }
         }
@@ -38,7 +38,7 @@ final readonly class AnalysisRunnerRegistry
     }
 
     /**
-     * @return list<AnalysisRunnerInterface>
+     * @return list<Contract\AnalysisRunnerInterface>
      */
     private function runners(): array
     {
