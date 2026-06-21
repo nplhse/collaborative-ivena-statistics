@@ -18,6 +18,18 @@ export default class extends Controller {
         void this.render(this._renderGeneration);
     }
 
+    specsValueChanged() {
+        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
+        void this.render(this._renderGeneration);
+    }
+
+    defaultTypeValueChanged() {
+        this.currentType = this.defaultTypeValue || '';
+        this.updateActiveButtons();
+        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
+        void this.render(this._renderGeneration);
+    }
+
     disconnect() {
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         if (this.instance) {

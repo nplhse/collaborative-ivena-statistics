@@ -7199,6 +7199,78 @@
         <source>monthly_reminder.email.manage_notifications</source>
         <target>Manage notification preferences</target>
       </trans-unit>
+      <trans-unit id="statsAex01" resname="stats.analysis_explorer.title">
+        <source>stats.analysis_explorer.title</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex02" resname="stats.analysis_explorer.pretitle">
+        <source>stats.analysis_explorer.pretitle</source>
+        <target>Statistics</target>
+      </trans-unit>
+      <trans-unit id="statsAex03" resname="stats.analysis_explorer.allocations_over_time">
+        <source>stats.analysis_explorer.allocations_over_time</source>
+        <target>Allocations over time</target>
+      </trans-unit>
+      <trans-unit id="statsAex04" resname="stats.analysis_explorer.empty_state">
+        <source>stats.analysis_explorer.empty_state</source>
+        <target>No data available for the selected scope.</target>
+      </trans-unit>
+      <trans-unit id="statsAex05" resname="stats.analysis_explorer.dimension.month">
+        <source>stats.analysis_explorer.dimension.month</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="statsAex06" resname="stats.analysis_explorer.metric.allocation_count">
+        <source>stats.analysis_explorer.metric.allocation_count</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAex07" resname="stats.analysis_explorer.dimension.year">
+        <source>stats.analysis_explorer.dimension.year</source>
+        <target>Year</target>
+      </trans-unit>
+      <trans-unit id="statsAex08" resname="stats.analysis_explorer.chart.bar">
+        <source>stats.analysis_explorer.chart.bar</source>
+        <target>Bar chart</target>
+      </trans-unit>
+      <trans-unit id="statsAex09" resname="stats.analysis_explorer.chart.line">
+        <source>stats.analysis_explorer.chart.line</source>
+        <target>Line chart</target>
+      </trans-unit>
+      <trans-unit id="statsAex10" resname="stats.analysis_explorer.edit.button">
+        <source>stats.analysis_explorer.edit.button</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="statsAex11" resname="stats.analysis_explorer.edit.title">
+        <source>stats.analysis_explorer.edit.title</source>
+        <target>Edit analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAex12" resname="stats.analysis_explorer.edit.apply">
+        <source>stats.analysis_explorer.edit.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="statsAex13" resname="stats.analysis_explorer.edit.dimension_grain">
+        <source>stats.analysis_explorer.edit.dimension_grain</source>
+        <target>Time grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex14" resname="stats.analysis_explorer.edit.chart_type">
+        <source>stats.analysis_explorer.edit.chart_type</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsAex15" resname="stats.analysis_explorer.edit.section.scope">
+        <source>stats.analysis_explorer.edit.section.scope</source>
+        <target>Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAex16" resname="stats.analysis_explorer.edit.section.period">
+        <source>stats.analysis_explorer.edit.section.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="statsAex17" resname="stats.analysis_explorer.edit.section.chart_type">
+        <source>stats.analysis_explorer.edit.section.chart_type</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsAex18" resname="stats.analysis_explorer.edit.section.time_grain">
+        <source>stats.analysis_explorer.edit.section.time_grain</source>
+        <target>Time grain</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
