@@ -17,6 +17,7 @@ final readonly class AnalysisViewConfigNormalizer
         private ExplorerTitleFactory $titleFactory,
         private AnalysisDimensionGrainResolver $grainResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
+        private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private Security $security,
     ) {
     }
@@ -29,13 +30,26 @@ final readonly class AnalysisViewConfigNormalizer
             ? $config->dimensionKey
             : $capabilities->defaultDimension;
 
-        $metricKey = \in_array($config->metricKey, $capabilities->metrics, true)
-            ? $config->metricKey
+        $visualMetricKey = \in_array($config->visualMetricKey, $capabilities->primaryMetrics, true)
+            ? $config->visualMetricKey
             : $capabilities->defaultMetric;
 
         $timeGrain = $this->grainResolver->resolveFromEnum($dimensionKey, $config->timeGrain, $capabilities);
 
-        $previewConfig = $this->previewFactory->fromConfig($capabilities, $dimensionKey, $metricKey, $timeGrain, $config);
+        $previewConfig = $this->previewFactory->fromConfig(
+            $capabilities,
+            $dimensionKey,
+            $visualMetricKey,
+            $timeGrain,
+            $config,
+        );
+
+        $metricKeys = $this->metricCapabilityPolicy->normalizeMetricKeys($previewConfig->metricKeys, $previewConfig);
+        if (!\in_array($visualMetricKey, $metricKeys, true)) {
+            $visualMetricKey = $metricKeys[0];
+        }
+
+        $previewConfig = $previewConfig->withMetrics($metricKeys, $visualMetricKey);
 
         $allowedChartTypes = $capabilities->chartTypesFor($previewConfig);
         $chartType = \in_array($config->presentation->chartType, $allowedChartTypes, true)
@@ -44,7 +58,8 @@ final readonly class AnalysisViewConfigNormalizer
 
         return new AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
-            metricKey: $metricKey,
+            metricKeys: $metricKeys,
+            visualMetricKey: $visualMetricKey,
             dimensionKey: $dimensionKey,
             timeGrain: $timeGrain,
             statisticsFilter: $config->statisticsFilter,
@@ -71,6 +86,12 @@ final readonly class AnalysisViewConfigNormalizer
         }
         if ($original->presentation->chartType !== $normalized->presentation->chartType) {
             $warnings[] = 'chartType';
+        }
+        if ($original->metricKeys !== $normalized->metricKeys) {
+            $warnings[] = 'metrics';
+        }
+        if ($original->visualMetricKey !== $normalized->visualMetricKey) {
+            $warnings[] = 'visualMetric';
         }
 
         return $warnings;

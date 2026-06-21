@@ -25,22 +25,9 @@ final readonly class ExplorerConfigPreviewFactory
         AnalysisDimensionGrain $timeGrain,
         ExplorerEditFormData $formData,
     ): AnalysisViewConfig {
-        return new AnalysisViewConfig(
-            dataSourceKey: $capabilities->dataSourceKey,
-            metricKey: $metric,
-            dimensionKey: $dimension,
-            timeGrain: $timeGrain,
-            statisticsFilter: new StatisticsFilter(
-                scope: StatisticsFilterScope::Public,
-                hospitalId: null,
-                cohortType: null,
-                period: StatisticsFilterPeriod::All,
-            ),
-            presentation: new PresentationConfig(
-                chartType: ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar,
-            ),
-            title: '',
-        );
+        return $this->buildConfig($capabilities, $dimension, $metric, $timeGrain, $formData->showPercentOfTotal, new PresentationConfig(
+            chartType: ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar,
+        ));
     }
 
     public function fromConfig(
@@ -50,14 +37,57 @@ final readonly class ExplorerConfigPreviewFactory
         AnalysisDimensionGrain $timeGrain,
         AnalysisViewConfig $config,
     ): AnalysisViewConfig {
+        return $this->buildConfig(
+            $capabilities,
+            $dimensionKey,
+            $metricKey,
+            $timeGrain,
+            $config->showsPercentOfTotal(),
+            $config->presentation,
+            $config->statisticsFilter,
+            $config->title,
+        );
+    }
+
+    private function buildConfig(
+        DataSourceCapabilities $capabilities,
+        AnalysisDimensionKey $dimensionKey,
+        AnalysisMetricKey $visualMetricKey,
+        AnalysisDimensionGrain $timeGrain,
+        bool $showPercentOfTotal,
+        PresentationConfig $presentation,
+        ?StatisticsFilter $statisticsFilter = null,
+        string $title = '',
+    ): AnalysisViewConfig {
+        $metricKeys = $this->resolveMetricKeys($visualMetricKey, $showPercentOfTotal);
+
         return new AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
-            metricKey: $metricKey,
+            metricKeys: $metricKeys,
+            visualMetricKey: $visualMetricKey,
             dimensionKey: $dimensionKey,
             timeGrain: $timeGrain,
-            statisticsFilter: $config->statisticsFilter,
-            presentation: $config->presentation,
-            title: $config->title,
+            statisticsFilter: $statisticsFilter ?? new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: $presentation,
+            title: $title,
         );
+    }
+
+    /**
+     * @return list<AnalysisMetricKey>
+     */
+    private function resolveMetricKeys(AnalysisMetricKey $visualMetricKey, bool $showPercentOfTotal): array
+    {
+        $metricKeys = [$visualMetricKey];
+        if ($showPercentOfTotal && AnalysisMetricKey::AllocationCount === $visualMetricKey) {
+            $metricKeys[] = AnalysisMetricKey::PercentOfTotal;
+        }
+
+        return $metricKeys;
     }
 }

@@ -94,7 +94,12 @@ final readonly class SavedExplorerViewLoader
             return false;
         }
 
-        return isset($configJson['query']['metric'], $configJson['query']['dimension']);
+        if (!isset($configJson['query']['dimension'])) {
+            return false;
+        }
+
+        return isset($configJson['query']['metric'])
+            || (isset($configJson['query']['metrics'], $configJson['query']['visualMetric']));
     }
 
     /**

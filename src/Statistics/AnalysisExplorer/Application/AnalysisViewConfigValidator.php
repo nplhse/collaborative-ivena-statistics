@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -15,6 +16,7 @@ final readonly class AnalysisViewConfigValidator
 {
     public function __construct(
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private Security $security,
     ) {
     }
@@ -25,6 +27,21 @@ final readonly class AnalysisViewConfigValidator
 
         if (!$capabilities->supports($config)) {
             throw new InvalidExplorerConfigException($this->buildMessageKey($config, $capabilities), $this->buildParameters($config));
+        }
+
+        $allowedMetrics = $this->capabilitiesProvider->metricsForConfig($config);
+        foreach ($config->metricKeys as $metricKey) {
+            if (!\in_array($metricKey, $allowedMetrics, true)) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric', $this->buildParameters($config));
+            }
+        }
+
+        if ($this->hasRateAndDistribution($config->metricKeys)) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.incompatible_metrics', $this->buildParameters($config));
+        }
+
+        if (!$this->metricCapabilityPolicy->isChartable($config->visualMetricKey)) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric', $this->buildParameters($config));
         }
     }
 
@@ -44,8 +61,10 @@ final readonly class AnalysisViewConfigValidator
             return 'stats.analysis_explorer.validation.unsupported_dimension';
         }
 
-        if (!\in_array($config->metricKey, $capabilities->metrics, true)) {
-            return 'stats.analysis_explorer.validation.unsupported_metric';
+        foreach ($config->metricKeys as $metricKey) {
+            if (!\in_array($metricKey, $capabilities->metrics, true)) {
+                return 'stats.analysis_explorer.validation.unsupported_metric';
+            }
         }
 
         $allowedCharts = $capabilities->chartTypesFor($config);
@@ -77,9 +96,28 @@ final readonly class AnalysisViewConfigValidator
     {
         return [
             'dimension' => $config->dimensionKey->value,
-            'metric' => $config->metricKey->value,
+            'metric' => $config->visualMetricKey->value,
             'chart' => $config->presentation->chartType->value,
             'grain' => $config->timeGrain instanceof AnalysisDimensionGrain ? $config->timeGrain->value : '',
         ];
+    }
+
+    /**
+     * @param list<AnalysisMetricKey> $metricKeys
+     */
+    private function hasRateAndDistribution(array $metricKeys): bool
+    {
+        $hasRate = false;
+        $hasDistribution = false;
+        foreach ($metricKeys as $metricKey) {
+            if (AnalysisMetricKey::PercentOfTotal === $metricKey) {
+                $hasDistribution = true;
+            }
+            if ('rate' === $metricKey->metricCategory()->value) {
+                $hasRate = true;
+            }
+        }
+
+        return $hasRate && $hasDistribution;
     }
 }

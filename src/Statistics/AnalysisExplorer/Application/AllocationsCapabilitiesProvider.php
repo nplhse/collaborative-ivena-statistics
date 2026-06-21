@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
@@ -20,6 +21,8 @@ final class AllocationsCapabilitiesProvider
 
     public function __construct(
         private readonly GenericAnalysisDimensionPolicy $dimensionPolicy,
+        private readonly ExplorerMetricCatalog $metricCatalog,
+        private readonly ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
     ) {
     }
 
@@ -48,14 +51,25 @@ final class AllocationsCapabilitiesProvider
     }
 
     /**
+     * @return list<AnalysisMetricKey>
+     */
+    public function metricsForConfig(AnalysisViewConfig $config): array
+    {
+        return $this->metricCapabilityPolicy->metricsForConfig($config);
+    }
+
+    /**
      * @param list<AnalysisDimensionKey> $dimensions
      */
     private function buildCapabilities(array $dimensions): DataSourceCapabilities
     {
+        $enabledMetrics = $this->metricCatalog->enabledKeysForDataSource(AnalysisDataSourceKey::Allocations);
+
         return new DataSourceCapabilities(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             dimensions: $dimensions,
-            metrics: [AnalysisMetricKey::AllocationCount],
+            primaryMetrics: AnalysisMetricKey::primaryMetricChoices(),
+            metrics: $enabledMetrics,
             timeGrains: [
                 AnalysisDimensionGrain::Month,
                 AnalysisDimensionGrain::Year,

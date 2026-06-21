@@ -14,6 +14,7 @@ final readonly class DataSourceCapabilities
 {
     /**
      * @param list<AnalysisDimensionKey>   $dimensions
+     * @param list<AnalysisMetricKey>      $primaryMetrics
      * @param list<AnalysisMetricKey>      $metrics
      * @param list<AnalysisDimensionGrain> $timeGrains
      * @param list<ChartPresentationType>  $chartTypes
@@ -21,6 +22,7 @@ final readonly class DataSourceCapabilities
     public function __construct(
         public AnalysisDataSourceKey $dataSourceKey,
         public array $dimensions,
+        public array $primaryMetrics,
         public array $metrics,
         public array $timeGrains,
         public array $chartTypes,
@@ -78,7 +80,17 @@ final readonly class DataSourceCapabilities
             return false;
         }
 
-        if (!\in_array($config->metricKey, $this->metrics, true)) {
+        foreach ($config->metricKeys as $metricKey) {
+            if (!\in_array($metricKey, $this->metrics, true)) {
+                return false;
+            }
+        }
+
+        if (!\in_array($config->visualMetricKey, $config->metricKeys, true)) {
+            return false;
+        }
+
+        if (!\in_array($config->visualMetricKey, $this->primaryMetrics, true)) {
             return false;
         }
 
