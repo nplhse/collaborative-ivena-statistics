@@ -9,6 +9,7 @@ use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
+use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;
@@ -26,8 +27,11 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
      * @param FormInterface<BenchmarkSelectionSideFormData> $form
      * @param array<string, mixed>                          $options
      */
-    public function configureFields(FormInterface $form, array $options, ?BenchmarkSelectionSideFormData $data = null): void
-    {
+    public function configureFields(
+        FormInterface $form,
+        array $options,
+        BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData|null $data = null,
+    ): void {
         $this->removeDynamicFields($form);
 
         /** @var StatisticsFilterSide $side */
@@ -38,9 +42,21 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         $scopeChoicePolicy = $options['scope_choice_policy'];
         $user = $this->currentUser();
 
-        $scopeGroup = $data instanceof BenchmarkSelectionSideFormData ? $data->scopeGroup : 'public';
-        $period = StatisticsFilterPeriod::tryFrom($data instanceof BenchmarkSelectionSideFormData ? $data->period : '') ?? StatisticsFilterPeriod::AllTime;
-        $periodYear = $data instanceof BenchmarkSelectionSideFormData ? ($data->periodYear ?? (int) new \DateTimeImmutable()->format('Y')) : (int) new \DateTimeImmutable()->format('Y');
+        $scopeGroup = 'public';
+        $period = StatisticsFilterPeriod::AllTime;
+        $periodYear = (int) new \DateTimeImmutable()->format('Y');
+        $scopeDetail = null;
+        $periodQuarter = 1;
+        $periodMonth = 1;
+
+        if (null !== $data) {
+            $scopeGroup = $data->scopeGroup;
+            $period = StatisticsFilterPeriod::tryFrom($data->period) ?? StatisticsFilterPeriod::AllTime;
+            $periodYear = $data->periodYear ?? $periodYear;
+            $scopeDetail = $data->scopeDetail;
+            $periodQuarter = $data->periodQuarter ?? $periodQuarter;
+            $periodMonth = $data->periodMonth ?? $periodMonth;
+        }
 
         if ($this->choiceProvider->scopeDetailRequired($scopeGroup, $user, $side, $scopeChoicePolicy)) {
             $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale, $scopeChoicePolicy);
@@ -51,10 +67,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
                     'choice_value' => static fn (?string $choice): string => $choice ?? '',
                     'placeholder' => false,
                     'required' => false,
-                    'data' => $this->defaultChoiceValue(
-                        $data instanceof BenchmarkSelectionSideFormData ? $data->scopeDetail : null,
-                        $detailChoices,
-                    ),
+                    'data' => $this->defaultChoiceValue($scopeDetail, $detailChoices),
                 ]);
             }
         }
@@ -69,26 +82,20 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         }
 
         if (StatisticsFilterPeriod::Quarter === $period) {
-            $quarter = $data instanceof BenchmarkSelectionSideFormData
-                ? ($data->periodQuarter ?? 1)
-                : 1;
             $form->add('periodQuarter', ChoiceType::class, [
                 'label' => 'stats.filter.period.quarter',
                 'choices' => array_flip($this->choiceProvider->periodQuarterChoices($periodYear, $locale)),
                 'required' => false,
-                'data' => (string) $quarter,
+                'data' => (string) $periodQuarter,
             ]);
         }
 
         if (StatisticsFilterPeriod::Month === $period) {
-            $month = $data instanceof BenchmarkSelectionSideFormData
-                ? ($data->periodMonth ?? 1)
-                : 1;
             $form->add('periodMonth', ChoiceType::class, [
                 'label' => 'stats.filter.period.month',
                 'choices' => array_flip($this->choiceProvider->periodMonthChoices($periodYear, $locale)),
                 'required' => false,
-                'data' => (string) $month,
+                'data' => (string) $periodMonth,
             ]);
         }
     }

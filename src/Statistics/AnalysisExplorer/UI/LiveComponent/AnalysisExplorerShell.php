@@ -19,7 +19,9 @@ use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigExcept
 use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
+use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -57,22 +59,21 @@ final class AnalysisExplorerShell
     #[LiveProp]
     public ?string $configWarning = null;
 
+    #[LiveProp]
+    public string $locale = 'en';
+
     public ?AnalysisRunResult $result = null;
 
     /** @var array<string, array<string, mixed>> */
-    #[LiveProp]
     public array $chartSpecs = [];
 
-    #[LiveProp]
     public string $defaultChartType = 'bar';
 
-    #[LiveProp]
     public bool $hasChart = false;
 
     public ?ExplorerResultsTableViewModel $table = null;
 
-    #[LiveProp]
-    public string $locale = 'en';
+    public ?string $emptyReason = null;
 
     private ?ExplorerEditFormData $editFormData = null;
 
@@ -88,6 +89,7 @@ final class AnalysisExplorerShell
         private readonly ExplorerEditFormNormalizer $editFormNormalizer,
         private readonly TranslatorInterface $translator,
         private readonly Security $security,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -181,9 +183,7 @@ final class AnalysisExplorerShell
 
         $this->submitForm(false);
 
-        /** @var ExplorerEditFormData $formData */
-        $formData = $this->getForm()->getData();
-        $this->editFormData = $this->editFormNormalizer->normalize($formData);
+        $this->editFormData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
         $this->resetForm();
     }
 
@@ -195,26 +195,27 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $this->normalizeSubmittedFormValues();
         $this->submitForm(false);
 
-        $formData = $this->editFormNormalizer->normalize($this->getForm()->getData());
+        $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
         $this->editFormData = $formData;
         $this->resetForm();
         $this->submitForm(true);
 
-        $formData = $this->editFormNormalizer->normalize($this->getForm()->getData());
+        $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
         $newConfig = $this->configMapper->toViewConfig($formData, $currentConfig, $this->resolveUser());
+        $normalizedConfig = $this->configNormalizer->normalize($newConfig);
+        $this->setNormalizationWarning($newConfig, $normalizedConfig);
 
         try {
-            $this->configValidator->validate($newConfig);
+            $this->configValidator->validate($normalizedConfig);
         } catch (InvalidExplorerConfigException $exception) {
-            $this->configWarning = $exception->getMessage();
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters);
 
             return;
         }
 
-        $this->appliedConfigState = $this->configMapper->toStateArray($newConfig);
+        $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
         $this->editFormData = null;
         $this->isEditOpen = false;
         $this->configWarning = null;
@@ -222,53 +223,45 @@ final class AnalysisExplorerShell
         $this->rerunAnalysis();
     }
 
-    private function normalizeSubmittedFormValues(): void
-    {
-        $formName = $this->getFormName();
-        if (!isset($this->formValues[$formName]) || !\is_array($this->formValues[$formName])) {
-            return;
-        }
-
-        if (!isset($this->formValues[$formName]['scopePeriod']) || !\is_array($this->formValues[$formName]['scopePeriod'])) {
-            return;
-        }
-
-        $scopeDetail = $this->formValues[$formName]['scopePeriod']['scopeDetail'] ?? null;
-        if (\is_int($scopeDetail) || \is_float($scopeDetail)) {
-            $this->formValues[$formName]['scopePeriod']['scopeDetail'] = (string) $scopeDetail;
-        }
-    }
-
     private function rerunAnalysis(): void
     {
+        $this->emptyReason = null;
+        $this->configWarning = null;
+
         $currentConfig = $this->appliedConfig();
         if (!$currentConfig instanceof AnalysisViewConfig) {
+            $this->emptyReason = 'no_config';
+            $this->clearPresentation();
+
             return;
         }
 
         $originalConfig = $currentConfig;
         $normalizedConfig = $this->configNormalizer->normalize($currentConfig);
-        $warnings = $this->configNormalizer->diffWarnings($originalConfig, $normalizedConfig);
-
-        if ([] !== $warnings) {
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.config_normalized');
+        $this->setNormalizationWarning($originalConfig, $normalizedConfig);
+        if ([] !== $this->configNormalizer->diffWarnings($originalConfig, $normalizedConfig)) {
             $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
-            $currentConfig = $normalizedConfig;
         }
+        $currentConfig = $normalizedConfig;
 
         try {
             $query = $this->queryFactory->create($currentConfig, $this->resolveUser());
             $this->result = $this->runnerRegistry->run($currentConfig, $query);
         } catch (UnsupportedAnalysisException) {
             $this->configWarning ??= $this->translator->trans('stats.analysis_explorer.unsupported_config');
-            $this->result = new AnalysisRunResult(
-                title: $currentConfig->title,
-                metricKey: $currentConfig->metricKey,
-                dimensionKey: $currentConfig->dimensionKey,
-                timeGrain: $currentConfig->timeGrain,
-                rows: [],
-                total: 0,
-            );
+            $this->emptyReason = 'unsupported';
+            $this->result = $this->emptyResult($currentConfig);
+        } catch (\Throwable $exception) {
+            $this->logger->error('Analysis Explorer query failed.', [
+                'exception' => $exception,
+            ]);
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.query_failed');
+            $this->emptyReason = 'query_error';
+            $this->result = $this->emptyResult($currentConfig);
+        }
+
+        if ([] === $this->result->rows && null === $this->emptyReason) {
+            $this->emptyReason = 'no_data';
         }
 
         $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $currentConfig->presentation);
@@ -276,5 +269,91 @@ final class AnalysisExplorerShell
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
         $this->table = $this->tablePresenter->create($currentConfig, $this->result);
         ++$this->analysisRevision;
+    }
+
+    private function setNormalizationWarning(AnalysisViewConfig $original, AnalysisViewConfig $normalized): void
+    {
+        if ([] === $this->configNormalizer->diffWarnings($original, $normalized)) {
+            return;
+        }
+
+        $this->configWarning = $this->translator->trans('stats.analysis_explorer.config_normalized');
+    }
+
+    private function syncFormDataFromForm(): ExplorerEditFormData
+    {
+        /** @var ExplorerEditFormData $formData */
+        $formData = $this->getForm()->getData();
+        $formName = $this->getFormName();
+        $submitted = isset($this->formValues[$formName]) && \is_array($this->formValues[$formName])
+            ? $this->formValues[$formName]
+            : [];
+
+        $scopePeriod = $this->resolveScopePeriodFormData($formData->scopePeriod, $submitted);
+
+        return new ExplorerEditFormData(
+            scopePeriod: $scopePeriod,
+            dimension: \is_string($submitted['dimension'] ?? null) ? $submitted['dimension'] : $formData->dimension,
+            metric: \is_string($submitted['metric'] ?? null) ? $submitted['metric'] : $formData->metric,
+            timeGrain: \array_key_exists('timeGrain', $submitted)
+                ? (\is_string($submitted['timeGrain']) ? $submitted['timeGrain'] : null)
+                : $formData->timeGrain,
+            chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $formData->chartType,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $submitted
+     */
+    private function resolveScopePeriodFormData(
+        StatisticsScopePeriodFormData $fallback,
+        array $submitted,
+    ): StatisticsScopePeriodFormData {
+        if (isset($submitted['scopePeriod']) && \is_array($submitted['scopePeriod'])) {
+            $scopeSubmitted = $submitted['scopePeriod'];
+
+            return new StatisticsScopePeriodFormData(
+                (string) ($scopeSubmitted['scopeGroup'] ?? $fallback->scopeGroup),
+                isset($scopeSubmitted['scopeDetail']) ? (string) $scopeSubmitted['scopeDetail'] : $fallback->scopeDetail,
+                (string) ($scopeSubmitted['period'] ?? $fallback->period),
+                isset($scopeSubmitted['periodYear']) && '' !== $scopeSubmitted['periodYear']
+                    ? (int) $scopeSubmitted['periodYear']
+                    : $fallback->periodYear,
+                isset($scopeSubmitted['periodQuarter']) && '' !== $scopeSubmitted['periodQuarter']
+                    ? (int) $scopeSubmitted['periodQuarter']
+                    : $fallback->periodQuarter,
+                isset($scopeSubmitted['periodMonth']) && '' !== $scopeSubmitted['periodMonth']
+                    ? (int) $scopeSubmitted['periodMonth']
+                    : $fallback->periodMonth,
+            );
+        }
+
+        $scopePeriod = $this->getForm()->get('scopePeriod')->getData();
+        if ($scopePeriod instanceof StatisticsScopePeriodFormData) {
+            return $scopePeriod;
+        }
+
+        return $fallback;
+    }
+
+    private function emptyResult(AnalysisViewConfig $config): AnalysisRunResult
+    {
+        return new AnalysisRunResult(
+            title: $config->title,
+            metricKey: $config->metricKey,
+            dimensionKey: $config->dimensionKey,
+            timeGrain: $config->timeGrain,
+            rows: [],
+            total: 0,
+        );
+    }
+
+    private function clearPresentation(): void
+    {
+        $this->result = null;
+        $this->chartSpecs = [];
+        $this->defaultChartType = 'bar';
+        $this->hasChart = false;
+        $this->table = null;
     }
 }
