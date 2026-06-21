@@ -9,13 +9,18 @@ final readonly class AnalysisExplorerLibraryPageViewModel
     /**
      * @param list<array{
      *     key: string,
-     *     title: string,
      *     label: string,
-     *     cards: list<array<string, mixed>>
-     * }> $categories
+     *     cards?: list<array<string, mixed>>,
+     *     categories?: list<array{
+     *         key: string,
+     *         title: string,
+     *         label: string,
+     *         cards: list<array<string, mixed>>
+     *     }>
+     * }> $sections
      */
     public function __construct(
-        public array $categories,
+        public array $sections,
     ) {
     }
 }

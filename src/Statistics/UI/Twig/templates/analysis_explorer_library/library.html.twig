@@ -40,24 +40,46 @@
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
     <div data-testid="stats-analysis-explorer-library">
-        {% for category in explorerLibraryPage.categories %}
-            <section class="mb-5" data-testid="stats-analysis-explorer-library-category-{{ category.key }}">
-                <h3 class="mb-3">{{ category.label }}</h3>
-                <div class="row g-4">
-                    {% for card in category.cards %}
-                        <div class="col-md-6 col-lg-4">
-                            {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {
-                                card: card,
-                                categoryLabel: category.label,
-                            }) }}
+        {% for section in explorerLibraryPage.sections %}
+            <section class="mb-5" data-testid="stats-analysis-explorer-library-section-{{ section.key }}">
+                <h3 class="mb-3">{{ section.label }}</h3>
+
+                {% if section.cards is defined %}
+                    {% if section.cards is not empty %}
+                        <div class="row g-4">
+                            {% for card in section.cards %}
+                                <div class="col-md-6 col-lg-4">
+                                    {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {card: card}) }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" data-testid="stats-analysis-explorer-library-empty-{{ section.key }}">
+                            {{ ('stats.analysis_explorer.library.empty.' ~ section.key)|trans }}
+                        </div>
+                    {% endif %}
+                {% elseif section.categories is defined %}
+                    {% for category in section.categories %}
+                        <div class="mb-4" data-testid="stats-analysis-explorer-library-category-{{ category.key }}">
+                            <h4 class="h5 mb-3">{{ category.label }}</h4>
+                            <div class="row g-4">
+                                {% for card in category.cards %}
+                                    <div class="col-md-6 col-lg-4">
+                                        {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {
+                                            card: card,
+                                            categoryLabel: category.label,
+                                        }) }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" data-testid="stats-analysis-explorer-library-empty-{{ section.key }}">
+                            {{ ('stats.analysis_explorer.library.empty.' ~ section.key)|trans }}
                         </div>
                     {% endfor %}
-                </div>
+                {% endif %}
             </section>
-        {% else %}
-            <div class="alert alert-info" data-testid="stats-analysis-explorer-library-empty">
-                {{ 'stats.analysis_explorer.library.empty'|trans }}
-            </div>
         {% endfor %}
     </div>
 {% endblock %}

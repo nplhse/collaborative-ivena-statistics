@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -15,21 +17,48 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
 {
     public function __construct(
         private SavedExplorerViewRepository $repository,
+        private SavedExplorerViewFavoriteService $favoriteService,
         private UrlGeneratorInterface $router,
         private TranslatorInterface $translator,
     ) {
     }
 
-    public function create(Request $request): AnalysisExplorerLibraryPageViewModel
+    public function create(Request $request, ?User $user): AnalysisExplorerLibraryPageViewModel
     {
-        $grouped = [];
-        foreach ($this->repository->findAllSystemViewsOrdered() as $view) {
-            $grouped[$view->getCategory()][] = $this->buildCard($request, $view);
+        $sections = [];
+
+        if ($user instanceof User) {
+            $favoriteCards = [];
+            foreach ($this->favoriteService->listViewsForUser($user) as $view) {
+                $favoriteCards[] = $this->buildCard($request, $view, $user);
+            }
+
+            $sections[] = [
+                'key' => 'favorites',
+                'label' => $this->translator->trans('stats.analysis_explorer.library.section.favorites'),
+                'cards' => $favoriteCards,
+            ];
+
+            $myViewCards = [];
+            foreach ($this->repository->findByCreatorOrdered($user) as $view) {
+                $myViewCards[] = $this->buildCard($request, $view, $user);
+            }
+
+            $sections[] = [
+                'key' => 'my_views',
+                'label' => $this->translator->trans('stats.analysis_explorer.library.section.my_views'),
+                'cards' => $myViewCards,
+            ];
         }
 
-        $categories = [];
+        $grouped = [];
+        foreach ($this->repository->findAllSystemViewsOrdered() as $view) {
+            $grouped[$view->getCategory()][] = $this->buildCard($request, $view, $user);
+        }
+
+        $systemCategories = [];
         foreach ($grouped as $category => $cards) {
-            $categories[] = [
+            $systemCategories[] = [
                 'key' => $this->categoryKey($category),
                 'title' => $category,
                 'label' => $this->translator->trans('stats.analysis_explorer.library.category.'.$this->categoryKey($category)),
@@ -37,29 +66,49 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             ];
         }
 
-        return new AnalysisExplorerLibraryPageViewModel($categories);
+        $sections[] = [
+            'key' => 'system',
+            'label' => $this->translator->trans('stats.analysis_explorer.library.section.system'),
+            'categories' => $systemCategories,
+        ];
+
+        return new AnalysisExplorerLibraryPageViewModel($sections);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function buildCard(Request $request, SavedExplorerView $view): array
+    private function buildCard(Request $request, SavedExplorerView $view, ?User $user): array
     {
         $config = $view->getConfigJson();
         $query = $config['query'] ?? [];
         $presentation = $config['presentation'] ?? [];
+        $viewId = $view->getId();
+        $canFavorite = $user instanceof User && null !== $viewId;
 
         return [
-            'slug' => $view->getSlug(),
+            'id' => $viewId,
             'title' => $view->getTitle(),
             'description' => $view->getDescription() ?? '',
             'dimension' => $this->dimensionLabel((string) ($query['dimension'] ?? '')),
             'grain' => $this->grainLabel((string) ($query['grain'] ?? '')),
             'chartType' => $this->chartTypeLabel((string) ($presentation['chartType'] ?? '')),
-            'openUrl' => $this->router->generate('app_stats_analysis_explorer_view', array_merge(
-                ['view' => $view->getSlug()],
-                $this->scopeQuery($request),
-            )),
+            'isSystem' => $view->isSystem(),
+            'viewTypeLabel' => $view->isSystem()
+                ? $this->translator->trans('stats.analysis_explorer.view_type.system')
+                : $this->translator->trans('stats.analysis_explorer.view_type.user'),
+            'openUrl' => null !== $viewId
+                ? $this->router->generate('app_stats_analysis_explorer_view', array_merge(
+                    ['view' => (string) $viewId],
+                    $this->scopeQuery($request),
+                ))
+                : '#',
+            'canFavorite' => $canFavorite,
+            'isFavorite' => $canFavorite && $this->favoriteService->isFavorite($user, $view),
+            'favoriteUrl' => $canFavorite
+                ? $this->router->generate('app_stats_analysis_explorer_favorite_toggle', ['id' => $viewId])
+                : null,
+            'favoriteToken' => $canFavorite ? 'explorer_favorite_'.$viewId : null,
         ];
     }
 
@@ -90,6 +139,10 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
 
     private function categoryKey(string $category): string
     {
+        if ('My views' === $category) {
+            return 'my_views';
+        }
+
         return mb_strtolower(preg_replace('/[^a-z0-9]+/i', '_', $category) ?? $category);
     }
 

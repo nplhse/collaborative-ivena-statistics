@@ -65,7 +65,7 @@ final class AnalysisExplorerLibraryController extends AbstractController
         return $this->render('@Statistics/analysis_explorer_library/library.html.twig', [
             'dataQualityReport' => $dataQualityReport,
             'statisticsFilter' => $pageViewModel->filter,
-            'explorerLibraryPage' => $this->pageViewModelFactory->create($request),
+            'explorerLibraryPage' => $this->pageViewModelFactory->create($request, $user),
             'isLoggedIn' => $pageViewModel->isLoggedIn,
         ]);
     }
