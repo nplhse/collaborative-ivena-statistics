@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Statistics\GenericAnalysis\Registry;
 
 use App\Statistics\Application\Cohort\HospitalCohortKey;
+use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsShiftBucketProjectionCode;
+use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
@@ -156,10 +159,15 @@ SQL;
         $this->register($categorical('occasion', 'occasion_id', 'Occasion'));
         $this->register($categorical('assignment', 'assignment_id', 'Assignment type'));
         $this->register($categorical('indication', 'indication_normalized_id', 'Indication'));
+        $this->register($categorical('secondary_indication', 'secondary_indication_normalized_id', 'Secondary indication'));
         $this->register($categorical('infection', 'infection_id', 'Infection'));
         $this->register($categorical('hospital', 'hospital_id', 'Hospital'));
         $this->register($categorical('dispatchArea', 'dispatch_area_id', 'Dispatch area'));
         $this->register($categorical('state', 'state_id', 'State'));
+
+        $this->register($this->transportTypeDimension());
+        $this->register($this->dayTimeBucketDimension());
+        $this->register($this->shiftBucketDimension());
 
         $boolean = static fn (string $key, string $column, string $label): AnalysisDimension => new AnalysisDimension(
             key: $key,
@@ -180,6 +188,70 @@ SQL;
         $this->register($boolean('shock', 'is_shock', 'Shock'));
         $this->register($boolean('workAccident', 'is_work_accident', 'Work accident'));
         $this->register($boolean('pregnancy', 'is_pregnant', 'Pregnancy'));
+        $this->register($boolean('with_physician', 'is_with_physician', 'Physician accompaniment'));
+    }
+
+    private function transportTypeDimension(): AnalysisDimension
+    {
+        $translationKeys = [];
+        $fixedBuckets = [];
+        foreach (AllocationStatsTransportTypeProjectionCode::displayOrder() as $case) {
+            $fixedBuckets[] = $case->value;
+            $translationKeys[$case->value] = match ($case) {
+                AllocationStatsTransportTypeProjectionCode::Ground => 'stats.indication.transport.ground',
+                AllocationStatsTransportTypeProjectionCode::Air => 'stats.indication.transport.air',
+            };
+        }
+
+        return new AnalysisDimension(
+            key: 'transport_type',
+            column: 'transport_type_code',
+            label: 'Transport type',
+            type: AnalysisDimensionType::Categorical,
+            recommendedChartType: 'bar',
+            fixedBuckets: $fixedBuckets,
+            valueLabelTranslationKeys: $translationKeys,
+        );
+    }
+
+    private function dayTimeBucketDimension(): AnalysisDimension
+    {
+        $translationKeys = [];
+        $fixedBuckets = [];
+        foreach (AllocationStatsDayTimeBucketProjectionCode::displayOrder() as $case) {
+            $fixedBuckets[] = $case->value;
+            $translationKeys[$case->value] = $case->labelTranslationKey();
+        }
+
+        return new AnalysisDimension(
+            key: 'day_time_bucket',
+            column: 'day_time_bucket_code',
+            label: 'Day-time bucket',
+            type: AnalysisDimensionType::Categorical,
+            recommendedChartType: 'bar',
+            fixedBuckets: $fixedBuckets,
+            valueLabelTranslationKeys: $translationKeys,
+        );
+    }
+
+    private function shiftBucketDimension(): AnalysisDimension
+    {
+        $translationKeys = [];
+        $fixedBuckets = [];
+        foreach (AllocationStatsShiftBucketProjectionCode::displayOrder() as $case) {
+            $fixedBuckets[] = $case->value;
+            $translationKeys[$case->value] = $case->labelTranslationKey();
+        }
+
+        return new AnalysisDimension(
+            key: 'shift_bucket',
+            column: 'shift_bucket_code',
+            label: 'Shift bucket',
+            type: AnalysisDimensionType::Categorical,
+            recommendedChartType: 'bar',
+            fixedBuckets: $fixedBuckets,
+            valueLabelTranslationKeys: $translationKeys,
+        );
     }
 
     /**

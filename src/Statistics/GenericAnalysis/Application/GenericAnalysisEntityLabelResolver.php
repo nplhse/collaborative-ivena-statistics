@@ -27,6 +27,7 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
         'occasion',
         'assignment',
         'indication',
+        'secondary_indication',
         'infection',
     ];
 
@@ -78,6 +79,7 @@ final readonly class GenericAnalysisEntityLabelResolver implements GenericAnalys
             'occasion' => $this->loadIdNameMap($this->occasionRepository, 'oc', $uniqueIds),
             'assignment' => $this->loadIdNameMap($this->assignmentRepository, 'a', $uniqueIds),
             'indication' => $this->loadIdNameMap($this->indicationNormalizedRepository, 'i', $uniqueIds),
+            'secondary_indication' => $this->loadIdNameMap($this->indicationNormalizedRepository, 'i', $uniqueIds),
             'infection' => $this->loadIdNameMap($this->infectionRepository, 'i', $uniqueIds),
             default => [],
         };
