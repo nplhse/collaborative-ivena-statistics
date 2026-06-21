@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Domain;
 
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -76,7 +77,11 @@ final readonly class DataSourceCapabilities
 
     public function supports(AnalysisViewConfig $config): bool
     {
-        if (!\in_array($config->dimensionKey, $this->dimensions, true)) {
+        if (!$this->supportsAxis($config->rowAxis)) {
+            return false;
+        }
+
+        if ($config->columnAxis instanceof AnalysisAxisRef && !$this->supportsColumnAxis($config->rowAxis, $config->columnAxis)) {
             return false;
         }
 
@@ -94,29 +99,59 @@ final readonly class DataSourceCapabilities
             return false;
         }
 
-        if (!\in_array($config->presentation->chartType, $this->chartTypesFor($config), true)) {
-            return false;
-        }
-
-        $grain = $config->timeGrain;
-        if (!$grain instanceof AnalysisDimensionGrain) {
-            return false;
-        }
-
-        if (!\in_array($grain, $this->timeGrainsFor($config->dimensionKey), true)) {
-            return false;
-        }
-
-        return !(AnalysisDimensionKey::Time === $config->dimensionKey && AnalysisDimensionGrain::Total === $grain);
+        return \in_array($config->presentation->chartType, $this->chartTypesFor($config), true);
     }
 
     public function usesMultiSeriesChart(AnalysisViewConfig $config): bool
     {
-        if ($config->dimensionKey->isTemporalPrimary()) {
+        return $config->hasColumnAxis();
+    }
+
+    public function supportsAxis(AnalysisAxisRef $axis): bool
+    {
+        if (!\in_array($axis->dimensionKey, $this->dimensions, true)) {
             return false;
         }
 
-        return $config->timeGrain instanceof AnalysisDimensionGrain
-            && $config->timeGrain->isTemporal();
+        $grain = $axis->resolvedGrain();
+
+        if (!\in_array($grain, $this->timeGrainsFor($axis->dimensionKey), true)) {
+            return false;
+        }
+
+        return !(AnalysisDimensionKey::Time === $axis->dimensionKey && AnalysisDimensionGrain::Total === $grain);
+    }
+
+    public function supportsColumnAxis(AnalysisAxisRef $rowAxis, AnalysisAxisRef $columnAxis): bool
+    {
+        if ($rowAxis->dimensionKey === $columnAxis->dimensionKey) {
+            return false;
+        }
+
+        return $this->supportsAxis($columnAxis);
+    }
+
+    /**
+     * @return list<AnalysisDimensionKey>
+     */
+    public function columnDimensionsFor(AnalysisAxisRef $rowAxis): array
+    {
+        $options = [];
+        foreach ($this->dimensions as $dimension) {
+            if ($dimension === $rowAxis->dimensionKey) {
+                continue;
+            }
+
+            $candidate = new AnalysisAxisRef(
+                $dimension,
+                $dimension->isTemporalPrimary() ? $this->defaultTimeGrain : AnalysisDimensionGrain::Total,
+            );
+
+            if ($this->supportsColumnAxis($rowAxis, $candidate)) {
+                $options[] = $dimension;
+            }
+        }
+
+        return $options;
     }
 }

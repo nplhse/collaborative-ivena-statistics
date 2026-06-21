@@ -4,36 +4,39 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Domain\DTO;
 
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 
 final readonly class AnalysisRunResult
 {
     /**
-     * @param list<AnalysisMetricKey>       $metricKeys
-     * @param list<AnalysisResultRow>       $rows
-     * @param array<string, int|float|null> $totals     keyed by explorer metric value
+     * @param list<AnalysisMetricKey> $metricKeys
+     * @param list<AnalysisResultRow> $rows
      */
     public function __construct(
         public string $title,
         public array $metricKeys,
         public AnalysisMetricKey $visualMetricKey,
-        public AnalysisDimensionKey $dimensionKey,
-        public ?AnalysisDimensionGrain $timeGrain,
+        public AnalysisAxisRef $rowAxis,
+        public ?AnalysisAxisRef $columnAxis,
         public array $rows,
-        public array $totals,
+        public AnalysisTotals $totals,
     ) {
     }
 
     public function hasSeries(): bool
     {
-        return array_any($this->rows, fn ($row) => $row->hasSeries());
+        return $this->hasColumnAxis();
+    }
+
+    public function hasColumnAxis(): bool
+    {
+        return $this->columnAxis instanceof AnalysisAxisRef
+            || array_any($this->rows, fn (AnalysisResultRow $row): bool => $row->hasSeries());
     }
 
     public function totalFor(AnalysisMetricKey $metricKey): int|float|null
     {
-        return $this->totals[$metricKey->value] ?? null;
+        return $this->totals->grandFor($metricKey);
     }
 
     public function primaryTotal(): float

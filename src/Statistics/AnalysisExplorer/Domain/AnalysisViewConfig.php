@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Domain;
 
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\Application\DTO\StatisticsFilter;
 
@@ -19,8 +18,8 @@ final readonly class AnalysisViewConfig
         public AnalysisDataSourceKey $dataSourceKey,
         public array $metricKeys,
         public AnalysisMetricKey $visualMetricKey,
-        public AnalysisDimensionKey $dimensionKey,
-        public ?AnalysisDimensionGrain $timeGrain,
+        public AnalysisAxisRef $rowAxis,
+        public ?AnalysisAxisRef $columnAxis,
         public StatisticsFilter $statisticsFilter,
         public PresentationConfig $presentation,
         public string $title,
@@ -37,28 +36,33 @@ final readonly class AnalysisViewConfig
         return \in_array(AnalysisMetricKey::PercentOfTotal, $this->metricKeys, true);
     }
 
+    public function hasColumnAxis(): bool
+    {
+        return $this->columnAxis instanceof AnalysisAxisRef;
+    }
+
     public function withStatisticsFilter(StatisticsFilter $statisticsFilter): self
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
             metricKeys: $this->metricKeys,
             visualMetricKey: $this->visualMetricKey,
-            dimensionKey: $this->dimensionKey,
-            timeGrain: $this->timeGrain,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
             statisticsFilter: $statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
         );
     }
 
-    public function withDimension(AnalysisDimensionKey $dimensionKey, ?AnalysisDimensionGrain $timeGrain): self
+    public function withAxes(AnalysisAxisRef $rowAxis, ?AnalysisAxisRef $columnAxis): self
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
             metricKeys: $this->metricKeys,
             visualMetricKey: $this->visualMetricKey,
-            dimensionKey: $dimensionKey,
-            timeGrain: $timeGrain,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
@@ -74,8 +78,8 @@ final readonly class AnalysisViewConfig
             dataSourceKey: $this->dataSourceKey,
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
-            dimensionKey: $this->dimensionKey,
-            timeGrain: $this->timeGrain,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
@@ -93,8 +97,8 @@ final readonly class AnalysisViewConfig
             dataSourceKey: $this->dataSourceKey,
             metricKeys: $this->metricKeys,
             visualMetricKey: $this->visualMetricKey,
-            dimensionKey: $this->dimensionKey,
-            timeGrain: $this->timeGrain,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
             statisticsFilter: $this->statisticsFilter,
             presentation: $presentation,
             title: $this->title,
@@ -107,8 +111,8 @@ final readonly class AnalysisViewConfig
             dataSourceKey: $this->dataSourceKey,
             metricKeys: $this->metricKeys,
             visualMetricKey: $this->visualMetricKey,
-            dimensionKey: $this->dimensionKey,
-            timeGrain: $this->timeGrain,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $title,

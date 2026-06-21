@@ -7,4 +7,5 @@ namespace App\Statistics\AnalysisExplorer\Domain\Enum;
 enum PresentationMode: string
 {
     case Chart = 'chart';
+    case Table = 'table';
 }
