@@ -4,11 +4,11 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
         <div>
             <h3 class="card-title mb-0">{{ 'stats.analysis_explorer.table.title'|trans }}</h3>
-            {% if table %}
+            {% if table and table.formattedTotals is not empty %}
                 <div class="text-secondary small mt-1" data-testid="stats-analysis-explorer-results-count">
-                    {{ 'stats.analysis_explorer.table.results_count'|trans({
-                        count: table.total|number_format(0, ',', '.'),
-                    }) }}
+                    {% for column in table.metricColumns %}
+                        {{ column.label }}: {{ table.formattedTotals[column.key] ?? '—' }}{% if not loop.last %} · {% endif %}
+                    {% endfor %}
                 </div>
             {% endif %}
         </div>
@@ -25,8 +25,10 @@
                                 <th class="text-end">{{ seriesLabel }}</th>
                             {% endfor %}
                             <th class="text-end">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
-                        {% else %}
-                            <th class="text-end">{{ table ? table.metricLabel : '' }}</th>
+                        {% elseif table %}
+                            {% for column in table.metricColumns %}
+                                <th class="text-end">{{ column.label }}</th>
+                            {% endfor %}
                         {% endif %}
                     </tr>
                 </thead>
@@ -37,11 +39,13 @@
                                 <td>{{ row.bucketLabel }}</td>
                                 {% if table.hasSeries %}
                                     {% for seriesLabel in table.seriesLabels %}
-                                        <td class="text-end">{{ (row.seriesValues[seriesLabel] ?? 0)|number_format(0, ',', '.') }}</td>
+                                        <td class="text-end">{{ row.seriesValues[seriesLabel]|default(0)|number_format(1, ',', '.') }}</td>
                                     {% endfor %}
-                                    <td class="text-end fw-semibold">{{ row.rowTotal|number_format(0, ',', '.') }}</td>
+                                    <td class="text-end fw-semibold">{{ row.formattedRowTotal }}</td>
                                 {% else %}
-                                    <td class="text-end">{{ row.value|number_format(0, ',', '.') }}</td>
+                                    {% for column in table.metricColumns %}
+                                        <td class="text-end">{{ row.formattedMetricValues[column.key] ?? '—' }}</td>
+                                    {% endfor %}
                                 {% endif %}
                             </tr>
                         {% else %}
@@ -73,14 +77,17 @@
                             <td>{{ 'stats.analysis_explorer.table.footer_total'|trans }}</td>
                             {% if table.hasSeries %}
                                 {% for seriesLabel in table.seriesLabels %}
-                                    <td class="text-end">{{ (table.seriesTotals[seriesLabel] ?? 0)|number_format(0, ',', '.') }}</td>
+                                    <td class="text-end">{{ table.formattedSeriesTotals[seriesLabel] ?? '—' }}</td>
                                 {% endfor %}
-                                <td class="text-end">{{ table.total|number_format(0, ',', '.') }}</td>
+                                <td class="text-end">{{ table.formattedGrandTotal }}</td>
                             {% else %}
-                                <td class="text-end">{{ table.total|number_format(0, ',', '.') }}</td>
+                                {% for column in table.metricColumns %}
+                                    <td class="text-end">{{ table.formattedTotals[column.key] ?? '—' }}</td>
+                                {% endfor %}
                             {% endif %}
                         </tr>
-                    {% endif %}
+                    </tfoot>
+                {% endif %}
             </table>
         </div>
     </div>

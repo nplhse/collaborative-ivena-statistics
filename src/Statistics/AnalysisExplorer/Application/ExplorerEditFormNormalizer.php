@@ -15,6 +15,7 @@ final readonly class ExplorerEditFormNormalizer
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
         private AnalysisDimensionGrainResolver $grainResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
+        private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
     ) {
     }
 
@@ -28,13 +29,16 @@ final readonly class ExplorerEditFormNormalizer
         }
 
         $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? $capabilities->defaultMetric;
-        if (!\in_array($metric, $capabilities->metrics, true)) {
+        if (!\in_array($metric, $capabilities->primaryMetrics, true)) {
             $metric = $capabilities->defaultMetric;
         }
 
         $timeGrain = $this->grainResolver->resolveFromString($dimension, $formData->timeGrain, $capabilities);
 
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $dimension, $metric, $timeGrain, $formData);
+        $showPercentOfTotal = $formData->showPercentOfTotal
+            && $this->metricCapabilityPolicy->canShowPercentOfTotal($previewConfig);
+
         $allowedCharts = $capabilities->chartTypesFor($previewConfig);
         $chartType = ChartPresentationType::tryFrom($formData->chartType) ?? $capabilities->defaultChartTypeFor($previewConfig);
         if (!\in_array($chartType, $allowedCharts, true)) {
@@ -45,6 +49,7 @@ final readonly class ExplorerEditFormNormalizer
             scopePeriod: $formData->scopePeriod,
             dimension: $dimension->value,
             metric: $metric->value,
+            showPercentOfTotal: $showPercentOfTotal,
             timeGrain: $timeGrain->value,
             chartType: $chartType->value,
         );

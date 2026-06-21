@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\UI\Form;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerStatisticsFilterInputFactory;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -19,6 +20,7 @@ use App\Statistics\UI\Form\StatisticsScopePeriodType;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -35,6 +37,7 @@ final class ExplorerEditFormType extends AbstractType
         private readonly TranslatorInterface $translator,
         private readonly AllocationsCapabilitiesProvider $capabilitiesProvider,
         private readonly ExplorerConfigPreviewFactory $previewFactory,
+        private readonly ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private readonly ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
         private readonly Security $security,
@@ -59,7 +62,11 @@ final class ExplorerEditFormType extends AbstractType
             ])
             ->add('metric', ChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.metric',
-                'choices' => $this->metricChoices($this->capabilitiesProvider->capabilities()->metrics),
+                'choices' => [],
+            ])
+            ->add('showPercentOfTotal', CheckboxType::class, [
+                'label' => 'stats.analysis_explorer.edit.show_percent_of_total',
+                'required' => false,
             ])
             ->add('timeGrain', ChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.time_grain',
@@ -99,6 +106,7 @@ final class ExplorerEditFormType extends AbstractType
                 scopePeriod: $current->scopePeriod,
                 dimension: \is_string($submitted['dimension'] ?? null) ? $submitted['dimension'] : $current->dimension,
                 metric: \is_string($submitted['metric'] ?? null) ? $submitted['metric'] : $current->metric,
+                showPercentOfTotal: (bool) ($submitted['showPercentOfTotal'] ?? $current->showPercentOfTotal),
                 timeGrain: \array_key_exists('timeGrain', $submitted)
                     ? (\is_string($submitted['timeGrain']) ? $submitted['timeGrain'] : null)
                     : $current->timeGrain,
@@ -150,13 +158,8 @@ final class ExplorerEditFormType extends AbstractType
         );
         $dimension = AnalysisDimensionKey::tryFrom($formData->dimension) ?? AnalysisDimensionKey::Time;
         $grain = AnalysisDimensionGrain::tryFrom($formData->timeGrain ?? '') ?? AnalysisDimensionGrain::Month;
-        $previewConfig = $this->previewFactory->fromFormData(
-            $capabilities,
-            $dimension,
-            AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount,
-            $grain,
-            $formData,
-        );
+        $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
+        $previewConfig = $this->previewFactory->fromFormData($capabilities, $dimension, $metric, $grain, $formData);
 
         $grainLabel = $dimension->isTemporalPrimary()
             ? 'stats.analysis_explorer.edit.time_grain'
@@ -165,6 +168,17 @@ final class ExplorerEditFormType extends AbstractType
         $form->add('dimension', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.dimension',
             'choices' => $this->dimensionChoices($capabilities->dimensions),
+        ]);
+
+        $form->add('metric', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.metric',
+            'choices' => $this->metricChoices($capabilities->primaryMetrics),
+        ]);
+
+        $form->add('showPercentOfTotal', CheckboxType::class, [
+            'label' => 'stats.analysis_explorer.edit.show_percent_of_total',
+            'required' => false,
+            'disabled' => !$this->metricCapabilityPolicy->canShowPercentOfTotal($previewConfig),
         ]);
 
         $form->add('timeGrain', ChoiceType::class, [

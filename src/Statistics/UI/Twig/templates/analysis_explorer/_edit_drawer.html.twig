@@ -93,7 +93,10 @@
                          aria-labelledby="analysisExplorerEditAnalysisHeading">
                         <div class="accordion-body">
                             {{ form_row(form.dimension, compactRow|merge({attr: refreshAttrs})) }}
-                            {{ form_row(form.metric, compactRow) }}
+                            {{ form_row(form.metric, compactRow|merge({attr: refreshAttrs})) }}
+                            <div data-testid="stats-analysis-explorer-show-percent-field">
+                                {{ form_row(form.showPercentOfTotal, compactRow) }}
+                            </div>
                             <div data-testid="stats-analysis-explorer-time-grain-field">
                                 {{ form_row(form.timeGrain, compactRow|merge({attr: refreshAttrs})) }}
                             </div>

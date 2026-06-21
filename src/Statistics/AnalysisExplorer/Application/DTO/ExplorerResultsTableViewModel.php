@@ -7,18 +7,21 @@ namespace App\Statistics\AnalysisExplorer\Application\DTO;
 final readonly class ExplorerResultsTableViewModel
 {
     /**
-     * @param list<ExplorerResultsTableRow> $rows
-     * @param list<string>                  $seriesLabels
-     * @param array<string, int>            $seriesTotals
+     * @param list<ExplorerResultsTableMetricColumn> $metricColumns
+     * @param list<ExplorerResultsTableRow>          $rows
+     * @param array<string, string>                  $formattedTotals
+     * @param list<string>                           $seriesLabels
+     * @param array<string, string>                  $formattedSeriesTotals
      */
     public function __construct(
         public string $primaryDimensionLabel,
-        public string $metricLabel,
+        public array $metricColumns,
         public array $rows,
-        public int $total,
+        public array $formattedTotals,
         public bool $hasSeries = false,
         public array $seriesLabels = [],
-        public array $seriesTotals = [],
+        public array $formattedSeriesTotals = [],
+        public string $formattedGrandTotal = '0',
     ) {
     }
 
@@ -33,6 +36,6 @@ final readonly class ExplorerResultsTableViewModel
             return \count($this->seriesLabels) + 2;
         }
 
-        return 2;
+        return 1 + \count($this->metricColumns);
     }
 }

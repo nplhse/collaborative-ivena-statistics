@@ -6,11 +6,19 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Application\DTO\MultiSeriesPivot;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
+use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 
 final readonly class ExplorerChartPresenter
 {
+    public function __construct(
+        private ExplorerMetricKeyMapper $metricKeyMapper,
+        private MetricRegistry $metricRegistry,
+    ) {
+    }
+
     /**
      * @return array<string, array<string, mixed>>
      */
@@ -45,11 +53,11 @@ final readonly class ExplorerChartPresenter
     private function buildSingleSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
     {
         $labels = [];
-        $counts = [];
+        $values = [];
 
         foreach ($result->rows as $row) {
             $labels[] = $row->bucketLabel;
-            $counts[] = $row->value;
+            $values[] = $row->visualValue($result->visualMetricKey);
         }
 
         return [
@@ -58,7 +66,11 @@ final readonly class ExplorerChartPresenter
                 default => 'bar',
             },
             'labels' => $labels,
-            'counts' => $counts,
+            'values' => $values,
+            'counts' => $values,
+            'valueLabel' => $this->metricLabel($result->visualMetricKey),
+            'valueFormat' => $this->metricFormat($result->visualMetricKey),
+            'percentScale' => 'percent' === $this->metricFormat($result->visualMetricKey),
         ];
     }
 
@@ -67,7 +79,7 @@ final readonly class ExplorerChartPresenter
      */
     private function buildMultiSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
     {
-        $pivot = MultiSeriesPivot::fromResult($result);
+        $pivot = MultiSeriesPivot::fromResult($result, $result->visualMetricKey);
 
         $chartType = match ($presentation->chartType) {
             ChartPresentationType::Line => 'line',
@@ -78,6 +90,9 @@ final readonly class ExplorerChartPresenter
             'chartType' => $chartType,
             'labels' => $pivot->labels,
             'series' => $pivot->series,
+            'valueLabel' => $this->metricLabel($result->visualMetricKey),
+            'valueFormat' => $this->metricFormat($result->visualMetricKey),
+            'percentScale' => 'percent' === $this->metricFormat($result->visualMetricKey),
         ];
 
         if (ChartPresentationType::GroupedBar === $presentation->chartType) {
@@ -85,5 +100,15 @@ final readonly class ExplorerChartPresenter
         }
 
         return $spec;
+    }
+
+    private function metricLabel(AnalysisMetricKey $metricKey): string
+    {
+        return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->label;
+    }
+
+    private function metricFormat(AnalysisMetricKey $metricKey): string
+    {
+        return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->defaultFormat->value;
     }
 }

@@ -566,11 +566,12 @@ final class AnalysisExplorerShell
     {
         return new AnalysisRunResult(
             title: $config->title,
-            metricKey: $config->metricKey,
+            metricKeys: $config->metricKeys,
+            visualMetricKey: $config->visualMetricKey,
             dimensionKey: $config->dimensionKey,
             timeGrain: $config->timeGrain,
             rows: [],
-            total: 0,
+            totals: [],
         );
     }
 

@@ -6,16 +6,17 @@ namespace App\Statistics\AnalysisExplorer\Application\DTO;
 
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 
 final readonly class MultiSeriesPivot
 {
     /**
-     * @param list<string>                               $bucketOrder
-     * @param array<string, string>                      $bucketLabels
-     * @param array<string, string>                      $seriesLabels
-     * @param array<string, array<string, int>>          $valuesByBucket
-     * @param list<string>                               $labels
-     * @param list<array{name: string, data: list<int>}> $series
+     * @param list<string>                                 $bucketOrder
+     * @param array<string, string>                        $bucketLabels
+     * @param array<string, string>                        $seriesLabels
+     * @param array<string, array<string, float>>          $valuesByBucket
+     * @param list<string>                                 $labels
+     * @param list<array{name: string, data: list<float>}> $series
      */
     public function __construct(
         public array $bucketOrder,
@@ -27,21 +28,21 @@ final readonly class MultiSeriesPivot
     ) {
     }
 
-    public static function fromResult(AnalysisRunResult $result): self
+    public static function fromResult(AnalysisRunResult $result, AnalysisMetricKey $visualMetricKey): self
     {
         /** @var list<string> $labels */
         $labels = [];
         /** @var array<string, string> $labelByBucket */
         $labelByBucket = [];
-        /** @var array<string, array<string, int>> $valuesBySeries */
+        /** @var array<string, array<string, float>> $valuesBySeries */
         $valuesBySeries = [];
         /** @var array<string, string> $seriesLabels */
         $seriesLabels = [];
-        /** @var array<string, array<string, int>> $valuesByBucket */
+        /** @var array<string, array<string, float>> $valuesByBucket */
         $valuesByBucket = [];
 
         foreach ($result->rows as $row) {
-            self::accumulateRow($row, $labelByBucket, $labels, $valuesBySeries, $seriesLabels, $valuesByBucket);
+            self::accumulateRow($row, $visualMetricKey, $labelByBucket, $labels, $valuesBySeries, $seriesLabels, $valuesByBucket);
         }
 
         $bucketOrder = array_keys($labelByBucket);
@@ -50,7 +51,7 @@ final readonly class MultiSeriesPivot
         foreach ($seriesLabels as $seriesKey => $seriesLabel) {
             $data = [];
             foreach ($bucketOrder as $bucket) {
-                $data[] = $valuesBySeries[$seriesKey][$bucket] ?? 0;
+                $data[] = $valuesBySeries[$seriesKey][$bucket] ?? 0.0;
             }
 
             $series[] = [
@@ -70,14 +71,15 @@ final readonly class MultiSeriesPivot
     }
 
     /**
-     * @param array<string, string>             $labelByBucket
-     * @param list<string>                      $labels
-     * @param array<string, array<string, int>> $valuesBySeries
-     * @param array<string, string>             $seriesLabels
-     * @param array<string, array<string, int>> $valuesByBucket
+     * @param array<string, string>                   $labelByBucket
+     * @param list<string>                            $labels
+     * @param array<string, array<string, float|int>> $valuesBySeries
+     * @param array<string, string>                   $seriesLabels
+     * @param array<string, array<string, float|int>> $valuesByBucket
      */
     private static function accumulateRow(
         AnalysisResultRow $row,
+        AnalysisMetricKey $visualMetricKey,
         array &$labelByBucket,
         array &$labels,
         array &$valuesBySeries,
@@ -91,7 +93,8 @@ final readonly class MultiSeriesPivot
 
         $seriesKey = $row->seriesKey ?? '';
         $seriesLabels[$seriesKey] = $row->seriesLabel ?? $seriesKey;
-        $valuesBySeries[$seriesKey][$row->bucket] = $row->value;
-        $valuesByBucket[$row->bucket][$seriesKey] = $row->value;
+        $value = $row->visualValue($visualMetricKey);
+        $valuesBySeries[$seriesKey][$row->bucket] = $value;
+        $valuesByBucket[$row->bucket][$seriesKey] = $value;
     }
 }

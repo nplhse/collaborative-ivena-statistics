@@ -36,17 +36,25 @@ export function buildAnalysisChartOptions(data) {
             data: coerceNumbers(s && s.data),
         }));
     } else {
-        const counts = Array.isArray(data.counts) ? data.counts : [];
+        const values = Array.isArray(data.values)
+            ? data.values
+            : Array.isArray(data.counts)
+              ? data.counts
+              : [];
+        const valueLabel =
+            typeof data.valueLabel === 'string' && data.valueLabel !== ''
+                ? data.valueLabel
+                : 'Allocations';
         series = [
             {
-                name: 'Allocations',
-                data: coerceNumbers(counts),
+                name: valueLabel,
+                data: coerceNumbers(values),
             },
         ];
     }
 
     const multi = series.length > 1;
-    const percentScale = data.percentScale === true;
+    const percentScale = data.percentScale === true || data.valueFormat === 'percent';
     const barGrouped = data.barGrouped === true && !percentScale;
 
     const formatPercentValue = (val) => {
