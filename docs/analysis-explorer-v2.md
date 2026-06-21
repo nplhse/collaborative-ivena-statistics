@@ -85,7 +85,28 @@ AnalysisExplorerController
             └─ ExplorerResultsTablePresenter
 ```
 
-Explorer queries reuse **Generic Analysis** aggregation (`GenericAllocationAnalysisQuery` + `DimensionRegistry`) via a thin bridge layer instead of per-dimension SQL in `AllocationsCountQuery`. Label resolution is shared through `AnalysisDimensionLabelResolver` (entity IDs, projection-code buckets, boolean yes/no, month names).
+Explorer queries reuse **Generic Analysis** aggregation (`GenericAllocationAnalysisQuery` + `DimensionRegistry` + `MetricRegistry`) via a thin bridge layer. `ExplorerAllocationAnalysisExecutor` runs SQL aggregates and `RelativeDistributionCalculator` for `percent_of_total`. Label and value formatting reuse GA `MetricValueFormatter`.
+
+### Metric model (Phase 7)
+
+| Category | Explorer key | GA key | Notes |
+|---|---|---|---|
+| Count | `allocation_count` | `count` | Primary default; charts use `visualMetric` |
+| Distribution | `percent_of_total` | `percent_of_total` | Optional table column via checkbox |
+| Rate | `*_rate` | same | SQL aggregate per bucket |
+| Statistical | `mean_transport_time`, … | same | Registered, not enabled yet |
+
+Multi-metric tables: `metricKeys[]` in config; charts use a single `visualMetric`. Boolean breakdown counts (e.g. CPR cases) use dimension + `allocation_count`, not a separate metric.
+
+## How to add another allocations metric
+
+1. Register in GA `MetricRegistry` (if not already present).
+2. Add `AnalysisMetricKey` case and catalog entry; map via `registryKey()` (`allocation_count` → `count` only).
+3. Add i18n `stats.analysis_explorer.metric.{key}` (EN + DE).
+4. If primary-selectable: include in `primaryMetricChoices()`; statistical metrics stay `isEnabledInStepOne() === false`.
+5. Add tests in `ExplorerMetricCatalogTest` and query/result mapper coverage.
+
+No per-metric SQL in Explorer — the GA bridge handles execution.
 
 UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
 
@@ -93,12 +114,13 @@ UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "dataSource": "allocations",
   "query": {
     "scope": { "group": "public", "detail": null },
     "period": { "type": "all", "year": null, "quarter": null, "month": null },
-    "metric": "allocation_count",
+    "metrics": ["allocation_count"],
+    "visualMetric": "allocation_count",
     "dimension": "time",
     "grain": "month"
   },
@@ -110,6 +132,8 @@ UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision
 }
 ```
 
+Schema v1 configs with `"metric": "allocation_count"` are upgraded on load to v2 (`metrics` + `visualMetric`). Serialisation always writes v2.
+
 Legacy flat state (`scopeGroup`, `period`, `dimensionGrain`, …) is upgraded on load via `ExplorerConfigMapper::upgradeLegacyState()`.
 
 `ExplorerConfigMapper::buildViewConfig()` / `filterToStateArray()` / `viewPreferencesToStateArray()` are convenience helpers for future URL or partial-state composition.
@@ -119,7 +143,10 @@ Legacy flat state (`scopeGroup`, `period`, `dimensionGrain`, …) is upgraded on
 | Area | Values |
 |---|---|
 | Data source | `allocations` |
-| Metric | `allocation_count` |
+| Count metric | `allocation_count` (maps to GA `count`) |
+| Distribution metric | `percent_of_total` (table column; requires `allocation_count`, breakdown + `total` grain) |
+| Rate metrics | `cpr_rate`, `resus_rate`, `shock_rate`, `ventilation_rate`, `cathlab_rate`, `pregnancy_rate`, `work_accident_rate`, `with_physician_rate` |
+| Statistical metrics | catalogued but disabled in Phase 7 (`mean_transport_time`, …) |
 | Temporal dimension | `time` — grains: `month`, `year`, `quarter`, `week` |
 | Breakdown dimensions | `gender`, `urgency`, `age_group`, `department`, `hospital_cohort`, `speciality`, `occasion`, `assignment`, `indication`, `infection`, `weekday`, `hour`, `resus`, `cathlab`, `cpr`, `ventilation`, `shock`, `workAccident`, `pregnancy`, `with_physician`, `secondary_indication`, `transport_type`, `day_time_bucket`, `shift_bucket` |
 | Scope-gated breakdowns | `hospital`, `state`, `dispatchArea` (visible when `GenericAnalysisDimensionPolicy` allows for user + filter scope) |
@@ -172,9 +199,9 @@ Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
 | Config | `src/Statistics/AnalysisExplorer/Application/ExplorerConfigMapper.php` |
 | Normalizer / Validator | `AnalysisViewConfigNormalizer.php`, `AnalysisViewConfigValidator.php` |
 | Grain resolver | `AnalysisDimensionGrainResolver.php` |
-| Capabilities | `AllocationsCapabilitiesProvider.php`, `DataSourceCapabilities.php` |
-| Query bridge | `ExplorerAllocationQueryMapper.php`, `ExplorerAllocationResultMapper.php`, `AnalysisDimensionLabelResolver.php` |
-| Runner / Query | `AllocationsAnalysisRunner.php`, `Infrastructure/Query/AllocationsCountQuery.php` (delegates to `GenericAllocationAnalysisQuery`) |
+| Capabilities | `AllocationsCapabilitiesProvider.php`, `DataSourceCapabilities.php`, `ExplorerMetricCatalog.php`, `ExplorerMetricCapabilityPolicy.php` |
+| Query bridge | `ExplorerAllocationQueryMapper.php`, `ExplorerAllocationResultMapper.php`, `ExplorerAllocationAnalysisExecutor.php`, `AnalysisDimensionLabelResolver.php`, `ExplorerMetricKeyMapper.php` |
+| Runner / Query | `AllocationsAnalysisRunner.php`, `Infrastructure/Query/AllocationsCountQuery.php` (facade over executor) |
 | Presenters | `ExplorerChartPresenter.php`, `ExplorerResultsTablePresenter.php` |
 | Templates | `src/Statistics/UI/Twig/templates/analysis_explorer/`, `analysis_explorer_library/` |
 | Scope/period form | `src/Statistics/UI/Form/StatisticsScopePeriodType.php` |
