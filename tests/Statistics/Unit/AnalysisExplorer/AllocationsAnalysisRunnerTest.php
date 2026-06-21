@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsAnalysisRunner;
-use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
@@ -43,18 +42,19 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
         $runResult = $runner->run(new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Month,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(new \DateTimeImmutable('2024-01-01 00:00:00')),
         ));
 
-        self::assertSame('allocation_count', $runResult->metricKey->value);
-        self::assertSame(20, $runResult->total);
+        self::assertSame('allocation_count', $runResult->visualMetricKey->value);
+        self::assertSame(20.0, $runResult->totalFor(AnalysisMetricKey::AllocationCount));
         self::assertCount(2, $runResult->rows);
         self::assertSame('2024-06', $runResult->rows[0]->bucketLabel);
-        self::assertSame(12, $runResult->rows[0]->value);
+        self::assertSame(12, $runResult->rows[0]->valueFor(AnalysisMetricKey::AllocationCount));
     }
 
     public function testYearGrainUsesCreatedYearColumn(): void
@@ -76,7 +76,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
         $runResult = $runner->run(new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Year,
             scopeCriteria: StatisticsScopeCriteria::public(),
@@ -108,7 +109,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
         $runResult = $runner->run(new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
             timeGrain: AnalysisDimensionGrain::Total,
             scopeCriteria: StatisticsScopeCriteria::public(),
@@ -142,7 +144,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
         $runResult = $runner->run(new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
             timeGrain: AnalysisDimensionGrain::Month,
             scopeCriteria: StatisticsScopeCriteria::public(),
@@ -156,16 +159,23 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
     public function testChartPresenterBuildsBarLineAndGroupedSpecs(): void
     {
-        $presenter = new ExplorerChartPresenter();
+        $presenter = $this->createExplorerChartPresenter();
         $result = new AnalysisRunResult(
             title: 'Allocations over time',
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Month,
             rows: [
-                new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: null, seriesLabel: null, value: 5),
+                new AnalysisResultRow(
+                    bucket: '2024-06',
+                    bucketLabel: 'Jun 2024',
+                    seriesKey: null,
+                    seriesLabel: null,
+                    metricValues: ['allocation_count' => 5],
+                ),
             ],
-            total: 5,
+            totals: ['allocation_count' => 5],
         );
 
         $barSpecs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Bar));
@@ -178,14 +188,27 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
         $seriesResult = new AnalysisRunResult(
             title: 'Allocations by gender over time',
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
             timeGrain: AnalysisDimensionGrain::Month,
             rows: [
-                new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '1', seriesLabel: 'Male', value: 5),
-                new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '2', seriesLabel: 'Female', value: 3),
+                new AnalysisResultRow(
+                    bucket: '2024-06',
+                    bucketLabel: 'Jun 2024',
+                    seriesKey: '1',
+                    seriesLabel: 'Male',
+                    metricValues: ['allocation_count' => 5],
+                ),
+                new AnalysisResultRow(
+                    bucket: '2024-06',
+                    bucketLabel: 'Jun 2024',
+                    seriesKey: '2',
+                    seriesLabel: 'Female',
+                    metricValues: ['allocation_count' => 3],
+                ),
             ],
-            total: 8,
+            totals: ['allocation_count' => 8],
         );
 
         $groupedSpecs = $presenter->buildSpecs($seriesResult, new PresentationConfig(chartType: ChartPresentationType::GroupedBar));
@@ -222,7 +245,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
 
         $runResult = $runner->run(new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Urgency,
             timeGrain: AnalysisDimensionGrain::Year,
             scopeCriteria: StatisticsScopeCriteria::public(),

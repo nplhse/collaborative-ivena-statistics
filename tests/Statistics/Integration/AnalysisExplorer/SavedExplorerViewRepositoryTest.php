@@ -87,14 +87,14 @@ final class SavedExplorerViewRepositoryTest extends KernelTestCase
         $first = $this->seeder->sync();
         $second = $this->seeder->sync();
 
-        self::assertSame(6, $first->created);
+        self::assertSame(14, $first->created);
         self::assertSame(0, $first->updated);
         self::assertSame(0, $second->created);
         self::assertSame(0, $second->updated);
-        self::assertSame(6, $second->skipped);
+        self::assertSame(14, $second->skipped);
 
         $views = $this->repository->findAllSystemViewsOrdered();
-        self::assertCount(6, $views);
+        self::assertCount(14, $views);
         $admin = UserFactory::find(['username' => 'admin']);
         foreach ($views as $view) {
             self::assertTrue($view->wasCreatedBy($admin));

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
@@ -17,11 +16,14 @@ use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ExplorerResultsTablePresenterTest extends TestCase
 {
+    use AnalysisExplorerTestSupport;
+
     public function testCreateBuildsRowsAndTotalFromResult(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
@@ -30,10 +32,11 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
         ]);
 
-        $presenter = new ExplorerResultsTablePresenter($translator);
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
         $viewConfig = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Month,
             statisticsFilter: new StatisticsFilter(
@@ -50,24 +53,37 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             $viewConfig,
             new AnalysisRunResult(
                 title: 'Allocations over time',
-                metricKey: AnalysisMetricKey::AllocationCount,
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Time,
                 timeGrain: AnalysisDimensionGrain::Month,
                 rows: [
-                    new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: null, seriesLabel: null, value: 12),
-                    new AnalysisResultRow(bucket: '2024-07', bucketLabel: 'Jul 2024', seriesKey: null, seriesLabel: null, value: 8),
+                    new AnalysisResultRow(
+                        bucket: '2024-06',
+                        bucketLabel: 'Jun 2024',
+                        seriesKey: null,
+                        seriesLabel: null,
+                        metricValues: ['allocation_count' => 12],
+                    ),
+                    new AnalysisResultRow(
+                        bucket: '2024-07',
+                        bucketLabel: 'Jul 2024',
+                        seriesKey: null,
+                        seriesLabel: null,
+                        metricValues: ['allocation_count' => 8],
+                    ),
                 ],
-                total: 20,
+                totals: ['allocation_count' => 20],
             ),
         );
 
         self::assertSame('Month', $table->primaryDimensionLabel);
-        self::assertSame('Allocations', $table->metricLabel);
+        self::assertSame('Allocations', $table->metricColumns[0]->label);
         self::assertTrue($table->hasData());
-        self::assertSame(20, $table->total);
+        self::assertSame('20', $table->formattedTotals['allocation_count']);
         self::assertCount(2, $table->rows);
         self::assertSame('Jun 2024', $table->rows[0]->bucketLabel);
-        self::assertSame(12, $table->rows[0]->value);
+        self::assertSame('12', $table->rows[0]->formattedMetricValues['allocation_count']);
     }
 
     public function testCreateBuildsPivotTableForSeriesResult(): void
@@ -78,10 +94,11 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
         ]);
 
-        $presenter = new ExplorerResultsTablePresenter($translator);
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
         $viewConfig = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
             timeGrain: AnalysisDimensionGrain::Month,
             statisticsFilter: new StatisticsFilter(
@@ -98,22 +115,35 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             $viewConfig,
             new AnalysisRunResult(
                 title: 'Allocations by gender over time',
-                metricKey: AnalysisMetricKey::AllocationCount,
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Gender,
                 timeGrain: AnalysisDimensionGrain::Month,
                 rows: [
-                    new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '1', seriesLabel: 'Male', value: 4),
-                    new AnalysisResultRow(bucket: '2024-06', bucketLabel: 'Jun 2024', seriesKey: '2', seriesLabel: 'Female', value: 2),
+                    new AnalysisResultRow(
+                        bucket: '2024-06',
+                        bucketLabel: 'Jun 2024',
+                        seriesKey: '1',
+                        seriesLabel: 'Male',
+                        metricValues: ['allocation_count' => 4],
+                    ),
+                    new AnalysisResultRow(
+                        bucket: '2024-06',
+                        bucketLabel: 'Jun 2024',
+                        seriesKey: '2',
+                        seriesLabel: 'Female',
+                        metricValues: ['allocation_count' => 2],
+                    ),
                 ],
-                total: 6,
+                totals: ['allocation_count' => 6],
             ),
         );
 
         self::assertTrue($table->hasSeries);
         self::assertSame(['Male', 'Female'], $table->seriesLabels);
         self::assertCount(1, $table->rows);
-        self::assertSame(6, $table->rows[0]->rowTotal);
-        self::assertSame(4, $table->rows[0]->seriesValues['Male']);
+        self::assertSame(6.0, $table->rows[0]->rowTotal);
+        self::assertSame(4.0, $table->rows[0]->seriesValues['Male']);
     }
 
     public function testCreateBuildsEmptyTableFromResultWithoutRows(): void
@@ -124,10 +154,11 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
         ]);
 
-        $presenter = new ExplorerResultsTablePresenter($translator);
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
         $viewConfig = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Year,
             statisticsFilter: new StatisticsFilter(
@@ -144,16 +175,17 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             $viewConfig,
             new AnalysisRunResult(
                 title: 'Allocations over time',
-                metricKey: AnalysisMetricKey::AllocationCount,
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Time,
                 timeGrain: AnalysisDimensionGrain::Year,
                 rows: [],
-                total: 0,
+                totals: ['allocation_count' => 0],
             ),
         );
 
         self::assertFalse($table->hasData());
-        self::assertSame(0, $table->total);
+        self::assertSame('0', $table->formattedTotals['allocation_count']);
         self::assertCount(0, $table->rows);
     }
 }

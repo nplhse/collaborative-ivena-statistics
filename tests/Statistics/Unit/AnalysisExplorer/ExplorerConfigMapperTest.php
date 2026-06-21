@@ -34,10 +34,11 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         $state = $mapper->toStateArray($config);
         $restored = $mapper->viewConfigFromState($state, null);
 
-        self::assertSame(1, $state['schemaVersion']);
+        self::assertSame(2, $state['schemaVersion']);
         self::assertSame($config->title, $restored->title);
         self::assertSame($config->dataSourceKey, $restored->dataSourceKey);
-        self::assertSame($config->metricKey, $restored->metricKey);
+        self::assertSame($config->metricKeys, $restored->metricKeys);
+        self::assertSame($config->visualMetricKey, $restored->visualMetricKey);
         self::assertSame($config->dimensionKey, $restored->dimensionKey);
         self::assertSame($config->timeGrain, $restored->timeGrain);
         self::assertSame($config->presentation->chartType, $restored->presentation->chartType);

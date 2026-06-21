@@ -24,6 +24,7 @@ final class ExplorerEditFormNormalizerTest extends TestCase
             $this->createAllocationsCapabilitiesProvider(),
             new AnalysisDimensionGrainResolver(),
             new ExplorerConfigPreviewFactory(),
+            $this->createExplorerMetricCapabilityPolicy(),
         );
     }
 

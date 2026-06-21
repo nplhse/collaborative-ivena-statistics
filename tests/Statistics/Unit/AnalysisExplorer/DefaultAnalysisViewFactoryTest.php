@@ -8,6 +8,7 @@ use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -33,7 +34,8 @@ final class DefaultAnalysisViewFactoryTest extends TestCase
         $config = $factory->createDefault($filter);
 
         self::assertSame('allocations', $config->dataSourceKey->value);
-        self::assertSame('allocation_count', $config->metricKey->value);
+        self::assertSame('allocation_count', $config->visualMetricKey->value);
+        self::assertSame([AnalysisMetricKey::AllocationCount], $config->metricKeys);
         self::assertSame(AnalysisDimensionKey::Time, $config->dimensionKey);
         self::assertSame(AnalysisDimensionGrain::Month, $config->timeGrain);
         self::assertSame($filter, $config->statisticsFilter);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationQueryMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricKeyMapper;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
@@ -20,7 +21,7 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mapper = new ExplorerAllocationQueryMapper();
+        $this->mapper = new ExplorerAllocationQueryMapper(new ExplorerMetricKeyMapper());
     }
 
     public function testTimeDimensionMapsToTemporalPrimaryKey(): void
@@ -74,7 +75,8 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
     ): AnalysisQuery {
         return new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: $dimensionKey,
             timeGrain: $timeGrain,
             scopeCriteria: StatisticsScopeCriteria::public(),

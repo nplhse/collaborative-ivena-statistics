@@ -75,7 +75,8 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
     ): \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig {
         return new \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
-            metricKey: $capabilities->defaultMetric,
+            metricKeys: [$capabilities->defaultMetric],
+            visualMetricKey: $capabilities->defaultMetric,
             dimensionKey: $dimension,
             timeGrain: $grain,
             statisticsFilter: new \App\Statistics\Application\DTO\StatisticsFilter(

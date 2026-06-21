@@ -29,11 +29,13 @@ final class AnalysisViewConfigValidatorTest extends TestCase
 
         $validator = new AnalysisViewConfigValidator(
             $this->createAllocationsCapabilitiesProvider(),
+            $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
         $validator->validate(new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Year,
             statisticsFilter: new StatisticsFilter(
@@ -53,11 +55,13 @@ final class AnalysisViewConfigValidatorTest extends TestCase
 
         $validator = new AnalysisViewConfigValidator(
             $this->createAllocationsCapabilitiesProvider(),
+            $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
         $validator->validate(new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
             timeGrain: AnalysisDimensionGrain::Month,
             statisticsFilter: new StatisticsFilter(
@@ -75,13 +79,15 @@ final class AnalysisViewConfigValidatorTest extends TestCase
     {
         $validator = new AnalysisViewConfigValidator(
             $this->createAllocationsCapabilitiesProvider(),
+            $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
 
         try {
             $validator->validate(new AnalysisViewConfig(
                 dataSourceKey: AnalysisDataSourceKey::Allocations,
-                metricKey: AnalysisMetricKey::AllocationCount,
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Gender,
                 timeGrain: AnalysisDimensionGrain::Month,
                 statisticsFilter: new StatisticsFilter(
@@ -104,13 +110,15 @@ final class AnalysisViewConfigValidatorTest extends TestCase
     {
         $validator = new AnalysisViewConfigValidator(
             $this->createAllocationsCapabilitiesProvider(),
+            $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
 
         try {
             $validator->validate(new AnalysisViewConfig(
                 dataSourceKey: AnalysisDataSourceKey::Allocations,
-                metricKey: AnalysisMetricKey::AllocationCount,
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Time,
                 timeGrain: AnalysisDimensionGrain::Total,
                 statisticsFilter: new StatisticsFilter(

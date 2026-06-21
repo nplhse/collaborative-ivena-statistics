@@ -29,7 +29,8 @@ final class ExplorerAnalysisQueryFactoryTest extends KernelTestCase
         $query = $factory->create(
             new AnalysisViewConfig(
                 dataSourceKey: AnalysisDataSourceKey::Allocations,
-                metricKey: AnalysisMetricKey::AllocationCount,
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
                 dimensionKey: AnalysisDimensionKey::Time,
                 timeGrain: AnalysisDimensionGrain::Month,
                 statisticsFilter: new StatisticsFilter(

@@ -36,12 +36,14 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new ExplorerTitleFactory($translator),
             new AnalysisDimensionGrainResolver(),
             new ExplorerConfigPreviewFactory(),
+            $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
 
         $config = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
             timeGrain: AnalysisDimensionGrain::Month,
             statisticsFilter: new StatisticsFilter(
@@ -71,12 +73,14 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new ExplorerTitleFactory($translator),
             new AnalysisDimensionGrainResolver(),
             new ExplorerConfigPreviewFactory(),
+            $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
 
         $config = new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Gender,
             timeGrain: null,
             statisticsFilter: new StatisticsFilter(

@@ -50,7 +50,8 @@ final class SavedExplorerViewServiceTest extends KernelTestCase
         self::assertNull($view->getSlug());
         self::assertFalse($view->isSystem());
         self::assertSame('My allocations view', $view->getTitle());
-        self::assertSame('allocation_count', $view->getConfigJson()['query']['metric'] ?? null);
+        self::assertSame('allocation_count', $view->getConfigJson()['query']['visualMetric'] ?? null);
+        self::assertSame(['allocation_count'], $view->getConfigJson()['query']['metrics'] ?? null);
     }
 
     public function testUpdateAllowsCreatorToPersistChanges(): void
