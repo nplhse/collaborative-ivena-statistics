@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.analysis_explorer.title'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans) }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -13,10 +13,16 @@
 {% block page_header %}
     <div class="container-xl">
         <div class="d-flex align-items-start justify-content-between gap-3">
-            <twig:Breadcrumbs :items="[
-                { label: 'link.statistics', path: path('app_stats_dashboard') },
-                { label: 'stats.analysis_explorer.title' }
-            ]" />
+            {% set breadcrumbItems = [
+                {label: 'link.statistics', path: path('app_stats_dashboard')},
+                {label: 'link.stats.analysis_explorer_library', path: libraryUrl},
+            ] %}
+            {% if savedViewTitle %}
+                {% set breadcrumbItems = breadcrumbItems|merge([{label: savedViewTitle}]) %}
+            {% else %}
+                {% set breadcrumbItems = breadcrumbItems|merge([{label: 'stats.analysis_explorer.title'}]) %}
+            {% endif %}
+            <twig:Breadcrumbs :items="breadcrumbItems" />
 
             <div class="flex-shrink-0 d-print-none mt-2">
                 {{ include('@Statistics/_data_quality_indicator.html.twig') }}
@@ -27,7 +33,9 @@
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <div class="page-pretitle">{{ 'stats.analysis_explorer.pretitle'|trans }}</div>
-                    <h2 class="page-title" data-testid="stats-analysis-explorer-title">{{ 'stats.analysis_explorer.title'|trans }}</h2>
+                    <h2 class="page-title" data-testid="stats-analysis-explorer-title">
+                        {{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans) }}
+                    </h2>
                 </div>
             </div>
         </div>
@@ -40,5 +48,7 @@
     <twig:AnalysisExplorerShell
         :appliedConfigState="explorerAppliedConfigState"
         :locale="app.request.locale"
+        :initialConfigWarning="initialConfigWarning"
+        libraryUrl="{{ libraryUrl }}"
     />
 {% endblock %}

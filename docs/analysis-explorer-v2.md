@@ -6,15 +6,38 @@ Interactive statistics explorer for ad-hoc allocation analyses. It is intentiona
 
 | Page | Route |
 |---|---|
-| Analysis Explorer | `/statistics/analysis/explorer` |
+| Analysis Explorer (default) | `/statistics/analysis/explorer` |
+| Analysis Explorer (saved view) | `/statistics/analysis/explorer/{view}` |
+| Analysis library | `/statistics/analysis/library` |
 
 Navigation label: `link.stats.analysis_explorer` in `translations/messages+intl-icu.{en,de}.xlf`.
 
 ## Purpose
 
 - Explore allocation counts by scope, period, dimension, and chart type.
-- Config is versioned JSON suitable for future persistence (saved views, URL state) — not implemented yet.
+- Open predefined system demo views from the analysis library.
+- Config is versioned JSON stored in `saved_explorer_view.config_json` for system views.
+- In-memory editing is supported; changes are not persisted yet.
 - Read-only: does not change projection data or legacy analysis pages.
+
+## Saved views (phase 5A)
+
+System demo views are stored in `saved_explorer_view` (`SavedExplorerView` entity). Seed or refresh them with:
+
+```bash
+bin/console statistics:explorer-views:sync
+```
+
+Loading flow:
+
+```text
+AnalysisExplorerController (saved view route)
+  └─ SavedExplorerViewLoader (slug or numeric id)
+       └─ ExplorerConfigMapper + URL scope/period overlay
+            └─ AnalysisExplorerShell
+```
+
+Invalid saved config falls back to the default analysis and shows `stats.analysis_explorer.saved_view.invalid_config`.
 
 ## Architecture
 
@@ -71,9 +94,10 @@ Multi-series: when dimension is not `time` and grain is `month` or `year`, the q
 
 ## Current limitations (intentional)
 
-- No saved views, favorites, or dashboards.
+- No user-created saved views, favorites, or dashboards.
 - No hospitals data source or additional metrics/dimensions.
-- No URL-encoded config sharing or server-side persistence.
+- No URL-encoded config sharing.
+- No persistence of in-memory edits (“save changes”).
 - No pivot feature expansion beyond results table.
 - No migration of existing Generic Analysis pages.
 - Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
@@ -101,14 +125,15 @@ Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
 
 | Layer | Path |
 |---|---|
-| Controller | `src/Statistics/AnalysisExplorer/UI/Http/Controller/AnalysisExplorerController.php` |
+| Controllers | `AnalysisExplorerController.php`, `AnalysisExplorerLibraryController.php` |
+| Saved views | `SavedExplorerView.php`, `SavedExplorerViewRepository.php`, `ExplorerSystemViewSeeder.php`, `SavedExplorerViewLoader.php` |
 | LiveComponent | `src/Statistics/AnalysisExplorer/UI/LiveComponent/AnalysisExplorerShell.php` |
 | Config | `src/Statistics/AnalysisExplorer/Application/ExplorerConfigMapper.php` |
 | Normalizer / Validator | `AnalysisViewConfigNormalizer.php`, `AnalysisViewConfigValidator.php` |
 | Grain resolver | `AnalysisDimensionGrainResolver.php` |
 | Runner / Query | `AllocationsAnalysisRunner.php`, `Infrastructure/Query/AllocationsCountQuery.php` |
 | Presenters | `ExplorerChartPresenter.php`, `ExplorerResultsTablePresenter.php` |
-| Templates | `src/Statistics/UI/Twig/templates/analysis_explorer/` |
+| Templates | `src/Statistics/UI/Twig/templates/analysis_explorer/`, `analysis_explorer_library/` |
 | Scope/period form | `src/Statistics/UI/Form/StatisticsScopePeriodType.php` |
 | Translations | `stats.analysis_explorer.*` in `translations/messages+intl-icu.en.xlf` and `.de.xlf` |
 
@@ -117,8 +142,8 @@ Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
 | Type | Path |
 |---|---|
 | Unit | `tests/Statistics/Unit/AnalysisExplorer/` |
-| Integration | `tests/Statistics/Integration/AnalysisExplorer/AnalysisExplorerShellTest.php` |
-| Functional | `tests/Statistics/Functional/Controller/AnalysisExplorerControllerTest.php` |
+| Integration | `tests/Statistics/Integration/AnalysisExplorer/` |
+| Functional | `tests/Statistics/Functional/Controller/AnalysisExplorerControllerTest.php`, `AnalysisExplorerLibraryControllerTest.php` |
 
 ## Related documentation
 

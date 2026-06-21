@@ -16,11 +16,13 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -30,6 +32,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
     use Factories;
     use InteractsWithAuthenticatedUser;
     use RefreshesStatisticsFunctionalDataTrait;
+    use SeedsExplorerSystemViewsTrait;
 
     public function testExplorerRendersAllocationsOverTimeChart(): void
     {
@@ -55,6 +58,9 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         self::assertNotNull($specsRaw);
         $this->assertStringContainsString('"bar"', $specsRaw);
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-actions"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-link"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-link"]', 'Open library');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-open"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-drawer"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-section-scope"]');
@@ -63,6 +69,89 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table-body"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table-footer"]');
+    }
+
+    /**
+     * @return \Generator<string, array{0: string, 1: string, 2: string}>
+     */
+    public static function demoViewProvider(): \Generator
+    {
+        yield 'allocations over time' => ['allocations-over-time', 'Allocations over time', '"bar"'];
+        yield 'allocations by year' => ['allocations-by-year', 'Allocations by year', '"line"'];
+        yield 'gender distribution' => ['gender-distribution', 'Gender distribution', '"bar"'];
+        yield 'gender over time' => ['gender-over-time', 'Gender over time', '"grouped_bar"'];
+        yield 'urgency distribution' => ['urgency-distribution', 'Urgency distribution', '"bar"'];
+        yield 'urgency over time' => ['urgency-over-time', 'Urgency over time', '"stacked_bar"'];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('demoViewProvider')]
+    public function testSavedViewOpensInExplorer(string $slug, string $title, string $chartType): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/statistics/analysis/explorer/%s?scope=public&period=all', $slug),
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-title"]', $title);
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+
+        $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
+        self::assertGreaterThan(0, $chart->count());
+        $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
+        self::assertNotNull($specsRaw);
+        $this->assertStringContainsString($chartType, $specsRaw);
+    }
+
+    public function testUnknownSavedViewReturnsNotFound(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/unknown-view?scope=public&period=all',
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testInvalidSavedConfigShowsWarningAndDefaultAnalysis(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation();
+
+        $repository = self::getContainer()->get(\App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository::class);
+        $view = $repository->findBySlug('urgency-distribution');
+        self::assertInstanceOf(\App\Statistics\Domain\Entity\SavedExplorerView::class, $view);
+        $view->update(
+            title: $view->getTitle(),
+            category: $view->getCategory(),
+            configJson: ['invalid' => true],
+            description: $view->getDescription(),
+            isSystem: true,
+        );
+        $repository->save($view);
+
+        $client->followRedirects(true);
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/urgency-distribution?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-config-warning"]',
+            'invalid',
+        );
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-chart-title"]', 'Allocations over time');
     }
 
     public function testExistingAnalyticsViewStillWorks(): void

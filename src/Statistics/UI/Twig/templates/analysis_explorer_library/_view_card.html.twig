@@ -1,0 +1,21 @@
+<div class="card" data-testid="stats-analysis-explorer-view-card-{{ card.slug }}">
+    <div class="card-body">
+        <span class="badge bg-blue-lt text-blue-lt-fg mb-2">{{ categoryLabel }}</span>
+        <h3 class="card-title mb-1">{{ card.title }}</h3>
+        <p class="text-secondary small mb-3">{{ card.description }}</p>
+        <div class="d-flex flex-wrap gap-1 mb-3">
+            {% if card.dimension %}
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.dimension'|trans }}: {{ card.dimension }}</span>
+            {% endif %}
+            {% if card.grain %}
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.grain'|trans }}: {{ card.grain }}</span>
+            {% endif %}
+            {% if card.chartType %}
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.chart'|trans }}: {{ card.chartType }}</span>
+            {% endif %}
+        </div>
+        <a href="{{ card.openUrl }}" class="btn btn-primary w-100" data-testid="stats-analysis-explorer-open-{{ card.slug }}">
+            {{ 'stats.analysis_explorer.library.open'|trans }}
+        </a>
+    </div>
+</div>

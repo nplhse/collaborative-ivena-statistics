@@ -7273,7 +7273,7 @@
       </trans-unit>
       <trans-unit id="statsAex19" resname="stats.analysis_explorer.dimension.time">
         <source>stats.analysis_explorer.dimension.time</source>
-        <target>Time</target>
+        <target>Total allocations</target>
       </trans-unit>
       <trans-unit id="statsAex20" resname="stats.analysis_explorer.dimension.gender">
         <source>stats.analysis_explorer.dimension.gender</source>
@@ -7398,6 +7398,50 @@
       <trans-unit id="statsAex50" resname="stats.analysis_explorer.validation.invalid">
         <source>stats.analysis_explorer.validation.invalid</source>
         <target>Invalid analysis configuration.</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAel01" resname="link.stats.analysis_explorer_library">
+        <source>link.stats.analysis_explorer_library</source>
+        <target>Analysis library</target>
+      </trans-unit>
+      <trans-unit id="statsAex51" resname="stats.analysis_explorer.library.title">
+        <source>stats.analysis_explorer.library.title</source>
+        <target>Analysis library</target>
+      </trans-unit>
+      <trans-unit id="statsAex52" resname="stats.analysis_explorer.library.pretitle">
+        <source>stats.analysis_explorer.library.pretitle</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex53" resname="stats.analysis_explorer.library.open">
+        <source>stats.analysis_explorer.library.open</source>
+        <target>Open in Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex60" resname="stats.analysis_explorer.open_library">
+        <source>stats.analysis_explorer.open_library</source>
+        <target>Open library</target>
+      </trans-unit>
+      <trans-unit id="statsAex54" resname="stats.analysis_explorer.library.empty">
+        <source>stats.analysis_explorer.library.empty</source>
+        <target>No saved views are available yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex55" resname="stats.analysis_explorer.library.category.allocations">
+        <source>stats.analysis_explorer.library.category.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAex56" resname="stats.analysis_explorer.library.card.dimension">
+        <source>stats.analysis_explorer.library.card.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsAex57" resname="stats.analysis_explorer.library.card.grain">
+        <source>stats.analysis_explorer.library.card.grain</source>
+        <target>Grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex58" resname="stats.analysis_explorer.library.card.chart">
+        <source>stats.analysis_explorer.library.card.chart</source>
+        <target>Chart</target>
+      </trans-unit>
+      <trans-unit id="statsAex59" resname="stats.analysis_explorer.saved_view.invalid_config">
+        <source>stats.analysis_explorer.saved_view.invalid_config</source>
+        <target>The saved view configuration is invalid. Showing the default analysis instead.</target>
       </trans-unit>
     </body>
   </file>
