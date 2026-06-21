@@ -74,7 +74,7 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     public function scopeDetailChoices(
         string $scopeGroup,
@@ -136,7 +136,8 @@ final readonly class StatisticsFilterFormChoiceProvider
         $detailChoices = $this->scopeDetailChoices($data->scopeGroup, $user, $side, $locale, $policy);
         $scopeDetail = $data->scopeDetail;
         if (null === $scopeDetail || '' === $scopeDetail || !isset($detailChoices[$scopeDetail])) {
-            $scopeDetail = array_key_first($detailChoices);
+            $firstChoice = array_key_first($detailChoices);
+            $scopeDetail = null !== $firstChoice ? (string) $firstChoice : null;
         }
 
         return new BenchmarkSelectionSideFormData(
@@ -266,12 +267,12 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function stateDetailChoices(
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): array {
-        /** @var array<string, string> $choices */
+        /** @var array<int|string, string> $choices */
         $choices = [];
         foreach ($this->eligibleStateRows($policy) as $row) {
             $choices[(string) $row['id']] = $row['name'];
@@ -281,12 +282,12 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function dispatchAreaDetailChoices(
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): array {
-        /** @var array<string, string> $choices */
+        /** @var array<int|string, string> $choices */
         $choices = [];
         foreach ($this->eligibleDispatchAreaRows($policy) as $row) {
             $choices[(string) $row['id']] = $row['name'];
@@ -296,7 +297,7 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function cohortDetailChoices(string $locale): array
     {
@@ -309,7 +310,7 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function hospitalDetailChoices(?User $user, StatisticsFilterSide $side, string $locale): array
     {
