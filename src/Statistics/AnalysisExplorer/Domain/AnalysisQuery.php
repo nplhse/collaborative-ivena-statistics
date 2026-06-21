@@ -13,9 +13,13 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 
 final readonly class AnalysisQuery
 {
+    /**
+     * @param list<AnalysisMetricKey> $metricKeys
+     */
     public function __construct(
         public AnalysisDataSourceKey $dataSourceKey,
-        public AnalysisMetricKey $metricKey,
+        public array $metricKeys,
+        public AnalysisMetricKey $visualMetricKey,
         public AnalysisDimensionKey $dimensionKey,
         public ?AnalysisDimensionGrain $timeGrain,
         public StatisticsScopeCriteria $scopeCriteria,

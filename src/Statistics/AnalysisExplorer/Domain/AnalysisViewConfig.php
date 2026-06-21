@@ -12,9 +12,13 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 
 final readonly class AnalysisViewConfig
 {
+    /**
+     * @param list<AnalysisMetricKey> $metricKeys
+     */
     public function __construct(
         public AnalysisDataSourceKey $dataSourceKey,
-        public AnalysisMetricKey $metricKey,
+        public array $metricKeys,
+        public AnalysisMetricKey $visualMetricKey,
         public AnalysisDimensionKey $dimensionKey,
         public ?AnalysisDimensionGrain $timeGrain,
         public StatisticsFilter $statisticsFilter,
@@ -23,11 +27,22 @@ final readonly class AnalysisViewConfig
     ) {
     }
 
+    public function primaryMetricKey(): AnalysisMetricKey
+    {
+        return $this->visualMetricKey;
+    }
+
+    public function showsPercentOfTotal(): bool
+    {
+        return \in_array(AnalysisMetricKey::PercentOfTotal, $this->metricKeys, true);
+    }
+
     public function withStatisticsFilter(StatisticsFilter $statisticsFilter): self
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
-            metricKey: $this->metricKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
             dimensionKey: $this->dimensionKey,
             timeGrain: $this->timeGrain,
             statisticsFilter: $statisticsFilter,
@@ -40,7 +55,8 @@ final readonly class AnalysisViewConfig
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
-            metricKey: $this->metricKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
             dimensionKey: $dimensionKey,
             timeGrain: $timeGrain,
             statisticsFilter: $this->statisticsFilter,
@@ -49,11 +65,15 @@ final readonly class AnalysisViewConfig
         );
     }
 
-    public function withMetric(AnalysisMetricKey $metricKey): self
+    /**
+     * @param list<AnalysisMetricKey> $metricKeys
+     */
+    public function withMetrics(array $metricKeys, AnalysisMetricKey $visualMetricKey): self
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
-            metricKey: $metricKey,
+            metricKeys: $metricKeys,
+            visualMetricKey: $visualMetricKey,
             dimensionKey: $this->dimensionKey,
             timeGrain: $this->timeGrain,
             statisticsFilter: $this->statisticsFilter,
@@ -62,11 +82,17 @@ final readonly class AnalysisViewConfig
         );
     }
 
+    public function withMetric(AnalysisMetricKey $metricKey): self
+    {
+        return $this->withMetrics([$metricKey], $metricKey);
+    }
+
     public function withPresentation(PresentationConfig $presentation): self
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
-            metricKey: $this->metricKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
             dimensionKey: $this->dimensionKey,
             timeGrain: $this->timeGrain,
             statisticsFilter: $this->statisticsFilter,
@@ -79,7 +105,8 @@ final readonly class AnalysisViewConfig
     {
         return new self(
             dataSourceKey: $this->dataSourceKey,
-            metricKey: $this->metricKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
             dimensionKey: $this->dimensionKey,
             timeGrain: $this->timeGrain,
             statisticsFilter: $this->statisticsFilter,

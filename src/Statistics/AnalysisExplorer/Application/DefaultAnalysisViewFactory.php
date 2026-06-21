@@ -24,7 +24,8 @@ final readonly class DefaultAnalysisViewFactory
     {
         return new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
             dimensionKey: AnalysisDimensionKey::Time,
             timeGrain: AnalysisDimensionGrain::Month,
             statisticsFilter: $statisticsFilter,
