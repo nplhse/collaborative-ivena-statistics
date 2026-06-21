@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Support;
 
+use App\Statistics\AnalysisExplorer\Application\AllocationsAnalysisRunner;
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
+use App\Statistics\AnalysisExplorer\Application\AnalysisAxisUpgradeMapper;
 use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionLabelResolver;
+use App\Statistics\AnalysisExplorer\Application\AnalysisTotalsCalculator;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationAnalysisExecutor;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationQueryMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationResultMapper;
@@ -14,6 +17,9 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCatalog;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricKeyMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
 use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
@@ -115,6 +121,30 @@ trait AnalysisExplorerTestSupport
         return new ExplorerChartPresenter(
             $this->createExplorerMetricKeyMapper(),
             $metricRegistry,
+        );
+    }
+
+    protected function createAnalysisTotalsCalculator(): AnalysisTotalsCalculator
+    {
+        return new AnalysisTotalsCalculator($this->createExplorerMetricCatalog());
+    }
+
+    /**
+     * @return array{0: AnalysisAxisRef, 1: ?AnalysisAxisRef}
+     */
+    protected function axesFromLegacy(AnalysisDimensionKey $dimension, AnalysisDimensionGrain $grain): array
+    {
+        return new AnalysisAxisUpgradeMapper()->fromLegacyDimension($dimension, $grain);
+    }
+
+    protected function createAllocationsAnalysisRunner(
+        Connection $connection,
+        TranslatorInterface $translator,
+    ): AllocationsAnalysisRunner {
+        return new AllocationsAnalysisRunner(
+            $this->createAllocationsCountQuery($connection, $translator),
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createAnalysisTotalsCalculator(),
         );
     }
 

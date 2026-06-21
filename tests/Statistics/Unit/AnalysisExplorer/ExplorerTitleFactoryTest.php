@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +22,7 @@ final class ExplorerTitleFactoryTest extends TestCase
 
         self::assertSame(
             'Allocations by gender',
-            $factory->titleFor(AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Total),
+            $factory->titleForAxes(AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender), null),
         );
     }
 
@@ -34,7 +35,27 @@ final class ExplorerTitleFactoryTest extends TestCase
 
         self::assertSame(
             'Allocations by gender over time',
-            $factory->titleFor(AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month),
+            $factory->titleForAxes(
+                AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            ),
+        );
+    }
+
+    public function testTitleForAgeGroupByMonthUsesCrossTabTitle(): void
+    {
+        $factory = new ExplorerTitleFactory($this->translator([
+            'stats.analysis_explorer.allocations_by_dimension_by_temporal' => '{dimension} by {temporal}',
+            'stats.analysis_explorer.dimension.age_group' => 'age group',
+            'stats.analysis_explorer.dimension.month' => 'month',
+        ]));
+
+        self::assertSame(
+            'age group by month',
+            $factory->titleForAxes(
+                AnalysisAxisRef::breakdown(AnalysisDimensionKey::AgeGroup),
+                AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            ),
         );
     }
 

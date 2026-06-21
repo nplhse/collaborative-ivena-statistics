@@ -36,8 +36,9 @@ final class DefaultAnalysisViewFactoryTest extends TestCase
         self::assertSame('allocations', $config->dataSourceKey->value);
         self::assertSame('allocation_count', $config->visualMetricKey->value);
         self::assertSame([AnalysisMetricKey::AllocationCount], $config->metricKeys);
-        self::assertSame(AnalysisDimensionKey::Time, $config->dimensionKey);
-        self::assertSame(AnalysisDimensionGrain::Month, $config->timeGrain);
+        self::assertSame(AnalysisDimensionKey::Time, $config->rowAxis->dimensionKey);
+        self::assertSame(AnalysisDimensionGrain::Month, $config->rowAxis->resolvedGrain());
+        self::assertNull($config->columnAxis);
         self::assertSame($filter, $config->statisticsFilter);
         self::assertSame(ChartPresentationType::Bar, $config->presentation->chartType);
         self::assertSame('Allocations over time', $config->title);

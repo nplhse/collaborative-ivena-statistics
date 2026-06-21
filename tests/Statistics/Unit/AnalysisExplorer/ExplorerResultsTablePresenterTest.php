@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -37,8 +39,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: null,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -55,8 +57,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
                 title: 'Allocations over time',
                 metricKeys: [AnalysisMetricKey::AllocationCount],
                 visualMetricKey: AnalysisMetricKey::AllocationCount,
-                dimensionKey: AnalysisDimensionKey::Time,
-                timeGrain: AnalysisDimensionGrain::Month,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: null,
                 rows: [
                     new AnalysisResultRow(
                         bucket: '2024-06',
@@ -73,7 +75,7 @@ final class ExplorerResultsTablePresenterTest extends TestCase
                         metricValues: ['allocation_count' => 8],
                     ),
                 ],
-                totals: ['allocation_count' => 20],
+                totals: new AnalysisTotals(grand: ['allocation_count' => 20]),
             ),
         );
 
@@ -91,6 +93,7 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnMap([
             ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
+            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
             ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
         ]);
 
@@ -99,15 +102,18 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
                 period: StatisticsFilterPeriod::All,
             ),
-            presentation: new PresentationConfig(chartType: ChartPresentationType::GroupedBar),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::GroupedBar,
+                tableLayout: \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Matrix,
+            ),
             title: 'Allocations by gender over time',
         );
 
@@ -117,8 +123,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
                 title: 'Allocations by gender over time',
                 metricKeys: [AnalysisMetricKey::AllocationCount],
                 visualMetricKey: AnalysisMetricKey::AllocationCount,
-                dimensionKey: AnalysisDimensionKey::Gender,
-                timeGrain: AnalysisDimensionGrain::Month,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
                 rows: [
                     new AnalysisResultRow(
                         bucket: '2024-06',
@@ -135,7 +141,7 @@ final class ExplorerResultsTablePresenterTest extends TestCase
                         metricValues: ['allocation_count' => 2],
                     ),
                 ],
-                totals: ['allocation_count' => 6],
+                totals: new AnalysisTotals(grand: ['allocation_count' => 6]),
             ),
         );
 
@@ -159,8 +165,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Year,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Year),
+            columnAxis: null,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -177,10 +183,10 @@ final class ExplorerResultsTablePresenterTest extends TestCase
                 title: 'Allocations over time',
                 metricKeys: [AnalysisMetricKey::AllocationCount],
                 visualMetricKey: AnalysisMetricKey::AllocationCount,
-                dimensionKey: AnalysisDimensionKey::Time,
-                timeGrain: AnalysisDimensionGrain::Year,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Year),
+                columnAxis: null,
                 rows: [],
-                totals: ['allocation_count' => 0],
+                totals: new AnalysisTotals(grand: ['allocation_count' => 0]),
             ),
         );
 

@@ -40,8 +40,9 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
         self::assertFalse($result->notFound);
         self::assertFalse($result->usedFallback);
-        self::assertSame('gender', $result->state['query']['dimension'] ?? null);
-        self::assertSame('month', $result->state['query']['grain'] ?? null);
+        self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);
+        self::assertSame('month', $result->state['query']['rows']['grain'] ?? null);
+        self::assertSame('gender', $result->state['query']['columns']['dimension'] ?? null);
         self::assertSame('grouped_bar', $result->state['presentation']['chartType'] ?? null);
     }
 
@@ -53,7 +54,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
         $result = $this->loader->load((string) $view->getId(), $this->publicFilter(), null);
 
         self::assertFalse($result->notFound);
-        self::assertSame('year', $result->state['query']['grain'] ?? null);
+        self::assertSame('year', $result->state['query']['rows']['grain'] ?? null);
         self::assertSame('line', $result->state['presentation']['chartType'] ?? null);
     }
 
@@ -81,7 +82,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
         self::assertTrue($result->usedFallback);
         self::assertSame(['stats.analysis_explorer.saved_view.invalid_config'], $result->warnings);
-        self::assertSame('time', $result->state['query']['dimension'] ?? null);
+        self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);
     }
 
     public function testFilterOverlayReplacesScopeInState(): void

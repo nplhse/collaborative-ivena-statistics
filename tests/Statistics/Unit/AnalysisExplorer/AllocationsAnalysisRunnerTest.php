@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AllocationsAnalysisRunner;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -35,19 +36,11 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         ]);
         $connection->method('executeQuery')->willReturn($result);
 
-        $runner = new AllocationsAnalysisRunner(
-            $this->createAllocationsCountQuery($connection, $this->createTranslator()),
-            $this->createAllocationsCapabilitiesProvider(),
-        );
+        $runner = $this->createAllocationsAnalysisRunner($connection, $this->createTranslator());
 
-        $runResult = $runner->run(new AnalysisQuery(
-            dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKeys: [AnalysisMetricKey::AllocationCount],
-            visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Month,
-            scopeCriteria: StatisticsScopeCriteria::public(),
-            periodBounds: new StatisticsPeriodBounds(new \DateTimeImmutable('2024-01-01 00:00:00')),
+        $runResult = $runner->run($this->analysisQuery(
+            AnalysisDimensionKey::Time,
+            AnalysisDimensionGrain::Month,
         ));
 
         self::assertSame('allocation_count', $runResult->visualMetricKey->value);
@@ -69,19 +62,11 @@ final class AllocationsAnalysisRunnerTest extends TestCase
             ->with(self::callback(static fn (string $sql): bool => str_contains($sql, 'created_year AS bucket')))
             ->willReturn($result);
 
-        $runner = new AllocationsAnalysisRunner(
-            $this->createAllocationsCountQuery($connection, $this->createTranslator()),
-            $this->createAllocationsCapabilitiesProvider(),
-        );
+        $runner = $this->createAllocationsAnalysisRunner($connection, $this->createTranslator());
 
-        $runResult = $runner->run(new AnalysisQuery(
-            dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKeys: [AnalysisMetricKey::AllocationCount],
-            visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Year,
-            scopeCriteria: StatisticsScopeCriteria::public(),
-            periodBounds: new StatisticsPeriodBounds(null),
+        $runResult = $runner->run($this->analysisQuery(
+            AnalysisDimensionKey::Time,
+            AnalysisDimensionGrain::Year,
         ));
 
         self::assertSame('2024', $runResult->rows[0]->bucketLabel);
@@ -102,25 +87,17 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Male');
 
-        $runner = new AllocationsAnalysisRunner(
-            $this->createAllocationsCountQuery($connection, $translator),
-            $this->createAllocationsCapabilitiesProvider(),
-        );
+        $runner = $this->createAllocationsAnalysisRunner($connection, $translator);
 
-        $runResult = $runner->run(new AnalysisQuery(
-            dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKeys: [AnalysisMetricKey::AllocationCount],
-            visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: AnalysisDimensionGrain::Total,
-            scopeCriteria: StatisticsScopeCriteria::public(),
-            periodBounds: new StatisticsPeriodBounds(null),
+        $runResult = $runner->run($this->analysisQuery(
+            AnalysisDimensionKey::Gender,
+            AnalysisDimensionGrain::Total,
         ));
 
         self::assertSame('Male', $runResult->rows[0]->bucketLabel);
     }
 
-    public function testGenderMonthUsesTimeAndSeriesGrouping(): void
+    public function testTimeRowsWithGenderColumnsUseBothAxes(): void
     {
         $connection = $this->createMock(Connection::class);
         $result = $this->createMock(\Doctrine\DBAL\Result::class);
@@ -137,22 +114,21 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Male');
 
-        $runner = new AllocationsAnalysisRunner(
-            $this->createAllocationsCountQuery($connection, $translator),
-            $this->createAllocationsCapabilitiesProvider(),
-        );
+        $runner = $this->createAllocationsAnalysisRunner($connection, $translator);
+
+        [$rowAxis, $columnAxis] = $this->axesFromLegacy(AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month);
 
         $runResult = $runner->run(new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
         ));
 
-        self::assertTrue($runResult->hasSeries());
+        self::assertTrue($runResult->hasColumnAxis());
         self::assertSame('2024-06', $runResult->rows[0]->bucketLabel);
         self::assertSame('Male', $runResult->rows[0]->seriesLabel);
     }
@@ -164,8 +140,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
             title: 'Allocations over time',
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: null,
             rows: [
                 new AnalysisResultRow(
                     bucket: '2024-06',
@@ -175,7 +151,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
                     metricValues: ['allocation_count' => 5],
                 ),
             ],
-            totals: ['allocation_count' => 5],
+            totals: new AnalysisTotals(grand: ['allocation_count' => 5]),
         );
 
         $barSpecs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Bar));
@@ -190,8 +166,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
             title: 'Allocations by gender over time',
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
             rows: [
                 new AnalysisResultRow(
                     bucket: '2024-06',
@@ -208,7 +184,7 @@ final class AllocationsAnalysisRunnerTest extends TestCase
                     metricValues: ['allocation_count' => 3],
                 ),
             ],
-            totals: ['allocation_count' => 8],
+            totals: new AnalysisTotals(grand: ['allocation_count' => 8]),
         );
 
         $groupedSpecs = $presenter->buildSpecs($seriesResult, new PresentationConfig(chartType: ChartPresentationType::GroupedBar));
@@ -238,24 +214,40 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Inpatient');
 
-        $runner = new AllocationsAnalysisRunner(
-            $this->createAllocationsCountQuery($connection, $translator),
-            $this->createAllocationsCapabilitiesProvider(),
-        );
+        $runner = $this->createAllocationsAnalysisRunner($connection, $translator);
+
+        [$rowAxis, $columnAxis] = $this->axesFromLegacy(AnalysisDimensionKey::Urgency, AnalysisDimensionGrain::Year);
 
         $runResult = $runner->run(new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Urgency,
-            timeGrain: AnalysisDimensionGrain::Year,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
         ));
 
-        self::assertTrue($runResult->hasSeries());
+        self::assertTrue($runResult->hasColumnAxis());
         self::assertSame('2024', $runResult->rows[0]->bucketLabel);
         self::assertSame('Inpatient', $runResult->rows[0]->seriesLabel);
+    }
+
+    private function analysisQuery(
+        AnalysisDimensionKey $dimension,
+        AnalysisDimensionGrain $grain,
+    ): AnalysisQuery {
+        [$rowAxis, $columnAxis] = $this->axesFromLegacy($dimension, $grain);
+
+        return new AnalysisQuery(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(new \DateTimeImmutable('2024-01-01 00:00:00')),
+        );
     }
 
     private function createTranslator(): TranslatorInterface

@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
@@ -24,9 +25,9 @@ final class ExplorerDescriptionFactoryTest extends TestCase
 
         self::assertSame(
             'Allocation counts grouped by Allocations by gender.',
-            $factory->descriptionFor(
-                AnalysisDimensionKey::Gender,
-                AnalysisDimensionGrain::Total,
+            $factory->descriptionForAxes(
+                AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+                null,
                 ChartPresentationType::Bar,
             ),
         );
@@ -44,9 +45,9 @@ final class ExplorerDescriptionFactoryTest extends TestCase
 
         self::assertSame(
             'Monthly allocation counts split by Allocations by gender, shown as grouped bar chart.',
-            $factory->descriptionFor(
-                AnalysisDimensionKey::Gender,
-                AnalysisDimensionGrain::Month,
+            $factory->descriptionForAxes(
+                AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
                 ChartPresentationType::GroupedBar,
             ),
         );
@@ -61,9 +62,9 @@ final class ExplorerDescriptionFactoryTest extends TestCase
 
         self::assertSame(
             'Yearly allocation totals.',
-            $factory->descriptionFor(
-                AnalysisDimensionKey::Time,
-                AnalysisDimensionGrain::Year,
+            $factory->descriptionForAxes(
+                AnalysisAxisRef::time(AnalysisDimensionGrain::Year),
+                null,
                 ChartPresentationType::Line,
             ),
         );

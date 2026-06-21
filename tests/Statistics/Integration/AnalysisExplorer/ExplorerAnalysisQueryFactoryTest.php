@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -31,8 +32,8 @@ final class ExplorerAnalysisQueryFactoryTest extends KernelTestCase
                 dataSourceKey: AnalysisDataSourceKey::Allocations,
                 metricKeys: [AnalysisMetricKey::AllocationCount],
                 visualMetricKey: AnalysisMetricKey::AllocationCount,
-                dimensionKey: AnalysisDimensionKey::Time,
-                timeGrain: AnalysisDimensionGrain::Month,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: null,
                 statisticsFilter: new StatisticsFilter(
                     scope: StatisticsFilterScope::Public,
                     hospitalId: null,
@@ -46,6 +47,6 @@ final class ExplorerAnalysisQueryFactoryTest extends KernelTestCase
         );
 
         self::assertSame(StatisticsPeriod::overviewPeriodStart()->format('Y-m-d'), $query->periodBounds->from?->format('Y-m-d'));
-        self::assertSame(AnalysisDimensionKey::Time, $query->dimensionKey);
+        self::assertSame(AnalysisDimensionKey::Time, $query->rowAxis->dimensionKey);
     }
 }

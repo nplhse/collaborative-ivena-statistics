@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionGrainResolver;
+use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerTableLayoutResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -26,7 +28,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
 {
     use AnalysisExplorerTestSupport;
 
-    public function testNormalizesGenderBarToGroupedBarForMonthGrain(): void
+    public function testNormalizesTimeRowsWithGenderColumnsBarToGroupedBar(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
@@ -34,9 +36,10 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $normalizer = new AnalysisViewConfigNormalizer(
             $this->createAllocationsCapabilitiesProvider(),
             new ExplorerTitleFactory($translator),
-            new AnalysisDimensionGrainResolver(),
+            new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
+            new ExplorerTableLayoutResolver(),
             $this->createSecurityWithoutUser(),
         );
 
@@ -44,8 +47,8 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -58,12 +61,12 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
 
         $normalized = $normalizer->normalize($config);
 
-        self::assertSame(AnalysisDimensionKey::Gender, $normalized->dimensionKey);
-        self::assertSame(AnalysisDimensionGrain::Month, $normalized->timeGrain);
+        self::assertSame(AnalysisDimensionKey::Time, $normalized->rowAxis->dimensionKey);
+        self::assertSame(AnalysisDimensionKey::Gender, $normalized->columnAxis?->dimensionKey);
         self::assertSame(ChartPresentationType::GroupedBar, $normalized->presentation->chartType);
     }
 
-    public function testNormalizesLegacyNullGenderGrainToTotal(): void
+    public function testNormalizesGenderRowsWithoutGrainToTotal(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
@@ -71,9 +74,10 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $normalizer = new AnalysisViewConfigNormalizer(
             $this->createAllocationsCapabilitiesProvider(),
             new ExplorerTitleFactory($translator),
-            new AnalysisDimensionGrainResolver(),
+            new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
+            new ExplorerTableLayoutResolver(),
             $this->createSecurityWithoutUser(),
         );
 
@@ -81,8 +85,8 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: null,
+            rowAxis: new AnalysisAxisRef(AnalysisDimensionKey::Gender, null),
+            columnAxis: null,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -95,6 +99,6 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
 
         $normalized = $normalizer->normalize($config);
 
-        self::assertSame(AnalysisDimensionGrain::Total, $normalized->timeGrain);
+        self::assertSame(AnalysisDimensionGrain::Total, $normalized->rowAxis->resolvedGrain());
     }
 }

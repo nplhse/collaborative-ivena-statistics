@@ -7,16 +7,20 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationQueryMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricKeyMapper;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 
 final class ExplorerAllocationQueryMapperTest extends TestCase
 {
+    use AnalysisExplorerTestSupport;
+
     private ExplorerAllocationQueryMapper $mapper;
 
     protected function setUp(): void
@@ -24,11 +28,11 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
         $this->mapper = new ExplorerAllocationQueryMapper(new ExplorerMetricKeyMapper());
     }
 
-    public function testTimeDimensionMapsToTemporalPrimaryKey(): void
+    public function testTimeRowsMapToTemporalPrimaryKey(): void
     {
         $mapped = $this->mapper->map($this->query(
-            AnalysisDimensionKey::Time,
-            AnalysisDimensionGrain::Year,
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Year),
+            null,
         ));
 
         self::assertSame('year', $mapped->primaryDimensionKey);
@@ -36,49 +40,58 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
         self::assertSame(['count'], $mapped->metricKeys);
     }
 
-    public function testBreakdownTotalMapsDimensionAsPrimary(): void
+    public function testBreakdownRowsMapDimensionAsPrimary(): void
     {
         $mapped = $this->mapper->map($this->query(
-            AnalysisDimensionKey::Gender,
-            AnalysisDimensionGrain::Total,
+            AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            null,
         ));
 
         self::assertSame('gender', $mapped->primaryDimensionKey);
         self::assertNull($mapped->seriesDimensionKey);
     }
 
-    public function testBreakdownOverTimeMapsTemporalPrimaryAndSeriesDimension(): void
+    public function testTimeRowsWithBreakdownColumnsMapBothAxes(): void
     {
         $mapped = $this->mapper->map($this->query(
-            AnalysisDimensionKey::Gender,
-            AnalysisDimensionGrain::Month,
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
         ));
 
         self::assertSame('month', $mapped->primaryDimensionKey);
         self::assertSame('gender', $mapped->seriesDimensionKey);
     }
 
-    public function testQuarterGrainMapsToQuarterRegistryKey(): void
+    public function testBreakdownRowsWithTimeColumnsMapBothAxes(): void
     {
         $mapped = $this->mapper->map($this->query(
-            AnalysisDimensionKey::Urgency,
-            AnalysisDimensionGrain::Quarter,
+            AnalysisAxisRef::breakdown(AnalysisDimensionKey::AgeGroup),
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+        ));
+
+        self::assertSame('age_group', $mapped->primaryDimensionKey);
+        self::assertSame('month', $mapped->seriesDimensionKey);
+    }
+
+    public function testQuarterColumnsMapToQuarterRegistryKey(): void
+    {
+        $mapped = $this->mapper->map($this->query(
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Quarter),
+            AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
         ));
 
         self::assertSame('quarter', $mapped->primaryDimensionKey);
         self::assertSame('urgency', $mapped->seriesDimensionKey);
     }
 
-    private function query(
-        AnalysisDimensionKey $dimensionKey,
-        AnalysisDimensionGrain $timeGrain,
-    ): AnalysisQuery {
+    private function query(AnalysisAxisRef $rowAxis, ?AnalysisAxisRef $columnAxis): AnalysisQuery
+    {
         return new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: $dimensionKey,
-            timeGrain: $timeGrain,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
         );

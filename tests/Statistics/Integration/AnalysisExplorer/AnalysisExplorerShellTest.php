@@ -48,7 +48,8 @@ final class AnalysisExplorerShellTest extends WebTestCase
         $testComponent->render();
 
         self::assertSame('grouped_bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
-        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['dimension'] ?? null);
+        self::assertSame('time', $testComponent->component()->appliedConfigState['query']['rows']['dimension'] ?? null);
+        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['columns']['dimension'] ?? null);
     }
 
     public function testOpenEditKeepsLibraryLinkVisible(): void
@@ -65,6 +66,27 @@ final class AnalysisExplorerShellTest extends WebTestCase
         self::assertSame(
             '/statistics/analysis/library',
             $testComponent->component()->libraryUrl,
+        );
+    }
+
+    public function testOpenEditShowsMatrixStructurePreview(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-structure-preview"]')->count(),
+        );
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-structure-row"]')->count(),
+        );
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-structure-metric"]')->count(),
         );
     }
 
@@ -167,8 +189,8 @@ final class AnalysisExplorerShellTest extends WebTestCase
         $formName = $this->formName($render);
         $testComponent
             ->submitForm($this->formPayload($formName, [
-                'dimension' => 'gender',
-                'timeGrain' => 'total',
+                'rowDimension' => 'gender',
+                'rowGrain' => 'total',
                 'chartType' => 'bar',
             ]))
             ->call('applyEdit')
@@ -240,12 +262,15 @@ final class AnalysisExplorerShellTest extends WebTestCase
 
         $formName = $this->formName($testComponent->render());
         $testComponent->submitForm($this->formPayload($formName, [
-            'timeGrain' => 'year',
+            'rowDimension' => 'time',
+            'rowGrain' => 'year',
+            'columnDimension' => 'urgency',
+            'columnGrain' => 'total',
             'chartType' => 'line',
         ]));
 
         self::assertSame('bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
-        self::assertSame('month', $testComponent->component()->appliedConfigState['query']['grain'] ?? null);
+        self::assertSame('month', $testComponent->component()->appliedConfigState['query']['rows']['grain'] ?? null);
     }
 
     public function testPeriodChangeRefreshesYearFieldInDrawer(): void
@@ -268,9 +293,11 @@ final class AnalysisExplorerShellTest extends WebTestCase
                         'scopeGroup' => 'public',
                         'period' => 'year',
                     ],
-                    'dimension' => 'time',
+                    'rowDimension' => 'time',
+                    'rowGrain' => 'month',
+                    'columnDimension' => '',
+                    'columnGrain' => 'total',
                     'metric' => 'allocation_count',
-                    'timeGrain' => 'month',
                     'chartType' => 'bar',
                 ],
             ])
@@ -292,10 +319,15 @@ final class AnalysisExplorerShellTest extends WebTestCase
 
         $formName = $this->formName($testComponent->render());
         $testComponent
-            ->submitForm($this->formPayload($formName, ['timeGrain' => 'year']))
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'time',
+                'rowGrain' => 'year',
+                'columnDimension' => 'gender',
+                'columnGrain' => 'total',
+            ]))
             ->call('applyEdit');
 
-        self::assertSame('year', $testComponent->component()->appliedConfigState['query']['grain'] ?? null);
+        self::assertSame('year', $testComponent->component()->appliedConfigState['query']['rows']['grain'] ?? null);
     }
 
     public function testApplyEditChangesDimensionToGenderWithTotalGrain(): void
@@ -307,14 +339,14 @@ final class AnalysisExplorerShellTest extends WebTestCase
         $formName = $this->formName($testComponent->render());
         $testComponent
             ->submitForm($this->formPayload($formName, [
-                'dimension' => 'gender',
-                'timeGrain' => 'total',
+                'rowDimension' => 'gender',
+                'rowGrain' => 'total',
                 'chartType' => 'bar',
             ]))
             ->call('applyEdit');
 
-        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['dimension'] ?? null);
-        self::assertSame('total', $testComponent->component()->appliedConfigState['query']['grain'] ?? null);
+        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['rows']['dimension'] ?? null);
+        self::assertSame('total', $testComponent->component()->appliedConfigState['query']['rows']['grain'] ?? null);
     }
 
     public function testApplyEditGenderMonthUsesGroupedBarChart(): void
@@ -326,8 +358,10 @@ final class AnalysisExplorerShellTest extends WebTestCase
         $formName = $this->formName($testComponent->render());
         $updatedRender = $testComponent
             ->submitForm($this->formPayload($formName, [
-                'dimension' => 'gender',
-                'timeGrain' => 'month',
+                'rowDimension' => 'time',
+                'rowGrain' => 'month',
+                'columnDimension' => 'gender',
+                'columnGrain' => 'total',
                 'chartType' => 'grouped_bar',
             ]))
             ->call('applyEdit')
@@ -350,11 +384,16 @@ final class AnalysisExplorerShellTest extends WebTestCase
 
         $formName = $this->formName($testComponent->render());
         $render = $testComponent
-            ->submitForm($this->formPayload($formName, ['dimension' => 'urgency', 'timeGrain' => 'month']))
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'time',
+                'rowGrain' => 'month',
+                'columnDimension' => 'urgency',
+                'columnGrain' => 'total',
+            ]))
             ->call('refreshEditForm')
             ->render();
 
-        self::assertGreaterThan(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-time-grain-field"]')->count());
+        self::assertGreaterThan(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-row-grain-field"]')->count());
     }
 
     public function testApplyEditShowsEmptyStateWhenNoData(): void
@@ -371,9 +410,11 @@ final class AnalysisExplorerShellTest extends WebTestCase
                         'scopeGroup' => 'public',
                         'period' => 'year',
                     ],
-                    'dimension' => 'time',
+                    'rowDimension' => 'time',
+                    'rowGrain' => 'month',
+                    'columnDimension' => '',
+                    'columnGrain' => 'total',
                     'metric' => 'allocation_count',
-                    'timeGrain' => 'month',
                     'chartType' => 'bar',
                 ],
             ])
@@ -418,9 +459,11 @@ final class AnalysisExplorerShellTest extends WebTestCase
                         'scopeDetail' => (string) $stateId,
                         'period' => 'all',
                     ],
-                    'dimension' => 'time',
+                    'rowDimension' => 'time',
+                    'rowGrain' => 'month',
+                    'columnDimension' => '',
+                    'columnGrain' => 'total',
                     'metric' => 'allocation_count',
-                    'timeGrain' => 'month',
                     'chartType' => 'bar',
                 ],
             ])
@@ -444,9 +487,10 @@ final class AnalysisExplorerShellTest extends WebTestCase
                     'scopeGroup' => 'public',
                     'period' => 'all',
                 ],
-                'dimension' => 'time',
+                'rowDimension' => 'time',
+                'rowGrain' => 'month',
+                'columnDimension' => '',
                 'metric' => 'allocation_count',
-                'timeGrain' => 'month',
                 'chartType' => 'bar',
             ], $overrides),
         ];

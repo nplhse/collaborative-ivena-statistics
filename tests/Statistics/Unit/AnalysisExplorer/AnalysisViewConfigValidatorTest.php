@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -36,8 +37,8 @@ final class AnalysisViewConfigValidatorTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Year,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Year),
+            columnAxis: null,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -49,7 +50,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
         ));
     }
 
-    public function testGenderWithMonthAndGroupedBarPasses(): void
+    public function testTimeRowsWithGenderColumnsAndGroupedBarPasses(): void
     {
         $this->expectNotToPerformAssertions();
 
@@ -62,8 +63,8 @@ final class AnalysisViewConfigValidatorTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: AnalysisDimensionGrain::Month,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
@@ -75,7 +76,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
         ));
     }
 
-    public function testGenderWithMonthRejectsBarChartType(): void
+    public function testTimeRowsWithGenderColumnsRejectsBarChartType(): void
     {
         $validator = new AnalysisViewConfigValidator(
             $this->createAllocationsCapabilitiesProvider(),
@@ -88,8 +89,8 @@ final class AnalysisViewConfigValidatorTest extends TestCase
                 dataSourceKey: AnalysisDataSourceKey::Allocations,
                 metricKeys: [AnalysisMetricKey::AllocationCount],
                 visualMetricKey: AnalysisMetricKey::AllocationCount,
-                dimensionKey: AnalysisDimensionKey::Gender,
-                timeGrain: AnalysisDimensionGrain::Month,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
                 statisticsFilter: new StatisticsFilter(
                     scope: StatisticsFilterScope::Public,
                     hospitalId: null,
@@ -106,7 +107,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
         }
     }
 
-    public function testTimeDimensionRejectsTotalGrain(): void
+    public function testTimeRowsWithTotalGrainRejectsConfig(): void
     {
         $validator = new AnalysisViewConfigValidator(
             $this->createAllocationsCapabilitiesProvider(),
@@ -119,8 +120,8 @@ final class AnalysisViewConfigValidatorTest extends TestCase
                 dataSourceKey: AnalysisDataSourceKey::Allocations,
                 metricKeys: [AnalysisMetricKey::AllocationCount],
                 visualMetricKey: AnalysisMetricKey::AllocationCount,
-                dimensionKey: AnalysisDimensionKey::Time,
-                timeGrain: AnalysisDimensionGrain::Total,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Total),
+                columnAxis: null,
                 statisticsFilter: new StatisticsFilter(
                     scope: StatisticsFilterScope::Public,
                     hospitalId: null,
@@ -132,7 +133,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
             ));
             self::fail('Expected InvalidExplorerConfigException');
         } catch (InvalidExplorerConfigException $exception) {
-            self::assertSame('stats.analysis_explorer.validation.unsupported_grain', $exception->translationKey);
+            self::assertSame('stats.analysis_explorer.validation.unsupported_dimension', $exception->translationKey);
         }
     }
 }

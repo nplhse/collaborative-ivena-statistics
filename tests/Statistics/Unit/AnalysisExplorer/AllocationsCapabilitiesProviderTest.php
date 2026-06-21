@@ -73,12 +73,15 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
         AnalysisDimensionKey $dimension,
         AnalysisDimensionGrain $grain,
     ): \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig {
+        [$rowAxis, $columnAxis] = new \App\Statistics\AnalysisExplorer\Application\AnalysisAxisUpgradeMapper()
+            ->fromLegacyDimension($dimension, $grain);
+
         return new \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
             metricKeys: [$capabilities->defaultMetric],
             visualMetricKey: $capabilities->defaultMetric,
-            dimensionKey: $dimension,
-            timeGrain: $grain,
+            rowAxis: $rowAxis,
+            columnAxis: $columnAxis,
             statisticsFilter: new \App\Statistics\Application\DTO\StatisticsFilter(
                 scope: \App\Statistics\Application\DTO\StatisticsFilterScope::Public,
                 hospitalId: null,

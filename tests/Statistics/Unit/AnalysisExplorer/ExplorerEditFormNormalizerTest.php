@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionGrainResolver;
+use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
@@ -20,71 +20,85 @@ final class ExplorerEditFormNormalizerTest extends TestCase
 
     protected function setUp(): void
     {
+        $capabilities = $this->createAllocationsCapabilitiesProvider();
         $this->normalizer = new ExplorerEditFormNormalizer(
             $this->createAllocationsCapabilitiesProvider(),
-            new AnalysisDimensionGrainResolver(),
+            new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
         );
     }
 
-    public function testGenderWithEmptyGrainDefaultsToTotal(): void
+    public function testGenderRowsWithEmptyGrainDefaultsToTotal(): void
     {
         $normalized = $this->normalizer->normalize($this->formData(
-            dimension: 'gender',
-            timeGrain: null,
+            rowDimension: 'gender',
+            rowGrain: null,
             chartType: 'bar',
         ));
 
-        self::assertSame('gender', $normalized->dimension);
-        self::assertSame('total', $normalized->timeGrain);
-        self::assertSame('bar', $normalized->chartType);
+        self::assertSame('gender', $normalized->rowDimension);
+        self::assertSame('total', $normalized->rowGrain);
+        self::assertNull($normalized->columnDimension);
     }
 
-    public function testGenderWithMonthFallsBackFromBarToGroupedBar(): void
+    public function testTimeRowsWithGenderColumnsFallsBackFromBarToGroupedBar(): void
     {
         $normalized = $this->normalizer->normalize($this->formData(
-            dimension: 'gender',
-            timeGrain: 'month',
+            rowDimension: 'time',
+            rowGrain: 'month',
             chartType: 'bar',
+            columnDimension: 'gender',
+            columnGrain: 'total',
         ));
 
-        self::assertSame('month', $normalized->timeGrain);
+        self::assertSame('time', $normalized->rowDimension);
+        self::assertSame('gender', $normalized->columnDimension);
         self::assertSame('grouped_bar', $normalized->chartType);
     }
 
-    public function testTimeDimensionRejectsTotalGrain(): void
+    public function testTimeRowsRejectsTotalGrain(): void
     {
         $normalized = $this->normalizer->normalize($this->formData(
-            dimension: 'time',
-            timeGrain: 'total',
+            rowDimension: 'time',
+            rowGrain: 'total',
             chartType: 'bar',
         ));
 
-        self::assertSame('time', $normalized->dimension);
-        self::assertSame('month', $normalized->timeGrain);
+        self::assertSame('time', $normalized->rowDimension);
+        self::assertSame('month', $normalized->rowGrain);
     }
 
-    public function testUrgencyYearKeepsStackedBarChartType(): void
+    public function testTimeRowsWithUrgencyColumnsKeepsStackedBarChartType(): void
     {
         $normalized = $this->normalizer->normalize($this->formData(
-            dimension: 'urgency',
-            timeGrain: 'year',
+            rowDimension: 'time',
+            rowGrain: 'year',
             chartType: 'stacked_bar',
+            columnDimension: 'urgency',
+            columnGrain: 'total',
         ));
 
-        self::assertSame('urgency', $normalized->dimension);
-        self::assertSame('year', $normalized->timeGrain);
+        self::assertSame('time', $normalized->rowDimension);
+        self::assertSame('year', $normalized->rowGrain);
+        self::assertSame('urgency', $normalized->columnDimension);
         self::assertSame('stacked_bar', $normalized->chartType);
     }
 
-    private function formData(string $dimension, ?string $timeGrain, string $chartType): ExplorerEditFormData
-    {
+    private function formData(
+        string $rowDimension,
+        ?string $rowGrain,
+        string $chartType,
+        ?string $columnDimension = null,
+        ?string $columnGrain = null,
+    ): ExplorerEditFormData {
         return new ExplorerEditFormData(
             scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
-            dimension: $dimension,
+            rowDimension: $rowDimension,
+            rowGrain: $rowGrain,
+            columnDimension: $columnDimension,
+            columnGrain: $columnGrain,
             metric: 'allocation_count',
-            timeGrain: $timeGrain,
             chartType: $chartType,
         );
     }
