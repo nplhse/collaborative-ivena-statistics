@@ -26,7 +26,8 @@ final readonly class AnalysisRunnerRegistry
                 return new AnalysisRunResult(
                     title: $config->title,
                     metricKey: $result->metricKey,
-                    dimensionGrain: $result->dimensionGrain,
+                    dimensionKey: $result->dimensionKey,
+                    timeGrain: $result->timeGrain,
                     dataPoints: $result->dataPoints,
                     total: $result->total,
                 );

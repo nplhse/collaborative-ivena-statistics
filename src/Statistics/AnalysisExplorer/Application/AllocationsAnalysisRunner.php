@@ -7,47 +7,27 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Application\Contract\AnalysisRunnerInterface;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
-use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
-use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsTimeSeriesCountQuery;
+use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
 
 final readonly class AllocationsAnalysisRunner implements AnalysisRunnerInterface
 {
-    public static function capabilities(): DataSourceCapabilities
-    {
-        return new DataSourceCapabilities(
-            key: AnalysisDataSourceKey::Allocations,
-            supportedMetrics: [AnalysisMetricKey::AllocationCount],
-            supportedDimensions: [AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
-            defaultMetric: AnalysisMetricKey::AllocationCount,
-            defaultDimension: AnalysisDimensionGrain::Month,
-        );
-    }
-
     public function __construct(
-        private AllocationsTimeSeriesCountQuery $timeSeriesCountQuery,
+        private AllocationsCountQuery $countQuery,
+        private AllocationsCapabilitiesProvider $capabilitiesProvider,
     ) {
     }
 
     #[\Override]
     public function supports(AnalysisViewConfig $config): bool
     {
-        $capabilities = self::capabilities();
-
-        if (!\in_array($config->metricKey, $capabilities->supportedMetrics, true)) {
-            return false;
-        }
-
-        return \in_array($config->dimensionGrain, $capabilities->supportedDimensions, true);
+        return $this->capabilitiesProvider->capabilities()->supports($config);
     }
 
     #[\Override]
     public function run(AnalysisQuery $query): AnalysisRunResult
     {
-        $dataPoints = $this->timeSeriesCountQuery->execute($query);
+        $dataPoints = $this->countQuery->execute($query);
         $total = 0;
 
         foreach ($dataPoints as $point) {
@@ -57,7 +37,8 @@ final readonly class AllocationsAnalysisRunner implements AnalysisRunnerInterfac
         return new AnalysisRunResult(
             title: '',
             metricKey: $query->metricKey,
-            dimensionGrain: $query->dimensionGrain,
+            dimensionKey: $query->dimensionKey,
+            timeGrain: $query->timeGrain,
             dataPoints: $dataPoints,
             total: $total,
         );

@@ -9,6 +9,7 @@ use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewMode
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -30,18 +31,22 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         return new ExplorerResultsTableViewModel(
-            primaryDimensionLabel: $this->dimensionLabel($viewConfig->dimensionGrain),
+            primaryDimensionLabel: $this->dimensionLabel($viewConfig->dimensionKey, $viewConfig->timeGrain),
             metricLabel: $this->metricLabel($viewConfig->metricKey),
             rows: $rows,
             total: $result->total,
         );
     }
 
-    private function dimensionLabel(AnalysisDimensionGrain $dimensionGrain): string
+    private function dimensionLabel(AnalysisDimensionKey $dimensionKey, ?AnalysisDimensionGrain $timeGrain): string
     {
-        return match ($dimensionGrain) {
-            AnalysisDimensionGrain::Month => $this->translator->trans('stats.analysis_explorer.dimension.month'),
-            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
+        return match ($dimensionKey) {
+            AnalysisDimensionKey::Time => match ($timeGrain) {
+                AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
+                default => $this->translator->trans('stats.analysis_explorer.dimension.month'),
+            },
+            AnalysisDimensionKey::Gender => $this->translator->trans('stats.analysis_explorer.dimension.gender'),
+            AnalysisDimensionKey::Urgency => $this->translator->trans('stats.analysis_explorer.dimension.urgency'),
         };
     }
 

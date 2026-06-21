@@ -7,16 +7,16 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class DefaultAnalysisViewFactory
 {
     public function __construct(
-        private TranslatorInterface $translator,
+        private ExplorerTitleFactory $titleFactory,
     ) {
     }
 
@@ -25,12 +25,13 @@ final readonly class DefaultAnalysisViewFactory
         return new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKey: AnalysisMetricKey::AllocationCount,
-            dimensionGrain: AnalysisDimensionGrain::Month,
+            dimensionKey: AnalysisDimensionKey::Time,
+            timeGrain: AnalysisDimensionGrain::Month,
             statisticsFilter: $statisticsFilter,
             presentation: new PresentationConfig(
                 chartType: ChartPresentationType::Bar,
             ),
-            title: $this->translator->trans('stats.analysis_explorer.allocations_over_time'),
+            title: $this->titleFactory->titleFor(AnalysisDimensionKey::Time),
         );
     }
 }
