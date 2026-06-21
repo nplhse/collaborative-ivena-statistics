@@ -7739,6 +7739,162 @@
         <source>stats.analysis_explorer.dimension.week</source>
         <target>Calendar week</target>
       </trans-unit>
+      <trans-unit id="statsAex124" resname="stats.analysis_explorer.edit.rows">
+        <source>stats.analysis_explorer.edit.rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsAex125" resname="stats.analysis_explorer.edit.columns">
+        <source>stats.analysis_explorer.edit.columns</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex126" resname="stats.analysis_explorer.edit.columns_none">
+        <source>stats.analysis_explorer.edit.columns_none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="statsAex127" resname="stats.analysis_explorer.edit.row_grain">
+        <source>stats.analysis_explorer.edit.row_grain</source>
+        <target>Row grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex128" resname="stats.analysis_explorer.edit.column_grain">
+        <source>stats.analysis_explorer.edit.column_grain</source>
+        <target>Column grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex129" resname="stats.analysis_explorer.edit.table_layout">
+        <source>stats.analysis_explorer.edit.table_layout</source>
+        <target>Table layout</target>
+      </trans-unit>
+      <trans-unit id="statsAex130" resname="stats.analysis_explorer.table_layout.flat">
+        <source>stats.analysis_explorer.table_layout.flat</source>
+        <target>Flat list</target>
+      </trans-unit>
+      <trans-unit id="statsAex131" resname="stats.analysis_explorer.table_layout.matrix">
+        <source>stats.analysis_explorer.table_layout.matrix</source>
+        <target>Matrix</target>
+      </trans-unit>
+      <trans-unit id="statsAex132" resname="stats.analysis_explorer.table_layout.matrix_metrics_as_rows">
+        <source>stats.analysis_explorer.table_layout.matrix_metrics_as_rows</source>
+        <target>Matrix (metrics as rows)</target>
+      </trans-unit>
+      <trans-unit id="statsAex133" resname="stats.analysis_explorer.allocations_by_dimension_by_temporal">
+        <source>stats.analysis_explorer.allocations_by_dimension_by_temporal</source>
+        <target>Allocations by {dimension} by {temporal}</target>
+      </trans-unit>
+      <trans-unit id="statsAex134" resname="stats.analysis_explorer.allocations_cross_tab">
+        <source>stats.analysis_explorer.allocations_cross_tab</source>
+        <target>Allocations: {rows} × {columns}</target>
+      </trans-unit>
+      <trans-unit id="statsAex135" resname="stats.analysis_explorer.description.breakdown_by_temporal">
+        <source>stats.analysis_explorer.description.breakdown_by_temporal</source>
+        <target>Allocation counts by {dimension}, grouped by {temporal}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex136" resname="stats.analysis_explorer.table.metric">
+        <source>stats.analysis_explorer.table.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex137" resname="stats.analysis_explorer.edit.section.matrix">
+        <source>stats.analysis_explorer.edit.section.matrix</source>
+        <target>Table layout</target>
+      </trans-unit>
+      <trans-unit id="statsAex138" resname="stats.analysis_explorer.edit.matrix_intro">
+        <source>stats.analysis_explorer.edit.matrix_intro</source>
+        <target>Build the result table as rows × columns. Each cell shows the selected metric.</target>
+      </trans-unit>
+      <trans-unit id="statsAex139" resname="stats.analysis_explorer.edit.section.rows">
+        <source>stats.analysis_explorer.edit.section.rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsAex140" resname="stats.analysis_explorer.edit.section.rows_help">
+        <source>stats.analysis_explorer.edit.section.rows_help</source>
+        <target>Defines the table row labels and the chart X-axis (categories).</target>
+      </trans-unit>
+      <trans-unit id="statsAex141" resname="stats.analysis_explorer.edit.section.columns">
+        <source>stats.analysis_explorer.edit.section.columns</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex142" resname="stats.analysis_explorer.edit.section.columns_help">
+        <source>stats.analysis_explorer.edit.section.columns_help</source>
+        <target>Optional. Splits the data into table columns and chart series (legend entries).</target>
+      </trans-unit>
+      <trans-unit id="statsAex143" resname="stats.analysis_explorer.edit.section.metric">
+        <source>stats.analysis_explorer.edit.section.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex144" resname="stats.analysis_explorer.edit.section.metric_help">
+        <source>stats.analysis_explorer.edit.section.metric_help</source>
+        <target>The value shown in each cell and used for chart bars or lines.</target>
+      </trans-unit>
+      <trans-unit id="statsAex145" resname="stats.analysis_explorer.edit.section.presentation">
+        <source>stats.analysis_explorer.edit.section.presentation</source>
+        <target>Presentation</target>
+      </trans-unit>
+      <trans-unit id="statsAex146" resname="stats.analysis_explorer.edit.section.presentation_help">
+        <source>stats.analysis_explorer.edit.section.presentation_help</source>
+        <target>How the table and chart are rendered.</target>
+      </trans-unit>
+      <trans-unit id="statsAex147" resname="stats.analysis_explorer.edit.row_dimension">
+        <source>stats.analysis_explorer.edit.row_dimension</source>
+        <target>Group rows by</target>
+      </trans-unit>
+      <trans-unit id="statsAex148" resname="stats.analysis_explorer.edit.row_dimension_help">
+        <source>stats.analysis_explorer.edit.row_dimension_help</source>
+        <target>Dimension for each row, e.g. month or gender.</target>
+      </trans-unit>
+      <trans-unit id="statsAex149" resname="stats.analysis_explorer.edit.column_dimension">
+        <source>stats.analysis_explorer.edit.column_dimension</source>
+        <target>Split into columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex150" resname="stats.analysis_explorer.edit.column_dimension_help">
+        <source>stats.analysis_explorer.edit.column_dimension_help</source>
+        <target>Leave empty for a single series. Otherwise each value becomes a column and legend entry.</target>
+      </trans-unit>
+      <trans-unit id="statsAex151" resname="stats.analysis_explorer.edit.column_grain_help">
+        <source>stats.analysis_explorer.edit.column_grain_help</source>
+        <target>Granularity for the column dimension when it supports time grouping.</target>
+      </trans-unit>
+      <trans-unit id="statsAex152" resname="stats.analysis_explorer.edit.row_grain_time_help">
+        <source>stats.analysis_explorer.edit.row_grain_time_help</source>
+        <target>Time bucket for each row, e.g. month or year.</target>
+      </trans-unit>
+      <trans-unit id="statsAex153" resname="stats.analysis_explorer.edit.row_grain_breakdown_help">
+        <source>stats.analysis_explorer.edit.row_grain_breakdown_help</source>
+        <target>How values of the row dimension are grouped.</target>
+      </trans-unit>
+      <trans-unit id="statsAex154" resname="stats.analysis_explorer.edit.chart_metric">
+        <source>stats.analysis_explorer.edit.chart_metric</source>
+        <target>Chart metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex155" resname="stats.analysis_explorer.edit.chart_metric_help">
+        <source>stats.analysis_explorer.edit.chart_metric_help</source>
+        <target>Which measure drives the chart. Additional metrics can appear as table columns.</target>
+      </trans-unit>
+      <trans-unit id="statsAex156" resname="stats.analysis_explorer.edit.table_layout_help">
+        <source>stats.analysis_explorer.edit.table_layout_help</source>
+        <target>Matrix layouts are available when a column dimension is selected.</target>
+      </trans-unit>
+      <trans-unit id="statsAex157" resname="stats.analysis_explorer.edit.structure_preview_label">
+        <source>stats.analysis_explorer.edit.structure_preview_label</source>
+        <target>Current structure</target>
+      </trans-unit>
+      <trans-unit id="statsAex158" resname="stats.analysis_explorer.edit.structure_rows">
+        <source>stats.analysis_explorer.edit.structure_rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsAex159" resname="stats.analysis_explorer.edit.structure_columns">
+        <source>stats.analysis_explorer.edit.structure_columns</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex160" resname="stats.analysis_explorer.edit.structure_metric">
+        <source>stats.analysis_explorer.edit.structure_metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex161" resname="stats.analysis_explorer.edit.structure_no_columns">
+        <source>stats.analysis_explorer.edit.structure_no_columns</source>
+        <target>None (single series)</target>
+      </trans-unit>
+      <trans-unit id="statsAex162" resname="stats.analysis_explorer.edit.structure_axis_with_grain">
+        <source>stats.analysis_explorer.edit.structure_axis_with_grain</source>
+        <target>{grain} · {dimension}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
