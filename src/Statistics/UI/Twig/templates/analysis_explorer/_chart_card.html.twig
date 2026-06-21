@@ -13,7 +13,13 @@
             </div>
         {% else %}
             <div class="text-center text-secondary py-5" data-testid="stats-analysis-explorer-chart-empty">
-                <p class="mb-0">{{ 'stats.analysis_explorer.empty_state'|trans }}</p>
+                <p class="mb-0">
+                    {% if emptyReason %}
+                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans }}
+                    {% else %}
+                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans }}
+                    {% endif %}
+                </p>
             </div>
         {% endif %}
     </div>

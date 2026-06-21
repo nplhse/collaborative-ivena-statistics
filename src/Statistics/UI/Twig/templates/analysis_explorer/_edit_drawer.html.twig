@@ -22,11 +22,7 @@
                 data-testid="stats-analysis-explorer-edit-close"></button>
     </div>
     <div class="offcanvas-body">
-        {% if configWarning %}
-            <div class="alert alert-warning py-2 mb-3" data-testid="stats-analysis-explorer-config-warning">
-                {{ configWarning }}
-            </div>
-        {% endif %}
+        {{ include('@Statistics/analysis_explorer/_config_alert.html.twig') }}
         {{ form_start(form, {attr: {
             'data-testid': 'stats-analysis-explorer-edit-form',
             'data-model': 'norender|on(change)|*',

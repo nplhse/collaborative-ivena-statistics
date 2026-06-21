@@ -67,45 +67,50 @@ final class AnalysisViewConfigValidatorTest extends TestCase
     {
         $validator = new AnalysisViewConfigValidator(new AllocationsCapabilitiesProvider());
 
-        $this->expectException(InvalidExplorerConfigException::class);
-        $this->expectExceptionMessage('Unsupported chart type');
-
-        $validator->validate(new AnalysisViewConfig(
-            dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Gender,
-            timeGrain: AnalysisDimensionGrain::Month,
-            statisticsFilter: new StatisticsFilter(
-                scope: StatisticsFilterScope::Public,
-                hospitalId: null,
-                cohortType: null,
-                period: StatisticsFilterPeriod::AllTime,
-            ),
-            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
-            title: 'Allocations by gender over time',
-        ));
+        try {
+            $validator->validate(new AnalysisViewConfig(
+                dataSourceKey: AnalysisDataSourceKey::Allocations,
+                metricKey: AnalysisMetricKey::AllocationCount,
+                dimensionKey: AnalysisDimensionKey::Gender,
+                timeGrain: AnalysisDimensionGrain::Month,
+                statisticsFilter: new StatisticsFilter(
+                    scope: StatisticsFilterScope::Public,
+                    hospitalId: null,
+                    cohortType: null,
+                    period: StatisticsFilterPeriod::AllTime,
+                ),
+                presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+                title: 'Allocations by gender over time',
+            ));
+            self::fail('Expected InvalidExplorerConfigException');
+        } catch (InvalidExplorerConfigException $exception) {
+            self::assertSame('stats.analysis_explorer.validation.unsupported_chart', $exception->translationKey);
+            self::assertSame('bar', $exception->parameters['chart']);
+        }
     }
 
     public function testTimeDimensionRejectsTotalGrain(): void
     {
         $validator = new AnalysisViewConfigValidator(new AllocationsCapabilitiesProvider());
 
-        $this->expectException(InvalidExplorerConfigException::class);
-        $this->expectExceptionMessage('Unsupported grain');
-
-        $validator->validate(new AnalysisViewConfig(
-            dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKey: AnalysisMetricKey::AllocationCount,
-            dimensionKey: AnalysisDimensionKey::Time,
-            timeGrain: AnalysisDimensionGrain::Total,
-            statisticsFilter: new StatisticsFilter(
-                scope: StatisticsFilterScope::Public,
-                hospitalId: null,
-                cohortType: null,
-                period: StatisticsFilterPeriod::AllTime,
-            ),
-            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
-            title: 'Allocations over time',
-        ));
+        try {
+            $validator->validate(new AnalysisViewConfig(
+                dataSourceKey: AnalysisDataSourceKey::Allocations,
+                metricKey: AnalysisMetricKey::AllocationCount,
+                dimensionKey: AnalysisDimensionKey::Time,
+                timeGrain: AnalysisDimensionGrain::Total,
+                statisticsFilter: new StatisticsFilter(
+                    scope: StatisticsFilterScope::Public,
+                    hospitalId: null,
+                    cohortType: null,
+                    period: StatisticsFilterPeriod::AllTime,
+                ),
+                presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+                title: 'Allocations over time',
+            ));
+            self::fail('Expected InvalidExplorerConfigException');
+        } catch (InvalidExplorerConfigException $exception) {
+            self::assertSame('stats.analysis_explorer.validation.unsupported_grain', $exception->translationKey);
+        }
     }
 }

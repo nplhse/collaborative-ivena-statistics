@@ -7339,6 +7339,66 @@
         <source>stats.analysis_explorer.allocations_by_urgency_over_time</source>
         <target>Allocations by urgency over time</target>
       </trans-unit>
+      <trans-unit id="statsAex36" resname="stats.analysis_explorer.empty_state.no_data">
+        <source>stats.analysis_explorer.empty_state.no_data</source>
+        <target>No data available for the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsAex37" resname="stats.analysis_explorer.empty_state.unsupported">
+        <source>stats.analysis_explorer.empty_state.unsupported</source>
+        <target>This analysis configuration cannot be displayed.</target>
+      </trans-unit>
+      <trans-unit id="statsAex38" resname="stats.analysis_explorer.empty_state.query_error">
+        <source>stats.analysis_explorer.empty_state.query_error</source>
+        <target>The analysis could not be loaded. Please try again or adjust your filters.</target>
+      </trans-unit>
+      <trans-unit id="statsAex39" resname="stats.analysis_explorer.empty_state.no_config">
+        <source>stats.analysis_explorer.empty_state.no_config</source>
+        <target>No analysis configuration is available.</target>
+      </trans-unit>
+      <trans-unit id="statsAex40" resname="stats.analysis_explorer.query_failed">
+        <source>stats.analysis_explorer.query_failed</source>
+        <target>The analysis query failed. Please try again or adjust your filters.</target>
+      </trans-unit>
+      <trans-unit id="statsAex41" resname="stats.analysis_explorer.table.title">
+        <source>stats.analysis_explorer.table.title</source>
+        <target>Results</target>
+      </trans-unit>
+      <trans-unit id="statsAex42" resname="stats.analysis_explorer.table.results_count">
+        <source>stats.analysis_explorer.table.results_count</source>
+        <target>{count} allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAex43" resname="stats.analysis_explorer.table.footer_total">
+        <source>stats.analysis_explorer.table.footer_total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsAex44" resname="stats.analysis_explorer.validation.unsupported_dimension">
+        <source>stats.analysis_explorer.validation.unsupported_dimension</source>
+        <target>Unsupported dimension "{dimension}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex45" resname="stats.analysis_explorer.validation.unsupported_metric">
+        <source>stats.analysis_explorer.validation.unsupported_metric</source>
+        <target>Unsupported metric "{metric}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex46" resname="stats.analysis_explorer.validation.unsupported_chart">
+        <source>stats.analysis_explorer.validation.unsupported_chart</source>
+        <target>Unsupported chart type "{chart}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex47" resname="stats.analysis_explorer.validation.unsupported_grain">
+        <source>stats.analysis_explorer.validation.unsupported_grain</source>
+        <target>Unsupported grain "{grain}" for dimension "{dimension}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex48" resname="stats.analysis_explorer.validation.grain_required">
+        <source>stats.analysis_explorer.validation.grain_required</source>
+        <target>A grain is required.</target>
+      </trans-unit>
+      <trans-unit id="statsAex49" resname="stats.analysis_explorer.validation.total_grain_for_time">
+        <source>stats.analysis_explorer.validation.total_grain_for_time</source>
+        <target>Total grain is not allowed for the time dimension.</target>
+      </trans-unit>
+      <trans-unit id="statsAex50" resname="stats.analysis_explorer.validation.invalid">
+        <source>stats.analysis_explorer.validation.invalid</source>
+        <target>Invalid analysis configuration.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

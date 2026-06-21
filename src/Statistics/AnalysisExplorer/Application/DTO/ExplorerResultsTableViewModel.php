@@ -26,4 +26,13 @@ final readonly class ExplorerResultsTableViewModel
     {
         return [] !== $this->rows;
     }
+
+    public function columnCount(): int
+    {
+        if ($this->hasSeries) {
+            return \count($this->seriesLabels) + 2;
+        }
+
+        return 2;
+    }
 }
