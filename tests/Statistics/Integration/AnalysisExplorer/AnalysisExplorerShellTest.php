@@ -68,6 +68,120 @@ final class AnalysisExplorerShellTest extends WebTestCase
         );
     }
 
+    public function testParticipantSeesSaveAsActionAfterEdit(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($viewFactory->createDefault($filter)),
+            'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
+            'canSaveAs' => true,
+        ])->actingAs($user);
+        $render = $testComponent->render();
+
+        self::assertCount(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-save-as-open"]'),
+        );
+
+        $formName = $this->formName($render);
+        $updatedRender = $testComponent
+            ->submitForm($this->formPayload($formName, ['chartType' => 'line']))
+            ->call('applyEdit')
+            ->render();
+
+        self::assertGreaterThan(
+            0,
+            $updatedRender->crawler()->filter('[data-testid="stats-analysis-explorer-save-as-open"]')->count(),
+        );
+    }
+
+    public function testSaveAndFavoriteDisabledUntilConfigChanges(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($viewFactory->createDefault($filter)),
+            'locale' => 'en',
+            'savedViewId' => 42,
+            'canSave' => true,
+            'canSaveAs' => true,
+            'canFavorite' => true,
+            'favoriteUrl' => '/favorite',
+            'favoriteToken' => 'explorer_favorite_42',
+        ])->actingAs($user);
+
+        $render = $testComponent->render();
+        self::assertNotNull($render->crawler()->filter('[data-testid="stats-analysis-explorer-save"]')->attr('disabled'));
+        self::assertNull($render->crawler()->filter('[data-testid="stats-analysis-explorer-favorite-toggle"]')->attr('disabled'));
+
+        $formName = $this->formName($render);
+        $updatedRender = $testComponent
+            ->submitForm($this->formPayload($formName, ['chartType' => 'line']))
+            ->call('applyEdit')
+            ->render();
+
+        self::assertNull($updatedRender->crawler()->filter('[data-testid="stats-analysis-explorer-save"]')->attr('disabled'));
+        self::assertNotNull($updatedRender->crawler()->filter('[data-testid="stats-analysis-explorer-favorite-toggle"]')->attr('disabled'));
+    }
+
+    public function testOpenSaveAsPrefillsTitleAndDescriptionFromAppliedConfig(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $descriptionFactory = self::getContainer()->get(\App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($viewFactory->createDefault($filter)),
+            'locale' => 'en',
+            'savedViewTitle' => 'Stale saved title',
+            'savedViewDescription' => 'Stale saved description from original system view.',
+            'canSaveAs' => true,
+        ])->actingAs($user);
+
+        $render = $testComponent->render();
+        $formName = $this->formName($render);
+        $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'dimension' => 'gender',
+                'timeGrain' => 'total',
+                'chartType' => 'bar',
+            ]))
+            ->call('applyEdit')
+            ->call('openSaveAs');
+
+        $config = $testComponent->component()->appliedConfig();
+        self::assertNotNull($config);
+        self::assertSame($config->title, $testComponent->component()->saveAsTitle);
+        self::assertSame($descriptionFactory->descriptionForConfig($config), $testComponent->component()->saveAsDescription);
+        self::assertNotSame('Stale saved title', $testComponent->component()->saveAsTitle);
+        self::assertNotSame('Stale saved description from original system view.', $testComponent->component()->saveAsDescription);
+    }
+
     public function testApplyEditChangesChartType(): void
     {
         $testComponent = $this->createShellComponent();

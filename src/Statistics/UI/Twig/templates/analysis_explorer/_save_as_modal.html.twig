@@ -1,0 +1,61 @@
+<div class="modal fade{% if isSaveAsOpen %} show{% endif %}"
+     id="analysisExplorerSaveAsModal"
+     tabindex="-1"
+     aria-labelledby="analysisExplorerSaveAsModalLabel"
+     aria-hidden="true"
+     {% if isSaveAsOpen %}style="display: block;"{% endif %}
+     data-testid="stats-analysis-explorer-save-as-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="analysisExplorerSaveAsModalLabel">
+                    {{ 'stats.analysis_explorer.save_as.title'|trans }}
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="{{ 'action.close'|trans }}"
+                        data-action="live#action"
+                        data-live-action-param="closeSaveAs"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="analysisExplorerSaveAsTitle">{{ 'stats.analysis_explorer.save_as.title_label'|trans }}</label>
+                    <input type="text"
+                           id="analysisExplorerSaveAsTitle"
+                           class="form-control"
+                           data-model="saveAsTitle"
+                           value="{{ saveAsTitle }}"
+                           data-testid="stats-analysis-explorer-save-as-title">
+                </div>
+                <div class="mb-0">
+                    <label class="form-label" for="analysisExplorerSaveAsDescription">{{ 'stats.analysis_explorer.save_as.description_label'|trans }}</label>
+                    <textarea id="analysisExplorerSaveAsDescription"
+                              class="form-control"
+                              rows="3"
+                              data-model="saveAsDescription"
+                              data-testid="stats-analysis-explorer-save-as-description">{{ saveAsDescription }}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-link"
+                        data-bs-dismiss="modal"
+                        data-action="live#action"
+                        data-live-action-param="closeSaveAs">
+                    {{ 'action.cancel'|trans }}
+                </button>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-action="live#action"
+                        data-live-action-param="submitSaveAs"
+                        data-testid="stats-analysis-explorer-save-as-submit">
+                    {{ 'stats.analysis_explorer.save_as.submit'|trans }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% if isSaveAsOpen %}
+    <div class="modal-backdrop fade show"></div>
+{% endif %}

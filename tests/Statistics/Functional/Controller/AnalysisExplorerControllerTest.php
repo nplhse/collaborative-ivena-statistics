@@ -135,7 +135,6 @@ final class AnalysisExplorerControllerTest extends WebTestCase
             category: $view->getCategory(),
             configJson: ['invalid' => true],
             description: $view->getDescription(),
-            isSystem: true,
         );
         $repository->save($view);
 
@@ -152,6 +151,23 @@ final class AnalysisExplorerControllerTest extends WebTestCase
             'invalid',
         );
         $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-chart-title"]', 'Allocations over time');
+    }
+
+    public function testSystemSavedViewShowsSaveAsAndFavoriteForParticipant(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-favorite-toggle"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-save"]');
     }
 
     public function testExistingAnalyticsViewStillWorks(): void

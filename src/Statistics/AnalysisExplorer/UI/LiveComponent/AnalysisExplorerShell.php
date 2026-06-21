@@ -11,20 +11,28 @@ use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewMode
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
+use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
+use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
@@ -65,6 +73,59 @@ final class AnalysisExplorerShell
     #[LiveProp(writable: false)]
     public string $libraryUrl = '';
 
+    #[LiveProp(writable: false)]
+    public ?int $savedViewId = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewTitle = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewDescription = null;
+
+    #[LiveProp(writable: false)]
+    public bool $isSystemView = false;
+
+    #[LiveProp(writable: false)]
+    public bool $canSave = false;
+
+    #[LiveProp(writable: false)]
+    public bool $canSaveAs = false;
+
+    /**
+     * Baseline config at load or last save; used to detect editor-applied changes.
+     *
+     * @var array<string, mixed>
+     */
+    #[LiveProp(writable: false)]
+    public array $baselineConfigState = [];
+
+    #[LiveProp]
+    public bool $showSaveAs = false;
+
+    #[LiveProp]
+    public bool $hasUnsavedChanges = false;
+
+    #[LiveProp(writable: false)]
+    public bool $canFavorite = false;
+
+    #[LiveProp(writable: false)]
+    public bool $isFavorite = false;
+
+    #[LiveProp(writable: false)]
+    public ?string $favoriteUrl = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $favoriteToken = null;
+
+    #[LiveProp(writable: true)]
+    public bool $isSaveAsOpen = false;
+
+    #[LiveProp(writable: true)]
+    public string $saveAsTitle = '';
+
+    #[LiveProp(writable: true)]
+    public string $saveAsDescription = '';
+
     public ?AnalysisRunResult $result = null;
 
     /** @var array<string, array<string, mixed>> */
@@ -93,6 +154,10 @@ final class AnalysisExplorerShell
         private readonly TranslatorInterface $translator,
         private readonly Security $security,
         private readonly LoggerInterface $logger,
+        private readonly SavedExplorerViewService $savedViewService,
+        private readonly SavedExplorerViewRepository $savedViewRepository,
+        private readonly ExplorerDescriptionFactory $descriptionFactory,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -104,15 +169,37 @@ final class AnalysisExplorerShell
         string $locale = 'en',
         ?string $initialConfigWarning = null,
         string $libraryUrl = '',
+        ?int $savedViewId = null,
+        ?string $savedViewTitle = null,
+        ?string $savedViewDescription = null,
+        bool $isSystemView = false,
+        bool $canSave = false,
+        bool $canSaveAs = false,
+        bool $canFavorite = false,
+        bool $isFavorite = false,
+        ?string $favoriteUrl = null,
+        ?string $favoriteToken = null,
     ): void {
         $this->locale = $locale;
         $this->libraryUrl = $libraryUrl;
+        $this->savedViewId = $savedViewId;
+        $this->savedViewTitle = $savedViewTitle;
+        $this->savedViewDescription = $savedViewDescription;
+        $this->isSystemView = $isSystemView;
+        $this->canSave = $canSave;
+        $this->canSaveAs = $canSaveAs;
+        $this->canFavorite = $canFavorite;
+        $this->isFavorite = $isFavorite;
+        $this->favoriteUrl = $favoriteUrl;
+        $this->favoriteToken = $favoriteToken;
 
         if ([] !== $appliedConfigState) {
             $this->appliedConfigState = $appliedConfigState;
         }
 
         $this->rerunAnalysis();
+        $this->baselineConfigState = $this->appliedConfigState;
+        $this->syncUnsavedChangeState();
 
         if (null !== $initialConfigWarning) {
             $this->configWarning = $initialConfigWarning;
@@ -234,6 +321,132 @@ final class AnalysisExplorerShell
         $this->configWarning = null;
         $this->resetForm();
         $this->rerunAnalysis();
+        $this->syncUnsavedChangeState();
+    }
+
+    #[LiveAction]
+    public function openSaveAs(): void
+    {
+        if (!$this->showSaveAs) {
+            return;
+        }
+
+        $config = $this->appliedConfig();
+        if ($config instanceof AnalysisViewConfig) {
+            $this->saveAsTitle = $config->title;
+            $this->saveAsDescription = $this->descriptionFactory->descriptionForConfig($config);
+        }
+
+        $this->isSaveAsOpen = true;
+    }
+
+    #[LiveAction]
+    public function closeSaveAs(): void
+    {
+        $this->isSaveAsOpen = false;
+    }
+
+    #[LiveAction]
+    public function submitSaveAs(): ?RedirectResponse
+    {
+        $user = $this->requireParticipant();
+
+        $title = trim($this->saveAsTitle);
+        if ('' === $title) {
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required');
+
+            return null;
+        }
+
+        try {
+            $description = '' !== trim($this->saveAsDescription) ? trim($this->saveAsDescription) : null;
+            $view = $this->savedViewService->create(
+                $user,
+                $title,
+                $this->appliedConfigState,
+                $description,
+            );
+        } catch (InvalidExplorerConfigException $exception) {
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters);
+
+            return null;
+        }
+
+        $viewId = $view->getId();
+        if (null === $viewId) {
+            return null;
+        }
+
+        return new RedirectResponse($this->urlGenerator->generate('app_stats_analysis_explorer_view', [
+            'view' => (string) $viewId,
+        ]));
+    }
+
+    #[LiveAction]
+    public function save(): void
+    {
+        if (!$this->canSave || !$this->hasUnsavedChanges || null === $this->savedViewId) {
+            return;
+        }
+
+        $user = $this->requireParticipant();
+        $view = $this->savedViewRepository->find($this->savedViewId);
+        if (!$view instanceof SavedExplorerView) {
+            return;
+        }
+
+        $title = $this->savedViewTitle ?? $view->getTitle();
+
+        try {
+            $this->savedViewService->update(
+                $view,
+                $user,
+                $title,
+                $this->appliedConfigState,
+                $view->getDescription(),
+            );
+        } catch (SavedExplorerViewForbiddenException) {
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden');
+
+            return;
+        } catch (InvalidExplorerConfigException $exception) {
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters);
+
+            return;
+        }
+
+        $this->savedViewTitle = $view->getTitle();
+        $this->baselineConfigState = $this->appliedConfigState;
+        $this->syncUnsavedChangeState();
+        $this->configWarning = $this->translator->trans('stats.analysis_explorer.saved');
+    }
+
+    private function syncUnsavedChangeState(): void
+    {
+        $this->hasUnsavedChanges = $this->configStatesDiffer(
+            $this->baselineConfigState,
+            $this->appliedConfigState,
+        );
+        $this->showSaveAs = $this->canSaveAs && $this->hasUnsavedChanges;
+    }
+
+    /**
+     * @param array<string, mixed> $left
+     * @param array<string, mixed> $right
+     */
+    private function configStatesDiffer(array $left, array $right): bool
+    {
+        return json_encode($left, \JSON_THROW_ON_ERROR) !== json_encode($right, \JSON_THROW_ON_ERROR);
+    }
+
+    private function requireParticipant(): User
+    {
+        $user = $this->resolveUser();
+        if (!$user instanceof User || !$this->security->isGranted('ROLE_PARTICIPANT')) {
+            throw new AccessDeniedException();
+        }
+
+        return $user;
     }
 
     private function rerunAnalysis(): void

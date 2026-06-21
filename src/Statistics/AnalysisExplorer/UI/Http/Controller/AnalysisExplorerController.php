@@ -6,8 +6,10 @@ namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
@@ -35,6 +37,7 @@ final class AnalysisExplorerController extends AbstractController
         private readonly DefaultAnalysisViewFactory $defaultAnalysisViewFactory,
         private readonly ExplorerConfigMapper $explorerConfigMapper,
         private readonly SavedExplorerViewLoader $savedExplorerViewLoader,
+        private readonly SavedExplorerViewFavoriteService $favoriteService,
         private readonly UrlGeneratorInterface $router,
         private readonly TranslatorInterface $translator,
     ) {
@@ -54,13 +57,14 @@ final class AnalysisExplorerController extends AbstractController
         $pageContext = $this->createPageContext($request, $user, $filter, 'app_stats_analysis_explorer');
         $defaultConfig = $this->defaultAnalysisViewFactory->createDefault($pageContext->filter);
 
-        return $this->renderExplorer($pageContext, [
-            'explorerAppliedConfigState' => $this->explorerConfigMapper->toStateArray($defaultConfig),
-            'savedViewTitle' => null,
-            'savedViewSlug' => null,
-            'initialConfigWarning' => null,
-            'libraryUrl' => $this->libraryUrl($request),
-        ]);
+        return $this->renderExplorer($pageContext, array_merge(
+            $this->buildViewPresentation(null, $user),
+            [
+                'explorerAppliedConfigState' => $this->explorerConfigMapper->toStateArray($defaultConfig),
+                'initialConfigWarning' => null,
+                'libraryUrl' => $this->libraryUrl($request),
+            ],
+        ));
     }
 
     #[Route('/statistics/analysis/explorer/{view}', name: 'app_stats_analysis_explorer_view', methods: ['GET'])]
@@ -86,13 +90,46 @@ final class AnalysisExplorerController extends AbstractController
             $initialConfigWarning = $this->translator->trans($loadResult->warnings[0]);
         }
 
-        return $this->renderExplorer($pageContext, [
-            'explorerAppliedConfigState' => $loadResult->state,
-            'savedViewTitle' => $loadResult->view?->getTitle(),
-            'savedViewSlug' => $loadResult->view?->getSlug(),
-            'initialConfigWarning' => $initialConfigWarning,
-            'libraryUrl' => $this->libraryUrl($request),
-        ]);
+        return $this->renderExplorer($pageContext, array_merge(
+            $this->buildViewPresentation($loadResult->view, $user),
+            [
+                'explorerAppliedConfigState' => $loadResult->state,
+                'initialConfigWarning' => $initialConfigWarning,
+                'libraryUrl' => $this->libraryUrl($request),
+            ],
+        ));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildViewPresentation(?SavedExplorerView $view, ?User $user): array
+    {
+        $isParticipant = $user instanceof User && $this->isGranted('ROLE_PARTICIPANT');
+        $savedViewId = $view?->getId();
+        $isSystemView = $view?->isSystem() ?? false;
+        $canSave = $view instanceof SavedExplorerView && $isParticipant && $view->isEditableBy($user);
+        $canSaveAs = $isParticipant;
+        $canFavorite = $user instanceof User && $view instanceof SavedExplorerView && null !== $savedViewId;
+        $isFavorite = $canFavorite
+            && $this->favoriteService->isFavorite($user, $view);
+
+        return [
+            'savedViewTitle' => $view?->getTitle(),
+            'savedViewDescription' => $view?->getDescription(),
+            'savedViewId' => $savedViewId,
+            'isSystemView' => $isSystemView,
+            'canSave' => $canSave,
+            'canSaveAs' => $canSaveAs,
+            'canFavorite' => $canFavorite,
+            'isFavorite' => $isFavorite,
+            'favoriteUrl' => $canFavorite
+                ? $this->generateUrl('app_stats_analysis_explorer_favorite_toggle', ['id' => $savedViewId])
+                : null,
+            'favoriteToken' => $canFavorite
+                ? 'explorer_favorite_'.$savedViewId
+                : null,
+        ];
     }
 
     /**
