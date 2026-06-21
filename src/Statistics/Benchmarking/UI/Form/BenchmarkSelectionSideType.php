@@ -6,6 +6,7 @@ namespace App\Statistics\Benchmarking\UI\Form;
 
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
+use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Form\AbstractType;
@@ -33,12 +34,14 @@ final class BenchmarkSelectionSideType extends AbstractType
     {
         /** @var string $locale */
         $locale = $options['locale'];
+        /** @var StatisticsFilterScopeChoicePolicy $scopeChoicePolicy */
+        $scopeChoicePolicy = $options['scope_choice_policy'];
         $user = $this->currentUser();
 
         $builder
             ->add('scopeGroup', ChoiceType::class, [
                 'label' => 'stats.filter.scope_label',
-                'choices' => array_flip($this->choiceProvider->scopePrimaryChoices($user, $locale)),
+                'choices' => array_flip($this->choiceProvider->scopePrimaryChoices($user, $locale, $scopeChoicePolicy)),
             ])
             ->add('period', ChoiceType::class, [
                 'label' => 'stats.filter.period_label',
@@ -51,6 +54,20 @@ final class BenchmarkSelectionSideType extends AbstractType
             if (!$data instanceof BenchmarkSelectionSideFormData) {
                 return;
             }
+            /** @var StatisticsFilterSide $side */
+            $side = $options['side'];
+            /** @var string $locale */
+            $locale = $options['locale'];
+            /** @var StatisticsFilterScopeChoicePolicy $scopeChoicePolicy */
+            $scopeChoicePolicy = $options['scope_choice_policy'];
+            $data = $this->choiceProvider->normalizeSideFormData(
+                $data,
+                $this->currentUser(),
+                $side,
+                $locale,
+                $scopeChoicePolicy,
+            );
+            $event->setData($data);
             /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData> $sideForm */
             $sideForm = $event->getForm();
             $this->fieldsConfigurator->configureFields($sideForm, $options, $data);
@@ -60,6 +77,10 @@ final class BenchmarkSelectionSideType extends AbstractType
             $submitted = $event->getData();
             if (!\is_array($submitted)) {
                 return;
+            }
+
+            if (isset($submitted['scopeDetail']) && (\is_int($submitted['scopeDetail']) || is_float($submitted['scopeDetail']))) {
+                $submitted['scopeDetail'] = (string) $submitted['scopeDetail'];
             }
 
             $data = $event->getForm()->getData();
@@ -83,8 +104,8 @@ final class BenchmarkSelectionSideType extends AbstractType
             if (isset($submitted['periodMonth']) && '' !== $submitted['periodMonth']) {
                 $preview->periodMonth = (int) $submitted['periodMonth'];
             }
-            if (isset($submitted['scopeDetail']) && \is_string($submitted['scopeDetail'])) {
-                $preview->scopeDetail = $submitted['scopeDetail'];
+            if (isset($submitted['scopeDetail']) && (\is_string($submitted['scopeDetail']) || is_int($submitted['scopeDetail']))) {
+                $preview->scopeDetail = (string) $submitted['scopeDetail'];
             }
 
             /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData> $sideForm */
@@ -115,10 +136,12 @@ final class BenchmarkSelectionSideType extends AbstractType
             'data_class' => BenchmarkSelectionSideFormData::class,
             'side' => StatisticsFilterSide::Primary,
             'locale' => 'en',
+            'scope_choice_policy' => StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
         ]);
 
         $resolver->setAllowedTypes('side', StatisticsFilterSide::class);
         $resolver->setAllowedTypes('locale', 'string');
+        $resolver->setAllowedTypes('scope_choice_policy', StatisticsFilterScopeChoicePolicy::class);
     }
 
     private function currentUser(): ?User

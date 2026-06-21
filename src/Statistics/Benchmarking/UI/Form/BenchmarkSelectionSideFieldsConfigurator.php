@@ -7,6 +7,7 @@ namespace App\Statistics\Benchmarking\UI\Form;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
+use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -33,18 +34,21 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         $side = $options['side'];
         /** @var string $locale */
         $locale = $options['locale'];
+        /** @var StatisticsFilterScopeChoicePolicy $scopeChoicePolicy */
+        $scopeChoicePolicy = $options['scope_choice_policy'];
         $user = $this->currentUser();
 
         $scopeGroup = $data instanceof BenchmarkSelectionSideFormData ? $data->scopeGroup : 'public';
         $period = StatisticsFilterPeriod::tryFrom($data instanceof BenchmarkSelectionSideFormData ? $data->period : '') ?? StatisticsFilterPeriod::AllTime;
         $periodYear = $data instanceof BenchmarkSelectionSideFormData ? ($data->periodYear ?? (int) new \DateTimeImmutable()->format('Y')) : (int) new \DateTimeImmutable()->format('Y');
 
-        if ($this->choiceProvider->scopeDetailRequired($scopeGroup, $user, $side)) {
-            $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale);
+        if ($this->choiceProvider->scopeDetailRequired($scopeGroup, $user, $side, $scopeChoicePolicy)) {
+            $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale, $scopeChoicePolicy);
             if ([] !== $detailChoices) {
                 $form->add('scopeDetail', ChoiceType::class, [
                     'label' => $this->scopeDetailLabel($scopeGroup),
-                    'choices' => array_flip($detailChoices),
+                    'choices' => $this->flippedStringValueChoices($detailChoices),
+                    'choice_value' => static fn (?string $choice): string => $choice ?? '',
                     'placeholder' => false,
                     'required' => false,
                     'data' => $this->defaultChoiceValue(
@@ -90,7 +94,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
     }
 
     /**
-     * @param array<string, string> $choices
+     * @param array<int|string, string> $choices
      */
     private function defaultChoiceValue(?string $current, array $choices): ?string
     {
@@ -98,7 +102,27 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
             return $current;
         }
 
-        return array_key_first($choices);
+        $first = array_key_first($choices);
+        if (null === $first) {
+            return null;
+        }
+
+        return (string) $first;
+    }
+
+    /**
+     * @param array<int|string, string> $choices
+     *
+     * @return array<string, string>
+     */
+    private function flippedStringValueChoices(array $choices): array
+    {
+        $flipped = [];
+        foreach ($choices as $id => $label) {
+            $flipped[$label] = (string) $id;
+        }
+
+        return $flipped;
     }
 
     /**
