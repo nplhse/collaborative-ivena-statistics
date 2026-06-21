@@ -108,31 +108,51 @@ Multi-metric tables: `metricKeys[]` in config; charts use a single `visualMetric
 
 No per-metric SQL in Explorer — the GA bridge handles execution.
 
-UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
+### Matrix model (Phase 8)
 
-## Config state format (schema version 1)
+Schema **v3** replaces implicit `dimension` + `grain` with explicit axes:
+
+| Field | Role |
+|---|---|
+| `query.rows` | Primary axis (`dimension` + `grain`) — maps to GA `primaryDimensionKey` |
+| `query.columns` | Optional series axis — maps to GA `seriesDimensionKey` |
+| `query.metrics` / `visualMetric` | Unchanged from Phase 7 |
+| `presentation.tableLayout` | `flat`, `matrix`, `matrix_metrics_as_rows` |
+
+**v2 upgrade orientation:** legacy breakdown + temporal grain (e.g. `gender` + `month`) becomes `rows=time(month)`, `columns=gender` so “over time” views keep the same chart orientation.
+
+**Execution:** flat result rows (`bucket` = row key, `seriesKey` = column key) plus `AnalysisMatrix` for chart/table presenters. `AnalysisTotals` holds grand/row/column sums for summable metrics.
+
+**Titles:** `distribution` / `over time` / `by` naming via `ExplorerTitleFactory::titleForAxes()`.
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "dataSource": "allocations",
   "query": {
     "scope": { "group": "public", "detail": null },
     "period": { "type": "all", "year": null, "quarter": null, "month": null },
     "metrics": ["allocation_count"],
     "visualMetric": "allocation_count",
-    "dimension": "time",
-    "grain": "month"
+    "rows": { "dimension": "time", "grain": "month" },
+    "columns": { "dimension": "gender", "grain": "total" }
   },
   "presentation": {
     "mode": "chart",
-    "chartType": "bar"
+    "chartType": "grouped_bar",
+    "tableLayout": "matrix"
   },
-  "title": "Allocations over time"
+  "title": "Allocations by gender over time"
 }
 ```
 
-Schema v1 configs with `"metric": "allocation_count"` are upgraded on load to v2 (`metrics` + `visualMetric`). Serialisation always writes v2.
+v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Serialisation always writes v3.
+
+UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
+
+## Config state format (schema version 3)
+
+Legacy v1/v2 examples are upgraded on load. Current serialisation format:
 
 Legacy flat state (`scopeGroup`, `period`, `dimensionGrain`, …) is upgraded on load via `ExplorerConfigMapper::upgradeLegacyState()`.
 
@@ -153,7 +173,7 @@ Legacy flat state (`scopeGroup`, `period`, `dimensionGrain`, …) is upgraded on
 | Grains (breakdown dims) | `total` (default); `month`, `year` for multi-series over time |
 | Charts | `bar`, `line`; multi-series (breakdown + month/year): `grouped_bar`, `stacked_bar`, `line` |
 
-Multi-series: when dimension is not `time` and grain is `month` or `year`, the query groups by time bucket and series (breakdown dimension value).
+Multi-series: when `columns` is set (or legacy breakdown + temporal grain), the query groups by row bucket and column series.
 
 ### System demo views (14)
 
