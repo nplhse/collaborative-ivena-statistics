@@ -18,21 +18,30 @@ final readonly class ExplorerTitleFactory
 
     public function titleFor(AnalysisDimensionKey $dimensionKey, ?AnalysisDimensionGrain $timeGrain = null): string
     {
-        $grain = $timeGrain ?? AnalysisDimensionGrain::Month;
+        if ($dimensionKey->isTemporalPrimary()) {
+            return $this->translator->trans('stats.analysis_explorer.allocations_over_time');
+        }
 
-        return match ($dimensionKey) {
-            AnalysisDimensionKey::Time => $this->translator->trans('stats.analysis_explorer.allocations_over_time'),
-            AnalysisDimensionKey::Gender => $grain->isTemporal()
-                ? $this->translator->trans('stats.analysis_explorer.allocations_by_gender_over_time')
-                : $this->translator->trans('stats.analysis_explorer.allocations_by_gender'),
-            AnalysisDimensionKey::Urgency => $grain->isTemporal()
-                ? $this->translator->trans('stats.analysis_explorer.allocations_by_urgency_over_time')
-                : $this->translator->trans('stats.analysis_explorer.allocations_by_urgency'),
-        };
+        $dimensionLabel = $this->dimensionLabel($dimensionKey);
+
+        if ($timeGrain instanceof AnalysisDimensionGrain && $timeGrain->isTemporal()) {
+            return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension_over_time', [
+                'dimension' => $dimensionLabel,
+            ]);
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension', [
+            'dimension' => $dimensionLabel,
+        ]);
     }
 
     public function titleForConfig(AnalysisViewConfig $config): string
     {
         return $this->titleFor($config->dimensionKey, $config->timeGrain);
+    }
+
+    private function dimensionLabel(AnalysisDimensionKey $dimensionKey): string
+    {
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$dimensionKey->value);
     }
 }

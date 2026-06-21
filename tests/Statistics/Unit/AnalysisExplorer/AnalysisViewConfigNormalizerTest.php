@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
@@ -19,22 +18,25 @@ use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AnalysisViewConfigNormalizerTest extends TestCase
 {
+    use AnalysisExplorerTestSupport;
+
     public function testNormalizesGenderBarToGroupedBarForMonthGrain(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
 
-        $capabilitiesProvider = new AllocationsCapabilitiesProvider();
         $normalizer = new AnalysisViewConfigNormalizer(
-            $capabilitiesProvider,
+            $this->createAllocationsCapabilitiesProvider(),
             new ExplorerTitleFactory($translator),
             new AnalysisDimensionGrainResolver(),
             new ExplorerConfigPreviewFactory(),
+            $this->createSecurityWithoutUser(),
         );
 
         $config = new AnalysisViewConfig(
@@ -64,12 +66,12 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
 
-        $capabilitiesProvider = new AllocationsCapabilitiesProvider();
         $normalizer = new AnalysisViewConfigNormalizer(
-            $capabilitiesProvider,
+            $this->createAllocationsCapabilitiesProvider(),
             new ExplorerTitleFactory($translator),
             new AnalysisDimensionGrainResolver(),
             new ExplorerConfigPreviewFactory(),
+            $this->createSecurityWithoutUser(),
         );
 
         $config = new AnalysisViewConfig(

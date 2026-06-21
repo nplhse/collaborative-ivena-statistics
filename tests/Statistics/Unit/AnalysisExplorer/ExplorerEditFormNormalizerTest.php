@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 
 final class ExplorerEditFormNormalizerTest extends TestCase
 {
+    use AnalysisExplorerTestSupport;
+
     private ExplorerEditFormNormalizer $normalizer;
 
     protected function setUp(): void
     {
-        $capabilitiesProvider = new AllocationsCapabilitiesProvider();
         $this->normalizer = new ExplorerEditFormNormalizer(
-            $capabilitiesProvider,
+            $this->createAllocationsCapabilitiesProvider(),
             new AnalysisDimensionGrainResolver(),
             new ExplorerConfigPreviewFactory(),
         );

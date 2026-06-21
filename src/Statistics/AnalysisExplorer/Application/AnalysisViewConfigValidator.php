@@ -7,23 +7,35 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
+use App\User\Domain\Entity\User;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final readonly class AnalysisViewConfigValidator
 {
     public function __construct(
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private Security $security,
     ) {
     }
 
     public function validate(AnalysisViewConfig $config): void
     {
-        $capabilities = $this->capabilitiesProvider->capabilities();
+        $capabilities = $this->capabilitiesFor($config);
 
         if (!$capabilities->supports($config)) {
             throw new InvalidExplorerConfigException($this->buildMessageKey($config, $capabilities), $this->buildParameters($config));
         }
+    }
+
+    public function capabilitiesFor(AnalysisViewConfig $config): DataSourceCapabilities
+    {
+        $user = $this->security->getUser();
+
+        return $this->capabilitiesProvider->capabilitiesFor(
+            $user instanceof User ? $user : null,
+            $config->statisticsFilter,
+        );
     }
 
     private function buildMessageKey(AnalysisViewConfig $config, DataSourceCapabilities $capabilities): string
@@ -51,7 +63,7 @@ final readonly class AnalysisViewConfigValidator
             return 'stats.analysis_explorer.validation.unsupported_grain';
         }
 
-        if (AnalysisDimensionKey::Time === $config->dimensionKey && AnalysisDimensionGrain::Total === $grain) {
+        if ($config->dimensionKey->isTemporalPrimary() && AnalysisDimensionGrain::Total === $grain) {
             return 'stats.analysis_explorer.validation.total_grain_for_time';
         }
 

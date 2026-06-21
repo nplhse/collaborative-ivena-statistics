@@ -84,17 +84,19 @@ final readonly class ExplorerResultsTablePresenter
 
     private function dimensionLabel(AnalysisDimensionKey $dimensionKey, ?AnalysisDimensionGrain $timeGrain): string
     {
-        return match ($dimensionKey) {
-            AnalysisDimensionKey::Time => $this->temporalDimensionLabel($timeGrain),
-            AnalysisDimensionKey::Gender => $this->translator->trans('stats.analysis_explorer.dimension.gender'),
-            AnalysisDimensionKey::Urgency => $this->translator->trans('stats.analysis_explorer.dimension.urgency'),
-        };
+        if ($dimensionKey->isTemporalPrimary()) {
+            return $this->temporalDimensionLabel($timeGrain);
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$dimensionKey->value);
     }
 
     private function temporalDimensionLabel(?AnalysisDimensionGrain $timeGrain): string
     {
         return match ($timeGrain) {
             AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
             AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total'),
             default => $this->translator->trans('stats.analysis_explorer.dimension.month'),
         };

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
@@ -17,15 +16,21 @@ use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 
 final class AnalysisViewConfigValidatorTest extends TestCase
 {
+    use AnalysisExplorerTestSupport;
+
     public function testValidAllocationsConfigPasses(): void
     {
         $this->expectNotToPerformAssertions();
 
-        $validator = new AnalysisViewConfigValidator(new AllocationsCapabilitiesProvider());
+        $validator = new AnalysisViewConfigValidator(
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createSecurityWithoutUser(),
+        );
         $validator->validate(new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKey: AnalysisMetricKey::AllocationCount,
@@ -46,7 +51,10 @@ final class AnalysisViewConfigValidatorTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $validator = new AnalysisViewConfigValidator(new AllocationsCapabilitiesProvider());
+        $validator = new AnalysisViewConfigValidator(
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createSecurityWithoutUser(),
+        );
         $validator->validate(new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKey: AnalysisMetricKey::AllocationCount,
@@ -65,7 +73,10 @@ final class AnalysisViewConfigValidatorTest extends TestCase
 
     public function testGenderWithMonthRejectsBarChartType(): void
     {
-        $validator = new AnalysisViewConfigValidator(new AllocationsCapabilitiesProvider());
+        $validator = new AnalysisViewConfigValidator(
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createSecurityWithoutUser(),
+        );
 
         try {
             $validator->validate(new AnalysisViewConfig(
@@ -91,7 +102,10 @@ final class AnalysisViewConfigValidatorTest extends TestCase
 
     public function testTimeDimensionRejectsTotalGrain(): void
     {
-        $validator = new AnalysisViewConfigValidator(new AllocationsCapabilitiesProvider());
+        $validator = new AnalysisViewConfigValidator(
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createSecurityWithoutUser(),
+        );
 
         try {
             $validator->validate(new AnalysisViewConfig(

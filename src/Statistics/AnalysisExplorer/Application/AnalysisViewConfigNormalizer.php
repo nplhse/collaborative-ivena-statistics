@@ -7,6 +7,8 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\Enum\PresentationMode;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
+use App\User\Domain\Entity\User;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final readonly class AnalysisViewConfigNormalizer
 {
@@ -15,12 +17,13 @@ final readonly class AnalysisViewConfigNormalizer
         private ExplorerTitleFactory $titleFactory,
         private AnalysisDimensionGrainResolver $grainResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
+        private Security $security,
     ) {
     }
 
     public function normalize(AnalysisViewConfig $config): AnalysisViewConfig
     {
-        $capabilities = $this->capabilitiesProvider->capabilities();
+        $capabilities = $this->capabilitiesFor($config);
 
         $dimensionKey = \in_array($config->dimensionKey, $capabilities->dimensions, true)
             ? $config->dimensionKey
@@ -71,5 +74,15 @@ final readonly class AnalysisViewConfigNormalizer
         }
 
         return $warnings;
+    }
+
+    private function capabilitiesFor(AnalysisViewConfig $config): \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities
+    {
+        $user = $this->security->getUser();
+
+        return $this->capabilitiesProvider->capabilitiesFor(
+            $user instanceof User ? $user : null,
+            $config->statisticsFilter,
+        );
     }
 }

@@ -57,7 +57,7 @@ final readonly class ExplorerConfigMapper
         $timeGrain = $this->grainResolver->resolveFromString(
             $dimensionKey,
             $formData->timeGrain,
-            $this->capabilitiesProvider->capabilities(),
+            $this->capabilitiesProvider->capabilitiesFor($user, $filter),
         );
 
         return $base
@@ -101,12 +101,16 @@ final readonly class ExplorerConfigMapper
         }
 
         $scopePeriod = $this->scopePeriodFromState($state);
+        $filter = $this->statisticsFilterFactory->createFromInput(
+            $this->filterInputFactory->fromSideFormData($scopePeriod),
+            $user,
+        );
         $dimensionKey = AnalysisDimensionKey::tryFrom((string) ($state['query']['dimension'] ?? 'time')) ?? AnalysisDimensionKey::Time;
         $grainValue = $state['query']['grain'] ?? null;
         $timeGrain = $this->grainResolver->resolveFromString(
             $dimensionKey,
             \is_string($grainValue) ? $grainValue : null,
-            $this->capabilitiesProvider->capabilities(),
+            $this->capabilitiesProvider->capabilitiesFor($user, $filter),
         );
 
         $formData = new ExplorerEditFormData(

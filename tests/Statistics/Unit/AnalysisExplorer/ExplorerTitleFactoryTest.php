@@ -15,7 +15,8 @@ final class ExplorerTitleFactoryTest extends TestCase
     public function testTitleForGenderTotalUsesSummedTitle(): void
     {
         $factory = new ExplorerTitleFactory($this->translator([
-            'stats.analysis_explorer.allocations_by_gender' => 'Allocations by gender',
+            'stats.analysis_explorer.allocations_by_dimension' => 'Allocations by {dimension}',
+            'stats.analysis_explorer.dimension.gender' => 'gender',
         ]));
 
         self::assertSame(
@@ -27,7 +28,8 @@ final class ExplorerTitleFactoryTest extends TestCase
     public function testTitleForGenderMonthUsesOverTimeTitle(): void
     {
         $factory = new ExplorerTitleFactory($this->translator([
-            'stats.analysis_explorer.allocations_by_gender_over_time' => 'Allocations by gender over time',
+            'stats.analysis_explorer.allocations_by_dimension_over_time' => 'Allocations by {dimension} over time',
+            'stats.analysis_explorer.dimension.gender' => 'gender',
         ]));
 
         self::assertSame(
@@ -43,7 +45,14 @@ final class ExplorerTitleFactoryTest extends TestCase
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
-            static fn (string $id): string => $map[$id] ?? $id,
+            static function (string $id, array $parameters = []) use ($map): string {
+                $template = $map[$id] ?? $id;
+
+                return strtr($template, array_combine(
+                    array_map(static fn (string $key): string => '{'.$key.'}', array_keys($parameters)),
+                    array_values($parameters),
+                ));
+            },
         );
 
         return $translator;

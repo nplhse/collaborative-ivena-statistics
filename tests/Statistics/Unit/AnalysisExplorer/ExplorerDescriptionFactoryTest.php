@@ -17,11 +17,13 @@ final class ExplorerDescriptionFactoryTest extends TestCase
     public function testDescriptionForGenderTotal(): void
     {
         $factory = $this->factory([
-            'stats.analysis_explorer.description.gender_total' => 'Allocation counts grouped by patient gender.',
+            'stats.analysis_explorer.description.breakdown_total' => 'Allocation counts grouped by {dimension}.',
+            'stats.analysis_explorer.allocations_by_dimension' => 'Allocations by gender',
+            'stats.analysis_explorer.dimension.gender' => 'gender',
         ]);
 
         self::assertSame(
-            'Allocation counts grouped by patient gender.',
+            'Allocation counts grouped by Allocations by gender.',
             $factory->descriptionFor(
                 AnalysisDimensionKey::Gender,
                 AnalysisDimensionGrain::Total,
@@ -33,12 +35,15 @@ final class ExplorerDescriptionFactoryTest extends TestCase
     public function testDescriptionForGenderOverTimeUsesGrainLabel(): void
     {
         $factory = $this->factory([
-            'stats.analysis_explorer.description.gender_over_time' => '{grain} allocation counts split by gender.',
+            'stats.analysis_explorer.description.breakdown_over_time' => '{grain} allocation counts split by {dimension}, shown as {chart}.',
             'stats.analysis_explorer.description.grain.month' => 'Monthly',
+            'stats.analysis_explorer.allocations_by_dimension' => 'Allocations by gender',
+            'stats.analysis_explorer.dimension.gender' => 'gender',
+            'stats.analysis_explorer.chart.grouped_bar' => 'grouped bar chart',
         ]);
 
         self::assertSame(
-            'Monthly allocation counts split by gender.',
+            'Monthly allocation counts split by Allocations by gender, shown as grouped bar chart.',
             $factory->descriptionFor(
                 AnalysisDimensionKey::Gender,
                 AnalysisDimensionGrain::Month,
@@ -50,11 +55,12 @@ final class ExplorerDescriptionFactoryTest extends TestCase
     public function testDescriptionForTimeYearLineUsesDedicatedText(): void
     {
         $factory = $this->factory([
-            'stats.analysis_explorer.description.time_year_line' => 'Yearly allocation totals as a line chart.',
+            'stats.analysis_explorer.description.temporal_primary' => '{grain} allocation totals.',
+            'stats.analysis_explorer.description.grain.year' => 'Yearly',
         ]);
 
         self::assertSame(
-            'Yearly allocation totals as a line chart.',
+            'Yearly allocation totals.',
             $factory->descriptionFor(
                 AnalysisDimensionKey::Time,
                 AnalysisDimensionGrain::Year,
