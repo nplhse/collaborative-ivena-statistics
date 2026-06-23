@@ -176,17 +176,16 @@ final class AnalysisExplorerControllerTest extends WebTestCase
     public function testExistingAnalyticsViewStillWorks(): void
     {
         $client = $this->createClientAsRoleUser();
-        $this->seedProjectionWithAllocation();
-        $client->followRedirects(true);
 
         $client->request(
             Request::METHOD_GET,
             '/statistics/analytics/view/allocations_by_month?scope=public&period=all',
         );
 
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-analytics-view-title"]');
-        $this->assertSelectorExists('[data-testid="stats-generic-analysis-chart-card"]');
+        $this->assertResponseRedirects(
+            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=all',
+            301,
+        );
     }
 
     public function testTemporalSavedViewDoesNotShowChartRowLimitControl(): void

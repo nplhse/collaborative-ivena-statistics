@@ -137,6 +137,25 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
         self::assertSame((string) $stateId, $data->scopeDetail);
     }
 
+    public function testStateScopeDetailDefaultIsStringWhenChoicesUseNumericKeys(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $this->seedEligibleBenchmarkScope($user, 'ConfiguratorNumericKey');
+        $this->loginUser($user);
+
+        $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
+            'state',
+            null,
+            'all',
+        ), [
+            'side' => StatisticsFilterSide::Primary,
+            'locale' => 'en',
+        ]);
+
+        self::assertTrue($form->has('scopeDetail'));
+        self::assertIsString($form->get('scopeDetail')->getConfig()->getData());
+    }
+
     private function loginUser(\App\User\Domain\Entity\User $user): void
     {
         $tokenStorage = self::getContainer()->get(TokenStorageInterface::class);
