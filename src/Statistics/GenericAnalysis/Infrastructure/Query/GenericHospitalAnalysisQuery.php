@@ -12,14 +12,11 @@ use App\Statistics\GenericAnalysis\Domain\Enum\MetricComputationKind;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Doctrine\DBAL\Connection;
 
-/**
- * Executes generic analysis aggregations against allocation_stats_projection.
- */
-final readonly class GenericAllocationAnalysisQuery
+final readonly class GenericHospitalAnalysisQuery
 {
     public function __construct(
         private Connection $connection,
-        private GenericAllocationAnalysisSqlBuilder $sqlBuilder,
+        private GenericHospitalAnalysisSqlBuilder $sqlBuilder,
         private MetricRegistry $metricRegistry,
     ) {
     }
@@ -38,7 +35,7 @@ final readonly class GenericAllocationAnalysisQuery
                 seriesDimensionKey: $query->seriesDimensionKey,
                 includeNullBuckets: $query->includeNullBuckets,
                 distributionBaseMetricKey: $baseMetricKey,
-                dataSource: AnalysisDataSource::Allocations,
+                dataSource: AnalysisDataSource::Hospitals,
             );
         }
 
@@ -49,9 +46,8 @@ final readonly class GenericAllocationAnalysisQuery
         $sqlMetricKeys = $this->sqlMetricKeys($query);
         $rows = [];
         $grandTotal = 0;
-
         foreach ($raw as $row) {
-            $metrics = $this->mapMetrics($row, $sqlMetricKeys);
+            $metrics = $this->mapMetrics($row, $sqlMetricKeys, $baseMetricKey);
             $grandTotal += (int) ($metrics[$baseMetricKey] ?? 0);
             $rows[] = new AnalysisResultRow(
                 bucket: $this->normalizeBucketValue($row['bucket']),
@@ -68,7 +64,7 @@ final readonly class GenericAllocationAnalysisQuery
             seriesDimensionKey: $query->seriesDimensionKey,
             includeNullBuckets: $query->includeNullBuckets,
             distributionBaseMetricKey: $baseMetricKey,
-            dataSource: AnalysisDataSource::Allocations,
+            dataSource: AnalysisDataSource::Hospitals,
         );
     }
 
@@ -94,7 +90,7 @@ final readonly class GenericAllocationAnalysisQuery
      *
      * @return array<string, int|float|null>
      */
-    private function mapMetrics(array $row, array $sqlMetricKeys): array
+    private function mapMetrics(array $row, array $sqlMetricKeys, string $baseMetricKey): array
     {
         $metrics = [];
         foreach ($sqlMetricKeys as $key) {
@@ -104,8 +100,8 @@ final readonly class GenericAllocationAnalysisQuery
             $metrics[$key] = $this->normalizeMetricValue($row[$key]);
         }
 
-        if (!isset($metrics['count'])) {
-            $metrics['count'] = 0;
+        if (!isset($metrics[$baseMetricKey])) {
+            $metrics[$baseMetricKey] = 0;
         }
 
         return $metrics;

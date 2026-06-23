@@ -8,8 +8,10 @@ use App\Statistics\GenericAnalysis\Application\DTO\MetricCompatibilityResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\DTO\MetricDefinition;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricComputationKind;
 use App\Statistics\GenericAnalysis\Domain\Exception\IncompatibleAnalysisMetricException;
+use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisMetricException;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
@@ -41,11 +43,16 @@ final readonly class MetricCompatibilityChecker
         ?AnalysisDimension $_series,
         MetricDefinition $metric,
     ): MetricCompatibilityResult {
+        if (MetricComputationKind::Relative !== $metric->computationKind
+            && $metric->dataSource !== $query->dataSource) {
+            return MetricCompatibilityResult::denied('Metric is not available for this data source.');
+        }
+
         if (MetricComputationKind::InferentialStub === $metric->computationKind) {
             return MetricCompatibilityResult::denied('Metric is not implemented yet.');
         }
 
-        if ('count' === $metric->key) {
+        if ($metric->key === $query->dataSource->distributionBaseMetricKey()) {
             return MetricCompatibilityResult::allowed();
         }
 
@@ -60,8 +67,9 @@ final readonly class MetricCompatibilityChecker
 
         $resolvedKeys = $query->resolvedMetricKeys();
         foreach ($metric->requiredBaseMetricKeys as $baseKey) {
-            if (!\in_array($baseKey, $resolvedKeys, true)) {
-                return MetricCompatibilityResult::denied(sprintf('Requires base metric "%s".', $baseKey));
+            $effectiveKey = $this->resolveBaseMetricKey($baseKey, $query->dataSource);
+            if (!\in_array($effectiveKey, $resolvedKeys, true)) {
+                return MetricCompatibilityResult::denied(sprintf('Requires base metric "%s".', $effectiveKey));
             }
         }
 
@@ -76,9 +84,17 @@ final readonly class MetricCompatibilityChecker
     public function resolveAndValidate(AnalysisQuery $query): array
     {
         $primary = $this->dimensionRegistry->get($query->primaryDimensionKey);
-        $series = null !== $query->seriesDimensionKey
-            ? $this->dimensionRegistry->get($query->seriesDimensionKey)
-            : null;
+        if ($primary->dataSource !== $query->dataSource) {
+            throw UnknownAnalysisDimensionException::forKey($query->primaryDimensionKey);
+        }
+
+        $series = null;
+        if (null !== $query->seriesDimensionKey) {
+            $series = $this->dimensionRegistry->get($query->seriesDimensionKey);
+            if ($series->dataSource !== $query->dataSource) {
+                throw UnknownAnalysisDimensionException::forKey($query->seriesDimensionKey);
+            }
+        }
 
         $definitions = [];
         foreach ($query->resolvedMetricKeys() as $key) {
@@ -110,6 +126,11 @@ final readonly class MetricCompatibilityChecker
 
         $items = [];
         foreach ($this->metricRegistry->all() as $metric) {
+            if ($metric->dataSource !== $query->dataSource
+                && MetricComputationKind::Relative !== $metric->computationKind) {
+                continue;
+            }
+
             $result = $this->check($query, $primary, $series, $metric);
             $items[] = [
                 'metric' => $metric,
@@ -119,5 +140,14 @@ final readonly class MetricCompatibilityChecker
         }
 
         return $items;
+    }
+
+    private function resolveBaseMetricKey(string $baseKey, AnalysisDataSource $dataSource): string
+    {
+        if ('count' === $baseKey) {
+            return $dataSource->distributionBaseMetricKey();
+        }
+
+        return $baseKey;
     }
 }

@@ -18,9 +18,14 @@ final readonly class AnalysisResultRow
 
     public function countValue(): int
     {
-        $count = $this->metrics['count'] ?? 0;
+        return (int) $this->baseMetricValue('count');
+    }
 
-        return (int) $count;
+    public function baseMetricValue(string $metricKey): int|float
+    {
+        $value = $this->metrics[$metricKey] ?? 0;
+
+        return is_float($value) ? $value : (int) $value;
     }
 
     #[\Deprecated(message: "Use countValue() or metrics['count']")]
