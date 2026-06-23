@@ -138,6 +138,6 @@ final readonly class ExplorerMetricCapabilityPolicy
      */
     private function hasRateMetric(array $metricKeys): bool
     {
-        return array_any($metricKeys, fn ($metricKey): bool => ExplorerMetricCategory::Rate === $metricKey->metricCategory());
+        return array_any($metricKeys, fn (AnalysisMetricKey $metricKey): bool => ExplorerMetricCategory::Rate === $metricKey->metricCategory());
     }
 }
