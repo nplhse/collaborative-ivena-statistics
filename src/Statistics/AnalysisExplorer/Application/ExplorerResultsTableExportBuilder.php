@@ -20,6 +20,7 @@ final readonly class ExplorerResultsTableExportBuilder
     public function __construct(
         private TranslatorInterface $translator,
         private ExplorerTablePercentHelper $percentHelper,
+        private ExplorerMetricSummabilityPolicy $summabilityPolicy,
     ) {
     }
 
@@ -100,7 +101,9 @@ final readonly class ExplorerResultsTableExportBuilder
 
     private function buildMatrixDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
-        $showPercent = $viewConfig->showsPercentOfTotal();
+        $visualMetricKey = $result->visualMetricKey;
+        $summable = $this->summabilityPolicy->isSummable($visualMetricKey);
+        $showPercent = $viewConfig->showsPercentOfTotal() && $summable;
         $matrix = AnalysisMatrix::fromRunResult($result);
         $headers = [
             new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
@@ -122,16 +125,18 @@ final readonly class ExplorerResultsTableExportBuilder
             );
         }
 
-        $grandTotal = $result->primaryTotal();
+        $grandTotal = $summable ? $result->totalFor($visualMetricKey) : null;
         $rows = [];
         foreach ($matrix->orderedRowKeys as $rowKey) {
             $cells = [$matrix->rowLabels[$rowKey]];
             $rowTotal = 0.0;
             $columnValues = [];
             foreach ($matrix->orderedColumnKeys as $colKey) {
-                $value = $this->rawMatrixValue($matrix, $rowKey, $colKey, $result->visualMetricKey);
+                $value = $this->rawMatrixValue($matrix, $rowKey, $colKey, $visualMetricKey);
                 $columnValues[] = $value;
-                $rowTotal += null === $value ? 0.0 : (float) $value;
+                if ($summable) {
+                    $rowTotal += null === $value ? 0.0 : (float) $value;
+                }
             }
 
             foreach ($columnValues as $value) {
@@ -141,7 +146,7 @@ final readonly class ExplorerResultsTableExportBuilder
                 }
             }
 
-            $cells[] = $rowTotal;
+            $cells[] = $summable ? $rowTotal : null;
             if ($showPercent) {
                 $cells[] = $this->percentHelper->percentOfTotal($rowTotal, $grandTotal);
             }
@@ -153,14 +158,16 @@ final readonly class ExplorerResultsTableExportBuilder
             $footer = [$this->totalLabel()];
             $columnGrandTotal = 0.0;
             foreach ($matrix->orderedColumnKeys as $colKey) {
-                $columnTotal = $result->totals->byColumn[$colKey][$result->visualMetricKey->value] ?? null;
+                $columnTotal = $result->totals->byColumn[$colKey][$visualMetricKey->value] ?? null;
                 $footer[] = $columnTotal;
-                $columnGrandTotal += null === $columnTotal ? 0.0 : (float) $columnTotal;
+                if ($summable) {
+                    $columnGrandTotal += null === $columnTotal ? 0.0 : (float) $columnTotal;
+                }
                 if ($showPercent) {
                     $footer[] = $this->percentHelper->percentOfTotal($columnTotal, $grandTotal);
                 }
             }
-            $footer[] = $columnGrandTotal;
+            $footer[] = $summable ? $columnGrandTotal : null;
             if ($showPercent) {
                 $footer[] = 100.0;
             }

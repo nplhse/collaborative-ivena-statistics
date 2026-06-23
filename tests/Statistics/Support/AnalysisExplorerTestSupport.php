@@ -16,6 +16,7 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCatalog;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricKeyMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricSummabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTablePercentHelper;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
@@ -139,7 +140,12 @@ trait AnalysisExplorerTestSupport
 
     protected function createAnalysisTotalsCalculator(): AnalysisTotalsCalculator
     {
-        return new AnalysisTotalsCalculator($this->createExplorerMetricCatalog());
+        return new AnalysisTotalsCalculator($this->createExplorerMetricSummabilityPolicy());
+    }
+
+    protected function createExplorerMetricSummabilityPolicy(): ExplorerMetricSummabilityPolicy
+    {
+        return new ExplorerMetricSummabilityPolicy($this->createExplorerMetricCatalog());
     }
 
     /**
@@ -172,6 +178,7 @@ trait AnalysisExplorerTestSupport
             $metricRegistry,
             $metricValueFormatter,
             new ExplorerTablePercentHelper($metricRegistry, $metricValueFormatter),
+            $this->createExplorerMetricSummabilityPolicy(),
         );
     }
 

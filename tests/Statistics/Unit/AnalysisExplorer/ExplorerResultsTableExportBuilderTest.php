@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCatalog;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricSummabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTableExportBuilder;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTablePercentHelper;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
@@ -208,6 +210,40 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
         self::assertStringContainsString('"Jun 2024",Allocations,4,6'."\n", $csv);
     }
 
+    public function testMatrixLayoutWithRateMetricOmitsSummedTotals(): void
+    {
+        $builder = $this->createBuilder();
+        $viewConfig = $this->viewConfig(
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            tableLayout: TableLayout::Matrix,
+            metricKeys: [AnalysisMetricKey::ResusRate],
+            visualMetricKey: AnalysisMetricKey::ResusRate,
+            chartType: ChartPresentationType::GroupedBar,
+        );
+
+        $document = $builder->build(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Resuscitation rate by gender over time',
+                metricKeys: [AnalysisMetricKey::ResusRate],
+                visualMetricKey: AnalysisMetricKey::ResusRate,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+                rows: [
+                    new AnalysisResultRow('2024-06', 'Jun 2024', 'male', 'Male', ['resus_rate' => 10.0]),
+                    new AnalysisResultRow('2024-06', 'Jun 2024', 'female', 'Female', ['resus_rate' => 20.0]),
+                ],
+                totals: new AnalysisTotals(grand: ['resus_rate' => null]),
+            ),
+        );
+
+        $csv = $this->exportToString($document);
+
+        self::assertStringContainsString('"Jun 2024",10,20,'."\n", $csv);
+        self::assertStringNotContainsString('"Jun 2024",10,20,30'."\n", $csv);
+        self::assertStringContainsString('Total,,,'."\n", $csv);
+    }
+
     public function testMatrixMetricsAsRowsLayoutWithPercentExportsInterleavedColumns(): void
     {
         $builder = $this->createBuilder();
@@ -264,6 +300,7 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
         return new ExplorerResultsTableExportBuilder(
             $translator,
             new ExplorerTablePercentHelper($metricRegistry, $metricValueFormatter),
+            new ExplorerMetricSummabilityPolicy(new ExplorerMetricCatalog(new MetricRegistry())),
         );
     }
 
@@ -274,11 +311,15 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
         ?AnalysisAxisRef $columnAxis,
         TableLayout $tableLayout = TableLayout::Flat,
         array $metricKeys = [AnalysisMetricKey::AllocationCount],
+        ?AnalysisMetricKey $visualMetricKey = null,
+        ChartPresentationType $chartType = ChartPresentationType::Bar,
     ): AnalysisViewConfig {
+        $visualMetricKey ??= $metricKeys[0] ?? AnalysisMetricKey::AllocationCount;
+
         return new AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: $metricKeys,
-            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            visualMetricKey: $visualMetricKey,
             rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
             columnAxis: $columnAxis,
             statisticsFilter: new StatisticsFilter(
@@ -288,7 +329,7 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
                 period: StatisticsFilterPeriod::All,
             ),
             presentation: new PresentationConfig(
-                chartType: ChartPresentationType::Bar,
+                chartType: $chartType,
                 tableLayout: $tableLayout,
             ),
             title: 'Test',

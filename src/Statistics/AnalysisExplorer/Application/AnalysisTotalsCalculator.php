@@ -7,12 +7,11 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
-use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerMetricCategory;
 
 final readonly class AnalysisTotalsCalculator
 {
     public function __construct(
-        private ExplorerMetricCatalog $metricCatalog,
+        private ExplorerMetricSummabilityPolicy $summabilityPolicy,
     ) {
     }
 
@@ -27,14 +26,14 @@ final readonly class AnalysisTotalsCalculator
         $byColumn = [];
 
         foreach ($metricKeys as $metricKey) {
-            $grand[$metricKey->value] = $this->isSummable($metricKey) ? 0.0 : null;
+            $grand[$metricKey->value] = $this->summabilityPolicy->isSummable($metricKey) ? 0.0 : null;
         }
 
         foreach ($rows as $row) {
             $colKey = $row->seriesKey ?? '';
 
             foreach ($metricKeys as $metricKey) {
-                if (!$this->isSummable($metricKey)) {
+                if (!$this->summabilityPolicy->isSummable($metricKey)) {
                     continue;
                 }
 
@@ -72,17 +71,5 @@ final readonly class AnalysisTotalsCalculator
             byRow: $byRow,
             byColumn: $byColumn,
         );
-    }
-
-    private function isSummable(AnalysisMetricKey $metricKey): bool
-    {
-        if (!$this->metricCatalog->has($metricKey)) {
-            return AnalysisMetricKey::AllocationCount === $metricKey;
-        }
-
-        $category = $this->metricCatalog->get($metricKey)->metricCategory();
-
-        return ExplorerMetricCategory::Count === $category
-            || ExplorerMetricCategory::Distribution === $category;
     }
 }

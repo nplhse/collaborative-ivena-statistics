@@ -317,4 +317,72 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertSame('0', $table->formattedTotals['allocation_count']);
         self::assertCount(0, $table->rows);
     }
+
+    public function testMatrixTableOmitsSummedTotalsForRateMetrics(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
+            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
+            ['stats.analysis_explorer.metric.resus_rate', [], null, null, 'Resuscitation rate'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::ResusRate],
+            visualMetricKey: AnalysisMetricKey::ResusRate,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::GroupedBar,
+                tableLayout: \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Matrix,
+            ),
+            title: 'Resuscitation rate by gender over time',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Resuscitation rate by gender over time',
+                metricKeys: [AnalysisMetricKey::ResusRate],
+                visualMetricKey: AnalysisMetricKey::ResusRate,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+                rows: [
+                    new AnalysisResultRow(
+                        bucket: '2024-06',
+                        bucketLabel: 'Jun 2024',
+                        seriesKey: '1',
+                        seriesLabel: 'Male',
+                        metricValues: ['resus_rate' => 10.0],
+                    ),
+                    new AnalysisResultRow(
+                        bucket: '2024-06',
+                        bucketLabel: 'Jun 2024',
+                        seriesKey: '2',
+                        seriesLabel: 'Female',
+                        metricValues: ['resus_rate' => 20.0],
+                    ),
+                ],
+                totals: new AnalysisTotals(grand: ['resus_rate' => null]),
+            ),
+        );
+
+        self::assertFalse($table->showPercentOfTotal);
+        self::assertSame('10 %', $table->rows[0]->formattedSeriesValues['Male']);
+        self::assertSame('20 %', $table->rows[0]->formattedSeriesValues['Female']);
+        self::assertSame('—', $table->rows[0]->formattedRowTotal);
+        self::assertSame(0.0, $table->rows[0]->rowTotal);
+        self::assertSame('—', $table->formattedSeriesTotals['Male']);
+        self::assertSame('—', $table->formattedSeriesTotals['Female']);
+        self::assertSame('—', $table->formattedGrandTotal);
+        self::assertSame('—', $table->formattedTotals['resus_rate']);
+    }
 }

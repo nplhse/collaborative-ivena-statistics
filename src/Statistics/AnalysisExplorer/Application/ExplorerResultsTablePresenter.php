@@ -26,6 +26,7 @@ final readonly class ExplorerResultsTablePresenter
         private MetricRegistry $metricRegistry,
         private MetricValueFormatter $metricValueFormatter,
         private ExplorerTablePercentHelper $percentHelper,
+        private ExplorerMetricSummabilityPolicy $summabilityPolicy,
     ) {
     }
 
@@ -101,11 +102,13 @@ final readonly class ExplorerResultsTablePresenter
 
     private function createMatrixTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
-        $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
+        $visualMetricKey = $result->visualMetricKey;
+        $summable = $this->summabilityPolicy->isSummable($visualMetricKey);
+        $showPercentOfTotal = $viewConfig->showsPercentOfTotal() && $summable;
         $matrix = AnalysisMatrix::fromRunResult($result);
-        $metricColumns = $this->metricColumns([$result->visualMetricKey]);
+        $metricColumns = $this->metricColumns([$visualMetricKey]);
         $columnLabels = array_values($matrix->columnLabels);
-        $grandTotal = $result->primaryTotal();
+        $grandTotal = $summable ? $result->totalFor($visualMetricKey) : null;
         $rows = [];
         $columnTotals = [];
 
@@ -116,12 +119,14 @@ final readonly class ExplorerResultsTablePresenter
             $rowTotal = 0.0;
 
             foreach ($matrix->orderedColumnKeys as $colKey) {
-                $value = $matrix->valueFor($rowKey, $colKey, $result->visualMetricKey);
+                $value = $matrix->valueFor($rowKey, $colKey, $visualMetricKey);
                 $label = $matrix->columnLabels[$colKey];
                 $seriesValues[$label] = $value;
-                $formattedSeriesValues[$label] = $this->formatMetricValue($result->visualMetricKey, $value);
-                $rowTotal += $value;
-                $columnTotals[$label] = ($columnTotals[$label] ?? 0.0) + $value;
+                $formattedSeriesValues[$label] = $this->formatMetricValue($visualMetricKey, $value);
+                if ($summable) {
+                    $rowTotal += $value;
+                    $columnTotals[$label] = ($columnTotals[$label] ?? 0.0) + $value;
+                }
             }
 
             if ($showPercentOfTotal) {
@@ -137,15 +142,15 @@ final readonly class ExplorerResultsTablePresenter
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $matrix->rowLabels[$rowKey],
                 formattedMetricValues: [
-                    $result->visualMetricKey->value => $this->formatMetricValue($result->visualMetricKey, $rowTotal),
+                    $visualMetricKey->value => $this->formatMetricValue($visualMetricKey, $summable ? $rowTotal : null),
                 ],
                 seriesValues: $seriesValues,
                 formattedSeriesValues: $formattedSeriesValues,
-                formattedRowTotal: $this->formatMetricValue($result->visualMetricKey, $rowTotal),
-                rowTotal: $rowTotal,
+                formattedRowTotal: $this->formatMetricValue($visualMetricKey, $summable ? $rowTotal : null),
+                rowTotal: $summable ? $rowTotal : 0.0,
                 formattedSeriesPercentValues: $formattedSeriesPercentValues,
                 formattedRowTotalPercent: $showPercentOfTotal
-                    ? $this->percentHelper->formatPercent($this->percentHelper->percentOfTotal($rowTotal, $grandTotal))
+                    ? $this->percentHelper->formatPercent($this->percentHelper->percentOfTotal($rowTotal, (float) $grandTotal))
                     : '',
             );
         }
@@ -153,14 +158,14 @@ final readonly class ExplorerResultsTablePresenter
         $formattedSeriesTotals = [];
         $formattedSeriesFooterPercentValues = [];
         foreach ($columnLabels as $seriesLabel) {
-            $columnTotal = (float) ($columnTotals[$seriesLabel] ?? 0);
+            $columnTotal = $summable ? (float) ($columnTotals[$seriesLabel] ?? 0) : null;
             $formattedSeriesTotals[$seriesLabel] = $this->formatMetricValue(
-                $result->visualMetricKey,
+                $visualMetricKey,
                 $columnTotal,
             );
             if ($showPercentOfTotal) {
                 $formattedSeriesFooterPercentValues[$seriesLabel] = $this->percentHelper->formatPercent(
-                    $this->percentHelper->percentOfTotal($columnTotal, $grandTotal),
+                    $this->percentHelper->percentOfTotal($columnTotal, (float) $grandTotal),
                 );
             }
         }
@@ -169,11 +174,11 @@ final readonly class ExplorerResultsTablePresenter
             primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
             metricColumns: $metricColumns,
             rows: $rows,
-            formattedTotals: $this->formatTotals($result, [$result->visualMetricKey]),
+            formattedTotals: $this->formatTotals($result, [$visualMetricKey]),
             hasSeries: true,
             seriesLabels: $columnLabels,
             formattedSeriesTotals: $formattedSeriesTotals,
-            formattedGrandTotal: $this->formatMetricValue($result->visualMetricKey, $grandTotal),
+            formattedGrandTotal: $this->formatMetricValue($visualMetricKey, $grandTotal),
             tableLayout: TableLayout::Matrix,
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
             columnAxisLabel: $viewConfig->columnAxis instanceof AnalysisAxisRef
