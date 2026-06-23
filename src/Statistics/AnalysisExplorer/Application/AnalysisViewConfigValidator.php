@@ -28,15 +28,15 @@ final readonly class AnalysisViewConfigValidator
             throw new InvalidExplorerConfigException($this->buildMessageKey($config, $capabilities), $this->buildParameters($config));
         }
 
+        if ($this->hasRateAndDistribution($config->metricKeys)) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.incompatible_metrics', $this->buildParameters($config));
+        }
+
         $allowedMetrics = $this->capabilitiesProvider->metricsForConfig($config);
         foreach ($config->metricKeys as $metricKey) {
             if (!\in_array($metricKey, $allowedMetrics, true)) {
                 throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric', $this->buildParameters($config));
             }
-        }
-
-        if ($this->hasRateAndDistribution($config->metricKeys)) {
-            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.incompatible_metrics', $this->buildParameters($config));
         }
 
         if (!$this->metricCapabilityPolicy->isChartable($config->visualMetricKey)) {
