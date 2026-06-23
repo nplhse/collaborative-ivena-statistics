@@ -71,12 +71,14 @@ final readonly class ExplorerResultsTablePresenter
 
         foreach ($matrix->orderedRowKeys as $rowKey) {
             $seriesValues = [];
+            $formattedSeriesValues = [];
             $rowTotal = 0.0;
 
             foreach ($matrix->orderedColumnKeys as $colKey) {
                 $value = $matrix->valueFor($rowKey, $colKey, $result->visualMetricKey);
                 $label = $matrix->columnLabels[$colKey];
                 $seriesValues[$label] = $value;
+                $formattedSeriesValues[$label] = $this->formatMetricValue($result->visualMetricKey, $value);
                 $rowTotal += $value;
                 $columnTotals[$label] = ($columnTotals[$label] ?? 0.0) + $value;
             }
@@ -87,6 +89,7 @@ final readonly class ExplorerResultsTablePresenter
                     $result->visualMetricKey->value => $this->formatMetricValue($result->visualMetricKey, $rowTotal),
                 ],
                 seriesValues: $seriesValues,
+                formattedSeriesValues: $formattedSeriesValues,
                 formattedRowTotal: $this->formatMetricValue($result->visualMetricKey, $rowTotal),
                 rowTotal: $rowTotal,
             );

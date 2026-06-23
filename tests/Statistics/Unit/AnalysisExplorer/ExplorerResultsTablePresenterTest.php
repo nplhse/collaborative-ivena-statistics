@@ -150,6 +150,9 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertCount(1, $table->rows);
         self::assertSame(6.0, $table->rows[0]->rowTotal);
         self::assertSame(4.0, $table->rows[0]->seriesValues['Male']);
+        self::assertSame('4', $table->rows[0]->formattedSeriesValues['Male']);
+        self::assertSame('2', $table->rows[0]->formattedSeriesValues['Female']);
+        self::assertSame('6', $table->formattedGrandTotal);
     }
 
     public function testCreateBuildsEmptyTableFromResultWithoutRows(): void

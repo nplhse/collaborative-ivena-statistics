@@ -62,12 +62,13 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 
 - No sharing, dashboards, or recommended views.
 - Only the `allocations` data source (no separate hospitals data source).
-- No CSV or table export yet (chart/table export is planned for Generic Analysis; Explorer has no export UI).
+- CSV/table export (Alpha): results table as CSV with raw values (server-side `StreamedResponse`) and chart as PNG (client-side via ApexCharts `dataURI`).
 - No URL-encoded config sharing.
 - No delete workflow for saved views.
 - No pivot feature expansion beyond the results table matrix layouts.
 - No migration of existing Generic Analysis pages.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.
+- Chart axis titles (`xAxisLabel` / `yAxisLabel`) render inside ApexCharts; the analysis title stays in the card header and is added to PNG exports only.
 - Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
 
 ## Architecture
@@ -128,6 +129,15 @@ Schema **v3** replaces implicit `dimension` + `grain` with explicit axes:
 **Execution:** flat result rows (`bucket` = row key, `seriesKey` = column key) plus `AnalysisMatrix` for chart/table presenters. `AnalysisTotals` holds grand/row/column sums for summable metrics.
 
 **Titles:** `distribution` / `over time` / `by` naming via `ExplorerTitleFactory::titleForAxes()`.
+
+### Export (Alpha)
+
+| Format | Channel | Source | Classes |
+|---|---|---|---|
+| CSV (table) | Server `POST /statistics/analysis/explorer/export/table.csv` | `AnalysisRunResult` via `ExplorerResultsTableExportBuilder` → `TabularExportDocument` → `CsvTabularExporter` | Raw numeric cells, UTF-8 BOM, streamed |
+| PNG (chart) | Client Stimulus `generic-analysis-chart#exportPng` | Off-screen ApexCharts instance + `dataURI({ scale: 2 })` | Same chart spec as UI; adds `result.title` and Tabler font stack for export only |
+
+CSV export re-runs the normalizer + runner pipeline (same guards as `rerunAnalysis()`). Config is submitted via POST with CSRF; scope/period come from URL query parameters.
 
 ```json
 {

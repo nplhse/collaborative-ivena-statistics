@@ -10,60 +10,24 @@
     {% endembed %}
 {% endblock %}
 
-{% block page_header %}
-    <div class="container-xl">
-        <div class="d-flex align-items-start justify-content-between gap-3">
-            {% set breadcrumbItems = [
-                {label: 'link.statistics', path: path('app_stats_dashboard')},
-                {label: 'link.stats.analysis_explorer_library', path: libraryUrl},
-            ] %}
-            {% if savedViewTitle %}
-                {% set breadcrumbItems = breadcrumbItems|merge([{label: savedViewTitle}]) %}
-            {% else %}
-                {% set breadcrumbItems = breadcrumbItems|merge([{label: 'stats.analysis_explorer.title'}]) %}
-            {% endif %}
-            <twig:Breadcrumbs :items="breadcrumbItems" />
-
-            <div class="flex-shrink-0 d-print-none mt-2">
-                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
-            </div>
-        </div>
-
-        <div class="page-header d-print-none">
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <div class="page-pretitle">{{ 'stats.analysis_explorer.pretitle'|trans }}</div>
-                    <h2 class="page-title" data-testid="stats-analysis-explorer-title">
-                        {{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans) }}
-                    </h2>
-                    {% if savedViewDescription %}
-                        <p class="text-secondary mt-1 mb-0" data-testid="stats-analysis-explorer-description">
-                            {{ savedViewDescription }}
-                        </p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+{% block page_wrapper %}
+    <div class="page-wrapper">
+        <twig:AnalysisExplorerShell
+            :appliedConfigState="explorerAppliedConfigState"
+            :locale="app.request.locale"
+            :initialConfigWarning="initialConfigWarning"
+            libraryUrl="{{ libraryUrl }}"
+            :savedViewId="savedViewId"
+            savedViewTitle="{{ savedViewTitle }}"
+            savedViewDescription="{{ savedViewDescription }}"
+            :isSystemView="isSystemView"
+            :canSave="canSave"
+            :canSaveAs="canSaveAs"
+            :canFavorite="canFavorite"
+            :isFavorite="isFavorite"
+            favoriteUrl="{{ favoriteUrl }}"
+            favoriteToken="{{ favoriteToken }}"
+            exportCsvUrl="{{ exportCsvUrl }}"
+        />
     </div>
-{% endblock %}
-
-{% block page_content %}
-    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
-
-    <twig:AnalysisExplorerShell
-        :appliedConfigState="explorerAppliedConfigState"
-        :locale="app.request.locale"
-        :initialConfigWarning="initialConfigWarning"
-        libraryUrl="{{ libraryUrl }}"
-        :savedViewId="savedViewId"
-        savedViewTitle="{{ savedViewTitle }}"
-        savedViewDescription="{{ savedViewDescription }}"
-        :isSystemView="isSystemView"
-        :canSave="canSave"
-        :canSaveAs="canSaveAs"
-        :canFavorite="canFavorite"
-        :isFavorite="isFavorite"
-        favoriteUrl="{{ favoriteUrl }}"
-        favoriteToken="{{ favoriteToken }}"
-    />
 {% endblock %}

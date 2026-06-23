@@ -12,10 +12,26 @@
                 </div>
             {% endif %}
         </div>
+        {% if exportCsvUrl %}
+            <form method="post"
+                  action="{{ exportCsvUrl }}"
+                  class="m-0 d-print-none"
+                  data-testid="stats-analysis-explorer-export-csv-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('explorer_export_csv') }}">
+                <input type="hidden" name="appliedConfigState" value="{{ appliedConfigState|json_encode|e('html_attr') }}">
+                <button type="submit"
+                        class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
+                        {% if not table or not table.hasData %}disabled{% endif %}
+                        data-testid="stats-analysis-explorer-export-csv">
+                    <twig:ux:icon name="tabler:download" style="height: 1.1em;" />
+                    {{ 'stats.analysis_explorer.export.csv_table'|trans }}
+                </button>
+            </form>
+        {% endif %}
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-vcenter card-table table-striped mb-0"
+            <table class="table table-vcenter card-table table-striped table-hover mb-0"
                    data-testid="stats-analysis-explorer-table-body">
                 <thead>
                     <tr>
@@ -45,11 +61,11 @@
                                 {% if table.hasMetricSubRows %}
                                     <td>{{ row.metricSubRowLabel }}</td>
                                     {% for seriesLabel in table.seriesLabels %}
-                                        <td class="text-end">{{ row.formattedSeriesValues[seriesLabel] ?? row.seriesValues[seriesLabel]|default(0)|number_format(1, ',', '.') }}</td>
+                                        <td class="text-end">{{ row.formattedSeriesValues[seriesLabel] ?? '—' }}</td>
                                     {% endfor %}
                                 {% elseif table.hasSeries %}
                                     {% for seriesLabel in table.seriesLabels %}
-                                        <td class="text-end">{{ row.seriesValues[seriesLabel]|default(0)|number_format(1, ',', '.') }}</td>
+                                        <td class="text-end">{{ row.formattedSeriesValues[seriesLabel] ?? '—' }}</td>
                                     {% endfor %}
                                     <td class="text-end fw-semibold">{{ row.formattedRowTotal }}</td>
                                 {% else %}

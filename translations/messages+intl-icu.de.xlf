@@ -253,6 +253,14 @@
         <source>stats.analysis_explorer.validation.invalid</source>
         <target>Ungültige Analyse-Konfiguration.</target>
       </trans-unit>
+      <trans-unit id="statsAexExp01" resname="stats.analysis_explorer.export.csv_table">
+        <source>stats.analysis_explorer.export.csv_table</source>
+        <target>CSV exportieren</target>
+      </trans-unit>
+      <trans-unit id="statsAexExp02" resname="stats.analysis_explorer.export.png_chart">
+        <source>stats.analysis_explorer.export.png_chart</source>
+        <target>PNG exportieren</target>
+      </trans-unit>
       <trans-unit id="statsLnkAel01" resname="link.stats.analysis_explorer_library">
         <source>link.stats.analysis_explorer_library</source>
         <target>Analyse-Bibliothek</target>

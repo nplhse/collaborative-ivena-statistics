@@ -110,7 +110,7 @@ final class AnalysisExplorerShellTest extends WebTestCase
             'locale' => 'en',
         ])->actingAs($user);
 
-        $testComponent->render();
+        $render = $testComponent->render();
 
         self::assertSame('time', $testComponent->component()->appliedConfigState['query']['rows']['dimension'] ?? null);
         self::assertNotNull($testComponent->component()->configWarning);
