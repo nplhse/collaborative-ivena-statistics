@@ -57,6 +57,10 @@
         <source>btn.cancel</source>
         <target>Cancel</target>
       </trans-unit>
+      <trans-unit id="actCancel01" resname="action.cancel">
+        <source>action.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
       <trans-unit id="PgKXiv_" resname="btn.save.changes">
         <source>btn.save.changes</source>
         <target>Save changes</target>

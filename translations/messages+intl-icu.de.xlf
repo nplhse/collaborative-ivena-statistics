@@ -5,6 +5,10 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
+      <trans-unit id="actCancel01" resname="action.cancel">
+        <source>action.cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
       <trans-unit id="statsLnkAe01" resname="link.stats.analysis_explorer">
         <source>link.stats.analysis_explorer</source>
         <target>Analyse-Explorer</target>

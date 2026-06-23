@@ -1,14 +1,16 @@
 # Analysis Explorer V2
 
-Interactive statistics explorer for ad-hoc allocation analyses. It is intentionally separate from **Generic Analysis** (saved views, library, builder) and does not share its persistence or page model.
+Interactive statistics explorer for ad-hoc allocation analyses. It replaces the former **Analytics** library under `/statistics/analytics/*` and uses its own persistence (`saved_explorer_view`) while reusing the **Generic Analysis** SQL/metric core.
 
 ## Where it appears
 
 | Page | Route |
 |---|---|
+| Analysis library (subnav entry) | `/statistics/analysis/library` |
 | Analysis Explorer (default) | `/statistics/analysis/explorer` |
 | Analysis Explorer (saved view) | `/statistics/analysis/explorer/{view}` |
-| Analysis library | `/statistics/analysis/library` |
+
+Legacy `/statistics/analytics/*` URLs redirect to the library or mapped explorer views.
 
 Navigation label: `link.stats.analysis_explorer` in `translations/messages+intl-icu.{en,de}.xlf`.
 
@@ -45,7 +47,7 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library page lists **Favorites**, **My views**, and **System views**.
+The analysis library page lists **Overview** (system views with category filters), **Favorites**, and **My views** for signed-in users.
 
 Loading flow:
 
@@ -66,7 +68,7 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 - No URL-encoded config sharing.
 - No delete workflow for saved views.
 - No pivot feature expansion beyond the results table matrix layouts.
-- No migration of existing Generic Analysis pages.
+- Legacy `/statistics/analytics/*` URLs redirect here; old saved Generic Analysis views are not migrated.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.
 - Chart axis titles (`xAxisLabel` / `yAxisLabel`) render inside ApexCharts; the analysis title stays in the card header and is added to PNG exports only.
 - Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
