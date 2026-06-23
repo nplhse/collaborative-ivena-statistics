@@ -7,20 +7,17 @@ namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 final readonly class AnalysisExplorerLibraryPageViewModel
 {
     /**
-     * @param list<array{
-     *     key: string,
-     *     label: string,
-     *     cards?: list<array<string, mixed>>,
-     *     categories?: list<array{
-     *         key: string,
-     *         title: string,
-     *         label: string,
-     *         cards: list<array<string, mixed>>
-     *     }>
-     * }> $sections
+     * @param list<array<string, mixed>>                                         $tabs
+     * @param list<array{key: string, label: string, active: bool, url: string}> $categoryFilters
+     * @param list<array<string, mixed>>                                         $cards
      */
     public function __construct(
-        public array $sections,
+        public string $activeTab,
+        public ?string $activeCategory,
+        public array $tabs,
+        public array $categoryFilters,
+        public array $cards,
+        public bool $isLoggedIn,
     ) {
     }
 }

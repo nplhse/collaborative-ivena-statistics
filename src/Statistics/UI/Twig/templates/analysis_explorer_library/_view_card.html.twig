@@ -2,11 +2,16 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
             <div class="d-flex flex-wrap gap-1">
-                <span class="badge bg-blue-lt text-blue-lt-fg">
-                    {{ card.viewTypeLabel }}
-                </span>
-                {% if categoryLabel is defined and categoryLabel %}
-                    <span class="badge bg-secondary-lt">{{ categoryLabel }}</span>
+                {% if card.isSystem and card.categoryLabel and card.categoryUrl %}
+                    <a href="{{ card.categoryUrl }}"
+                       class="badge bg-blue-lt text-blue-lt-fg text-decoration-none"
+                       data-testid="stats-analysis-explorer-category-badge-{{ card.categoryKey }}">
+                        {{ card.categoryLabel }}
+                    </a>
+                {% elseif not card.isSystem %}
+                    <span class="badge bg-blue-lt text-blue-lt-fg">
+                        {{ card.viewTypeLabel }}
+                    </span>
                 {% endif %}
             </div>
             {% if card.canFavorite and card.favoriteUrl %}

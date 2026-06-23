@@ -19,7 +19,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
     use InteractsWithAuthenticatedUser;
     use SeedsExplorerSystemViewsTrait;
 
-    public function testLibraryRendersSectionsAndSystemViews(): void
+    public function testLibraryRendersAllTabWithCategoryFiltersAndSystemViews(): void
     {
         $client = $this->createClientAsParticipant();
         $this->seedExplorerSystemViews();
@@ -34,9 +34,14 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-section-favorites"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-section-my_views"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-section-system"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-tab-all"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-tab-all"]', 'Overview');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-tab-favorites"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-tab-count-favorites"]', '0');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-tab-my_views"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-tab-count-my_views"]', '0');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-category-all"].btn-primary');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-category-filters"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-category-allocations"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-view-card-'.$view->getId().'"]');
         $this->assertSelectorTextContains(
@@ -44,5 +49,28 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
             'Total allocations',
         );
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-open-'.$view->getId().'"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-category-badge-allocations"]');
+    }
+
+    public function testLibraryCategoryFilterNarrowsVisibleCards(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedExplorerSystemViews();
+
+        $repository = self::getContainer()->get(SavedExplorerViewRepository::class);
+        $overTime = $repository->findBySlug('allocations-over-time');
+        self::assertNotNull($overTime?->getId());
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/library?scope=public&period=all&tab=all&category=allocations',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-category-allocations"].btn-primary');
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-analysis-explorer-view-card-'.$overTime->getId().'"]')->count(),
+        );
     }
 }

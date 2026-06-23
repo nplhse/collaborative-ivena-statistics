@@ -39,47 +39,67 @@
 {% block page_content %}
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
-    <div data-testid="stats-analysis-explorer-library">
-        {% for section in explorerLibraryPage.sections %}
-            <section class="mb-5" data-testid="stats-analysis-explorer-library-section-{{ section.key }}">
-                <h3 class="mb-3">{{ section.label }}</h3>
+    {% set page = explorerLibraryPage %}
 
-                {% if section.cards is defined %}
-                    {% if section.cards is not empty %}
-                        <div class="row g-4">
-                            {% for card in section.cards %}
-                                <div class="col-md-6 col-lg-4">
-                                    {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {card: card}) }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info" data-testid="stats-analysis-explorer-library-empty-{{ section.key }}">
-                            {{ ('stats.analysis_explorer.library.empty.' ~ section.key)|trans }}
-                        </div>
-                    {% endif %}
-                {% elseif section.categories is defined %}
-                    {% for category in section.categories %}
-                        <div class="mb-4" data-testid="stats-analysis-explorer-library-category-{{ category.key }}">
-                            <h4 class="h5 mb-3">{{ category.label }}</h4>
-                            <div class="row g-4">
-                                {% for card in category.cards %}
-                                    <div class="col-md-6 col-lg-4">
-                                        {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {
-                                            card: card,
-                                            categoryLabel: category.label,
-                                        }) }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info" data-testid="stats-analysis-explorer-library-empty-{{ section.key }}">
-                            {{ ('stats.analysis_explorer.library.empty.' ~ section.key)|trans }}
-                        </div>
+    <div data-testid="stats-analysis-explorer-library">
+        <ul class="nav nav-tabs analytics-library-tabs mb-4" role="tablist">
+            {% for tab in page.tabs %}
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link{% if tab.active %} active{% endif %}"
+                       href="{{ tab.url }}"
+                       {% if tab.active %}aria-current="page"{% endif %}
+                       data-testid="stats-analysis-explorer-library-tab-{{ tab.key }}">
+                        {{ tab.label }}
+                        {% if tab.count is defined %}
+                            <span class="badge analytics-library-tab-count ms-1"
+                                  data-testid="stats-analysis-explorer-library-tab-count-{{ tab.key }}">
+                                {{ tab.count }}
+                            </span>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if page.activeTab == 'all' and page.categoryFilters is not empty %}
+            <div class="d-flex justify-content-end mb-4"
+                 data-testid="stats-analysis-explorer-library-category-filters">
+                <div class="btn-group flex-wrap"
+                     role="group"
+                     aria-label="{{ 'stats.analysis_explorer.library.tab.overview'|trans }}">
+                    {% for filter in page.categoryFilters %}
+                        <a href="{{ filter.url }}"
+                           class="btn{% if filter.active %} btn-primary{% endif %}"
+                           {% if filter.active %}aria-current="true"{% endif %}
+                           data-testid="stats-analysis-explorer-library-category-{{ filter.key == '' ? 'all' : filter.key }}">
+                            {{ filter.label }}
+                        </a>
                     {% endfor %}
-                {% endif %}
-            </section>
-        {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row row-cards mb-4">
+            {% for card in page.cards %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {card: card}) }}
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="empty" data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
+                        <p class="empty-title">{{ 'stats.analysis_explorer.library.empty_title'|trans }}</p>
+                        <p class="empty-subtitle text-secondary">
+                            {% if page.activeTab == 'favorites' %}
+                                {{ 'stats.analysis_explorer.library.empty.favorites'|trans }}
+                            {% elseif page.activeTab == 'my_views' %}
+                                {{ 'stats.analysis_explorer.library.empty.my_views'|trans }}
+                            {% else %}
+                                {{ 'stats.analysis_explorer.library.empty'|trans }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
