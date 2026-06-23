@@ -122,6 +122,42 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
         self::assertTrue($result->notFound);
     }
 
+    public function testLegacyV2ConfigWithSingularMetricLoadsAndUpgradesState(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $view = new SavedExplorerView(
+            slug: 'legacy-v2-singular-metric',
+            title: 'Legacy v2 view',
+            category: 'Test',
+            configJson: [
+                'schemaVersion' => 2,
+                'dataSource' => 'allocations',
+                'query' => [
+                    'scope' => ['group' => 'public', 'detail' => null],
+                    'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                    'metric' => 'allocation_count',
+                    'dimension' => 'time',
+                    'grain' => 'month',
+                ],
+                'presentation' => ['mode' => 'chart', 'chartType' => 'bar'],
+                'title' => 'Allocations over time',
+            ],
+            isSystem: false,
+        );
+        $view->setCreatedBy($owner);
+        $this->repository->save($view);
+
+        $result = $this->loader->load('legacy-v2-singular-metric', $this->publicFilter(), $owner);
+
+        self::assertFalse($result->notFound);
+        self::assertFalse($result->usedFallback);
+        self::assertSame(3, $result->state['schemaVersion'] ?? null);
+        self::assertSame(['allocation_count'], $result->state['query']['metrics'] ?? null);
+        self::assertSame('allocation_count', $result->state['query']['visualMetric'] ?? null);
+        self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);
+        self::assertSame('month', $result->state['query']['rows']['grain'] ?? null);
+    }
+
     private function publicFilter(): StatisticsFilter
     {
         return new StatisticsFilter(
