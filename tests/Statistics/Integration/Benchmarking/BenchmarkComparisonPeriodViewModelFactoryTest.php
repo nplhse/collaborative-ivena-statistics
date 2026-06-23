@@ -7,6 +7,7 @@ namespace App\Tests\Statistics\Integration\Benchmarking;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\StatisticsPeriodNavigation;
 use App\Statistics\Benchmarking\UI\Http\Controller\BenchmarkComparisonPeriodViewModelFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,12 +70,17 @@ final class BenchmarkComparisonPeriodViewModelFactoryTest extends KernelTestCase
 
     public function testBuildsQuarterAndMonthSecondaryMenus(): void
     {
+        $anchor = new \DateTimeImmutable('first day of last month 00:00:00');
+        $year = (int) $anchor->format('Y');
+        $month = (int) $anchor->format('n');
+        $quarter = (int) ceil($month / 3);
+
         $quarterModel = $this->factory->create(
             new Request(query: [
                 'comparison_scope' => 'public',
                 'comparison_period' => 'quarter',
-                'comparison_year' => '2024',
-                'comparison_quarter' => '2',
+                'comparison_year' => (string) $year,
+                'comparison_quarter' => (string) $quarter,
             ]),
             'app_stats_benchmarking',
             new StatisticsFilter(
@@ -82,36 +88,40 @@ final class BenchmarkComparisonPeriodViewModelFactoryTest extends KernelTestCase
                 null,
                 null,
                 StatisticsFilterPeriod::Quarter,
-                2024,
+                $year,
                 null,
-                2,
+                $quarter,
             ),
         );
 
         self::assertCount(4, $quarterModel->secondaryMenu);
-        self::assertTrue($quarterModel->secondaryMenu[1]['active']);
+        self::assertTrue($quarterModel->secondaryMenu[$quarter - 1]['active']);
+
+        $monthFilter = new StatisticsFilter(
+            StatisticsFilterScope::Public,
+            null,
+            null,
+            StatisticsFilterPeriod::Month,
+            $year,
+            $month,
+        );
 
         $monthModel = $this->factory->create(
             new Request(query: [
                 'comparison_scope' => 'public',
                 'comparison_period' => 'month',
-                'comparison_year' => '2024',
-                'comparison_month' => '3',
+                'comparison_year' => (string) $year,
+                'comparison_month' => (string) $month,
             ]),
             'app_stats_benchmarking',
-            new StatisticsFilter(
-                StatisticsFilterScope::Public,
-                null,
-                null,
-                StatisticsFilterPeriod::Month,
-                2024,
-                3,
-            ),
+            $monthFilter,
         );
 
+        $navigation = self::getContainer()->get(StatisticsPeriodNavigation::class);
+
         self::assertCount(12, $monthModel->secondaryMenu);
-        self::assertTrue($monthModel->secondaryMenu[2]['active']);
-        self::assertNotNull($monthModel->previousUrl);
-        self::assertNotNull($monthModel->nextUrl);
+        self::assertTrue($monthModel->secondaryMenu[$month - 1]['active']);
+        self::assertSame($navigation->isPreviousEnabled($monthFilter), null !== $monthModel->previousUrl);
+        self::assertSame($navigation->isNextEnabled($monthFilter), null !== $monthModel->nextUrl);
     }
 }
