@@ -37,7 +37,7 @@ final readonly class KpiScheduleProvider implements ScheduleProviderInterface
             )
             ->add(
                 RecurringMessage::cron(
-                    '0 8 1-7 * 1',
+                    '0 8 * * *',
                     new SendMonthlySubmissionRemindersMessage(),
                     self::TIMEZONE,
                 ),

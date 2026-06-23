@@ -49,7 +49,7 @@ final class KpiScheduleProviderTest extends TestCase
         self::assertInstanceOf(RecurringMessage::class, $monthlyMessage);
         $monthlyTrigger = $monthlyMessage->getTrigger();
         self::assertInstanceOf(CronExpressionTrigger::class, $monthlyTrigger);
-        self::assertSame('0 8 1-7 * 1', (string) $monthlyTrigger);
+        self::assertSame('0 8 * * *', (string) $monthlyTrigger);
 
         $monthlyProvider = $monthlyMessage->getProvider();
         self::assertInstanceOf(StaticMessageProvider::class, $monthlyProvider);
