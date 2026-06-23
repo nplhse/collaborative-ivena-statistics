@@ -73,6 +73,10 @@
         <source>stats.analysis_explorer.edit.show_percent_of_total</source>
         <target>Anteil am Gesamt anzeigen</target>
       </trans-unit>
+      <trans-unit id="statsAexM10b" resname="stats.analysis_explorer.edit.show_percent_of_total_help">
+        <source>stats.analysis_explorer.edit.show_percent_of_total_help</source>
+        <target>Zeigt Prozentwerte in der Tabelle. Bei Matrizen Anteil innerhalb der Zeile, sonst Anteil am Gesamt.</target>
+      </trans-unit>
       <trans-unit id="statsAexM11" resname="stats.analysis_explorer.validation.incompatible_metrics">
         <source>stats.analysis_explorer.validation.incompatible_metrics</source>
         <target>Diese Kennzahlen können nicht kombiniert werden.</target>
@@ -185,6 +189,10 @@
         <source>stats.analysis_explorer.chart.stacked_bar</source>
         <target>Gestapelte Balken</target>
       </trans-unit>
+      <trans-unit id="statsAex33b" resname="stats.analysis_explorer.chart.heatmap">
+        <source>stats.analysis_explorer.chart.heatmap</source>
+        <target>Heatmap</target>
+      </trans-unit>
       <trans-unit id="statsAex34" resname="stats.analysis_explorer.allocations_by_gender_over_time">
         <source>stats.analysis_explorer.allocations_by_gender_over_time</source>
         <target>Verlegungen nach Geschlecht über die Zeit</target>
@@ -261,6 +269,14 @@
         <source>stats.analysis_explorer.export.png_chart</source>
         <target>PNG exportieren</target>
       </trans-unit>
+      <trans-unit id="statsAexExp03" resname="stats.analysis_explorer.export.percent_of_total">
+        <source>stats.analysis_explorer.export.percent_of_total</source>
+        <target>% Gesamt</target>
+      </trans-unit>
+      <trans-unit id="statsAexExp04" resname="stats.analysis_explorer.export.percent_of_row">
+        <source>stats.analysis_explorer.export.percent_of_row</source>
+        <target>%</target>
+      </trans-unit>
       <trans-unit id="statsLnkAel01" resname="link.stats.analysis_explorer_library">
         <source>link.stats.analysis_explorer_library</source>
         <target>Analyse-Bibliothek</target>
@@ -284,6 +300,26 @@
       <trans-unit id="statsAex54" resname="stats.analysis_explorer.library.empty">
         <source>stats.analysis_explorer.library.empty</source>
         <target>Noch keine gespeicherten Ansichten verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAex54a" resname="stats.analysis_explorer.library.empty_title">
+        <source>stats.analysis_explorer.library.empty_title</source>
+        <target>Keine Ansichten gefunden</target>
+      </trans-unit>
+      <trans-unit id="statsAex54b" resname="stats.analysis_explorer.library.tab.overview">
+        <source>stats.analysis_explorer.library.tab.overview</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="statsAex54c" resname="stats.analysis_explorer.library.tab.favorites">
+        <source>stats.analysis_explorer.library.tab.favorites</source>
+        <target>Favoriten</target>
+      </trans-unit>
+      <trans-unit id="statsAex54d" resname="stats.analysis_explorer.library.tab.my_views">
+        <source>stats.analysis_explorer.library.tab.my_views</source>
+        <target>Meine Views</target>
+      </trans-unit>
+      <trans-unit id="statsAex54e" resname="stats.analysis_explorer.library.category.all">
+        <source>stats.analysis_explorer.library.category.all</source>
+        <target>Alle</target>
       </trans-unit>
       <trans-unit id="statsAex55" resname="stats.analysis_explorer.library.category.allocations">
         <source>stats.analysis_explorer.library.category.allocations</source>
@@ -312,6 +348,14 @@
       <trans-unit id="statsAex62" resname="stats.analysis_explorer.save_as">
         <source>stats.analysis_explorer.save_as</source>
         <target>Speichern unter</target>
+      </trans-unit>
+      <trans-unit id="statsAex62a" resname="stats.analysis_explorer.actions.view">
+        <source>stats.analysis_explorer.actions.view</source>
+        <target>Ansicht-Aktionen</target>
+      </trans-unit>
+      <trans-unit id="statsAex62b" resname="stats.analysis_explorer.actions.save">
+        <source>stats.analysis_explorer.actions.save</source>
+        <target>Speichern-Aktionen</target>
       </trans-unit>
       <trans-unit id="statsAex63" resname="stats.analysis_explorer.saved">
         <source>stats.analysis_explorer.saved</source>
@@ -611,7 +655,7 @@
       </trans-unit>
       <trans-unit id="statsAex137" resname="stats.analysis_explorer.edit.section.matrix">
         <source>stats.analysis_explorer.edit.section.matrix</source>
-        <target>Tabellenaufbau</target>
+        <target>Datenauswahl</target>
       </trans-unit>
       <trans-unit id="statsAex138" resname="stats.analysis_explorer.edit.matrix_intro">
         <source>stats.analysis_explorer.edit.matrix_intro</source>
@@ -712,6 +756,26 @@
       <trans-unit id="statsAex162" resname="stats.analysis_explorer.edit.structure_axis_with_grain">
         <source>stats.analysis_explorer.edit.structure_axis_with_grain</source>
         <target>{grain} · {dimension}</target>
+      </trans-unit>
+      <trans-unit id="statsAex162b" resname="stats.analysis_explorer.edit.swap_axes">
+        <source>stats.analysis_explorer.edit.swap_axes</source>
+        <target>Zeilen / Spalten</target>
+      </trans-unit>
+      <trans-unit id="statsAex163" resname="stats.analysis_explorer.edit.section.view_metadata">
+        <source>stats.analysis_explorer.edit.section.view_metadata</source>
+        <target>Metadaten</target>
+      </trans-unit>
+      <trans-unit id="statsAex164" resname="stats.analysis_explorer.edit.view_metadata_save">
+        <source>stats.analysis_explorer.edit.view_metadata_save</source>
+        <target>Details speichern</target>
+      </trans-unit>
+      <trans-unit id="statsAex165" resname="stats.analysis_explorer.edit.view_metadata_dirty_hint">
+        <source>stats.analysis_explorer.edit.view_metadata_dirty_hint</source>
+        <target>Speichern oder verwerfen Sie Ihre Analyseänderungen, bevor Sie Titel und Beschreibung der Ansicht bearbeiten.</target>
+      </trans-unit>
+      <trans-unit id="statsAex166" resname="stats.analysis_explorer.view_metadata.saved">
+        <source>stats.analysis_explorer.view_metadata.saved</source>
+        <target>Ansichtsdetails gespeichert.</target>
       </trans-unit>
     </body>
   </file>

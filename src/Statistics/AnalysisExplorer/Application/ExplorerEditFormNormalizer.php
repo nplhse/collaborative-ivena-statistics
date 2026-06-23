@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\StatisticsFilterFactory;
@@ -18,6 +21,7 @@ final readonly class ExplorerEditFormNormalizer
     public function __construct(
         private AllocationsCapabilitiesProvider $capabilitiesProvider,
         private AnalysisAxisResolver $axisResolver,
+        private ExplorerColumnGrainResolver $columnGrainResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
@@ -49,13 +53,25 @@ final readonly class ExplorerEditFormNormalizer
 
         $columnAxis = null;
         if (null !== $formData->columnDimension && '' !== $formData->columnDimension) {
-            $candidate = $this->axisResolver->resolveFromStrings(
-                $formData->columnDimension,
-                $formData->columnGrain,
-                $capabilities,
-            );
-            if ($capabilities->supportsColumnAxis($rowAxis, $candidate)) {
-                $columnAxis = $candidate;
+            $columnDimension = AnalysisDimensionKey::tryFrom($formData->columnDimension);
+            if ($columnDimension instanceof AnalysisDimensionKey) {
+                $submittedColumnGrain = \is_string($formData->columnGrain)
+                    ? AnalysisDimensionGrain::tryFrom($formData->columnGrain)
+                    : null;
+                $columnGrain = $this->columnGrainResolver->resolve(
+                    $rowAxis,
+                    $columnDimension,
+                    $submittedColumnGrain,
+                    $capabilities,
+                );
+                $candidate = $this->axisResolver->resolveFromStrings(
+                    $formData->columnDimension,
+                    $columnGrain->value,
+                    $capabilities,
+                );
+                if ($capabilities->supportsColumnAxis($rowAxis, $candidate)) {
+                    $columnAxis = $candidate;
+                }
             }
         }
 
@@ -79,6 +95,11 @@ final readonly class ExplorerEditFormNormalizer
             $tableLayout = TableLayout::Flat;
         }
 
+        $chartRowLimit = ExplorerChartRowLimit::fromValue($formData->chartRowLimit);
+        if ($rowAxis->dimensionKey->isTemporalPrimary()) {
+            $chartRowLimit = ExplorerChartRowLimit::All;
+        }
+
         return new ExplorerEditFormData(
             scopePeriod: $formData->scopePeriod,
             rowDimension: $rowAxis->dimensionKey->value,
@@ -89,6 +110,7 @@ final readonly class ExplorerEditFormNormalizer
             showPercentOfTotal: $showPercentOfTotal,
             chartType: $chartType->value,
             tableLayout: $tableLayout->value,
+            chartRowLimit: $chartRowLimit->value,
         );
     }
 }

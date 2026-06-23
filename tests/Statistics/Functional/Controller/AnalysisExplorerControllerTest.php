@@ -58,6 +58,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         self::assertNotNull($specsRaw);
         $this->assertStringContainsString('"bar"', $specsRaw);
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table-scroll"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-actions"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-link"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-link"]', 'Open library');
@@ -184,6 +185,22 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analytics-view-title"]');
         $this->assertSelectorExists('[data-testid="stats-generic-analysis-chart-card"]');
+    }
+
+    public function testTemporalSavedViewDoesNotShowChartRowLimitControl(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/gender-over-time?scope=public&period=all&chartTop=5',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-chart-row-limit"]');
     }
 
     private function seedProjectionWithAllocation(): void

@@ -21,6 +21,7 @@ final readonly class GenericAnalysisChartDataReducer
     public function __construct(
         private DimensionRegistry $dimensionRegistry,
         private MetricRegistry $metricRegistry,
+        private ChartPrimaryBucketLimiter $primaryBucketLimiter,
         private TranslatorInterface $translator,
     ) {
     }
@@ -45,7 +46,7 @@ final readonly class GenericAnalysisChartDataReducer
         }
 
         if (null !== $primaryBucketCap && $this->shouldLimitPrimaryBuckets($primary, \count($labels), $primaryBucketCap)) {
-            [$labels, $counts, $series] = $this->limitPrimaryBuckets(
+            [$labels, $counts, $series] = $this->primaryBucketLimiter->limit(
                 $labels,
                 $this->toIntCounts($counts),
                 $series,
@@ -112,92 +113,6 @@ final readonly class GenericAnalysisChartDataReducer
         }
 
         return $limited;
-    }
-
-    /**
-     * @param list<string>                                     $labels
-     * @param list<int>                                        $counts
-     * @param list<array{name: string, data: list<int|float>}> $series
-     *
-     * @return array{0: list<string>, 1: list<int|float>, 2: list<array{name: string, data: list<int|float>}>}
-     */
-    private function limitPrimaryBuckets(array $labels, array $counts, array $series, int $cap): array
-    {
-        $bucketTotals = [];
-
-        if ([] !== $series) {
-            foreach ($labels as $labelIndex => $label) {
-                $sum = 0.0;
-                foreach ($series as $item) {
-                    $sum += (float) ($item['data'][$labelIndex] ?? 0);
-                }
-                $bucketTotals[$label] = $sum;
-            }
-        } else {
-            foreach ($labels as $labelIndex => $label) {
-                $bucketTotals[$label] = $counts[$labelIndex] ?? 0;
-            }
-        }
-
-        arsort($bucketTotals);
-        $topLabels = array_slice(array_keys($bucketTotals), 0, $cap);
-
-        $restTotal = 0.0;
-        foreach ($bucketTotals as $label => $total) {
-            if (!\in_array($label, $topLabels, true)) {
-                $restTotal += (float) $total;
-            }
-        }
-
-        $newLabels = $topLabels;
-        if ($restTotal > 0) {
-            $newLabels[] = $this->remainderBucketLabel();
-        }
-
-        $newCounts = [];
-        if ([] === $series) {
-            foreach ($topLabels as $label) {
-                $newCounts[] = $bucketTotals[$label];
-            }
-            if ($restTotal > 0) {
-                $newCounts[] = $restTotal;
-            }
-
-            return [$newLabels, $newCounts, $series];
-        }
-
-        $newSeries = [];
-        foreach ($series as $item) {
-            $newData = [];
-            foreach ($topLabels as $label) {
-                $labelIndex = array_search($label, $labels, true);
-                $newData[] = false !== $labelIndex ? ($item['data'][$labelIndex] ?? 0) : 0;
-            }
-            if ($restTotal > 0) {
-                $restForSeries = 0.0;
-                foreach (array_keys($bucketTotals) as $label) {
-                    if (\in_array($label, $topLabels, true)) {
-                        continue;
-                    }
-                    $labelIndex = array_search($label, $labels, true);
-                    if (false !== $labelIndex) {
-                        $restForSeries += (float) ($item['data'][$labelIndex] ?? 0);
-                    }
-                }
-                $newData[] = $restForSeries;
-            }
-            $newSeries[] = [
-                'name' => $item['name'],
-                'data' => $newData,
-            ];
-        }
-
-        return [$newLabels, $newCounts, $newSeries];
-    }
-
-    private function remainderBucketLabel(): string
-    {
-        return $this->translator->trans('stats.generic_analysis.chart.remainder_bucket');
     }
 
     private function remainderSeriesLabel(): string

@@ -17,12 +17,14 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCatalog;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricKeyMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
+use App\Statistics\AnalysisExplorer\Application\ExplorerTablePercentHelper;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
 use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
+use App\Statistics\GenericAnalysis\Application\ChartPrimaryBucketLimiter;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
@@ -122,6 +124,7 @@ trait AnalysisExplorerTestSupport
             static fn (string $id): string => match ($id) {
                 'stats.analysis_explorer.dimension.month' => 'Month',
                 'stats.analysis_explorer.dimension.gender' => 'Gender',
+                'stats.generic_analysis.chart.remainder_bucket' => 'Other',
                 default => $id,
             },
         );
@@ -129,6 +132,7 @@ trait AnalysisExplorerTestSupport
         return new ExplorerChartPresenter(
             $this->createExplorerMetricKeyMapper(),
             $metricRegistry,
+            new ChartPrimaryBucketLimiter($translator),
             $translator,
         );
     }
@@ -160,12 +164,14 @@ trait AnalysisExplorerTestSupport
     protected function createExplorerResultsTablePresenter(TranslatorInterface $translator): ExplorerResultsTablePresenter
     {
         $metricRegistry = $this->createMetricRegistry();
+        $metricValueFormatter = new MetricValueFormatter($metricRegistry);
 
         return new ExplorerResultsTablePresenter(
             $translator,
             $this->createExplorerMetricKeyMapper(),
             $metricRegistry,
-            new MetricValueFormatter($metricRegistry),
+            $metricValueFormatter,
+            new ExplorerTablePercentHelper($metricRegistry, $metricValueFormatter),
         );
     }
 

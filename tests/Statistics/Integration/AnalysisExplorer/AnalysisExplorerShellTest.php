@@ -7,9 +7,12 @@ namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Tests\Statistics\Support\Benchmarking\EligibleBenchmarkScopeTrait;
 use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
 use App\User\Domain\Factory\UserFactory;
@@ -50,6 +53,35 @@ final class AnalysisExplorerShellTest extends WebTestCase
         self::assertSame('grouped_bar', $testComponent->component()->appliedConfigState['presentation']['chartType'] ?? null);
         self::assertSame('time', $testComponent->component()->appliedConfigState['query']['rows']['dimension'] ?? null);
         self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['columns']['dimension'] ?? null);
+    }
+
+    public function testOpenEditShowsPercentCheckboxForGenderOverTime(): void
+    {
+        self::bootKernel();
+        $this->seedExplorerSystemViews();
+        $loader = self::getContainer()->get(SavedExplorerViewLoader::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+        $result = $loader->load('gender-over-time', $filter, null);
+
+        $user = UserFactory::createOne(['username' => 'explorer-percent-'.bin2hex(random_bytes(4))]);
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $result->state,
+            'locale' => 'en',
+        ])->actingAs($user);
+
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-show-percent-field"]')->count(),
+        );
     }
 
     public function testOpenEditKeepsLibraryLinkVisible(): void
@@ -500,6 +532,243 @@ final class AnalysisExplorerShellTest extends WebTestCase
         self::assertFalse($testComponent->component()->isEditOpen);
     }
 
+    public function testSetChartRowLimitUpdatesAppliedStateWithoutRerunningAnalysis(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $component = $testComponent->component();
+        $revisionAfterLoad = $component->analysisRevision;
+        $tableSnapshot = $component->table;
+
+        $testComponent->call('setChartRowLimit', ['limit' => '5']);
+        $testComponent->render();
+        $component = $testComponent->component();
+
+        self::assertGreaterThan($revisionAfterLoad, $component->analysisRevision);
+        self::assertSame('5', $component->appliedConfigState['presentation']['chartRowLimit'] ?? null);
+        self::assertSame($tableSnapshot, $component->table);
+        self::assertTrue($component->hasUnsavedChanges);
+    }
+
+    public function testEditDrawerAnalysisAndPresentationExpandedByDefault(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        $crawler = $render->crawler();
+
+        self::assertStringContainsString(
+            'collapsed',
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-scope"]')->attr('class') ?? '',
+        );
+        self::assertStringContainsString(
+            'collapsed',
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-period"]')->attr('class') ?? '',
+        );
+        self::assertStringNotContainsString(
+            'collapsed',
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-analysis"]')->attr('class') ?? '',
+        );
+        self::assertStringNotContainsString(
+            'collapsed',
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-presentation"]')->attr('class') ?? '',
+        );
+        self::assertStringNotContainsString(
+            ' show',
+            ' '.$crawler->filter('#analysisExplorerEditScopePanel')->attr('class'),
+        );
+        self::assertStringNotContainsString(
+            ' show',
+            ' '.$crawler->filter('#analysisExplorerEditPeriodPanel')->attr('class'),
+        );
+        self::assertStringContainsString(
+            'show',
+            $crawler->filter('#analysisExplorerEditAnalysisPanel')->attr('class') ?? '',
+        );
+        self::assertStringContainsString(
+            'show',
+            $crawler->filter('#analysisExplorerEditPresentationPanel')->attr('class') ?? '',
+        );
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-analysis"] .analysis-explorer-accordion-state-icon--expanded')->count(),
+        );
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-scope"] .analysis-explorer-accordion-state-icon--collapsed')->count(),
+        );
+    }
+
+    public function testViewMetadataSectionHiddenWithoutParticipant(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        self::assertCount(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]'),
+        );
+    }
+
+    public function testViewMetadataSectionVisibleForParticipantWithoutSavedView(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($viewFactory->createDefault($filter)),
+            'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
+            'canSaveAs' => true,
+        ])->actingAs($user);
+
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]')->count(),
+        );
+    }
+
+    public function testViewMetadataFieldsRemainEnabledWhenConfigDirty(): void
+    {
+        [$testComponent] = $this->createUserViewShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+        $testComponent->call('setChartRowLimit', ['limit' => '5']);
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        $crawler = $render->crawler();
+
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]')->count(),
+        );
+        self::assertCount(
+            0,
+            $crawler->filter('[data-testid="stats-analysis-explorer-view-metadata-dirty-hint"]'),
+        );
+        self::assertNull($crawler->filter('[data-testid="stats-analysis-explorer-edit-view-title"]')->attr('disabled'));
+        self::assertNull($crawler->filter('[data-testid="stats-analysis-explorer-edit-view-description"]')->attr('disabled'));
+    }
+
+    public function testApplyEditUpdatesMetadataAndEnablesSave(): void
+    {
+        [$testComponent, $view] = $this->createUserViewShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $testComponent->set('editViewTitle', 'Renamed user view');
+        $testComponent->set('editViewDescription', 'Updated description');
+        $configBeforeApply = $testComponent->component()->appliedConfigState;
+        $testComponent->call('applyEdit');
+
+        $component = $testComponent->component();
+        self::assertSame('Renamed user view', $component->savedViewTitle);
+        self::assertSame('Updated description', $component->savedViewDescription);
+        self::assertSame($configBeforeApply, $component->appliedConfigState);
+        self::assertTrue($component->hasUnsavedChanges);
+        self::assertTrue($component->metadataManuallyEdited);
+
+        $testComponent->call('save');
+
+        $reloaded = self::getContainer()->get(SavedExplorerViewRepository::class)->find($view->getId());
+        self::assertNotNull($reloaded);
+        self::assertSame('Renamed user view', $reloaded->getTitle());
+        self::assertSame('Updated description', $reloaded->getDescription());
+        self::assertFalse($testComponent->component()->hasUnsavedChanges);
+    }
+
+    public function testApplyEditMetadataOnlyEnablesSaveWithoutConfigChange(): void
+    {
+        [$testComponent] = $this->createUserViewShellComponent();
+        $testComponent->render();
+        self::assertFalse($testComponent->component()->hasUnsavedChanges);
+
+        $testComponent->call('openEdit');
+        $configBeforeApply = $testComponent->component()->appliedConfigState;
+        $testComponent
+            ->set('editViewTitle', 'Metadata-only title')
+            ->set('editViewDescription', 'Metadata-only description')
+            ->call('applyEdit');
+
+        $component = $testComponent->component();
+        self::assertSame($configBeforeApply, $component->appliedConfigState);
+        self::assertTrue($component->hasUnsavedChanges);
+        self::assertSame('Metadata-only title', $component->savedViewTitle);
+    }
+
+    public function testOpenSaveAsUsesManualMetadataWhenEdited(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($viewFactory->createDefault($filter)),
+            'locale' => 'en',
+            'canSaveAs' => true,
+        ])->actingAs($user);
+
+        $render = $testComponent->render();
+        $formName = $this->formName($render);
+        $testComponent
+            ->call('openEdit')
+            ->set('editViewTitle', 'My custom library title')
+            ->set('editViewDescription', 'My custom library description')
+            ->call('applyEdit')
+            ->call('openEdit')
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'gender',
+                'rowGrain' => 'total',
+                'chartType' => 'bar',
+            ]))
+            ->call('applyEdit')
+            ->call('openSaveAs');
+
+        self::assertSame('My custom library title', $testComponent->component()->saveAsTitle);
+        self::assertSame('My custom library description', $testComponent->component()->saveAsDescription);
+    }
+
+    public function testApplyEditWithChartRowLimitFromPresentationSection(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $formName = $this->formName($testComponent->render());
+        $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'gender',
+                'rowGrain' => 'total',
+                'chartRowLimit' => '5',
+            ]))
+            ->call('applyEdit');
+
+        self::assertSame('gender', $testComponent->component()->appliedConfigState['query']['rows']['dimension'] ?? null);
+        self::assertSame('5', $testComponent->component()->appliedConfigState['presentation']['chartRowLimit'] ?? null);
+    }
+
     /**
      * @param array<string, mixed> $overrides
      *
@@ -548,5 +817,39 @@ final class AnalysisExplorerShellTest extends WebTestCase
             'locale' => 'en',
             'libraryUrl' => '/statistics/analysis/library',
         ])->actingAs($user);
+    }
+
+    /**
+     * @return array{0: \Symfony\UX\LiveComponent\Test\TestLiveComponent, 1: SavedExplorerView, 2: array<string, mixed>}
+     */
+    private function createUserViewShellComponent(): array
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $service = self::getContainer()->get(SavedExplorerViewService::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+        $state = $mapper->toStateArray($viewFactory->createDefault($filter));
+        $view = $service->create($user, 'My user view', $state, 'Original description');
+        $view->setCreatedBy($user);
+        self::getContainer()->get(SavedExplorerViewRepository::class)->save($view);
+
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $state,
+            'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
+            'savedViewId' => $view->getId(),
+            'savedViewTitle' => 'My user view',
+            'savedViewDescription' => 'Original description',
+            'canSave' => true,
+            'canSaveAs' => true,
+        ])->actingAs($user);
+
+        return [$testComponent, $view, $state];
     }
 }

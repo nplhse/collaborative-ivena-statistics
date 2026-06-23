@@ -11,6 +11,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\PresentationMode;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
@@ -51,6 +52,7 @@ final readonly class ExplorerConfigMapper
             showPercentOfTotal: $config->showsPercentOfTotal(),
             chartType: $config->presentation->chartType->value,
             tableLayout: $config->presentation->tableLayout->value,
+            chartRowLimit: $config->presentation->chartRowLimit->value,
         );
     }
 
@@ -85,6 +87,11 @@ final readonly class ExplorerConfigMapper
             $tableLayout = $this->tableLayoutResolver->resolveForConfig($preview);
         }
 
+        $chartRowLimit = ExplorerChartRowLimit::fromValue($formData->chartRowLimit);
+        if ($rowAxis->dimensionKey->isTemporalPrimary()) {
+            $chartRowLimit = ExplorerChartRowLimit::All;
+        }
+
         return $base
             ->withStatisticsFilter($filter)
             ->withAxes($rowAxis, $columnAxis)
@@ -93,6 +100,7 @@ final readonly class ExplorerConfigMapper
                 chartType: $chartType,
                 mode: PresentationMode::Chart,
                 tableLayout: $tableLayout,
+                chartRowLimit: $chartRowLimit,
             ))
             ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis));
     }
@@ -119,6 +127,7 @@ final readonly class ExplorerConfigMapper
                 'mode' => $config->presentation->mode->value,
                 'chartType' => $config->presentation->chartType->value,
                 'tableLayout' => $config->presentation->tableLayout->value,
+                'chartRowLimit' => $config->presentation->chartRowLimit->value,
             ],
             'title' => $config->title,
         ];
@@ -146,6 +155,8 @@ final readonly class ExplorerConfigMapper
         [$metricKeys, $visualMetricKey] = $this->metricKeysFromState($state['query'] ?? []);
         [$rowAxis, $columnAxis] = $this->axesFromState($state['query'] ?? [], $capabilities);
 
+        $chartRowLimit = ExplorerChartRowLimit::fromValue((string) ($state['presentation']['chartRowLimit'] ?? ExplorerChartRowLimit::All->value));
+
         $formData = new ExplorerEditFormData(
             scopePeriod: $scopePeriod,
             rowDimension: $rowAxis->dimensionKey->value,
@@ -156,6 +167,7 @@ final readonly class ExplorerConfigMapper
             showPercentOfTotal: \in_array(AnalysisMetricKey::PercentOfTotal, $metricKeys, true),
             chartType: (string) ($state['presentation']['chartType'] ?? ChartPresentationType::Bar->value),
             tableLayout: (string) ($state['presentation']['tableLayout'] ?? TableLayout::Flat->value),
+            chartRowLimit: $chartRowLimit->value,
         );
 
         $base = new AnalysisViewConfig(
@@ -170,7 +182,10 @@ final readonly class ExplorerConfigMapper
                 cohortType: null,
                 period: StatisticsFilterPeriod::All,
             ),
-            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::Bar,
+                chartRowLimit: $chartRowLimit,
+            ),
             title: (string) ($state['title'] ?? $this->titleFactory->titleForAxes(AnalysisAxisRef::time(AnalysisDimensionGrain::Month), null)),
         );
 
@@ -180,7 +195,7 @@ final readonly class ExplorerConfigMapper
             $config = $config->withTitle((string) $state['title']);
         }
 
-        return $config;
+        return $config->withPresentation($config->presentation->withChartRowLimit($chartRowLimit));
     }
 
     /**
@@ -219,6 +234,7 @@ final readonly class ExplorerConfigMapper
                 'mode' => PresentationMode::Chart->value,
                 'chartType' => $viewPreferences['chartType'] ?? ChartPresentationType::Bar->value,
                 'tableLayout' => $viewPreferences['tableLayout'] ?? TableLayout::Flat->value,
+                'chartRowLimit' => $viewPreferences['chartRowLimit'] ?? ExplorerChartRowLimit::All->value,
             ],
             'title' => $viewPreferences['title'] ?? '',
         ];
@@ -249,8 +265,28 @@ final readonly class ExplorerConfigMapper
             'columns' => $config->columnAxis?->toStateArray(),
             'chartType' => $config->presentation->chartType->value,
             'tableLayout' => $config->presentation->tableLayout->value,
+            'chartRowLimit' => $config->presentation->chartRowLimit->value,
             'title' => $config->title,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     *
+     * @return array<string, mixed>
+     */
+    public function mergeChartRowLimitIntoState(array $state, ExplorerChartRowLimit $chartRowLimit): array
+    {
+        $presentation = $state['presentation'] ?? [];
+        if (!\is_array($presentation)) {
+            $presentation = [];
+        }
+
+        return array_merge($state, [
+            'presentation' => array_merge($presentation, [
+                'chartRowLimit' => $chartRowLimit->value,
+            ]),
+        ]);
     }
 
     /**

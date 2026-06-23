@@ -23,6 +23,7 @@ final readonly class ExplorerEditFormSummaryFactory
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private StatisticsFilterFactory $statisticsFilterFactory,
         private AnalysisAxisResolver $axisResolver,
+        private ExplorerColumnGrainResolver $columnGrainResolver,
     ) {
     }
 
@@ -45,13 +46,25 @@ final readonly class ExplorerEditFormSummaryFactory
 
         $columnLabel = $this->translator->trans('stats.analysis_explorer.edit.structure_no_columns');
         if (null !== $formData->columnDimension && self::NONE_COLUMN !== $formData->columnDimension) {
-            $columnAxis = $this->axisResolver->resolveFromStrings(
-                $formData->columnDimension,
-                $formData->columnGrain,
-                $capabilities,
-            );
-            if ($capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
-                $columnLabel = $this->axisLabel($columnAxis);
+            $columnDimension = AnalysisDimensionKey::tryFrom($formData->columnDimension);
+            if ($columnDimension instanceof AnalysisDimensionKey) {
+                $submittedColumnGrain = \is_string($formData->columnGrain)
+                    ? AnalysisDimensionGrain::tryFrom($formData->columnGrain)
+                    : null;
+                $columnGrain = $this->columnGrainResolver->resolve(
+                    $rowAxis,
+                    $columnDimension,
+                    $submittedColumnGrain,
+                    $capabilities,
+                );
+                $columnAxis = $this->axisResolver->resolveFromStrings(
+                    $formData->columnDimension,
+                    $columnGrain->value,
+                    $capabilities,
+                );
+                if ($capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
+                    $columnLabel = $this->axisLabel($columnAxis);
+                }
             }
         }
 

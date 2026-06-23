@@ -60,6 +60,7 @@ final readonly class DataSourceCapabilities
                 ChartPresentationType::GroupedBar,
                 ChartPresentationType::StackedBar,
                 ChartPresentationType::Line,
+                ChartPresentationType::Heatmap,
             ];
         }
 

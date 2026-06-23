@@ -31,7 +31,8 @@
                     {% endif %}
                 </div>
                 <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list" data-testid="stats-analysis-explorer-actions">
+                    <div class="d-flex flex-wrap align-items-center justify-content-end gap-2"
+                         data-testid="stats-analysis-explorer-actions">
                         {% if libraryUrl %}
                             <a href="{{ libraryUrl }}"
                                class="btn d-inline-flex align-items-center gap-1"
@@ -41,10 +42,10 @@
                             </a>
                         {% endif %}
 
-                        {% if canFavorite and favoriteUrl %}
-                            <form method="post" action="{{ favoriteUrl }}" class="m-0 d-inline">
-                                <input type="hidden" name="_token" value="{{ csrf_token(favoriteToken) }}">
+                        <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.view'|trans }}">
+                            {% if canFavorite and favoriteUrl %}
                                 <button type="submit"
+                                        form="analysis-explorer-favorite-form"
                                         class="btn btn-icon{% if isFavorite %} text-yellow{% endif %}"
                                         title="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans : 'stats.analysis_explorer.favorite.add'|trans }}"
                                         aria-label="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans : 'stats.analysis_explorer.favorite.add'|trans }}"
@@ -52,45 +53,58 @@
                                         data-testid="stats-analysis-explorer-favorite-toggle">
                                     <twig:ux:icon name="{{ isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
                                 </button>
-                            </form>
-                        {% endif %}
+                            {% endif %}
 
-                        {% if canSave %}
                             <button type="button"
                                     class="btn d-inline-flex align-items-center gap-1"
+                                    data-bs-toggle="offcanvas"
+                                    data-bs-target="#analysisExplorerEditDrawer"
                                     data-action="live#action"
-                                    data-live-action-param="save"
-                                    {% if not hasUnsavedChanges %}disabled{% endif %}
-                                    data-testid="stats-analysis-explorer-save">
-                                <twig:ux:icon name="tabler:device-floppy" style="height: 1.2em;" />
-                                {{ 'stats.analysis_explorer.save'|trans }}
+                                    data-live-action-param="openEdit"
+                                    data-testid="stats-analysis-explorer-edit-open">
+                                <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
+                                {{ 'stats.analysis_explorer.edit.button'|trans }}
                             </button>
-                        {% endif %}
+                        </div>
 
-                        {% if showSaveAs %}
-                            <button type="button"
-                                    class="btn d-inline-flex align-items-center gap-1"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#analysisExplorerSaveAsModal"
-                                    data-action="live#action"
-                                    data-live-action-param="openSaveAs"
-                                    data-testid="stats-analysis-explorer-save-as-open">
-                                <twig:ux:icon name="tabler:copy" style="height: 1.2em;" />
-                                {{ 'stats.analysis_explorer.save_as'|trans }}
-                            </button>
-                        {% endif %}
+                        {% if canSave or showSaveAs %}
+                            <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.save'|trans }}">
+                                {% if canSave %}
+                                    <button type="button"
+                                            class="btn d-inline-flex align-items-center gap-1"
+                                            data-action="live#action"
+                                            data-live-action-param="save"
+                                            {% if not hasUnsavedChanges %}disabled{% endif %}
+                                            data-testid="stats-analysis-explorer-save">
+                                        <twig:ux:icon name="tabler:device-floppy" style="height: 1.2em;" />
+                                        {{ 'stats.analysis_explorer.save'|trans }}
+                                    </button>
+                                {% endif %}
 
-                        <button type="button"
-                                class="btn d-inline-flex align-items-center gap-1"
-                                data-bs-toggle="offcanvas"
-                                data-bs-target="#analysisExplorerEditDrawer"
-                                data-action="live#action"
-                                data-live-action-param="openEdit"
-                                data-testid="stats-analysis-explorer-edit-open">
-                            <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
-                            {{ 'stats.analysis_explorer.edit.button'|trans }}
-                        </button>
+                                {% if showSaveAs %}
+                                    <button type="button"
+                                            class="btn d-inline-flex align-items-center gap-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#analysisExplorerSaveAsModal"
+                                            data-action="live#action"
+                                            data-live-action-param="openSaveAs"
+                                            data-testid="stats-analysis-explorer-save-as-open">
+                                        <twig:ux:icon name="tabler:copy" style="height: 1.2em;" />
+                                        {{ 'stats.analysis_explorer.save_as'|trans }}
+                                    </button>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
+
+                    {% if canFavorite and favoriteUrl %}
+                        <form id="analysis-explorer-favorite-form"
+                              method="post"
+                              action="{{ favoriteUrl }}"
+                              class="d-none">
+                            <input type="hidden" name="_token" value="{{ csrf_token(favoriteToken) }}">
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

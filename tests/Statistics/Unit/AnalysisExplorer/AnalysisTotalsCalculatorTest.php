@@ -64,6 +64,27 @@ final class AnalysisTotalsCalculatorTest extends TestCase
         self::assertNull($totals->grandFor(AnalysisMetricKey::ResusRate));
     }
 
+    public function testPercentOfTotalGrandTotalIsAlwaysOneHundred(): void
+    {
+        $rows = [
+            new AnalysisResultRow('a', 'A', null, null, [
+                'allocation_count' => 1,
+                'percent_of_total' => 10.0,
+            ]),
+            new AnalysisResultRow('b', 'B', null, null, [
+                'allocation_count' => 2,
+                'percent_of_total' => 20.0,
+            ]),
+        ];
+
+        $totals = $this->calculator->calculate($rows, [
+            AnalysisMetricKey::AllocationCount,
+            AnalysisMetricKey::PercentOfTotal,
+        ]);
+
+        self::assertSame(100.0, $totals->grandFor(AnalysisMetricKey::PercentOfTotal));
+    }
+
     public function testRateMetricsAreNotSummed(): void
     {
         $rows = [

@@ -8,6 +8,8 @@ use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerQueryKeys;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
@@ -56,11 +58,13 @@ final class AnalysisExplorerController extends AbstractController
 
         $pageContext = $this->createPageContext($request, $user, $filter, 'app_stats_analysis_explorer');
         $defaultConfig = $this->defaultAnalysisViewFactory->createDefault($pageContext->filter);
+        $appliedState = $this->explorerConfigMapper->toStateArray($defaultConfig);
+        $appliedState = $this->mergeChartTopQueryOverride($request, $appliedState);
 
         return $this->renderExplorer($pageContext, array_merge(
             $this->buildViewPresentation(null, $user),
             [
-                'explorerAppliedConfigState' => $this->explorerConfigMapper->toStateArray($defaultConfig),
+                'explorerAppliedConfigState' => $appliedState,
                 'initialConfigWarning' => null,
                 'libraryUrl' => $this->libraryUrl($request),
                 'exportCsvUrl' => $this->exportCsvUrl($request),
@@ -94,7 +98,7 @@ final class AnalysisExplorerController extends AbstractController
         return $this->renderExplorer($pageContext, array_merge(
             $this->buildViewPresentation($loadResult->view, $user),
             [
-                'explorerAppliedConfigState' => $loadResult->state,
+                'explorerAppliedConfigState' => $this->mergeChartTopQueryOverride($request, $loadResult->state),
                 'initialConfigWarning' => $initialConfigWarning,
                 'libraryUrl' => $this->libraryUrl($request),
                 'exportCsvUrl' => $this->exportCsvUrl($request),
@@ -231,5 +235,22 @@ final class AnalysisExplorerController extends AbstractController
         }
 
         return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     *
+     * @return array<string, mixed>
+     */
+    private function mergeChartTopQueryOverride(Request $request, array $state): array
+    {
+        if (!$request->query->has(ExplorerQueryKeys::CHART_TOP)) {
+            return $state;
+        }
+
+        return $this->explorerConfigMapper->mergeChartRowLimitIntoState(
+            $state,
+            ExplorerChartRowLimit::fromValue($request->query->getString(ExplorerQueryKeys::CHART_TOP)),
+        );
     }
 }

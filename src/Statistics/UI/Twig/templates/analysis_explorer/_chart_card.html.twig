@@ -9,13 +9,46 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
         <h3 class="card-title mb-0" data-testid="stats-analysis-explorer-chart-title">{{ result ? result.title : '' }}</h3>
         {% if hasChart %}
-            <button type="button"
-                    class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 d-print-none"
-                    data-action="generic-analysis-chart#exportPng"
-                    data-testid="stats-analysis-explorer-export-png">
-                <twig:ux:icon name="tabler:photo-down" style="height: 1.1em;" />
-                {{ 'stats.analysis_explorer.export.png_chart'|trans }}
-            </button>
+            <div class="d-flex flex-wrap gap-2 align-items-center flex-shrink-0">
+                {% if showChartRowLimitControl %}
+                    <div class="btn-group btn-group-sm"
+                         role="group"
+                         aria-label="{{ 'stats.generic_analysis.table.row_limit_label'|trans }}"
+                         data-testid="stats-analysis-explorer-chart-row-limit">
+                        <button type="button"
+                                class="btn btn-outline-secondary{% if chartRowLimit == 'all' %} active{% endif %}"
+                                data-action="live#action"
+                                data-live-action-param="setChartRowLimit"
+                                data-live-limit-param="all"
+                                data-testid="stats-analysis-explorer-row-limit-all">
+                            {{ 'stats.generic_analysis.table.row_limit_all'|trans }}
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary{% if chartRowLimit == '5' %} active{% endif %}"
+                                data-action="live#action"
+                                data-live-action-param="setChartRowLimit"
+                                data-live-limit-param="5"
+                                data-testid="stats-analysis-explorer-row-limit-5">
+                            {{ 'stats.generic_analysis.table.row_limit_top_5'|trans }}
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary{% if chartRowLimit == '10' %} active{% endif %}"
+                                data-action="live#action"
+                                data-live-action-param="setChartRowLimit"
+                                data-live-limit-param="10"
+                                data-testid="stats-analysis-explorer-row-limit-10">
+                            {{ 'stats.generic_analysis.table.row_limit_top_10'|trans }}
+                        </button>
+                    </div>
+                {% endif %}
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 d-print-none"
+                        data-action="generic-analysis-chart#exportPng"
+                        data-testid="stats-analysis-explorer-export-png">
+                    <twig:ux:icon name="tabler:photo-down" style="height: 1.1em;" />
+                    {{ 'stats.analysis_explorer.export.png_chart'|trans }}
+                </button>
+            </div>
         {% endif %}
     </div>
     <div class="card-body" data-live-id="analysis-explorer-chart-{{ analysisRevision }}">

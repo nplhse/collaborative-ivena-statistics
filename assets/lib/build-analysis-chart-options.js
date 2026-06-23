@@ -1,3 +1,5 @@
+import { buildAnalysisHeatmapOptions } from './build-analysis-heatmap-options.js';
+
 /**
  * Tabler default sans stack — used when ApexCharts cannot resolve `inherit` (e.g. PNG export).
  */
@@ -65,6 +67,10 @@ export function getAnalysisChartHeight(isMulti, seriesCount) {
 export function buildAnalysisChartOptions(data) {
     if (!data || typeof data !== 'object') {
         return null;
+    }
+
+    if (data.chartType === 'heatmap') {
+        return buildAnalysisHeatmapOptions(data);
     }
 
     const labels = Array.isArray(data.labels) ? data.labels : [];
@@ -150,7 +156,11 @@ export function buildAnalysisChartOptions(data) {
         return `${str}%`;
     };
 
-    const stackedBars = !isLine && multi && chartType === 'bar' && (percentScale || !barGrouped);
+    const stackedBars =
+        !isLine &&
+        multi &&
+        chartType === 'bar' &&
+        (data.stacked === true || percentScale || !barGrouped);
 
     let maxVal = 0;
     if (stackedBars) {

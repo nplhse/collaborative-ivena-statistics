@@ -18,6 +18,7 @@ final class ExplorerEditFormData
         public bool $showPercentOfTotal = false,
         public string $chartType = 'bar',
         public string $tableLayout = 'flat',
+        public string $chartRowLimit = 'all',
     ) {
     }
 }

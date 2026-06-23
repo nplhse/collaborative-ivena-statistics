@@ -39,15 +39,11 @@ final readonly class ExplorerMetricCapabilityPolicy
 
     public function canShowPercentOfTotal(AnalysisViewConfig $config): bool
     {
-        if ($config->hasColumnAxis()) {
-            return false;
-        }
-
-        if ($config->rowAxis->dimensionKey->isTemporalPrimary()) {
-            return false;
-        }
-
         if (AnalysisMetricKey::AllocationCount !== $config->visualMetricKey) {
+            return false;
+        }
+
+        if ($this->hasRateMetric($config->metricKeys)) {
             return false;
         }
 
@@ -101,11 +97,8 @@ final readonly class ExplorerMetricCapabilityPolicy
     private function isMetricAllowedForConfig(AnalysisMetricKey $metricKey, AnalysisViewConfig $config): bool
     {
         if (AnalysisMetricKey::PercentOfTotal === $metricKey) {
-            if ($config->hasColumnAxis()) {
-                return false;
-            }
-
-            return !$config->rowAxis->dimensionKey->isTemporalPrimary();
+            return AnalysisMetricKey::AllocationCount === $config->visualMetricKey
+                && !$this->hasRateMetric($config->metricKeys);
         }
 
         if (AnalysisMetricKey::AllocationCount === $metricKey) {

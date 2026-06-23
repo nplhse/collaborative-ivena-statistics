@@ -25,6 +25,7 @@ final readonly class ExplorerResultsTablePresenter
         private ExplorerMetricKeyMapper $metricKeyMapper,
         private MetricRegistry $metricRegistry,
         private MetricValueFormatter $metricValueFormatter,
+        private ExplorerTablePercentHelper $percentHelper,
     ) {
     }
 
@@ -42,36 +43,76 @@ final readonly class ExplorerResultsTablePresenter
 
     private function createFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
-        $metricColumns = $this->metricColumns($result->metricKeys);
+        $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
+        $visibleMetricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
+        $metricColumns = $this->metricColumns($visibleMetricKeys);
+        $grandTotal = $result->totalFor(AnalysisMetricKey::AllocationCount);
         $rows = [];
+
         foreach ($result->rows as $row) {
+            $formattedMetricPercentValues = [];
+            if ($showPercentOfTotal) {
+                foreach ($visibleMetricKeys as $metricKey) {
+                    if (AnalysisMetricKey::AllocationCount !== $metricKey) {
+                        continue;
+                    }
+
+                    $percent = $row->valueFor(AnalysisMetricKey::PercentOfTotal);
+                    if (null === $percent) {
+                        $percent = $this->percentHelper->percentOfTotal(
+                            $row->valueFor(AnalysisMetricKey::AllocationCount),
+                            $grandTotal,
+                        );
+                    }
+
+                    $formattedMetricPercentValues[$metricKey->value] = $this->percentHelper->formatPercent($percent);
+                }
+            }
+
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $row->bucketLabel,
-                formattedMetricValues: $this->formatRowValues($result->metricKeys, $row->metricValues),
+                formattedMetricValues: $this->formatRowValues($visibleMetricKeys, $row->metricValues),
+                formattedMetricPercentValues: $formattedMetricPercentValues,
             );
+        }
+
+        $formattedTotalsPercentValues = [];
+        if ($showPercentOfTotal) {
+            foreach ($visibleMetricKeys as $metricKey) {
+                if (AnalysisMetricKey::AllocationCount !== $metricKey) {
+                    continue;
+                }
+
+                $formattedTotalsPercentValues[$metricKey->value] = $this->percentHelper->formatPercent(100.0);
+            }
         }
 
         return new ExplorerResultsTableViewModel(
             primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
             metricColumns: $metricColumns,
             rows: $rows,
-            formattedTotals: $this->formatTotals($result),
+            formattedTotals: $this->formatTotals($result, $visibleMetricKeys),
             tableLayout: TableLayout::Flat,
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
+            showPercentOfTotal: $showPercentOfTotal,
+            formattedTotalsPercentValues: $formattedTotalsPercentValues,
         );
     }
 
     private function createMatrixTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
+        $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
         $matrix = AnalysisMatrix::fromRunResult($result);
         $metricColumns = $this->metricColumns([$result->visualMetricKey]);
         $columnLabels = array_values($matrix->columnLabels);
+        $grandTotal = $result->primaryTotal();
         $rows = [];
         $columnTotals = [];
 
         foreach ($matrix->orderedRowKeys as $rowKey) {
             $seriesValues = [];
             $formattedSeriesValues = [];
+            $formattedSeriesPercentValues = [];
             $rowTotal = 0.0;
 
             foreach ($matrix->orderedColumnKeys as $colKey) {
@@ -83,6 +124,16 @@ final readonly class ExplorerResultsTablePresenter
                 $columnTotals[$label] = ($columnTotals[$label] ?? 0.0) + $value;
             }
 
+            if ($showPercentOfTotal) {
+                foreach ($matrix->orderedColumnKeys as $colKey) {
+                    $label = $matrix->columnLabels[$colKey];
+                    $value = $seriesValues[$label];
+                    $formattedSeriesPercentValues[$label] = $this->percentHelper->formatPercent(
+                        $this->percentHelper->percentOfRow($value, $rowTotal),
+                    );
+                }
+            }
+
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $matrix->rowLabels[$rowKey],
                 formattedMetricValues: [
@@ -92,49 +143,79 @@ final readonly class ExplorerResultsTablePresenter
                 formattedSeriesValues: $formattedSeriesValues,
                 formattedRowTotal: $this->formatMetricValue($result->visualMetricKey, $rowTotal),
                 rowTotal: $rowTotal,
+                formattedSeriesPercentValues: $formattedSeriesPercentValues,
+                formattedRowTotalPercent: $showPercentOfTotal
+                    ? $this->percentHelper->formatPercent($this->percentHelper->percentOfTotal($rowTotal, $grandTotal))
+                    : '',
             );
         }
 
         $formattedSeriesTotals = [];
+        $formattedSeriesFooterPercentValues = [];
         foreach ($columnLabels as $seriesLabel) {
+            $columnTotal = (float) ($columnTotals[$seriesLabel] ?? 0);
             $formattedSeriesTotals[$seriesLabel] = $this->formatMetricValue(
                 $result->visualMetricKey,
-                (float) ($columnTotals[$seriesLabel] ?? 0),
+                $columnTotal,
             );
+            if ($showPercentOfTotal) {
+                $formattedSeriesFooterPercentValues[$seriesLabel] = $this->percentHelper->formatPercent(
+                    $this->percentHelper->percentOfTotal($columnTotal, $grandTotal),
+                );
+            }
         }
 
         return new ExplorerResultsTableViewModel(
             primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
             metricColumns: $metricColumns,
             rows: $rows,
-            formattedTotals: $this->formatTotals($result),
+            formattedTotals: $this->formatTotals($result, [$result->visualMetricKey]),
             hasSeries: true,
             seriesLabels: $columnLabels,
             formattedSeriesTotals: $formattedSeriesTotals,
-            formattedGrandTotal: $this->formatMetricValue($result->visualMetricKey, $result->primaryTotal()),
+            formattedGrandTotal: $this->formatMetricValue($result->visualMetricKey, $grandTotal),
             tableLayout: TableLayout::Matrix,
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
             columnAxisLabel: $viewConfig->columnAxis instanceof AnalysisAxisRef
                 ? $this->axisLabel($viewConfig->columnAxis)
+                : '',
+            showPercentOfTotal: $showPercentOfTotal,
+            formattedSeriesFooterPercentValues: $formattedSeriesFooterPercentValues,
+            formattedGrandTotalPercent: $showPercentOfTotal
+                ? $this->percentHelper->formatPercent(100.0)
                 : '',
         );
     }
 
     private function createMatrixMetricsAsRowsTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
+        $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
         $matrix = AnalysisMatrix::fromRunResult($result);
         $columnLabels = array_values($matrix->columnLabels);
+        $metricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
         $rows = [];
 
         foreach ($matrix->orderedRowKeys as $rowKey) {
-            foreach ($result->metricKeys as $metricKey) {
+            foreach ($metricKeys as $metricKey) {
                 $seriesValues = [];
                 $formattedSeriesValues = [];
+                $formattedSeriesPercentValues = [];
+                $rowTotal = 0.0;
+
+                foreach ($matrix->orderedColumnKeys as $colKey) {
+                    $rowTotal += $matrix->valueFor($rowKey, $colKey, $metricKey);
+                }
+
                 foreach ($matrix->orderedColumnKeys as $colKey) {
                     $label = $matrix->columnLabels[$colKey];
                     $value = $matrix->valueFor($rowKey, $colKey, $metricKey);
                     $seriesValues[$label] = $value;
                     $formattedSeriesValues[$label] = $this->formatMetricValue($metricKey, $value);
+                    if ($showPercentOfTotal && AnalysisMetricKey::AllocationCount === $metricKey) {
+                        $formattedSeriesPercentValues[$label] = $this->percentHelper->formatPercent(
+                            $this->percentHelper->percentOfRow($value, $rowTotal),
+                        );
+                    }
                 }
 
                 $rows[] = new ExplorerResultsTableRow(
@@ -143,6 +224,7 @@ final readonly class ExplorerResultsTablePresenter
                     seriesValues: $seriesValues,
                     formattedSeriesValues: $formattedSeriesValues,
                     metricSubRowLabel: $this->metricLabel($metricKey),
+                    formattedSeriesPercentValues: $formattedSeriesPercentValues,
                 );
             }
         }
@@ -151,7 +233,7 @@ final readonly class ExplorerResultsTablePresenter
             primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
             metricColumns: [],
             rows: $rows,
-            formattedTotals: $this->formatTotals($result),
+            formattedTotals: $this->formatTotals($result, $metricKeys),
             hasSeries: true,
             seriesLabels: $columnLabels,
             tableLayout: TableLayout::MatrixMetricsAsRows,
@@ -160,7 +242,25 @@ final readonly class ExplorerResultsTablePresenter
                 ? $this->axisLabel($viewConfig->columnAxis)
                 : '',
             hasMetricSubRows: true,
+            showPercentOfTotal: $showPercentOfTotal,
         );
+    }
+
+    /**
+     * @param list<AnalysisMetricKey> $metricKeys
+     *
+     * @return list<AnalysisMetricKey>
+     */
+    private function visibleMetricKeys(array $metricKeys, bool $showPercentOfTotal): array
+    {
+        if (!$showPercentOfTotal) {
+            return $metricKeys;
+        }
+
+        return array_values(array_filter(
+            $metricKeys,
+            static fn (AnalysisMetricKey $metricKey): bool => AnalysisMetricKey::PercentOfTotal !== $metricKey,
+        ));
     }
 
     /**
@@ -201,12 +301,14 @@ final readonly class ExplorerResultsTablePresenter
     }
 
     /**
+     * @param list<AnalysisMetricKey> $visibleMetricKeys
+     *
      * @return array<string, string>
      */
-    private function formatTotals(AnalysisRunResult $result): array
+    private function formatTotals(AnalysisRunResult $result, array $visibleMetricKeys): array
     {
         $formatted = [];
-        foreach ($result->metricKeys as $metricKey) {
+        foreach ($visibleMetricKeys as $metricKey) {
             $formatted[$metricKey->value] = $this->formatMetricValue(
                 $metricKey,
                 $result->totalFor($metricKey),

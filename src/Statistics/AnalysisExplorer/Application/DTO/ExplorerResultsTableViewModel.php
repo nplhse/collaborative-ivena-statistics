@@ -14,6 +14,8 @@ final readonly class ExplorerResultsTableViewModel
      * @param array<string, string>                  $formattedTotals
      * @param list<string>                           $seriesLabels
      * @param array<string, string>                  $formattedSeriesTotals
+     * @param array<string, string>                  $formattedSeriesFooterPercentValues
+     * @param array<string, string>                  $formattedTotalsPercentValues
      */
     public function __construct(
         public string $primaryDimensionLabel,
@@ -28,6 +30,10 @@ final readonly class ExplorerResultsTableViewModel
         public string $rowAxisLabel = '',
         public string $columnAxisLabel = '',
         public bool $hasMetricSubRows = false,
+        public bool $showPercentOfTotal = false,
+        public array $formattedSeriesFooterPercentValues = [],
+        public string $formattedGrandTotalPercent = '',
+        public array $formattedTotalsPercentValues = [],
     ) {
     }
 

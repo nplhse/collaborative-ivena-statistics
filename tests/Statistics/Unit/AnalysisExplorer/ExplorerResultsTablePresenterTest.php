@@ -88,6 +88,126 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertSame('12', $table->rows[0]->formattedMetricValues['allocation_count']);
     }
 
+    public function testCreateShowsInlinePercentWithoutSeparateColumn(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
+            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::PercentOfTotal],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            title: 'Gender breakdown',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Gender breakdown',
+                metricKeys: [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::PercentOfTotal],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+                columnAxis: null,
+                rows: [
+                    new AnalysisResultRow('male', 'Male', null, null, [
+                        'allocation_count' => 30,
+                        'percent_of_total' => 60.0,
+                    ]),
+                    new AnalysisResultRow('female', 'Female', null, null, [
+                        'allocation_count' => 20,
+                        'percent_of_total' => 40.0,
+                    ]),
+                ],
+                totals: new AnalysisTotals(grand: [
+                    'allocation_count' => 50,
+                    'percent_of_total' => 100.0,
+                ]),
+            ),
+        );
+
+        self::assertTrue($table->showPercentOfTotal);
+        self::assertCount(1, $table->metricColumns);
+        self::assertSame('allocation_count', $table->metricColumns[0]->key);
+        self::assertSame('60 %', $table->rows[0]->formattedMetricPercentValues['allocation_count']);
+        self::assertSame('100 %', $table->formattedTotalsPercentValues['allocation_count']);
+    }
+
+    public function testCreateShowsRowPercentInMatrixTable(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
+            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
+            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::PercentOfTotal],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::GroupedBar,
+                tableLayout: \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Matrix,
+            ),
+            title: 'Allocations by gender over time',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Allocations by gender over time',
+                metricKeys: [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::PercentOfTotal],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+                rows: [
+                    new AnalysisResultRow(
+                        bucket: '2024-06',
+                        bucketLabel: 'Jun 2024',
+                        seriesKey: '1',
+                        seriesLabel: 'Male',
+                        metricValues: ['allocation_count' => 4],
+                    ),
+                    new AnalysisResultRow(
+                        bucket: '2024-06',
+                        bucketLabel: 'Jun 2024',
+                        seriesKey: '2',
+                        seriesLabel: 'Female',
+                        metricValues: ['allocation_count' => 2],
+                    ),
+                ],
+                totals: new AnalysisTotals(grand: ['allocation_count' => 6]),
+            ),
+        );
+
+        self::assertTrue($table->showPercentOfTotal);
+        self::assertSame('66,67 %', $table->rows[0]->formattedSeriesPercentValues['Male']);
+        self::assertSame('33,33 %', $table->rows[0]->formattedSeriesPercentValues['Female']);
+        self::assertSame('100 %', $table->rows[0]->formattedRowTotalPercent);
+    }
+
     public function testCreateBuildsPivotTableForSeriesResult(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);

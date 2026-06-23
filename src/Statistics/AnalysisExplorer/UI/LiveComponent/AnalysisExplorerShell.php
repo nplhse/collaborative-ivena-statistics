@@ -7,11 +7,13 @@ namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
+use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditAxisSwapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
@@ -19,6 +21,7 @@ use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
@@ -38,6 +41,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
+use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\Attribute\PreReRender;
 use Symfony\UX\LiveComponent\ComponentWithFormTrait;
@@ -78,10 +82,10 @@ final class AnalysisExplorerShell
     #[LiveProp(writable: false)]
     public ?int $savedViewId = null;
 
-    #[LiveProp(writable: false)]
+    #[LiveProp(writable: true)]
     public ?string $savedViewTitle = null;
 
-    #[LiveProp(writable: false)]
+    #[LiveProp(writable: true)]
     public ?string $savedViewDescription = null;
 
     #[LiveProp(writable: false)]
@@ -131,6 +135,27 @@ final class AnalysisExplorerShell
     #[LiveProp(writable: true)]
     public string $saveAsDescription = '';
 
+    #[LiveProp(writable: true)]
+    public string $editViewTitle = '';
+
+    #[LiveProp(writable: true)]
+    public string $editViewDescription = '';
+
+    #[LiveProp(writable: false)]
+    public ?string $baselineViewTitle = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $baselineViewDescription = null;
+
+    #[LiveProp(writable: false)]
+    public bool $metadataManuallyEdited = false;
+
+    #[LiveProp(writable: false)]
+    public string $editViewTitleAtOpen = '';
+
+    #[LiveProp(writable: false)]
+    public string $editViewDescriptionAtOpen = '';
+
     public ?AnalysisRunResult $result = null;
 
     /** @var array<string, array<string, mixed>> */
@@ -139,6 +164,12 @@ final class AnalysisExplorerShell
     public string $defaultChartType = 'bar';
 
     public bool $hasChart = false;
+
+    #[LiveProp]
+    public bool $showChartRowLimitControl = false;
+
+    #[LiveProp]
+    public string $chartRowLimit = ExplorerChartRowLimit::All->value;
 
     public ?ExplorerResultsTableViewModel $table = null;
 
@@ -163,6 +194,7 @@ final class AnalysisExplorerShell
         private readonly SavedExplorerViewRepository $savedViewRepository,
         private readonly ExplorerDescriptionFactory $descriptionFactory,
         private readonly ExplorerEditFormSummaryFactory $editFormSummaryFactory,
+        private readonly ExplorerEditAxisSwapper $editAxisSwapper,
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -205,10 +237,25 @@ final class AnalysisExplorerShell
 
         $this->rerunAnalysis();
         $this->baselineConfigState = $this->appliedConfigState;
+        $this->initializeMetadataBaselines();
         $this->syncUnsavedChangeState();
 
         if (null !== $initialConfigWarning) {
             $this->configWarning = $initialConfigWarning;
+        }
+    }
+
+    #[PreReRender(priority: -50)]
+    public function syncChartPresentationState(): void
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return;
+        }
+
+        $this->chartRowLimit = $config->presentation->chartRowLimit->value;
+        if ($this->result instanceof AnalysisRunResult) {
+            $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
         }
     }
 
@@ -255,6 +302,22 @@ final class AnalysisExplorerShell
         return $this->editFormSummaryFactory->summarize($formData, $this->resolveUser());
     }
 
+    public function canSwapEditAxes(): bool
+    {
+        if (!$this->isEditOpen) {
+            return false;
+        }
+
+        $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
+
+        return $this->editAxisSwapper->canSwap($formData);
+    }
+
+    public function showViewMetadataSection(): bool
+    {
+        return $this->canSaveAs;
+    }
+
     /**
      * @return FormInterface<ExplorerEditFormData>
      */
@@ -284,6 +347,9 @@ final class AnalysisExplorerShell
         }
 
         $this->editFormData = $this->configMapper->toFormData($config);
+        $this->populateEditViewMetadataFields($config);
+        $this->editViewTitleAtOpen = $this->editViewTitle;
+        $this->editViewDescriptionAtOpen = $this->editViewDescription;
         $this->isEditOpen = true;
         $this->configWarning = null;
         $this->resetForm();
@@ -293,6 +359,13 @@ final class AnalysisExplorerShell
     public function cancelEdit(): void
     {
         $this->editFormData = null;
+        $config = $this->appliedConfig();
+        if ($config instanceof AnalysisViewConfig) {
+            $this->populateEditViewMetadataFields($config);
+        } else {
+            $this->editViewTitle = $this->savedViewTitle ?? '';
+            $this->editViewDescription = $this->savedViewDescription ?? '';
+        }
         $this->isEditOpen = false;
         $this->configWarning = null;
         $this->resetForm();
@@ -308,6 +381,21 @@ final class AnalysisExplorerShell
         $this->submitForm(false);
 
         $this->editFormData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
+        $this->resetForm();
+        $this->submitForm(false);
+    }
+
+    #[LiveAction]
+    public function swapEditAxes(): void
+    {
+        if (!$this->isEditOpen || !$this->canSwapEditAxes()) {
+            return;
+        }
+
+        $this->submitForm(false);
+
+        $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
+        $this->editFormData = $this->editAxisSwapper->swap($formData);
         $this->resetForm();
         $this->submitForm(false);
     }
@@ -340,6 +428,10 @@ final class AnalysisExplorerShell
             return;
         }
 
+        if (!$this->commitMetadataFromApply($normalizedConfig)) {
+            return;
+        }
+
         $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
         $this->editFormData = null;
         $this->isEditOpen = false;
@@ -358,8 +450,13 @@ final class AnalysisExplorerShell
 
         $config = $this->appliedConfig();
         if ($config instanceof AnalysisViewConfig) {
-            $this->saveAsTitle = $config->title;
-            $this->saveAsDescription = $this->descriptionFactory->descriptionForConfig($config);
+            if ($this->metadataManuallyEdited) {
+                $this->saveAsTitle = $this->savedViewTitle ?? '';
+                $this->saveAsDescription = $this->savedViewDescription ?? '';
+            } else {
+                $this->saveAsTitle = $config->title;
+                $this->saveAsDescription = $this->descriptionFactory->descriptionForConfig($config);
+            }
         }
 
         $this->isSaveAsOpen = true;
@@ -402,6 +499,8 @@ final class AnalysisExplorerShell
             return null;
         }
 
+        $this->metadataManuallyEdited = false;
+
         return new RedirectResponse($this->urlGenerator->generate('app_stats_analysis_explorer_view', [
             'view' => (string) $viewId,
         ]));
@@ -421,6 +520,9 @@ final class AnalysisExplorerShell
         }
 
         $title = $this->savedViewTitle ?? $view->getTitle();
+        $description = null !== $this->savedViewDescription && '' !== trim($this->savedViewDescription)
+            ? trim($this->savedViewDescription)
+            : $view->getDescription();
 
         try {
             $this->savedViewService->update(
@@ -428,7 +530,7 @@ final class AnalysisExplorerShell
                 $user,
                 $title,
                 $this->appliedConfigState,
-                $view->getDescription(),
+                $description,
             );
         } catch (SavedExplorerViewForbiddenException) {
             $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden');
@@ -441,18 +543,104 @@ final class AnalysisExplorerShell
         }
 
         $this->savedViewTitle = $view->getTitle();
+        $this->savedViewDescription = $view->getDescription() ?? '';
         $this->baselineConfigState = $this->appliedConfigState;
+        $this->baselineViewTitle = $this->savedViewTitle;
+        $this->baselineViewDescription = $this->savedViewDescription;
+        $this->metadataManuallyEdited = false;
         $this->syncUnsavedChangeState();
         $this->configWarning = $this->translator->trans('stats.analysis_explorer.saved');
     }
 
     private function syncUnsavedChangeState(): void
     {
-        $this->hasUnsavedChanges = $this->configStatesDiffer(
+        $configDirty = $this->configStatesDiffer(
             $this->baselineConfigState,
             $this->appliedConfigState,
         );
-        $this->showSaveAs = $this->canSaveAs && $this->hasUnsavedChanges;
+        $metadataDirty = $this->canSave && $this->metadataDiffersFromBaseline();
+        $this->hasUnsavedChanges = $configDirty || $metadataDirty;
+        $this->showSaveAs = $this->canSaveAs && $configDirty;
+    }
+
+    private function metadataDiffersFromBaseline(): bool
+    {
+        return ($this->savedViewTitle ?? '') !== ($this->baselineViewTitle ?? '')
+            || ($this->savedViewDescription ?? '') !== ($this->baselineViewDescription ?? '');
+    }
+
+    private function initializeMetadataBaselines(): void
+    {
+        $config = $this->appliedConfig();
+        if (null !== $this->savedViewTitle && '' !== trim($this->savedViewTitle)) {
+            $this->baselineViewTitle = $this->savedViewTitle;
+            $this->baselineViewDescription = $this->savedViewDescription ?? '';
+
+            return;
+        }
+
+        if ($config instanceof AnalysisViewConfig) {
+            $this->baselineViewTitle = $config->title;
+            $this->baselineViewDescription = $this->descriptionFactory->descriptionForConfig($config);
+            $this->savedViewTitle = $this->baselineViewTitle;
+            $this->savedViewDescription = $this->baselineViewDescription;
+        }
+    }
+
+    private function populateEditViewMetadataFields(AnalysisViewConfig $config): void
+    {
+        if ($this->metadataManuallyEdited) {
+            $this->editViewTitle = $this->savedViewTitle ?? '';
+            $this->editViewDescription = $this->savedViewDescription ?? '';
+
+            return;
+        }
+
+        $this->editViewTitle = $this->savedViewTitle ?? $config->title;
+        $this->editViewDescription = $this->savedViewDescription ?? $this->descriptionFactory->descriptionForConfig($config);
+    }
+
+    private function commitMetadataFromApply(AnalysisViewConfig $normalizedConfig): bool
+    {
+        if ($this->metadataEditedInCurrentDrawerSession()) {
+            $this->metadataManuallyEdited = true;
+        }
+
+        if ($this->metadataManuallyEdited) {
+            $title = trim($this->editViewTitle);
+            if ('' === $title) {
+                $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required');
+
+                return false;
+            }
+
+            $this->savedViewTitle = $title;
+            $this->savedViewDescription = trim($this->editViewDescription);
+
+            return true;
+        }
+
+        $this->savedViewTitle = $normalizedConfig->title;
+        $this->savedViewDescription = $this->descriptionFactory->descriptionForConfig($normalizedConfig);
+
+        return true;
+    }
+
+    private function metadataEditedInCurrentDrawerSession(): bool
+    {
+        return trim($this->editViewTitle) !== trim($this->editViewTitleAtOpen)
+            || trim($this->editViewDescription) !== trim($this->editViewDescriptionAtOpen);
+    }
+
+    #[LiveAction]
+    public function setChartRowLimit(#[LiveArg] string $limit): void
+    {
+        $this->appliedConfigState = $this->configMapper->mergeChartRowLimitIntoState(
+            $this->appliedConfigState,
+            ExplorerChartRowLimit::fromValue($limit),
+        );
+        $this->rebuildCharts();
+        $this->syncUnsavedChangeState();
     }
 
     /**
@@ -517,8 +705,56 @@ final class AnalysisExplorerShell
         $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $currentConfig->presentation);
         $this->defaultChartType = $this->chartPresenter->defaultChartType($currentConfig->presentation);
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
+        $this->chartRowLimit = $currentConfig->presentation->chartRowLimit->value;
+        $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($currentConfig);
         $this->table = $this->tablePresenter->create($currentConfig, $this->result);
         ++$this->analysisRevision;
+    }
+
+    private function rebuildCharts(): void
+    {
+        if (!$this->result instanceof AnalysisRunResult) {
+            return;
+        }
+
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return;
+        }
+
+        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
+        $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
+        $this->hasChart = $this->chartPresenter->hasChart($this->result);
+        $this->chartRowLimit = $config->presentation->chartRowLimit->value;
+        $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
+        ++$this->analysisRevision;
+    }
+
+    private function shouldShowChartRowLimitControl(AnalysisViewConfig $config): bool
+    {
+        if ($config->rowAxis->dimensionKey->isTemporalPrimary()) {
+            return false;
+        }
+
+        if (!$this->result instanceof AnalysisRunResult) {
+            return false;
+        }
+
+        return $this->distinctRowBucketCount($this->result) > 5;
+    }
+
+    private function distinctRowBucketCount(AnalysisRunResult $result): int
+    {
+        if ($result->hasSeries()) {
+            return \count(AnalysisMatrix::fromRunResult($result)->chartLabels());
+        }
+
+        $labels = [];
+        foreach ($result->rows as $row) {
+            $labels[$row->bucketLabel] = true;
+        }
+
+        return \count($labels);
     }
 
     private function setNormalizationWarning(AnalysisViewConfig $original, AnalysisViewConfig $normalized): void
@@ -557,6 +793,7 @@ final class AnalysisExplorerShell
             showPercentOfTotal: (bool) ($submitted['showPercentOfTotal'] ?? $formData->showPercentOfTotal),
             chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $formData->chartType,
             tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $formData->tableLayout,
+            chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $formData->chartRowLimit,
         );
     }
 
@@ -613,6 +850,8 @@ final class AnalysisExplorerShell
         $this->chartSpecs = [];
         $this->defaultChartType = 'bar';
         $this->hasChart = false;
+        $this->showChartRowLimitControl = false;
+        $this->chartRowLimit = ExplorerChartRowLimit::All->value;
         $this->table = null;
     }
 }

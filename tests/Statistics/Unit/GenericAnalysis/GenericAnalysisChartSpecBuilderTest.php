@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\GenericAnalysis\Application\ChartPrimaryBucketLimiter;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
@@ -28,6 +29,7 @@ final class GenericAnalysisChartSpecBuilderTest extends TestCase
             new GenericAnalysisChartDataReducer(
                 new DimensionRegistry(),
                 new MetricRegistry(),
+                new ChartPrimaryBucketLimiter($translator),
                 $translator,
             ),
             new MetricRegistry(),

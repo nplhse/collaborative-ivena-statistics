@@ -139,6 +139,23 @@ Schema **v3** replaces implicit `dimension` + `grain` with explicit axes:
 
 CSV export re-runs the normalizer + runner pipeline (same guards as `rerunAnalysis()`). Config is submitted via POST with CSRF; scope/period come from URL query parameters.
 
+### Chart row limit
+
+Charts can optionally show only the **top 5** or **top 10** row buckets (primary axis). Default is **all** rows — unlike Generic Analysis, which auto-limits categorical charts to top 5.
+
+| Area | Behaviour |
+|---|---|
+| Chart | Top 5 / Top 10 / All (btn-group in chart card header) |
+| Table | Always full data |
+| CSV export | Full table (unchanged) |
+| PNG export | Uses reduced chart specs |
+
+- Persisted in saved views as `presentation.chartRowLimit` (`5`, `10`, `all`; missing = `all`).
+- URL override: `?chartTop=5|10|all` merged into initial `appliedConfigState` by `AnalysisExplorerController`.
+- Live action `setChartRowLimit` rebuilds chart specs only (no DB re-query).
+- Control visible when row axis is non-temporal and distinct row count > 5.
+- Reduction reuses `ChartPrimaryBucketLimiter` (shared with Generic Analysis). Explorer shows only the top N row buckets — no aggregated „Other“ remainder bucket (unlike Generic Analysis).
+
 ```json
 {
   "schemaVersion": 3,
@@ -154,7 +171,8 @@ CSV export re-runs the normalizer + runner pipeline (same guards as `rerunAnalys
   "presentation": {
     "mode": "chart",
     "chartType": "grouped_bar",
-    "tableLayout": "matrix"
+    "tableLayout": "matrix",
+    "chartRowLimit": "all"
   },
   "title": "Allocations by gender over time"
 }

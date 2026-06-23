@@ -87,6 +87,60 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         self::assertSame('stacked_bar', $normalized->chartType);
     }
 
+    public function testTimeRowsWithGenderColumnsForceColumnGrainTotal(): void
+    {
+        $normalized = $this->normalizer->normalize($this->formData(
+            rowDimension: 'time',
+            rowGrain: 'month',
+            chartType: 'grouped_bar',
+            columnDimension: 'gender',
+            columnGrain: 'month',
+        ));
+
+        self::assertSame('gender', $normalized->columnDimension);
+        self::assertSame('total', $normalized->columnGrain);
+    }
+
+    public function testDepartmentRowsWithTimeColumnsDefaultColumnGrainToMonth(): void
+    {
+        $normalized = $this->normalizer->normalize($this->formData(
+            rowDimension: 'department',
+            rowGrain: 'total',
+            chartType: 'grouped_bar',
+            columnDimension: 'time',
+            columnGrain: null,
+        ));
+
+        self::assertSame('time', $normalized->columnDimension);
+        self::assertSame('month', $normalized->columnGrain);
+    }
+
+    public function testDepartmentRowsWithTimeColumnsKeepValidSubmittedYearGrain(): void
+    {
+        $normalized = $this->normalizer->normalize($this->formData(
+            rowDimension: 'department',
+            rowGrain: 'total',
+            chartType: 'grouped_bar',
+            columnDimension: 'time',
+            columnGrain: 'year',
+        ));
+
+        self::assertSame('year', $normalized->columnGrain);
+    }
+
+    public function testChangingRowGrainDoesNotAffectBreakdownColumnGrain(): void
+    {
+        $normalized = $this->normalizer->normalize($this->formData(
+            rowDimension: 'time',
+            rowGrain: 'year',
+            chartType: 'grouped_bar',
+            columnDimension: 'urgency',
+            columnGrain: 'year',
+        ));
+
+        self::assertSame('total', $normalized->columnGrain);
+    }
+
     private function formData(
         string $rowDimension,
         ?string $rowGrain,

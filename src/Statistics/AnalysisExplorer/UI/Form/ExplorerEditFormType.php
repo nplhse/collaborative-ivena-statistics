@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\UI\Form;
 
 use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
+use App\Statistics\AnalysisExplorer\Application\ExplorerColumnGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerStatisticsFilterInputFactory;
@@ -14,6 +15,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\StatisticsFilterFactory;
@@ -42,6 +44,7 @@ final class ExplorerEditFormType extends AbstractType
         private readonly TranslatorInterface $translator,
         private readonly AllocationsCapabilitiesProvider $capabilitiesProvider,
         private readonly ExplorerConfigPreviewFactory $previewFactory,
+        private readonly ExplorerColumnGrainResolver $columnGrainResolver,
         private readonly ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private readonly ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
@@ -73,6 +76,7 @@ final class ExplorerEditFormType extends AbstractType
             ])
             ->add('chartType', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.chart_type', 'choices' => []])
             ->add('tableLayout', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.table_layout', 'choices' => []])
+            ->add('chartRowLimit', ChoiceType::class, ['label' => 'stats.generic_analysis.table.row_limit_label', 'choices' => []])
         ;
 
         $scopePeriodField = $builder->get('scopePeriod');
@@ -151,6 +155,7 @@ final class ExplorerEditFormType extends AbstractType
             showPercentOfTotal: (bool) ($submitted['showPercentOfTotal'] ?? $current->showPercentOfTotal),
             chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $current->chartType,
             tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $current->tableLayout,
+            chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $current->chartRowLimit,
         );
     }
 
@@ -174,6 +179,7 @@ final class ExplorerEditFormType extends AbstractType
             $formData->rowGrain,
             $capabilities,
         );
+        $formData = $this->withResolvedColumnGrain($form, $formData, $rowAxis, $capabilities);
         $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities);
         $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
@@ -201,7 +207,9 @@ final class ExplorerEditFormType extends AbstractType
         ]);
 
         $columnGrainChoices = [];
-        if ($columnAxis instanceof AnalysisAxisRef) {
+        $showColumnGrain = false;
+        if ($columnAxis instanceof AnalysisAxisRef && $this->columnGrainResolver->affectsQuery($columnAxis->dimensionKey)) {
+            $showColumnGrain = true;
             $columnGrainChoices = $this->grainChoices($columnAxis->dimensionKey, $capabilities);
         }
 
@@ -209,7 +217,7 @@ final class ExplorerEditFormType extends AbstractType
             'label' => 'stats.analysis_explorer.edit.column_grain',
             'help' => 'stats.analysis_explorer.edit.column_grain_help',
             'choices' => $columnGrainChoices,
-            'disabled' => !$columnAxis instanceof AnalysisAxisRef,
+            'disabled' => !$showColumnGrain,
         ]);
 
         $form->add('metric', ChoiceType::class, [
@@ -220,13 +228,35 @@ final class ExplorerEditFormType extends AbstractType
 
         $form->add('showPercentOfTotal', CheckboxType::class, [
             'label' => 'stats.analysis_explorer.edit.show_percent_of_total',
+            'help' => 'stats.analysis_explorer.edit.show_percent_of_total_help',
             'required' => false,
             'disabled' => !$this->metricCapabilityPolicy->canShowPercentOfTotal($previewConfig),
         ]);
 
+        $allowedChartTypes = $capabilities->chartTypesFor($previewConfig);
+        $chartType = ChartPresentationType::tryFrom($formData->chartType) ?? $capabilities->defaultChartTypeFor($previewConfig);
+        if (!\in_array($chartType, $allowedChartTypes, true)) {
+            $chartType = $capabilities->defaultChartTypeFor($previewConfig);
+            $currentData = $form->getData();
+            if ($currentData instanceof ExplorerEditFormData) {
+                $form->setData(new ExplorerEditFormData(
+                    scopePeriod: $currentData->scopePeriod,
+                    rowDimension: $currentData->rowDimension,
+                    rowGrain: $currentData->rowGrain,
+                    columnDimension: $currentData->columnDimension,
+                    columnGrain: $currentData->columnGrain,
+                    metric: $currentData->metric,
+                    showPercentOfTotal: $currentData->showPercentOfTotal,
+                    chartType: $chartType->value,
+                    tableLayout: $currentData->tableLayout,
+                    chartRowLimit: $currentData->chartRowLimit,
+                ));
+            }
+        }
+
         $form->add('chartType', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.chart_type',
-            'choices' => $this->chartTypeChoices($capabilities->chartTypesFor($previewConfig)),
+            'choices' => $this->chartTypeChoices($allowedChartTypes),
         ]);
 
         $form->add('tableLayout', ChoiceType::class, [
@@ -235,6 +265,61 @@ final class ExplorerEditFormType extends AbstractType
             'choices' => $this->tableLayoutChoices(),
             'disabled' => !$columnAxis instanceof AnalysisAxisRef,
         ]);
+
+        $form->add('chartRowLimit', ChoiceType::class, [
+            'label' => 'stats.generic_analysis.table.row_limit_label',
+            'choices' => $this->chartRowLimitChoices(),
+            'disabled' => $rowAxis->dimensionKey->isTemporalPrimary(),
+        ]);
+    }
+
+    /**
+     * @param \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form
+     */
+    private function withResolvedColumnGrain(
+        \Symfony\Component\Form\FormInterface $form,
+        ExplorerEditFormData $formData,
+        AnalysisAxisRef $rowAxis,
+        \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+    ): ExplorerEditFormData {
+        if (null === $formData->columnDimension || self::NONE_COLUMN === $formData->columnDimension) {
+            return $formData;
+        }
+
+        $columnDimension = AnalysisDimensionKey::tryFrom($formData->columnDimension);
+        if (!$columnDimension instanceof AnalysisDimensionKey) {
+            return $formData;
+        }
+
+        $submittedColumnGrain = \is_string($formData->columnGrain)
+            ? AnalysisDimensionGrain::tryFrom($formData->columnGrain)
+            : null;
+        $resolvedColumnGrain = $this->columnGrainResolver->resolve(
+            $rowAxis,
+            $columnDimension,
+            $submittedColumnGrain,
+            $capabilities,
+        );
+
+        if ($formData->columnGrain === $resolvedColumnGrain->value) {
+            return $formData;
+        }
+
+        $resolvedFormData = new ExplorerEditFormData(
+            scopePeriod: $formData->scopePeriod,
+            rowDimension: $formData->rowDimension,
+            rowGrain: $formData->rowGrain,
+            columnDimension: $formData->columnDimension,
+            columnGrain: $resolvedColumnGrain->value,
+            metric: $formData->metric,
+            showPercentOfTotal: $formData->showPercentOfTotal,
+            chartType: $formData->chartType,
+            tableLayout: $formData->tableLayout,
+            chartRowLimit: $formData->chartRowLimit,
+        );
+        $form->setData($resolvedFormData);
+
+        return $resolvedFormData;
     }
 
     private function resolveColumnAxis(
@@ -353,6 +438,18 @@ final class ExplorerEditFormType extends AbstractType
             $this->translator->trans('stats.analysis_explorer.table_layout.flat') => TableLayout::Flat->value,
             $this->translator->trans('stats.analysis_explorer.table_layout.matrix') => TableLayout::Matrix->value,
             $this->translator->trans('stats.analysis_explorer.table_layout.matrix_metrics_as_rows') => TableLayout::MatrixMetricsAsRows->value,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function chartRowLimitChoices(): array
+    {
+        return [
+            $this->translator->trans('stats.generic_analysis.table.row_limit_all') => ExplorerChartRowLimit::All->value,
+            $this->translator->trans('stats.generic_analysis.table.row_limit_top_5') => ExplorerChartRowLimit::Top5->value,
+            $this->translator->trans('stats.generic_analysis.table.row_limit_top_10') => ExplorerChartRowLimit::Top10->value,
         ];
     }
 }

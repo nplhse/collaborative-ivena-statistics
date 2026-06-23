@@ -40,24 +40,24 @@ final class ExplorerMetricCapabilityPolicyTest extends TestCase
         self::assertTrue($this->policy->canShowPercentOfTotal($config));
     }
 
-    public function testCannotShowPercentOfTotalWithColumnAxis(): void
+    public function testCanShowPercentOfTotalWithColumnAxis(): void
     {
         $config = $this->config(
             rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
             columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
         );
 
-        self::assertFalse($this->policy->canShowPercentOfTotal($config));
+        self::assertTrue($this->policy->canShowPercentOfTotal($config));
     }
 
-    public function testCannotShowPercentOfTotalForTemporalRows(): void
+    public function testCanShowPercentOfTotalForTemporalRows(): void
     {
         $config = $this->config(
             rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
             columnAxis: null,
         );
 
-        self::assertFalse($this->policy->canShowPercentOfTotal($config));
+        self::assertTrue($this->policy->canShowPercentOfTotal($config));
     }
 
     public function testNormalizeMetricKeysDropsPercentWhenRatePresent(): void

@@ -11,6 +11,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -45,6 +46,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame($config->rowAxis->dimensionKey, $restored->rowAxis->dimensionKey);
         self::assertSame($config->rowAxis->resolvedGrain(), $restored->rowAxis->resolvedGrain());
         self::assertSame($config->presentation->chartType, $restored->presentation->chartType);
+        self::assertSame(ExplorerChartRowLimit::All, $restored->presentation->chartRowLimit);
         self::assertSame($config->statisticsFilter->scope, $restored->statisticsFilter->scope);
         self::assertSame($config->statisticsFilter->period, $restored->statisticsFilter->period);
     }
@@ -218,5 +220,61 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame(AnalysisDimensionKey::Time, $config->rowAxis->dimensionKey);
         self::assertSame(AnalysisDimensionGrain::Month, $config->rowAxis->resolvedGrain());
         self::assertSame(AnalysisDimensionKey::Gender, $config->columnAxis?->dimensionKey);
+    }
+
+    public function testChartRowLimitRoundTripAndDefault(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+
+        $config = $viewFactory->createDefault(new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        ))
+            ->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
+                chartType: ChartPresentationType::Bar,
+                chartRowLimit: ExplorerChartRowLimit::Top10,
+            ));
+
+        $state = $mapper->toStateArray($config);
+        self::assertSame('10', $state['presentation']['chartRowLimit']);
+
+        $restored = $mapper->viewConfigFromState($state, null);
+        self::assertSame(ExplorerChartRowLimit::Top10, $restored->presentation->chartRowLimit);
+
+        $legacyState = $mapper->viewConfigFromState([
+            'schemaVersion' => 3,
+            'dataSource' => 'allocations',
+            'query' => [
+                'scope' => ['group' => 'public', 'detail' => null],
+                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'metrics' => ['allocation_count'],
+                'visualMetric' => 'allocation_count',
+                'rows' => ['dimension' => 'time', 'grain' => 'month'],
+            ],
+            'presentation' => ['mode' => 'chart', 'chartType' => 'bar'],
+            'title' => 'Allocations over time',
+        ], null);
+
+        self::assertSame(ExplorerChartRowLimit::All, $legacyState->presentation->chartRowLimit);
+    }
+
+    public function testMergeChartRowLimitIntoState(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $state = $mapper->toStateArray($viewFactory->createDefault(new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        )));
+
+        $merged = $mapper->mergeChartRowLimitIntoState($state, ExplorerChartRowLimit::Top5);
+        self::assertSame('5', $merged['presentation']['chartRowLimit']);
     }
 }

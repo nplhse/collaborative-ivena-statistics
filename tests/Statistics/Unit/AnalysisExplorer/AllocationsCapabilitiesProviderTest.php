@@ -71,6 +71,26 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
         );
     }
 
+    public function testChartTypesForExplicitColumnAxisIncludeStackedBarAndHeatmap(): void
+    {
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
+        $config = $this->createConfig($capabilities, AnalysisDimensionKey::Time, AnalysisDimensionGrain::Month)
+            ->withAxes(
+                \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            );
+
+        self::assertSame(
+            [
+                ChartPresentationType::GroupedBar,
+                ChartPresentationType::StackedBar,
+                ChartPresentationType::Line,
+                ChartPresentationType::Heatmap,
+            ],
+            $capabilities->chartTypesFor($config),
+        );
+    }
+
     private function createConfig(
         DataSourceCapabilities $capabilities,
         AnalysisDimensionKey $dimension,

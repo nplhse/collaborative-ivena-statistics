@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Unit\GenericAnalysis;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\GenericAnalysis\Application\ChartPrimaryBucketLimiter;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartDataReducer;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartRecommendationService;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisChartSpecBuilder;
@@ -45,6 +46,7 @@ final class GenericAnalysisChartViewModelFactoryTest extends TestCase
         $reducer = new GenericAnalysisChartDataReducer(
             new DimensionRegistry(),
             new MetricRegistry(),
+            new ChartPrimaryBucketLimiter($translator),
             $translator,
         );
         $this->factory = new GenericAnalysisChartViewModelFactory(

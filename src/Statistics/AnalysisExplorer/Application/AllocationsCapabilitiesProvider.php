@@ -81,6 +81,7 @@ final class AllocationsCapabilitiesProvider
                 ChartPresentationType::Line,
                 ChartPresentationType::GroupedBar,
                 ChartPresentationType::StackedBar,
+                ChartPresentationType::Heatmap,
             ],
             defaultDimension: AnalysisDimensionKey::Time,
             defaultMetric: AnalysisMetricKey::AllocationCount,

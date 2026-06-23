@@ -120,4 +120,32 @@ final readonly class AnalysisMatrix
             $this->orderedRowKeys,
         );
     }
+
+    /**
+     * @return list<string>
+     */
+    public function heatmapColumnLabels(): array
+    {
+        return array_map(
+            fn (string $colKey): string => $this->columnLabels[$colKey],
+            $this->orderedColumnKeys,
+        );
+    }
+
+    /**
+     * @return list<list<float>>
+     */
+    public function heatmapMatrix(AnalysisMetricKey $visualMetricKey): array
+    {
+        $matrix = [];
+        foreach ($this->orderedRowKeys as $rowKey) {
+            $row = [];
+            foreach ($this->orderedColumnKeys as $colKey) {
+                $row[] = $this->valueFor($rowKey, $colKey, $visualMetricKey);
+            }
+            $matrix[] = $row;
+        }
+
+        return $matrix;
+    }
 }

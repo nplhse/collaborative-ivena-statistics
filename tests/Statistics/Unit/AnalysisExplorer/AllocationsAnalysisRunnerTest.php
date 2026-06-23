@@ -197,7 +197,15 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $stackedSpecs = $presenter->buildSpecs($seriesResult, new PresentationConfig(chartType: ChartPresentationType::StackedBar));
         self::assertArrayHasKey('stacked_bar', $stackedSpecs);
         self::assertArrayNotHasKey('barGrouped', $stackedSpecs['stacked_bar']);
+        self::assertTrue($stackedSpecs['stacked_bar']['stacked']);
         self::assertCount(2, $stackedSpecs['stacked_bar']['series']);
+
+        $heatmapSpecs = $presenter->buildSpecs($seriesResult, new PresentationConfig(chartType: ChartPresentationType::Heatmap));
+        self::assertArrayHasKey('heatmap', $heatmapSpecs);
+        self::assertSame('heatmap', $heatmapSpecs['heatmap']['chartType']);
+        self::assertSame(['Jun 2024'], $heatmapSpecs['heatmap']['rowLabels']);
+        self::assertSame(['Male', 'Female'], $heatmapSpecs['heatmap']['columnLabels']);
+        self::assertSame([[5.0, 3.0]], $heatmapSpecs['heatmap']['matrix']);
     }
 
     public function testUrgencyYearUsesCreatedYearAndSeriesGrouping(): void

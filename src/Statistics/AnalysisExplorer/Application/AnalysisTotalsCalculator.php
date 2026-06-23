@@ -64,12 +64,7 @@ final readonly class AnalysisTotalsCalculator
                 continue;
             }
 
-            $value = $grand[$key];
-            if (null === $value) {
-                continue;
-            }
-
-            $grand[$key] = round($value, 2);
+            $grand[$key] = 100.0;
         }
 
         return new AnalysisTotals(

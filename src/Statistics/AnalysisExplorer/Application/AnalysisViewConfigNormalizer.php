@@ -83,6 +83,7 @@ final readonly class AnalysisViewConfigNormalizer
                 chartType: $chartType,
                 mode: $config->presentation->mode,
                 tableLayout: $tableLayout,
+                chartRowLimit: $config->presentation->chartRowLimit,
             ),
             title: $this->titleFactory->titleForAxes($rowAxis, $columnAxis),
         );
