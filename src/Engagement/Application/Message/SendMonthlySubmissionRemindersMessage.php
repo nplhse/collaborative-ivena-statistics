@@ -9,4 +9,8 @@ namespace App\Engagement\Application\Message;
  */
 final readonly class SendMonthlySubmissionRemindersMessage
 {
+    public function __construct(
+        public ?\DateTimeImmutable $referenceDate = null,
+    ) {
+    }
 }
