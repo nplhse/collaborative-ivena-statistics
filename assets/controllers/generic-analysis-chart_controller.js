@@ -13,6 +13,7 @@ export default class extends Controller {
         specs: Object,
         defaultType: String,
         exportFilename: String,
+        chartHeightProfile: { type: String, default: '' },
     };
 
     static targets = ['chart', 'typeButton'];
@@ -73,7 +74,11 @@ export default class extends Controller {
 
         const spec = this.currentSpec();
         const exportTitle = (this.exportFilenameValue || '').trim();
-        const exportOptions = buildAnalysisChartExportOptions(spec ?? {}, exportTitle);
+        const exportOptions = buildAnalysisChartExportOptions(
+            spec ?? {},
+            exportTitle,
+            this.chartBuildOptions(),
+        );
         if (!exportOptions) {
             return;
         }
@@ -134,7 +139,7 @@ export default class extends Controller {
         }
 
         const spec = this.currentSpec();
-        const options = buildAnalysisChartOptions(spec);
+        const options = buildAnalysisChartOptions(spec, this.chartBuildOptions());
         if (!options) {
             if (this.instance) {
                 this.instance.destroy();
@@ -156,6 +161,15 @@ export default class extends Controller {
 
         this.instance = new ApexCharts(this.chartTarget, options);
         this.instance.render().catch((err) => console.error('[generic-analysis-chart]', err));
+    }
+
+    chartBuildOptions() {
+        const profile = (this.chartHeightProfileValue || '').trim();
+        if (profile === '') {
+            return {};
+        }
+
+        return { chartHeightProfile: profile };
     }
 
     currentSpec() {

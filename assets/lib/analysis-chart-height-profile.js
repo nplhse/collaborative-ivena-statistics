@@ -1,0 +1,1 @@
+export const ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER = 'explorer';

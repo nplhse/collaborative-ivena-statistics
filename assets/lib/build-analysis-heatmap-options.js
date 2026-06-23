@@ -1,3 +1,4 @@
+import { ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER } from './analysis-chart-height-profile.js';
 import { buildHeatmapSeries } from './build-heatmap-series.js';
 
 const ANALYSIS_CHART_FONT_FAMILY =
@@ -80,9 +81,10 @@ export function buildHeatmapColorScale(matrix) {
 
 /**
  * @param {Record<string, unknown>} data
+ * @param {{ chartHeightProfile?: string }} [buildOptions]
  * @returns {import('apexcharts').ApexOptions | null}
  */
-export function buildAnalysisHeatmapOptions(data) {
+export function buildAnalysisHeatmapOptions(data, buildOptions = {}) {
     const rowLabels = Array.isArray(data.rowLabels) ? data.rowLabels : [];
     const columnLabels = Array.isArray(data.columnLabels) ? data.columnLabels : [];
     const matrix = Array.isArray(data.matrix) ? data.matrix : [];
@@ -94,7 +96,11 @@ export function buildAnalysisHeatmapOptions(data) {
     const colorScale = buildHeatmapColorScale(matrix);
     const series = buildHeatmapSeries(columnLabels, rowLabels, matrix);
     const chartFontFamily = resolveAnalysisChartFontFamily();
-    const chartHeight = Math.min(520, Math.max(280, rowLabels.length * 28 + 96));
+    const profile = buildOptions.chartHeightProfile ?? '';
+    const chartHeight =
+        profile === ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER
+            ? Math.min(640, Math.max(360, rowLabels.length * 32 + 112))
+            : Math.min(520, Math.max(280, rowLabels.length * 28 + 96));
 
     return {
         chart: {

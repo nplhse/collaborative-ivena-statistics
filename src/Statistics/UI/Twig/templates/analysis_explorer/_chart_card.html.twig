@@ -5,6 +5,7 @@
      data-generic-analysis-chart-specs-value="{{ chartSpecs|json_encode|e('html_attr') }}"
      data-generic-analysis-chart-default-type-value="{{ defaultChartType }}"
      data-generic-analysis-chart-export-filename-value="{{ result ? result.title : 'analysis-chart' }}"
+     data-generic-analysis-chart-chart-height-profile-value="explorer"
      {% endif %}>
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
         <h3 class="card-title mb-0" data-testid="stats-analysis-explorer-chart-title">{{ result ? result.title : '' }}</h3>

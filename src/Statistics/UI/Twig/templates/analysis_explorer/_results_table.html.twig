@@ -36,7 +36,7 @@
                    data-testid="stats-analysis-explorer-table-body">
                 <thead>
                     <tr>
-                        <th class="stats-aex-table-sticky-col text-nowrap">{{ table ? table.rowAxisLabel|default(table.primaryDimensionLabel) : '' }}</th>
+                        <th>{{ table ? table.rowAxisLabel|default(table.primaryDimensionLabel) : '' }}</th>
                         {% if table and table.hasMetricSubRows %}
                             <th class="text-nowrap">{{ 'stats.analysis_explorer.table.metric'|trans }}</th>
                             {% for seriesLabel in table.seriesLabels %}
@@ -58,7 +58,7 @@
                     {% if table %}
                         {% for row in table.rows %}
                             <tr>
-                                <th scope="row" class="stats-aex-table-sticky-col text-nowrap fw-normal">{{ row.bucketLabel }}</th>
+                                <th scope="row" class="fw-normal">{{ row.bucketLabel }}</th>
                                 {% if table.hasMetricSubRows %}
                                     <td class="text-nowrap">{{ row.metricSubRowLabel }}</td>
                                     {% for seriesLabel in table.seriesLabels %}
@@ -121,7 +121,7 @@
                 {% if table and table.hasData and table.hasSeries and not table.hasMetricSubRows %}
                     <tfoot class="table-light">
                         <tr data-testid="stats-analysis-explorer-table-footer">
-                            <th scope="row" class="stats-aex-table-sticky-col text-nowrap">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                            <th scope="row">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
                             {% for seriesLabel in table.seriesLabels %}
                                 <td class="text-end text-nowrap fw-semibold">
                                     <div>{{ table.formattedSeriesTotals[seriesLabel] ?? '—' }}</div>
@@ -141,7 +141,7 @@
                 {% elseif table and table.hasData and not table.hasSeries %}
                     <tfoot class="table-light">
                         <tr data-testid="stats-analysis-explorer-table-footer">
-                            <th scope="row" class="stats-aex-table-sticky-col text-nowrap">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                            <th scope="row">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
                             {% for column in table.metricColumns %}
                                 <td class="text-end text-nowrap fw-semibold">
                                     <div>{{ table.formattedTotals[column.key] ?? '—' }}</div>

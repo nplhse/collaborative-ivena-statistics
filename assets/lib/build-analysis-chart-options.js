@@ -1,4 +1,5 @@
 import { buildAnalysisHeatmapOptions } from './build-analysis-heatmap-options.js';
+import { ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER } from './analysis-chart-height-profile.js';
 
 /**
  * Tabler default sans stack — used when ApexCharts cannot resolve `inherit` (e.g. PNG export).
@@ -42,11 +43,26 @@ function buildAxisTitleConfig(text, offsets = {}) {
     };
 }
 
+export { ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER } from './analysis-chart-height-profile.js';
+
 /**
  * @param {boolean} isMulti
  * @param {number} seriesCount
+ * @param {string} [profile]
  */
-export function getAnalysisChartHeight(isMulti, seriesCount) {
+export function getAnalysisChartHeight(isMulti, seriesCount, profile = '') {
+    if (profile === ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER) {
+        if (isMulti && seriesCount > 6) {
+            return 500;
+        }
+
+        if (isMulti) {
+            return 460;
+        }
+
+        return 440;
+    }
+
     if (isMulti && seriesCount > 6) {
         return 420;
     }
@@ -59,18 +75,55 @@ export function getAnalysisChartHeight(isMulti, seriesCount) {
 }
 
 /**
+ * @param {{
+ *   isMulti: boolean,
+ *   seriesCount: number,
+ *   horizontal?: boolean,
+ *   labelCount?: number,
+ *   profile?: string,
+ * }} params
+ */
+export function resolveAnalysisChartHeight({
+    isMulti,
+    seriesCount,
+    horizontal = false,
+    labelCount = 0,
+    profile = '',
+}) {
+    let height = getAnalysisChartHeight(isMulti, seriesCount, profile);
+
+    if (profile === ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER && horizontal && labelCount > 0) {
+        height = Math.min(680, Math.max(height, labelCount * 28 + 120));
+    }
+
+    return height;
+}
+
+/**
+ * @param {Record<string, unknown>} [buildOptions]
+ * @returns {string}
+ */
+function resolveChartHeightProfile(buildOptions) {
+    const profile = buildOptions?.chartHeightProfile;
+    return typeof profile === 'string' ? profile : '';
+}
+
+/**
  * Builds ApexCharts options from the analysis chart spec payload.
  *
  * @param {Record<string, unknown>} data
+ * @param {Record<string, unknown>} [buildOptions]
  * @returns {import('apexcharts').ApexOptions | null}
  */
-export function buildAnalysisChartOptions(data) {
+export function buildAnalysisChartOptions(data, buildOptions = {}) {
     if (!data || typeof data !== 'object') {
         return null;
     }
 
+    const chartHeightProfile = resolveChartHeightProfile(buildOptions);
+
     if (data.chartType === 'heatmap') {
-        return buildAnalysisHeatmapOptions(data);
+        return buildAnalysisHeatmapOptions(data, { chartHeightProfile });
     }
 
     const labels = Array.isArray(data.labels) ? data.labels : [];
@@ -134,7 +187,13 @@ export function buildAnalysisChartOptions(data) {
     const yAxisTitle = horizontal
         ? buildAxisTitleConfig(categoryAxisTitle, { offsetX: 0 })
         : buildAxisTitleConfig(valueAxisTitle, { offsetX: 0 });
-    const chartHeight = getAnalysisChartHeight(multi, series.length);
+    const chartHeight = resolveAnalysisChartHeight({
+        isMulti: multi,
+        seriesCount: series.length,
+        horizontal,
+        labelCount: labels.length,
+        profile: chartHeightProfile,
+    });
     const legendBottomSpace = multi ? (series.length > 6 ? 88 : 44) : 0;
     const categoryTitleSpace = !horizontal && categoryAxisTitle ? 22 : 0;
     const valueTitleSpace = !horizontal && valueAxisTitle ? 24 : 0;
@@ -335,20 +394,22 @@ export function buildAnalysisChartOptions(data) {
 /**
  * @param {Record<string, unknown>} data
  * @param {string} chartTitle
+ * @param {Record<string, unknown>} [buildOptions]
  * @returns {import('apexcharts').ApexOptions | null}
  */
-export function buildAnalysisChartExportOptions(data, chartTitle) {
-    const options = buildAnalysisChartOptions(data);
+export function buildAnalysisChartExportOptions(data, chartTitle, buildOptions = {}) {
+    const options = buildAnalysisChartOptions(data, buildOptions);
     if (!options) {
         return null;
     }
 
-    const series = Array.isArray(data.series) ? data.series : [];
-    const isMulti = series.length > 1;
-    const seriesCount = isMulti ? series.length : 1;
     const trimmedTitle = chartTitle.trim();
     const hasTitle = trimmedTitle !== '';
-    const exportHeight = getAnalysisChartHeight(isMulti, seriesCount) + (hasTitle ? 52 : 0);
+    const baseHeight =
+        typeof options.chart?.height === 'number'
+            ? options.chart.height
+            : getAnalysisChartHeight(false, 1, resolveChartHeightProfile(buildOptions));
+    const exportHeight = baseHeight + (hasTitle ? 52 : 0);
     const basePadding = options.grid?.padding ?? {};
     const exportLeftPadding = Math.max(basePadding.left ?? 12, 36);
 

@@ -53,6 +53,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
         self::assertGreaterThan(0, $chart->count());
+        self::assertSame('explorer', $chart->attr('data-generic-analysis-chart-chart-height-profile-value'));
 
         $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
         self::assertNotNull($specsRaw);
@@ -104,6 +105,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
         self::assertGreaterThan(0, $chart->count());
+        self::assertSame('explorer', $chart->attr('data-generic-analysis-chart-chart-height-profile-value'));
         $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
         self::assertNotNull($specsRaw);
         $this->assertStringContainsString($chartType, $specsRaw);
