@@ -61,11 +61,12 @@
             {% endfor %}
         </ul>
 
-        {% if page.activeTab == 'all' and page.categoryFilters is not empty %}
-            <div class="d-flex justify-content-end mb-4"
-                 data-testid="stats-analysis-explorer-library-category-filters">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4"
+             data-testid="stats-analysis-explorer-library-toolbar">
+            {% if page.activeTab == 'all' and page.categoryFilters is not empty %}
                 <div class="btn-group flex-wrap"
                      role="group"
+                     data-testid="stats-analysis-explorer-library-category-filters"
                      aria-label="{{ 'stats.analysis_explorer.library.tab.overview'|trans }}">
                     {% for filter in page.categoryFilters %}
                         <a href="{{ filter.url }}"
@@ -76,8 +77,47 @@
                         </a>
                     {% endfor %}
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+
+            <form method="GET"
+                  action="{{ path('app_stats_analysis_library') }}"
+                  data-controller="autosubmit"
+                  data-testid="stats-analysis-explorer-library-search-form"
+                  class="ms-auto">
+                {% for key, value in app.request.query.all %}
+                    {% if key != 'search' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                <div class="input-icon">
+                    <input type="search"
+                           name="search"
+                           value="{{ page.searchQuery }}"
+                           aria-label="{{ 'label.search'|trans }}"
+                           placeholder="{{ 'label.search'|trans }}"
+                           class="form-control d-inline-block w-9"
+                           data-action="autosubmit#debouncedSubmit"
+                           data-testid="stats-analysis-explorer-library-search-input">
+                    <span class="input-icon-addon">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="icon"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             stroke-width="2"
+                             stroke="currentColor"
+                             fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             aria-hidden="true">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <circle cx="10" cy="10" r="7" />
+                            <line x1="21" y1="21" x2="15" y2="15" />
+                        </svg>
+                    </span>
+                </div>
+            </form>
+        </div>
 
         <div class="row row-cards mb-4">
             {% for card in page.cards %}
@@ -89,7 +129,9 @@
                     <div class="empty" data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
                         <p class="empty-title">{{ 'stats.analysis_explorer.library.empty_title'|trans }}</p>
                         <p class="empty-subtitle text-secondary">
-                            {% if page.activeTab == 'favorites' %}
+                            {% if page.searchQuery %}
+                                {{ 'stats.analysis_explorer.library.empty.search'|trans }}
+                            {% elseif page.activeTab == 'favorites' %}
                                 {{ 'stats.analysis_explorer.library.empty.favorites'|trans }}
                             {% elseif page.activeTab == 'my_views' %}
                                 {{ 'stats.analysis_explorer.library.empty.my_views'|trans }}
