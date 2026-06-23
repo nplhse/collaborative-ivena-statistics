@@ -25,7 +25,7 @@ final class AnalysisController extends AbstractController
             return $this->redirectToRoute('app_stats_pivot_tables', $query);
         }
 
-        return $this->redirectToRoute('app_stats_analytics_library', $this->libraryQuery($request));
+        return $this->redirectToRoute('app_stats_analysis_library', $this->libraryQuery($request));
     }
 
     /**

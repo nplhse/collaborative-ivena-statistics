@@ -4,45 +4,49 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Overview;
 
+use App\Statistics\AnalysisExplorer\Application\ExplorerLegacyAnalyticsViewMapper;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\Overview\Dto\OverviewPortalNavigationViewModel;
-use App\Statistics\GenericAnalysis\UI\Http\Navigation\GenericAnalysisQueryKeys;
 
 final readonly class OverviewPortalNavigationFactory
 {
     /** @var list<string> */
-    private const array ANALYTICS_REMOVE_KEYS = [
+    private const array EXPLORER_REMOVE_KEYS = [
         'report',
         'limit',
         'view',
         'chart',
         'dimension',
-        ...GenericAnalysisQueryKeys::REMOVE_CUSTOM,
     ];
+
+    public function __construct(
+        private ExplorerLegacyAnalyticsViewMapper $legacyViewMapper,
+    ) {
+    }
 
     public function build(): OverviewPortalNavigationViewModel
     {
         return new OverviewPortalNavigationViewModel(
             timeSeries: [
-                $this->analyticsTarget(
+                $this->explorerTarget(
                     'stats.nav.overview_kpi_to_analysis',
                     'allocations_by_month',
                 ),
             ],
             heatmapDayTime: [
-                $this->analyticsTarget(
+                $this->explorerTarget(
                     'stats.nav.overview_heatmap_daytime_to_analysis',
                     'allocations_by_hour',
                 ),
             ],
             heatmapShift: [
-                $this->analyticsTarget(
+                $this->explorerTarget(
                     'stats.nav.overview_heatmap_shift_to_analysis',
                     'allocations_by_weekday',
                 ),
             ],
             ageGroups: [
-                $this->analyticsTarget(
+                $this->explorerTarget(
                     'stats.nav.overview_age_groups_to_analysis',
                     'age_group_distribution',
                 ),
@@ -52,55 +56,37 @@ final readonly class OverviewPortalNavigationFactory
 
     public function resourcesOverTimeTarget(): StatisticWidgetNavigationTarget
     {
-        return $this->analyticsTargetWithMetrics(
+        return $this->explorerTarget(
             'stats.nav.overview_resources_to_analysis',
-            metrics: ['count', 'resus_rate', 'cathlab_rate'],
+            'allocations_by_month',
         );
     }
 
     public function clinicalFeaturesOverTimeTarget(): StatisticWidgetNavigationTarget
     {
-        return $this->analyticsTargetWithMetrics(
+        return $this->explorerTarget(
             'stats.nav.overview_indicators_to_analysis',
-            metrics: [
-                'count',
-                'cpr_rate',
-                'shock_rate',
-                'ventilation_rate',
-                'pregnancy_rate',
-                'work_accident_rate',
-                'with_physician_rate',
-            ],
+            'allocations_by_month',
         );
     }
 
-    private function analyticsTarget(string $labelKey, string $viewKey): StatisticWidgetNavigationTarget
+    private function explorerTarget(string $labelKey, string $legacyViewKey): StatisticWidgetNavigationTarget
     {
-        return new StatisticWidgetNavigationTarget(
-            $labelKey,
-            'app_stats_analytics_view',
-            ['viewKey' => $viewKey],
-            self::ANALYTICS_REMOVE_KEYS,
-        );
-    }
+        $slug = $this->legacyViewMapper->slugForLegacyViewKey($legacyViewKey);
+        if (null === $slug) {
+            return new StatisticWidgetNavigationTarget(
+                $labelKey,
+                'app_stats_analysis_library',
+                [],
+                self::EXPLORER_REMOVE_KEYS,
+            );
+        }
 
-    /**
-     * @param list<string> $metrics
-     */
-    private function analyticsTargetWithMetrics(string $labelKey, array $metrics): StatisticWidgetNavigationTarget
-    {
         return new StatisticWidgetNavigationTarget(
             $labelKey,
-            'app_stats_analytics_view',
-            [
-                'viewKey' => 'allocations_by_month',
-                GenericAnalysisQueryKeys::REF_PRESET => 'allocations_by_month',
-                GenericAnalysisQueryKeys::PRIMARY => 'month',
-                GenericAnalysisQueryKeys::SERIES => '',
-                GenericAnalysisQueryKeys::METRICS => $metrics,
-                GenericAnalysisQueryKeys::VISUAL_METRIC => 'count',
-            ],
-            self::ANALYTICS_REMOVE_KEYS,
+            'app_stats_analysis_explorer_view',
+            ['view' => $slug],
+            self::EXPLORER_REMOVE_KEYS,
         );
     }
 }

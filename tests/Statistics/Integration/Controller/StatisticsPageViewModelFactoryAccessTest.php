@@ -95,12 +95,12 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         self::assertGreaterThanOrEqual(3, \count($model->scopeSecondaryMenu));
     }
 
-    public function testUserWithoutParticipantHasNoMyHospitalsMenuEntryOnAnalyticsLibraryRoute(): void
+    public function testUserWithoutParticipantHasNoMyHospitalsMenuEntryOnAnalysisLibraryRoute(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $model = $this->factory->create(
             new Request(query: ['scope' => 'public', 'period' => 'all']),
-            'app_stats_analytics_library',
+            'app_stats_analysis_library',
             $user,
             new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
         );

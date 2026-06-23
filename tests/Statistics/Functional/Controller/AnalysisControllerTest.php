@@ -16,7 +16,7 @@ final class AnalysisControllerTest extends WebTestCase
     use Factories;
     use InteractsWithAuthenticatedUser;
 
-    public function testLegacyAnalysisRedirectsToAnalyticsLibrary(): void
+    public function testLegacyAnalysisRedirectsToExplorerLibrary(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(
@@ -26,7 +26,7 @@ final class AnalysisControllerTest extends WebTestCase
 
         $this->assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
-        $this->assertStringContainsString('/statistics/analytics/library', $location);
+        $this->assertStringContainsString('/statistics/analysis/library', $location);
         $this->assertStringContainsString('scope=public', $location);
         $this->assertStringContainsString('period=all', $location);
     }

@@ -6,6 +6,7 @@ namespace App\Statistics\Application;
 
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Statistics\AnalysisExplorer\Application\ExplorerLegacyAnalyticsViewMapper;
 use App\Statistics\Application\DTO\HospitalSummaryData;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticWidget;
@@ -44,6 +45,7 @@ final readonly class HospitalSummaryProvider
     public function __construct(
         private HospitalSummaryQuery $hospitalSummaryQuery,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
+        private ExplorerLegacyAnalyticsViewMapper $legacyViewMapper,
     ) {
     }
 
@@ -106,8 +108,8 @@ final readonly class HospitalSummaryProvider
                     'actions' => [
                         new StatisticWidgetNavigationTarget(
                             'stats.nav.overview_gender_to_analysis',
-                            'app_stats_analytics_view',
-                            ['viewKey' => 'gender_distribution'],
+                            'app_stats_analysis_explorer_view',
+                            ['view' => $this->legacyViewMapper->slugForLegacyViewKey('gender_distribution')],
                             self::ANALYTICS_REMOVE_KEYS,
                         ),
                     ],
@@ -118,8 +120,8 @@ final readonly class HospitalSummaryProvider
                     'actions' => [
                         new StatisticWidgetNavigationTarget(
                             'stats.nav.overview_urgency_to_analysis',
-                            'app_stats_analytics_view',
-                            ['viewKey' => 'urgency_by_month'],
+                            'app_stats_analysis_explorer_view',
+                            ['view' => $this->legacyViewMapper->slugForLegacyViewKey('urgency_by_month')],
                             self::ANALYTICS_REMOVE_KEYS,
                         ),
                     ],

@@ -165,7 +165,7 @@ final class DashboardControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-indicators"]', 'Clinical features');
     }
 
-    public function testOverviewResourcesAndClinicalFeaturesLinkToAllocationsByMonthAnalysis(): void
+    public function testOverviewResourcesAndClinicalFeaturesLinkToAllocationsOverTimeExplorerView(): void
     {
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
@@ -173,16 +173,10 @@ final class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
 
         $resourcesHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->attr('href');
-        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $resourcesHref);
-        self::assertStringContainsString('ga_primary=month', $resourcesHref);
-        self::assertStringContainsString('resus_rate', $resourcesHref);
-        self::assertStringContainsString('cathlab_rate', $resourcesHref);
+        self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $resourcesHref);
 
         $clinicalHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-indicators"]')->attr('href');
-        self::assertStringContainsString('/statistics/analytics/view/allocations_by_month', $clinicalHref);
-        self::assertStringContainsString('ga_primary=month', $clinicalHref);
-        self::assertStringContainsString('cpr_rate', $clinicalHref);
-        self::assertStringContainsString('with_physician_rate', $clinicalHref);
+        self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $clinicalHref);
     }
 
     public function testOverviewRedirectsToLast12MonthsWhenEnoughMonthlyDataExists(): void
