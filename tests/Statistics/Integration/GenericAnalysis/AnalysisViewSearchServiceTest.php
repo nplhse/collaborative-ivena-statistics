@@ -24,7 +24,7 @@ final class AnalysisViewSearchServiceTest extends KernelTestCase
 
         self::assertNotEmpty($views);
         self::assertTrue(
-            array_any($views, static fn ($view): bool => str_contains(strtolower((string) $view->title), 'resus')
+            array_any($views, static fn (\App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewDefinition $view): bool => str_contains(strtolower((string) $view->title), 'resus')
                 || array_any($view->tags, static fn (string $tag): bool => str_contains(strtolower($tag), 'resus'))),
         );
     }
@@ -38,7 +38,7 @@ final class AnalysisViewSearchServiceTest extends KernelTestCase
             self::assertSame(AnalysisViewCategory::Clinical, $view->category);
         }
         self::assertFalse(
-            array_any($views, static fn ($view): bool => 'allocations_by_month' === $view->key),
+            array_any($views, static fn (\App\Statistics\GenericAnalysis\Domain\DTO\AnalysisViewDefinition $view): bool => 'allocations_by_month' === $view->key),
         );
     }
 
