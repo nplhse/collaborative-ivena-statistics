@@ -6,6 +6,8 @@ namespace App\Engagement\Application;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
+use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
+use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Lock\LockFactory;
@@ -17,6 +19,8 @@ final readonly class MonthlyReminderSender
     public function __construct(
         private MonthlyReminderContentBuilder $contentBuilder,
         private MonthlyReminderMailer $mailer,
+        private MonthlyReminderPeriodResolver $periodResolver,
+        private MonthlyReminderDispatchRepository $dispatchRepository,
         private AuditContext $auditContext,
         private LockFactory $lockFactory,
     ) {
@@ -65,6 +69,20 @@ final readonly class MonthlyReminderSender
             }
         }
 
+        $period = $this->periodResolver->resolve($referenceDate);
+        $reportingPeriod = sprintf('%04d-%02d', $period['reportingYear'], $period['reportingMonth']);
+
+        if (
+            MonthlyReminderTrigger::Scheduler === $trigger
+            && $this->dispatchRepository->existsForHospitalPeriodAndTrigger(
+                (int) $hospital->getId(),
+                $reportingPeriod,
+                $trigger->value,
+            )
+        ) {
+            return ['monthly_reminder.error.already_sent_for_period'];
+        }
+
         $content = $this->contentBuilder->build($hospital, $referenceDate);
         $reportingMonth = $content->reportingPeriodLabel;
 
@@ -76,6 +94,15 @@ final readonly class MonthlyReminderSender
         ]);
         try {
             $this->mailer->send($email, $content);
+
+            if (MonthlyReminderTrigger::Scheduler === $trigger) {
+                $this->dispatchRepository->save(new MonthlyReminderDispatch(
+                    $hospital,
+                    $reportingPeriod,
+                    $trigger->value,
+                    new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin')),
+                ));
+            }
         } finally {
             $this->auditContext->endIntent();
         }

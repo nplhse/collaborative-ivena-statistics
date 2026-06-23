@@ -55,6 +55,8 @@ Only imports with final status (Completed, Partial, Failed, Cancelled) are count
 
 During the alpha phase, KPIs are refreshed automatically every 6 hours (00:00, 06:00, 12:00, 18:00 Europe/Berlin) via Symfony Scheduler. Each run aggregates **yesterday and today** so same-day issues appear on the dashboard without waiting until the next calendar day.
 
+Monthly submission reminders are triggered daily at 08:00 Europe/Berlin; emails are sent only on the first working day of each month (see [Development workflow](Development-Workflow.md#monthly-submission-reminders)).
+
 The schedule is defined in [`KpiScheduleProvider`](../src/Kpi/Infrastructure/Scheduler/KpiScheduleProvider.php) and dispatches `GenerateDailyKpisMessage` to the `scheduler_default` transport.
 
 **Local:** the worker must consume the scheduler transport (included in `make consume`):
@@ -73,6 +75,26 @@ php bin/console messenger:stats
 ```
 
 On a new environment, run `app:kpi:aggregate` once (default covers the same 30-day window as the dashboard) before relying on the scheduler for historical days.
+
+#### Monthly submission reminders
+
+The scheduler triggers `SendMonthlySubmissionRemindersMessage` **daily at 08:00 Europe/Berlin** (`0 8 * * *`). Actual email dispatch happens only on the **first working day** of each month (weekdays excluding nationwide German public holidays). The reminder prompts clinics to upload data for the previous calendar month.
+
+Dispatch history is stored in `monthly_reminder_dispatch` (one scheduler send per hospital and reporting period).
+
+**Diagnostics:**
+
+```bash
+php bin/console debug:scheduler
+```
+
+**Local preview:**
+
+```bash
+php bin/console app:reminder:preview --hospital=ID --send
+```
+
+Add `--ignore-opt-out` if the owner disabled reminders in settings.
 
 ### Refresh cache and assets
 
@@ -94,7 +116,6 @@ php bin/console doctrine:migrations:migrate --no-interaction
 
 - In `dev`, mail is processed synchronously; import jobs stay asynchronous.
 - Local mail UI: start Mailpit with `docker compose up -d mailer`, then open http://127.0.0.1:8025 (`dev` uses `smtp://127.0.0.1:1025`).
-- Preview/send monthly reminder: `php bin/console app:reminder:preview --hospital=ID --send` (add `--ignore-opt-out` if the owner disabled reminders).
 - For reproducible import issues, always note the same input file and import ID.
 - For queue problems, run `messenger:stats` first, then `messenger:failed:show`.
 

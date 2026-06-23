@@ -96,7 +96,7 @@ final class SplCsvRowReader implements RowReaderInterface
                 $cell = $this->nfc($cell);
                 $utf8[] = \trim($cell);
             }
-            $allEmpty = array_all($utf8, fn ($cell): bool => '' === $cell);
+            $allEmpty = array_all($utf8, fn (string $cell): bool => '' === $cell);
             if ($allEmpty) {
                 continue;
             }

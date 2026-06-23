@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
+use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\Lock\LockFactory;
@@ -127,6 +128,54 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         } finally {
             $lock->release();
         }
+    }
+
+    public function testSchedulerSendPersistsDispatchLogForReportingPeriod(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+        $referenceDate = new \DateTimeImmutable('2026-07-01 08:00:00', new \DateTimeZone('Europe/Berlin'));
+
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Scheduler,
+            $referenceDate,
+        ));
+
+        $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
+        self::assertTrue($dispatchRepository->existsForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            '2026-06',
+            MonthlyReminderTrigger::Scheduler->value,
+        ));
+
+        $dispatch = $dispatchRepository->findOneBy([
+            'hospital' => $hospital->getId(),
+            'reportingPeriod' => '2026-06',
+            'trigger' => MonthlyReminderTrigger::Scheduler->value,
+        ]);
+        self::assertNotNull($dispatch);
+        self::assertSame('2026-06', $dispatch->getReportingPeriod());
+        self::assertSame(MonthlyReminderTrigger::Scheduler->value, $dispatch->getTrigger());
+    }
+
+    public function testSchedulerTriggerReturnsErrorWhenAlreadySentForPeriod(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
+
+        self::assertSame(
+            ['monthly_reminder.error.already_sent_for_period'],
+            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler),
+        );
+    }
+
+    public function testAdminTriggerCanResendDespiteExistingSchedulerDispatch(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
     }
 
     private function createHospital(

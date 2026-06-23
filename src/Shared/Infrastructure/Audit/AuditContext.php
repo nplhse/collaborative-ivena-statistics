@@ -127,7 +127,7 @@ final class AuditContext
 
     public function isEntityAuditSuppressed(string $entityClass): bool
     {
-        return array_any($this->suppressedEntityAuditScopes, fn ($set): bool => isset($set[$entityClass]));
+        return array_any($this->suppressedEntityAuditScopes, fn (array $set): bool => isset($set[$entityClass]));
     }
 
     /** @param array<string, mixed> $metadata */
