@@ -13,7 +13,7 @@ final readonly class ExplorerMetricDefinition
 {
     public function __construct(
         public AnalysisMetricKey $explorerKey,
-        public MetricDefinition $gaDefinition,
+        public ?MetricDefinition $gaDefinition,
         public bool $enabled,
     ) {
     }
@@ -30,6 +30,10 @@ final readonly class ExplorerMetricDefinition
 
     public function defaultFormat(): MetricFormat
     {
+        if (!$this->gaDefinition instanceof MetricDefinition) {
+            return MetricFormat::Decimal;
+        }
+
         return $this->gaDefinition->defaultFormat;
     }
 

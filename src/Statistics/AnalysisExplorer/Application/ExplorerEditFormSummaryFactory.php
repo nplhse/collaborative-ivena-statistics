@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
@@ -19,7 +20,7 @@ final readonly class ExplorerEditFormSummaryFactory
 
     public function __construct(
         private TranslatorInterface $translator,
-        private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private DataSourceCapabilitiesRegistry $capabilitiesRegistry,
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private StatisticsFilterFactory $statisticsFilterFactory,
         private AnalysisAxisResolver $axisResolver,
@@ -36,7 +37,8 @@ final readonly class ExplorerEditFormSummaryFactory
             $this->filterInputFactory->fromSideFormData($formData->scopePeriod),
             $user,
         );
-        $capabilities = $this->capabilitiesProvider->capabilitiesFor($user, $filter);
+        $dataSourceKey = AnalysisDataSourceKey::tryFrom($formData->dataSource) ?? AnalysisDataSourceKey::Allocations;
+        $capabilities = $this->capabilitiesRegistry->capabilitiesFor($dataSourceKey, $user, $filter);
 
         $rowAxis = $this->axisResolver->resolveFromStrings(
             $formData->rowDimension,
@@ -68,7 +70,7 @@ final readonly class ExplorerEditFormSummaryFactory
             }
         }
 
-        $metricKey = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
+        $metricKey = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::defaultFor($dataSourceKey);
 
         return [
             'row' => $this->axisLabel($rowAxis),

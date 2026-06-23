@@ -13,7 +13,7 @@ use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysi
 final readonly class ExplorerAllocationAnalysisExecutor
 {
     public function __construct(
-        private ExplorerAllocationQueryMapper $queryMapper,
+        private ExplorerQueryMapperRegistry $queryMapperRegistry,
         private GenericAllocationAnalysisQuery $genericQuery,
         private MetricCompatibilityChecker $metricCompatibilityChecker,
         private RelativeDistributionCalculator $relativeDistributionCalculator,
@@ -30,7 +30,7 @@ final readonly class ExplorerAllocationAnalysisExecutor
             return [];
         }
 
-        $gaQuery = $this->queryMapper->map($query);
+        $gaQuery = $this->queryMapperRegistry->map($query);
         $this->metricCompatibilityChecker->resolveAndValidate($gaQuery);
         $raw = $this->genericQuery->execute($gaQuery);
         $enriched = $this->relativeDistributionCalculator->enrich($raw, $gaQuery->resolvedMetricKeys());

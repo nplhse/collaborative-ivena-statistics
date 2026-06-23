@@ -9,6 +9,7 @@ use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
+use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -384,5 +385,124 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertSame('—', $table->formattedSeriesTotals['Female']);
         self::assertSame('—', $table->formattedGrandTotal);
         self::assertSame('—', $table->formattedTotals['resus_rate']);
+    }
+
+    public function testCreateBuildsBoxPlotDistributionTable(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
+            ['stats.analysis_explorer.box_plot.column.distribution_count', [], null, null, 'Count'],
+            ['stats.analysis_explorer.box_plot.column.distribution_min', [], null, null, 'Min'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], null, null, 'P25'],
+            ['stats.analysis_explorer.box_plot.column.distribution_median', [], null, null, 'Median'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], null, null, 'P75'],
+            ['stats.analysis_explorer.box_plot.column.distribution_max', [], null, null, 'Max'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: [AnalysisMetricKey::BedsDistribution],
+            visualMetricKey: AnalysisMetricKey::BedsDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::BoxPlot),
+            title: 'Beds distribution by tier',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Beds distribution by tier',
+                metricKeys: [AnalysisMetricKey::BedsDistribution],
+                visualMetricKey: AnalysisMetricKey::BedsDistribution,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+                columnAxis: null,
+                rows: [
+                    new AnalysisResultRow(
+                        bucket: 'tier_a',
+                        bucketLabel: 'Tier A',
+                        seriesKey: null,
+                        seriesLabel: null,
+                        metricValues: ['beds_distribution' => 50.0],
+                        boxPlot: new BoxPlotStats(3, 10.0, 20.0, 50.0, 80.0, 100.0),
+                    ),
+                ],
+                totals: new AnalysisTotals(grand: ['beds_distribution' => 50.0]),
+            ),
+        );
+
+        self::assertSame('Count', $table->metricColumns[0]->label);
+        self::assertSame('Median', $table->metricColumns[3]->label);
+        self::assertSame('3', $table->rows[0]->formattedMetricValues['distribution_count']);
+        self::assertSame('50', $table->rows[0]->formattedMetricValues['distribution_median']);
+        self::assertSame('100', $table->rows[0]->formattedMetricValues['distribution_max']);
+    }
+
+    public function testCreateShowsMultipleHospitalMetricsInFlatTable(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
+            ['stats.analysis_explorer.metric.hospital_count', [], null, null, 'Hospitals'],
+            ['stats.analysis_explorer.metric.avg_beds', [], null, null, 'Average beds'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: [AnalysisMetricKey::HospitalCount, AnalysisMetricKey::AvgBeds],
+            visualMetricKey: AnalysisMetricKey::HospitalCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            title: 'Hospitals by tier',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Hospitals by tier',
+                metricKeys: [AnalysisMetricKey::HospitalCount, AnalysisMetricKey::AvgBeds],
+                visualMetricKey: AnalysisMetricKey::HospitalCount,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+                columnAxis: null,
+                rows: [
+                    new AnalysisResultRow(
+                        bucket: 'tier_a',
+                        bucketLabel: 'Tier A',
+                        seriesKey: null,
+                        seriesLabel: null,
+                        metricValues: [
+                            'hospital_count' => 5,
+                            'avg_beds' => 120.5,
+                        ],
+                    ),
+                ],
+                totals: new AnalysisTotals(grand: [
+                    'hospital_count' => 5,
+                    'avg_beds' => 120.5,
+                ]),
+            ),
+        );
+
+        self::assertCount(2, $table->metricColumns);
+        self::assertSame('hospital_count', $table->metricColumns[0]->key);
+        self::assertSame('avg_beds', $table->metricColumns[1]->key);
+        self::assertSame('5', $table->rows[0]->formattedMetricValues['hospital_count']);
+        self::assertSame('120,5', $table->rows[0]->formattedMetricValues['avg_beds']);
     }
 }

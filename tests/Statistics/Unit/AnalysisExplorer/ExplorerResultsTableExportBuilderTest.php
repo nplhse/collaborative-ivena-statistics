@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCatalog;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricProfileRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricSummabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTableExportBuilder;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTablePercentHelper;
@@ -300,7 +300,8 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
         return new ExplorerResultsTableExportBuilder(
             $translator,
             new ExplorerTablePercentHelper($metricRegistry, $metricValueFormatter),
-            new ExplorerMetricSummabilityPolicy(new ExplorerMetricCatalog(new MetricRegistry())),
+            new ExplorerMetricSummabilityPolicy(),
+            new ExplorerMetricProfileRegistry(),
         );
     }
 

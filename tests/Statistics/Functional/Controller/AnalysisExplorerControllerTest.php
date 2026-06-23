@@ -34,6 +34,114 @@ final class AnalysisExplorerControllerTest extends WebTestCase
     use RefreshesStatisticsFunctionalDataTrait;
     use SeedsExplorerSystemViewsTrait;
 
+    public function testExplorerRendersHospitalsWithAvgBedsMetric(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        HospitalFactory::createOne(['name' => 'Beds Hospital', 'beds' => 120]);
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer?dataSource=hospitals&scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-additional-table-metrics-field"]');
+    }
+
+    public function testExplorerRendersHospitalsDataSource(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        HospitalFactory::createOne(['name' => 'Explorer Hospital Master']);
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer?dataSource=hospitals&scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-data-source-switcher"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
+    }
+
+    public function testHospitalSavedViewOpensWithoutDataSourceParam(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        HospitalFactory::createOne(['name' => 'Tier Hospital']);
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/hospitals-by-tier?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-data-source-switcher"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-title"]', 'Hospitals by tier');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+    }
+
+    public function testHospitalBedsDistributionSavedViewRendersBoxPlotTable(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        HospitalFactory::createOne(['name' => 'Box Plot Hospital', 'beds' => 80]);
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/beds-distribution-by-tier?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-title"]', 'Beds distribution by tier');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
+    }
+
+    public function testHospitalCompareSavedViewOpensWithoutFormCycleError(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        HospitalFactory::createOne(['name' => 'Compare Hospital', 'isParticipating' => true]);
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/hospitals-by-tier-compare?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-title"]',
+            'Hospitals by tier (participation compare)',
+        );
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+    }
+
+    public function testInvalidDataSourceFallsBackToAllocations(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer?dataSource=unknown&scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-data-source-switcher"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-chart-title"]', 'Allocations over time');
+    }
+
     public function testExplorerRendersAllocationsOverTimeChart(): void
     {
         $client = $this->createClientAsRoleUser();

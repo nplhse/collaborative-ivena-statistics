@@ -34,7 +34,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $translator->method('trans')->willReturn('Title');
 
         $normalizer = new AnalysisViewConfigNormalizer(
-            $this->createAllocationsCapabilitiesProvider(),
+            $this->createDataSourceCapabilitiesRegistry(),
             new ExplorerTitleFactory($translator),
             new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
@@ -72,7 +72,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $translator->method('trans')->willReturn('Title');
 
         $normalizer = new AnalysisViewConfigNormalizer(
-            $this->createAllocationsCapabilitiesProvider(),
+            $this->createDataSourceCapabilitiesRegistry(),
             new ExplorerTitleFactory($translator),
             new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
@@ -100,5 +100,43 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         $normalized = $normalizer->normalize($config);
 
         self::assertSame(AnalysisDimensionGrain::Total, $normalized->rowAxis->resolvedGrain());
+    }
+
+    public function testForcesBoxPlotForDistributionProfile(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Title');
+
+        $normalizer = new AnalysisViewConfigNormalizer(
+            $this->createDataSourceCapabilitiesRegistry(),
+            new ExplorerTitleFactory($translator),
+            new AnalysisAxisResolver(),
+            new ExplorerConfigPreviewFactory(),
+            $this->createExplorerMetricCapabilityPolicy(),
+            new ExplorerTableLayoutResolver(),
+            $this->createSecurityWithoutUser(),
+        );
+
+        $config = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: [AnalysisMetricKey::BedsDistribution, AnalysisMetricKey::AvgBeds],
+            visualMetricKey: AnalysisMetricKey::BedsDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalLocation),
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            title: 'Beds distribution',
+        );
+
+        $normalized = $normalizer->normalize($config);
+
+        self::assertSame(ChartPresentationType::BoxPlot, $normalized->presentation->chartType);
+        self::assertSame([AnalysisMetricKey::BedsDistribution], $normalized->metricKeys);
+        self::assertNull($normalized->columnAxis);
     }
 }

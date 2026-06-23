@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Form;
 
-use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
+use App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerColumnGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricProfileRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerStatisticsFilterInputFactory;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\StatisticsFilterFactory;
@@ -42,10 +45,11 @@ final class ExplorerEditFormType extends AbstractType
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private readonly DataSourceCapabilitiesRegistry $capabilitiesRegistry,
         private readonly ExplorerConfigPreviewFactory $previewFactory,
         private readonly ExplorerColumnGrainResolver $columnGrainResolver,
         private readonly ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
+        private readonly ExplorerMetricProfileRegistry $profileRegistry,
         private readonly ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
         private readonly AnalysisAxisResolver $axisResolver,
@@ -77,6 +81,14 @@ final class ExplorerEditFormType extends AbstractType
             ->add('chartType', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.chart_type', 'choices' => []])
             ->add('tableLayout', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.table_layout', 'choices' => []])
             ->add('chartRowLimit', ChoiceType::class, ['label' => 'stats.generic_analysis.table.row_limit_label', 'choices' => []])
+            ->add('hospitalPopulation', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.hospital_population', 'choices' => []])
+            ->add('additionalTableMetrics', ChoiceType::class, [
+                'label' => 'stats.analysis_explorer.edit.additional_table_metrics',
+                'choices' => [],
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false,
+            ])
         ;
 
         $scopePeriodField = $builder->get('scopePeriod');
@@ -118,7 +130,7 @@ final class ExplorerEditFormType extends AbstractType
 
             /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
             $form = $event->getForm();
-            $this->configureDynamicChoices($form, $formData);
+            $event->setData($this->configureDynamicChoices($form, $formData));
         });
     }
 
@@ -141,6 +153,7 @@ final class ExplorerEditFormType extends AbstractType
     {
         return new ExplorerEditFormData(
             scopePeriod: $current->scopePeriod,
+            dataSource: \is_string($submitted['dataSource'] ?? null) ? $submitted['dataSource'] : $current->dataSource,
             rowDimension: \is_string($submitted['rowDimension'] ?? null) ? $submitted['rowDimension'] : $current->rowDimension,
             rowGrain: \array_key_exists('rowGrain', $submitted)
                 ? (\is_string($submitted['rowGrain']) ? $submitted['rowGrain'] : null)
@@ -156,20 +169,29 @@ final class ExplorerEditFormType extends AbstractType
             chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $current->chartType,
             tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $current->tableLayout,
             chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $current->chartRowLimit,
+            hospitalPopulation: \is_string($submitted['hospitalPopulation'] ?? null) ? $submitted['hospitalPopulation'] : $current->hospitalPopulation,
+            additionalTableMetrics: \array_key_exists('additionalTableMetrics', $submitted)
+                ? array_values(array_filter(
+                    \is_array($submitted['additionalTableMetrics']) ? $submitted['additionalTableMetrics'] : [],
+                    static fn (mixed $value): bool => \is_string($value) && '' !== $value,
+                ))
+                : $current->additionalTableMetrics,
         );
     }
 
     /**
      * @param \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form
      */
-    private function configureDynamicChoices(\Symfony\Component\Form\FormInterface $form, ExplorerEditFormData $formData): void
+    private function configureDynamicChoices(\Symfony\Component\Form\FormInterface $form, ExplorerEditFormData $formData): ExplorerEditFormData
     {
         $user = $this->security->getUser();
         $filter = $this->statisticsFilterFactory->createFromInput(
             $this->filterInputFactory->fromSideFormData($formData->scopePeriod),
             $user instanceof User ? $user : null,
         );
-        $capabilities = $this->capabilitiesProvider->capabilitiesFor(
+        $dataSourceKey = AnalysisDataSourceKey::tryFrom($formData->dataSource) ?? AnalysisDataSourceKey::Allocations;
+        $capabilities = $this->capabilitiesRegistry->capabilitiesFor(
+            $dataSourceKey,
             $user instanceof User ? $user : null,
             $filter,
         );
@@ -179,10 +201,21 @@ final class ExplorerEditFormType extends AbstractType
             $formData->rowGrain,
             $capabilities,
         );
-        $formData = $this->withResolvedColumnGrain($form, $formData, $rowAxis, $capabilities);
+        $formData = $this->withResolvedColumnGrain($formData, $rowAxis, $capabilities);
         $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities);
-        $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
+        $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::defaultFor($dataSourceKey);
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
+        $compatibleMetrics = array_values(array_filter(
+            $this->metricCapabilityPolicy->metricsForConfig($previewConfig),
+            static fn (AnalysisMetricKey $key): bool => AnalysisMetricKey::PercentOfTotal !== $key,
+        ));
+        $isDistributionProfile = $metric->isDistributionProfile();
+        $additionalMetricChoices = $isDistributionProfile
+            ? []
+            : array_values(array_filter(
+                $compatibleMetrics,
+                static fn (AnalysisMetricKey $key): bool => $key !== $metric,
+            ));
 
         $form->add('rowDimension', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.row_dimension',
@@ -223,40 +256,69 @@ final class ExplorerEditFormType extends AbstractType
         $form->add('metric', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.chart_metric',
             'help' => 'stats.analysis_explorer.edit.chart_metric_help',
-            'choices' => $this->metricChoices($capabilities->primaryMetrics),
+            'choices' => $this->groupedMetricChoices($compatibleMetrics),
         ]);
 
         $form->add('showPercentOfTotal', CheckboxType::class, [
             'label' => 'stats.analysis_explorer.edit.show_percent_of_total',
             'help' => 'stats.analysis_explorer.edit.show_percent_of_total_help',
             'required' => false,
-            'disabled' => !$this->metricCapabilityPolicy->canShowPercentOfTotal($previewConfig),
+            'disabled' => $isDistributionProfile || !$this->metricCapabilityPolicy->canShowPercentOfTotal($previewConfig),
+        ]);
+
+        $form->add('additionalTableMetrics', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.additional_table_metrics',
+            'help' => 'stats.analysis_explorer.edit.additional_table_metrics_help',
+            'choices' => $this->groupedMetricChoices($additionalMetricChoices),
+            'multiple' => true,
+            'expanded' => true,
+            'required' => false,
+            'disabled' => $isDistributionProfile || AnalysisDataSourceKey::Hospitals !== $dataSourceKey || [] === $additionalMetricChoices,
         ]);
 
         $allowedChartTypes = $capabilities->chartTypesFor($previewConfig);
-        $chartType = ChartPresentationType::tryFrom($formData->chartType) ?? $capabilities->defaultChartTypeFor($previewConfig);
+        $chartType = $isDistributionProfile
+            ? ChartPresentationType::BoxPlot
+            : (ChartPresentationType::tryFrom($formData->chartType) ?? $capabilities->defaultChartTypeFor($previewConfig));
         if (!\in_array($chartType, $allowedChartTypes, true)) {
             $chartType = $capabilities->defaultChartTypeFor($previewConfig);
-            $currentData = $form->getData();
-            if ($currentData instanceof ExplorerEditFormData) {
-                $form->setData(new ExplorerEditFormData(
-                    scopePeriod: $currentData->scopePeriod,
-                    rowDimension: $currentData->rowDimension,
-                    rowGrain: $currentData->rowGrain,
-                    columnDimension: $currentData->columnDimension,
-                    columnGrain: $currentData->columnGrain,
-                    metric: $currentData->metric,
-                    showPercentOfTotal: $currentData->showPercentOfTotal,
-                    chartType: $chartType->value,
-                    tableLayout: $currentData->tableLayout,
-                    chartRowLimit: $currentData->chartRowLimit,
-                ));
-            }
+            $formData = new ExplorerEditFormData(
+                scopePeriod: $formData->scopePeriod,
+                dataSource: $formData->dataSource,
+                rowDimension: $formData->rowDimension,
+                rowGrain: $formData->rowGrain,
+                columnDimension: $formData->columnDimension,
+                columnGrain: $formData->columnGrain,
+                metric: $formData->metric,
+                showPercentOfTotal: $formData->showPercentOfTotal,
+                chartType: $chartType->value,
+                tableLayout: $formData->tableLayout,
+                chartRowLimit: $formData->chartRowLimit,
+                hospitalPopulation: $formData->hospitalPopulation,
+                additionalTableMetrics: $isDistributionProfile ? [] : $formData->additionalTableMetrics,
+            );
+        } elseif ($isDistributionProfile) {
+            $formData = new ExplorerEditFormData(
+                scopePeriod: $formData->scopePeriod,
+                dataSource: $formData->dataSource,
+                rowDimension: $formData->rowDimension,
+                rowGrain: $formData->rowGrain,
+                columnDimension: $formData->columnDimension,
+                columnGrain: $formData->columnGrain,
+                metric: $formData->metric,
+                showPercentOfTotal: false,
+                chartType: ChartPresentationType::BoxPlot->value,
+                tableLayout: $formData->tableLayout,
+                chartRowLimit: $formData->chartRowLimit,
+                hospitalPopulation: $formData->hospitalPopulation,
+                additionalTableMetrics: [],
+            );
         }
 
         $form->add('chartType', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.chart_type',
             'choices' => $this->chartTypeChoices($allowedChartTypes),
+            'disabled' => $isDistributionProfile,
         ]);
 
         $form->add('tableLayout', ChoiceType::class, [
@@ -271,13 +333,31 @@ final class ExplorerEditFormType extends AbstractType
             'choices' => $this->chartRowLimitChoices(),
             'disabled' => $rowAxis->dimensionKey->isTemporalPrimary(),
         ]);
+
+        $form->add('hospitalPopulation', ChoiceType::class, [
+            'label' => 'stats.analysis_explorer.edit.hospital_population',
+            'help' => 'stats.analysis_explorer.edit.hospital_population_help',
+            'choices' => $this->hospitalPopulationChoices(),
+            'disabled' => AnalysisDataSourceKey::Hospitals !== $dataSourceKey,
+        ]);
+
+        return $formData;
     }
 
     /**
-     * @param \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form
+     * @return array<string, string>
      */
+    private function hospitalPopulationChoices(): array
+    {
+        $choices = [];
+        foreach (ExplorerHospitalPopulationMode::cases() as $mode) {
+            $choices[$this->translator->trans($mode->labelTranslationKey())] = $mode->value;
+        }
+
+        return $choices;
+    }
+
     private function withResolvedColumnGrain(
-        \Symfony\Component\Form\FormInterface $form,
         ExplorerEditFormData $formData,
         AnalysisAxisRef $rowAxis,
         \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
@@ -305,8 +385,9 @@ final class ExplorerEditFormType extends AbstractType
             return $formData;
         }
 
-        $resolvedFormData = new ExplorerEditFormData(
+        return new ExplorerEditFormData(
             scopePeriod: $formData->scopePeriod,
+            dataSource: $formData->dataSource,
             rowDimension: $formData->rowDimension,
             rowGrain: $formData->rowGrain,
             columnDimension: $formData->columnDimension,
@@ -316,10 +397,9 @@ final class ExplorerEditFormType extends AbstractType
             chartType: $formData->chartType,
             tableLayout: $formData->tableLayout,
             chartRowLimit: $formData->chartRowLimit,
+            hospitalPopulation: $formData->hospitalPopulation,
+            additionalTableMetrics: $formData->additionalTableMetrics,
         );
-        $form->setData($resolvedFormData);
-
-        return $resolvedFormData;
     }
 
     private function resolveColumnAxis(
@@ -380,16 +460,47 @@ final class ExplorerEditFormType extends AbstractType
     /**
      * @param list<AnalysisMetricKey> $metrics
      *
-     * @return array<string, string>
+     * @return array<string, array<string, string>>
      */
-    private function metricChoices(array $metrics): array
+    private function groupedMetricChoices(array $metrics): array
     {
-        $choices = [];
+        $grouped = [];
         foreach ($metrics as $metric) {
-            $choices[$this->translator->trans('stats.analysis_explorer.metric.'.$metric->value)] = $metric->value;
+            $groupLabel = $this->translator->trans($this->metricGroupTranslationKey($metric));
+            $grouped[$groupLabel][$this->metricChoiceLabel($metric)] = $metric->value;
         }
 
-        return $choices;
+        return $grouped;
+    }
+
+    private function metricGroupTranslationKey(AnalysisMetricKey $metric): string
+    {
+        $profile = $this->profileRegistry->profileFor($metric);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $profile->groupTranslationKey;
+        }
+
+        return match ($metric) {
+            AnalysisMetricKey::SumBeds,
+            AnalysisMetricKey::AvgBeds,
+            AnalysisMetricKey::MinBeds,
+            AnalysisMetricKey::MaxBeds => 'stats.analysis_explorer.metric_group.beds',
+            AnalysisMetricKey::TotalAllocations,
+            AnalysisMetricKey::AvgAllocationsPerHospital,
+            AnalysisMetricKey::MinAllocations,
+            AnalysisMetricKey::MaxAllocations => 'stats.analysis_explorer.metric_group.allocations',
+            default => 'stats.analysis_explorer.metric_group.counts',
+        };
+    }
+
+    private function metricChoiceLabel(AnalysisMetricKey $metric): string
+    {
+        $profile = $this->profileRegistry->profileFor($metric);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey);
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.metric.'.$metric->value);
     }
 
     /**

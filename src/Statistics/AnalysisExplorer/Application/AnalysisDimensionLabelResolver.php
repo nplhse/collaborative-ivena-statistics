@@ -59,7 +59,7 @@ final class AnalysisDimensionLabelResolver
             return 'Unknown';
         }
 
-        if ('hospital_cohort' === $dimension->key) {
+        if ('hospital_cohort' === $dimension->key || 'hospital_master_cohort' === $dimension->key) {
             $cohortKey = HospitalCohortKey::tryFrom($bucketKey);
             if ($cohortKey instanceof HospitalCohortKey) {
                 return $this->hospitalCohortLabelResolver->label($cohortKey);

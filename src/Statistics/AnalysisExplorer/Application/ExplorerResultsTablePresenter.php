@@ -11,8 +11,10 @@ use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewMode
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\BoxPlotTableColumn;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
@@ -27,6 +29,7 @@ final readonly class ExplorerResultsTablePresenter
         private MetricValueFormatter $metricValueFormatter,
         private ExplorerTablePercentHelper $percentHelper,
         private ExplorerMetricSummabilityPolicy $summabilityPolicy,
+        private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
     }
 
@@ -44,6 +47,10 @@ final readonly class ExplorerResultsTablePresenter
 
     private function createFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
+        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
+            return $this->createDistributionFlatTable($viewConfig, $result);
+        }
+
         $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
         $visibleMetricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
         $metricColumns = $this->metricColumns($visibleMetricKeys);
@@ -97,6 +104,77 @@ final readonly class ExplorerResultsTablePresenter
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
             showPercentOfTotal: $showPercentOfTotal,
             formattedTotalsPercentValues: $formattedTotalsPercentValues,
+        );
+    }
+
+    private function createDistributionFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
+    {
+        $tableColumns = $this->profileRegistry->tableColumnsFor($viewConfig->visualMetricKey);
+        $metricColumns = [];
+        foreach ($tableColumns as $column) {
+            $metricColumns[] = new ExplorerResultsTableMetricColumn(
+                key: $column->value,
+                label: $this->translator->trans($column->labelTranslationKey()),
+            );
+        }
+
+        $rows = [];
+        foreach ($result->rows as $row) {
+            $rows[] = new ExplorerResultsTableRow(
+                bucketLabel: $row->bucketLabel,
+                formattedMetricValues: $this->formatBoxPlotRowValues($tableColumns, $row->boxPlot),
+            );
+        }
+
+        return new ExplorerResultsTableViewModel(
+            primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
+            metricColumns: $metricColumns,
+            rows: $rows,
+            formattedTotals: [],
+            tableLayout: TableLayout::Flat,
+            rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
+            showPercentOfTotal: false,
+            formattedTotalsPercentValues: [],
+        );
+    }
+
+    /**
+     * @param list<BoxPlotTableColumn> $tableColumns
+     *
+     * @return array<string, string>
+     */
+    private function formatBoxPlotRowValues(array $tableColumns, ?BoxPlotStats $boxPlot): array
+    {
+        $formatted = [];
+        foreach ($tableColumns as $column) {
+            $formatted[$column->value] = $this->formatBoxPlotColumnValue($column, $boxPlot);
+        }
+
+        return $formatted;
+    }
+
+    private function formatBoxPlotColumnValue(BoxPlotTableColumn $column, ?BoxPlotStats $boxPlot): string
+    {
+        if (!$boxPlot instanceof BoxPlotStats) {
+            return '—';
+        }
+
+        $value = match ($column) {
+            BoxPlotTableColumn::Count => $boxPlot->count,
+            BoxPlotTableColumn::Min => $boxPlot->minimum,
+            BoxPlotTableColumn::P25 => $boxPlot->p25,
+            BoxPlotTableColumn::Median => $boxPlot->median,
+            BoxPlotTableColumn::P75 => $boxPlot->p75,
+            BoxPlotTableColumn::Max => $boxPlot->maximum,
+        };
+
+        if (BoxPlotTableColumn::Count === $column) {
+            return (string) $value;
+        }
+
+        return $this->metricValueFormatter->format(
+            $this->metricRegistry->get('avg_beds'),
+            $value,
         );
     }
 
@@ -355,6 +433,11 @@ final readonly class ExplorerResultsTablePresenter
 
     private function metricLabel(AnalysisMetricKey $metricKey): string
     {
+        $profile = $this->profileRegistry->profileFor($metricKey);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey);
+        }
+
         return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value);
     }
 }

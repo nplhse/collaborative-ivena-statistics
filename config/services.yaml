@@ -59,6 +59,18 @@ services:
             tags: ['app.statistics.analysis_definition']
         App\Statistics\Application\Report\ReportDefinitionInterface:
             tags: ['app.statistics.report_definition']
+        App\Statistics\AnalysisExplorer\Application\Contract\DataSourceCapabilitiesProviderInterface:
+            tags: ['app.analysis_explorer.capabilities_provider']
+        App\Statistics\AnalysisExplorer\Application\Contract\ExplorerAnalysisQueryMapperInterface:
+            tags: ['app.analysis_explorer.query_mapper']
+
+    App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry:
+        arguments:
+            $providers: !tagged_iterator 'app.analysis_explorer.capabilities_provider'
+
+    App\Statistics\AnalysisExplorer\Application\ExplorerQueryMapperRegistry:
+        arguments:
+            $mappers: !tagged_iterator 'app.analysis_explorer.query_mapper'
 
     App\Statistics\Application\Analysis\AnalysisDefinitionRegistry:
         arguments:

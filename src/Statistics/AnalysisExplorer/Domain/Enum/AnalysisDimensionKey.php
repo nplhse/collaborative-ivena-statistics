@@ -34,6 +34,14 @@ enum AnalysisDimensionKey: string
     case Hospital = 'hospital';
     case State = 'state';
     case DispatchArea = 'dispatchArea';
+    case HospitalTier = 'hospital_tier';
+    case HospitalSize = 'hospital_size';
+    case HospitalLocation = 'hospital_location';
+    case HospitalState = 'hospital_state';
+    case HospitalDispatchArea = 'hospital_dispatch_area';
+    case HospitalEntity = 'hospital_entity';
+    case HospitalMasterCohort = 'hospital_master_cohort';
+    case HospitalPopulationGroup = 'hospital_population_group';
 
     public function isTemporalPrimary(): bool
     {
@@ -83,6 +91,23 @@ enum AnalysisDimensionKey: string
             self::Hospital,
             self::State,
             self::DispatchArea,
+        ];
+    }
+
+    /**
+     * @return list<self>
+     */
+    public static function hospitalsCatalog(): array
+    {
+        return [
+            self::HospitalMasterCohort,
+            self::HospitalTier,
+            self::HospitalSize,
+            self::HospitalLocation,
+            self::HospitalState,
+            self::HospitalDispatchArea,
+            self::HospitalEntity,
+            self::HospitalPopulationGroup,
         ];
     }
 }

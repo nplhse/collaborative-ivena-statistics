@@ -8,6 +8,7 @@ use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
+use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
@@ -95,5 +96,34 @@ final class ExplorerChartPresenterTest extends TestCase
         $specs = $presenter->buildSpecs($result, $presentation);
 
         self::assertCount(8, $specs['bar']['labels']);
+    }
+
+    public function testBuildsBoxPlotSpecForDistributionProfile(): void
+    {
+        $presenter = $this->createExplorerChartPresenter();
+        $result = new AnalysisRunResult(
+            title: 'Beds distribution by tier',
+            metricKeys: [AnalysisMetricKey::BedsDistribution],
+            visualMetricKey: AnalysisMetricKey::BedsDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: null,
+            rows: [
+                new AnalysisResultRow(
+                    bucket: 'tier_a',
+                    bucketLabel: 'Tier A',
+                    seriesKey: null,
+                    seriesLabel: null,
+                    metricValues: ['beds_distribution' => 50.0],
+                    boxPlot: new BoxPlotStats(3, 10.0, 20.0, 50.0, 80.0, 100.0),
+                ),
+            ],
+            totals: new AnalysisTotals(grand: ['beds_distribution' => 50.0]),
+        );
+
+        $specs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::BoxPlot));
+
+        self::assertSame('boxPlot', $specs['box_plot']['chartType']);
+        self::assertSame('Tier A', $specs['box_plot']['series'][0]['data'][0]['x']);
+        self::assertSame([10.0, 20.0, 50.0, 80.0, 100.0], $specs['box_plot']['series'][0]['data'][0]['y']);
     }
 }

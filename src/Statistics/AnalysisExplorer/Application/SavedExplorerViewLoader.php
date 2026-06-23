@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
@@ -16,23 +17,29 @@ final readonly class SavedExplorerViewLoader
     public function __construct(
         private SavedExplorerViewRepository $repository,
         private ExplorerConfigMapper $configMapper,
-        private DefaultAnalysisViewFactory $defaultAnalysisViewFactory,
+        private DefaultAnalysisViewFactoryRegistry $defaultAnalysisViewFactory,
     ) {
     }
 
-    public function load(string $viewKey, StatisticsFilter $filter, ?User $user): SavedExplorerViewLoadResult
-    {
+    public function load(
+        string $viewKey,
+        StatisticsFilter $filter,
+        ?User $user,
+        ?AnalysisDataSourceKey $requestedDataSource = null,
+    ): SavedExplorerViewLoadResult {
+        $defaultSource = $requestedDataSource ?? AnalysisDataSourceKey::Allocations;
+
         $savedView = $this->resolveView($viewKey);
         if (!$savedView instanceof SavedExplorerView) {
             return new SavedExplorerViewLoadResult(
-                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($filter)),
+                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($defaultSource, $filter)),
                 notFound: true,
             );
         }
 
         if (!$savedView->isAccessibleBy($user)) {
             return new SavedExplorerViewLoadResult(
-                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($filter)),
+                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($defaultSource, $filter)),
                 notFound: true,
             );
         }
@@ -40,8 +47,19 @@ final readonly class SavedExplorerViewLoader
         $configJson = $savedView->getConfigJson();
         if (!$this->isStructurallyValid($configJson)) {
             return new SavedExplorerViewLoadResult(
-                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($filter)),
+                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($defaultSource, $filter)),
                 warnings: [self::INVALID_CONFIG_WARNING],
+                view: $savedView,
+                usedFallback: true,
+            );
+        }
+
+        $savedDataSource = AnalysisDataSourceKey::tryFrom((string) ($configJson['dataSource'] ?? 'allocations'))
+            ?? AnalysisDataSourceKey::Allocations;
+        if ($requestedDataSource instanceof AnalysisDataSourceKey && $savedDataSource !== $requestedDataSource) {
+            return new SavedExplorerViewLoadResult(
+                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($requestedDataSource, $filter)),
+                warnings: ['stats.analysis_explorer.saved_view.data_source_mismatch'],
                 view: $savedView,
                 usedFallback: true,
             );
@@ -58,7 +76,7 @@ final readonly class SavedExplorerViewLoader
             );
         } catch (\Throwable) {
             return new SavedExplorerViewLoadResult(
-                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($filter)),
+                state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($defaultSource, $filter)),
                 warnings: [self::INVALID_CONFIG_WARNING],
                 view: $savedView,
                 usedFallback: true,

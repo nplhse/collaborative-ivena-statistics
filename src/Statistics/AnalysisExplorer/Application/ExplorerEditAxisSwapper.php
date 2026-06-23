@@ -6,11 +6,11 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\StatisticsFilterFactory;
-use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -19,7 +19,7 @@ final readonly class ExplorerEditAxisSwapper
     private const string NONE_COLUMN = '';
 
     public function __construct(
-        private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private DataSourceCapabilitiesRegistry $capabilitiesRegistry,
         private AnalysisAxisResolver $axisResolver,
         private ExplorerColumnGrainResolver $columnGrainResolver,
         private ExplorerEditFormNormalizer $editFormNormalizer,
@@ -35,7 +35,7 @@ final readonly class ExplorerEditAxisSwapper
             return false;
         }
 
-        $capabilities = $this->capabilitiesFor($formData->scopePeriod);
+        $capabilities = $this->capabilitiesFor($formData);
         $rowAxis = $this->axisResolver->resolveFromStrings(
             $formData->rowDimension,
             $formData->rowGrain,
@@ -63,6 +63,7 @@ final readonly class ExplorerEditAxisSwapper
 
         return $this->editFormNormalizer->normalize(new ExplorerEditFormData(
             scopePeriod: $formData->scopePeriod,
+            dataSource: $formData->dataSource,
             rowDimension: (string) $formData->columnDimension,
             rowGrain: $formData->columnGrain,
             columnDimension: $formData->rowDimension,
@@ -72,6 +73,8 @@ final readonly class ExplorerEditAxisSwapper
             chartType: $formData->chartType,
             tableLayout: $formData->tableLayout,
             chartRowLimit: $formData->chartRowLimit,
+            hospitalPopulation: $formData->hospitalPopulation,
+            additionalTableMetrics: $formData->additionalTableMetrics,
         ));
     }
 
@@ -108,14 +111,16 @@ final readonly class ExplorerEditAxisSwapper
         return $candidate;
     }
 
-    private function capabilitiesFor(StatisticsScopePeriodFormData $scopePeriod): DataSourceCapabilities
+    private function capabilitiesFor(ExplorerEditFormData $formData): DataSourceCapabilities
     {
         $user = $this->security->getUser();
+        $dataSourceKey = AnalysisDataSourceKey::tryFrom($formData->dataSource) ?? AnalysisDataSourceKey::Allocations;
 
-        return $this->capabilitiesProvider->capabilitiesFor(
+        return $this->capabilitiesRegistry->capabilitiesFor(
+            $dataSourceKey,
             $user instanceof User ? $user : null,
             $this->statisticsFilterFactory->createFromInput(
-                $this->filterInputFactory->fromSideFormData($scopePeriod),
+                $this->filterInputFactory->fromSideFormData($formData->scopePeriod),
                 $user instanceof User ? $user : null,
             ),
         );

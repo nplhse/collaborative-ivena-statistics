@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
-use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
+use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactoryRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerQueryKeys;
 use App\Statistics\Application\DTO\StatisticsFilter;
@@ -36,7 +37,7 @@ final class AnalysisExplorerController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
-        private readonly DefaultAnalysisViewFactory $defaultAnalysisViewFactory,
+        private readonly DefaultAnalysisViewFactoryRegistry $defaultAnalysisViewFactory,
         private readonly ExplorerConfigMapper $explorerConfigMapper,
         private readonly SavedExplorerViewLoader $savedExplorerViewLoader,
         private readonly SavedExplorerViewFavoriteService $favoriteService,
@@ -57,7 +58,8 @@ final class AnalysisExplorerController extends AbstractController
         }
 
         $pageContext = $this->createPageContext($request, $user, $filter, 'app_stats_analysis_explorer');
-        $defaultConfig = $this->defaultAnalysisViewFactory->createDefault($pageContext->filter);
+        $dataSource = $this->resolveDataSource($request);
+        $defaultConfig = $this->defaultAnalysisViewFactory->createDefault($dataSource, $pageContext->filter);
         $appliedState = $this->explorerConfigMapper->toStateArray($defaultConfig);
         $appliedState = $this->mergeChartTopQueryOverride($request, $appliedState);
 
@@ -85,7 +87,8 @@ final class AnalysisExplorerController extends AbstractController
         }
 
         $pageContext = $this->createPageContext($request, $user, $filter, 'app_stats_analysis_explorer_view');
-        $loadResult = $this->savedExplorerViewLoader->load($view, $pageContext->filter, $user);
+        $requestedDataSource = $this->resolveExplicitDataSource($request);
+        $loadResult = $this->savedExplorerViewLoader->load($view, $pageContext->filter, $user, $requestedDataSource);
         if ($loadResult->notFound) {
             throw new NotFoundHttpException(sprintf('Explorer view "%s" was not found.', $view));
         }
@@ -228,6 +231,7 @@ final class AnalysisExplorerController extends AbstractController
             StatisticsQueryKeys::YEAR,
             StatisticsQueryKeys::MONTH,
             StatisticsQueryKeys::QUARTER,
+            ExplorerQueryKeys::DATA_SOURCE,
         ] as $key) {
             if ($request->query->has($key)) {
                 $query[$key] = $request->query->getString($key);
@@ -252,5 +256,23 @@ final class AnalysisExplorerController extends AbstractController
             $state,
             ExplorerChartRowLimit::fromValue($request->query->getString(ExplorerQueryKeys::CHART_TOP)),
         );
+    }
+
+    private function resolveDataSource(Request $request): AnalysisDataSourceKey
+    {
+        $raw = $request->query->getString(ExplorerQueryKeys::DATA_SOURCE, AnalysisDataSourceKey::Allocations->value);
+
+        return AnalysisDataSourceKey::tryFrom($raw) ?? AnalysisDataSourceKey::Allocations;
+    }
+
+    private function resolveExplicitDataSource(Request $request): ?AnalysisDataSourceKey
+    {
+        if (!$request->query->has(ExplorerQueryKeys::DATA_SOURCE)) {
+            return null;
+        }
+
+        $raw = $request->query->getString(ExplorerQueryKeys::DATA_SOURCE);
+
+        return AnalysisDataSourceKey::tryFrom($raw);
     }
 }

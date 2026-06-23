@@ -11,4 +11,5 @@ enum ChartPresentationType: string
     case GroupedBar = 'grouped_bar';
     case StackedBar = 'stacked_bar';
     case Heatmap = 'heatmap';
+    case BoxPlot = 'box_plot';
 }

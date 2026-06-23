@@ -10,4 +10,6 @@ enum ExplorerMetricCategory: string
     case Distribution = 'distribution';
     case Rate = 'rate';
     case Statistical = 'statistical';
+    case NumericAggregate = 'numeric_aggregate';
+    case DistributionProfile = 'distribution_profile';
 }

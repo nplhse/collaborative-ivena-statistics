@@ -9,20 +9,19 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerMetricCategory;
 
 final readonly class ExplorerMetricSummabilityPolicy
 {
-    public function __construct(
-        private ExplorerMetricCatalog $metricCatalog,
-    ) {
-    }
-
     public function isSummable(AnalysisMetricKey $metricKey): bool
     {
-        if (!$this->metricCatalog->has($metricKey)) {
-            return AnalysisMetricKey::AllocationCount === $metricKey;
+        $category = $metricKey->metricCategory();
+
+        if (ExplorerMetricCategory::Count === $category
+            || ExplorerMetricCategory::Distribution === $category) {
+            return true;
         }
 
-        $category = $this->metricCatalog->get($metricKey)->metricCategory();
-
-        return ExplorerMetricCategory::Count === $category
-            || ExplorerMetricCategory::Distribution === $category;
+        return match ($metricKey) {
+            AnalysisMetricKey::SumBeds,
+            AnalysisMetricKey::TotalAllocations => true,
+            default => false,
+        };
     }
 }

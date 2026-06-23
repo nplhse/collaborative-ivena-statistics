@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Domain;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\Application\DTO\StatisticsFilter;
 
 final readonly class AnalysisViewConfig
@@ -23,6 +24,7 @@ final readonly class AnalysisViewConfig
         public StatisticsFilter $statisticsFilter,
         public PresentationConfig $presentation,
         public string $title,
+        public ExplorerHospitalPopulationMode $hospitalPopulationMode = ExplorerHospitalPopulationMode::Participating,
     ) {
     }
 
@@ -52,6 +54,7 @@ final readonly class AnalysisViewConfig
             statisticsFilter: $statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
         );
     }
 
@@ -66,6 +69,7 @@ final readonly class AnalysisViewConfig
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
         );
     }
 
@@ -83,6 +87,7 @@ final readonly class AnalysisViewConfig
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $this->title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
         );
     }
 
@@ -102,6 +107,7 @@ final readonly class AnalysisViewConfig
             statisticsFilter: $this->statisticsFilter,
             presentation: $presentation,
             title: $this->title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
         );
     }
 
@@ -116,6 +122,37 @@ final readonly class AnalysisViewConfig
             statisticsFilter: $this->statisticsFilter,
             presentation: $this->presentation,
             title: $title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
+        );
+    }
+
+    public function withDataSourceKey(AnalysisDataSourceKey $dataSourceKey): self
+    {
+        return new self(
+            dataSourceKey: $dataSourceKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
+            statisticsFilter: $this->statisticsFilter,
+            presentation: $this->presentation,
+            title: $this->title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
+        );
+    }
+
+    public function withHospitalPopulationMode(ExplorerHospitalPopulationMode $hospitalPopulationMode): self
+    {
+        return new self(
+            dataSourceKey: $this->dataSourceKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
+            statisticsFilter: $this->statisticsFilter,
+            presentation: $this->presentation,
+            title: $this->title,
+            hospitalPopulationMode: $hospitalPopulationMode,
         );
     }
 }

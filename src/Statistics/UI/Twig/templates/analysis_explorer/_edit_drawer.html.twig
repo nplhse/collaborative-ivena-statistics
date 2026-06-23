@@ -98,6 +98,20 @@
                                 sideForm: form.scopePeriod,
                                 testId: 'stats-analysis-explorer-period-form',
                             }) }}
+                            {% if not form.hospitalPopulation.vars.disabled %}
+                                {% set allocationDerivedMetrics = [
+                                    'total_allocations',
+                                    'avg_allocations_per_hospital',
+                                    'min_allocations',
+                                    'max_allocations',
+                                ] %}
+                                {% set selectedMetrics = [form.metric.vars.data]|merge(form.additionalTableMetrics.vars.data|default([])) %}
+                                {% if selectedMetrics|filter(metric => metric in allocationDerivedMetrics)|length > 0 %}
+                                    <p class="text-secondary small mb-0 mt-2" data-testid="stats-analysis-explorer-allocation-derived-period-hint">
+                                        {{ 'stats.generic_analysis.period.allocation_derived_hint'|trans }}
+                                    </p>
+                                {% endif %}
+                            {% endif %}
                     </div>
                 {{ editAccordion.panel_end() }}
             </div>
@@ -113,6 +127,14 @@
                 {{ editAccordion.panel_start('analysisExplorerEditAnalysisPanel', 'analysisExplorerEditAnalysisHeading', true) }}
                     <div class="accordion-body">
                             <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.matrix_intro'|trans }}</p>
+
+                            {% if not form.hospitalPopulation.vars.disabled %}
+                                <fieldset class="border-0 p-0 mb-4" data-testid="stats-analysis-explorer-hospital-population-field">
+                                    <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.hospital_population'|trans }}</legend>
+                                    <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.hospital_population_help'|trans }}</p>
+                                    {{ form_row(form.hospitalPopulation, compactRow|merge({attr: refreshAttrs})) }}
+                                </fieldset>
+                            {% endif %}
 
                             <div class="border rounded p-3 mb-4 bg-body-secondary position-relative pb-5"
                                  data-testid="stats-analysis-explorer-structure-preview">
@@ -168,6 +190,11 @@
                                 {% if not form.showPercentOfTotal.vars.disabled %}
                                     <div data-testid="stats-analysis-explorer-show-percent-field">
                                         {{ form_row(form.showPercentOfTotal) }}
+                                    </div>
+                                {% endif %}
+                                {% if not form.additionalTableMetrics.vars.disabled %}
+                                    <div class="mt-3" data-testid="stats-analysis-explorer-additional-table-metrics-field">
+                                        {{ form_row(form.additionalTableMetrics, compactRow|merge({attr: refreshAttrs})) }}
                                     </div>
                                 {% endif %}
                             </fieldset>

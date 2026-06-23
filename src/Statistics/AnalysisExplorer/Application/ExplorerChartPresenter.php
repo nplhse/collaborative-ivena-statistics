@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
@@ -22,6 +23,7 @@ final readonly class ExplorerChartPresenter
         private MetricRegistry $metricRegistry,
         private ChartPrimaryBucketLimiter $primaryBucketLimiter,
         private TranslatorInterface $translator,
+        private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
     }
 
@@ -61,6 +63,10 @@ final readonly class ExplorerChartPresenter
      */
     private function buildSingleSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
     {
+        if (ChartPresentationType::BoxPlot === $presentation->chartType) {
+            return $this->buildBoxPlotSpec($result, $presentation);
+        }
+
         $labels = [];
         $values = [];
 
@@ -82,6 +88,52 @@ final readonly class ExplorerChartPresenter
             'valueLabel' => $this->metricLabel($result->visualMetricKey),
             'valueFormat' => $this->metricFormat($result->visualMetricKey),
             'percentScale' => 'percent' === $this->metricFormat($result->visualMetricKey),
+            'xAxisLabel' => $this->axisLabel($result->rowAxis),
+            'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildBoxPlotSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
+    {
+        $points = [];
+        foreach ($result->rows as $row) {
+            if (!$row->boxPlot instanceof BoxPlotStats) {
+                continue;
+            }
+
+            $points[] = [
+                'x' => $row->bucketLabel,
+                'y' => $row->boxPlot->apexValues(),
+            ];
+        }
+
+        $labels = array_map(static fn (array $point): string => $point['x'], $points);
+        $cap = $presentation->chartRowLimit->cap();
+        if (null !== $cap && \count($labels) > $cap && !$result->rowAxis->dimensionKey->isTemporalPrimary()) {
+            [$limitedLabels] = $this->primaryBucketLimiter->limit(
+                $labels,
+                array_map(static fn (array $point): float => $point['y'][2] ?? 0.0, $points),
+                [],
+                $cap,
+                includeRemainderBucket: false,
+            );
+            $limitedLabelSet = array_flip($limitedLabels);
+            $points = array_values(array_filter(
+                $points,
+                static fn (array $point): bool => isset($limitedLabelSet[$point['x']]),
+            ));
+        }
+
+        return [
+            'chartType' => 'boxPlot',
+            'series' => [[
+                'name' => $this->metricLabel($result->visualMetricKey),
+                'type' => 'boxPlot',
+                'data' => $points,
+            ]],
             'xAxisLabel' => $this->axisLabel($result->rowAxis),
             'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
         ];
@@ -250,11 +302,20 @@ final readonly class ExplorerChartPresenter
 
     private function metricLabel(AnalysisMetricKey $metricKey): string
     {
+        $profile = $this->profileRegistry->profileFor($metricKey);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey);
+        }
+
         return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->label;
     }
 
     private function metricFormat(AnalysisMetricKey $metricKey): string
     {
+        if ($metricKey->isDistributionProfile()) {
+            return 'decimal';
+        }
+
         return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->defaultFormat->value;
     }
 }

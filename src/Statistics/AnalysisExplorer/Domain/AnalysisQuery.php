@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Domain;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 
@@ -23,6 +24,7 @@ final readonly class AnalysisQuery
         public ?AnalysisAxisRef $columnAxis,
         public StatisticsScopeCriteria $scopeCriteria,
         public StatisticsPeriodBounds $periodBounds,
+        public ExplorerHospitalPopulationMode $hospitalPopulationMode = ExplorerHospitalPopulationMode::Participating,
     ) {
     }
 

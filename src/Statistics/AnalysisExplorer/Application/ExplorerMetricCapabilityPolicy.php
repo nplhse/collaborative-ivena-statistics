@@ -6,19 +6,19 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
-use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerMetricCategory;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
-use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery as GenericAnalysisQuery;
 
 final readonly class ExplorerMetricCapabilityPolicy
 {
     public function __construct(
         private ExplorerMetricCatalog $metricCatalog,
-        private ExplorerAllocationQueryMapper $queryMapper,
+        private ExplorerQueryMapperRegistry $queryMapperRegistry,
         private MetricCompatibilityChecker $metricCompatibilityChecker,
+        private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
     }
 
@@ -39,7 +39,7 @@ final readonly class ExplorerMetricCapabilityPolicy
 
     public function canShowPercentOfTotal(AnalysisViewConfig $config): bool
     {
-        if (AnalysisMetricKey::AllocationCount !== $config->visualMetricKey) {
+        if (!\in_array($config->visualMetricKey, [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::HospitalCount], true)) {
             return false;
         }
 
@@ -59,7 +59,12 @@ final readonly class ExplorerMetricCapabilityPolicy
     {
         $normalized = [];
         foreach ($metricKeys as $metricKey) {
-            if (!$this->metricCatalog->has($metricKey) || !$this->metricCatalog->get($metricKey)->enabled) {
+            if (!$this->metricCatalog->has($metricKey, $config->dataSourceKey)) {
+                continue;
+            }
+
+            $definition = $this->metricCatalog->get($metricKey, $config->dataSourceKey);
+            if (!$definition->enabled) {
                 continue;
             }
 
@@ -70,13 +75,14 @@ final readonly class ExplorerMetricCapabilityPolicy
             $normalized[] = $metricKey;
         }
 
+        $defaultMetric = AnalysisMetricKey::defaultFor($config->dataSourceKey);
         if ([] === $normalized) {
-            return [AnalysisMetricKey::AllocationCount];
+            return [$defaultMetric];
         }
 
         if (\in_array(AnalysisMetricKey::PercentOfTotal, $normalized, true)
-            && !\in_array(AnalysisMetricKey::AllocationCount, $normalized, true)) {
-            array_unshift($normalized, AnalysisMetricKey::AllocationCount);
+            && !\in_array($defaultMetric, $normalized, true)) {
+            array_unshift($normalized, $defaultMetric);
         }
 
         if ($this->hasRateMetric($normalized) && \in_array(AnalysisMetricKey::PercentOfTotal, $normalized, true)) {
@@ -89,19 +95,33 @@ final readonly class ExplorerMetricCapabilityPolicy
         return array_values(array_unique($normalized, \SORT_REGULAR));
     }
 
-    public function isChartable(AnalysisMetricKey $metricKey): bool
+    public function isChartable(AnalysisMetricKey $metricKey, AnalysisDataSourceKey $dataSourceKey): bool
     {
-        return $this->metricCatalog->get($metricKey)->isChartable();
+        if (!$this->metricCatalog->has($metricKey, $dataSourceKey)) {
+            return false;
+        }
+
+        if ($metricKey->isDistributionProfile()) {
+            return $this->metricCatalog->get($metricKey, $dataSourceKey)->enabled;
+        }
+
+        return $this->metricCatalog->get($metricKey, $dataSourceKey)->isChartable();
     }
 
     private function isMetricAllowedForConfig(AnalysisMetricKey $metricKey, AnalysisViewConfig $config): bool
     {
+        if ($metricKey->isDistributionProfile()) {
+            return $this->profileRegistry->isAllowedForConfig($config);
+        }
+
         if (AnalysisMetricKey::PercentOfTotal === $metricKey) {
-            return AnalysisMetricKey::AllocationCount === $config->visualMetricKey
+            $defaultMetric = AnalysisMetricKey::defaultFor($config->dataSourceKey);
+
+            return $defaultMetric === $config->visualMetricKey
                 && !$this->hasRateMetric($config->metricKeys);
         }
 
-        if (AnalysisMetricKey::AllocationCount === $metricKey) {
+        if (AnalysisMetricKey::defaultFor($config->dataSourceKey) === $metricKey) {
             return true;
         }
 
@@ -118,7 +138,7 @@ final readonly class ExplorerMetricCapabilityPolicy
     /**
      * @param list<AnalysisMetricKey> $metricKeys
      */
-    private function buildCompatibilityQuery(AnalysisViewConfig $config, array $metricKeys): GenericAnalysisQuery
+    private function buildCompatibilityQuery(AnalysisViewConfig $config, array $metricKeys): \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery
     {
         $query = new AnalysisQuery(
             dataSourceKey: $config->dataSourceKey,
@@ -128,9 +148,10 @@ final readonly class ExplorerMetricCapabilityPolicy
             columnAxis: $config->columnAxis,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
+            hospitalPopulationMode: $config->hospitalPopulationMode,
         );
 
-        return $this->queryMapper->map($query);
+        return $this->queryMapperRegistry->map($query);
     }
 
     /**
@@ -138,6 +159,6 @@ final readonly class ExplorerMetricCapabilityPolicy
      */
     private function hasRateMetric(array $metricKeys): bool
     {
-        return array_any($metricKeys, fn (AnalysisMetricKey $metricKey): bool => ExplorerMetricCategory::Rate === $metricKey->metricCategory());
+        return array_any($metricKeys, fn (AnalysisMetricKey $metricKey): bool => 'rate' === $metricKey->metricCategory()->value);
     }
 }

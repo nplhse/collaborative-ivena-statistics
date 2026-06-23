@@ -17,6 +17,7 @@ final readonly class AnalysisResultRow
         public ?string $seriesKey,
         public ?string $seriesLabel,
         public array $metricValues,
+        public ?BoxPlotStats $boxPlot = null,
     ) {
     }
 
@@ -32,6 +33,10 @@ final readonly class AnalysisResultRow
 
     public function visualValue(AnalysisMetricKey $visualMetricKey): float
     {
+        if ($visualMetricKey->isDistributionProfile() && $this->boxPlot instanceof BoxPlotStats) {
+            return $this->boxPlot->median ?? 0.0;
+        }
+
         $value = $this->valueFor($visualMetricKey);
 
         return null === $value ? 0.0 : (float) $value;

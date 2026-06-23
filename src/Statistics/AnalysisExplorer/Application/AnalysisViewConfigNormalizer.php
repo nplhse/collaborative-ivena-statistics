@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
-use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
-use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
-use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
+use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 
 final readonly class AnalysisViewConfigNormalizer
 {
     public function __construct(
-        private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private DataSourceCapabilitiesRegistry $capabilitiesRegistry,
         private ExplorerTitleFactory $titleFactory,
         private AnalysisAxisResolver $axisResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
@@ -27,13 +26,20 @@ final readonly class AnalysisViewConfigNormalizer
     public function normalize(AnalysisViewConfig $config): AnalysisViewConfig
     {
         $capabilities = $this->capabilitiesFor($config);
+        $requestedDistributionProfile = $config->visualMetricKey->isDistributionProfile()
+            ? $config->visualMetricKey
+            : null;
 
         $rowAxis = $capabilities->supportsAxis($config->rowAxis)
             ? $this->axisResolver->resolve($config->rowAxis, $capabilities)
-            : AnalysisAxisRef::time($capabilities->defaultTimeGrain);
+            : ('hospitals' === $config->dataSourceKey->value
+                ? \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown($capabilities->defaultDimension)
+                : \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::time($capabilities->defaultTimeGrain));
 
         $columnAxis = $config->columnAxis;
-        if ($columnAxis instanceof AnalysisAxisRef) {
+        if ($requestedDistributionProfile instanceof \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey) {
+            $columnAxis = null;
+        } elseif ($columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef) {
             if (!$capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
                 $columnAxis = null;
             } else {
@@ -60,15 +66,25 @@ final readonly class AnalysisViewConfigNormalizer
 
         $previewConfig = $previewConfig->withMetrics($metricKeys, $visualMetricKey);
 
-        $allowedChartTypes = $capabilities->chartTypesFor($previewConfig);
-        $chartType = \in_array($config->presentation->chartType, $allowedChartTypes, true)
-            ? $config->presentation->chartType
-            : $capabilities->defaultChartTypeFor($previewConfig);
+        if ($requestedDistributionProfile instanceof \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey) {
+            $visualMetricKey = $requestedDistributionProfile;
+            $metricKeys = [$requestedDistributionProfile];
+            $chartType = ChartPresentationType::BoxPlot;
+        } elseif ($visualMetricKey->isDistributionProfile()) {
+            $metricKeys = [$visualMetricKey];
+            $columnAxis = null;
+            $chartType = ChartPresentationType::BoxPlot;
+        } else {
+            $allowedChartTypes = $capabilities->chartTypesFor($previewConfig);
+            $chartType = \in_array($config->presentation->chartType, $allowedChartTypes, true)
+                ? $config->presentation->chartType
+                : $capabilities->defaultChartTypeFor($previewConfig);
+        }
 
         $tableLayout = $config->presentation->tableLayout;
-        if (!$columnAxis instanceof AnalysisAxisRef && TableLayout::Flat !== $tableLayout) {
-            $tableLayout = TableLayout::Flat;
-        } elseif ($columnAxis instanceof AnalysisAxisRef && TableLayout::Flat === $tableLayout) {
+        if (!$columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat !== $tableLayout) {
+            $tableLayout = \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat;
+        } elseif ($columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat === $tableLayout) {
             $tableLayout = $this->tableLayoutResolver->resolveForConfig($previewConfig);
         }
 
@@ -79,13 +95,14 @@ final readonly class AnalysisViewConfigNormalizer
             rowAxis: $rowAxis,
             columnAxis: $columnAxis,
             statisticsFilter: $config->statisticsFilter,
-            presentation: new PresentationConfig(
+            presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
                 chartType: $chartType,
                 mode: $config->presentation->mode,
                 tableLayout: $tableLayout,
                 chartRowLimit: $config->presentation->chartRowLimit,
             ),
             title: $this->titleFactory->titleForAxes($rowAxis, $columnAxis),
+            hospitalPopulationMode: $config->hospitalPopulationMode,
         );
     }
 
@@ -100,17 +117,13 @@ final readonly class AnalysisViewConfigNormalizer
             || $original->rowAxis->resolvedGrain() !== $normalized->rowAxis->resolvedGrain()) {
             $warnings[] = 'rows';
         }
-        $origCol = $original->columnAxis?->dimensionKey->value ?? '';
-        $normCol = $normalized->columnAxis?->dimensionKey->value ?? '';
-        if ($origCol !== $normCol) {
+
+        $originalColumn = $original->columnAxis?->dimensionKey->value;
+        $normalizedColumn = $normalized->columnAxis?->dimensionKey->value;
+        if ($originalColumn !== $normalizedColumn) {
             $warnings[] = 'columns';
         }
-        if ($original->presentation->chartType !== $normalized->presentation->chartType) {
-            $warnings[] = 'chartType';
-        }
-        if ($original->metricKeys !== $normalized->metricKeys) {
-            $warnings[] = 'metrics';
-        }
+
         if ($original->visualMetricKey !== $normalized->visualMetricKey) {
             $warnings[] = 'visualMetric';
         }
@@ -118,11 +131,12 @@ final readonly class AnalysisViewConfigNormalizer
         return $warnings;
     }
 
-    private function capabilitiesFor(AnalysisViewConfig $config): \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities
+    private function capabilitiesFor(AnalysisViewConfig $config): DataSourceCapabilities
     {
         $user = $this->security->getUser();
 
-        return $this->capabilitiesProvider->capabilitiesFor(
+        return $this->capabilitiesRegistry->capabilitiesFor(
+            $config->dataSourceKey,
             $user instanceof User ? $user : null,
             $config->statisticsFilter,
         );

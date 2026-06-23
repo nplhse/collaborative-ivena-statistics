@@ -10,6 +10,7 @@ use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\BoxPlotTableColumn;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\GenericAnalysis\Application\Export\TabularExportColumn;
 use App\Statistics\GenericAnalysis\Application\Export\TabularExportDocument;
@@ -21,6 +22,7 @@ final readonly class ExplorerResultsTableExportBuilder
         private TranslatorInterface $translator,
         private ExplorerTablePercentHelper $percentHelper,
         private ExplorerMetricSummabilityPolicy $summabilityPolicy,
+        private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
     }
 
@@ -38,6 +40,10 @@ final readonly class ExplorerResultsTableExportBuilder
 
     private function buildFlatDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
+        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
+            return $this->buildDistributionFlatDocument($viewConfig, $result);
+        }
+
         $showPercent = $viewConfig->showsPercentOfTotal();
         $headers = [
             new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
@@ -97,6 +103,47 @@ final readonly class ExplorerResultsTableExportBuilder
         }
 
         return new TabularExportDocument($headers, $rows, $footerRows);
+    }
+
+    private function buildDistributionFlatDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
+    {
+        $tableColumns = $this->profileRegistry->tableColumnsFor($viewConfig->visualMetricKey);
+        $headers = [
+            new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
+        ];
+        foreach ($tableColumns as $column) {
+            $headers[] = new TabularExportColumn(
+                $column->value,
+                $this->translator->trans($column->labelTranslationKey()),
+            );
+        }
+
+        $rows = [];
+        foreach ($result->rows as $row) {
+            $cells = [$row->bucketLabel];
+            foreach ($tableColumns as $column) {
+                $cells[] = $this->rawBoxPlotColumnValue($column, $row->boxPlot);
+            }
+            $rows[] = $cells;
+        }
+
+        return new TabularExportDocument($headers, $rows);
+    }
+
+    private function rawBoxPlotColumnValue(BoxPlotTableColumn $column, ?\App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats $boxPlot): int|float|null
+    {
+        if (!$boxPlot instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats) {
+            return null;
+        }
+
+        return match ($column) {
+            BoxPlotTableColumn::Count => $boxPlot->count,
+            BoxPlotTableColumn::Min => $boxPlot->minimum,
+            BoxPlotTableColumn::P25 => $boxPlot->p25,
+            BoxPlotTableColumn::Median => $boxPlot->median,
+            BoxPlotTableColumn::P75 => $boxPlot->p75,
+            BoxPlotTableColumn::Max => $boxPlot->maximum,
+        };
     }
 
     private function buildMatrixDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
@@ -260,6 +307,11 @@ final readonly class ExplorerResultsTableExportBuilder
 
     private function metricLabel(AnalysisMetricKey $metricKey): string
     {
+        $profile = $this->profileRegistry->profileFor($metricKey);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey);
+        }
+
         return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value);
     }
 

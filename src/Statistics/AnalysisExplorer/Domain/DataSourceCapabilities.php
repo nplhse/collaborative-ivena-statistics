@@ -10,6 +10,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 
 final readonly class DataSourceCapabilities
 {
@@ -55,6 +56,10 @@ final readonly class DataSourceCapabilities
      */
     public function chartTypesFor(AnalysisViewConfig $config): array
     {
+        if ($config->visualMetricKey->isDistributionProfile()) {
+            return [ChartPresentationType::BoxPlot];
+        }
+
         if ($this->usesMultiSeriesChart($config)) {
             return [
                 ChartPresentationType::GroupedBar,
@@ -69,6 +74,10 @@ final readonly class DataSourceCapabilities
 
     public function defaultChartTypeFor(AnalysisViewConfig $config): ChartPresentationType
     {
+        if ($config->visualMetricKey->isDistributionProfile()) {
+            return ChartPresentationType::BoxPlot;
+        }
+
         if ($this->usesMultiSeriesChart($config)) {
             return ChartPresentationType::GroupedBar;
         }
@@ -105,7 +114,12 @@ final readonly class DataSourceCapabilities
 
     public function usesMultiSeriesChart(AnalysisViewConfig $config): bool
     {
-        return $config->hasColumnAxis();
+        if ($config->hasColumnAxis()) {
+            return true;
+        }
+
+        return AnalysisDataSourceKey::Hospitals === $config->dataSourceKey
+            && ExplorerHospitalPopulationMode::Compare === $config->hospitalPopulationMode;
     }
 
     public function supportsAxis(AnalysisAxisRef $axis): bool

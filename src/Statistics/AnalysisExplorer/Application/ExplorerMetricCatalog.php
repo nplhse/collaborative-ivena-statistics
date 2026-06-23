@@ -12,23 +12,23 @@ use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 
 final class ExplorerMetricCatalog
 {
-    /** @var array<string, ExplorerMetricDefinition>|null */
-    private ?array $allocationsMetrics = null;
+    /** @var array<string, array<string, ExplorerMetricDefinition>> */
+    private array $metricsBySource = [];
 
     public function __construct(
         private readonly MetricRegistry $metricRegistry,
     ) {
     }
 
-    public function get(AnalysisMetricKey $key): ExplorerMetricDefinition
+    public function get(AnalysisMetricKey $key, AnalysisDataSourceKey $dataSourceKey): ExplorerMetricDefinition
     {
-        return $this->allForDataSource(AnalysisDataSourceKey::Allocations)[$key->value]
+        return $this->allForDataSource($dataSourceKey)[$key->value]
             ?? throw UnknownExplorerMetricException::forKey($key->value);
     }
 
-    public function has(AnalysisMetricKey $key): bool
+    public function has(AnalysisMetricKey $key, AnalysisDataSourceKey $dataSourceKey): bool
     {
-        return isset($this->allForDataSource(AnalysisDataSourceKey::Allocations)[$key->value]);
+        return isset($this->allForDataSource($dataSourceKey)[$key->value]);
     }
 
     /**
@@ -36,9 +36,50 @@ final class ExplorerMetricCatalog
      */
     public function allForDataSource(AnalysisDataSourceKey $dataSourceKey): array
     {
-        return match ($dataSourceKey) {
-            AnalysisDataSourceKey::Allocations => $this->allocationsMetrics(),
+        if (isset($this->metricsBySource[$dataSourceKey->value])) {
+            return $this->metricsBySource[$dataSourceKey->value];
+        }
+
+        $catalog = match ($dataSourceKey) {
+            AnalysisDataSourceKey::Allocations => AnalysisMetricKey::allocationsCatalog(),
+            AnalysisDataSourceKey::Hospitals => AnalysisMetricKey::hospitalsCatalog(),
         };
+
+        $enabledSet = match ($dataSourceKey) {
+            AnalysisDataSourceKey::Allocations => array_flip(array_map(
+                static fn (AnalysisMetricKey $key): string => $key->value,
+                array_merge(AnalysisMetricKey::enabledAllocationsCatalog(), [AnalysisMetricKey::PercentOfTotal]),
+            )),
+            AnalysisDataSourceKey::Hospitals => array_flip(array_map(
+                static fn (AnalysisMetricKey $key): string => $key->value,
+                array_merge(AnalysisMetricKey::enabledHospitalsCatalog(), [AnalysisMetricKey::PercentOfTotal]),
+            )),
+        };
+
+        $metrics = [];
+        foreach ($catalog as $explorerKey) {
+            if ($explorerKey->isDistributionProfile()) {
+                $metrics[$explorerKey->value] = new ExplorerMetricDefinition(
+                    explorerKey: $explorerKey,
+                    gaDefinition: null,
+                    enabled: isset($enabledSet[$explorerKey->value]),
+                );
+                continue;
+            }
+
+            $registryKey = $explorerKey->registryKey();
+            if (!$this->metricRegistry->has($registryKey)) {
+                continue;
+            }
+
+            $metrics[$explorerKey->value] = new ExplorerMetricDefinition(
+                explorerKey: $explorerKey,
+                gaDefinition: $this->metricRegistry->get($registryKey),
+                enabled: isset($enabledSet[$explorerKey->value]),
+            );
+        }
+
+        return $this->metricsBySource[$dataSourceKey->value] = $metrics;
     }
 
     /**
@@ -54,31 +95,5 @@ final class ExplorerMetricCatalog
         }
 
         return $keys;
-    }
-
-    /**
-     * @return array<string, ExplorerMetricDefinition>
-     */
-    private function allocationsMetrics(): array
-    {
-        if (null !== $this->allocationsMetrics) {
-            return $this->allocationsMetrics;
-        }
-
-        $metrics = [];
-        foreach (AnalysisMetricKey::allocationsCatalog() as $explorerKey) {
-            $registryKey = $explorerKey->registryKey();
-            if (!$this->metricRegistry->has($registryKey)) {
-                continue;
-            }
-
-            $metrics[$explorerKey->value] = new ExplorerMetricDefinition(
-                explorerKey: $explorerKey,
-                gaDefinition: $this->metricRegistry->get($registryKey),
-                enabled: $explorerKey->isEnabledInStepOne(),
-            );
-        }
-
-        return $this->allocationsMetrics = $metrics;
     }
 }

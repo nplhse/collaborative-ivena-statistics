@@ -9,16 +9,21 @@ use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisUpgradeMapper;
 use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionLabelResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisTotalsCalculator;
+use App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationAnalysisExecutor;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationQueryMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationResultMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
+use App\Statistics\AnalysisExplorer\Application\ExplorerHospitalQueryMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCatalog;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricKeyMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricProfileRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricSummabilityPolicy;
+use App\Statistics\AnalysisExplorer\Application\ExplorerQueryMapperRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTablePercentHelper;
+use App\Statistics\AnalysisExplorer\Application\HospitalsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
@@ -28,6 +33,7 @@ use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\GenericAnalysis\Application\ChartPrimaryBucketLimiter;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\Statistics\GenericAnalysis\Application\HospitalPopulationModifier;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Application\RelativeDistributionCalculator;
@@ -54,6 +60,22 @@ trait AnalysisExplorerTestSupport
             $this->createExplorerMetricCatalog(),
             $this->createExplorerMetricCapabilityPolicy(),
         );
+    }
+
+    protected function createHospitalsCapabilitiesProvider(): HospitalsCapabilitiesProvider
+    {
+        return new HospitalsCapabilitiesProvider(
+            $this->createExplorerMetricCatalog(),
+            $this->createExplorerMetricCapabilityPolicy(),
+        );
+    }
+
+    protected function createDataSourceCapabilitiesRegistry(): DataSourceCapabilitiesRegistry
+    {
+        return new DataSourceCapabilitiesRegistry([
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createHospitalsCapabilitiesProvider(),
+        ]);
     }
 
     protected function createDimensionPolicy(): GenericAnalysisDimensionPolicy
@@ -108,13 +130,35 @@ trait AnalysisExplorerTestSupport
         return new ExplorerAllocationQueryMapper($this->createExplorerMetricKeyMapper());
     }
 
+    protected function createExplorerMetricProfileRegistry(): ExplorerMetricProfileRegistry
+    {
+        return new ExplorerMetricProfileRegistry();
+    }
+
     protected function createExplorerMetricCapabilityPolicy(): ExplorerMetricCapabilityPolicy
     {
         return new ExplorerMetricCapabilityPolicy(
             $this->createExplorerMetricCatalog(),
-            $this->createExplorerAllocationQueryMapper(),
+            $this->createExplorerQueryMapperRegistry(),
             $this->createMetricCompatibilityChecker(),
+            $this->createExplorerMetricProfileRegistry(),
         );
+    }
+
+    protected function createExplorerHospitalQueryMapper(): ExplorerHospitalQueryMapper
+    {
+        return new ExplorerHospitalQueryMapper(
+            $this->createExplorerMetricKeyMapper(),
+            new HospitalPopulationModifier(),
+        );
+    }
+
+    protected function createExplorerQueryMapperRegistry(): ExplorerQueryMapperRegistry
+    {
+        return new ExplorerQueryMapperRegistry([
+            $this->createExplorerAllocationQueryMapper(),
+            $this->createExplorerHospitalQueryMapper(),
+        ]);
     }
 
     protected function createExplorerChartPresenter(): ExplorerChartPresenter
@@ -135,6 +179,7 @@ trait AnalysisExplorerTestSupport
             $metricRegistry,
             new ChartPrimaryBucketLimiter($translator),
             $translator,
+            $this->createExplorerMetricProfileRegistry(),
         );
     }
 
@@ -145,7 +190,7 @@ trait AnalysisExplorerTestSupport
 
     protected function createExplorerMetricSummabilityPolicy(): ExplorerMetricSummabilityPolicy
     {
-        return new ExplorerMetricSummabilityPolicy($this->createExplorerMetricCatalog());
+        return new ExplorerMetricSummabilityPolicy();
     }
 
     /**
@@ -179,6 +224,7 @@ trait AnalysisExplorerTestSupport
             $metricValueFormatter,
             new ExplorerTablePercentHelper($metricRegistry, $metricValueFormatter),
             $this->createExplorerMetricSummabilityPolicy(),
+            $this->createExplorerMetricProfileRegistry(),
         );
     }
 
@@ -198,7 +244,7 @@ trait AnalysisExplorerTestSupport
         );
 
         $executor = new ExplorerAllocationAnalysisExecutor(
-            $this->createExplorerAllocationQueryMapper(),
+            $this->createExplorerQueryMapperRegistry(),
             new GenericAllocationAnalysisQuery(
                 $connection,
                 new GenericAllocationAnalysisSqlBuilder(
