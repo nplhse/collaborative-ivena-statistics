@@ -63,6 +63,7 @@ final class AnalysisExplorerController extends AbstractController
                 'explorerAppliedConfigState' => $this->explorerConfigMapper->toStateArray($defaultConfig),
                 'initialConfigWarning' => null,
                 'libraryUrl' => $this->libraryUrl($request),
+                'exportCsvUrl' => $this->exportCsvUrl($request),
             ],
         ));
     }
@@ -96,6 +97,7 @@ final class AnalysisExplorerController extends AbstractController
                 'explorerAppliedConfigState' => $loadResult->state,
                 'initialConfigWarning' => $initialConfigWarning,
                 'libraryUrl' => $this->libraryUrl($request),
+                'exportCsvUrl' => $this->exportCsvUrl($request),
             ],
         ));
     }
@@ -198,6 +200,19 @@ final class AnalysisExplorerController extends AbstractController
 
     private function libraryUrl(Request $request): string
     {
+        return $this->router->generate('app_stats_analysis_library', $this->scopeQuery($request));
+    }
+
+    private function exportCsvUrl(Request $request): string
+    {
+        return $this->router->generate('app_stats_analysis_explorer_export_csv', $this->scopeQuery($request));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function scopeQuery(Request $request): array
+    {
         $query = [];
         foreach ([
             StatisticsQueryKeys::SCOPE,
@@ -215,6 +230,6 @@ final class AnalysisExplorerController extends AbstractController
             }
         }
 
-        return $this->router->generate('app_stats_analysis_library', $query);
+        return $query;
     }
 }

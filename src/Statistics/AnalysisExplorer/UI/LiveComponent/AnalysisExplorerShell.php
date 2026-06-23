@@ -119,6 +119,9 @@ final class AnalysisExplorerShell
     #[LiveProp(writable: false)]
     public ?string $favoriteToken = null;
 
+    #[LiveProp(writable: false)]
+    public string $exportCsvUrl = '';
+
     #[LiveProp(writable: true)]
     public bool $isSaveAsOpen = false;
 
@@ -474,7 +477,6 @@ final class AnalysisExplorerShell
     private function rerunAnalysis(): void
     {
         $this->emptyReason = null;
-        $this->configWarning = null;
 
         $currentConfig = $this->appliedConfig();
         if (!$currentConfig instanceof AnalysisViewConfig) {
