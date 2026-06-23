@@ -42,12 +42,37 @@ final readonly class MetricValueFormatter
             return '—';
         }
 
+        $floatValue = (float) $value;
+
         return match ($metric->defaultFormat) {
-            MetricFormat::Integer => number_format((float) $value, 0, ',', '.'),
-            MetricFormat::Decimal => number_format((float) $value, $metric->defaultPrecision, ',', '.'),
-            MetricFormat::Percent => number_format((float) $value, $metric->defaultPrecision, ',', '.').' %',
-            MetricFormat::Minutes => number_format((float) $value, $metric->defaultPrecision, ',', '.').' min',
+            MetricFormat::Integer => number_format($floatValue, 0, ',', '.'),
+            MetricFormat::Decimal => $this->formatAdaptiveNumber($floatValue, $metric->defaultPrecision),
+            MetricFormat::Percent => $this->formatAdaptiveNumber($floatValue, $metric->defaultPrecision).' %',
+            MetricFormat::Minutes => $this->formatAdaptiveNumber($floatValue, $metric->defaultPrecision).' min',
         };
+    }
+
+    private function formatAdaptiveNumber(float $value, int $maxPrecision): string
+    {
+        return number_format($value, $this->resolveDecimalPlaces($value, $maxPrecision), ',', '.');
+    }
+
+    private function resolveDecimalPlaces(float $value, int $maxPrecision): int
+    {
+        if ($maxPrecision <= 0 || $this->isWholeNumber($value)) {
+            return 0;
+        }
+
+        $asString = rtrim(sprintf('%.'.$maxPrecision.'f', $value), '0');
+        $dotPosition = strpos($asString, '.');
+        $fraction = false !== $dotPosition ? substr($asString, $dotPosition + 1) : '';
+
+        return strlen($fraction);
+    }
+
+    private function isWholeNumber(float $value): bool
+    {
+        return abs($value - round($value)) < 1e-9;
     }
 
     private function formatRaw(int|float|null $value): string
@@ -56,6 +81,6 @@ final readonly class MetricValueFormatter
             return '—';
         }
 
-        return number_format((float) $value, 2, ',', '.');
+        return $this->formatAdaptiveNumber((float) $value, 2);
     }
 }

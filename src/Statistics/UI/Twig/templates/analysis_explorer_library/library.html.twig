@@ -1,0 +1,105 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.analysis_explorer.library.title'|trans }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'stats.analysis_explorer.library.title' }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <div class="page-pretitle">{{ 'stats.analysis_explorer.library.pretitle'|trans }}</div>
+                    <h2 class="page-title" data-testid="stats-analysis-explorer-library-title">
+                        {{ 'stats.analysis_explorer.library.title'|trans }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+
+    {% set page = explorerLibraryPage %}
+
+    <div data-testid="stats-analysis-explorer-library">
+        <ul class="nav nav-tabs analytics-library-tabs mb-4" role="tablist">
+            {% for tab in page.tabs %}
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link{% if tab.active %} active{% endif %}"
+                       href="{{ tab.url }}"
+                       {% if tab.active %}aria-current="page"{% endif %}
+                       data-testid="stats-analysis-explorer-library-tab-{{ tab.key }}">
+                        {{ tab.label }}
+                        {% if tab.count is defined %}
+                            <span class="badge analytics-library-tab-count ms-1"
+                                  data-testid="stats-analysis-explorer-library-tab-count-{{ tab.key }}">
+                                {{ tab.count }}
+                            </span>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if page.activeTab == 'all' and page.categoryFilters is not empty %}
+            <div class="d-flex justify-content-end mb-4"
+                 data-testid="stats-analysis-explorer-library-category-filters">
+                <div class="btn-group flex-wrap"
+                     role="group"
+                     aria-label="{{ 'stats.analysis_explorer.library.tab.overview'|trans }}">
+                    {% for filter in page.categoryFilters %}
+                        <a href="{{ filter.url }}"
+                           class="btn{% if filter.active %} btn-primary{% endif %}"
+                           {% if filter.active %}aria-current="true"{% endif %}
+                           data-testid="stats-analysis-explorer-library-category-{{ filter.key == '' ? 'all' : filter.key }}">
+                            {{ filter.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row row-cards mb-4">
+            {% for card in page.cards %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {card: card}) }}
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="empty" data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
+                        <p class="empty-title">{{ 'stats.analysis_explorer.library.empty_title'|trans }}</p>
+                        <p class="empty-subtitle text-secondary">
+                            {% if page.activeTab == 'favorites' %}
+                                {{ 'stats.analysis_explorer.library.empty.favorites'|trans }}
+                            {% elseif page.activeTab == 'my_views' %}
+                                {{ 'stats.analysis_explorer.library.empty.my_views'|trans }}
+                            {% else %}
+                                {{ 'stats.analysis_explorer.library.empty'|trans }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

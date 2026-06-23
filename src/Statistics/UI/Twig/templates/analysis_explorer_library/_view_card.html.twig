@@ -1,0 +1,48 @@
+<div class="card" data-testid="stats-analysis-explorer-view-card-{{ card.id }}">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <div class="d-flex flex-wrap gap-1">
+                {% if card.isSystem and card.categoryLabel and card.categoryUrl %}
+                    <a href="{{ card.categoryUrl }}"
+                       class="badge bg-blue-lt text-blue-lt-fg text-decoration-none"
+                       data-testid="stats-analysis-explorer-category-badge-{{ card.categoryKey }}">
+                        {{ card.categoryLabel }}
+                    </a>
+                {% elseif not card.isSystem %}
+                    <span class="badge bg-blue-lt text-blue-lt-fg">
+                        {{ card.viewTypeLabel }}
+                    </span>
+                {% endif %}
+            </div>
+            {% if card.canFavorite and card.favoriteUrl %}
+                <form method="post" action="{{ card.favoriteUrl }}" class="m-0">
+                    <input type="hidden" name="_token" value="{{ csrf_token(card.favoriteToken) }}">
+                    <button type="submit"
+                            class="btn btn-ghost-secondary btn-icon btn-sm{% if card.isFavorite %} text-yellow{% endif %}"
+                            aria-label="{{ card.isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans : 'stats.analysis_explorer.favorite.add'|trans }}"
+                            data-testid="stats-analysis-explorer-favorite-{{ card.id }}">
+                        <twig:ux:icon name="{{ card.isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+        <h3 class="card-title mb-1">{{ card.title }}</h3>
+        {% if card.description %}
+            <p class="text-secondary small mb-3">{{ card.description }}</p>
+        {% endif %}
+        <div class="d-flex flex-wrap gap-1 mb-3">
+            {% if card.dimension %}
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.dimension'|trans }}: {{ card.dimension }}</span>
+            {% endif %}
+            {% if card.grain %}
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.grain'|trans }}: {{ card.grain }}</span>
+            {% endif %}
+            {% if card.chartType %}
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.chart'|trans }}: {{ card.chartType }}</span>
+            {% endif %}
+        </div>
+        <a href="{{ card.openUrl }}" class="btn btn-primary w-100" data-testid="stats-analysis-explorer-open-{{ card.id }}">
+            {{ 'stats.analysis_explorer.library.open'|trans }}
+        </a>
+    </div>
+</div>

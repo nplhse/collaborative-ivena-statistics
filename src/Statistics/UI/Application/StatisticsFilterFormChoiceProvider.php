@@ -16,6 +16,8 @@ use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\Statistics\Application\StatisticsPeriodNavigation;
+use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
+use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetEligibleDispatchAreaIdsQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetEligibleStateIdsQuery;
 use App\User\Domain\Entity\User;
@@ -33,6 +35,7 @@ final readonly class StatisticsFilterFormChoiceProvider
         private StatisticsPeriodNavigation $periodNavigation,
         private GetEligibleStateIdsQuery $eligibleStateIdsQuery,
         private GetEligibleDispatchAreaIdsQuery $eligibleDispatchAreaIdsQuery,
+        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
         private TranslatorInterface $translator,
@@ -42,17 +45,20 @@ final readonly class StatisticsFilterFormChoiceProvider
     /**
      * @return array<string, string>
      */
-    public function scopePrimaryChoices(?User $user, string $locale): array
-    {
+    public function scopePrimaryChoices(
+        ?User $user,
+        string $locale,
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): array {
         $choices = [
             'public' => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
         ];
 
-        if ([] !== $this->eligibleStateRows()) {
+        if ([] !== $this->eligibleStateRows($policy)) {
             $choices['state'] = $this->translator->trans('stats.filter.scope.state', [], null, $locale);
         }
 
-        if ([] !== $this->eligibleDispatchAreaRows()) {
+        if ([] !== $this->eligibleDispatchAreaRows($policy)) {
             $choices['dispatch_area'] = $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale);
         }
 
@@ -68,28 +74,80 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     public function scopeDetailChoices(
         string $scopeGroup,
         ?User $user,
         StatisticsFilterSide $side,
         string $locale,
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): array {
         return match ($scopeGroup) {
-            'state' => $this->stateDetailChoices(),
-            'dispatch_area' => $this->dispatchAreaDetailChoices(),
+            'state' => $this->stateDetailChoices($policy),
+            'dispatch_area' => $this->dispatchAreaDetailChoices($policy),
             'hospital_cohort' => $this->cohortDetailChoices($locale),
             'my_hospitals' => $this->hospitalDetailChoices($user, $side, $locale),
             default => [],
         };
     }
 
-    public function scopeDetailRequired(string $scopeGroup, ?User $user, StatisticsFilterSide $side): bool
-    {
-        $choices = $this->scopeDetailChoices($scopeGroup, $user, $side, 'en');
+    public function scopeDetailRequired(
+        string $scopeGroup,
+        ?User $user,
+        StatisticsFilterSide $side,
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): bool {
+        $choices = $this->scopeDetailChoices($scopeGroup, $user, $side, 'en', $policy);
 
         return [] !== $choices;
+    }
+
+    public function normalizeSideFormData(
+        BenchmarkSelectionSideFormData $data,
+        ?User $user,
+        StatisticsFilterSide $side,
+        string $locale,
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): BenchmarkSelectionSideFormData {
+        $primaryChoices = $this->scopePrimaryChoices($user, $locale, $policy);
+        if (!isset($primaryChoices[$data->scopeGroup])) {
+            return new BenchmarkSelectionSideFormData(
+                'public',
+                null,
+                $data->period,
+                $data->periodYear,
+                $data->periodQuarter,
+                $data->periodMonth,
+            );
+        }
+
+        if (!$this->scopeDetailRequired($data->scopeGroup, $user, $side, $policy)) {
+            return new BenchmarkSelectionSideFormData(
+                $data->scopeGroup,
+                null,
+                $data->period,
+                $data->periodYear,
+                $data->periodQuarter,
+                $data->periodMonth,
+            );
+        }
+
+        $detailChoices = $this->scopeDetailChoices($data->scopeGroup, $user, $side, $locale, $policy);
+        $scopeDetail = $data->scopeDetail;
+        if (null === $scopeDetail || '' === $scopeDetail || !isset($detailChoices[$scopeDetail])) {
+            $firstChoice = array_key_first($detailChoices);
+            $scopeDetail = null !== $firstChoice ? (string) $firstChoice : null;
+        }
+
+        return new BenchmarkSelectionSideFormData(
+            $data->scopeGroup,
+            $scopeDetail,
+            $data->period,
+            $data->periodYear,
+            $data->periodQuarter,
+            $data->periodMonth,
+        );
     }
 
     /**
@@ -149,9 +207,10 @@ final readonly class StatisticsFilterFormChoiceProvider
     /**
      * @return list<array{id: int, name: string}>
      */
-    public function eligibleStateRows(): array
-    {
-        $ids = ($this->eligibleStateIdsQuery)(2);
+    public function eligibleStateRows(
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): array {
+        $ids = $this->eligibleStateIds($policy);
         $rows = [];
         foreach ($ids as $stateId) {
             $state = $this->stateRepository->findById($stateId);
@@ -169,9 +228,10 @@ final readonly class StatisticsFilterFormChoiceProvider
     /**
      * @return list<array{id: int, name: string}>
      */
-    public function eligibleDispatchAreaRows(): array
-    {
-        $ids = ($this->eligibleDispatchAreaIdsQuery)(2);
+    public function eligibleDispatchAreaRows(
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): array {
+        $ids = $this->eligibleDispatchAreaIds($policy);
         $rows = [];
         foreach ($ids as $dispatchAreaId) {
             $area = $this->dispatchAreaRepository->findById($dispatchAreaId);
@@ -207,13 +267,14 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
-    private function stateDetailChoices(): array
-    {
-        /** @var array<string, string> $choices */
+    private function stateDetailChoices(
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): array {
+        /** @var array<int|string, string> $choices */
         $choices = [];
-        foreach ($this->eligibleStateRows() as $row) {
+        foreach ($this->eligibleStateRows($policy) as $row) {
             $choices[(string) $row['id']] = $row['name'];
         }
 
@@ -221,13 +282,14 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
-    private function dispatchAreaDetailChoices(): array
-    {
-        /** @var array<string, string> $choices */
+    private function dispatchAreaDetailChoices(
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): array {
+        /** @var array<int|string, string> $choices */
         $choices = [];
-        foreach ($this->eligibleDispatchAreaRows() as $row) {
+        foreach ($this->eligibleDispatchAreaRows($policy) as $row) {
             $choices[(string) $row['id']] = $row['name'];
         }
 
@@ -235,7 +297,7 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function cohortDetailChoices(string $locale): array
     {
@@ -248,7 +310,7 @@ final readonly class StatisticsFilterFormChoiceProvider
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function hospitalDetailChoices(?User $user, StatisticsFilterSide $side, string $locale): array
     {
@@ -280,6 +342,28 @@ final readonly class StatisticsFilterFormChoiceProvider
         }
 
         return $choices;
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function eligibleStateIds(StatisticsFilterScopeChoicePolicy $policy): array
+    {
+        return match ($policy) {
+            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleStateIdsQuery)(2),
+            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(2),
+        };
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function eligibleDispatchAreaIds(StatisticsFilterScopeChoicePolicy $policy): array
+    {
+        return match ($policy) {
+            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleDispatchAreaIdsQuery)(2),
+            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(2),
+        };
     }
 
     private function monthLabel(int $year, int $month, string $locale): string

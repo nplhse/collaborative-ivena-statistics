@@ -69,4 +69,29 @@ final class DimensionRegistryTest extends TestCase
 
         $this->registry->get('evil_column');
     }
+
+    public function testRegistersPhase6ProjectionCodeDimensions(): void
+    {
+        $transport = $this->registry->get('transport_type');
+        self::assertSame('transport_type_code', $transport->column);
+        self::assertSame([1, 2], $transport->fixedBuckets);
+
+        $dayTime = $this->registry->get('day_time_bucket');
+        self::assertSame('day_time_bucket_code', $dayTime->column);
+        self::assertSame([2, 3, 4, 1], $dayTime->fixedBuckets);
+
+        $shift = $this->registry->get('shift_bucket');
+        self::assertSame('shift_bucket_code', $shift->column);
+        self::assertSame([2, 3, 1], $shift->fixedBuckets);
+    }
+
+    public function testRegistersSecondaryIndicationAndWithPhysician(): void
+    {
+        $secondary = $this->registry->get('secondary_indication');
+        self::assertSame('secondary_indication_normalized_id', $secondary->column);
+
+        $withPhysician = $this->registry->get('with_physician');
+        self::assertSame('is_with_physician', $withPhysician->column);
+        self::assertSame(AnalysisDimensionType::Boolean, $withPhysician->type);
+    }
 }

@@ -29,6 +29,7 @@ Quick help and diagnostic commands:
 - [Development-fixtures.md](Development-fixtures.md)
 - [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md)
 - [data-quality-indicator.md](data-quality-indicator.md)
+- [analysis-explorer-v2.md](analysis-explorer-v2.md)
 - [Observability-sentry.md](Observability-sentry.md)
 
 ## For new developers

@@ -1,0 +1,123 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Statistics\AnalysisExplorer\Application;
+
+use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
+use App\Statistics\Application\StatisticsFilterFactory;
+use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
+use App\User\Domain\Entity\User;
+use Symfony\Bundle\SecurityBundle\Security;
+
+final readonly class ExplorerEditAxisSwapper
+{
+    private const string NONE_COLUMN = '';
+
+    public function __construct(
+        private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private AnalysisAxisResolver $axisResolver,
+        private ExplorerColumnGrainResolver $columnGrainResolver,
+        private ExplorerEditFormNormalizer $editFormNormalizer,
+        private ExplorerStatisticsFilterInputFactory $filterInputFactory,
+        private StatisticsFilterFactory $statisticsFilterFactory,
+        private Security $security,
+    ) {
+    }
+
+    public function canSwap(ExplorerEditFormData $formData): bool
+    {
+        if (null === $formData->columnDimension || self::NONE_COLUMN === $formData->columnDimension) {
+            return false;
+        }
+
+        $capabilities = $this->capabilitiesFor($formData->scopePeriod);
+        $rowAxis = $this->axisResolver->resolveFromStrings(
+            $formData->rowDimension,
+            $formData->rowGrain,
+            $capabilities,
+        );
+        $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities);
+        if (!$columnAxis instanceof AnalysisAxisRef) {
+            return false;
+        }
+
+        $swappedColumnAxis = $this->axisResolver->resolveFromStrings(
+            $formData->rowDimension,
+            $formData->rowGrain,
+            $capabilities,
+        );
+
+        return $capabilities->supportsColumnAxis($columnAxis, $swappedColumnAxis);
+    }
+
+    public function swap(ExplorerEditFormData $formData): ExplorerEditFormData
+    {
+        if (!$this->canSwap($formData)) {
+            return $formData;
+        }
+
+        return $this->editFormNormalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: $formData->scopePeriod,
+            rowDimension: (string) $formData->columnDimension,
+            rowGrain: $formData->columnGrain,
+            columnDimension: $formData->rowDimension,
+            columnGrain: $formData->rowGrain,
+            metric: $formData->metric,
+            showPercentOfTotal: $formData->showPercentOfTotal,
+            chartType: $formData->chartType,
+            tableLayout: $formData->tableLayout,
+            chartRowLimit: $formData->chartRowLimit,
+        ));
+    }
+
+    private function resolveColumnAxis(
+        ExplorerEditFormData $formData,
+        AnalysisAxisRef $rowAxis,
+        DataSourceCapabilities $capabilities,
+    ): ?AnalysisAxisRef {
+        $columnDimensionKey = (string) $formData->columnDimension;
+        $columnDimension = AnalysisDimensionKey::tryFrom($columnDimensionKey);
+        if (!$columnDimension instanceof AnalysisDimensionKey) {
+            return null;
+        }
+
+        $submittedColumnGrain = \is_string($formData->columnGrain)
+            ? AnalysisDimensionGrain::tryFrom($formData->columnGrain)
+            : null;
+        $columnGrain = $this->columnGrainResolver->resolve(
+            $rowAxis,
+            $columnDimension,
+            $submittedColumnGrain,
+            $capabilities,
+        );
+        $candidate = $this->axisResolver->resolveFromStrings(
+            $columnDimensionKey,
+            $columnGrain->value,
+            $capabilities,
+        );
+
+        if (!$capabilities->supportsColumnAxis($rowAxis, $candidate)) {
+            return null;
+        }
+
+        return $candidate;
+    }
+
+    private function capabilitiesFor(StatisticsScopePeriodFormData $scopePeriod): DataSourceCapabilities
+    {
+        $user = $this->security->getUser();
+
+        return $this->capabilitiesProvider->capabilitiesFor(
+            $user instanceof User ? $user : null,
+            $this->statisticsFilterFactory->createFromInput(
+                $this->filterInputFactory->fromSideFormData($scopePeriod),
+                $user instanceof User ? $user : null,
+            ),
+        );
+    }
+}

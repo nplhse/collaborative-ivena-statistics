@@ -1,0 +1,37 @@
+{# @var sideForm \Symfony\Component\Form\FormView #}
+{% set hasPeriodYear = sideForm.periodYear is defined %}
+{% set hasPeriodQuarter = sideForm.periodQuarter is defined %}
+{% set hasPeriodMonth = sideForm.periodMonth is defined %}
+{% set periodFieldCount = 1
+    + (hasPeriodYear ? 1 : 0)
+    + (hasPeriodQuarter ? 1 : 0)
+    + (hasPeriodMonth ? 1 : 0) %}
+{% set periodColClass = periodFieldCount == 1
+    ? 'col-12'
+    : (periodFieldCount == 2 ? 'col-6' : (periodFieldCount == 3 ? 'col-4' : 'col-3')) %}
+{% set refreshAttrs = {
+    'data-action': 'change->live#action',
+    'data-live-action-param': 'refreshEditForm',
+} %}
+{% set compactRow = {label: false, row_attr: {class: 'mb-0'}} %}
+
+<div class="row g-1" data-testid="{{ testId }}">
+    <div class="{{ periodColClass }}">
+        {{ form_row(sideForm.period, compactRow|merge({attr: refreshAttrs})) }}
+    </div>
+    {% if hasPeriodYear %}
+        <div class="{{ periodColClass }}">
+            {{ form_row(sideForm.periodYear, compactRow) }}
+        </div>
+    {% endif %}
+    {% if hasPeriodQuarter %}
+        <div class="{{ periodColClass }}">
+            {{ form_row(sideForm.periodQuarter, compactRow) }}
+        </div>
+    {% endif %}
+    {% if hasPeriodMonth %}
+        <div class="{{ periodColClass }}">
+            {{ form_row(sideForm.periodMonth, compactRow) }}
+        </div>
+    {% endif %}
+</div>

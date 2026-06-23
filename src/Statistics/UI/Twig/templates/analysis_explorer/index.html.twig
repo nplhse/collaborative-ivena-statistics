@@ -1,0 +1,33 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans) }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_wrapper %}
+    <div class="page-wrapper">
+        <twig:AnalysisExplorerShell
+            :appliedConfigState="explorerAppliedConfigState"
+            :locale="app.request.locale"
+            :initialConfigWarning="initialConfigWarning"
+            libraryUrl="{{ libraryUrl }}"
+            :savedViewId="savedViewId"
+            savedViewTitle="{{ savedViewTitle }}"
+            savedViewDescription="{{ savedViewDescription }}"
+            :isSystemView="isSystemView"
+            :canSave="canSave"
+            :canSaveAs="canSaveAs"
+            :canFavorite="canFavorite"
+            :isFavorite="isFavorite"
+            favoriteUrl="{{ favoriteUrl }}"
+            favoriteToken="{{ favoriteToken }}"
+            exportCsvUrl="{{ exportCsvUrl }}"
+        />
+    </div>
+{% endblock %}

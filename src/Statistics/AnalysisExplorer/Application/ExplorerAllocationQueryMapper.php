@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Statistics\AnalysisExplorer\Application;
+
+use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery as GenericAnalysisQuery;
+
+final readonly class ExplorerAllocationQueryMapper
+{
+    public function __construct(
+        private ExplorerMetricKeyMapper $metricKeyMapper,
+    ) {
+    }
+
+    public function map(AnalysisQuery $query): GenericAnalysisQuery
+    {
+        $metricKeys = $this->metricKeyMapper->toRegistryKeys($query->metricKeys);
+        $visualMetricKey = $query->visualMetricKey->registryKey();
+
+        return new GenericAnalysisQuery(
+            primaryDimensionKey: $query->rowAxis->toRegistryKey(),
+            scopeCriteria: $query->scopeCriteria,
+            periodBounds: $query->periodBounds,
+            seriesDimensionKey: $query->columnAxis?->toRegistryKey(),
+            metricKeys: $metricKeys,
+            visualMetricKey: $visualMetricKey,
+        );
+    }
+}

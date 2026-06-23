@@ -20,7 +20,7 @@ This is a **read-side transparency feature**. It does not block access to statis
 | Case Flow | `/statistics/case-flow` | — |
 | Reports | `/statistics/reports` | — |
 | Pivot tables | `/statistics/pivot` | — |
-| Analytics library / views / builder / saved | `/statistics/analytics/*` | — |
+| Analysis library / explorer | `/statistics/analysis/*` | — |
 | Benchmarking | `/statistics/benchmarking` | — (primary scope) |
 
 **Excluded:** Hospital Population (`/statistics/hospital-population`) — no scope/period filter context.

@@ -57,6 +57,10 @@
         <source>btn.cancel</source>
         <target>Cancel</target>
       </trans-unit>
+      <trans-unit id="actCancel01" resname="action.cancel">
+        <source>action.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
       <trans-unit id="PgKXiv_" resname="btn.save.changes">
         <source>btn.save.changes</source>
         <target>Save changes</target>
@@ -7198,6 +7202,774 @@
       <trans-unit id="mr062" resname="monthly_reminder.email.manage_notifications">
         <source>monthly_reminder.email.manage_notifications</source>
         <target>Manage notification preferences</target>
+      </trans-unit>
+      <trans-unit id="statsAex01" resname="stats.analysis_explorer.title">
+        <source>stats.analysis_explorer.title</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex02" resname="stats.analysis_explorer.pretitle">
+        <source>stats.analysis_explorer.pretitle</source>
+        <target>Statistics</target>
+      </trans-unit>
+      <trans-unit id="statsAex03" resname="stats.analysis_explorer.allocations_over_time">
+        <source>stats.analysis_explorer.allocations_over_time</source>
+        <target>Allocations over time</target>
+      </trans-unit>
+      <trans-unit id="statsAex04" resname="stats.analysis_explorer.empty_state">
+        <source>stats.analysis_explorer.empty_state</source>
+        <target>No data available for the selected scope.</target>
+      </trans-unit>
+      <trans-unit id="statsAex05" resname="stats.analysis_explorer.dimension.month">
+        <source>stats.analysis_explorer.dimension.month</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="statsAex06" resname="stats.analysis_explorer.metric.allocation_count">
+        <source>stats.analysis_explorer.metric.allocation_count</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAexM01" resname="stats.analysis_explorer.metric.percent_of_total">
+        <source>stats.analysis_explorer.metric.percent_of_total</source>
+        <target>Share of total</target>
+      </trans-unit>
+      <trans-unit id="statsAexM02" resname="stats.analysis_explorer.metric.resus_rate">
+        <source>stats.analysis_explorer.metric.resus_rate</source>
+        <target>Resus rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM03" resname="stats.analysis_explorer.metric.cpr_rate">
+        <source>stats.analysis_explorer.metric.cpr_rate</source>
+        <target>CPR rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM04" resname="stats.analysis_explorer.metric.shock_rate">
+        <source>stats.analysis_explorer.metric.shock_rate</source>
+        <target>Shock rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM05" resname="stats.analysis_explorer.metric.ventilation_rate">
+        <source>stats.analysis_explorer.metric.ventilation_rate</source>
+        <target>Ventilation rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM06" resname="stats.analysis_explorer.metric.cathlab_rate">
+        <source>stats.analysis_explorer.metric.cathlab_rate</source>
+        <target>Cath lab rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM07" resname="stats.analysis_explorer.metric.pregnancy_rate">
+        <source>stats.analysis_explorer.metric.pregnancy_rate</source>
+        <target>Pregnancy rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM08" resname="stats.analysis_explorer.metric.work_accident_rate">
+        <source>stats.analysis_explorer.metric.work_accident_rate</source>
+        <target>Work accident rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM09" resname="stats.analysis_explorer.metric.with_physician_rate">
+        <source>stats.analysis_explorer.metric.with_physician_rate</source>
+        <target>Physician accompaniment rate</target>
+      </trans-unit>
+      <trans-unit id="statsAexM10" resname="stats.analysis_explorer.edit.show_percent_of_total">
+        <source>stats.analysis_explorer.edit.show_percent_of_total</source>
+        <target>Show share of total</target>
+      </trans-unit>
+      <trans-unit id="statsAexM10b" resname="stats.analysis_explorer.edit.show_percent_of_total_help">
+        <source>stats.analysis_explorer.edit.show_percent_of_total_help</source>
+        <target>Shows percentages in the table. For matrices: share within the row; otherwise share of the grand total.</target>
+      </trans-unit>
+      <trans-unit id="statsAexM11" resname="stats.analysis_explorer.validation.incompatible_metrics">
+        <source>stats.analysis_explorer.validation.incompatible_metrics</source>
+        <target>These metrics cannot be combined.</target>
+      </trans-unit>
+      <trans-unit id="statsAex07" resname="stats.analysis_explorer.dimension.year">
+        <source>stats.analysis_explorer.dimension.year</source>
+        <target>Year</target>
+      </trans-unit>
+      <trans-unit id="statsAex08" resname="stats.analysis_explorer.chart.bar">
+        <source>stats.analysis_explorer.chart.bar</source>
+        <target>Bar chart</target>
+      </trans-unit>
+      <trans-unit id="statsAex09" resname="stats.analysis_explorer.chart.line">
+        <source>stats.analysis_explorer.chart.line</source>
+        <target>Line chart</target>
+      </trans-unit>
+      <trans-unit id="statsAex10" resname="stats.analysis_explorer.edit.button">
+        <source>stats.analysis_explorer.edit.button</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="statsAex11" resname="stats.analysis_explorer.edit.title">
+        <source>stats.analysis_explorer.edit.title</source>
+        <target>Edit analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAex12" resname="stats.analysis_explorer.edit.apply">
+        <source>stats.analysis_explorer.edit.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="statsAex13" resname="stats.analysis_explorer.edit.dimension_grain">
+        <source>stats.analysis_explorer.edit.dimension_grain</source>
+        <target>Time grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex14" resname="stats.analysis_explorer.edit.chart_type">
+        <source>stats.analysis_explorer.edit.chart_type</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsAex15" resname="stats.analysis_explorer.edit.section.scope">
+        <source>stats.analysis_explorer.edit.section.scope</source>
+        <target>Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAex16" resname="stats.analysis_explorer.edit.section.period">
+        <source>stats.analysis_explorer.edit.section.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="statsAex17" resname="stats.analysis_explorer.edit.section.chart_type">
+        <source>stats.analysis_explorer.edit.section.chart_type</source>
+        <target>Chart type</target>
+      </trans-unit>
+      <trans-unit id="statsAex18" resname="stats.analysis_explorer.edit.section.time_grain">
+        <source>stats.analysis_explorer.edit.section.time_grain</source>
+        <target>Time grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex19" resname="stats.analysis_explorer.dimension.time">
+        <source>stats.analysis_explorer.dimension.time</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAex20" resname="stats.analysis_explorer.dimension.gender">
+        <source>stats.analysis_explorer.dimension.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="statsAex21" resname="stats.analysis_explorer.dimension.urgency">
+        <source>stats.analysis_explorer.dimension.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsAex22" resname="stats.analysis_explorer.allocations_by_gender">
+        <source>stats.analysis_explorer.allocations_by_gender</source>
+        <target>Allocations by gender</target>
+      </trans-unit>
+      <trans-unit id="statsAex23" resname="stats.analysis_explorer.allocations_by_urgency">
+        <source>stats.analysis_explorer.allocations_by_urgency</source>
+        <target>Allocations by urgency</target>
+      </trans-unit>
+      <trans-unit id="statsAex24" resname="stats.analysis_explorer.edit.dimension">
+        <source>stats.analysis_explorer.edit.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsAex25" resname="stats.analysis_explorer.edit.metric">
+        <source>stats.analysis_explorer.edit.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex26" resname="stats.analysis_explorer.edit.time_grain">
+        <source>stats.analysis_explorer.edit.time_grain</source>
+        <target>Time grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex27" resname="stats.analysis_explorer.edit.section.analysis">
+        <source>stats.analysis_explorer.edit.section.analysis</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAex28" resname="stats.analysis_explorer.config_normalized">
+        <source>stats.analysis_explorer.config_normalized</source>
+        <target>Some analysis settings were adjusted to supported values.</target>
+      </trans-unit>
+      <trans-unit id="statsAex29" resname="stats.analysis_explorer.unsupported_config">
+        <source>stats.analysis_explorer.unsupported_config</source>
+        <target>This analysis configuration is not supported.</target>
+      </trans-unit>
+      <trans-unit id="statsAex30" resname="stats.analysis_explorer.grain.total">
+        <source>stats.analysis_explorer.grain.total</source>
+        <target>Total (entire period)</target>
+      </trans-unit>
+      <trans-unit id="statsAex31" resname="stats.analysis_explorer.edit.group_by">
+        <source>stats.analysis_explorer.edit.group_by</source>
+        <target>Group by</target>
+      </trans-unit>
+      <trans-unit id="statsAex32" resname="stats.analysis_explorer.chart.grouped_bar">
+        <source>stats.analysis_explorer.chart.grouped_bar</source>
+        <target>Grouped bar</target>
+      </trans-unit>
+      <trans-unit id="statsAex33" resname="stats.analysis_explorer.chart.stacked_bar">
+        <source>stats.analysis_explorer.chart.stacked_bar</source>
+        <target>Stacked bar</target>
+      </trans-unit>
+      <trans-unit id="statsAex33b" resname="stats.analysis_explorer.chart.heatmap">
+        <source>stats.analysis_explorer.chart.heatmap</source>
+        <target>Heatmap</target>
+      </trans-unit>
+      <trans-unit id="statsAex34" resname="stats.analysis_explorer.allocations_by_gender_over_time">
+        <source>stats.analysis_explorer.allocations_by_gender_over_time</source>
+        <target>Allocations by gender over time</target>
+      </trans-unit>
+      <trans-unit id="statsAex35" resname="stats.analysis_explorer.allocations_by_urgency_over_time">
+        <source>stats.analysis_explorer.allocations_by_urgency_over_time</source>
+        <target>Allocations by urgency over time</target>
+      </trans-unit>
+      <trans-unit id="statsAex36" resname="stats.analysis_explorer.empty_state.no_data">
+        <source>stats.analysis_explorer.empty_state.no_data</source>
+        <target>No data available for the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsAex37" resname="stats.analysis_explorer.empty_state.unsupported">
+        <source>stats.analysis_explorer.empty_state.unsupported</source>
+        <target>This analysis configuration cannot be displayed.</target>
+      </trans-unit>
+      <trans-unit id="statsAex38" resname="stats.analysis_explorer.empty_state.query_error">
+        <source>stats.analysis_explorer.empty_state.query_error</source>
+        <target>The analysis could not be loaded. Please try again or adjust your filters.</target>
+      </trans-unit>
+      <trans-unit id="statsAex39" resname="stats.analysis_explorer.empty_state.no_config">
+        <source>stats.analysis_explorer.empty_state.no_config</source>
+        <target>No analysis configuration is available.</target>
+      </trans-unit>
+      <trans-unit id="statsAex40" resname="stats.analysis_explorer.query_failed">
+        <source>stats.analysis_explorer.query_failed</source>
+        <target>The analysis query failed. Please try again or adjust your filters.</target>
+      </trans-unit>
+      <trans-unit id="statsAex41" resname="stats.analysis_explorer.table.title">
+        <source>stats.analysis_explorer.table.title</source>
+        <target>Results</target>
+      </trans-unit>
+      <trans-unit id="statsAex42" resname="stats.analysis_explorer.table.results_count">
+        <source>stats.analysis_explorer.table.results_count</source>
+        <target>{count} allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAex43" resname="stats.analysis_explorer.table.footer_total">
+        <source>stats.analysis_explorer.table.footer_total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsAex44" resname="stats.analysis_explorer.validation.unsupported_dimension">
+        <source>stats.analysis_explorer.validation.unsupported_dimension</source>
+        <target>Unsupported dimension "{dimension}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex45" resname="stats.analysis_explorer.validation.unsupported_metric">
+        <source>stats.analysis_explorer.validation.unsupported_metric</source>
+        <target>Unsupported metric "{metric}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex46" resname="stats.analysis_explorer.validation.unsupported_chart">
+        <source>stats.analysis_explorer.validation.unsupported_chart</source>
+        <target>Unsupported chart type "{chart}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex47" resname="stats.analysis_explorer.validation.unsupported_grain">
+        <source>stats.analysis_explorer.validation.unsupported_grain</source>
+        <target>Unsupported grain "{grain}" for dimension "{dimension}".</target>
+      </trans-unit>
+      <trans-unit id="statsAex48" resname="stats.analysis_explorer.validation.grain_required">
+        <source>stats.analysis_explorer.validation.grain_required</source>
+        <target>A grain is required.</target>
+      </trans-unit>
+      <trans-unit id="statsAex49" resname="stats.analysis_explorer.validation.total_grain_for_time">
+        <source>stats.analysis_explorer.validation.total_grain_for_time</source>
+        <target>Total grain is not allowed for the time dimension.</target>
+      </trans-unit>
+      <trans-unit id="statsAex50" resname="stats.analysis_explorer.validation.invalid">
+        <source>stats.analysis_explorer.validation.invalid</source>
+        <target>Invalid analysis configuration.</target>
+      </trans-unit>
+      <trans-unit id="statsAexExp01" resname="stats.analysis_explorer.export.csv_table">
+        <source>stats.analysis_explorer.export.csv_table</source>
+        <target>Export CSV</target>
+      </trans-unit>
+      <trans-unit id="statsAexExp02" resname="stats.analysis_explorer.export.png_chart">
+        <source>stats.analysis_explorer.export.png_chart</source>
+        <target>Export PNG</target>
+      </trans-unit>
+      <trans-unit id="statsAexExp03" resname="stats.analysis_explorer.export.percent_of_total">
+        <source>stats.analysis_explorer.export.percent_of_total</source>
+        <target>% of total</target>
+      </trans-unit>
+      <trans-unit id="statsAexExp04" resname="stats.analysis_explorer.export.percent_of_row">
+        <source>stats.analysis_explorer.export.percent_of_row</source>
+        <target>%</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAel01" resname="link.stats.analysis_explorer_library">
+        <source>link.stats.analysis_explorer_library</source>
+        <target>Analysis library</target>
+      </trans-unit>
+      <trans-unit id="statsAex51" resname="stats.analysis_explorer.library.title">
+        <source>stats.analysis_explorer.library.title</source>
+        <target>Analysis library</target>
+      </trans-unit>
+      <trans-unit id="statsAex52" resname="stats.analysis_explorer.library.pretitle">
+        <source>stats.analysis_explorer.library.pretitle</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex53" resname="stats.analysis_explorer.library.open">
+        <source>stats.analysis_explorer.library.open</source>
+        <target>Open in Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAex60" resname="stats.analysis_explorer.open_library">
+        <source>stats.analysis_explorer.open_library</source>
+        <target>Open library</target>
+      </trans-unit>
+      <trans-unit id="statsAex54" resname="stats.analysis_explorer.library.empty">
+        <source>stats.analysis_explorer.library.empty</source>
+        <target>No saved views are available yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex54a" resname="stats.analysis_explorer.library.empty_title">
+        <source>stats.analysis_explorer.library.empty_title</source>
+        <target>No views found</target>
+      </trans-unit>
+      <trans-unit id="statsAex54b" resname="stats.analysis_explorer.library.tab.overview">
+        <source>stats.analysis_explorer.library.tab.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="statsAex54c" resname="stats.analysis_explorer.library.tab.favorites">
+        <source>stats.analysis_explorer.library.tab.favorites</source>
+        <target>Favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAex54d" resname="stats.analysis_explorer.library.tab.my_views">
+        <source>stats.analysis_explorer.library.tab.my_views</source>
+        <target>My views</target>
+      </trans-unit>
+      <trans-unit id="statsAex54e" resname="stats.analysis_explorer.library.category.all">
+        <source>stats.analysis_explorer.library.category.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="statsAex55" resname="stats.analysis_explorer.library.category.allocations">
+        <source>stats.analysis_explorer.library.category.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAex56" resname="stats.analysis_explorer.library.card.dimension">
+        <source>stats.analysis_explorer.library.card.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="statsAex57" resname="stats.analysis_explorer.library.card.grain">
+        <source>stats.analysis_explorer.library.card.grain</source>
+        <target>Grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex58" resname="stats.analysis_explorer.library.card.chart">
+        <source>stats.analysis_explorer.library.card.chart</source>
+        <target>Chart</target>
+      </trans-unit>
+      <trans-unit id="statsAex59" resname="stats.analysis_explorer.saved_view.invalid_config">
+        <source>stats.analysis_explorer.saved_view.invalid_config</source>
+        <target>The saved view configuration is invalid. Showing the default analysis instead.</target>
+      </trans-unit>
+      <trans-unit id="statsAex61" resname="stats.analysis_explorer.save">
+        <source>stats.analysis_explorer.save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="statsAex62" resname="stats.analysis_explorer.save_as">
+        <source>stats.analysis_explorer.save_as</source>
+        <target>Save as</target>
+      </trans-unit>
+      <trans-unit id="statsAex62a" resname="stats.analysis_explorer.actions.view">
+        <source>stats.analysis_explorer.actions.view</source>
+        <target>View actions</target>
+      </trans-unit>
+      <trans-unit id="statsAex62b" resname="stats.analysis_explorer.actions.save">
+        <source>stats.analysis_explorer.actions.save</source>
+        <target>Save actions</target>
+      </trans-unit>
+      <trans-unit id="statsAex63" resname="stats.analysis_explorer.saved">
+        <source>stats.analysis_explorer.saved</source>
+        <target>View saved.</target>
+      </trans-unit>
+      <trans-unit id="statsAex64" resname="stats.analysis_explorer.save_as.title">
+        <source>stats.analysis_explorer.save_as.title</source>
+        <target>Save as personal view</target>
+      </trans-unit>
+      <trans-unit id="statsAex65" resname="stats.analysis_explorer.save_as.submit">
+        <source>stats.analysis_explorer.save_as.submit</source>
+        <target>Save view</target>
+      </trans-unit>
+      <trans-unit id="statsAex66" resname="stats.analysis_explorer.save_as.title_label">
+        <source>stats.analysis_explorer.save_as.title_label</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="statsAex67" resname="stats.analysis_explorer.save_as.description_label">
+        <source>stats.analysis_explorer.save_as.description_label</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="statsAex68" resname="stats.analysis_explorer.save_as.title_required">
+        <source>stats.analysis_explorer.save_as.title_required</source>
+        <target>Please enter a title.</target>
+      </trans-unit>
+      <trans-unit id="statsAex69" resname="stats.analysis_explorer.view_type.system">
+        <source>stats.analysis_explorer.view_type.system</source>
+        <target>System view</target>
+      </trans-unit>
+      <trans-unit id="statsAex70" resname="stats.analysis_explorer.view_type.user">
+        <source>stats.analysis_explorer.view_type.user</source>
+        <target>My view</target>
+      </trans-unit>
+      <trans-unit id="statsAex71" resname="stats.analysis_explorer.favorite.add">
+        <source>stats.analysis_explorer.favorite.add</source>
+        <target>Add to favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAex72" resname="stats.analysis_explorer.favorite.remove">
+        <source>stats.analysis_explorer.favorite.remove</source>
+        <target>Remove from favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAex73" resname="stats.analysis_explorer.library.section.favorites">
+        <source>stats.analysis_explorer.library.section.favorites</source>
+        <target>Favorites</target>
+      </trans-unit>
+      <trans-unit id="statsAex74" resname="stats.analysis_explorer.library.section.my_views">
+        <source>stats.analysis_explorer.library.section.my_views</source>
+        <target>My views</target>
+      </trans-unit>
+      <trans-unit id="statsAex75" resname="stats.analysis_explorer.library.section.system">
+        <source>stats.analysis_explorer.library.section.system</source>
+        <target>System views</target>
+      </trans-unit>
+      <trans-unit id="statsAex76" resname="stats.analysis_explorer.library.category.my_views">
+        <source>stats.analysis_explorer.library.category.my_views</source>
+        <target>My views</target>
+      </trans-unit>
+      <trans-unit id="statsAex77" resname="stats.analysis_explorer.library.empty.favorites">
+        <source>stats.analysis_explorer.library.empty.favorites</source>
+        <target>You have not favorited any views yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex78" resname="stats.analysis_explorer.library.empty.my_views">
+        <source>stats.analysis_explorer.library.empty.my_views</source>
+        <target>You have not saved any personal views yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex79" resname="stats.analysis_explorer.library.empty.system">
+        <source>stats.analysis_explorer.library.empty.system</source>
+        <target>No system views are available.</target>
+      </trans-unit>
+      <trans-unit id="statsAex80" resname="stats.analysis_explorer.save.forbidden">
+        <source>stats.analysis_explorer.save.forbidden</source>
+        <target>You cannot save this view.</target>
+      </trans-unit>
+      <trans-unit id="statsAex81" resname="stats.analysis_explorer.description.time_month">
+        <source>stats.analysis_explorer.description.time_month</source>
+        <target>Monthly allocation counts over the selected period.</target>
+      </trans-unit>
+      <trans-unit id="statsAex82" resname="stats.analysis_explorer.description.time_year_line">
+        <source>stats.analysis_explorer.description.time_year_line</source>
+        <target>Yearly allocation totals as a line chart.</target>
+      </trans-unit>
+      <trans-unit id="statsAex83" resname="stats.analysis_explorer.description.time_year">
+        <source>stats.analysis_explorer.description.time_year</source>
+        <target>Yearly allocation counts over the selected period, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex84" resname="stats.analysis_explorer.description.time_total">
+        <source>stats.analysis_explorer.description.time_total</source>
+        <target>{title}, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex85" resname="stats.analysis_explorer.description.gender_total">
+        <source>stats.analysis_explorer.description.gender_total</source>
+        <target>Allocation counts grouped by patient gender.</target>
+      </trans-unit>
+      <trans-unit id="statsAex86" resname="stats.analysis_explorer.description.gender_over_time">
+        <source>stats.analysis_explorer.description.gender_over_time</source>
+        <target>{grain} allocation counts split by gender.</target>
+      </trans-unit>
+      <trans-unit id="statsAex87" resname="stats.analysis_explorer.description.urgency_total">
+        <source>stats.analysis_explorer.description.urgency_total</source>
+        <target>Allocation counts grouped by urgency level.</target>
+      </trans-unit>
+      <trans-unit id="statsAex88" resname="stats.analysis_explorer.description.urgency_year_stacked">
+        <source>stats.analysis_explorer.description.urgency_year_stacked</source>
+        <target>Yearly allocation counts stacked by urgency.</target>
+      </trans-unit>
+      <trans-unit id="statsAex89" resname="stats.analysis_explorer.description.urgency_over_time">
+        <source>stats.analysis_explorer.description.urgency_over_time</source>
+        <target>{grain} allocation counts by urgency level, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex90" resname="stats.analysis_explorer.description.grain.month">
+        <source>stats.analysis_explorer.description.grain.month</source>
+        <target>Monthly</target>
+      </trans-unit>
+      <trans-unit id="statsAex91" resname="stats.analysis_explorer.description.grain.year">
+        <source>stats.analysis_explorer.description.grain.year</source>
+        <target>Yearly</target>
+      </trans-unit>
+      <trans-unit id="statsAex92" resname="stats.analysis_explorer.allocations_by_dimension">
+        <source>stats.analysis_explorer.allocations_by_dimension</source>
+        <target>Allocations by {dimension}</target>
+      </trans-unit>
+      <trans-unit id="statsAex93" resname="stats.analysis_explorer.allocations_by_dimension_over_time">
+        <source>stats.analysis_explorer.allocations_by_dimension_over_time</source>
+        <target>Allocations by {dimension} over time</target>
+      </trans-unit>
+      <trans-unit id="statsAex94" resname="stats.analysis_explorer.description.temporal_primary">
+        <source>stats.analysis_explorer.description.temporal_primary</source>
+        <target>{grain} allocation totals.</target>
+      </trans-unit>
+      <trans-unit id="statsAex95" resname="stats.analysis_explorer.description.breakdown_over_time">
+        <source>stats.analysis_explorer.description.breakdown_over_time</source>
+        <target>{grain} allocation counts by {dimension}, shown as {chart}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex96" resname="stats.analysis_explorer.description.breakdown_total">
+        <source>stats.analysis_explorer.description.breakdown_total</source>
+        <target>Allocation counts grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex97" resname="stats.analysis_explorer.dimension.age_group">
+        <source>stats.analysis_explorer.dimension.age_group</source>
+        <target>Age group</target>
+      </trans-unit>
+      <trans-unit id="statsAex98" resname="stats.analysis_explorer.dimension.department">
+        <source>stats.analysis_explorer.dimension.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="statsAex99" resname="stats.analysis_explorer.dimension.hospital_cohort">
+        <source>stats.analysis_explorer.dimension.hospital_cohort</source>
+        <target>Hospital cohort</target>
+      </trans-unit>
+      <trans-unit id="statsAex100" resname="stats.analysis_explorer.dimension.speciality">
+        <source>stats.analysis_explorer.dimension.speciality</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="statsAex101" resname="stats.analysis_explorer.dimension.occasion">
+        <source>stats.analysis_explorer.dimension.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="statsAex102" resname="stats.analysis_explorer.dimension.assignment">
+        <source>stats.analysis_explorer.dimension.assignment</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="statsAex103" resname="stats.analysis_explorer.dimension.indication">
+        <source>stats.analysis_explorer.dimension.indication</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="statsAex104" resname="stats.analysis_explorer.dimension.secondary_indication">
+        <source>stats.analysis_explorer.dimension.secondary_indication</source>
+        <target>Secondary indication</target>
+      </trans-unit>
+      <trans-unit id="statsAex105" resname="stats.analysis_explorer.dimension.infection">
+        <source>stats.analysis_explorer.dimension.infection</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="statsAex106" resname="stats.analysis_explorer.dimension.weekday">
+        <source>stats.analysis_explorer.dimension.weekday</source>
+        <target>Weekday</target>
+      </trans-unit>
+      <trans-unit id="statsAex107" resname="stats.analysis_explorer.dimension.hour">
+        <source>stats.analysis_explorer.dimension.hour</source>
+        <target>Hour</target>
+      </trans-unit>
+      <trans-unit id="statsAex108" resname="stats.analysis_explorer.dimension.transport_type">
+        <source>stats.analysis_explorer.dimension.transport_type</source>
+        <target>Transport type</target>
+      </trans-unit>
+      <trans-unit id="statsAex109" resname="stats.analysis_explorer.dimension.day_time_bucket">
+        <source>stats.analysis_explorer.dimension.day_time_bucket</source>
+        <target>Day-time bucket</target>
+      </trans-unit>
+      <trans-unit id="statsAex110" resname="stats.analysis_explorer.dimension.shift_bucket">
+        <source>stats.analysis_explorer.dimension.shift_bucket</source>
+        <target>Shift bucket</target>
+      </trans-unit>
+      <trans-unit id="statsAex111" resname="stats.analysis_explorer.dimension.resus">
+        <source>stats.analysis_explorer.dimension.resus</source>
+        <target>Resuscitation required</target>
+      </trans-unit>
+      <trans-unit id="statsAex112" resname="stats.analysis_explorer.dimension.cathlab">
+        <source>stats.analysis_explorer.dimension.cathlab</source>
+        <target>Cath lab required</target>
+      </trans-unit>
+      <trans-unit id="statsAex113" resname="stats.analysis_explorer.dimension.cpr">
+        <source>stats.analysis_explorer.dimension.cpr</source>
+        <target>CPR</target>
+      </trans-unit>
+      <trans-unit id="statsAex114" resname="stats.analysis_explorer.dimension.ventilation">
+        <source>stats.analysis_explorer.dimension.ventilation</source>
+        <target>Ventilation</target>
+      </trans-unit>
+      <trans-unit id="statsAex115" resname="stats.analysis_explorer.dimension.shock">
+        <source>stats.analysis_explorer.dimension.shock</source>
+        <target>Shock</target>
+      </trans-unit>
+      <trans-unit id="statsAex116" resname="stats.analysis_explorer.dimension.workAccident">
+        <source>stats.analysis_explorer.dimension.workAccident</source>
+        <target>Work accident</target>
+      </trans-unit>
+      <trans-unit id="statsAex117" resname="stats.analysis_explorer.dimension.pregnancy">
+        <source>stats.analysis_explorer.dimension.pregnancy</source>
+        <target>Pregnancy</target>
+      </trans-unit>
+      <trans-unit id="statsAex118" resname="stats.analysis_explorer.dimension.with_physician">
+        <source>stats.analysis_explorer.dimension.with_physician</source>
+        <target>Physician accompaniment</target>
+      </trans-unit>
+      <trans-unit id="statsAex119" resname="stats.analysis_explorer.dimension.hospital">
+        <source>stats.analysis_explorer.dimension.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="statsAex120" resname="stats.analysis_explorer.dimension.state">
+        <source>stats.analysis_explorer.dimension.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="statsAex121" resname="stats.analysis_explorer.dimension.dispatchArea">
+        <source>stats.analysis_explorer.dimension.dispatchArea</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsAex122" resname="stats.analysis_explorer.dimension.quarter">
+        <source>stats.analysis_explorer.dimension.quarter</source>
+        <target>Quarter</target>
+      </trans-unit>
+      <trans-unit id="statsAex123" resname="stats.analysis_explorer.dimension.week">
+        <source>stats.analysis_explorer.dimension.week</source>
+        <target>Calendar week</target>
+      </trans-unit>
+      <trans-unit id="statsAex124" resname="stats.analysis_explorer.edit.rows">
+        <source>stats.analysis_explorer.edit.rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsAex125" resname="stats.analysis_explorer.edit.columns">
+        <source>stats.analysis_explorer.edit.columns</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex126" resname="stats.analysis_explorer.edit.columns_none">
+        <source>stats.analysis_explorer.edit.columns_none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="statsAex127" resname="stats.analysis_explorer.edit.row_grain">
+        <source>stats.analysis_explorer.edit.row_grain</source>
+        <target>Row grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex128" resname="stats.analysis_explorer.edit.column_grain">
+        <source>stats.analysis_explorer.edit.column_grain</source>
+        <target>Column grain</target>
+      </trans-unit>
+      <trans-unit id="statsAex129" resname="stats.analysis_explorer.edit.table_layout">
+        <source>stats.analysis_explorer.edit.table_layout</source>
+        <target>Table layout</target>
+      </trans-unit>
+      <trans-unit id="statsAex130" resname="stats.analysis_explorer.table_layout.flat">
+        <source>stats.analysis_explorer.table_layout.flat</source>
+        <target>Flat list</target>
+      </trans-unit>
+      <trans-unit id="statsAex131" resname="stats.analysis_explorer.table_layout.matrix">
+        <source>stats.analysis_explorer.table_layout.matrix</source>
+        <target>Matrix</target>
+      </trans-unit>
+      <trans-unit id="statsAex132" resname="stats.analysis_explorer.table_layout.matrix_metrics_as_rows">
+        <source>stats.analysis_explorer.table_layout.matrix_metrics_as_rows</source>
+        <target>Matrix (metrics as rows)</target>
+      </trans-unit>
+      <trans-unit id="statsAex133" resname="stats.analysis_explorer.allocations_by_dimension_by_temporal">
+        <source>stats.analysis_explorer.allocations_by_dimension_by_temporal</source>
+        <target>Allocations by {dimension} by {temporal}</target>
+      </trans-unit>
+      <trans-unit id="statsAex134" resname="stats.analysis_explorer.allocations_cross_tab">
+        <source>stats.analysis_explorer.allocations_cross_tab</source>
+        <target>Allocations: {rows} × {columns}</target>
+      </trans-unit>
+      <trans-unit id="statsAex135" resname="stats.analysis_explorer.description.breakdown_by_temporal">
+        <source>stats.analysis_explorer.description.breakdown_by_temporal</source>
+        <target>Allocation counts by {dimension}, grouped by {temporal}.</target>
+      </trans-unit>
+      <trans-unit id="statsAex136" resname="stats.analysis_explorer.table.metric">
+        <source>stats.analysis_explorer.table.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex137" resname="stats.analysis_explorer.edit.section.matrix">
+        <source>stats.analysis_explorer.edit.section.matrix</source>
+        <target>Data selection</target>
+      </trans-unit>
+      <trans-unit id="statsAex138" resname="stats.analysis_explorer.edit.matrix_intro">
+        <source>stats.analysis_explorer.edit.matrix_intro</source>
+        <target>Build the result table as rows × columns. Each cell shows the selected metric.</target>
+      </trans-unit>
+      <trans-unit id="statsAex139" resname="stats.analysis_explorer.edit.section.rows">
+        <source>stats.analysis_explorer.edit.section.rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsAex140" resname="stats.analysis_explorer.edit.section.rows_help">
+        <source>stats.analysis_explorer.edit.section.rows_help</source>
+        <target>Defines the table row labels and the chart X-axis (categories).</target>
+      </trans-unit>
+      <trans-unit id="statsAex141" resname="stats.analysis_explorer.edit.section.columns">
+        <source>stats.analysis_explorer.edit.section.columns</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex142" resname="stats.analysis_explorer.edit.section.columns_help">
+        <source>stats.analysis_explorer.edit.section.columns_help</source>
+        <target>Optional. Splits the data into table columns and chart series (legend entries).</target>
+      </trans-unit>
+      <trans-unit id="statsAex143" resname="stats.analysis_explorer.edit.section.metric">
+        <source>stats.analysis_explorer.edit.section.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex144" resname="stats.analysis_explorer.edit.section.metric_help">
+        <source>stats.analysis_explorer.edit.section.metric_help</source>
+        <target>The value shown in each cell and used for chart bars or lines.</target>
+      </trans-unit>
+      <trans-unit id="statsAex145" resname="stats.analysis_explorer.edit.section.presentation">
+        <source>stats.analysis_explorer.edit.section.presentation</source>
+        <target>Presentation</target>
+      </trans-unit>
+      <trans-unit id="statsAex146" resname="stats.analysis_explorer.edit.section.presentation_help">
+        <source>stats.analysis_explorer.edit.section.presentation_help</source>
+        <target>How the table and chart are rendered.</target>
+      </trans-unit>
+      <trans-unit id="statsAex147" resname="stats.analysis_explorer.edit.row_dimension">
+        <source>stats.analysis_explorer.edit.row_dimension</source>
+        <target>Group rows by</target>
+      </trans-unit>
+      <trans-unit id="statsAex148" resname="stats.analysis_explorer.edit.row_dimension_help">
+        <source>stats.analysis_explorer.edit.row_dimension_help</source>
+        <target>Dimension for each row, e.g. month or gender.</target>
+      </trans-unit>
+      <trans-unit id="statsAex149" resname="stats.analysis_explorer.edit.column_dimension">
+        <source>stats.analysis_explorer.edit.column_dimension</source>
+        <target>Split into columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex150" resname="stats.analysis_explorer.edit.column_dimension_help">
+        <source>stats.analysis_explorer.edit.column_dimension_help</source>
+        <target>Leave empty for a single series. Otherwise each value becomes a column and legend entry.</target>
+      </trans-unit>
+      <trans-unit id="statsAex151" resname="stats.analysis_explorer.edit.column_grain_help">
+        <source>stats.analysis_explorer.edit.column_grain_help</source>
+        <target>Granularity for the column dimension when it supports time grouping.</target>
+      </trans-unit>
+      <trans-unit id="statsAex152" resname="stats.analysis_explorer.edit.row_grain_time_help">
+        <source>stats.analysis_explorer.edit.row_grain_time_help</source>
+        <target>Time bucket for each row, e.g. month or year.</target>
+      </trans-unit>
+      <trans-unit id="statsAex153" resname="stats.analysis_explorer.edit.row_grain_breakdown_help">
+        <source>stats.analysis_explorer.edit.row_grain_breakdown_help</source>
+        <target>How values of the row dimension are grouped.</target>
+      </trans-unit>
+      <trans-unit id="statsAex154" resname="stats.analysis_explorer.edit.chart_metric">
+        <source>stats.analysis_explorer.edit.chart_metric</source>
+        <target>Chart metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex155" resname="stats.analysis_explorer.edit.chart_metric_help">
+        <source>stats.analysis_explorer.edit.chart_metric_help</source>
+        <target>Which measure drives the chart. Additional metrics can appear as table columns.</target>
+      </trans-unit>
+      <trans-unit id="statsAex156" resname="stats.analysis_explorer.edit.table_layout_help">
+        <source>stats.analysis_explorer.edit.table_layout_help</source>
+        <target>Matrix layouts are available when a column dimension is selected.</target>
+      </trans-unit>
+      <trans-unit id="statsAex157" resname="stats.analysis_explorer.edit.structure_preview_label">
+        <source>stats.analysis_explorer.edit.structure_preview_label</source>
+        <target>Current structure</target>
+      </trans-unit>
+      <trans-unit id="statsAex158" resname="stats.analysis_explorer.edit.structure_rows">
+        <source>stats.analysis_explorer.edit.structure_rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsAex159" resname="stats.analysis_explorer.edit.structure_columns">
+        <source>stats.analysis_explorer.edit.structure_columns</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex160" resname="stats.analysis_explorer.edit.structure_metric">
+        <source>stats.analysis_explorer.edit.structure_metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAex161" resname="stats.analysis_explorer.edit.structure_no_columns">
+        <source>stats.analysis_explorer.edit.structure_no_columns</source>
+        <target>None (single series)</target>
+      </trans-unit>
+      <trans-unit id="statsAex162" resname="stats.analysis_explorer.edit.structure_axis_with_grain">
+        <source>stats.analysis_explorer.edit.structure_axis_with_grain</source>
+        <target>{grain} · {dimension}</target>
+      </trans-unit>
+      <trans-unit id="statsAex162b" resname="stats.analysis_explorer.edit.swap_axes">
+        <source>stats.analysis_explorer.edit.swap_axes</source>
+        <target>Rows / columns</target>
+      </trans-unit>
+      <trans-unit id="statsAex163" resname="stats.analysis_explorer.edit.section.view_metadata">
+        <source>stats.analysis_explorer.edit.section.view_metadata</source>
+        <target>Metadata</target>
+      </trans-unit>
+      <trans-unit id="statsAex164" resname="stats.analysis_explorer.edit.view_metadata_save">
+        <source>stats.analysis_explorer.edit.view_metadata_save</source>
+        <target>Save details</target>
+      </trans-unit>
+      <trans-unit id="statsAex165" resname="stats.analysis_explorer.edit.view_metadata_dirty_hint">
+        <source>stats.analysis_explorer.edit.view_metadata_dirty_hint</source>
+        <target>Save or discard your analysis changes before editing the view title and description.</target>
+      </trans-unit>
+      <trans-unit id="statsAex166" resname="stats.analysis_explorer.view_metadata.saved">
+        <source>stats.analysis_explorer.view_metadata.saved</source>
+        <target>View details saved.</target>
       </trans-unit>
     </body>
   </file>

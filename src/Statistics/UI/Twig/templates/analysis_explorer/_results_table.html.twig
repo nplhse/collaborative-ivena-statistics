@@ -1,0 +1,159 @@
+<div class="card stats-aex-table-card"
+     data-testid="stats-analysis-explorer-table"
+     data-live-id="analysis-explorer-table-{{ analysisRevision }}">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <div>
+            <h3 class="card-title mb-0">{{ 'stats.analysis_explorer.table.title'|trans }}</h3>
+            {% if table and table.formattedTotals is not empty and not table.hasMetricSubRows %}
+                <div class="text-secondary small mt-1" data-testid="stats-analysis-explorer-results-count">
+                    {% for column in table.metricColumns %}
+                        {{ column.label }}: {{ table.formattedTotals[column.key] ?? '—' }}{% if not loop.last %} · {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        {% if exportCsvUrl %}
+            <form method="post"
+                  action="{{ exportCsvUrl }}"
+                  class="m-0 d-print-none"
+                  data-testid="stats-analysis-explorer-export-csv-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('explorer_export_csv') }}">
+                <input type="hidden" name="appliedConfigState" value="{{ appliedConfigState|json_encode|e('html_attr') }}">
+                <button type="submit"
+                        class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
+                        {% if not table or not table.hasData %}disabled{% endif %}
+                        data-testid="stats-analysis-explorer-export-csv">
+                    <twig:ux:icon name="tabler:download" style="height: 1.1em;" />
+                    {{ 'stats.analysis_explorer.export.csv_table'|trans }}
+                </button>
+            </form>
+        {% endif %}
+    </div>
+    <div class="card-body p-0 stats-aex-table-card-body">
+        <div class="stats-aex-table-scroll"
+             data-testid="stats-analysis-explorer-table-scroll">
+            <table class="table table-vcenter card-table table-striped table-hover mb-0 stats-aex-table"
+                   data-testid="stats-analysis-explorer-table-body">
+                <thead>
+                    <tr>
+                        <th>{{ table ? table.rowAxisLabel|default(table.primaryDimensionLabel) : '' }}</th>
+                        {% if table and table.hasMetricSubRows %}
+                            <th class="text-nowrap">{{ 'stats.analysis_explorer.table.metric'|trans }}</th>
+                            {% for seriesLabel in table.seriesLabels %}
+                                <th class="text-end text-nowrap">{{ seriesLabel }}</th>
+                            {% endfor %}
+                        {% elseif table and table.hasSeries %}
+                            {% for seriesLabel in table.seriesLabels %}
+                                <th class="text-end text-nowrap">{{ seriesLabel }}</th>
+                            {% endfor %}
+                            <th class="text-end text-nowrap border-start">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                        {% elseif table %}
+                            {% for column in table.metricColumns %}
+                                <th class="text-end text-nowrap">{{ column.label }}</th>
+                            {% endfor %}
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if table %}
+                        {% for row in table.rows %}
+                            <tr>
+                                <th scope="row" class="fw-normal">{{ row.bucketLabel }}</th>
+                                {% if table.hasMetricSubRows %}
+                                    <td class="text-nowrap">{{ row.metricSubRowLabel }}</td>
+                                    {% for seriesLabel in table.seriesLabels %}
+                                        <td class="text-end text-nowrap">
+                                            <div class="fw-medium">{{ row.formattedSeriesValues[seriesLabel] ?? '—' }}</div>
+                                            {% if table.showPercentOfTotal and row.formattedSeriesPercentValues[seriesLabel] is defined and row.formattedSeriesPercentValues[seriesLabel] %}
+                                                <div class="small text-secondary">{{ row.formattedSeriesPercentValues[seriesLabel] }}</div>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                {% elseif table.hasSeries %}
+                                    {% for seriesLabel in table.seriesLabels %}
+                                        <td class="text-end text-nowrap">
+                                            <div class="fw-medium">{{ row.formattedSeriesValues[seriesLabel] ?? '—' }}</div>
+                                            {% if table.showPercentOfTotal and row.formattedSeriesPercentValues[seriesLabel] is defined and row.formattedSeriesPercentValues[seriesLabel] %}
+                                                <div class="small text-secondary">{{ row.formattedSeriesPercentValues[seriesLabel] }}</div>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                    <td class="text-end text-nowrap fw-semibold border-start">
+                                        <div>{{ row.formattedRowTotal }}</div>
+                                        {% if table.showPercentOfTotal and row.formattedRowTotalPercent %}
+                                            <div class="small text-secondary fw-normal">{{ row.formattedRowTotalPercent }}</div>
+                                        {% endif %}
+                                    </td>
+                                {% else %}
+                                    {% for column in table.metricColumns %}
+                                        <td class="text-end text-nowrap">
+                                            <div class="fw-medium">{{ row.formattedMetricValues[column.key] ?? '—' }}</div>
+                                            {% if table.showPercentOfTotal and row.formattedMetricPercentValues[column.key] is defined and row.formattedMetricPercentValues[column.key] %}
+                                                <div class="small text-secondary">{{ row.formattedMetricPercentValues[column.key] }}</div>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                {% endif %}
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="{{ table.columnCount() }}" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
+                                    {% if emptyReason %}
+                                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans }}
+                                    {% else %}
+                                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="2" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
+                                {% if emptyReason %}
+                                    {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans }}
+                                {% else %}
+                                    {{ 'stats.analysis_explorer.empty_state.no_data'|trans }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+                {% if table and table.hasData and table.hasSeries and not table.hasMetricSubRows %}
+                    <tfoot class="table-light">
+                        <tr data-testid="stats-analysis-explorer-table-footer">
+                            <th scope="row">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                            {% for seriesLabel in table.seriesLabels %}
+                                <td class="text-end text-nowrap fw-semibold">
+                                    <div>{{ table.formattedSeriesTotals[seriesLabel] ?? '—' }}</div>
+                                    {% if table.showPercentOfTotal and table.formattedSeriesFooterPercentValues[seriesLabel] is defined and table.formattedSeriesFooterPercentValues[seriesLabel] %}
+                                        <div class="small text-secondary fw-normal">{{ table.formattedSeriesFooterPercentValues[seriesLabel] }}</div>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                            <td class="text-end text-nowrap fw-bold border-start">
+                                <div>{{ table.formattedGrandTotal }}</div>
+                                {% if table.showPercentOfTotal and table.formattedGrandTotalPercent %}
+                                    <div class="small text-secondary fw-normal">{{ table.formattedGrandTotalPercent }}</div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tfoot>
+                {% elseif table and table.hasData and not table.hasSeries %}
+                    <tfoot class="table-light">
+                        <tr data-testid="stats-analysis-explorer-table-footer">
+                            <th scope="row">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                            {% for column in table.metricColumns %}
+                                <td class="text-end text-nowrap fw-semibold">
+                                    <div>{{ table.formattedTotals[column.key] ?? '—' }}</div>
+                                    {% if table.showPercentOfTotal and table.formattedTotalsPercentValues[column.key] is defined and table.formattedTotalsPercentValues[column.key] %}
+                                        <div class="small text-secondary fw-normal">{{ table.formattedTotalsPercentValues[column.key] }}</div>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Analysis;
 
+use App\Statistics\AnalysisExplorer\Application\ExplorerLegacyAnalyticsViewMapper;
 use App\Statistics\Application\AllocationsByMonthQuery;
 use App\Statistics\Application\DTO\AllocationsOverTimeSeries;
 use App\Statistics\Application\DTO\StatisticsAnalysisDimension;
@@ -24,6 +25,7 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
         private AllocationsByMonthQuery $allocationsByMonthQuery,
         private TranslatorInterface $translator,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
+        private ExplorerLegacyAnalyticsViewMapper $legacyViewMapper,
     ) {
     }
 
@@ -400,9 +402,9 @@ final readonly class AllocationsByMonthAnalysis implements AnalysisDefinitionInt
 
             $targets[] = new StatisticWidgetNavigationTarget(
                 '',
-                'app_stats_analytics_view',
+                'app_stats_analysis_explorer_view',
                 [
-                    'viewKey' => $this->key(),
+                    'view' => $this->legacyViewMapper->slugForLegacyViewKey($this->key()),
                     'period' => StatisticsFilterPeriod::Month->value,
                     'year' => (int) $matches[1],
                     'month' => (int) $matches[2],
