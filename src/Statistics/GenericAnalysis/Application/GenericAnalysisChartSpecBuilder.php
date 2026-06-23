@@ -39,7 +39,7 @@ final readonly class GenericAnalysisChartSpecBuilder
 
         $percentScale = $this->usesPercentScale($result->visualMetricKey);
 
-        return match ($chartType) {
+        $spec = match ($chartType) {
             GenericAnalysisChartType::Line => $this->buildLineSpec($data, $percentScale),
             GenericAnalysisChartType::GroupedBar => $this->buildGroupedBarSpec($data, $percentScale),
             GenericAnalysisChartType::PercentStackedBar => $this->buildPercentStackedBarSpec($data),
@@ -48,6 +48,12 @@ final readonly class GenericAnalysisChartSpecBuilder
             GenericAnalysisChartType::Bar => $this->buildBarSpec($data, $percentScale),
             default => null,
         };
+
+        if (null === $spec) {
+            return null;
+        }
+
+        return $this->withAxisLabels($spec, $result);
     }
 
     /**
@@ -256,5 +262,24 @@ final readonly class GenericAnalysisChartSpecBuilder
         }
 
         return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $spec
+     *
+     * @return array<string, mixed>
+     */
+    private function withAxisLabels(array $spec, NormalizedAnalysisResult $result): array
+    {
+        $spec['xAxisLabel'] = $result->primaryDimensionLabel;
+        $yAxisLabel = $this->metricRegistry->has($result->visualMetricKey)
+            ? $this->metricRegistry->get($result->visualMetricKey)->label
+            : $result->visualMetricKey;
+        $spec['yAxisLabel'] = $yAxisLabel;
+        if (!isset($spec['valueLabel'])) {
+            $spec['valueLabel'] = $yAxisLabel;
+        }
+
+        return $spec;
     }
 }

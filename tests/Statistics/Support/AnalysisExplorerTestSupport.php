@@ -117,10 +117,19 @@ trait AnalysisExplorerTestSupport
     protected function createExplorerChartPresenter(): ExplorerChartPresenter
     {
         $metricRegistry = $this->createMetricRegistry();
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id): string => match ($id) {
+                'stats.analysis_explorer.dimension.month' => 'Month',
+                'stats.analysis_explorer.dimension.gender' => 'Gender',
+                default => $id,
+            },
+        );
 
         return new ExplorerChartPresenter(
             $this->createExplorerMetricKeyMapper(),
             $metricRegistry,
+            $translator,
         );
     }
 

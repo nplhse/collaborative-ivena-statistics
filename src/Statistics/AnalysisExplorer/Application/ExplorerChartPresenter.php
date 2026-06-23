@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class ExplorerChartPresenter
 {
     public function __construct(
         private ExplorerMetricKeyMapper $metricKeyMapper,
         private MetricRegistry $metricRegistry,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -71,6 +75,8 @@ final readonly class ExplorerChartPresenter
             'valueLabel' => $this->metricLabel($result->visualMetricKey),
             'valueFormat' => $this->metricFormat($result->visualMetricKey),
             'percentScale' => 'percent' === $this->metricFormat($result->visualMetricKey),
+            'xAxisLabel' => $this->axisLabel($result->rowAxis),
+            'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
         ];
     }
 
@@ -99,7 +105,30 @@ final readonly class ExplorerChartPresenter
             $spec['barGrouped'] = true;
         }
 
+        $spec['xAxisLabel'] = $this->axisLabel($result->rowAxis);
+        $spec['yAxisLabel'] = $this->metricLabel($result->visualMetricKey);
+
         return $spec;
+    }
+
+    private function axisLabel(AnalysisAxisRef $axis): string
+    {
+        if ($axis->dimensionKey->isTemporalPrimary()) {
+            return $this->temporalDimensionLabel($axis->resolvedGrain());
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value);
+    }
+
+    private function temporalDimensionLabel(AnalysisDimensionGrain $grain): string
+    {
+        return match ($grain) {
+            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
+            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total'),
+            default => $this->translator->trans('stats.analysis_explorer.dimension.month'),
+        };
     }
 
     private function metricLabel(AnalysisMetricKey $metricKey): string

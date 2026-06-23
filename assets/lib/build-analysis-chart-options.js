@@ -1,4 +1,62 @@
 /**
+ * Tabler default sans stack — used when ApexCharts cannot resolve `inherit` (e.g. PNG export).
+ */
+export const ANALYSIS_CHART_FONT_FAMILY =
+    "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+/**
+ * @returns {string}
+ */
+export function resolveAnalysisChartFontFamily() {
+    if (typeof document !== 'undefined' && document.body) {
+        const bodyFont = getComputedStyle(document.body).fontFamily;
+        if (bodyFont && bodyFont !== 'inherit') {
+            return bodyFont;
+        }
+    }
+
+    return ANALYSIS_CHART_FONT_FAMILY;
+}
+
+/**
+ * @param {unknown} text
+ * @param {{ offsetX?: number, offsetY?: number }} offsets
+ */
+function buildAxisTitleConfig(text, offsets = {}) {
+    if (typeof text !== 'string' || text.trim() === '') {
+        return undefined;
+    }
+
+    return {
+        text,
+        offsetX: offsets.offsetX ?? 0,
+        offsetY: offsets.offsetY ?? 0,
+        style: {
+            fontFamily: resolveAnalysisChartFontFamily(),
+            fontSize: '12px',
+            fontWeight: 500,
+            color: '#495057',
+        },
+    };
+}
+
+/**
+ * @param {boolean} isMulti
+ * @param {number} seriesCount
+ */
+export function getAnalysisChartHeight(isMulti, seriesCount) {
+    if (isMulti && seriesCount > 6) {
+        return 420;
+    }
+
+    if (isMulti) {
+        return 380;
+    }
+
+    return 360;
+}
+
+/**
  * Builds ApexCharts options from the analysis chart spec payload.
  *
  * @param {Record<string, unknown>} data
@@ -56,6 +114,25 @@ export function buildAnalysisChartOptions(data) {
     const multi = series.length > 1;
     const percentScale = data.percentScale === true || data.valueFormat === 'percent';
     const barGrouped = data.barGrouped === true && !percentScale;
+    const categoryAxisTitle =
+        typeof data.xAxisLabel === 'string' && data.xAxisLabel !== '' ? data.xAxisLabel : undefined;
+    const valueAxisTitle =
+        typeof data.yAxisLabel === 'string' && data.yAxisLabel !== ''
+            ? data.yAxisLabel
+            : typeof data.valueLabel === 'string' && data.valueLabel !== ''
+              ? data.valueLabel
+              : undefined;
+    const xAxisTitle = horizontal
+        ? buildAxisTitleConfig(valueAxisTitle, { offsetY: 4 })
+        : buildAxisTitleConfig(categoryAxisTitle, { offsetY: 6 });
+    const yAxisTitle = horizontal
+        ? buildAxisTitleConfig(categoryAxisTitle, { offsetX: 0 })
+        : buildAxisTitleConfig(valueAxisTitle, { offsetX: 0 });
+    const chartHeight = getAnalysisChartHeight(multi, series.length);
+    const legendBottomSpace = multi ? (series.length > 6 ? 88 : 44) : 0;
+    const categoryTitleSpace = !horizontal && categoryAxisTitle ? 22 : 0;
+    const valueTitleSpace = !horizontal && valueAxisTitle ? 24 : 0;
+    const chartFontFamily = resolveAnalysisChartFontFamily();
 
     const formatPercentValue = (val) => {
         const n = typeof val === 'number' ? val : Number(val);
@@ -125,18 +202,30 @@ export function buildAnalysisChartOptions(data) {
     return {
         chart: {
             type: chartType,
-            height: 320,
+            height: chartHeight,
             toolbar: { show: false },
-            fontFamily: 'inherit',
+            fontFamily: chartFontFamily,
             zoom: { enabled: false },
             stacked: stackedBars,
+            animations: {
+                enabled: true,
+            },
+        },
+        title: {
+            show: false,
+            text: undefined,
         },
         series,
         xaxis: {
             categories: labels,
+            title: xAxisTitle,
             labels: {
+                show: true,
                 rotate: !horizontal && labels.length > 8 ? -45 : 0,
                 trim: true,
+                style: {
+                    fontFamily: chartFontFamily,
+                },
             },
             axisBorder: { show: false },
             axisTicks: { show: false },
@@ -151,10 +240,17 @@ export function buildAnalysisChartOptions(data) {
                           ? 100
                           : Math.ceil(maxVal * 1.05)
                       : Math.ceil(maxVal * 1.1),
-            show: percentScale,
+            show: true,
+            title: yAxisTitle,
             labels: {
+                show: true,
                 formatter: percentScale ? formatPercentValue : undefined,
+                style: {
+                    fontFamily: chartFontFamily,
+                },
             },
+            axisBorder: { show: false },
+            axisTicks: { show: true },
         },
         plotOptions: barPlotOptions,
         stroke: isLine
@@ -192,6 +288,12 @@ export function buildAnalysisChartOptions(data) {
         grid: {
             strokeDashArray: 4,
             borderColor: 'rgba(0,0,0,0.04)',
+            padding: {
+                top: 8,
+                right: 12,
+                bottom: 8 + legendBottomSpace + categoryTitleSpace,
+                left: 12 + valueTitleSpace,
+            },
         },
         tooltip: {
             shared: true,
@@ -208,6 +310,7 @@ export function buildAnalysisChartOptions(data) {
             show: multi,
             position: 'bottom',
             fontSize: '12px',
+            fontFamily: chartFontFamily,
             markers: { width: 8, height: 8, radius: 2 },
             ...(multi && series.length > 6
                 ? {
@@ -216,5 +319,65 @@ export function buildAnalysisChartOptions(data) {
                   }
                 : {}),
         },
+    };
+}
+
+/**
+ * @param {Record<string, unknown>} data
+ * @param {string} chartTitle
+ * @returns {import('apexcharts').ApexOptions | null}
+ */
+export function buildAnalysisChartExportOptions(data, chartTitle) {
+    const options = buildAnalysisChartOptions(data);
+    if (!options) {
+        return null;
+    }
+
+    const series = Array.isArray(data.series) ? data.series : [];
+    const isMulti = series.length > 1;
+    const seriesCount = isMulti ? series.length : 1;
+    const trimmedTitle = chartTitle.trim();
+    const hasTitle = trimmedTitle !== '';
+    const exportHeight = getAnalysisChartHeight(isMulti, seriesCount) + (hasTitle ? 52 : 0);
+    const basePadding = options.grid?.padding ?? {};
+    const exportLeftPadding = Math.max(basePadding.left ?? 12, 36);
+
+    return {
+        ...options,
+        chart: {
+            ...options.chart,
+            height: exportHeight,
+            animations: {
+                enabled: false,
+            },
+        },
+        grid: {
+            ...options.grid,
+            padding: {
+                ...basePadding,
+                left: exportLeftPadding,
+                ...(hasTitle
+                    ? {
+                          top: (basePadding.top ?? 8) + 8,
+                      }
+                    : {}),
+            },
+        },
+        ...(hasTitle
+            ? {
+                  title: {
+                      show: true,
+                      text: trimmedTitle,
+                      align: 'center',
+                      margin: 18,
+                      style: {
+                          fontFamily: resolveAnalysisChartFontFamily(),
+                          fontSize: '16px',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                      },
+                  },
+              }
+            : {}),
     };
 }

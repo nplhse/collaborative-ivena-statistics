@@ -157,6 +157,8 @@ final class AllocationsAnalysisRunnerTest extends TestCase
         $barSpecs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Bar));
         self::assertArrayHasKey('bar', $barSpecs);
         self::assertSame('bar', $barSpecs['bar']['chartType']);
+        self::assertSame('Month', $barSpecs['bar']['xAxisLabel']);
+        self::assertSame('Count', $barSpecs['bar']['yAxisLabel']);
 
         $lineSpecs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Line));
         self::assertArrayHasKey('line', $lineSpecs);
