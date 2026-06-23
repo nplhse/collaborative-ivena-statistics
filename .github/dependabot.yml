@@ -16,6 +16,14 @@ updates:
       directory: "/"
       schedule:
           interval: "weekly"
+      groups:
+          eslint:
+              patterns:
+                  - "eslint"
+                  - "@eslint/*"
+                  - "eslint-config-prettier"
+                  - "globals"
+                  - "prettier"
 
     # Enable version updates for Docker
     - package-ecosystem: "docker"

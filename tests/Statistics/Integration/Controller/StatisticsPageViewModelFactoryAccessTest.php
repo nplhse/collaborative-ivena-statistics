@@ -171,7 +171,7 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
      */
     private function hasMenuKey(array $menu, string $key): bool
     {
-        return array_any($menu, fn ($item): bool => $item['key'] === $key);
+        return array_any($menu, fn (array $item): bool => $item['key'] === $key);
     }
 
     /**

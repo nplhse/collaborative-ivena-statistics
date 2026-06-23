@@ -5,7 +5,7 @@
 - PHP `>=8.4`
 - PostgreSQL `>=16`
 - Composer
-- Node.js `>=22` and npm (required for JavaScript linting in development)
+- Node.js `>=22.13` and npm (required for JavaScript linting in development)
 - Symfony CLI (recommended)
 - Optional Docker/Compose
 
