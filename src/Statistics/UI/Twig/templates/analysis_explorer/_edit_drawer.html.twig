@@ -4,6 +4,7 @@
     'data-live-action-param': 'refreshEditForm',
 } %}
 {% set structure = this.editFormSummary %}
+{% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
 
 <div class="offcanvas offcanvas-end analysis-explorer-edit-drawer{% if isEditOpen %} show{% endif %}"
      tabindex="-1"
@@ -28,74 +29,92 @@
             'data-testid': 'stats-analysis-explorer-edit-form',
             'data-model': 'norender|on(change)|*',
         }}) }}
-            <div class="accordion accordion-flush" id="analysisExplorerEditAccordion">
+        <div class="accordion accordion-flush" id="analysisExplorerEditAccordion">
+            {% if this.showViewMetadataSection %}
                 <div class="accordion-item">
-                    <h3 class="accordion-header" id="analysisExplorerEditScopeHeading">
-                        <button class="accordion-button"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#analysisExplorerEditScopePanel"
-                                aria-expanded="true"
-                                aria-controls="analysisExplorerEditScopePanel"
-                                data-testid="stats-analysis-explorer-edit-section-scope">
-                            {{ 'stats.analysis_explorer.edit.section.scope'|trans }}
-                        </button>
-                    </h3>
-                    <div id="analysisExplorerEditScopePanel"
-                         class="accordion-collapse collapse show"
-                         aria-labelledby="analysisExplorerEditScopeHeading">
+                    {{ editAccordion.header(
+                        'analysisExplorerEditViewMetadataHeading',
+                        'analysisExplorerEditViewMetadataPanel',
+                        'stats.analysis_explorer.edit.section.view_metadata'|trans,
+                        'stats-analysis-explorer-edit-section-view-metadata',
+                        false,
+                    ) }}
+                    {{ editAccordion.panel_start('analysisExplorerEditViewMetadataPanel', 'analysisExplorerEditViewMetadataHeading', false) }}
                         <div class="accordion-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="analysisExplorerEditViewTitle">
+                                    {{ 'stats.analysis_explorer.save_as.title_label'|trans }}
+                                </label>
+                                <input type="text"
+                                       id="analysisExplorerEditViewTitle"
+                                       class="form-control"
+                                       data-model="editViewTitle"
+                                       value="{{ editViewTitle }}"
+                                       data-testid="stats-analysis-explorer-edit-view-title">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="analysisExplorerEditViewDescription">
+                                    {{ 'stats.analysis_explorer.save_as.description_label'|trans }}
+                                </label>
+                                <textarea id="analysisExplorerEditViewDescription"
+                                          class="form-control"
+                                          rows="3"
+                                          data-model="editViewDescription"
+                                          data-testid="stats-analysis-explorer-edit-view-description">{{ editViewDescription }}</textarea>
+                            </div>
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+            {% endif %}
+            <div class="accordion-item">
+                {{ editAccordion.header(
+                    'analysisExplorerEditScopeHeading',
+                    'analysisExplorerEditScopePanel',
+                    'stats.analysis_explorer.edit.section.scope'|trans,
+                    'stats-analysis-explorer-edit-section-scope',
+                    false,
+                ) }}
+                {{ editAccordion.panel_start('analysisExplorerEditScopePanel', 'analysisExplorerEditScopeHeading', false) }}
+                    <div class="accordion-body">
                             {{ include('@Statistics/analysis_explorer/_explorer_edit_scope_fields.html.twig', {
                                 sideForm: form.scopePeriod,
                                 testId: 'stats-analysis-explorer-scope-form',
                             }) }}
-                        </div>
                     </div>
-                </div>
+                {{ editAccordion.panel_end() }}
+            </div>
 
-                <div class="accordion-item">
-                    <h3 class="accordion-header" id="analysisExplorerEditPeriodHeading">
-                        <button class="accordion-button"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#analysisExplorerEditPeriodPanel"
-                                aria-expanded="true"
-                                aria-controls="analysisExplorerEditPeriodPanel"
-                                data-testid="stats-analysis-explorer-edit-section-period">
-                            {{ 'stats.analysis_explorer.edit.section.period'|trans }}
-                        </button>
-                    </h3>
-                    <div id="analysisExplorerEditPeriodPanel"
-                         class="accordion-collapse collapse show"
-                         aria-labelledby="analysisExplorerEditPeriodHeading">
-                        <div class="accordion-body">
+            <div class="accordion-item">
+                {{ editAccordion.header(
+                    'analysisExplorerEditPeriodHeading',
+                    'analysisExplorerEditPeriodPanel',
+                    'stats.analysis_explorer.edit.section.period'|trans,
+                    'stats-analysis-explorer-edit-section-period',
+                    false,
+                ) }}
+                {{ editAccordion.panel_start('analysisExplorerEditPeriodPanel', 'analysisExplorerEditPeriodHeading', false) }}
+                    <div class="accordion-body">
                             {{ include('@Statistics/analysis_explorer/_explorer_edit_period_fields.html.twig', {
                                 sideForm: form.scopePeriod,
                                 testId: 'stats-analysis-explorer-period-form',
                             }) }}
-                        </div>
                     </div>
-                </div>
+                {{ editAccordion.panel_end() }}
+            </div>
 
-                <div class="accordion-item">
-                    <h3 class="accordion-header" id="analysisExplorerEditAnalysisHeading">
-                        <button class="accordion-button"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#analysisExplorerEditAnalysisPanel"
-                                aria-expanded="true"
-                                aria-controls="analysisExplorerEditAnalysisPanel"
-                                data-testid="stats-analysis-explorer-edit-section-analysis">
-                            {{ 'stats.analysis_explorer.edit.section.matrix'|trans }}
-                        </button>
-                    </h3>
-                    <div id="analysisExplorerEditAnalysisPanel"
-                         class="accordion-collapse collapse show"
-                         aria-labelledby="analysisExplorerEditAnalysisHeading">
-                        <div class="accordion-body">
+            <div class="accordion-item">
+                {{ editAccordion.header(
+                    'analysisExplorerEditAnalysisHeading',
+                    'analysisExplorerEditAnalysisPanel',
+                    'stats.analysis_explorer.edit.section.matrix'|trans,
+                    'stats-analysis-explorer-edit-section-analysis',
+                    true,
+                ) }}
+                {{ editAccordion.panel_start('analysisExplorerEditAnalysisPanel', 'analysisExplorerEditAnalysisHeading', true) }}
+                    <div class="accordion-body">
                             <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.matrix_intro'|trans }}</p>
 
-                            <div class="border rounded p-3 mb-4 bg-body-secondary"
+                            <div class="border rounded p-3 mb-4 bg-body-secondary position-relative pb-5"
                                  data-testid="stats-analysis-explorer-structure-preview">
                                 <div class="small text-secondary mb-2">{{ 'stats.analysis_explorer.edit.structure_preview_label'|trans }}</div>
                                 <dl class="row g-2 mb-0 small">
@@ -106,6 +125,19 @@
                                     <dt class="col-sm-3 mb-0">{{ 'stats.analysis_explorer.edit.structure_metric'|trans }}</dt>
                                     <dd class="col-sm-9 mb-0" data-testid="stats-analysis-explorer-structure-metric">{{ structure.metric }}</dd>
                                 </dl>
+                                {% if this.canSwapEditAxes %}
+                                    <div class="position-absolute bottom-0 end-0 p-2">
+                                        <button type="button"
+                                                class="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1"
+                                                data-action="live#action"
+                                                data-live-action-param="swapEditAxes"
+                                                data-testid="stats-analysis-explorer-swap-axes"
+                                                aria-label="{{ 'stats.analysis_explorer.edit.swap_axes'|trans }}">
+                                            <twig:ux:icon name="tabler:arrows-exchange" class="icon" />
+                                            {{ 'stats.analysis_explorer.edit.swap_axes'|trans }}
+                                        </button>
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <fieldset class="border-0 p-0 mb-4">
@@ -120,32 +152,50 @@
                             <fieldset class="border-0 p-0 mb-4">
                                 <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.columns'|trans }}</legend>
                                 <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.columns_help'|trans }}</p>
-                                {{ form_row(form.columnDimension, compactRow|merge({attr: refreshAttrs})) }}
-                                <div data-testid="stats-analysis-explorer-column-grain-field">
-                                    {{ form_row(form.columnGrain, compactRow|merge({attr: refreshAttrs})) }}
-                                </div>
-                            </fieldset>
-
-                            <fieldset class="border-0 p-0 mb-4">
-                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.metric'|trans }}</legend>
-                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.metric_help'|trans }}</p>
-                                {{ form_row(form.metric, compactRow|merge({attr: refreshAttrs})) }}
-                                <div data-testid="stats-analysis-explorer-show-percent-field">
-                                    {{ form_row(form.showPercentOfTotal, compactRow) }}
+                                <div data-testid="stats-analysis-explorer-column-fields">
+                                    {{ form_row(form.columnDimension, compactRow|merge({attr: refreshAttrs})) }}
+                                    <div class="{% if form.columnGrain.vars.disabled %}d-none{% endif %}"
+                                         data-testid="stats-analysis-explorer-column-grain-field">
+                                        {{ form_row(form.columnGrain, compactRow|merge({attr: refreshAttrs})) }}
+                                    </div>
                                 </div>
                             </fieldset>
 
                             <fieldset class="border-0 p-0 mb-0">
-                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.presentation'|trans }}</legend>
-                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.presentation_help'|trans }}</p>
-                                {{ form_row(form.tableLayout, compactRow|merge({attr: refreshAttrs})) }}
-                                {{ form_row(form.chartType, compactRow) }}
+                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.metric'|trans }}</legend>
+                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.metric_help'|trans }}</p>
+                                {{ form_row(form.metric, compactRow|merge({attr: refreshAttrs})) }}
+                                {% if not form.showPercentOfTotal.vars.disabled %}
+                                    <div data-testid="stats-analysis-explorer-show-percent-field">
+                                        {{ form_row(form.showPercentOfTotal) }}
+                                    </div>
+                                {% endif %}
                             </fieldset>
-                        </div>
                     </div>
-                </div>
+                {{ editAccordion.panel_end() }}
             </div>
-        {{ form_end(form) }}
+
+            <div class="accordion-item">
+                {{ editAccordion.header(
+                    'analysisExplorerEditPresentationHeading',
+                    'analysisExplorerEditPresentationPanel',
+                    'stats.analysis_explorer.edit.section.presentation'|trans,
+                    'stats-analysis-explorer-edit-section-presentation',
+                    true,
+                ) }}
+                {{ editAccordion.panel_start('analysisExplorerEditPresentationPanel', 'analysisExplorerEditPresentationHeading', true) }}
+                    <div class="accordion-body">
+                            <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.section.presentation_help'|trans }}</p>
+                            {{ form_row(form.tableLayout, compactRow|merge({attr: refreshAttrs})) }}
+                            {{ form_row(form.chartType, {row_attr: {class: 'mb-3'}, attr: refreshAttrs}) }}
+                            <div data-testid="stats-analysis-explorer-edit-chart-row-limit-field">
+                                {{ form_row(form.chartRowLimit, compactRow) }}
+                            </div>
+                    </div>
+                {{ editAccordion.panel_end() }}
+            </div>
+        </div>
+        {{ form_end(form, {render_rest: false}) }}
     </div>
     <div class="offcanvas-footer border-top p-3 d-flex justify-content-end gap-2">
         <button type="button"

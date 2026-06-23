@@ -1,0 +1,27 @@
+{% macro header(headingId, panelId, label, testId, expanded) %}
+    <h3 class="accordion-header" id="{{ headingId }}">
+        <button class="accordion-button{% if not expanded %} collapsed{% endif %}"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#{{ panelId }}"
+                aria-expanded="{{ expanded ? 'true' : 'false' }}"
+                aria-controls="{{ panelId }}"
+                data-testid="{{ testId }}">
+            <span class="analysis-explorer-accordion-state-icon" aria-hidden="true">
+                <twig:ux:icon name="tabler:chevron-down" class="icon analysis-explorer-accordion-state-icon--expanded" />
+                <twig:ux:icon name="tabler:chevron-right" class="icon analysis-explorer-accordion-state-icon--collapsed" />
+            </span>
+            <span>{{ label }}</span>
+        </button>
+    </h3>
+{% endmacro %}
+
+{% macro panel_start(panelId, headingId, expanded) %}
+    <div id="{{ panelId }}"
+         class="accordion-collapse collapse{% if expanded %} show{% endif %}"
+         aria-labelledby="{{ headingId }}">
+{% endmacro %}
+
+{% macro panel_end() %}
+    </div>
+{% endmacro %}
