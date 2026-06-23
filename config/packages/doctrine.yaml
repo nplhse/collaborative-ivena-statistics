@@ -66,6 +66,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Kpi/Domain/Entity'
                 prefix: 'App\Kpi\Domain\Entity'
+            Engagement:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Engagement/Domain/Entity'
+                prefix: 'App\Engagement\Domain\Entity'
         schema_ignore_classes:
             - App\Statistics\Infrastructure\Entity\ProjectionStateHospitalCount
             - App\Statistics\Infrastructure\Entity\ProjectionDispatchAreaHospitalCount
