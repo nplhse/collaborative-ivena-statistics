@@ -126,15 +126,19 @@ final readonly class ExplorerResultsTablePresenter
         foreach ($matrix->orderedRowKeys as $rowKey) {
             foreach ($result->metricKeys as $metricKey) {
                 $seriesValues = [];
+                $formattedSeriesValues = [];
                 foreach ($matrix->orderedColumnKeys as $colKey) {
                     $label = $matrix->columnLabels[$colKey];
-                    $seriesValues[$label] = $matrix->valueFor($rowKey, $colKey, $metricKey);
+                    $value = $matrix->valueFor($rowKey, $colKey, $metricKey);
+                    $seriesValues[$label] = $value;
+                    $formattedSeriesValues[$label] = $this->formatMetricValue($metricKey, $value);
                 }
 
                 $rows[] = new ExplorerResultsTableRow(
                     bucketLabel: $matrix->rowLabels[$rowKey],
                     formattedMetricValues: [],
                     seriesValues: $seriesValues,
+                    formattedSeriesValues: $formattedSeriesValues,
                     metricSubRowLabel: $this->metricLabel($metricKey),
                 );
             }

@@ -90,6 +90,32 @@ final class AnalysisExplorerShellTest extends WebTestCase
         );
     }
 
+    public function testMountDowngradesManipulatedHospitalAxisOnPublicScope(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+        $state = $mapper->toStateArray($viewFactory->createDefault($filter));
+        $state['query']['rows'] = ['dimension' => 'hospital', 'grain' => 'total'];
+
+        $user = UserFactory::createOne(['username' => 'explorer-guard-'.bin2hex(random_bytes(4))]);
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $state,
+            'locale' => 'en',
+        ])->actingAs($user);
+
+        $testComponent->render();
+
+        self::assertSame('time', $testComponent->component()->appliedConfigState['query']['rows']['dimension'] ?? null);
+        self::assertNotNull($testComponent->component()->configWarning);
+    }
+
     public function testParticipantSeesSaveAsActionAfterEdit(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);

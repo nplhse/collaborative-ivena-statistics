@@ -8,6 +8,9 @@ use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 
@@ -82,16 +85,34 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
             visualMetricKey: $capabilities->defaultMetric,
             rowAxis: $rowAxis,
             columnAxis: $columnAxis,
-            statisticsFilter: new \App\Statistics\Application\DTO\StatisticsFilter(
-                scope: \App\Statistics\Application\DTO\StatisticsFilterScope::Public,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: \App\Statistics\Application\DTO\StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::All,
             ),
             presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
                 chartType: $capabilities->defaultChartType,
             ),
             title: 'Test',
         );
+    }
+
+    public function testScopedCapabilitiesExcludeHospitalOnPublicScope(): void
+    {
+        $provider = $this->createAllocationsCapabilitiesProvider();
+        $unscoped = $provider->capabilities();
+        $scoped = $provider->capabilitiesFor(null, new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        ));
+
+        self::assertContains(AnalysisDimensionKey::Hospital, $unscoped->dimensions);
+        self::assertNotContains(AnalysisDimensionKey::Hospital, $scoped->dimensions);
+        self::assertNotContains(AnalysisDimensionKey::State, $scoped->dimensions);
+        self::assertNotContains(AnalysisDimensionKey::DispatchArea, $scoped->dimensions);
+        self::assertContains(AnalysisDimensionKey::Gender, $scoped->dimensions);
     }
 }

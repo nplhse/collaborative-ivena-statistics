@@ -45,7 +45,7 @@
                                 {% if table.hasMetricSubRows %}
                                     <td>{{ row.metricSubRowLabel }}</td>
                                     {% for seriesLabel in table.seriesLabels %}
-                                        <td class="text-end">{{ row.seriesValues[seriesLabel]|default(0)|number_format(1, ',', '.') }}</td>
+                                        <td class="text-end">{{ row.formattedSeriesValues[seriesLabel] ?? row.seriesValues[seriesLabel]|default(0)|number_format(1, ',', '.') }}</td>
                                     {% endfor %}
                                 {% elseif table.hasSeries %}
                                     {% for seriesLabel in table.seriesLabels %}

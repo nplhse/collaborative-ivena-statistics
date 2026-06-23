@@ -61,11 +61,13 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 ## Current limitations (intentional)
 
 - No sharing, dashboards, or recommended views.
-- No hospitals data source or additional metrics beyond `allocation_count`.
+- Only the `allocations` data source (no separate hospitals data source).
+- No CSV or table export yet (chart/table export is planned for Generic Analysis; Explorer has no export UI).
 - No URL-encoded config sharing.
 - No delete workflow for saved views.
-- No pivot feature expansion beyond results table.
+- No pivot feature expansion beyond the results table matrix layouts.
 - No migration of existing Generic Analysis pages.
+- Charts display a single `visualMetric`; additional metrics appear in the table only.
 - Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
 
 ## Architecture
@@ -78,9 +80,11 @@ AnalysisExplorerController
             ├─ AnalysisViewConfigNormalizer / AnalysisViewConfigValidator
             ├─ ExplorerEditFormType + ExplorerEditFormNormalizer
             ├─ AllocationsCapabilitiesProvider (scoped via GenericAnalysisDimensionPolicy)
+            ├─ AnalysisAxisResolver / AnalysisAxisUpgradeMapper
             ├─ AllocationsAnalysisRunner → AllocationsCountQuery
             │     ├─ ExplorerAllocationQueryMapper → GenericAllocationAnalysisQuery
             │     └─ ExplorerAllocationResultMapper + AnalysisDimensionLabelResolver
+            ├─ AnalysisMatrix + AnalysisTotalsCalculator
             ├─ ExplorerChartPresenter
             └─ ExplorerResultsTablePresenter
 ```
@@ -198,7 +202,7 @@ Six original views (`allocations-over-time`, `gender-over-time`, …) plus eight
 
 No changes to `AllocationsCountQuery` SQL are required when the dimension is in `DimensionRegistry` — the GA bridge handles aggregation and labeling.
 
-Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
+Grain resolution is centralized in `AnalysisAxisResolver` (per-axis defaults and capability clamping).
 
 ## How to add another data source later
 
@@ -218,7 +222,8 @@ Grain resolution is centralized in `AnalysisDimensionGrainResolver`.
 | LiveComponent | `src/Statistics/AnalysisExplorer/UI/LiveComponent/AnalysisExplorerShell.php` |
 | Config | `src/Statistics/AnalysisExplorer/Application/ExplorerConfigMapper.php` |
 | Normalizer / Validator | `AnalysisViewConfigNormalizer.php`, `AnalysisViewConfigValidator.php` |
-| Grain resolver | `AnalysisDimensionGrainResolver.php` |
+| Axis resolver | `AnalysisAxisResolver.php`, `AnalysisAxisUpgradeMapper.php` |
+| Matrix / totals | `AnalysisMatrix.php`, `AnalysisTotalsCalculator.php`, `AnalysisTotals.php` |
 | Capabilities | `AllocationsCapabilitiesProvider.php`, `DataSourceCapabilities.php`, `ExplorerMetricCatalog.php`, `ExplorerMetricCapabilityPolicy.php` |
 | Query bridge | `ExplorerAllocationQueryMapper.php`, `ExplorerAllocationResultMapper.php`, `ExplorerAllocationAnalysisExecutor.php`, `AnalysisDimensionLabelResolver.php`, `ExplorerMetricKeyMapper.php` |
 | Runner / Query | `AllocationsAnalysisRunner.php`, `Infrastructure/Query/AllocationsCountQuery.php` (facade over executor) |

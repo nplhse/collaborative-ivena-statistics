@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
-use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
-use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
-use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class ExplorerEditFormNormalizerTest extends TestCase
+final class ExplorerEditFormNormalizerTest extends KernelTestCase
 {
-    use AnalysisExplorerTestSupport;
-
     private ExplorerEditFormNormalizer $normalizer;
 
     protected function setUp(): void
     {
-        $capabilities = $this->createAllocationsCapabilitiesProvider();
-        $this->normalizer = new ExplorerEditFormNormalizer(
-            $this->createAllocationsCapabilitiesProvider(),
-            new AnalysisAxisResolver(),
-            new ExplorerConfigPreviewFactory(),
-            $this->createExplorerMetricCapabilityPolicy(),
-        );
+        self::bootKernel();
+        $this->normalizer = self::getContainer()->get(ExplorerEditFormNormalizer::class);
     }
 
     public function testGenderRowsWithEmptyGrainDefaultsToTotal(): void
@@ -61,6 +51,18 @@ final class ExplorerEditFormNormalizerTest extends TestCase
     {
         $normalized = $this->normalizer->normalize($this->formData(
             rowDimension: 'time',
+            rowGrain: 'total',
+            chartType: 'bar',
+        ));
+
+        self::assertSame('time', $normalized->rowDimension);
+        self::assertSame('month', $normalized->rowGrain);
+    }
+
+    public function testHospitalRowOnPublicScopeDowngradesToTime(): void
+    {
+        $normalized = $this->normalizer->normalize($this->formData(
+            rowDimension: 'hospital',
             rowGrain: 'total',
             chartType: 'bar',
         ));

@@ -9,6 +9,7 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\Application\DTO\StatisticsFilter;
@@ -152,6 +153,28 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame(AnalysisDimensionKey::Gender, $config->rowAxis->dimensionKey);
         self::assertSame(AnalysisDimensionGrain::Total, $config->rowAxis->resolvedGrain());
         self::assertNull($config->columnAxis);
+    }
+
+    public function testLegacySingularMetricUpgradesToMetricsArray(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $config = $mapper->viewConfigFromState([
+            'schemaVersion' => 2,
+            'dataSource' => 'allocations',
+            'query' => [
+                'scope' => ['group' => 'public', 'detail' => null],
+                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'metric' => 'allocation_count',
+                'rows' => ['dimension' => 'time', 'grain' => 'month'],
+            ],
+            'presentation' => ['mode' => 'chart', 'chartType' => 'bar'],
+            'title' => 'Allocations over time',
+        ], null);
+
+        self::assertSame([AnalysisMetricKey::AllocationCount], $config->metricKeys);
+        self::assertSame(AnalysisMetricKey::AllocationCount, $config->visualMetricKey);
     }
 
     public function testLegacyFlatStateIsUpgraded(): void

@@ -136,4 +136,38 @@ final class AnalysisViewConfigValidatorTest extends TestCase
             self::assertSame('stats.analysis_explorer.validation.unsupported_dimension', $exception->translationKey);
         }
     }
+
+    public function testRateAndDistributionMetricsRejectConfig(): void
+    {
+        $validator = new AnalysisViewConfigValidator(
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createExplorerMetricCapabilityPolicy(),
+            $this->createSecurityWithoutUser(),
+        );
+
+        try {
+            $validator->validate(new AnalysisViewConfig(
+                dataSourceKey: AnalysisDataSourceKey::Allocations,
+                metricKeys: [
+                    AnalysisMetricKey::AllocationCount,
+                    AnalysisMetricKey::ResusRate,
+                    AnalysisMetricKey::PercentOfTotal,
+                ],
+                visualMetricKey: AnalysisMetricKey::ResusRate,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+                columnAxis: null,
+                statisticsFilter: new StatisticsFilter(
+                    scope: StatisticsFilterScope::Public,
+                    hospitalId: null,
+                    cohortType: null,
+                    period: StatisticsFilterPeriod::AllTime,
+                ),
+                presentation: new PresentationConfig(chartType: ChartPresentationType::Line),
+                title: 'Rates and distribution',
+            ));
+            self::fail('Expected InvalidExplorerConfigException');
+        } catch (InvalidExplorerConfigException $exception) {
+            self::assertSame('stats.analysis_explorer.validation.incompatible_metrics', $exception->translationKey);
+        }
+    }
 }

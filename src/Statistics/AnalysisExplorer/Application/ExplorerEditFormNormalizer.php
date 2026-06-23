@@ -9,6 +9,9 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
+use App\Statistics\Application\StatisticsFilterFactory;
+use App\User\Domain\Entity\User;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final readonly class ExplorerEditFormNormalizer
 {
@@ -17,12 +20,23 @@ final readonly class ExplorerEditFormNormalizer
         private AnalysisAxisResolver $axisResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
+        private ExplorerStatisticsFilterInputFactory $filterInputFactory,
+        private StatisticsFilterFactory $statisticsFilterFactory,
+        private Security $security,
     ) {
     }
 
     public function normalize(ExplorerEditFormData $formData): ExplorerEditFormData
     {
-        $capabilities = $this->capabilitiesProvider->capabilities();
+        $user = $this->security->getUser();
+        $filter = $this->statisticsFilterFactory->createFromInput(
+            $this->filterInputFactory->fromSideFormData($formData->scopePeriod),
+            $user instanceof User ? $user : null,
+        );
+        $capabilities = $this->capabilitiesProvider->capabilitiesFor(
+            $user instanceof User ? $user : null,
+            $filter,
+        );
 
         $rowAxis = $this->axisResolver->resolveFromStrings(
             $formData->rowDimension,

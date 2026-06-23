@@ -8,12 +8,14 @@ final readonly class ExplorerResultsTableRow
 {
     /**
      * @param array<string, int|float> $seriesValues
+     * @param array<string, string>    $formattedSeriesValues
      * @param array<string, string>    $formattedMetricValues
      */
     public function __construct(
         public string $bucketLabel,
         public array $formattedMetricValues = [],
         public array $seriesValues = [],
+        public array $formattedSeriesValues = [],
         public string $formattedRowTotal = '0',
         public float $rowTotal = 0.0,
         public string $metricSubRowLabel = '',
