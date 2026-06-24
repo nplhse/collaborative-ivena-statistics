@@ -47,7 +47,9 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library page lists **Overview** (system views with category filters), **Favorites**, and **My views** for signed-in users.
+The analysis library page lists **Overview** (38 system views with category filters), **Favorites**, and **My views** for signed-in users.
+
+Library standards, dashboard alignment, and phased refactor backlog: [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md).
 
 Loading flow:
 
