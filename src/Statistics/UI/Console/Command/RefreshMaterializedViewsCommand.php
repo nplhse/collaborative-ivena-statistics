@@ -7,41 +7,27 @@ namespace App\Statistics\UI\Console\Command;
 use App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:statistics:refresh-mviews',
     description: 'Refresh statistics materialized views (all groups by default).',
 )]
-final class RefreshMaterializedViewsCommand extends Command
+final readonly class RefreshMaterializedViewsCommand
 {
     public function __construct(
-        private readonly MaterializedViewRefresher $materializedViewRefresher,
+        private MaterializedViewRefresher $materializedViewRefresher,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this->addOption(
-            'overview',
-            null,
-            InputOption::VALUE_NONE,
-            'Refresh only overview materialized views (state/dispatch hospital counts and hospital dimensions)',
-        );
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $groups = $input->getOption('overview')
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option(description: 'Refresh only overview materialized views (state/dispatch hospital counts and hospital dimensions)')]
+        bool $overview = false,
+    ): int {
+        $groups = $overview
             ? [StatisticsMaterializedViewGroups::OVERVIEW]
             : [];
 
