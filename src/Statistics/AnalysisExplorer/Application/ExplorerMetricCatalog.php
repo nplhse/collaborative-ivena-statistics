@@ -96,4 +96,25 @@ final class ExplorerMetricCatalog
 
         return $keys;
     }
+
+    /**
+     * @return list<string>
+     */
+    public function metricGroupOrderFor(AnalysisDataSourceKey $dataSourceKey): array
+    {
+        return match ($dataSourceKey) {
+            AnalysisDataSourceKey::Allocations => [
+                'stats.analysis_explorer.metric_group.counts',
+                'stats.analysis_explorer.metric_group.clinical_rates',
+                'stats.analysis_explorer.metric_group.shares',
+                'stats.analysis_explorer.metric_group.transport_times',
+            ],
+            AnalysisDataSourceKey::Hospitals => [
+                'stats.analysis_explorer.metric_group.counts',
+                'stats.analysis_explorer.metric_group.beds',
+                'stats.analysis_explorer.metric_group.allocations',
+                'stats.analysis_explorer.metric_group.transport_times',
+            ],
+        };
+    }
 }
