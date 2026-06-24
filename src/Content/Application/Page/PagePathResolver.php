@@ -4,37 +4,33 @@ declare(strict_types=1);
 
 namespace App\Content\Application\Page;
 
+use App\Content\Application\Slug\SlugGenerator;
 use App\Content\Domain\Entity\Page;
-use Symfony\Component\String\Slugger\SluggerInterface;
 
 final readonly class PagePathResolver
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private SluggerInterface $slugger,
+        private SlugGenerator $slugGenerator,
     ) {
-    }
-
-    public function normalizeSlug(?string $value): string
-    {
-        $slug = strtolower($this->slugger->slug((string) $value)->toString());
-
-        if ('' === $slug) {
-            throw new \InvalidArgumentException('Slug must not be empty.');
-        }
-
-        return $slug;
     }
 
     public function synchronize(Page $page): void
     {
-        $page->setSlug($this->normalizeSlug($page->getSlug()));
+        $raw = trim((string) $page->getSlug());
+
+        if ('' === $raw) {
+            $page->setSlug($this->slugGenerator->normalize((string) $page->getTitle(), SlugGenerator::MAX_LENGTH_PAGE));
+        } else {
+            $page->setSlug($raw);
+        }
+
         $page->setPath($this->buildPath($page));
     }
 
     public function buildPath(Page $page): string
     {
-        $slug = $this->normalizeSlug($page->getSlug());
+        $slug = (string) $page->getSlug();
         $parent = $page->getParent();
 
         if (!$parent instanceof Page) {

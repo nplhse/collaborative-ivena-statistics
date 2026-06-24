@@ -30,7 +30,7 @@ final class BlogEntitiesTest extends TestCase
 
         $post->addTag($tag);
         self::assertCount(1, $post->getTags());
-        self::assertSame('my-first-post', $post->getSlug());
+        self::assertNull($post->getSlug());
 
         $post->removeTag($tag);
         self::assertCount(0, $post->getTags());

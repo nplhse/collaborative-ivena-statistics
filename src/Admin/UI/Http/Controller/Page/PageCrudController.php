@@ -29,7 +29,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -112,7 +111,10 @@ final class PageCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->onlyOnDetail();
         yield TextField::new('title', 'label.title');
-        yield SlugField::new('slug', 'label.slug')->setTargetFieldName('title')->hideOnIndex();
+        yield TextField::new('slug', 'label.slug')
+            ->setRequired(false)
+            ->setHelp('help.page.slug')
+            ->hideOnIndex();
         yield ChoiceField::new('key', 'label.page_key')
             ->setChoices($this->buildPageKeyChoices())
             ->setRequired(false)
@@ -211,7 +213,7 @@ final class PageCrudController extends AbstractCrudController
 
     private function prepareContent(Page $page): void
     {
-        if ($this->pageHasSlug($page)) {
+        if ($this->shouldSynchronizePath($page)) {
             $this->pagePathResolver->synchronize($page);
         }
 
@@ -245,7 +247,7 @@ final class PageCrudController extends AbstractCrudController
                 return;
             }
 
-            if (!$this->pageHasSlug($page)) {
+            if (!$this->shouldSynchronizePath($page)) {
                 return;
             }
 
@@ -253,11 +255,9 @@ final class PageCrudController extends AbstractCrudController
         }, 512);
     }
 
-    private function pageHasSlug(Page $page): bool
+    private function shouldSynchronizePath(Page $page): bool
     {
-        $slug = $page->getSlug();
-
-        return null !== $slug && '' !== trim($slug);
+        return '' !== trim((string) $page->getTitle());
     }
 
     private function formatBlockTypeLabel(string $type): string

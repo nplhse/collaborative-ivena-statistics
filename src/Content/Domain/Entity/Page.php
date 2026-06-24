@@ -51,7 +51,6 @@ class Page implements \Stringable
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[Assert\NotBlank]
     #[Assert\Regex(
         pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
         message: 'page.validation.slug_format',

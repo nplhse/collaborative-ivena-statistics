@@ -3743,6 +3743,10 @@
         <source>help.blog.published_at</source>
         <target>Only published posts with a timestamp in the past become publicly visible.</target>
       </trans-unit>
+      <trans-unit id="blog0052b" resname="help.blog.slug">
+        <source>help.blog.slug</source>
+        <target>Leave empty to generate automatically from the title.</target>
+      </trans-unit>
       <trans-unit id="blog0053" resname="blog.list.all_posts">
         <source>blog.list.all_posts</source>
         <target>All posts</target>
@@ -4222,6 +4226,10 @@
       <trans-unit id="page0026bl" resname="help.page.content_blocks_reorder">
         <source>help.page.content_blocks_reorder</source>
         <target>Use the up and down arrows on each block to change the order.</target>
+      </trans-unit>
+      <trans-unit id="page0026bm" resname="help.page.slug">
+        <source>help.page.slug</source>
+        <target>Leave empty to generate automatically from the title.</target>
       </trans-unit>
       <trans-unit id="page0027" resname="error.page.auth_required">
         <source>error.page.auth_required</source>
