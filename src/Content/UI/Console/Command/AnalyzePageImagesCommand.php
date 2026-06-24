@@ -7,45 +7,31 @@ namespace App\Content\UI\Console\Command;
 use App\Content\Application\Media\MediaDimensionsBackfillService;
 use App\Content\Application\Page\PageImageContentAnalyzer;
 use App\Content\Application\Page\PageImageContentMigrationService;
+use App\Content\UI\Console\Input\AnalyzePageImagesInput;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:content:analyze-page-images',
     description: 'Analyze page image references, backfill media dimensions, and optionally migrate layout sizes.',
 )]
-final class AnalyzePageImagesCommand extends Command
+final readonly class AnalyzePageImagesCommand
 {
     public function __construct(
-        private readonly PageImageContentAnalyzer $analyzer,
-        private readonly MediaDimensionsBackfillService $dimensionsBackfillService,
-        private readonly PageImageContentMigrationService $migrationService,
+        private PageImageContentAnalyzer $analyzer,
+        private MediaDimensionsBackfillService $dimensionsBackfillService,
+        private PageImageContentMigrationService $migrationService,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only report findings without writing changes (default)')
-            ->addOption('apply', null, InputOption::VALUE_NONE, 'Apply selected write operations')
-            ->addOption('backfill-dimensions', null, InputOption::VALUE_NONE, 'Backfill missing media width/height from local files')
-            ->addOption('migrate-size', null, InputOption::VALUE_NONE, 'Migrate image blocks from size lg to auto when recommended')
-            ->addOption('fix-richtext-snippets', null, InputOption::VALUE_NONE, 'Replace --size-lg with --size-auto in HTML snippets')
-            ->addOption('page-id', null, InputOption::VALUE_REQUIRED, 'Analyze or migrate a single page');
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $dryRun = !$input->getOption('apply');
-        $pageId = $this->parsePageId($input->getOption('page-id'));
+    public function __invoke(
+        SymfonyStyle $io,
+        #[MapInput] AnalyzePageImagesInput $input,
+    ): int {
+        $dryRun = !$input->apply;
+        $pageId = $this->parsePageId($input->pageId);
 
         $io->title('Analyze page images');
 
@@ -77,7 +63,7 @@ final class AnalyzePageImagesCommand extends Command
             );
         }
 
-        if ($input->getOption('backfill-dimensions')) {
+        if ($input->backfillDimensions) {
             $result = $this->dimensionsBackfillService->backfill($dryRun);
             $io->section('Media dimension backfill');
             $io->table(
@@ -90,21 +76,21 @@ final class AnalyzePageImagesCommand extends Command
             );
         }
 
-        if ($input->getOption('migrate-size')) {
+        if ($input->migrateSize) {
             $result = $this->migrationService->migrateSizes($dryRun, $pageId);
             $io->section('Image block size migration');
             $io->writeln(sprintf('Updated image blocks: %d', $result->updatedBlocks));
             $io->writeln(sprintf('Affected pages: %d', $result->updatedPages));
         }
 
-        if ($input->getOption('fix-richtext-snippets')) {
+        if ($input->fixRichtextSnippets) {
             $result = $this->migrationService->fixRichtextSnippets($dryRun, $pageId);
             $io->section('Richtext snippet migration');
             $io->writeln(sprintf('Updated HTML blocks: %d', $result->updatedBlocks));
             $io->writeln(sprintf('Affected pages: %d', $result->updatedPages));
         }
 
-        if ($dryRun && ($input->getOption('backfill-dimensions') || $input->getOption('migrate-size') || $input->getOption('fix-richtext-snippets'))) {
+        if ($dryRun && ($input->backfillDimensions || $input->migrateSize || $input->fixRichtextSnippets)) {
             $io->success('Dry run finished. Re-run with --apply to persist changes.');
         } else {
             $io->success('Analysis finished.');
@@ -113,9 +99,9 @@ final class AnalyzePageImagesCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function parsePageId(mixed $value): ?int
+    private function parsePageId(?string $value): ?int
     {
-        if (!is_string($value) || !ctype_digit($value)) {
+        if (null === $value || !ctype_digit($value)) {
             return null;
         }
 

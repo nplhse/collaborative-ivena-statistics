@@ -10,12 +10,12 @@ use App\Statistics\Application\Projection\Dto\DeduplicationReport;
 use App\Statistics\Application\Projection\Dto\DeduplicationStrategySummary;
 use App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
+use App\Statistics\UI\Console\Input\DeduplicateProjectionInput;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -23,32 +23,23 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'app:projection:deduplicate',
     description: 'Detect and remove duplicate allocation_stats_projection rows caused by duplicate allocations.',
 )]
-final class DeduplicateProjectionCommand extends Command
+final readonly class DeduplicateProjectionCommand
 {
     private const int PROGRESS_BAR_THRESHOLD = 100;
 
     public function __construct(
-        private readonly AllocationProjectionDeduplicator $deduplicator,
-        private readonly MaterializedViewRefresher $materializedViewRefresher,
-        private readonly Connection $connection,
+        private AllocationProjectionDeduplicator $deduplicator,
+        private MaterializedViewRefresher $materializedViewRefresher,
+        private Connection $connection,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only report duplicates without deleting (default)')
-            ->addOption('execute', null, InputOption::VALUE_NONE, 'Delete duplicates, remove orphan projections, and refresh materialized views');
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $execute = (bool) $input->getOption('execute');
-        $dryRun = !$execute || (bool) $input->getOption('dry-run');
+    public function __invoke(
+        SymfonyStyle $io,
+        OutputInterface $output,
+        #[MapInput] DeduplicateProjectionInput $input,
+    ): int {
+        $dryRun = !$input->execute || $input->dryRun;
 
         $io->title('Deduplicate allocation_stats_projection');
 
