@@ -15,7 +15,6 @@ use App\Statistics\Benchmarking\Application\BenchmarkSelectionQueryBuilder;
 use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
-use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -37,7 +36,6 @@ final class BenchmarkingController extends AbstractController
         private readonly ComparisonScopeResolver $comparisonScopeResolver,
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
-        private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
         private readonly BenchmarkSelectionViewModelFactory $benchmarkSelectionViewModelFactory,
         private readonly BenchmarkChartPayloadFactory $benchmarkChartPayloadFactory,
         private readonly BenchmarkIndicationMixViewModelFactory $benchmarkIndicationMixViewModelFactory,
@@ -83,7 +81,6 @@ final class BenchmarkingController extends AbstractController
             $filter,
             $comparisonFilter,
         );
-        $statsFilterDrawer = $this->statisticsFilterDrawerViewModelFactory->create($request);
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
             'app_stats_benchmarking',
@@ -110,8 +107,6 @@ final class BenchmarkingController extends AbstractController
             'benchmarkSelectionFormData' => $this->benchmarkSelectionFormDataFactory->fromFilters($filter, $comparisonFilter),
             'benchmarkSelectionPreservedQuery' => $this->extractPreservedSelectionQuery($request),
             'indicationMixViewModel' => $this->benchmarkIndicationMixViewModelFactory->create($request, $report->indicationMix),
-            'statsFilterDrawer' => $statsFilterDrawer,
-            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_benchmarking'),
         ]);
     }
 

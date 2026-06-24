@@ -28,7 +28,6 @@ final class IndicationDashboardController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
-        private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
         private readonly IndicationDashboardChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
@@ -79,10 +78,6 @@ final class IndicationDashboardController extends AbstractController
             'app_stats_indication_dashboard',
             $filter,
         );
-        $statsFilterDrawer = $this->statisticsFilterDrawerViewModelFactory->create($request);
-
-        $routeParams = ['indicationId' => $indicationId];
-
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
             $user,
@@ -113,8 +108,6 @@ final class IndicationDashboardController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
-            'statsFilterDrawer' => $statsFilterDrawer,
-            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_dashboard', $routeParams),
             'indicationId' => $indicationId,
             'comparePicker' => $this->comparePickerViewModelFactory->create(
                 $request,

@@ -31,7 +31,6 @@ final class IndicationInsightsIndexController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
-        private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
         private readonly IndicationPickerViewModelFactory $indicationPickerViewModelFactory,
         private readonly IndicationGroupPickerViewModelFactory $groupPickerViewModelFactory,
         private readonly IndicationCompareSubjectPickerViewModelFactory $compareSubjectPickerViewModelFactory,
@@ -67,8 +66,6 @@ final class IndicationInsightsIndexController extends AbstractController
             'app_stats_indication_insights',
             $filter,
         );
-        $statsFilterDrawer = $this->statisticsFilterDrawerViewModelFactory->create($request);
-
         $data = $this->topDiagnosesQuery->fetch($context, self::TOP_LIMIT);
         $total = $data['totalAllocations'];
         $topRows = [];
@@ -158,8 +155,6 @@ final class IndicationInsightsIndexController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
-            'statsFilterDrawer' => $statsFilterDrawer,
-            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_insights'),
         ]);
     }
 }
