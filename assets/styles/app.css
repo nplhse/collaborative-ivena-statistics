@@ -386,3 +386,14 @@
     color: inherit;
     text-decoration-color: var(--tblr-secondary, #667382);
 }
+
+.input-group [data-testid^="password-toggle-"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.5rem;
+}
+
+.input-group [data-testid^="password-toggle-"] .icon {
+    margin: 0;
+}

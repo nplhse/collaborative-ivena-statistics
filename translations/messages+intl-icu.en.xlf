@@ -1153,6 +1153,14 @@
         <source>label.password</source>
         <target>Password</target>
       </trans-unit>
+      <trans-unit id="pwdShow01" resname="label.password.show">
+        <source>label.password.show</source>
+        <target>Show password</target>
+      </trans-unit>
+      <trans-unit id="pwdHide01" resname="label.password.hide">
+        <source>label.password.hide</source>
+        <target>Hide password</target>
+      </trans-unit>
       <trans-unit id="dzmkSoD" resname="label.pregnant">
         <source>label.pregnant</source>
         <target>Pregnant</target>
