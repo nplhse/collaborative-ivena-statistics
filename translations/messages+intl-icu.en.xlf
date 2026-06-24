@@ -1397,14 +1397,6 @@
         <source>link.stats.analytics_library</source>
         <target>Analysis</target>
       </trans-unit>
-      <trans-unit id="statsLnkPt01" resname="link.stats.pivot_tables">
-        <source>link.stats.pivot_tables</source>
-        <target>Pivot Tables</target>
-      </trans-unit>
-      <trans-unit id="statsPtSel01" resname="stats.pivot_tables.select_label">
-        <source>stats.pivot_tables.select_label</source>
-        <target>Pivot table</target>
-      </trans-unit>
       <trans-unit id="statsAlLib01" resname="stats.analytics_library.title">
         <source>stats.analytics_library.title</source>
         <target>Analysis</target>
@@ -2911,14 +2903,6 @@
         <source>stats.analysis.chart.line</source>
         <target>Line</target>
       </trans-unit>
-      <trans-unit id="statsAnAbmLb" resname="stats.analysis.allocations_by_month.label">
-        <source>stats.analysis.allocations_by_month.label</source>
-        <target>Allocations over time</target>
-      </trans-unit>
-      <trans-unit id="statsAnCmpLb" resname="stats.analysis.allocations_comparison_over_time.label">
-        <source>stats.analysis.allocations_comparison_over_time.label</source>
-        <target>Allocations compare over time</target>
-      </trans-unit>
       <trans-unit id="statsAnCmp01" resname="stats.analysis.comparison.scope_label">
         <source>stats.analysis.comparison.scope_label</source>
         <target>Comparison scope</target>
@@ -2951,10 +2935,6 @@
         <source>stats.analysis.comparison.delta_percent</source>
         <target>Delta %</target>
       </trans-unit>
-      <trans-unit id="statsAnAbmCt" resname="stats.analysis.allocations_by_month.card_title">
-        <source>stats.analysis.allocations_by_month.card_title</source>
-        <target>Allocations over time</target>
-      </trans-unit>
       <trans-unit id="statsAnDimLb" resname="stats.analysis.dimension_label">
         <source>stats.analysis.dimension_label</source>
         <target>Dimension</target>
@@ -2978,178 +2958,6 @@
       <trans-unit id="statsAnDimFeat" resname="stats.analysis.dimension.features">
         <source>stats.analysis.dimension.features</source>
         <target>Clinical features</target>
-      </trans-unit>
-      <trans-unit id="statsPivotLbl" resname="stats.analysis.pivot.label">
-        <source>stats.analysis.pivot.label</source>
-        <target>Pivot</target>
-      </trans-unit>
-      <trans-unit id="statsAllocPivotLbl" resname="stats.analysis.allocation_pivot.label">
-        <source>stats.analysis.allocation_pivot.label</source>
-        <target>Allocations Pivot</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotLbl" resname="stats.analysis.hospital_pivot.label">
-        <source>stats.analysis.hospital_pivot.label</source>
-        <target>Hospitals Pivot</target>
-      </trans-unit>
-      <trans-unit id="statsPivotRowsLbl" resname="stats.analysis.pivot.rows_label">
-        <source>stats.analysis.pivot.rows_label</source>
-        <target>Rows</target>
-      </trans-unit>
-      <trans-unit id="statsPivotColsLbl" resname="stats.analysis.pivot.cols_label">
-        <source>stats.analysis.pivot.cols_label</source>
-        <target>Columns</target>
-      </trans-unit>
-      <trans-unit id="statsPivotMeasureLbl" resname="stats.analysis.pivot.measure_label">
-        <source>stats.analysis.pivot.measure_label</source>
-        <target>Measure</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAxRowsDept" resname="stats.analysis.pivot.axis.rows.department">
-        <source>stats.analysis.pivot.axis.rows.department</source>
-        <target>Department</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAxRowsAge" resname="stats.analysis.pivot.axis.rows.age_group">
-        <source>stats.analysis.pivot.axis.rows.age_group</source>
-        <target>Age group</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAxRowsUrg" resname="stats.analysis.pivot.axis.rows.urgency">
-        <source>stats.analysis.pivot.axis.rows.urgency</source>
-        <target>Urgency</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAxRowsGen" resname="stats.analysis.pivot.axis.rows.gender">
-        <source>stats.analysis.pivot.axis.rows.gender</source>
-        <target>Gender</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAxColsGen" resname="stats.analysis.pivot.axis.cols.gender">
-        <source>stats.analysis.pivot.axis.cols.gender</source>
-        <target>Gender</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAxColsUrg" resname="stats.analysis.pivot.axis.cols.urgency">
-        <source>stats.analysis.pivot.axis.cols.urgency</source>
-        <target>Urgency</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAgeUnk" resname="stats.analysis.pivot.age.unknown">
-        <source>stats.analysis.pivot.age.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge018" resname="stats.analysis.pivot.age.0_18">
-        <source>stats.analysis.pivot.age.0_18</source>
-        <target>0–18</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge1929" resname="stats.analysis.pivot.age.19_29">
-        <source>stats.analysis.pivot.age.19_29</source>
-        <target>19–29</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge3039" resname="stats.analysis.pivot.age.30_39">
-        <source>stats.analysis.pivot.age.30_39</source>
-        <target>30–39</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge4049" resname="stats.analysis.pivot.age.40_49">
-        <source>stats.analysis.pivot.age.40_49</source>
-        <target>40–49</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge5059" resname="stats.analysis.pivot.age.50_59">
-        <source>stats.analysis.pivot.age.50_59</source>
-        <target>50–59</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge6069" resname="stats.analysis.pivot.age.60_69">
-        <source>stats.analysis.pivot.age.60_69</source>
-        <target>60–69</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge7079" resname="stats.analysis.pivot.age.70_79">
-        <source>stats.analysis.pivot.age.70_79</source>
-        <target>70–79</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge8089" resname="stats.analysis.pivot.age.80_89">
-        <source>stats.analysis.pivot.age.80_89</source>
-        <target>80–89</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge9099" resname="stats.analysis.pivot.age.90_99">
-        <source>stats.analysis.pivot.age.90_99</source>
-        <target>90–99</target>
-      </trans-unit>
-      <trans-unit id="statsPivotAge100p" resname="stats.analysis.pivot.age.100_plus">
-        <source>stats.analysis.pivot.age.100_plus</source>
-        <target>100+</target>
-      </trans-unit>
-      <trans-unit id="statsPivotRowTot" resname="stats.analysis.pivot.row_total">
-        <source>stats.analysis.pivot.row_total</source>
-        <target>Row total</target>
-      </trans-unit>
-      <trans-unit id="statsPivotColTot" resname="stats.analysis.pivot.column_total">
-        <source>stats.analysis.pivot.column_total</source>
-        <target>Column total</target>
-      </trans-unit>
-      <trans-unit id="statsPivotGrandTot" resname="stats.analysis.pivot.grand_total">
-        <source>stats.analysis.pivot.grand_total</source>
-        <target>Grand total</target>
-      </trans-unit>
-      <trans-unit id="statsPivotUnknown" resname="stats.analysis.pivot.unknown">
-        <source>stats.analysis.pivot.unknown</source>
-        <target>Unknown</target>
-      </trans-unit>
-      <trans-unit id="statsAllPivotMeasCount" resname="stats.analysis.allocation_pivot.measure.count">
-        <source>stats.analysis.allocation_pivot.measure.count</source>
-        <target>Count</target>
-      </trans-unit>
-      <trans-unit id="statsAllPivotMeasRowPct" resname="stats.analysis.allocation_pivot.measure.row_percent">
-        <source>stats.analysis.allocation_pivot.measure.row_percent</source>
-        <target>Row percent</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotAxState" resname="stats.analysis.hospital_pivot.axis.state">
-        <source>stats.analysis.hospital_pivot.axis.state</source>
-        <target>State</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotAxDispatch" resname="stats.analysis.hospital_pivot.axis.dispatch_area">
-        <source>stats.analysis.hospital_pivot.axis.dispatch_area</source>
-        <target>Dispatch area</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotAxLoc" resname="stats.analysis.hospital_pivot.axis.location">
-        <source>stats.analysis.hospital_pivot.axis.location</source>
-        <target>Location</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotAxTier" resname="stats.analysis.hospital_pivot.axis.tier">
-        <source>stats.analysis.hospital_pivot.axis.tier</source>
-        <target>Tier</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotAxSize" resname="stats.analysis.hospital_pivot.axis.size">
-        <source>stats.analysis.hospital_pivot.axis.size</source>
-        <target>Size</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasHospCount" resname="stats.analysis.hospital_pivot.measure.hospital_count">
-        <source>stats.analysis.hospital_pivot.measure.hospital_count</source>
-        <target>Hospital count</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasAvgBeds" resname="stats.analysis.hospital_pivot.measure.avg_beds">
-        <source>stats.analysis.hospital_pivot.measure.avg_beds</source>
-        <target>Average beds</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasMinBeds" resname="stats.analysis.hospital_pivot.measure.min_beds">
-        <source>stats.analysis.hospital_pivot.measure.min_beds</source>
-        <target>Min beds</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasMaxBeds" resname="stats.analysis.hospital_pivot.measure.max_beds">
-        <source>stats.analysis.hospital_pivot.measure.max_beds</source>
-        <target>Max beds</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasTotAlloc" resname="stats.analysis.hospital_pivot.measure.total_allocations">
-        <source>stats.analysis.hospital_pivot.measure.total_allocations</source>
-        <target>Total allocations</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasAvgAlloc" resname="stats.analysis.hospital_pivot.measure.avg_allocations">
-        <source>stats.analysis.hospital_pivot.measure.avg_allocations</source>
-        <target>Average allocations</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasMinAlloc" resname="stats.analysis.hospital_pivot.measure.min_allocations">
-        <source>stats.analysis.hospital_pivot.measure.min_allocations</source>
-        <target>Min allocations</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasMaxAlloc" resname="stats.analysis.hospital_pivot.measure.max_allocations">
-        <source>stats.analysis.hospital_pivot.measure.max_allocations</source>
-        <target>Max allocations</target>
-      </trans-unit>
-      <trans-unit id="statsHospPivotMeasRowPct" resname="stats.analysis.hospital_pivot.measure.row_percent">
-        <source>stats.analysis.hospital_pivot.measure.row_percent</source>
-        <target>Share in % (row)</target>
       </trans-unit>
       <trans-unit id="statsAnChMsLbl" resname="stats.analysis.chart_measure.label">
         <source>stats.analysis.chart_measure.label</source>

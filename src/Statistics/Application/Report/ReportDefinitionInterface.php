@@ -9,7 +9,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
 
 /**
- * Curated statistics report (not exploratory like {@see AnalysisDefinitionInterface}).
+ * Curated statistics report.
  *
  * {@see build()} receives {@see StatisticsContext} so hospital scopes such as "My hospitals"
  * can respect the signed-in user (same idea as analysis).

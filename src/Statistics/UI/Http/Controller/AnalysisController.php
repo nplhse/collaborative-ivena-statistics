@@ -14,17 +14,6 @@ final class AnalysisController extends AbstractController
     #[Route('/statistics/analysis', name: 'app_stats_analysis', methods: ['GET'])]
     public function __invoke(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
-        $analysis = $request->query->getString(StatisticsQueryKeys::ANALYSIS);
-
-        if (\in_array($analysis, ['allocation_pivot', 'hospital_pivot', 'pivot'], true)) {
-            $query = $request->query->all();
-            if ('pivot' === $analysis) {
-                $query[StatisticsQueryKeys::ANALYSIS] = 'allocation_pivot';
-            }
-
-            return $this->redirectToRoute('app_stats_pivot_tables', $query);
-        }
-
         return $this->redirectToRoute('app_stats_analysis_library', $this->libraryQuery($request));
     }
 

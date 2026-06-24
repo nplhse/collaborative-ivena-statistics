@@ -15,7 +15,4 @@ enum StatisticWidgetType: string
 
     /** Single ApexChart (line or bar chart, e.g. analysis). */
     case SimpleChart = 'simple_chart';
-
-    /** Pivot cross-tabulation. */
-    case PivotTable = 'pivot_table';
 }

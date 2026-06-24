@@ -20,9 +20,6 @@ namespace App\Statistics\Application\DTO;
  * - distribution: titleTranslationKey, rows (labelTranslationKey, count, percent); optional widget.actions (cross-nav in card header)
  * - summary_deck: hospital overview deck (KPI + gender + urgency), see HospitalSummaryProvider;
  *               optional kpi.actions, gender.actions, urgency.actions (each list<StatisticWidgetNavigationTarget>)
- * - pivot_table: pivot analysis — rowDimensionLabel, columnLabels, rowLabels, matrix, row_totals, column_totals, grand_total,
- *                rowTotalHeaderLabel, columnTotalFooterLabel, grandTotalFooterLabel (strings);
- *                optional pivotRowChoices, pivotColChoices (list{labelKey, url, active}) merged into payload by the controller
  */
 final readonly class StatisticWidget
 {
