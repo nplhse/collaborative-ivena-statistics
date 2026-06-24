@@ -1,58 +1,158 @@
-{% set drawerFilterKeys = ['gender', 'urgency', 'age_range', 'feature', 'department', 'speciality', 'dispatch_area', 'hospital_attribute'] %}
-<div class="offcanvas offcanvas-end" tabindex="-1" id="statistics-filters-drawer" aria-labelledby="statistics-filters-drawer-label">
+{% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
+
+{% set drawerValues = statsFilterDrawer.values|default(statsFilterDrawerValues|default({})) %}
+{% set drawerChoices = statsFilterDrawer.choices|default({}) %}
+{% set drawerFilterKeys = statsFilterDrawer.filterKeys|default([
+    'gender', 'urgency', 'age_group', 'department', 'speciality',
+    'requiresResus', 'requiresCathlab', 'isVentilated', 'isShock', 'isCPR',
+    'isPregnant', 'isWorkAccident', 'isInfectious', 'infection',
+]) %}
+{% set allocationActive = drawerValues.urgency is not empty
+    or drawerValues.department is not empty
+    or drawerValues.speciality is not empty %}
+{% set clinicalActive = drawerValues.requiresResus is not empty
+    or drawerValues.requiresCathlab is not empty
+    or drawerValues.isVentilated is not empty
+    or drawerValues.isShock is not empty
+    or drawerValues.isCPR is not empty
+    or drawerValues.isPregnant is not empty
+    or drawerValues.isWorkAccident is not empty
+    or drawerValues.isInfectious is not empty
+    or drawerValues.infection is not empty %}
+{% set demographicsActive = drawerValues.gender is not empty
+    or drawerValues.age_group is not empty %}
+
+<div class="offcanvas offcanvas-end filter-drawer"
+     tabindex="-1"
+     id="statistics-filters-drawer"
+     aria-labelledby="statistics-filters-drawer-label"
+     data-testid="statistics-filters-drawer">
     <div class="offcanvas-header">
         <h2 class="offcanvas-title" id="statistics-filters-drawer-label">{{ 'label.filter.results'|trans }}</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="{{ 'action.close'|trans }}"></button>
     </div>
+
     <div class="offcanvas-body">
-        <form method="get" action="{{ path(app.request.attributes.get('_route')) }}">
+        <form method="get"
+              action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|default({})) }}"
+              id="statistics-filter-form">
             {% for key, value in app.request.query.all %}
-                    {% if key not in drawerFilterKeys and value is not iterable %}
+                {% if key not in drawerFilterKeys and value is not iterable %}
                     <input type="hidden" name="{{ key }}" value="{{ value }}">
                 {% endif %}
             {% endfor %}
 
-            <div class="mb-3">
-                <label class="form-label">Gender</label>
-                <select name="gender" class="form-select">
-                    <option value="">All</option>
-                    <option value="female" {{ statsFilterDrawerValues.gender == 'female' ? 'selected' }}>{{ 'label.gender.female'|trans }}</option>
-                    <option value="male" {{ statsFilterDrawerValues.gender == 'male' ? 'selected' }}>{{ 'label.gender.male'|trans }}</option>
-                    <option value="diverse" {{ statsFilterDrawerValues.gender == 'diverse' ? 'selected' }}>{{ 'label.gender.other'|trans }}</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">{{ 'label.urgency'|trans }}</label>
-                <input type="text" name="urgency" class="form-control" value="{{ statsFilterDrawerValues.urgency }}" placeholder="z. B. high">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">{{ 'label.age'|trans }}</label>
-                <input type="text" name="age_range" class="form-control" value="{{ statsFilterDrawerValues.age_range }}" placeholder="z. B. 18-64">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">{{ 'label.features'|trans }}</label>
-                <input type="text" name="feature" class="form-control" value="{{ statsFilterDrawerValues.feature }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">{{ 'label.department'|trans }}</label>
-                <input type="text" name="department" class="form-control" value="{{ statsFilterDrawerValues.department }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">{{ 'label.speciality'|trans }}</label>
-                <input type="text" name="speciality" class="form-control" value="{{ statsFilterDrawerValues.speciality }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">{{ 'label.dispatch_area'|trans }}</label>
-                <input type="text" name="dispatch_area" class="form-control" value="{{ statsFilterDrawerValues.dispatch_area }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Hospital attributes</label>
-                <input type="text" name="hospital_attribute" class="form-control" value="{{ statsFilterDrawerValues.hospital_attribute }}">
-            </div>
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Apply filters</button>
-                <a href="{{ statsFilterDrawerResetUrl }}" class="btn btn-outline-secondary">Reset filters</a>
+            <div class="accordion accordion-flush" id="statistics-filter-drawer-accordion">
+                <div class="accordion-item">
+                    {{ editAccordion.header(
+                        'statistics-filter-demographics-heading',
+                        'statistics-filter-demographics-panel',
+                        'stats.indication.section.demographics'|trans,
+                        'statistics-filter-section-demographics',
+                        demographicsActive,
+                    ) }}
+                    {{ editAccordion.panel_start('statistics-filter-demographics-panel', 'statistics-filter-demographics-heading', demographicsActive) }}
+                        <div class="accordion-body">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label" for="statistics-filter-gender">{{ 'label.gender'|trans }}</label>
+                                    <select id="statistics-filter-gender" name="gender" class="form-select" data-testid="statistics-filter-gender">
+                                        <option value="">{{ 'label.all'|trans }}</option>
+                                        {% for value, label in drawerChoices.gender|default([]) %}
+                                            <option value="{{ value }}" {{ drawerValues.gender == value ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="statistics-filter-age-group">{{ 'label.age_group'|trans }}</label>
+                                    <select id="statistics-filter-age-group" name="age_group" class="form-select" data-testid="statistics-filter-age-group">
+                                        <option value="">{{ 'label.all'|trans }}</option>
+                                        {% for value, label in drawerChoices.age_group|default([]) %}
+                                            <option value="{{ value }}" {{ drawerValues.age_group == value ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+
+                <div class="accordion-item">
+                    {{ editAccordion.header(
+                        'statistics-filter-allocation-heading',
+                        'statistics-filter-allocation-panel',
+                        'label.allocation'|trans,
+                        'statistics-filter-section-allocation',
+                        allocationActive,
+                    ) }}
+                    {{ editAccordion.panel_start('statistics-filter-allocation-panel', 'statistics-filter-allocation-heading', allocationActive) }}
+                        <div class="accordion-body">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label" for="statistics-filter-urgency">{{ 'label.urgency'|trans }}</label>
+                                    <select id="statistics-filter-urgency" name="urgency" class="form-select" data-testid="statistics-filter-urgency">
+                                        <option value="">{{ 'label.all_urgencies'|trans }}</option>
+                                        {% for value, label in drawerChoices.urgency|default([]) %}
+                                            <option value="{{ value }}" {{ drawerValues.urgency == value ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="statistics-filter-department">{{ 'label.department'|trans }}</label>
+                                    <select id="statistics-filter-department" name="department" class="form-select" data-testid="statistics-filter-department">
+                                        <option value="">{{ 'label.all_departments'|trans }}</option>
+                                        {% for value, label in drawerChoices.department|default([]) %}
+                                            <option value="{{ value }}" {{ drawerValues.department == value ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="statistics-filter-speciality">{{ 'label.speciality'|trans }}</label>
+                                    <select id="statistics-filter-speciality" name="speciality" class="form-select" data-testid="statistics-filter-speciality">
+                                        <option value="">{{ 'label.all_specialities'|trans }}</option>
+                                        {% for value, label in drawerChoices.speciality|default([]) %}
+                                            <option value="{{ value }}" {{ drawerValues.speciality == value ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+
+                <div class="accordion-item">
+                    {{ editAccordion.header(
+                        'statistics-filter-clinical-heading',
+                        'statistics-filter-clinical-panel',
+                        'stats.analysis_explorer.dimension_group.clinical_care'|trans,
+                        'statistics-filter-section-clinical',
+                        clinicalActive,
+                    ) }}
+                    {{ editAccordion.panel_start('statistics-filter-clinical-panel', 'statistics-filter-clinical-heading', clinicalActive) }}
+                        <div class="accordion-body">
+                            {{ include('@Shared/_includes/_clinical_care_filter_checkboxes.html.twig', {
+                                values: drawerValues,
+                                infectionChoices: drawerChoices.infection|default([]),
+                                testIdPrefix: 'statistics-filter',
+                                infectionSelectId: 'statistics-filter-infection',
+                            }) }}
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
             </div>
         </form>
     </div>
+
+    {% set activeFilterCount = statsFilterDrawer.activeCount|default(0) %}
+    {{ include('@Statistics/_filter_drawer_footer.html.twig', {
+        formId: 'statistics-filter-form',
+        showReset: statsFilterDrawerResetUrl is defined and statsFilterDrawerResetUrl,
+        resetUrl: statsFilterDrawerResetUrl|default(null),
+        cancelTestId: 'statistics-filters-cancel',
+        applyTestId: 'statistics-filters-apply',
+        resetTestId: 'statistics-filters-reset',
+    }) }}
 </div>

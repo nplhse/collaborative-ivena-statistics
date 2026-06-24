@@ -133,6 +133,12 @@ class AllocationStatsProjection
     #[ORM\Column(nullable: true)]
     private ?bool $isWithPhysician = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $secondaryTransportId = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $departmentWasClosed = null;
+
     public function getId(): int
     {
         return $this->id;
@@ -321,5 +327,15 @@ class AllocationStatsProjection
     public function isWithPhysician(): ?bool
     {
         return $this->isWithPhysician;
+    }
+
+    public function getSecondaryTransportId(): ?int
+    {
+        return $this->secondaryTransportId;
+    }
+
+    public function isDepartmentWasClosed(): ?bool
+    {
+        return $this->departmentWasClosed;
     }
 }

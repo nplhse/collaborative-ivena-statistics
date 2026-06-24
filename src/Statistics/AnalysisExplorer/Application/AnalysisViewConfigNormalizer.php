@@ -19,6 +19,7 @@ final readonly class AnalysisViewConfigNormalizer
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private ExplorerTableLayoutResolver $tableLayoutResolver,
+        private ExplorerAnalysisFilterPolicy $analysisFilterPolicy,
         private Security $security,
     ) {
     }
@@ -102,6 +103,7 @@ final readonly class AnalysisViewConfigNormalizer
             ),
             title: $this->titleFactory->titleForAxes($rowAxis, $columnAxis),
             hospitalPopulationMode: $config->hospitalPopulationMode,
+            filters: $this->analysisFilterPolicy->sanitizeForConfig($config, $config->filters),
         );
     }
 

@@ -33,6 +33,8 @@ final readonly class TopEntityQuery
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
 
+        $drawerFilter = $context->drawerFilter;
+
         $rows = $this->projectionTopEntityQuery->fetchTopAggregates(
             $bounds->from,
             $bounds->toExclusive,
@@ -40,12 +42,14 @@ final readonly class TopEntityQuery
             $limit,
             $projectionJoinProperty,
             $entityFqcn,
+            $drawerFilter,
         );
 
         $total = $totalAllocations ?? $this->timeSeriesQuery->countCreatedInPeriod(
             $bounds->from,
             $bounds->toExclusive,
             $scopeCriteria->hospitalIds,
+            $drawerFilter,
         );
 
         return [

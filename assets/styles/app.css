@@ -120,20 +120,47 @@
     padding: 0.5rem 0.75rem;
 }
 
+.analysis-explorer-edit-drawer .offcanvas-header {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.filter-drawer > .offcanvas-body {
+    flex: 1 1 auto;
+    padding: 0.5rem 0.75rem;
+    overflow-y: auto;
+}
+
+.filter-drawer > .offcanvas-footer {
+    flex: 0 0 auto;
+    background: var(--tblr-bg-surface, #fff);
+}
+
+.filter-drawer.offcanvas {
+    display: flex;
+    flex-direction: column;
+    max-height: 100vh;
+    max-height: 100dvh;
+}
+
+.filter-drawer .accordion-body,
 .analysis-explorer-edit-drawer .accordion-body {
     padding: 0.375rem 0.5rem;
 }
 
+.filter-drawer .accordion-button,
 .analysis-explorer-edit-drawer .accordion-button {
     font-size: 0.9375rem;
     padding: 0.5rem 0.75rem;
     gap: 0.375rem;
 }
 
+.filter-drawer .accordion-button::after,
 .analysis-explorer-edit-drawer .accordion-button::after {
     display: none;
 }
 
+.filter-drawer .analysis-explorer-accordion-state-icon,
 .analysis-explorer-edit-drawer .analysis-explorer-accordion-state-icon {
     display: inline-flex;
     align-items: center;
@@ -141,33 +168,79 @@
     color: var(--tblr-secondary, #6c757d);
 }
 
+.filter-drawer .analysis-explorer-accordion-state-icon .icon,
 .analysis-explorer-edit-drawer .analysis-explorer-accordion-state-icon .icon {
     width: 1rem;
     height: 1rem;
 }
 
+.filter-drawer .accordion-button .analysis-explorer-accordion-state-icon--expanded,
 .analysis-explorer-edit-drawer .accordion-button .analysis-explorer-accordion-state-icon--expanded {
     display: inline-flex;
 }
 
+.filter-drawer .accordion-button .analysis-explorer-accordion-state-icon--collapsed,
 .analysis-explorer-edit-drawer .accordion-button .analysis-explorer-accordion-state-icon--collapsed {
     display: none;
 }
 
+.filter-drawer .accordion-button.collapsed .analysis-explorer-accordion-state-icon--expanded,
 .analysis-explorer-edit-drawer .accordion-button.collapsed .analysis-explorer-accordion-state-icon--expanded {
     display: none;
 }
 
+.filter-drawer .accordion-button.collapsed .analysis-explorer-accordion-state-icon--collapsed,
 .analysis-explorer-edit-drawer .accordion-button.collapsed .analysis-explorer-accordion-state-icon--collapsed {
     display: inline-flex;
 }
 
+.filter-drawer .accordion-button:not(.collapsed),
 .analysis-explorer-edit-drawer .accordion-button:not(.collapsed) {
     box-shadow: none;
 }
 
+.filter-drawer .mb-3,
 .analysis-explorer-edit-drawer .mb-3 {
     margin-bottom: 0.375rem !important;
+}
+
+.filter-drawer .form-label,
+.analysis-explorer-edit-drawer .form-label {
+    margin-bottom: 0.125rem;
+    font-size: 0.875rem;
+}
+
+.filter-drawer .row.g-2,
+.analysis-explorer-edit-drawer .row.g-3 {
+    --bs-gutter-y: 0.375rem;
+    --bs-gutter-x: 0.5rem;
+}
+
+.filter-drawer .allocation-filter-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.filter-drawer .allocation-filter-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.filter-drawer .allocation-filter-checkbox-group + .allocation-filter-checkbox-group {
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--tblr-border-color, rgba(0, 0, 0, 0.08));
+}
+
+.filter-drawer .allocation-filter-checkboxes .form-check-label {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+.filter-drawer .allocation-filter-checkboxes .form-check {
+    min-height: 1.75rem;
+    margin-bottom: 0;
 }
 
 .stats-aex-table-card-body {

@@ -33,7 +33,7 @@
                         {{ reportsPage.headerTitleKey|trans }}
                     </h2>
                 </div>
-                {{ include('@Statistics/_header_controls.html.twig') }}
+                {{ include('@Statistics/_header_controls.html.twig', {statsShowFilterDrawer: true}) }}
             </div>
         </div>
     </div>
@@ -41,6 +41,7 @@
 
 {% block page_content %}
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+    {{ include('@Statistics/_filter_drawer.html.twig') }}
 
     <div class="row g-4 align-items-start">
         <aside class="col-12 col-lg-4 col-xl-3">
@@ -49,6 +50,8 @@
             </div>
         </aside>
         <div class="col-12 col-lg-8 col-xl-9 min-w-0">
+            {{ include('@Statistics/_filter_active_badges.html.twig') }}
+
             <div data-testid="stats-reports-widget">
                 {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: reportsPage.reportWidget}) }}
             </div>

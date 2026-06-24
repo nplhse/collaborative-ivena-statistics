@@ -35,7 +35,6 @@ final class DashboardController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
-        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly StatisticsScopeResolver $statisticsScopeResolver,
         private readonly GetOverviewDashboardMetricsQuery $overviewDashboardMetricsQuery,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
@@ -88,7 +87,6 @@ final class DashboardController extends AbstractController
         if ($pageViewModel->showUnscopedHint) {
             $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
         }
-        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
         $executiveDashboard = $this->executiveDashboardAssembler->build(
             $request,
             $context,
@@ -126,9 +124,6 @@ final class DashboardController extends AbstractController
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
             'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'dashboard'),
-            'statsFilterDrawerValues' => $drawerState['values'],
-            'statsActiveFilterCount' => $drawerState['activeCount'],
-            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_dashboard'),
         ]);
     }
 }

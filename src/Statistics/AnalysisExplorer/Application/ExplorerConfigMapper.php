@@ -26,7 +26,7 @@ use App\User\Domain\Entity\User;
 
 final readonly class ExplorerConfigMapper
 {
-    private const int SCHEMA_VERSION = 3;
+    private const int SCHEMA_VERSION = 4;
 
     public function __construct(
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
@@ -38,12 +38,14 @@ final readonly class ExplorerConfigMapper
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private ExplorerTableLayoutResolver $tableLayoutResolver,
+        private ExplorerAnalysisFilterMapper $analysisFilterMapper,
+        private ExplorerAnalysisFilterPolicy $analysisFilterPolicy,
     ) {
     }
 
     public function toFormData(AnalysisViewConfig $config): ExplorerEditFormData
     {
-        return new ExplorerEditFormData(
+        $formData = new ExplorerEditFormData(
             scopePeriod: $this->sideFromFilter($config->statisticsFilter),
             dataSource: $config->dataSourceKey->value,
             rowDimension: $config->rowAxis->dimensionKey->value,
@@ -61,6 +63,8 @@ final readonly class ExplorerConfigMapper
                 $config->visualMetricKey,
             ),
         );
+
+        return $this->analysisFilterMapper->applyToFormData($formData, $config->filters);
     }
 
     public function toViewConfig(ExplorerEditFormData $formData, AnalysisViewConfig $base, ?User $user): AnalysisViewConfig
@@ -102,7 +106,7 @@ final readonly class ExplorerConfigMapper
         $hospitalPopulationMode = ExplorerHospitalPopulationMode::tryFrom($formData->hospitalPopulation)
             ?? $base->hospitalPopulationMode;
 
-        return $base
+        $config = $base
             ->withStatisticsFilter($filter)
             ->withAxes($rowAxis, $columnAxis)
             ->withMetrics($metricKeys, $visualMetricKey)
@@ -114,6 +118,11 @@ final readonly class ExplorerConfigMapper
             ))
             ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis))
             ->withHospitalPopulationMode($hospitalPopulationMode);
+
+        return $config->withFilters($this->analysisFilterPolicy->sanitizeForConfig(
+            $config,
+            $this->analysisFilterMapper->fromFormData($formData),
+        ));
     }
 
     /**
@@ -129,6 +138,7 @@ final readonly class ExplorerConfigMapper
             'visualMetric' => $config->visualMetricKey->value,
             'rows' => $config->rowAxis->toStateArray(),
             'columns' => $config->columnAxis?->toStateArray(),
+            'filters' => $this->analysisFilterMapper->toStateArray($config->filters),
         ];
 
         return [
@@ -171,6 +181,9 @@ final readonly class ExplorerConfigMapper
 
         $queryState = \is_array($state['query'] ?? null) ? $state['query'] : [];
         $chartRowLimit = ExplorerChartRowLimit::fromValue((string) ($state['presentation']['chartRowLimit'] ?? ExplorerChartRowLimit::All->value));
+        $storedFilters = $this->analysisFilterMapper->fromStateArray(
+            \is_array($queryState['filters'] ?? null) ? $queryState['filters'] : [],
+        );
 
         $formData = new ExplorerEditFormData(
             scopePeriod: $scopePeriod,
@@ -187,6 +200,7 @@ final readonly class ExplorerConfigMapper
             hospitalPopulation: (string) ($queryState['hospitalPopulation'] ?? ExplorerHospitalPopulationMode::Participating->value),
             additionalTableMetrics: AnalysisMetricKey::additionalTableMetricValues($metricKeys, $visualMetricKey),
         );
+        $formData = $this->analysisFilterMapper->applyToFormData($formData, $storedFilters);
 
         $base = new AnalysisViewConfig(
             dataSourceKey: $dataSourceKey,

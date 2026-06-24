@@ -68,4 +68,43 @@ final class GenericAllocationDistributionSqlBuilderTest extends TestCase
         self::assertStringContainsString('gender_code AS series', $sql);
         self::assertStringContainsString('ORDER BY bucket, series', $sql);
     }
+
+    public function testAggregateAgeGroupFilterUsesRawAgeCondition(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'urgency',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            filters: [
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'age_group',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::Equals,
+                    value: 'under_18',
+                ),
+            ],
+        ));
+
+        self::assertStringContainsString('age IS NOT NULL AND age < 18', $sql);
+        self::assertStringNotContainsString('filter_age_group', $sql);
+    }
+
+    public function testInFilterUsesParameterizedDimensionExpression(): void
+    {
+        [$sql, $params, $types] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'urgency',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            filters: [
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'department',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::In,
+                    value: [10, 20],
+                ),
+            ],
+        ));
+
+        self::assertStringContainsString('department_id IN (:filter_department)', $sql);
+        self::assertSame([10, 20], $params['filter_department']);
+        self::assertArrayHasKey('filter_department', $types);
+    }
 }

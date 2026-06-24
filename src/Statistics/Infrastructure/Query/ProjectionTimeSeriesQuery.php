@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
@@ -16,15 +17,20 @@ final readonly class ProjectionTimeSeriesQuery
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ProjectionFilterApplier $filterApplier,
+        private ProjectionDrawerFilterApplier $drawerFilterApplier,
     ) {
     }
 
     /**
      * @param list<int>|null $hospitalIds
      */
-    public function countCreatedInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): int
-    {
-        return (int) $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
+    public function countCreatedInPeriod(
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $toExclusive,
+        ?array $hospitalIds,
+        ?StatisticsDrawerFilter $drawerFilter = null,
+    ): int {
+        return (int) $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter)
             ->select('COUNT(p.id)')
             ->getQuery()
             ->getSingleScalarResult();
@@ -366,12 +372,20 @@ final readonly class ProjectionTimeSeriesQuery
     /**
      * @param list<int>|null $hospitalIds
      */
-    private function createBaseCountQb(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): QueryBuilder
-    {
+    private function createBaseCountQb(
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $toExclusive,
+        ?array $hospitalIds,
+        ?StatisticsDrawerFilter $drawerFilter = null,
+    ): QueryBuilder {
         $qb = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p');
         $this->filterApplier->applyCreatedAtRange($qb, 'p.createdAt', $from, $toExclusive);
         $this->filterApplier->applyHospitalScope($qb, 'p.hospitalId', $hospitalIds);
+
+        if ($drawerFilter instanceof StatisticsDrawerFilter && $drawerFilter->isActive()) {
+            $this->drawerFilterApplier->apply($qb, $drawerFilter);
+        }
 
         return $qb;
     }

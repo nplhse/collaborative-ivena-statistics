@@ -179,6 +179,44 @@ final class ListAllocationsControllerTest extends WebTestCase
         self::assertSame([(int) $ventilatedAllocation->getId()], $ids);
     }
 
+    public function testDepartmentSpecialityAndTransportTypeFilters(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $department = DepartmentFactory::find(['name' => 'Kardiologie']);
+        $speciality = SpecialityFactory::find(['name' => 'Innere Medizin']);
+
+        $matchingAllocation = AllocationFactory::createOne([
+            'department' => $department,
+            'speciality' => $speciality,
+            'transportType' => \App\Allocation\Domain\Enum\AllocationTransportType::GROUND,
+        ]);
+        AllocationFactory::createOne([
+            'transportType' => \App\Allocation\Domain\Enum\AllocationTransportType::AIR,
+        ]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf(
+                '/explore/allocation?department=%d&speciality=%d&transportType=G&limit=50',
+                $department->getId(),
+                $speciality->getId(),
+            )
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#allocation-filter-drawer-accordion');
+        self::assertSelectorExists('[data-testid="allocation-filters-drawer"]');
+        self::assertSelectorExists('[data-testid="allocation-filter-section-geography"]');
+        self::assertSelectorExists('#allocation-filters .offcanvas-footer');
+        self::assertSelectorExists('[data-testid="allocation-filters-cancel"]');
+        self::assertSelectorExists('[data-testid="allocation-filters-apply"]');
+        self::assertSelectorExists('[data-testid="allocation-filters-reset"].btn-outline-secondary');
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([(int) $matchingAllocation->getId()], $ids);
+    }
+
     private function seedDependencies(): void
     {
         UserFactory::createOne(['username' => 'area-user']);

@@ -31,7 +31,6 @@ final class IndicationGroupDashboardController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
-        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
         private readonly IndicationDashboardChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly IndicationGroupPickerViewModelFactory $groupPickerViewModelFactory,
@@ -99,7 +98,6 @@ final class IndicationGroupDashboardController extends AbstractController
             'app_stats_indication_group_dashboard',
             $filter,
         );
-        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
 
         return $this->render('@Statistics/indication_group/index.html.twig', [
             'dashboard' => $result,
@@ -126,9 +124,6 @@ final class IndicationGroupDashboardController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
-            'statsFilterDrawerValues' => $drawerState['values'],
-            'statsActiveFilterCount' => $drawerState['activeCount'],
-            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_group_dashboard', ['groupId' => $groupId]),
             'comparePicker' => $this->comparePickerViewModelFactory->create($request, $subject),
             'comparePresets' => $comparePresets,
             'statsShowCompareLaunchButton' => true,

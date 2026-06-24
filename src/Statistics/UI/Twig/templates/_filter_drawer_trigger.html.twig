@@ -1,0 +1,9 @@
+{% set activeFilterCount = statsFilterDrawer.activeCount|default(0) %}
+
+{{ include('@Shared/_includes/_filter_drawer_trigger.html.twig', {
+    activeFilterCount: activeFilterCount,
+    drawerId: 'statistics-filters-drawer',
+    resetUrl: activeFilterCount > 0 and statsFilterDrawerResetUrl is defined ? statsFilterDrawerResetUrl : null,
+    openTestId: 'statistics-filters-drawer-trigger',
+    clearTestId: 'statistics-filters-clear',
+}) }}

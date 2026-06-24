@@ -33,6 +33,22 @@ final class AllocationUrgencyTest extends TestCase
         self::assertNull(AllocationUrgency::tryFrom(4));
     }
 
+    public function testTryFromQueryValueAcceptsNumericStrings(): void
+    {
+        self::assertSame(AllocationUrgency::EMERGENCY, AllocationUrgency::tryFromQueryValue('1'));
+        self::assertSame(AllocationUrgency::INPATIENT, AllocationUrgency::tryFromQueryValue('2'));
+        self::assertNull(AllocationUrgency::tryFromQueryValue('emergency'));
+        self::assertNull(AllocationUrgency::tryFromQueryValue(''));
+        self::assertNull(AllocationUrgency::tryFromQueryValue(null));
+    }
+
+    public function testTryFromQueryValueAcceptsIntegersAndRejectsNonScalars(): void
+    {
+        self::assertSame(AllocationUrgency::OUTPATIENT, AllocationUrgency::tryFromQueryValue(3));
+        self::assertNull(AllocationUrgency::tryFromQueryValue(4.5));
+        self::assertNull(AllocationUrgency::tryFromQueryValue(['1']));
+    }
+
     public function testLabelsAreUniqueAndWellFormed(): void
     {
         $labels = array_map(static fn (AllocationUrgency $case): string => $case->label(), AllocationUrgency::cases());

@@ -118,6 +118,33 @@
 
             <div class="accordion-item">
                 {{ editAccordion.header(
+                    'analysisExplorerEditFiltersHeading',
+                    'analysisExplorerEditFiltersPanel',
+                    'stats.analysis_explorer.edit.section.filters'|trans,
+                    'stats-analysis-explorer-edit-section-filters',
+                    false,
+                ) }}
+                {{ editAccordion.panel_start('analysisExplorerEditFiltersPanel', 'analysisExplorerEditFiltersHeading', false) }}
+                    <div class="accordion-body">
+                        <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.section.filters_help'|trans }}</p>
+                        <div class="row g-3">
+                            <div class="col-12">{{ form_row(form.filterDepartmentIds, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-12">{{ form_row(form.filterSpecialityIds, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-md-6">{{ form_row(form.filterUrgency, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-md-6">{{ form_row(form.filterTransportType, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-md-6">{{ form_row(form.filterGender, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-md-6">{{ form_row(form.filterAgeGroup, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-md-4">{{ form_row(form.filterResus, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-md-4">{{ form_row(form.filterCpr, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-md-4">{{ form_row(form.filterVentilation, compactRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-12">{{ form_row(form.filterAssignmentId, compactRow|merge({attr: refreshAttrs})) }}</div>
+                        </div>
+                    </div>
+                {{ editAccordion.panel_end() }}
+            </div>
+
+            <div class="accordion-item">
+                {{ editAccordion.header(
                     'analysisExplorerEditAnalysisHeading',
                     'analysisExplorerEditAnalysisPanel',
                     'stats.analysis_explorer.edit.section.matrix'|trans,

@@ -39,7 +39,7 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         $state = $mapper->toStateArray($config);
         $restored = $mapper->viewConfigFromState($state, null);
 
-        self::assertSame(3, $state['schemaVersion']);
+        self::assertSame(4, $state['schemaVersion']);
         self::assertSame($config->title, $restored->title);
         self::assertSame($config->dataSourceKey, $restored->dataSourceKey);
         self::assertSame($config->metricKeys, $restored->metricKeys);
@@ -50,6 +50,38 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame(ExplorerChartRowLimit::All, $restored->presentation->chartRowLimit);
         self::assertSame($config->statisticsFilter->scope, $restored->statisticsFilter->scope);
         self::assertSame($config->statisticsFilter->period, $restored->statisticsFilter->period);
+        self::assertSame([], $restored->filters);
+    }
+
+    public function testFilterRoundTripInStateArray(): void
+    {
+        self::bootKernel();
+        $container = self::getContainer();
+
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $config = $container->get(DefaultAnalysisViewFactory::class)->createDefault($filter)
+            ->withFilters([
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'urgency',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::Equals,
+                    value: 1,
+                ),
+            ]);
+        $mapper = $container->get(ExplorerConfigMapper::class);
+
+        $state = $mapper->toStateArray($config);
+        self::assertCount(1, $state['query']['filters'] ?? []);
+        self::assertSame('urgency', $state['query']['filters'][0]['dimensionKey']);
+
+        $restored = $mapper->viewConfigFromState($state, null);
+        self::assertCount(1, $restored->filters);
+        self::assertSame('urgency', $restored->filters[0]->dimensionKey);
     }
 
     public function testBuildViewConfigMergesFilterAndPreferences(): void

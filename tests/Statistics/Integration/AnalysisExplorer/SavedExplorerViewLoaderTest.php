@@ -176,11 +176,43 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
         self::assertFalse($result->notFound);
         self::assertFalse($result->usedFallback);
-        self::assertSame(3, $result->state['schemaVersion'] ?? null);
+        self::assertSame(4, $result->state['schemaVersion'] ?? null);
         self::assertSame(['allocation_count'], $result->state['query']['metrics'] ?? null);
         self::assertSame('allocation_count', $result->state['query']['visualMetric'] ?? null);
         self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);
         self::assertSame('month', $result->state['query']['rows']['grain'] ?? null);
+        self::assertSame([], $result->state['query']['filters'] ?? null);
+    }
+
+    public function testLegacyViewWithoutFiltersLoadsWithEmptyFilters(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $view = new SavedExplorerView(
+            slug: 'legacy-without-filters',
+            title: 'Legacy without filters',
+            category: 'Test',
+            configJson: [
+                'schemaVersion' => 3,
+                'dataSource' => 'allocations',
+                'query' => [
+                    'scope' => ['group' => 'public', 'detail' => null],
+                    'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                    'metrics' => ['allocation_count'],
+                    'visualMetric' => 'allocation_count',
+                    'rows' => ['dimension' => 'time', 'grain' => 'month'],
+                ],
+                'presentation' => ['mode' => 'chart', 'chartType' => 'bar'],
+                'title' => 'Allocations over time',
+            ],
+            isSystem: false,
+        );
+        $view->setCreatedBy($owner);
+        $this->repository->save($view);
+
+        $result = $this->loader->load('legacy-without-filters', $this->publicFilter(), $owner);
+
+        self::assertFalse($result->notFound);
+        self::assertSame([], $result->state['query']['filters'] ?? []);
     }
 
     private function publicFilter(): StatisticsFilter

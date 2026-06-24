@@ -593,6 +593,66 @@
         <source>label.age</source>
         <target>Age</target>
       </trans-unit>
+      <trans-unit id="labelAgeGroup" resname="label.age_group">
+        <source>label.age_group</source>
+        <target>Age group</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp018" resname="label.age_group.0_18">
+        <source>label.age_group.0_18</source>
+        <target>0–18</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp1929" resname="label.age_group.19_29">
+        <source>label.age_group.19_29</source>
+        <target>19–29</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp3039" resname="label.age_group.30_39">
+        <source>label.age_group.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp4049" resname="label.age_group.40_49">
+        <source>label.age_group.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp5059" resname="label.age_group.50_59">
+        <source>label.age_group.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp6069" resname="label.age_group.60_69">
+        <source>label.age_group.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp7079" resname="label.age_group.70_79">
+        <source>label.age_group.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp8089" resname="label.age_group.80_89">
+        <source>label.age_group.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="labelAgeGrp9099" resname="label.age_group.90_99">
+        <source>label.age_group.90_99</source>
+        <target>90–99</target>
+      </trans-unit>
+      <trans-unit id="labelGender" resname="label.gender">
+        <source>label.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="labelDepartment" resname="label.department">
+        <source>label.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="labelYes" resname="label.yes">
+        <source>label.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="labelNo" resname="label.no">
+        <source>label.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="labelTransportType" resname="label.transport_type">
+        <source>label.transport_type</source>
+        <target>Transport type</target>
+      </trans-unit>
       <trans-unit id="3bIHt8G" resname="label.all_dispatch_areas">
         <source>label.all_dispatch_areas</source>
         <target>All Dispatch Areas</target>
@@ -628,6 +688,22 @@
       <trans-unit id="b19sL_Y" resname="label.all_urgencies">
         <source>label.all_urgencies</source>
         <target>All urgencies</target>
+      </trans-unit>
+      <trans-unit id="allocAllDept" resname="label.all_departments">
+        <source>label.all_departments</source>
+        <target>All departments</target>
+      </trans-unit>
+      <trans-unit id="allocAllSpec" resname="label.all_specialities">
+        <source>label.all_specialities</source>
+        <target>All specialities</target>
+      </trans-unit>
+      <trans-unit id="allocAllTt" resname="label.all_transport_types">
+        <source>label.all_transport_types</source>
+        <target>All transport types</target>
+      </trans-unit>
+      <trans-unit id="labelAll" resname="label.all">
+        <source>label.all</source>
+        <target>All</target>
       </trans-unit>
       <trans-unit id="6QPDzOS" resname="label.allocation">
         <source>label.allocation</source>
@@ -1929,6 +2005,10 @@
         <source>statistics.distribution.age.under_18</source>
         <target>Under 18</target>
       </trans-unit>
+      <trans-unit id="statsAgeOv80" resname="statistics.distribution.age.over_80">
+        <source>statistics.distribution.age.over_80</source>
+        <target>80 and older</target>
+      </trans-unit>
       <trans-unit id="NyeAvsM" resname="statistics.distribution.age.unknown">
         <source>statistics.distribution.age.unknown</source>
         <target>Unknown</target>
@@ -3037,7 +3117,7 @@
       </trans-unit>
       <trans-unit id="statsRpTdDs" resname="stats.reports.top_diagnoses.description">
         <source>stats.reports.top_diagnoses.description</source>
-        <target>Most frequent indication labels in the selected scope and period.</target>
+        <target>Most frequent indication labels.</target>
       </trans-unit>
       <trans-unit id="statsRpTbRk" resname="stats.reports.table.rank">
         <source>stats.reports.table.rank</source>
@@ -3085,7 +3165,7 @@
       </trans-unit>
       <trans-unit id="statsRpDpDs" resname="stats.reports.top_departments.description">
         <source>stats.reports.top_departments.description</source>
-        <target>Most frequent departments in the selected scope and period.</target>
+        <target>Most frequent departments.</target>
       </trans-unit>
       <trans-unit id="statsRpAtLb" resname="stats.reports.top_assignments.label">
         <source>stats.reports.top_assignments.label</source>
@@ -3093,7 +3173,7 @@
       </trans-unit>
       <trans-unit id="statsRpAtDs" resname="stats.reports.top_assignments.description">
         <source>stats.reports.top_assignments.description</source>
-        <target>Most frequent assignment types in the selected scope and period.</target>
+        <target>Most frequent assignment types.</target>
       </trans-unit>
       <trans-unit id="statsRpInLb" resname="stats.reports.top_infections.label">
         <source>stats.reports.top_infections.label</source>
@@ -3101,7 +3181,7 @@
       </trans-unit>
       <trans-unit id="statsRpInDs" resname="stats.reports.top_infections.description">
         <source>stats.reports.top_infections.description</source>
-        <target>Most frequent infection labels in the selected scope and period.</target>
+        <target>Most frequent infection labels.</target>
       </trans-unit>
       <trans-unit id="statsRpSdLb" resname="stats.reports.top_secondary_diagnoses.label">
         <source>stats.reports.top_secondary_diagnoses.label</source>
@@ -3109,7 +3189,7 @@
       </trans-unit>
       <trans-unit id="statsRpSdDs" resname="stats.reports.top_secondary_diagnoses.description">
         <source>stats.reports.top_secondary_diagnoses.description</source>
-        <target>Most frequent secondary indication labels in the selected scope and period.</target>
+        <target>Most frequent secondary indication labels.</target>
       </trans-unit>
       <trans-unit id="statsRpSlLb" resname="stats.reports.top_specialities.label">
         <source>stats.reports.top_specialities.label</source>
@@ -3117,7 +3197,7 @@
       </trans-unit>
       <trans-unit id="statsRpSlDs" resname="stats.reports.top_specialities.description">
         <source>stats.reports.top_specialities.description</source>
-        <target>Most frequent specialities in the selected scope and period.</target>
+        <target>Most frequent specialities.</target>
       </trans-unit>
       <trans-unit id="statsRpOcLb" resname="stats.reports.top_occasions.label">
         <source>stats.reports.top_occasions.label</source>
@@ -3125,7 +3205,7 @@
       </trans-unit>
       <trans-unit id="statsRpOcDs" resname="stats.reports.top_occasions.description">
         <source>stats.reports.top_occasions.description</source>
-        <target>Most frequent occasions in the selected scope and period.</target>
+        <target>Most frequent occasions.</target>
       </trans-unit>
       <trans-unit id="statsNavKpi" resname="stats.nav.overview_kpi_to_analysis">
         <source>stats.nav.overview_kpi_to_analysis</source>
@@ -5221,7 +5301,7 @@
       </trans-unit>
       <trans-unit id="statsInd10" resname="stats.indication.section.demographics">
         <source>stats.indication.section.demographics</source>
-        <target>Gender</target>
+        <target>Demographics</target>
       </trans-unit>
       <trans-unit id="statsInd11" resname="stats.indication.section.age_groups">
         <source>stats.indication.section.age_groups</source>
@@ -7879,6 +7959,14 @@
         <source>stats.analysis_explorer.edit.section.hospital_population_help</source>
         <target>Filter hospitals by participation status or compare both groups side by side.</target>
       </trans-unit>
+      <trans-unit id="statsAexFlt01" resname="stats.analysis_explorer.edit.section.filters">
+        <source>stats.analysis_explorer.edit.section.filters</source>
+        <target>Filters</target>
+      </trans-unit>
+      <trans-unit id="statsAexFlt02" resname="stats.analysis_explorer.edit.section.filters_help">
+        <source>stats.analysis_explorer.edit.section.filters_help</source>
+        <target>Restrict the allocation set before grouping by rows and columns.</target>
+      </trans-unit>
       <trans-unit id="statsAexHc01" resname="stats.analysis_explorer.metric.hospital_count">
         <source>stats.analysis_explorer.metric.hospital_count</source>
         <target>Hospitals</target>
@@ -7986,6 +8074,10 @@
       <trans-unit id="statsAexDg08" resname="stats.analysis_explorer.dimension_group.geography_and_participation">
         <source>stats.analysis_explorer.dimension_group.geography_and_participation</source>
         <target>Geography and participation</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg09" resname="stats.analysis_explorer.dimension_group.geography">
+        <source>stats.analysis_explorer.dimension_group.geography</source>
+        <target>Geography</target>
       </trans-unit>
       <trans-unit id="statsAexBx01" resname="stats.analysis_explorer.box_plot.column.distribution_count">
         <source>stats.analysis_explorer.box_plot.column.distribution_count</source>

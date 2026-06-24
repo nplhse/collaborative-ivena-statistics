@@ -889,6 +889,18 @@
         <source>stats.analysis_explorer.edit.section.hospital_population_help</source>
         <target>Nach Teilnahmestatus filtern oder beide Gruppen nebeneinander vergleichen.</target>
       </trans-unit>
+      <trans-unit id="statsAexFlt01" resname="stats.analysis_explorer.edit.section.filters">
+        <source>stats.analysis_explorer.edit.section.filters</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="statsAexFlt02" resname="stats.analysis_explorer.edit.section.filters_help">
+        <source>stats.analysis_explorer.edit.section.filters_help</source>
+        <target>Schränkt die Einsatzmenge ein, bevor nach Zeilen und Spalten gruppiert wird.</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg09" resname="stats.analysis_explorer.dimension_group.geography">
+        <source>stats.analysis_explorer.dimension_group.geography</source>
+        <target>Geografie</target>
+      </trans-unit>
       <trans-unit id="statsAexHc01" resname="stats.analysis_explorer.metric.hospital_count">
         <source>stats.analysis_explorer.metric.hospital_count</source>
         <target>Krankenhäuser</target>
@@ -1036,6 +1048,254 @@
       <trans-unit id="statsAexHp09" resname="stats.analysis_explorer.edit.additional_table_metrics_help">
         <source>stats.analysis_explorer.edit.additional_table_metrics_help</source>
         <target>Optionale Zusatzspalten in der Ergebnistabelle. Das Diagramm verwendet immer die Chart-Metrik oben.</target>
+      </trans-unit>
+      <trans-unit id="KtY8Hdy" resname="statistics.distribution.age.under_18">
+        <source>statistics.distribution.age.under_18</source>
+        <target>Unter 18</target>
+      </trans-unit>
+      <trans-unit id="statsAgeOv80" resname="statistics.distribution.age.over_80">
+        <source>statistics.distribution.age.over_80</source>
+        <target>80 and older</target>
+      </trans-unit>
+      <trans-unit id="lblAgeDe" resname="label.age">
+        <source>label.age</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrpDe" resname="label.age_group">
+        <source>label.age_group</source>
+        <target>Altersgruppe</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp018De" resname="label.age_group.0_18">
+        <source>label.age_group.0_18</source>
+        <target>0–18</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp1929De" resname="label.age_group.19_29">
+        <source>label.age_group.19_29</source>
+        <target>19–29</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp3039De" resname="label.age_group.30_39">
+        <source>label.age_group.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp4049De" resname="label.age_group.40_49">
+        <source>label.age_group.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp5059De" resname="label.age_group.50_59">
+        <source>label.age_group.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp6069De" resname="label.age_group.60_69">
+        <source>label.age_group.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp7079De" resname="label.age_group.70_79">
+        <source>label.age_group.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp8089De" resname="label.age_group.80_89">
+        <source>label.age_group.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="lblAgeGrp9099De" resname="label.age_group.90_99">
+        <source>label.age_group.90_99</source>
+        <target>90–99</target>
+      </trans-unit>
+      <trans-unit id="lblGenderDe" resname="label.gender">
+        <source>label.gender</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="lblDepartmentDe" resname="label.department">
+        <source>label.department</source>
+        <target>Abteilung</target>
+      </trans-unit>
+      <trans-unit id="lblSpecialityDe" resname="label.speciality">
+        <source>label.speciality</source>
+        <target>Fachrichtung</target>
+      </trans-unit>
+      <trans-unit id="lblUrgencyDe" resname="label.urgency">
+        <source>label.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="lblYesDe" resname="label.yes">
+        <source>label.yes</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="lblNoDe" resname="label.no">
+        <source>label.no</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="lblAllDe" resname="label.all">
+        <source>label.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="lblFiltersDe" resname="label.filters">
+        <source>label.filters</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="lblFiltersActiveDe" resname="label.filters.active">
+        <source>label.filters.active</source>
+        <target>Aktive Filter</target>
+      </trans-unit>
+      <trans-unit id="lblFiltersApplyDe" resname="label.filters.apply">
+        <source>label.filters.apply</source>
+        <target>Filter anwenden</target>
+      </trans-unit>
+      <trans-unit id="lblFiltersResetDe" resname="label.filters.reset">
+        <source>label.filters.reset</source>
+        <target>Filter zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="lblFilterResultsDe" resname="label.filter.results">
+        <source>label.filter.results</source>
+        <target>Ergebnisse filtern</target>
+      </trans-unit>
+      <trans-unit id="lblAllocationDe" resname="label.allocation">
+        <source>label.allocation</source>
+        <target>Verlegung</target>
+      </trans-unit>
+      <trans-unit id="lblHospitalDe" resname="label.hospital">
+        <source>label.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="lblTierDe" resname="label.tier">
+        <source>label.tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="lblLocationDe" resname="label.location">
+        <source>label.location</source>
+        <target>Standort</target>
+      </trans-unit>
+      <trans-unit id="lblSizeDe" resname="label.size">
+        <source>label.size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="lblStateDe" resname="label.state">
+        <source>label.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="lblDispatchAreaDe" resname="label.dispatch_area">
+        <source>label.dispatch_area</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="lblIndicationNormDe" resname="label.indication.normalized">
+        <source>label.indication.normalized</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="lblSecondaryTransportDe" resname="label.secondary_transport">
+        <source>label.secondary_transport</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="lblTransportTypeDe" resname="label.transport_type">
+        <source>label.transport_type</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="lblAssignmentDe" resname="label.assignment">
+        <source>label.assignment</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="lblAllUrgenciesDe" resname="label.all_urgencies">
+        <source>label.all_urgencies</source>
+        <target>Alle Dringlichkeiten</target>
+      </trans-unit>
+      <trans-unit id="lblAllDepartmentsDe" resname="label.all_departments">
+        <source>label.all_departments</source>
+        <target>Alle Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="lblAllSpecialitiesDe" resname="label.all_specialities">
+        <source>label.all_specialities</source>
+        <target>Alle Fachrichtungen</target>
+      </trans-unit>
+      <trans-unit id="lblAllTiersDe" resname="label.all_tiers">
+        <source>label.all_tiers</source>
+        <target>Alle Versorgungsstufen</target>
+      </trans-unit>
+      <trans-unit id="lblAllLocationsDe" resname="label.all_locations">
+        <source>label.all_locations</source>
+        <target>Alle Standorte</target>
+      </trans-unit>
+      <trans-unit id="lblAllSizesDe" resname="label.all_sizes">
+        <source>label.all_sizes</source>
+        <target>Alle Größen</target>
+      </trans-unit>
+      <trans-unit id="lblAllStatesDe" resname="label.all_states">
+        <source>label.all_states</source>
+        <target>Alle Bundesländer</target>
+      </trans-unit>
+      <trans-unit id="lblAllDispatchAreasDe" resname="label.all_dispatch_areas">
+        <source>label.all_dispatch_areas</source>
+        <target>Alle Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="lblAllIndicationsDe" resname="label.all_indications">
+        <source>label.all_indications</source>
+        <target>Alle Indikationen</target>
+      </trans-unit>
+      <trans-unit id="lblAllSecondaryTransportsDe" resname="label.all_secondary_transports">
+        <source>label.all_secondary_transports</source>
+        <target>Alle Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="lblAllTransportTypesDe" resname="label.all_transport_types">
+        <source>label.all_transport_types</source>
+        <target>Alle Transportarten</target>
+      </trans-unit>
+      <trans-unit id="lblAllInfectionsDe" resname="label.all_infections">
+        <source>label.all_infections</source>
+        <target>Alle Infektionen</target>
+      </trans-unit>
+      <trans-unit id="lblRequiresResusDe" resname="label.requires_resus">
+        <source>label.requires_resus</source>
+        <target>Reanimation erforderlich</target>
+      </trans-unit>
+      <trans-unit id="lblRequiresCathlabDe" resname="label.requires_cathlab">
+        <source>label.requires_cathlab</source>
+        <target>Herzkatheter erforderlich</target>
+      </trans-unit>
+      <trans-unit id="lblIsVentilatedDe" resname="label.is_ventilated">
+        <source>label.is_ventilated</source>
+        <target>Beatmung</target>
+      </trans-unit>
+      <trans-unit id="lblIsShockDe" resname="label.is_shock">
+        <source>label.is_shock</source>
+        <target>Schock</target>
+      </trans-unit>
+      <trans-unit id="lblIsCprDe" resname="label.is_cpr">
+        <source>label.is_cpr</source>
+        <target>Reanimation</target>
+      </trans-unit>
+      <trans-unit id="lblIsPregnantDe" resname="label.is_pregnant">
+        <source>label.is_pregnant</source>
+        <target>Schwangerschaft</target>
+      </trans-unit>
+      <trans-unit id="lblIsWorkAccidentDe" resname="label.is_work_accident">
+        <source>label.is_work_accident</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="lblIsInfectiousDe" resname="label.is_infectious">
+        <source>label.is_infectious</source>
+        <target>Infektiös</target>
+      </trans-unit>
+      <trans-unit id="lblInfectionDe" resname="label.infection">
+        <source>label.infection</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="statsInd10De" resname="stats.indication.section.demographics">
+        <source>stats.indication.section.demographics</source>
+        <target>Demografie</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg04De" resname="stats.analysis_explorer.dimension_group.clinical_care">
+        <source>stats.analysis_explorer.dimension_group.clinical_care</source>
+        <target>Klinische Versorgung</target>
+      </trans-unit>
+      <trans-unit id="allocUrg1De" resname="allocation.urgency.1">
+        <source>allocation.urgency.1</source>
+        <target>Notfallversorgung</target>
+      </trans-unit>
+      <trans-unit id="allocUrg2De" resname="allocation.urgency.2">
+        <source>allocation.urgency.2</source>
+        <target>Stationäre Versorgung</target>
+      </trans-unit>
+      <trans-unit id="allocUrg3De" resname="allocation.urgency.3">
+        <source>allocation.urgency.3</source>
+        <target>Ambulante Versorgung</target>
       </trans-unit>
     </body>
   </file>

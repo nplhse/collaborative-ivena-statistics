@@ -100,6 +100,8 @@ final class AnalysisExplorerExportController extends AbstractController
             statisticsFilter: $filter,
             presentation: $config->presentation,
             title: $config->title,
+            hospitalPopulationMode: $config->hospitalPopulationMode,
+            filters: $config->filters,
         );
     }
 

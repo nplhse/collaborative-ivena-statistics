@@ -1,0 +1,23 @@
+<div class="offcanvas-footer border-top p-3 d-flex justify-content-between align-items-center gap-2">
+    <div>
+        {% if showReset|default(false) and resetUrl is defined and resetUrl %}
+            <a href="{{ resetUrl }}" class="btn btn-outline-secondary" data-testid="{{ resetTestId|default('filter-drawer-reset') }}">
+                {{ 'label.filters.reset'|trans }}
+            </a>
+        {% endif %}
+    </div>
+    <div class="d-flex justify-content-end gap-2 ms-auto">
+        <button type="button"
+                class="btn btn-link link-secondary"
+                data-bs-dismiss="offcanvas"
+                data-testid="{{ cancelTestId|default('filter-drawer-cancel') }}">
+            {{ 'action.cancel'|trans }}
+        </button>
+        <button type="submit"
+                class="btn btn-primary"
+                form="{{ formId }}"
+                data-testid="{{ applyTestId|default('filter-drawer-apply') }}">
+            {{ 'label.filters.apply'|trans }}
+        </button>
+    </div>
+</div>

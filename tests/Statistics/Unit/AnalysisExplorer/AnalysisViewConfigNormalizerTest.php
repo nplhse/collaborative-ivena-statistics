@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
+use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisFilterPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTableLayoutResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
@@ -40,6 +41,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
             new ExplorerTableLayoutResolver(),
+            new ExplorerAnalysisFilterPolicy(),
             $this->createSecurityWithoutUser(),
         );
 
@@ -78,6 +80,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
             new ExplorerTableLayoutResolver(),
+            new ExplorerAnalysisFilterPolicy(),
             $this->createSecurityWithoutUser(),
         );
 
@@ -114,6 +117,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
             new ExplorerTableLayoutResolver(),
+            new ExplorerAnalysisFilterPolicy(),
             $this->createSecurityWithoutUser(),
         );
 
