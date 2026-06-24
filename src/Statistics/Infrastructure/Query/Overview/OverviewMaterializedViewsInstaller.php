@@ -7,10 +7,13 @@ namespace App\Statistics\Infrastructure\Query\Overview;
 use App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use Doctrine\DBAL\Connection;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Ensures overview materialized views exist (required when the test DB is reset via schema tooling).
  */
+#[Autoconfigure(public: true)]
 final class OverviewMaterializedViewsInstaller
 {
     private static bool $ensured = false;
@@ -18,6 +21,7 @@ final class OverviewMaterializedViewsInstaller
     public function __construct(
         private readonly Connection $connection,
         private readonly MaterializedViewRefresher $materializedViewRefresher,
+        #[Autowire('%kernel.environment%')]
         private readonly string $kernelEnvironment,
     ) {
     }

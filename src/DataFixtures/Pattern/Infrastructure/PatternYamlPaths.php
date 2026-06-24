@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Infrastructure;
 
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
 final readonly class PatternYamlPaths
 {
     public function __construct(
+        #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
     ) {
     }

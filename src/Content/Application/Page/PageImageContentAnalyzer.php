@@ -13,6 +13,7 @@ use App\Content\Infrastructure\Media\LocalMediaFileLocator;
 use App\Content\Infrastructure\Media\MediaDimensionsExtractor;
 use App\Content\Infrastructure\Repository\MediaRepository;
 use App\Content\Infrastructure\Repository\PageRepository;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class PageImageContentAnalyzer
 {
@@ -24,6 +25,7 @@ final readonly class PageImageContentAnalyzer
         private MediaRepository $mediaRepository,
         private LocalMediaFileLocator $fileLocator,
         private MediaDimensionsExtractor $dimensionsExtractor,
+        #[Autowire('%app.page_content_width_estimate%')]
         private int $contentWidthEstimate,
     ) {
     }

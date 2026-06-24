@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Content\Infrastructure\Media;
 
 use App\Content\Domain\Entity\Media;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class LocalMediaFileLocator
 {
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
+        #[Autowire('%app.media_upload_dir%')]
         private string $uploadDir,
     ) {
     }
