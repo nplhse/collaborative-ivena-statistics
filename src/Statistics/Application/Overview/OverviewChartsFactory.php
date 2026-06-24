@@ -27,16 +27,11 @@ final readonly class OverviewChartsFactory
         BenchmarkReport $benchmarkReport,
     ): OverviewChartsViewModel {
         $slice = ($this->sliceQuery)($criteria);
-        $allTimeSlice = ($this->sliceQuery)(new OverviewQueryCriteria(
-            null,
-            null,
-            $criteria->hospitalIds,
-        ));
         $total = $metrics->scopedTotal;
 
         $dayTimeHeatmap = $this->indicationDashboardAssembler->buildDayTimeHeatmap($slice->dayTimeHeatmapCells);
         $shiftHeatmap = $this->indicationDashboardAssembler->buildShiftHeatmap($slice->shiftHeatmapCells);
-        $timeSeries = $this->indicationDashboardAssembler->buildTimeSeries($allTimeSlice->monthlyRows);
+        $timeSeries = $this->indicationDashboardAssembler->buildTimeSeries($slice->monthlyRows);
 
         return new OverviewChartsViewModel(
             [
