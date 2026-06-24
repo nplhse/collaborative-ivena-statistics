@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Application\Contract\ExplorerAnalysisQueryMapperInterface;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery as GenericAnalysisQuery;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 final readonly class ExplorerQueryMapperRegistry
 {
@@ -14,6 +15,7 @@ final readonly class ExplorerQueryMapperRegistry
      * @param iterable<ExplorerAnalysisQueryMapperInterface> $mappers
      */
     public function __construct(
+        #[AutowireIterator('app.analysis_explorer.query_mapper')]
         private iterable $mappers,
     ) {
     }

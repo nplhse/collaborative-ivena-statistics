@@ -6,8 +6,10 @@ namespace App\User\Infrastructure\Security;
 
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Repository\UserRepository;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /** @psalm-suppress UnusedClass */
+#[AsAlias(FeedbackRecipientEmailResolver::class)]
 final readonly class FeedbackRecipientResolver implements FeedbackRecipientEmailResolver
 {
     /** @psalm-suppress PossiblyUnusedMethod */

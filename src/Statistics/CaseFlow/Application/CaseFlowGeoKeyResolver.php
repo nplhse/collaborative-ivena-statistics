@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Application;
 
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
 /**
  * Maps dispatch area names to GeoJSON feature keys for Hessen choropleth.
  */
@@ -12,8 +14,10 @@ final class CaseFlowGeoKeyResolver
     /** @var array<string, string> */
     private array $nameToGeoKey;
 
-    public function __construct(string $configPath)
-    {
+    public function __construct(
+        #[Autowire('%kernel.project_dir%/config/case_flow/dispatch_area_geo_map.yaml')]
+        string $configPath,
+    ) {
         if (!is_file($configPath)) {
             $this->nameToGeoKey = [];
 

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Consent;
 
 use App\User\Domain\Entity\User;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /** @psalm-suppress UnusedClass */
-final readonly class CookieConsentRequestSubscriber implements EventSubscriberInterface
+final readonly class CookieConsentRequestSubscriber
 {
     public function __construct(
         private CookieConsentService $cookieConsentService,
@@ -20,14 +20,7 @@ final readonly class CookieConsentRequestSubscriber implements EventSubscriberIn
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::REQUEST => ['onKernelRequest', 28],
-        ];
-    }
-
+    #[AsEventListener(event: KernelEvents::REQUEST, priority: 28)]
     public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {

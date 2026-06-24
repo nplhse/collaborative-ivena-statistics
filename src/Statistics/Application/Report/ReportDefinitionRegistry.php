@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Application\Report;
 
 use App\Statistics\Application\Report\Exception\UnknownReportDefinitionException;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 final class ReportDefinitionRegistry
 {
@@ -14,8 +15,10 @@ final class ReportDefinitionRegistry
     /**
      * @param iterable<ReportDefinitionInterface> $definitions
      */
-    public function __construct(iterable $definitions)
-    {
+    public function __construct(
+        #[AutowireIterator('app.statistics.report_definition')]
+        iterable $definitions,
+    ) {
         foreach ($definitions as $definition) {
             $this->byKey[$definition->key()] = $definition;
         }

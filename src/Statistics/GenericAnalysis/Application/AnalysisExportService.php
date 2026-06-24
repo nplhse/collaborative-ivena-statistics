@@ -8,8 +8,10 @@ use App\Statistics\GenericAnalysis\Application\Contract\AnalysisExportServiceInt
 use App\Statistics\GenericAnalysis\Application\Export\ExportFilenameFactory;
 use App\Statistics\GenericAnalysis\Application\Export\TabularExportDocument;
 use App\Statistics\GenericAnalysis\Application\Export\TabularExporterRegistry;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+#[AsAlias(AnalysisExportServiceInterface::class)]
 final readonly class AnalysisExportService implements AnalysisExportServiceInterface
 {
     public function __construct(

@@ -4,26 +4,19 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Consent;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /** @psalm-suppress UnusedClass */
-final readonly class CookieConsentResponseSubscriber implements EventSubscriberInterface
+final readonly class CookieConsentResponseSubscriber
 {
     public function __construct(
         private CookieConsentService $cookieConsentService,
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::RESPONSE => ['onKernelResponse', -128],
-        ];
-    }
-
+    #[AsEventListener(event: KernelEvents::RESPONSE, priority: -128)]
     public function onKernelResponse(ResponseEvent $event): void
     {
         if (!$event->isMainRequest()) {

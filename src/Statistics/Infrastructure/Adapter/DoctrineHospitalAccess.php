@@ -10,7 +10,9 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(HospitalAccessInterface::class)]
 final readonly class DoctrineHospitalAccess implements HospitalAccessInterface
 {
     public function __construct(

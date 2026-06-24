@@ -12,7 +12,9 @@ use App\Statistics\Application\Cohort\HospitalCohort;
 use App\Statistics\DataQuality\Application\Contract\DataQualityHospitalPopulationReaderInterface;
 use App\Statistics\DataQuality\Dto\DataQualityHospitalSnapshot;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(DataQualityHospitalPopulationReaderInterface::class)]
 final readonly class DataQualityHospitalPopulationQuery implements DataQualityHospitalPopulationReaderInterface
 {
     public function __construct(
