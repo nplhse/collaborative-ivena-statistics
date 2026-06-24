@@ -176,11 +176,12 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
         self::assertFalse($result->notFound);
         self::assertFalse($result->usedFallback);
-        self::assertSame(3, $result->state['schemaVersion'] ?? null);
+        self::assertSame(4, $result->state['schemaVersion'] ?? null);
         self::assertSame(['allocation_count'], $result->state['query']['metrics'] ?? null);
         self::assertSame('allocation_count', $result->state['query']['visualMetric'] ?? null);
         self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);
         self::assertSame('month', $result->state['query']['rows']['grain'] ?? null);
+        self::assertSame([], $result->state['query']['filters'] ?? null);
     }
 
     public function testLegacyViewWithoutFiltersLoadsWithEmptyFilters(): void
