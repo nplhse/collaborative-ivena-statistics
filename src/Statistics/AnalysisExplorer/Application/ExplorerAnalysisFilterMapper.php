@@ -114,7 +114,7 @@ final readonly class ExplorerAnalysisFilterMapper
     }
 
     /**
-     * @param list<array{dimensionKey?: mixed, operator?: mixed, value?: mixed}> $state
+     * @param list<mixed> $state
      *
      * @return list<AnalysisFilter>
      */
