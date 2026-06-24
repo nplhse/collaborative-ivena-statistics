@@ -34,6 +34,7 @@ final readonly class ExplorerResultsTableViewModel
         public array $formattedSeriesFooterPercentValues = [],
         public string $formattedGrandTotalPercent = '',
         public array $formattedTotalsPercentValues = [],
+        public string $footerRowLabel = '',
     ) {
     }
 

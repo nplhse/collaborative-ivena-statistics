@@ -287,4 +287,22 @@ trait AnalysisExplorerTestSupport
 
         return new AllocationsCountQuery($executor);
     }
+
+    /**
+     * @param list<array{0: string, 1: array<string, mixed>, 2: ?string, 3: ?string, 4: string}> $messages
+     */
+    protected function stubExplorerTranslator(array $messages = []): TranslatorInterface
+    {
+        $defaults = [
+            ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
+            ['stats.analysis_explorer.table.footer_average', [], null, null, 'Ø'],
+            ['stats.analysis_explorer.table.footer_minimum', [], null, null, 'Min.'],
+            ['stats.analysis_explorer.table.footer_maximum', [], null, null, 'Max.'],
+        ];
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap(array_merge($defaults, $messages));
+
+        return $translator;
+    }
 }
