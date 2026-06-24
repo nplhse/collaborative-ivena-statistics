@@ -10,7 +10,7 @@ use App\Import\Domain\Entity\ImportReject;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem('import.reject_writer')]
+#[AsTaggedItem(index: 'db')]
 final class DoctrineRejectWriter implements RejectWriterInterface
 {
     private ?int $importId = null;

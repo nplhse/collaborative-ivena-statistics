@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Import\Application\Contracts;
 
 use App\Import\Domain\Entity\Import;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+#[AutoconfigureTag('import.reject_writer')]
 interface RejectWriterInterface
 {
     public function start(Import $import): void;

@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-#[AsTaggedItem('import.reject_writer')]
+#[AsTaggedItem(index: 'csv')]
 final class SplCsvRejectWriter implements RejectWriterInterface
 {
     private ?\SplFileObject $file = null;
