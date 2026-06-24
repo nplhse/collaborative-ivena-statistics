@@ -74,6 +74,7 @@ final readonly class ExplorerResultsTablePresenter
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $row->bucketLabel,
                 formattedMetricValues: $this->formatRowValues($visibleMetricKeys, $row->metricValues),
+                metricValues: $this->rawRowValues($visibleMetricKeys, $row->metricValues),
                 formattedMetricPercentValues: $formattedMetricPercentValues,
             );
         }
@@ -123,13 +124,16 @@ final readonly class ExplorerResultsTablePresenter
         $rows = [];
         foreach ($result->rows as $row) {
             $formattedMetricValues = $this->formatBoxPlotRowValues($tableColumns, $row->boxPlot, $viewConfig->visualMetricKey);
+            $metricValues = $this->rawBoxPlotRowValues($tableColumns, $row->boxPlot);
             if ($hasSeries) {
                 $formattedMetricValues = ['series' => $row->seriesLabel ?? '—'] + $formattedMetricValues;
+                $metricValues = ['series' => $row->seriesLabel ?? ''] + $metricValues;
             }
 
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $row->bucketLabel,
                 formattedMetricValues: $formattedMetricValues,
+                metricValues: $metricValues,
             );
         }
 
@@ -403,6 +407,48 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         return $formatted;
+    }
+
+    /**
+     * @param list<AnalysisMetricKey>       $metricKeys
+     * @param array<string, int|float|null> $values
+     *
+     * @return array<string, int|float|null>
+     */
+    private function rawRowValues(array $metricKeys, array $values): array
+    {
+        $raw = [];
+        foreach ($metricKeys as $metricKey) {
+            $raw[$metricKey->value] = $values[$metricKey->value] ?? null;
+        }
+
+        return $raw;
+    }
+
+    /**
+     * @param list<BoxPlotTableColumn> $tableColumns
+     *
+     * @return array<string, int|float|null>
+     */
+    private function rawBoxPlotRowValues(array $tableColumns, ?BoxPlotStats $boxPlot): array
+    {
+        if (!$boxPlot instanceof BoxPlotStats) {
+            return [];
+        }
+
+        $raw = [];
+        foreach ($tableColumns as $column) {
+            $raw[$column->value] = match ($column) {
+                BoxPlotTableColumn::Count => $boxPlot->count,
+                BoxPlotTableColumn::Min => $boxPlot->minimum,
+                BoxPlotTableColumn::P25 => $boxPlot->p25,
+                BoxPlotTableColumn::Median => $boxPlot->median,
+                BoxPlotTableColumn::P75 => $boxPlot->p75,
+                BoxPlotTableColumn::Max => $boxPlot->maximum,
+            };
+        }
+
+        return $raw;
     }
 
     /**

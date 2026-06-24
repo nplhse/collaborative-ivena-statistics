@@ -209,6 +209,16 @@
     min-width: 4.5rem;
 }
 
+.stats-aex-table-scroll .table-sort.sorted-asc::after {
+    content: ' \2191';
+    font-size: 0.75em;
+}
+
+.stats-aex-table-scroll .table-sort.sorted-desc::after {
+    content: ' \2193';
+    font-size: 0.75em;
+}
+
 .data-quality-indicator-btn {
     max-width: 100%;
 }

@@ -274,6 +274,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertTrue($table->showPercentOfTotal);
         self::assertSame('38,46 %', $table->rows[0]->formattedMetricPercentValues['hospital_count']);
         self::assertSame('18,29 %', $table->rows[0]->formattedMetricPercentValues['sum_beds']);
+        self::assertSame(2345, $table->rows[0]->metricValues['sum_beds']);
+        self::assertTrue($table->isClientSortable());
         self::assertArrayNotHasKey('avg_beds', $table->rows[0]->formattedMetricPercentValues);
         self::assertSame('100 %', $table->formattedTotalsPercentValues['hospital_count']);
         self::assertSame('100 %', $table->formattedTotalsPercentValues['sum_beds']);
@@ -345,6 +347,7 @@ final class ExplorerResultsTablePresenterTest extends TestCase
 
         self::assertTrue($table->showPercentOfTotal);
         self::assertTrue($table->hasMetricSubRows);
+        self::assertFalse($table->isClientSortable());
         $sumBedsRow = $table->rows[1];
         self::assertSame('Total beds', $sumBedsRow->metricSubRowLabel);
         self::assertSame('63,97 %', $sumBedsRow->formattedSeriesPercentValues['Male']);
@@ -493,6 +496,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         );
 
         self::assertTrue($table->showPercentOfTotal);
+        self::assertTrue($table->isClientSortable());
+        self::assertSame(4.0, $table->rows[0]->seriesValues['Male']);
         self::assertSame('66,67 %', $table->rows[0]->formattedSeriesPercentValues['Male']);
         self::assertSame('33,33 %', $table->rows[0]->formattedSeriesPercentValues['Female']);
         self::assertSame('100 %', $table->rows[0]->formattedRowTotalPercent);

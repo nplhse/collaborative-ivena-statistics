@@ -55,4 +55,9 @@ final readonly class ExplorerResultsTableViewModel
 
         return 1 + \count($this->metricColumns);
     }
+
+    public function isClientSortable(): bool
+    {
+        return $this->hasData() && !$this->hasMetricSubRows;
+    }
 }
