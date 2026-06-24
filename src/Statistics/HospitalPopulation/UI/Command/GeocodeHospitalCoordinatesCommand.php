@@ -5,31 +5,27 @@ declare(strict_types=1);
 namespace App\Statistics\HospitalPopulation\UI\Command;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationCoordinates;
 use App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationGeocodingLookupFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:hospital-population:geocode',
     description: 'Fill missing hospital coordinates from static geocoding lookup',
 )]
-final class GeocodeHospitalCoordinatesCommand extends Command
+final readonly class GeocodeHospitalCoordinatesCommand
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly HospitalPopulationGeocodingLookupFactory $geocodingLookupFactory,
+        private EntityManagerInterface $entityManager,
+        private HospitalPopulationGeocodingLookupFactory $geocodingLookupFactory,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(SymfonyStyle $io): int
     {
-        $io = new SymfonyStyle($input, $output);
         $lookup = $this->geocodingLookupFactory->create();
 
         /** @var list<Hospital> $hospitals */
@@ -50,7 +46,7 @@ final class GeocodeHospitalCoordinatesCommand extends Command
                 $hospital->getDispatchArea()?->getName(),
             );
 
-            if (!$coordinates instanceof \App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationCoordinates) {
+            if (!$coordinates instanceof HospitalPopulationCoordinates) {
                 ++$skipped;
                 continue;
             }

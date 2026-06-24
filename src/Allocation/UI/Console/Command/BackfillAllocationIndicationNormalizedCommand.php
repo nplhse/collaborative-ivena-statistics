@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Console\Command;
 
 use App\Allocation\Application\Indication\BackfillAllocationIndicationNormalizedService;
+use App\Allocation\UI\Console\Input\BackfillAllocationIndicationNormalizedInput;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -19,36 +19,26 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'app:allocation:backfill-indications',
     description: 'Sync indication_raw.normalized from target and copy normalized IDs onto allocations (optional projection rebuild).',
 )]
-final class BackfillAllocationIndicationNormalizedCommand extends Command
+final readonly class BackfillAllocationIndicationNormalizedCommand
 {
     private const int GC_EVERY_N_IMPORTS = 25;
 
     public function __construct(
-        private readonly BackfillAllocationIndicationNormalizedService $backfillService,
-        private readonly AllocationStatsProjectionRebuildInterface $projectionRebuilder,
-        private readonly Connection $connection,
+        private BackfillAllocationIndicationNormalizedService $backfillService,
+        private AllocationStatsProjectionRebuildInterface $projectionRebuilder,
+        private Connection $connection,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only report how many rows would change')
-            ->addOption('skip-raw-sync', null, InputOption::VALUE_NONE, 'Do not copy indication_raw.target_id to normalized_id')
-            ->addOption('skip-allocations', null, InputOption::VALUE_NONE, 'Do not update allocation indication columns')
-            ->addOption('rebuild-projection', null, InputOption::VALUE_NONE, 'Rebuild allocation_stats_projection per import after backfill');
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $dryRun = (bool) $input->getOption('dry-run');
-        $syncRaw = !(bool) $input->getOption('skip-raw-sync');
-        $backfillAllocations = !(bool) $input->getOption('skip-allocations');
-        $rebuildProjection = (bool) $input->getOption('rebuild-projection');
+    public function __invoke(
+        SymfonyStyle $io,
+        OutputInterface $output,
+        #[MapInput] BackfillAllocationIndicationNormalizedInput $input,
+    ): int {
+        $dryRun = $input->dryRun;
+        $syncRaw = !$input->skipRawSync;
+        $backfillAllocations = !$input->skipAllocations;
+        $rebuildProjection = $input->rebuildProjection;
 
         $io->title('Backfill allocation indication_normalized');
 

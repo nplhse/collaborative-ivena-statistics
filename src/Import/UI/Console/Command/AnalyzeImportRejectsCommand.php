@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Import\UI\Console\Command;
 
 use App\Import\Application\Analysis\ImportRejectAnalysisService;
+use App\Import\Domain\Enum\RejectAnalysisExportFormat;
 use App\Import\Infrastructure\Analysis\Export\RejectAnalysisExporterRegistry;
+use App\Import\UI\Console\Input\AnalyzeImportRejectsInput;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -20,57 +20,30 @@ use Symfony\Component\Filesystem\Path;
     name: 'app:analyze-import-rejects',
     description: 'Analyze import rejects grouped by field, value, and reason for transformer planning.',
 )]
-final class AnalyzeImportRejectsCommand extends Command
+final readonly class AnalyzeImportRejectsCommand
 {
     private const string DEFAULT_OUTPUT_CSV = 'var/export/import-reject-analysis.csv';
 
     public function __construct(
-        private readonly ImportRejectAnalysisService $analysisService,
-        private readonly RejectAnalysisExporterRegistry $exporterRegistry,
-        private readonly Filesystem $filesystem,
+        private ImportRejectAnalysisService $analysisService,
+        private RejectAnalysisExporterRegistry $exporterRegistry,
+        private Filesystem $filesystem,
         #[Autowire('%kernel.project_dir%')]
-        private readonly string $projectDir,
+        private string $projectDir,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'Export format: csv, md, json', 'csv')
-            ->addOption('output', null, InputOption::VALUE_REQUIRED, 'Output file path', self::DEFAULT_OUTPUT_CSV)
-            ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Limit to top N groups after sorting')
-            ->addOption('include-examples', null, InputOption::VALUE_NONE, 'Include example raw row JSON in output')
-            ->addOption('min-count', null, InputOption::VALUE_REQUIRED, 'Minimum count per group', '1');
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $format = strtolower((string) $input->getOption('format'));
-        if (!\in_array($format, ['csv', 'md', 'json'], true)) {
-            $io->error('Option --format must be one of: csv, md, json');
-
-            return Command::INVALID;
-        }
-
-        $outputPath = $this->resolveOutputPath(
-            (string) $input->getOption('output'),
-            $format,
-        );
-
-        $limitOption = $input->getOption('limit');
-        $limit = null !== $limitOption && '' !== $limitOption ? max(1, (int) $limitOption) : null;
-        $minCount = max(1, (int) $input->getOption('min-count'));
-        $includeExamples = (bool) $input->getOption('include-examples');
+    public function __invoke(
+        SymfonyStyle $io,
+        #[MapInput] AnalyzeImportRejectsInput $input,
+    ): int {
+        $format = $input->format->value;
+        $outputPath = $this->resolveOutputPath($input->output, $format);
 
         $result = $this->analysisService->analyze(
-            minCount: $minCount,
-            limit: $limit,
-            includeExamples: $includeExamples,
+            minCount: $input->minCount,
+            limit: $input->limit,
+            includeExamples: $input->includeExamples,
         );
 
         $this->filesystem->mkdir(Path::getDirectory($outputPath));
@@ -96,8 +69,8 @@ final class AnalyzeImportRejectsCommand extends Command
         $defaultCsv = Path::join($this->projectDir, self::DEFAULT_OUTPUT_CSV);
         if ($output === $defaultCsv) {
             return match ($format) {
-                'md' => Path::join($this->projectDir, 'var/export/import-reject-analysis.md'),
-                'json' => Path::join($this->projectDir, 'var/export/import-reject-analysis.json'),
+                RejectAnalysisExportFormat::Markdown->value => Path::join($this->projectDir, 'var/export/import-reject-analysis.md'),
+                RejectAnalysisExportFormat::Json->value => Path::join($this->projectDir, 'var/export/import-reject-analysis.json'),
                 default => $output,
             };
         }

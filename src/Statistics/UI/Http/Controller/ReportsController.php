@@ -98,7 +98,7 @@ final class ReportsController extends AbstractController
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
             'reportsPage' => $reportsPage,
-            'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'reports', null, $definition->key()),
+            'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'reports', $definition->key()),
             'statsFilterDrawerValues' => $drawerState['values'],
             'statsActiveFilterCount' => $drawerState['activeCount'],
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_reports'),

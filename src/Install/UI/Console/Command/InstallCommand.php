@@ -9,8 +9,6 @@ use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -18,7 +16,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
     name: 'app:install',
     description: 'Run one-time server bootstrap (initial admin user and future install steps).',
 )]
-final class InstallCommand extends Command
+final readonly class InstallCommand
 {
     private const string BOOTSTRAP_ADMIN_USERNAME = 'admin';
 
@@ -27,18 +25,14 @@ final class InstallCommand extends Command
     private const string BOOTSTRAP_ADMIN_PLAIN_PASSWORD = 'Ivena123';
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly UserRepository $userRepository,
-        private readonly UserPasswordHasherInterface $passwordHasher,
+        private EntityManagerInterface $entityManager,
+        private UserRepository $userRepository,
+        private UserPasswordHasherInterface $passwordHasher,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(SymfonyStyle $io): int
     {
-        $io = new SymfonyStyle($input, $output);
-
         // Add further one-time bootstrap steps here as private methods, in order.
         $this->ensureBootstrapAdmin($io);
 

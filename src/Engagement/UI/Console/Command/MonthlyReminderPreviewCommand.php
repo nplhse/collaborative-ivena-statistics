@@ -9,11 +9,10 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderContentBuilder;
 use App\Engagement\Application\MonthlyReminderSender;
+use App\Engagement\UI\Console\Input\MonthlyReminderPreviewInput;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -23,54 +22,37 @@ use Twig\Environment;
     name: 'app:reminder:preview',
     description: 'Preview the monthly submission reminder email for a hospital.',
 )]
-final class MonthlyReminderPreviewCommand extends Command
+final readonly class MonthlyReminderPreviewCommand
 {
     public function __construct(
-        private readonly HospitalRepository $hospitalRepository,
-        private readonly MonthlyReminderContentBuilder $contentBuilder,
-        private readonly Environment $twig,
-        private readonly MonthlyReminderSender $reminderSender,
-        private readonly TranslatorInterface $translator,
-        #[Autowire('%env(MAILER_DSN)%')] private readonly string $mailerDsn,
-        #[Autowire('%kernel.environment%')] private readonly string $appEnvironment,
+        private HospitalRepository $hospitalRepository,
+        private MonthlyReminderContentBuilder $contentBuilder,
+        private Environment $twig,
+        private MonthlyReminderSender $reminderSender,
+        private TranslatorInterface $translator,
+        #[Autowire('%env(MAILER_DSN)%')] private string $mailerDsn,
+        #[Autowire('%kernel.environment%')] private string $appEnvironment,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption('hospital', null, InputOption::VALUE_REQUIRED, 'Hospital ID')
-            ->addOption('send', null, InputOption::VALUE_NONE, 'Send the email to the hospital owner')
-            ->addOption('ignore-opt-out', null, InputOption::VALUE_NONE, 'Send even if the owner opted out (like admin action)')
-            ->addOption('output', null, InputOption::VALUE_REQUIRED, 'Write HTML to file path')
-            ->addOption('date', null, InputOption::VALUE_REQUIRED, 'Reference date (Y-m-d) for period calculation');
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $hospitalId = (int) $input->getOption('hospital');
-        if ($hospitalId <= 0) {
+    public function __invoke(
+        SymfonyStyle $io,
+        #[MapInput] MonthlyReminderPreviewInput $input,
+    ): int {
+        if (null === $input->hospital || $input->hospital <= 0) {
             $io->error('Option --hospital is required.');
 
             return Command::INVALID;
         }
 
-        $hospital = $this->hospitalRepository->findById($hospitalId);
+        $hospital = $this->hospitalRepository->findById($input->hospital);
         if (!$hospital instanceof Hospital) {
-            $io->error(sprintf('Hospital %d not found.', $hospitalId));
+            $io->error(sprintf('Hospital %d not found.', $input->hospital));
 
             return Command::FAILURE;
         }
 
-        $referenceDate = null;
-        $dateRaw = $input->getOption('date');
-        if (\is_string($dateRaw) && '' !== $dateRaw) {
-            $referenceDate = new \DateTimeImmutable($dateRaw, new \DateTimeZone('Europe/Berlin'));
-        }
+        $referenceDate = $input->date;
 
         $content = $this->contentBuilder->build($hospital, $referenceDate);
         $html = $this->twig->render('@Engagement/email/monthly_submission_reminder.html.twig', [
@@ -78,9 +60,9 @@ final class MonthlyReminderPreviewCommand extends Command
             'app_title' => 'Preview',
         ]);
 
-        $outputPath = $input->getOption('output');
-        $shouldSend = true === $input->getOption('send');
-        if (\is_string($outputPath) && '' !== $outputPath) {
+        $outputPath = $input->output;
+        $shouldSend = $input->send;
+        if (null !== $outputPath && '' !== $outputPath) {
             file_put_contents($outputPath, $html);
             $io->success(sprintf('Wrote preview to %s', $outputPath));
         } elseif (!$shouldSend) {
@@ -96,7 +78,7 @@ final class MonthlyReminderPreviewCommand extends Command
                 return Command::FAILURE;
             }
 
-            $trigger = $input->getOption('ignore-opt-out')
+            $trigger = $input->ignoreOptOut
                 ? MonthlyReminderTrigger::Admin
                 : MonthlyReminderTrigger::Cli;
 

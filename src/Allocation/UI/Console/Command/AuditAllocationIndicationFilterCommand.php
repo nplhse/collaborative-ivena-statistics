@@ -10,42 +10,34 @@ use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:audit-allocation-indication-filter',
     description: 'Compare EXPLAIN-based result estimates with actual allocation rows per normalized indication code.',
 )]
-final class AuditAllocationIndicationFilterCommand extends Command
+final readonly class AuditAllocationIndicationFilterCommand
 {
     public function __construct(
-        private readonly ListAllocationsQuery $listAllocationsQuery,
-        private readonly EntityManagerInterface $entityManager,
+        private ListAllocationsQuery $listAllocationsQuery,
+        private EntityManagerInterface $entityManager,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption('code', null, InputOption::VALUE_REQUIRED, 'Audit only this indication code')
-            ->addOption('min-estimate', null, InputOption::VALUE_REQUIRED, 'Only report mismatches with estimate >= this value', '1')
-            ->addOption('json', null, InputOption::VALUE_NONE, 'Output problematic codes as JSON');
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $minEstimate = max(0, (int) $input->getOption('min-estimate'));
-        $singleCode = $input->getOption('code');
-        $codes = null !== $singleCode && '' !== $singleCode
-            ? [(int) $singleCode]
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option(description: 'Audit only this indication code')]
+        ?string $code = null,
+        #[Option(description: 'Only report mismatches with estimate >= this value', name: 'min-estimate')]
+        int $minEstimate = 1,
+        #[Option(description: 'Output problematic codes as JSON')]
+        bool $json = false,
+    ): int {
+        $minEstimate = max(0, $minEstimate);
+        $codes = null !== $code && '' !== $code
+            ? [(int) $code]
             : $this->loadDistinctIndicationCodes();
 
         $io->title(sprintf('Auditing %d indication code(s)', \count($codes)));
@@ -53,19 +45,19 @@ final class AuditAllocationIndicationFilterCommand extends Command
         $problematic = [];
         $scanned = 0;
 
-        foreach ($codes as $code) {
+        foreach ($codes as $indicationCode) {
             ++$scanned;
-            $dto = new AllocationQueryParametersDTO(indication: $code);
+            $dto = new AllocationQueryParametersDTO(indication: $indicationCode);
             $paginator = $this->listAllocationsQuery->getPaginator($dto);
             $pageRows = iterator_to_array($paginator->getResults());
             $estimated = $paginator->getEstimatedNumResults();
-            $actualNormalized = $this->countByNormalizedCode($code);
-            $actualRaw = $this->countByRawCode($code);
+            $actualNormalized = $this->countByNormalizedCode($indicationCode);
+            $actualRaw = $this->countByRawCode($indicationCode);
 
             $estimateForCompare = $estimated ?? 0;
             if ($estimateForCompare >= $minEstimate && 0 === \count($pageRows) && 0 === $actualNormalized) {
                 $problematic[] = [
-                    'code' => $code,
+                    'code' => $indicationCode,
                     'estimated' => $estimated,
                     'actualNormalized' => $actualNormalized,
                     'actualRaw' => $actualRaw,
@@ -73,7 +65,7 @@ final class AuditAllocationIndicationFilterCommand extends Command
             }
         }
 
-        if ($input->getOption('json')) {
+        if ($json) {
             $io->writeln(json_encode($problematic, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
 
             return Command::SUCCESS;

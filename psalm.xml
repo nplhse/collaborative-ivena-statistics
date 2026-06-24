@@ -102,10 +102,5 @@
                 <file name="src/Import/Application/ImportDispatchExitCode.php" />
             </errorLevel>
         </UnusedConstructor>
-        <RedundantCast>
-            <errorLevel type="suppress">
-                <directory name="src/*/UI/Console/Command/" />
-            </errorLevel>
-        </RedundantCast>
     </issueHandlers>
 </psalm>

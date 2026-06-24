@@ -6,8 +6,6 @@ namespace App\Import\UI\Console\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -16,20 +14,16 @@ use Symfony\Component\HttpKernel\KernelInterface;
     name: 'app:generate-csv-fixtures',
     description: 'Generate CSV encoding fixtures (dev/test only).',
 )]
-final class GenerateCsvFixturesCommand extends Command
+final readonly class GenerateCsvFixturesCommand
 {
     public function __construct(
-        private readonly KernelInterface $kernel,
-        private readonly Filesystem $fs = new Filesystem(),
+        private KernelInterface $kernel,
+        private Filesystem $fs = new Filesystem(),
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(SymfonyStyle $io): int
     {
-        $io = new SymfonyStyle($input, $output);
-
         if (!\in_array($this->kernel->getEnvironment(), ['dev', 'test'], true)) {
             $io->error(sprintf('Forbidden in "%s" environment.', $this->kernel->getEnvironment()));
 

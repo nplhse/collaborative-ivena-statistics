@@ -5,53 +5,29 @@ declare(strict_types=1);
 namespace App\Kpi\UI\Console\Command;
 
 use App\Kpi\Application\Service\KpiAggregationService;
+use App\Kpi\UI\Console\Input\KpiAggregateInput;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:kpi:aggregate',
     description: 'Aggregate daily KPI metrics from import data into kpi_daily (idempotent per day).',
 )]
-final class KpiAggregateCommand extends Command
+final readonly class KpiAggregateCommand
 {
     private const string TIMEZONE = 'Europe/Berlin';
 
-    /** Matches the 30-day window shown on the admin KPI dashboard. */
-    private const int DEFAULT_DAYS_WITHOUT_DATE = 30;
-
     public function __construct(
-        private readonly KpiAggregationService $aggregationService,
+        private KpiAggregationService $aggregationService,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption(
-                'date',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Aggregate a single calendar day (YYYY-MM-DD, Europe/Berlin).',
-            )
-            ->addOption(
-                'days',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'When --date is omitted: number of days to aggregate ending yesterday (default: 30, matches dashboard). Use 1 for cron.',
-                (string) self::DEFAULT_DAYS_WITHOUT_DATE,
-            );
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
+    public function __invoke(
+        SymfonyStyle $io,
+        #[MapInput] KpiAggregateInput $input,
+    ): int {
         $tz = new \DateTimeZone(self::TIMEZONE);
 
         try {
@@ -65,9 +41,9 @@ final class KpiAggregateCommand extends Command
         $totalRows = 0;
         $daysWithData = 0;
 
-        foreach ($dates as $date) {
+        foreach ($dates as $aggregationDate) {
             try {
-                $count = $this->aggregationService->aggregateForDate($date);
+                $count = $this->aggregationService->aggregateForDate($aggregationDate);
             } catch (\Throwable $exception) {
                 $io->error($exception->getMessage());
 
@@ -101,15 +77,13 @@ final class KpiAggregateCommand extends Command
     /**
      * @return list<\DateTimeImmutable>
      */
-    private function resolveDates(InputInterface $input, \DateTimeZone $tz): array
+    private function resolveDates(KpiAggregateInput $input, \DateTimeZone $tz): array
     {
-        $dateOption = $input->getOption('date');
-
-        if (\is_string($dateOption) && '' !== $dateOption) {
-            return [$this->parseDate($dateOption, $tz)];
+        if (\is_string($input->date) && '' !== $input->date) {
+            return [$this->parseDate($input->date, $tz)];
         }
 
-        $days = (int) $input->getOption('days');
+        $days = $input->days;
         if ($days < 1 || $days > 366) {
             throw new \InvalidArgumentException('The --days option must be between 1 and 366.');
         }
