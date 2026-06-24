@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
+use App\Statistics\AnalysisExplorer\Application\DefaultHospitalsAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
@@ -120,6 +121,61 @@ final class AnalysisExplorerShellTest extends WebTestCase
             0,
             $render->crawler()->filter('[data-testid="stats-analysis-explorer-structure-metric"]')->count(),
         );
+    }
+
+    public function testOpenEditGroupsRowDimensionChoices(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        $rowDimensionSelect = $render->crawler()->filter('select[name*="rowDimension"]');
+        self::assertGreaterThan(0, $rowDimensionSelect->count());
+        self::assertGreaterThan(
+            0,
+            $rowDimensionSelect->filter('optgroup[label="Time and calendar"] option')->count(),
+        );
+        self::assertGreaterThan(
+            0,
+            $rowDimensionSelect->filter('optgroup[label="Clinical care"] option')->count(),
+        );
+    }
+
+    public function testOpenEditGroupsMetricChoices(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        $metricSelect = $render->crawler()->filter('select[name*="metric"]');
+        self::assertGreaterThan(0, $metricSelect->count());
+        self::assertGreaterThan(
+            0,
+            $metricSelect->filter('optgroup[label="Clinical rates"] option')->count(),
+        );
+        self::assertGreaterThan(
+            0,
+            $metricSelect->filter('optgroup[label="Counts"] option')->count(),
+        );
+    }
+
+    public function testOpenEditGroupsHospitalAdditionalTableMetrics(): void
+    {
+        $testComponent = $this->createHospitalsShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $render = $testComponent->render();
+        $field = $render->crawler()->filter('[data-testid="stats-analysis-explorer-additional-table-metrics-field"]');
+        self::assertGreaterThan(0, $field->count());
+        self::assertGreaterThan(0, $field->filter('fieldset legend')->count());
+
+        $legendTexts = $field->filter('fieldset legend')->each(
+            static fn (\Symfony\Component\DomCrawler\Crawler $legend): string => trim($legend->text()),
+        );
+        self::assertContains('Beds', $legendTexts);
     }
 
     public function testMountDowngradesManipulatedHospitalAxisOnPublicScope(): void
@@ -804,6 +860,26 @@ final class AnalysisExplorerShellTest extends WebTestCase
         $user = UserFactory::createOne(['username' => 'explorer-live-'.bin2hex(random_bytes(4))]);
         $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
         $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+        $defaultConfig = $viewFactory->createDefault($filter);
+
+        return $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($defaultConfig),
+            'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
+        ])->actingAs($user);
+    }
+
+    private function createHospitalsShellComponent(): \Symfony\UX\LiveComponent\Test\TestLiveComponent
+    {
+        $user = UserFactory::createOne(['username' => 'explorer-hospitals-'.bin2hex(random_bytes(4))]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultHospitalsAnalysisViewFactory::class);
         $filter = new StatisticsFilter(
             scope: StatisticsFilterScope::Public,
             hospitalId: null,

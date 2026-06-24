@@ -60,6 +60,57 @@ enum AnalysisDimensionKey: string
         return $this->value;
     }
 
+    public function explorerCategory(AnalysisDataSourceKey $dataSourceKey): ExplorerDimensionCategory
+    {
+        return match ($dataSourceKey) {
+            AnalysisDataSourceKey::Allocations => match ($this) {
+                self::Time,
+                self::Weekday,
+                self::Hour,
+                self::DayTimeBucket,
+                self::ShiftBucket => ExplorerDimensionCategory::TimeAndCalendar,
+                self::Occasion,
+                self::Assignment,
+                self::Indication,
+                self::SecondaryIndication,
+                self::Speciality,
+                self::Department,
+                self::TransportType,
+                self::Urgency => ExplorerDimensionCategory::MissionAndAllocation,
+                self::Gender,
+                self::AgeGroup,
+                self::Infection,
+                self::Pregnancy,
+                self::WorkAccident => ExplorerDimensionCategory::PatientAndDemographics,
+                self::Resus,
+                self::Cathlab,
+                self::Cpr,
+                self::Ventilation,
+                self::Shock,
+                self::WithPhysician,
+                self::ClinicalResources,
+                self::ClinicalFeatures => ExplorerDimensionCategory::ClinicalCare,
+                self::TransportTimeBucket => ExplorerDimensionCategory::TransportAndDuration,
+                self::Hospital,
+                self::HospitalCohort,
+                self::State,
+                self::DispatchArea => ExplorerDimensionCategory::HospitalAndGeography,
+                default => throw new \LogicException(sprintf('Dimension "%s" is not part of the allocations explorer catalog.', $this->value)),
+            },
+            AnalysisDataSourceKey::Hospitals => match ($this) {
+                self::HospitalEntity,
+                self::HospitalLocation,
+                self::HospitalMasterCohort,
+                self::HospitalSize,
+                self::HospitalTier => ExplorerDimensionCategory::HospitalProfile,
+                self::HospitalDispatchArea,
+                self::HospitalPopulationGroup,
+                self::HospitalState => ExplorerDimensionCategory::GeographyAndParticipation,
+                default => throw new \LogicException(sprintf('Dimension "%s" is not part of the hospitals explorer catalog.', $this->value)),
+            },
+        };
+    }
+
     /**
      * @return list<self>
      */

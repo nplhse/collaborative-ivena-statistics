@@ -7049,7 +7049,7 @@
       </trans-unit>
       <trans-unit id="statsAexM02" resname="stats.analysis_explorer.metric.resus_rate">
         <source>stats.analysis_explorer.metric.resus_rate</source>
-        <target>Resus rate</target>
+        <target>Resuscitation room rate</target>
       </trans-unit>
       <trans-unit id="statsAexM03" resname="stats.analysis_explorer.metric.cpr_rate">
         <source>stats.analysis_explorer.metric.cpr_rate</source>
@@ -7077,7 +7077,7 @@
       </trans-unit>
       <trans-unit id="statsAexM09" resname="stats.analysis_explorer.metric.with_physician_rate">
         <source>stats.analysis_explorer.metric.with_physician_rate</source>
-        <target>Physician accompaniment rate</target>
+        <target>Physician escort rate</target>
       </trans-unit>
       <trans-unit id="statsAexM09b" resname="stats.analysis_explorer.metric.infection_rate">
         <source>stats.analysis_explorer.metric.infection_rate</source>
@@ -7085,7 +7085,7 @@
       </trans-unit>
       <trans-unit id="statsAexM09c" resname="stats.analysis_explorer.metric.prevalence_rate">
         <source>stats.analysis_explorer.metric.prevalence_rate</source>
-        <target>Share of allocations (%)</target>
+        <target>Share within category (%)</target>
       </trans-unit>
       <trans-unit id="statsAexM10" resname="stats.analysis_explorer.edit.show_percent_of_total">
         <source>stats.analysis_explorer.edit.show_percent_of_total</source>
@@ -7149,7 +7149,7 @@
       </trans-unit>
       <trans-unit id="statsAex19" resname="stats.analysis_explorer.dimension.time">
         <source>stats.analysis_explorer.dimension.time</source>
-        <target>Total allocations</target>
+        <target>Time period</target>
       </trans-unit>
       <trans-unit id="statsAex20" resname="stats.analysis_explorer.dimension.gender">
         <source>stats.analysis_explorer.dimension.gender</source>
@@ -7545,7 +7545,7 @@
       </trans-unit>
       <trans-unit id="statsAex99" resname="stats.analysis_explorer.dimension.hospital_cohort">
         <source>stats.analysis_explorer.dimension.hospital_cohort</source>
-        <target>Hospital cohort</target>
+        <target>Hospital cohort (allocation)</target>
       </trans-unit>
       <trans-unit id="statsAex100" resname="stats.analysis_explorer.dimension.speciality">
         <source>stats.analysis_explorer.dimension.speciality</source>
@@ -7593,7 +7593,7 @@
       </trans-unit>
       <trans-unit id="statsAex108b" resname="stats.analysis_explorer.dimension.transport_time_bucket">
         <source>stats.analysis_explorer.dimension.transport_time_bucket</source>
-        <target>Transport time bucket</target>
+        <target>Transport time (intervals)</target>
       </trans-unit>
       <trans-unit id="statsAex109" resname="stats.analysis_explorer.dimension.day_time_bucket">
         <source>stats.analysis_explorer.dimension.day_time_bucket</source>
@@ -7605,7 +7605,7 @@
       </trans-unit>
       <trans-unit id="statsAex111" resname="stats.analysis_explorer.dimension.resus">
         <source>stats.analysis_explorer.dimension.resus</source>
-        <target>Resuscitation required</target>
+        <target>Resuscitation room required</target>
       </trans-unit>
       <trans-unit id="statsAex112" resname="stats.analysis_explorer.dimension.cathlab">
         <source>stats.analysis_explorer.dimension.cathlab</source>
@@ -7613,7 +7613,7 @@
       </trans-unit>
       <trans-unit id="statsAex113" resname="stats.analysis_explorer.dimension.cpr">
         <source>stats.analysis_explorer.dimension.cpr</source>
-        <target>CPR</target>
+        <target>CPR performed</target>
       </trans-unit>
       <trans-unit id="statsAex114" resname="stats.analysis_explorer.dimension.ventilation">
         <source>stats.analysis_explorer.dimension.ventilation</source>
@@ -7633,7 +7633,7 @@
       </trans-unit>
       <trans-unit id="statsAex118" resname="stats.analysis_explorer.dimension.with_physician">
         <source>stats.analysis_explorer.dimension.with_physician</source>
-        <target>Physician accompaniment</target>
+        <target>Physician escort</target>
       </trans-unit>
       <trans-unit id="statsAex119" resname="stats.analysis_explorer.dimension.hospital">
         <source>stats.analysis_explorer.dimension.hospital</source>
@@ -7947,6 +7947,46 @@
         <source>stats.analysis_explorer.metric_group.transport_times</source>
         <target>Transport times</target>
       </trans-unit>
+      <trans-unit id="statsAexMg05" resname="stats.analysis_explorer.metric_group.clinical_rates">
+        <source>stats.analysis_explorer.metric_group.clinical_rates</source>
+        <target>Clinical rates</target>
+      </trans-unit>
+      <trans-unit id="statsAexMg06" resname="stats.analysis_explorer.metric_group.shares">
+        <source>stats.analysis_explorer.metric_group.shares</source>
+        <target>Shares and distribution</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg01" resname="stats.analysis_explorer.dimension_group.time_and_calendar">
+        <source>stats.analysis_explorer.dimension_group.time_and_calendar</source>
+        <target>Time and calendar</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg02" resname="stats.analysis_explorer.dimension_group.mission_and_allocation">
+        <source>stats.analysis_explorer.dimension_group.mission_and_allocation</source>
+        <target>Mission and allocation</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg03" resname="stats.analysis_explorer.dimension_group.patient_and_demographics">
+        <source>stats.analysis_explorer.dimension_group.patient_and_demographics</source>
+        <target>Patient and demographics</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg04" resname="stats.analysis_explorer.dimension_group.clinical_care">
+        <source>stats.analysis_explorer.dimension_group.clinical_care</source>
+        <target>Clinical care</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg05" resname="stats.analysis_explorer.dimension_group.transport_and_duration">
+        <source>stats.analysis_explorer.dimension_group.transport_and_duration</source>
+        <target>Transport and duration</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg06" resname="stats.analysis_explorer.dimension_group.hospital_and_geography">
+        <source>stats.analysis_explorer.dimension_group.hospital_and_geography</source>
+        <target>Hospital and geography</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg07" resname="stats.analysis_explorer.dimension_group.hospital_profile">
+        <source>stats.analysis_explorer.dimension_group.hospital_profile</source>
+        <target>Hospital profile</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg08" resname="stats.analysis_explorer.dimension_group.geography_and_participation">
+        <source>stats.analysis_explorer.dimension_group.geography_and_participation</source>
+        <target>Geography and participation</target>
+      </trans-unit>
       <trans-unit id="statsAexBx01" resname="stats.analysis_explorer.box_plot.column.distribution_count">
         <source>stats.analysis_explorer.box_plot.column.distribution_count</source>
         <target>n</target>
@@ -7973,7 +8013,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd01" resname="stats.analysis_explorer.dimension.hospital_master_cohort">
         <source>stats.analysis_explorer.dimension.hospital_master_cohort</source>
-        <target>Master cohort</target>
+        <target>Hospital cohort (master data)</target>
       </trans-unit>
       <trans-unit id="statsAexHd02" resname="stats.analysis_explorer.dimension.hospital_tier">
         <source>stats.analysis_explorer.dimension.hospital_tier</source>

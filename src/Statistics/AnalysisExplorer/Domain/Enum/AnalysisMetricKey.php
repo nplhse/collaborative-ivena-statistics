@@ -212,6 +212,41 @@ enum AnalysisMetricKey: string
         };
     }
 
+    public function explorerGroupTranslationKey(): string
+    {
+        return match ($this) {
+            self::AllocationCount, self::HospitalCount => 'stats.analysis_explorer.metric_group.counts',
+            self::PrevalenceRate => 'stats.analysis_explorer.metric_group.shares',
+            self::ResusRate,
+            self::CprRate,
+            self::ShockRate,
+            self::VentilationRate,
+            self::CathlabRate,
+            self::PregnancyRate,
+            self::WorkAccidentRate,
+            self::WithPhysicianRate,
+            self::InfectionRate => 'stats.analysis_explorer.metric_group.clinical_rates',
+            self::SumBeds,
+            self::AvgBeds,
+            self::MinBeds,
+            self::MaxBeds,
+            self::BedsDistribution => 'stats.analysis_explorer.metric_group.beds',
+            self::TotalAllocations,
+            self::AvgAllocationsPerHospital,
+            self::MinAllocations,
+            self::MaxAllocations,
+            self::AllocationsPerHospitalDistribution => 'stats.analysis_explorer.metric_group.allocations',
+            self::TransportTimeDistribution,
+            self::TransportTimePerHospitalDistribution,
+            self::MeanTransportTime,
+            self::MedianTransportTime,
+            self::P25TransportTime,
+            self::P75TransportTime,
+            self::P90TransportTime => 'stats.analysis_explorer.metric_group.transport_times',
+            default => 'stats.analysis_explorer.metric_group.counts',
+        };
+    }
+
     /**
      * @param list<self> $metricKeys
      *
