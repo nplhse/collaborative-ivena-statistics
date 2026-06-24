@@ -7273,7 +7273,7 @@
       </trans-unit>
       <trans-unit id="statsAexM10b" resname="stats.analysis_explorer.edit.show_percent_of_total_help">
         <source>stats.analysis_explorer.edit.show_percent_of_total_help</source>
-        <target>Shows percentages in the table. For matrices: share within the row; otherwise share of the grand total.</target>
+        <target>Shows shares in the table: within the row for matrices, otherwise of the grand total. Applies to count and summable metrics (e.g. total beds), not average, min, or max.</target>
       </trans-unit>
       <trans-unit id="statsAexM11" resname="stats.analysis_explorer.validation.incompatible_metrics">
         <source>stats.analysis_explorer.validation.incompatible_metrics</source>
@@ -7434,6 +7434,18 @@
       <trans-unit id="statsAex43" resname="stats.analysis_explorer.table.footer_total">
         <source>stats.analysis_explorer.table.footer_total</source>
         <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsAexFooterAvg" resname="stats.analysis_explorer.table.footer_average">
+        <source>stats.analysis_explorer.table.footer_average</source>
+        <target>Avg.</target>
+      </trans-unit>
+      <trans-unit id="statsAexFooterMin" resname="stats.analysis_explorer.table.footer_minimum">
+        <source>stats.analysis_explorer.table.footer_minimum</source>
+        <target>Min.</target>
+      </trans-unit>
+      <trans-unit id="statsAexFooterMax" resname="stats.analysis_explorer.table.footer_maximum">
+        <source>stats.analysis_explorer.table.footer_maximum</source>
+        <target>Max.</target>
       </trans-unit>
       <trans-unit id="statsAex44" resname="stats.analysis_explorer.validation.unsupported_dimension">
         <source>stats.analysis_explorer.validation.unsupported_dimension</source>

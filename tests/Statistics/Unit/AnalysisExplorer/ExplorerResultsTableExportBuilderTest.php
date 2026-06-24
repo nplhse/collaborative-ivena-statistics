@@ -101,6 +101,67 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
         self::assertStringContainsString("Total,20,100\n", $csv);
     }
 
+    public function testFlatLayoutWithPercentExportsPercentColumnForEachSummableMetric(): void
+    {
+        $builder = $this->createBuilder();
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: [
+                AnalysisMetricKey::HospitalCount,
+                AnalysisMetricKey::SumBeds,
+                AnalysisMetricKey::AvgBeds,
+                AnalysisMetricKey::PercentOfTotal,
+            ],
+            visualMetricKey: AnalysisMetricKey::HospitalCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            title: 'Hospitals by tier',
+        );
+
+        $document = $builder->build(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Hospitals by tier',
+                metricKeys: [
+                    AnalysisMetricKey::HospitalCount,
+                    AnalysisMetricKey::SumBeds,
+                    AnalysisMetricKey::AvgBeds,
+                    AnalysisMetricKey::PercentOfTotal,
+                ],
+                visualMetricKey: AnalysisMetricKey::HospitalCount,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+                columnAxis: null,
+                rows: [
+                    new AnalysisResultRow('full', 'Full', null, null, [
+                        'hospital_count' => 10,
+                        'sum_beds' => 2345,
+                        'avg_beds' => 234.5,
+                        'percent_of_total' => 38.46,
+                    ]),
+                ],
+                totals: new AnalysisTotals(grand: [
+                    'hospital_count' => 10,
+                    'sum_beds' => 2345,
+                    'avg_beds' => 234.5,
+                    'percent_of_total' => 100.0,
+                ]),
+            ),
+        );
+
+        $csv = $this->exportToString($document);
+
+        self::assertStringContainsString('Hospitals,"% of total","Total beds","% of total","Average beds"', $csv);
+        self::assertStringContainsString("Full,10,38.46,2345,100,234.5\n", $csv);
+        self::assertStringContainsString("Total,10,100,2345,100,234.5\n", $csv);
+    }
+
     public function testMatrixLayoutExportsSeriesColumnsAndTotals(): void
     {
         $builder = $this->createBuilder();
@@ -337,7 +398,11 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
             ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
             ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
             ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+            ['stats.analysis_explorer.metric.hospital_count', [], null, null, 'Hospitals'],
+            ['stats.analysis_explorer.metric.sum_beds', [], null, null, 'Total beds'],
+            ['stats.analysis_explorer.metric.avg_beds', [], null, null, 'Average beds'],
             ['stats.analysis_explorer.metric.percent_of_total', [], null, null, 'Percent of total'],
+            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
             ['stats.analysis_explorer.table.metric', [], null, null, 'Metric'],
             ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
             ['stats.analysis_explorer.export.percent_of_total', [], null, null, '% of total'],

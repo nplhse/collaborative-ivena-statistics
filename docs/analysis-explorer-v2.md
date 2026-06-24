@@ -103,7 +103,7 @@ Explorer queries reuse **Generic Analysis** aggregation via a thin bridge layer.
 | Category | Explorer key | GA key | Notes |
 |---|---|---|---|
 | Count | `allocation_count` | `count` | Primary default; charts use `visualMetric` |
-| Distribution | `percent_of_total` | `percent_of_total` | Optional table column via checkbox |
+| Distribution | `percent_of_total` | `percent_of_total` | Optional table column via checkbox; applies to all summable table metrics (count, sum beds, …), not avg/min/max |
 | Rate | `*_rate` | same | SQL aggregate per bucket |
 | Statistical | `mean_transport_time`, … | same | Registered, not enabled yet |
 | Distribution profile | `transport_time_distribution` | — | Allocations: per-allocation transport minutes, box plot |

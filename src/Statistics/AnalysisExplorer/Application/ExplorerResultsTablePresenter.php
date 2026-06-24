@@ -10,6 +10,7 @@ use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableRow;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
@@ -54,26 +55,19 @@ final readonly class ExplorerResultsTablePresenter
         $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
         $visibleMetricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
         $metricColumns = $this->metricColumns($visibleMetricKeys);
-        $grandTotal = $result->totalFor(AnalysisMetricKey::AllocationCount);
         $rows = [];
 
         foreach ($result->rows as $row) {
             $formattedMetricPercentValues = [];
             if ($showPercentOfTotal) {
                 foreach ($visibleMetricKeys as $metricKey) {
-                    if (AnalysisMetricKey::AllocationCount !== $metricKey) {
+                    if (!$this->summabilityPolicy->supportsPercentShare($metricKey)) {
                         continue;
                     }
 
-                    $percent = $row->valueFor(AnalysisMetricKey::PercentOfTotal);
-                    if (null === $percent) {
-                        $percent = $this->percentHelper->percentOfTotal(
-                            $row->valueFor(AnalysisMetricKey::AllocationCount),
-                            $grandTotal,
-                        );
-                    }
-
-                    $formattedMetricPercentValues[$metricKey->value] = $this->percentHelper->formatPercent($percent);
+                    $formattedMetricPercentValues[$metricKey->value] = $this->percentHelper->formatPercent(
+                        $this->resolveFlatPercentShare($row, $metricKey, $result),
+                    );
                 }
             }
 
@@ -87,7 +81,7 @@ final readonly class ExplorerResultsTablePresenter
         $formattedTotalsPercentValues = [];
         if ($showPercentOfTotal) {
             foreach ($visibleMetricKeys as $metricKey) {
-                if (AnalysisMetricKey::AllocationCount !== $metricKey) {
+                if (!$this->summabilityPolicy->supportsPercentShare($metricKey)) {
                     continue;
                 }
 
@@ -104,6 +98,7 @@ final readonly class ExplorerResultsTablePresenter
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
             showPercentOfTotal: $showPercentOfTotal,
             formattedTotalsPercentValues: $formattedTotalsPercentValues,
+            footerRowLabel: $this->footerRowLabel($visibleMetricKeys),
         );
     }
 
@@ -320,7 +315,7 @@ final readonly class ExplorerResultsTablePresenter
                     $value = $matrix->valueFor($rowKey, $colKey, $metricKey);
                     $seriesValues[$label] = $value;
                     $formattedSeriesValues[$label] = $this->formatMetricValue($metricKey, $value);
-                    if ($showPercentOfTotal && AnalysisMetricKey::AllocationCount === $metricKey) {
+                    if ($showPercentOfTotal && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
                         $formattedSeriesPercentValues[$label] = $this->percentHelper->formatPercent(
                             $this->percentHelper->percentOfRow($value, $rowTotal),
                         );
@@ -384,6 +379,7 @@ final readonly class ExplorerResultsTablePresenter
             $columns[] = new ExplorerResultsTableMetricColumn(
                 key: $metricKey->value,
                 label: $this->metricLabel($metricKey),
+                footerLabel: $this->footerLabelForMetric($metricKey),
             );
         }
 
@@ -465,5 +461,60 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value);
+    }
+
+    private function countMetricForPercent(AnalysisRunResult $result): ?AnalysisMetricKey
+    {
+        foreach ([AnalysisMetricKey::AllocationCount, AnalysisMetricKey::HospitalCount] as $metricKey) {
+            if (\in_array($metricKey, $result->metricKeys, true)) {
+                return $metricKey;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveFlatPercentShare(
+        AnalysisResultRow $row,
+        AnalysisMetricKey $metricKey,
+        AnalysisRunResult $result,
+    ): ?float {
+        $countMetric = $this->countMetricForPercent($result);
+        if ($metricKey === $countMetric) {
+            $sqlPercent = $row->valueFor(AnalysisMetricKey::PercentOfTotal);
+            if (null !== $sqlPercent) {
+                return (float) $sqlPercent;
+            }
+        }
+
+        return $this->percentHelper->percentOfTotal(
+            $row->valueFor($metricKey),
+            $result->totalFor($metricKey),
+        );
+    }
+
+    /**
+     * @param list<AnalysisMetricKey> $visibleMetricKeys
+     */
+    private function footerRowLabel(array $visibleMetricKeys): string
+    {
+        if (1 !== \count($visibleMetricKeys)) {
+            return '';
+        }
+
+        return $this->footerLabelForMetric($visibleMetricKeys[0]);
+    }
+
+    private function footerLabelForMetric(AnalysisMetricKey $metricKey): string
+    {
+        return match ($metricKey) {
+            AnalysisMetricKey::AvgBeds,
+            AnalysisMetricKey::AvgAllocationsPerHospital => $this->translator->trans('stats.analysis_explorer.table.footer_average'),
+            AnalysisMetricKey::MinBeds,
+            AnalysisMetricKey::MinAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_minimum'),
+            AnalysisMetricKey::MaxBeds,
+            AnalysisMetricKey::MaxAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_maximum'),
+            default => $this->translator->trans('stats.analysis_explorer.table.footer_total'),
+        };
     }
 }

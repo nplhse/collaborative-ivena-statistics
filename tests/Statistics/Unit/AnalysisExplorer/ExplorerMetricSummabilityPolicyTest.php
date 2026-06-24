@@ -36,4 +36,20 @@ final class ExplorerMetricSummabilityPolicyTest extends TestCase
         self::assertFalse($this->policy->isSummable(AnalysisMetricKey::MinBeds));
         self::assertFalse($this->policy->isSummable(AnalysisMetricKey::MaxAllocations));
     }
+
+    public function testSupportsPercentShareForSummableNonPercentMetrics(): void
+    {
+        self::assertTrue($this->policy->supportsPercentShare(AnalysisMetricKey::HospitalCount));
+        self::assertTrue($this->policy->supportsPercentShare(AnalysisMetricKey::AllocationCount));
+        self::assertTrue($this->policy->supportsPercentShare(AnalysisMetricKey::SumBeds));
+        self::assertTrue($this->policy->supportsPercentShare(AnalysisMetricKey::TotalAllocations));
+    }
+
+    public function testSupportsPercentShareExcludesPercentMetricAndNonSummableAggregates(): void
+    {
+        self::assertFalse($this->policy->supportsPercentShare(AnalysisMetricKey::PercentOfTotal));
+        self::assertFalse($this->policy->supportsPercentShare(AnalysisMetricKey::AvgBeds));
+        self::assertFalse($this->policy->supportsPercentShare(AnalysisMetricKey::MinBeds));
+        self::assertFalse($this->policy->supportsPercentShare(AnalysisMetricKey::MaxBeds));
+    }
 }

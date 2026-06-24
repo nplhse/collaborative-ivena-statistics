@@ -24,4 +24,10 @@ final readonly class ExplorerMetricSummabilityPolicy
             default => false,
         };
     }
+
+    public function supportsPercentShare(AnalysisMetricKey $metricKey): bool
+    {
+        return $this->isSummable($metricKey)
+            && AnalysisMetricKey::PercentOfTotal !== $metricKey;
+    }
 }
