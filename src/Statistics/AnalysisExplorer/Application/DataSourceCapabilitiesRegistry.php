@@ -9,6 +9,7 @@ use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\User\Domain\Entity\User;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 final readonly class DataSourceCapabilitiesRegistry
 {
@@ -16,6 +17,7 @@ final readonly class DataSourceCapabilitiesRegistry
      * @param iterable<DataSourceCapabilitiesProviderInterface> $providers
      */
     public function __construct(
+        #[AutowireIterator('app.analysis_explorer.capabilities_provider')]
         private iterable $providers,
     ) {
     }

@@ -7,6 +7,7 @@ namespace App\Statistics\Application\Report;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * Curated statistics report.
@@ -14,6 +15,7 @@ use App\Statistics\Application\DTO\StatisticWidget;
  * {@see build()} receives {@see StatisticsContext} so hospital scopes such as "My hospitals"
  * can respect the signed-in user (same idea as analysis).
  */
+#[AutoconfigureTag('app.statistics.report_definition')]
 interface ReportDefinitionInterface
 {
     public function key(): string;
