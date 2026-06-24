@@ -30,7 +30,7 @@ final readonly class AnalyzePageImagesCommand
         SymfonyStyle $io,
         #[MapInput] AnalyzePageImagesInput $input,
     ): int {
-        $dryRun = !$input->apply;
+        $dryRun = !$input->apply || $input->dryRun;
         $pageId = $this->parsePageId($input->pageId);
 
         $io->title('Analyze page images');

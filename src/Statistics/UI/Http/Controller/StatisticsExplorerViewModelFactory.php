@@ -29,7 +29,6 @@ final readonly class StatisticsExplorerViewModelFactory
     public function create(
         Request $request,
         string $currentPage,
-        ?string $currentAnalysisKey = null,
         ?string $currentReportKey = null,
     ): array {
         if ('dashboard' === $currentPage) {

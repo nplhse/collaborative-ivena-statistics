@@ -31,6 +31,7 @@ final class RequeueAllImportsCommand implements SignalableCommandInterface
     /**
      * @return list<int>
      */
+    #[\Override]
     public function getSubscribedSignals(): array
     {
         if (!\function_exists('pcntl_signal')) {
@@ -40,6 +41,7 @@ final class RequeueAllImportsCommand implements SignalableCommandInterface
         return [\SIGINT, \SIGTERM];
     }
 
+    #[\Override]
     public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
     {
         $this->runControl?->requestStop($signal);
