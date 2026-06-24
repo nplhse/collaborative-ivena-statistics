@@ -19,13 +19,12 @@ This is a **read-side transparency feature**. It does not block access to statis
 | Indication dashboard | `/statistics/indication/{id}` | route parameter |
 | Case Flow | `/statistics/case-flow` | — |
 | Reports | `/statistics/reports` | — |
-| Pivot tables | `/statistics/pivot` | — |
 | Analysis library / explorer | `/statistics/analysis/*` | — |
 | Benchmarking | `/statistics/benchmarking` | — (primary scope) |
 
 **Excluded:** Hospital Population (`/statistics/hospital-population`) — no scope/period filter context.
 
-Pages with extra filters (pivot dimensions, comparison scope in benchmarking, analytics dimensions) still show **scope + period** quality only, not filter-specific quality.
+Pages with extra filters (comparison scope in benchmarking, analytics dimensions) still show **scope + period** quality only, not filter-specific quality.
 
 ## Overview progressive loading
 

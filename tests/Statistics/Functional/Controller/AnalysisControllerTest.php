@@ -30,18 +30,4 @@ final class AnalysisControllerTest extends WebTestCase
         $this->assertStringContainsString('scope=public', $location);
         $this->assertStringContainsString('period=all', $location);
     }
-
-    public function testLegacyHospitalPivotRedirectsToPivotTables(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis?scope=public&period=all&analysis=hospital_pivot',
-        );
-
-        $this->assertResponseRedirects();
-        $location = (string) $client->getResponse()->headers->get('Location');
-        $this->assertStringContainsString('/statistics/pivot', $location);
-        $this->assertStringContainsString('analysis=hospital_pivot', $location);
-    }
 }

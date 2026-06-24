@@ -22,12 +22,10 @@ final class StatisticsContextFactoryTest extends TestCase
             StatisticsFilterPeriod::All,
         );
 
-        $context = $factory->create(null, $filter, null, 'rows', 'cols', 'measure');
+        $context = $factory->create(null, $filter);
 
         self::assertNull($context->user);
         self::assertSame($filter, $context->filter);
-        self::assertSame('rows', $context->pivotRows);
-        self::assertSame('cols', $context->pivotCols);
-        self::assertSame('measure', $context->pivotMeasure);
+        self::assertNull($context->comparisonFilter);
     }
 }
