@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\Infrastructure\Repository;
 
+use App\Content\Application\Blog\PostSlugExistsChecker;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\UI\Http\DTO\BlogListQueryParametersDTO;
@@ -15,7 +16,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Post>
  */
-final class PostRepository extends ServiceEntityRepository
+final class PostRepository extends ServiceEntityRepository implements PostSlugExistsChecker
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -121,6 +122,7 @@ final class PostRepository extends ServiceEntityRepository
         return $post;
     }
 
+    #[\Override]
     public function slugExists(string $slug, ?int $excludeId = null): bool
     {
         $qb = $this->createQueryBuilder('p')

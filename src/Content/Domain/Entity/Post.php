@@ -12,11 +12,13 @@ use App\User\Domain\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ORM\Table(name: 'post')]
+#[UniqueEntity(fields: ['slug'], message: 'post.validation.slug_unique')]
 #[ORM\Index(name: 'idx_post_status', fields: ['status'])]
 #[ORM\Index(name: 'idx_post_published_at', fields: ['publishedAt'])]
 #[ORM\HasLifecycleCallbacks()]
@@ -32,6 +34,12 @@ class Post implements \Stringable
     #[ORM\Column(length: 180)]
     private ?string $title = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Regex(
+        pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+        message: 'post.validation.slug_format',
+    )]
+    #[Assert\Length(max: 200)]
     #[ORM\Column(length: 200, unique: true)]
     private ?string $slug = null;
 
@@ -93,10 +101,6 @@ class Post implements \Stringable
     public function setTitle(string $title): static
     {
         $this->title = $title;
-
-        if (null === $this->slug || '' === $this->slug) {
-            $this->slug = strtolower(new AsciiSlugger()->slug($title)->toString());
-        }
 
         return $this;
     }
