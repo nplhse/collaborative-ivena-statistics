@@ -31,17 +31,18 @@ final readonly class OverviewPortalNavigationFactory
                 $this->explorerTarget(
                     'stats.nav.overview_kpi_to_analysis',
                     'allocations_by_month',
+                    'all_time',
                 ),
             ],
-            heatmapDayTime: [
+            heatmapHour: [
                 $this->explorerTarget(
-                    'stats.nav.overview_heatmap_daytime_to_analysis',
+                    'stats.nav.overview_allocations_by_hour',
                     'allocations_by_hour',
                 ),
             ],
-            heatmapShift: [
+            heatmapWeekday: [
                 $this->explorerTarget(
-                    'stats.nav.overview_heatmap_shift_to_analysis',
+                    'stats.nav.overview_allocations_by_weekday_short',
                     'allocations_by_weekday',
                 ),
             ],
@@ -51,6 +52,12 @@ final readonly class OverviewPortalNavigationFactory
                     'age_group_distribution',
                 ),
             ],
+            transportTime: [
+                $this->explorerTarget(
+                    'stats.nav.overview_transport_time_to_analysis',
+                    'transport_time_bucket_distribution',
+                ),
+            ],
         );
     }
 
@@ -58,7 +65,8 @@ final readonly class OverviewPortalNavigationFactory
     {
         return $this->explorerTarget(
             'stats.nav.overview_resources_to_analysis',
-            'allocations_by_month',
+            'clinical_resources_comparison',
+            'all',
         );
     }
 
@@ -66,12 +74,16 @@ final readonly class OverviewPortalNavigationFactory
     {
         return $this->explorerTarget(
             'stats.nav.overview_indicators_to_analysis',
-            'allocations_by_month',
+            'clinical_features_comparison',
+            'all',
         );
     }
 
-    private function explorerTarget(string $labelKey, string $legacyViewKey): StatisticWidgetNavigationTarget
-    {
+    private function explorerTarget(
+        string $labelKey,
+        string $legacyViewKey,
+        ?string $forcedPeriod = null,
+    ): StatisticWidgetNavigationTarget {
         $slug = $this->legacyViewMapper->slugForLegacyViewKey($legacyViewKey);
         if (null === $slug) {
             return new StatisticWidgetNavigationTarget(
@@ -82,10 +94,15 @@ final readonly class OverviewPortalNavigationFactory
             );
         }
 
+        $params = ['view' => $slug];
+        if (null !== $forcedPeriod) {
+            $params['period'] = $forcedPeriod;
+        }
+
         return new StatisticWidgetNavigationTarget(
             $labelKey,
             'app_stats_analysis_explorer_view',
-            ['view' => $slug],
+            $params,
             self::EXPLORER_REMOVE_KEYS,
         );
     }
