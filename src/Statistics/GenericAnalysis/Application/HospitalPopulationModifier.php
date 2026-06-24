@@ -23,9 +23,20 @@ final readonly class HospitalPopulationModifier
             return;
         }
 
-        if (HospitalPopulationMode::Compare === $query->hospitalPopulationMode
-            && null !== $query->seriesDimensionKey
-            && HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY !== $query->seriesDimensionKey) {
+        if (HospitalPopulationMode::Compare !== $query->hospitalPopulationMode) {
+            return;
+        }
+
+        if (null === $query->seriesDimensionKey) {
+            return;
+        }
+
+        $populationKey = HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY;
+        if ($populationKey === $query->primaryDimensionKey) {
+            return;
+        }
+
+        if ($populationKey !== $query->seriesDimensionKey) {
             throw InvalidAnalysisConfigurationException::withMessage('Compare population mode cannot be combined with a manual series dimension.');
         }
     }
@@ -37,6 +48,10 @@ final readonly class HospitalPopulationModifier
         }
 
         if (HospitalPopulationMode::Compare !== $query->hospitalPopulationMode) {
+            return $query;
+        }
+
+        if (HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY === $query->primaryDimensionKey) {
             return $query;
         }
 

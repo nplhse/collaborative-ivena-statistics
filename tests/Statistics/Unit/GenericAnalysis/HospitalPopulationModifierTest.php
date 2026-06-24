@@ -45,4 +45,19 @@ final class HospitalPopulationModifierTest extends TestCase
 
         self::assertSame('hospital_population_group', $prepared->seriesDimensionKey);
     }
+
+    public function testCompareWithPopulationGroupAsPrimaryKeepsManualSeries(): void
+    {
+        $query = GenericAnalysisTestFixtures::defaultQuery(
+            primary: 'hospital_population_group',
+            series: 'hospital_tier',
+            dataSource: AnalysisDataSource::Hospitals,
+            hospitalPopulationMode: HospitalPopulationMode::Compare,
+        );
+
+        $this->modifier->validate($query);
+        $prepared = $this->modifier->prepareForExecution($query);
+
+        self::assertSame('hospital_tier', $prepared->seriesDimensionKey);
+    }
 }

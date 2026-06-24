@@ -9,6 +9,7 @@ use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\User\Domain\Entity\User;
@@ -31,6 +32,10 @@ final readonly class ExplorerEditAxisSwapper
 
     public function canSwap(ExplorerEditFormData $formData): bool
     {
+        if ($this->isHospitalCompareWithoutColumn($formData)) {
+            return $this->canSwapHospitalCompareAxes($formData);
+        }
+
         if (null === $formData->columnDimension || self::NONE_COLUMN === $formData->columnDimension) {
             return false;
         }
@@ -57,6 +62,28 @@ final readonly class ExplorerEditAxisSwapper
 
     public function swap(ExplorerEditFormData $formData): ExplorerEditFormData
     {
+        if ($this->isHospitalCompareWithoutColumn($formData)) {
+            if (!$this->canSwapHospitalCompareAxes($formData)) {
+                return $formData;
+            }
+
+            return $this->editFormNormalizer->normalize(new ExplorerEditFormData(
+                scopePeriod: $formData->scopePeriod,
+                dataSource: $formData->dataSource,
+                rowDimension: AnalysisDimensionKey::HospitalPopulationGroup->value,
+                rowGrain: AnalysisDimensionGrain::Total->value,
+                columnDimension: $formData->rowDimension,
+                columnGrain: $formData->rowGrain,
+                metric: $formData->metric,
+                showPercentOfTotal: $formData->showPercentOfTotal,
+                chartType: $formData->chartType,
+                tableLayout: $formData->tableLayout,
+                chartRowLimit: $formData->chartRowLimit,
+                hospitalPopulation: ExplorerHospitalPopulationMode::Compare->value,
+                additionalTableMetrics: $formData->additionalTableMetrics,
+            ));
+        }
+
         if (!$this->canSwap($formData)) {
             return $formData;
         }
@@ -109,6 +136,31 @@ final readonly class ExplorerEditAxisSwapper
         }
 
         return $candidate;
+    }
+
+    private function isHospitalCompareWithoutColumn(ExplorerEditFormData $formData): bool
+    {
+        return AnalysisDataSourceKey::Hospitals->value === $formData->dataSource
+            && ExplorerHospitalPopulationMode::Compare->value === $formData->hospitalPopulation
+            && (null === $formData->columnDimension || self::NONE_COLUMN === $formData->columnDimension);
+    }
+
+    private function canSwapHospitalCompareAxes(ExplorerEditFormData $formData): bool
+    {
+        if (AnalysisDimensionKey::HospitalPopulationGroup->value === $formData->rowDimension) {
+            return false;
+        }
+
+        $capabilities = $this->capabilitiesFor($formData);
+        $rowAxis = $this->axisResolver->resolveFromStrings(
+            $formData->rowDimension,
+            $formData->rowGrain,
+            $capabilities,
+        );
+        $swappedRowAxis = AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalPopulationGroup);
+        $swappedColumnAxis = $this->axisResolver->resolve($rowAxis, $capabilities);
+
+        return $capabilities->supportsColumnAxis($swappedRowAxis, $swappedColumnAxis);
     }
 
     private function capabilitiesFor(ExplorerEditFormData $formData): DataSourceCapabilities
