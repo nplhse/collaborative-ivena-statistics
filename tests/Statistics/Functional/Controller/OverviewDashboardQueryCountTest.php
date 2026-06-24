@@ -15,6 +15,7 @@ use Zenstruck\Foundry\Test\Factories;
 /**
  * Baseline before optimization (Jun 2026): 44 queries / ~299 ms on /statistics/ with broad hospital scope.
  * Target after Phase 1+2: ~18–22 queries on the synchronous overview path.
+ * All-time time series is loaded in the same OverviewSliceQuery as scoped heatmaps (no extra round-trip).
  */
 #[ResetDatabase]
 final class OverviewDashboardQueryCountTest extends WebTestCase
