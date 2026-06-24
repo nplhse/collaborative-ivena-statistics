@@ -27,5 +27,6 @@ final class StatisticsContextFactoryTest extends TestCase
         self::assertNull($context->user);
         self::assertSame($filter, $context->filter);
         self::assertNull($context->comparisonFilter);
+        self::assertNull($context->drawerFilter);
     }
 }

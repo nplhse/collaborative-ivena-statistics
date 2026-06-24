@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Infrastructure\Query;
 
+use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
@@ -117,6 +118,13 @@ final readonly class GenericAllocationDistributionSqlBuilder
     {
         if (!$this->dimensionRegistry->has($filter->dimensionKey)) {
             throw UnknownAnalysisDimensionException::forKey($filter->dimensionKey);
+        }
+
+        if ('age_group' === $filter->dimensionKey && \is_string($filter->value)) {
+            $aggregateCondition = StatisticsAgeGroupFilter::sqlCondition('age', $filter->value);
+            if (null !== $aggregateCondition) {
+                return [$aggregateCondition, [], []];
+            }
         }
 
         $dimension = $this->dimensionRegistry->get($filter->dimensionKey);

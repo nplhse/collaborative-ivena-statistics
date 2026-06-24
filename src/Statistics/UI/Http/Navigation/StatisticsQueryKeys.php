@@ -97,11 +97,17 @@ final class StatisticsQueryKeys
     public const array DRAWER_FILTERS = [
         'gender',
         'urgency',
-        'age_range',
-        'feature',
+        'age_group',
         'department',
         'speciality',
-        'dispatch_area',
-        'hospital_attribute',
+        'requiresResus',
+        'requiresCathlab',
+        'isVentilated',
+        'isShock',
+        'isCPR',
+        'isPregnant',
+        'isWorkAccident',
+        'isInfectious',
+        'infection',
     ];
 }

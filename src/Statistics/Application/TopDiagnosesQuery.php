@@ -30,17 +30,21 @@ final readonly class TopDiagnosesQuery
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
 
+        $drawerFilter = $context->drawerFilter;
+
         $rows = $this->diagnosisQuery->fetchTopDiagnosisAggregates(
             $bounds->from,
             $bounds->toExclusive,
             $scopeCriteria->hospitalIds,
             $limit,
+            $drawerFilter,
         );
 
         $total = $totalAllocations ?? $this->timeSeriesQuery->countCreatedInPeriod(
             $bounds->from,
             $bounds->toExclusive,
             $scopeCriteria->hospitalIds,
+            $drawerFilter,
         );
 
         return [

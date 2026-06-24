@@ -260,4 +260,23 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         self::assertStringNotContainsString('DROP TABLE', $sql);
         self::assertContains("'; DROP TABLE allocation_stats_projection; --", $params);
     }
+
+    public function testAggregateAgeGroupFilterUsesRawAgeCondition(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            filters: [
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'age_group',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::Equals,
+                    value: 'over_80',
+                ),
+            ],
+        ));
+
+        self::assertStringContainsString('age >= 80', $sql);
+        self::assertStringNotContainsString('filter_age_group', $sql);
+    }
 }

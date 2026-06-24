@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\GenericAnalysis\Infrastructure\Query;
 
 use App\Statistics\Application\Mapping\ClinicalIndicatorDefinitions;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
@@ -301,6 +302,14 @@ final readonly class GenericAllocationAnalysisSqlBuilder
     {
         if (!$this->dimensionRegistry->has($filter->dimensionKey)) {
             throw UnknownAnalysisDimensionException::forKey($filter->dimensionKey);
+        }
+
+        if ('age_group' === $filter->dimensionKey && \is_string($filter->value)) {
+            $ageColumn = $usesAllocationAlias ? self::ALLOCATION_ALIAS.'.age' : 'age';
+            $aggregateCondition = StatisticsAgeGroupFilter::sqlCondition($ageColumn, $filter->value);
+            if (null !== $aggregateCondition) {
+                return [$aggregateCondition, [], []];
+            }
         }
 
         $dimension = $this->dimensionRegistry->get($filter->dimensionKey);

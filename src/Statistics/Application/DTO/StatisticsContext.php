@@ -12,6 +12,7 @@ final readonly class StatisticsContext
         public ?User $user,
         public StatisticsFilter $filter,
         public ?StatisticsFilter $comparisonFilter = null,
+        public ?StatisticsDrawerFilter $drawerFilter = null,
     ) {
     }
 }
