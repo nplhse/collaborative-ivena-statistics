@@ -1,4 +1,4 @@
-{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections) %}
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes) %}
     {% set rawFilters = [] %}
 
     {# --- Simple string filters --- #}
@@ -109,6 +109,45 @@
         {% endfor %}
         {% if secondaryTransportName is not null %}
             {% set rawFilters = rawFilters|merge([{key: 'label.secondary_transport', value: secondaryTransportName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Department (id → name) --- #}
+    {% if filters.department is not null and departments is defined %}
+        {% set departmentName = null %}
+        {% for department in departments %}
+            {% if departmentName is null and department.id == filters.department %}
+                {% set departmentName = department.name %}
+            {% endif %}
+        {% endfor %}
+        {% if departmentName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.department', value: departmentName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Speciality (id → name) --- #}
+    {% if filters.speciality is not null and specialities is defined %}
+        {% set specialityName = null %}
+        {% for speciality in specialities %}
+            {% if specialityName is null and speciality.id == filters.speciality %}
+                {% set specialityName = speciality.name %}
+            {% endif %}
+        {% endfor %}
+        {% if specialityName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.speciality', value: specialityName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Transport type --- #}
+    {% if filters.transportType is not empty and transportTypes is defined %}
+        {% set transportTypeLabel = null %}
+        {% for transportType in transportTypes %}
+            {% if transportTypeLabel is null and transportType.value == filters.transportType %}
+                {% set transportTypeLabel = transportType.label()|trans %}
+            {% endif %}
+        {% endfor %}
+        {% if transportTypeLabel is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
         {% endif %}
     {% endif %}
 
