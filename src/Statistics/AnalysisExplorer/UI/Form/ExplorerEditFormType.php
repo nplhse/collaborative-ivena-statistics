@@ -8,8 +8,8 @@ use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
 use App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerColumnGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditChoicePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
-use App\Statistics\AnalysisExplorer\Application\ExplorerMetricProfileRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerStatisticsFilterInputFactory;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
@@ -49,7 +49,7 @@ final class ExplorerEditFormType extends AbstractType
         private readonly ExplorerConfigPreviewFactory $previewFactory,
         private readonly ExplorerColumnGrainResolver $columnGrainResolver,
         private readonly ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
-        private readonly ExplorerMetricProfileRegistry $profileRegistry,
+        private readonly ExplorerEditChoicePresenter $editChoicePresenter,
         private readonly ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
         private readonly AnalysisAxisResolver $axisResolver,
@@ -104,7 +104,7 @@ final class ExplorerEditFormType extends AbstractType
             }
         });
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($locale): void {
             $submitted = $event->getData();
             if (!\is_array($submitted)) {
                 return;
@@ -119,10 +119,10 @@ final class ExplorerEditFormType extends AbstractType
 
             /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
             $form = $event->getForm();
-            $this->configureDynamicChoices($form, $preview);
+            $this->configureDynamicChoices($form, $preview, $locale);
         });
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($locale): void {
             $formData = $event->getData();
             if (!$formData instanceof ExplorerEditFormData) {
                 return;
@@ -130,7 +130,7 @@ final class ExplorerEditFormType extends AbstractType
 
             /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
             $form = $event->getForm();
-            $event->setData($this->configureDynamicChoices($form, $formData));
+            $event->setData($this->configureDynamicChoices($form, $formData, $locale));
         });
     }
 
@@ -182,8 +182,11 @@ final class ExplorerEditFormType extends AbstractType
     /**
      * @param \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form
      */
-    private function configureDynamicChoices(\Symfony\Component\Form\FormInterface $form, ExplorerEditFormData $formData): ExplorerEditFormData
-    {
+    private function configureDynamicChoices(
+        \Symfony\Component\Form\FormInterface $form,
+        ExplorerEditFormData $formData,
+        string $locale,
+    ): ExplorerEditFormData {
         $user = $this->security->getUser();
         $filter = $this->statisticsFilterFactory->createFromInput(
             $this->filterInputFactory->fromSideFormData($formData->scopePeriod),
@@ -220,7 +223,11 @@ final class ExplorerEditFormType extends AbstractType
         $form->add('rowDimension', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.row_dimension',
             'help' => 'stats.analysis_explorer.edit.row_dimension_help',
-            'choices' => $this->dimensionChoices($capabilities->dimensions),
+            'choices' => $this->editChoicePresenter->groupedDimensionChoices(
+                $capabilities->dimensions,
+                $dataSourceKey,
+                $locale,
+            ),
         ]);
 
         $form->add('rowGrain', ChoiceType::class, [
@@ -236,7 +243,7 @@ final class ExplorerEditFormType extends AbstractType
         $form->add('columnDimension', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.column_dimension',
             'help' => 'stats.analysis_explorer.edit.column_dimension_help',
-            'choices' => $this->columnDimensionChoices($rowAxis, $capabilities),
+            'choices' => $this->columnDimensionChoices($rowAxis, $capabilities, $dataSourceKey, $locale),
         ]);
 
         $columnGrainChoices = [];
@@ -253,10 +260,16 @@ final class ExplorerEditFormType extends AbstractType
             'disabled' => !$showColumnGrain,
         ]);
 
+        $groupedMetricChoices = $this->editChoicePresenter->groupedMetricChoices(
+            $compatibleMetrics,
+            $dataSourceKey,
+            $locale,
+        );
+
         $form->add('metric', ChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.chart_metric',
             'help' => 'stats.analysis_explorer.edit.chart_metric_help',
-            'choices' => $this->groupedMetricChoices($compatibleMetrics),
+            'choices' => $groupedMetricChoices,
         ]);
 
         $form->add('showPercentOfTotal', CheckboxType::class, [
@@ -266,13 +279,17 @@ final class ExplorerEditFormType extends AbstractType
             'disabled' => $isDistributionProfile || !$this->metricCapabilityPolicy->canShowPercentOfTotal($previewConfig),
         ]);
 
-        $form->add('additionalTableMetrics', ChoiceType::class, [
+        $groupedAdditionalMetricChoices = $this->editChoicePresenter->groupedMetricChoices(
+            $additionalMetricChoices,
+            $dataSourceKey,
+            $locale,
+        );
+
+        $form->add('additionalTableMetrics', ExplorerAdditionalTableMetricsType::class, [
             'label' => 'stats.analysis_explorer.edit.additional_table_metrics',
             'help' => 'stats.analysis_explorer.edit.additional_table_metrics_help',
-            'choices' => $this->groupedMetricChoices($additionalMetricChoices),
-            'multiple' => true,
-            'expanded' => true,
-            'required' => false,
+            'choices' => $this->flattenGroupedChoices($groupedAdditionalMetricChoices),
+            'explorer_metric_groups' => $groupedAdditionalMetricChoices,
             'disabled' => $isDistributionProfile || AnalysisDataSourceKey::Hospitals !== $dataSourceKey || [] === $additionalMetricChoices,
         ]);
 
@@ -425,82 +442,41 @@ final class ExplorerEditFormType extends AbstractType
     }
 
     /**
-     * @param list<AnalysisDimensionKey> $dimensions
-     *
-     * @return array<string, string>
-     */
-    private function dimensionChoices(array $dimensions): array
-    {
-        $choices = [];
-        foreach ($dimensions as $dimension) {
-            $choices[$this->translator->trans('stats.analysis_explorer.dimension.'.$dimension->value)] = $dimension->value;
-        }
-
-        return $choices;
-    }
-
-    /**
-     * @return array<string, string>
+     * @return array<string, array<string, string>|string>
      */
     private function columnDimensionChoices(
         AnalysisAxisRef $rowAxis,
         \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+        AnalysisDataSourceKey $dataSourceKey,
+        string $locale,
     ): array {
-        $choices = [
-            $this->translator->trans('stats.analysis_explorer.edit.columns_none') => self::NONE_COLUMN,
-        ];
-
-        foreach ($capabilities->columnDimensionsFor($rowAxis) as $dimension) {
-            $choices[$this->translator->trans('stats.analysis_explorer.dimension.'.$dimension->value)] = $dimension->value;
-        }
-
-        return $choices;
+        return array_merge(
+            [
+                $this->translator->trans('stats.analysis_explorer.edit.columns_none') => self::NONE_COLUMN,
+            ],
+            $this->editChoicePresenter->groupedDimensionChoices(
+                $capabilities->columnDimensionsFor($rowAxis),
+                $dataSourceKey,
+                $locale,
+            ),
+        );
     }
 
     /**
-     * @param list<AnalysisMetricKey> $metrics
+     * @param array<string, array<string, string>> $groupedChoices
      *
-     * @return array<string, array<string, string>>
+     * @return array<string, string>
      */
-    private function groupedMetricChoices(array $metrics): array
+    private function flattenGroupedChoices(array $groupedChoices): array
     {
-        $grouped = [];
-        foreach ($metrics as $metric) {
-            $groupLabel = $this->translator->trans($this->metricGroupTranslationKey($metric));
-            $grouped[$groupLabel][$this->metricChoiceLabel($metric)] = $metric->value;
+        $flat = [];
+        foreach ($groupedChoices as $choices) {
+            foreach ($choices as $label => $value) {
+                $flat[$label] = $value;
+            }
         }
 
-        return $grouped;
-    }
-
-    private function metricGroupTranslationKey(AnalysisMetricKey $metric): string
-    {
-        $profile = $this->profileRegistry->profileFor($metric);
-        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
-            return $profile->groupTranslationKey;
-        }
-
-        return match ($metric) {
-            AnalysisMetricKey::SumBeds,
-            AnalysisMetricKey::AvgBeds,
-            AnalysisMetricKey::MinBeds,
-            AnalysisMetricKey::MaxBeds => 'stats.analysis_explorer.metric_group.beds',
-            AnalysisMetricKey::TotalAllocations,
-            AnalysisMetricKey::AvgAllocationsPerHospital,
-            AnalysisMetricKey::MinAllocations,
-            AnalysisMetricKey::MaxAllocations => 'stats.analysis_explorer.metric_group.allocations',
-            default => 'stats.analysis_explorer.metric_group.counts',
-        };
-    }
-
-    private function metricChoiceLabel(AnalysisMetricKey $metric): string
-    {
-        $profile = $this->profileRegistry->profileFor($metric);
-        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
-            return $this->translator->trans($profile->labelTranslationKey);
-        }
-
-        return $this->translator->trans('stats.analysis_explorer.metric.'.$metric->value);
+        return $flat;
     }
 
     /**
