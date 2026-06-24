@@ -29,6 +29,13 @@
                             {{ savedViewDescription }}
                         </p>
                     {% endif %}
+                    {% if this.activeFilterBadges is not empty %}
+                        <div class="d-flex flex-wrap gap-2 mt-2" data-testid="stats-analysis-explorer-active-filters">
+                            {% for badge in this.activeFilterBadges %}
+                                <span class="badge bg-secondary-lt">{{ badge.label }}: {{ badge.value }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="d-flex flex-wrap align-items-center justify-content-end gap-2"

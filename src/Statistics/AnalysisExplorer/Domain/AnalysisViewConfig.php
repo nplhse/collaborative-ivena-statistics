@@ -9,11 +9,13 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 
 final readonly class AnalysisViewConfig
 {
     /**
      * @param list<AnalysisMetricKey> $metricKeys
+     * @param list<AnalysisFilter>    $filters
      */
     public function __construct(
         public AnalysisDataSourceKey $dataSourceKey,
@@ -25,6 +27,7 @@ final readonly class AnalysisViewConfig
         public PresentationConfig $presentation,
         public string $title,
         public ExplorerHospitalPopulationMode $hospitalPopulationMode = ExplorerHospitalPopulationMode::Participating,
+        public array $filters = [],
     ) {
     }
 
@@ -55,6 +58,26 @@ final readonly class AnalysisViewConfig
             presentation: $this->presentation,
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $this->filters,
+        );
+    }
+
+    /**
+     * @param list<AnalysisFilter> $filters
+     */
+    public function withFilters(array $filters): self
+    {
+        return new self(
+            dataSourceKey: $this->dataSourceKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
+            statisticsFilter: $this->statisticsFilter,
+            presentation: $this->presentation,
+            title: $this->title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $filters,
         );
     }
 
@@ -70,6 +93,7 @@ final readonly class AnalysisViewConfig
             presentation: $this->presentation,
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $this->filters,
         );
     }
 
@@ -88,6 +112,7 @@ final readonly class AnalysisViewConfig
             presentation: $this->presentation,
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $this->filters,
         );
     }
 
@@ -108,6 +133,7 @@ final readonly class AnalysisViewConfig
             presentation: $presentation,
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $this->filters,
         );
     }
 
@@ -123,6 +149,7 @@ final readonly class AnalysisViewConfig
             presentation: $this->presentation,
             title: $title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $this->filters,
         );
     }
 
@@ -138,6 +165,7 @@ final readonly class AnalysisViewConfig
             presentation: $this->presentation,
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $this->filters,
         );
     }
 
@@ -153,6 +181,7 @@ final readonly class AnalysisViewConfig
             presentation: $this->presentation,
             title: $this->title,
             hospitalPopulationMode: $hospitalPopulationMode,
+            filters: $this->filters,
         );
     }
 }

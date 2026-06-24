@@ -35,6 +35,7 @@ final readonly class ExplorerAllocationQueryMapper implements ExplorerAnalysisQu
             seriesDimensionKey: $query->columnAxis?->toRegistryKey(),
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
+            filters: $query->filters,
         );
     }
 }

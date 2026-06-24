@@ -37,4 +37,12 @@ enum AllocationStatsTransportTypeProjectionCode: int
             default => null,
         };
     }
+
+    public function labelTranslationKey(): string
+    {
+        return match ($this) {
+            self::Ground => 'label.transportType.ground',
+            self::Air => 'label.transportType.air',
+        };
+    }
 }

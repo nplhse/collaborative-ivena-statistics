@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\UI\Form;
 
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
+use App\Statistics\AnalysisExplorer\Application\AnalysisFilterChoiceProvider;
 use App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerColumnGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
@@ -54,6 +55,7 @@ final class ExplorerEditFormType extends AbstractType
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
         private readonly AnalysisAxisResolver $axisResolver,
         private readonly Security $security,
+        private readonly AnalysisFilterChoiceProvider $filterChoiceProvider,
     ) {
     }
 
@@ -89,6 +91,16 @@ final class ExplorerEditFormType extends AbstractType
                 'expanded' => true,
                 'required' => false,
             ])
+            ->add('filterDepartmentIds', ChoiceType::class, ['label' => 'label.department', 'choices' => [], 'multiple' => true, 'required' => false])
+            ->add('filterSpecialityIds', ChoiceType::class, ['label' => 'label.speciality', 'choices' => [], 'multiple' => true, 'required' => false])
+            ->add('filterUrgency', ChoiceType::class, ['label' => 'label.urgency', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterTransportType', ChoiceType::class, ['label' => 'label.transport_type', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterGender', ChoiceType::class, ['label' => 'label.gender', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterAgeGroup', ChoiceType::class, ['label' => 'label.age_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterResus', ChoiceType::class, ['label' => 'label.requires_resus', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterCpr', ChoiceType::class, ['label' => 'label.is_cpr', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterVentilation', ChoiceType::class, ['label' => 'label.is_ventilated', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterAssignmentId', ChoiceType::class, ['label' => 'label.assignment', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
         ;
 
         $scopePeriodField = $builder->get('scopePeriod');
@@ -176,7 +188,85 @@ final class ExplorerEditFormType extends AbstractType
                     static fn (mixed $value): bool => \is_string($value) && '' !== $value,
                 ))
                 : $current->additionalTableMetrics,
+            filterDepartmentIds: $this->intListFromSubmitted($submitted, 'filterDepartmentIds', $current->filterDepartmentIds),
+            filterSpecialityIds: $this->intListFromSubmitted($submitted, 'filterSpecialityIds', $current->filterSpecialityIds),
+            filterUrgency: $this->nullableIntFromSubmitted($submitted, 'filterUrgency', $current->filterUrgency),
+            filterTransportType: $this->nullableIntFromSubmitted($submitted, 'filterTransportType', $current->filterTransportType),
+            filterGender: $this->nullableIntFromSubmitted($submitted, 'filterGender', $current->filterGender),
+            filterAgeGroup: $this->nullableStringFromSubmitted($submitted, 'filterAgeGroup', $current->filterAgeGroup),
+            filterResus: $this->nullableBoolFromSubmitted($submitted, 'filterResus', $current->filterResus),
+            filterCpr: $this->nullableBoolFromSubmitted($submitted, 'filterCpr', $current->filterCpr),
+            filterVentilation: $this->nullableBoolFromSubmitted($submitted, 'filterVentilation', $current->filterVentilation),
+            filterAssignmentId: $this->nullableIntFromSubmitted($submitted, 'filterAssignmentId', $current->filterAssignmentId),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $submitted
+     * @param list<int>            $current
+     *
+     * @return list<int>
+     */
+    private function intListFromSubmitted(array $submitted, string $key, array $current): array
+    {
+        if (!\array_key_exists($key, $submitted)) {
+            return $current;
+        }
+
+        $values = \is_array($submitted[$key]) ? $submitted[$key] : [];
+
+        return array_values(array_map(intval(...), array_filter($values, static fn (mixed $value): bool => '' !== $value && null !== $value)));
+    }
+
+    /**
+     * @param array<string, mixed> $submitted
+     */
+    private function nullableIntFromSubmitted(array $submitted, string $key, ?int $current): ?int
+    {
+        if (!\array_key_exists($key, $submitted)) {
+            return $current;
+        }
+
+        $value = $submitted[$key];
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        return (int) $value;
+    }
+
+    /**
+     * @param array<string, mixed> $submitted
+     */
+    private function nullableStringFromSubmitted(array $submitted, string $key, ?string $current): ?string
+    {
+        if (!\array_key_exists($key, $submitted)) {
+            return $current;
+        }
+
+        $value = $submitted[$key];
+        if (!\is_string($value) || '' === $value) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<string, mixed> $submitted
+     */
+    private function nullableBoolFromSubmitted(array $submitted, string $key, ?bool $current): ?bool
+    {
+        if (!\array_key_exists($key, $submitted)) {
+            return $current;
+        }
+
+        $value = $submitted[$key];
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        return (bool) (int) $value;
     }
 
     /**
@@ -299,37 +389,16 @@ final class ExplorerEditFormType extends AbstractType
             : (ChartPresentationType::tryFrom($formData->chartType) ?? $capabilities->defaultChartTypeFor($previewConfig));
         if (!\in_array($chartType, $allowedChartTypes, true)) {
             $chartType = $capabilities->defaultChartTypeFor($previewConfig);
-            $formData = new ExplorerEditFormData(
-                scopePeriod: $formData->scopePeriod,
-                dataSource: $formData->dataSource,
-                rowDimension: $formData->rowDimension,
-                rowGrain: $formData->rowGrain,
-                columnDimension: $formData->columnDimension,
-                columnGrain: $formData->columnGrain,
-                metric: $formData->metric,
-                showPercentOfTotal: $formData->showPercentOfTotal,
-                chartType: $chartType->value,
-                tableLayout: $formData->tableLayout,
-                chartRowLimit: $formData->chartRowLimit,
-                hospitalPopulation: $formData->hospitalPopulation,
-                additionalTableMetrics: $isDistributionProfile ? [] : $formData->additionalTableMetrics,
-            );
+            $formData = $this->rebuildFormData($formData, [
+                'chartType' => $chartType->value,
+                'additionalTableMetrics' => $isDistributionProfile ? [] : $formData->additionalTableMetrics,
+            ]);
         } elseif ($isDistributionProfile) {
-            $formData = new ExplorerEditFormData(
-                scopePeriod: $formData->scopePeriod,
-                dataSource: $formData->dataSource,
-                rowDimension: $formData->rowDimension,
-                rowGrain: $formData->rowGrain,
-                columnDimension: $formData->columnDimension,
-                columnGrain: $formData->columnGrain,
-                metric: $formData->metric,
-                showPercentOfTotal: false,
-                chartType: ChartPresentationType::BoxPlot->value,
-                tableLayout: $formData->tableLayout,
-                chartRowLimit: $formData->chartRowLimit,
-                hospitalPopulation: $formData->hospitalPopulation,
-                additionalTableMetrics: [],
-            );
+            $formData = $this->rebuildFormData($formData, [
+                'showPercentOfTotal' => false,
+                'chartType' => ChartPresentationType::BoxPlot->value,
+                'additionalTableMetrics' => [],
+            ]);
         }
 
         $form->add('chartType', ChoiceType::class, [
@@ -358,7 +427,101 @@ final class ExplorerEditFormType extends AbstractType
             'disabled' => AnalysisDataSourceKey::Hospitals !== $dataSourceKey,
         ]);
 
+        $this->configureFilterFields($form, $rowAxis, $columnAxis, $dataSourceKey);
+
         return $formData;
+    }
+
+    /**
+     * @param \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form
+     */
+    private function configureFilterFields(
+        \Symfony\Component\Form\FormInterface $form,
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
+        AnalysisDataSourceKey $dataSourceKey,
+    ): void {
+        $disabled = AnalysisDataSourceKey::Allocations !== $dataSourceKey;
+        $axisKeys = array_filter([
+            $rowAxis->toRegistryKey(),
+            $columnAxis?->toRegistryKey(),
+        ]);
+        $isAxis = static fn (string $key): bool => \in_array($key, $axisKeys, true);
+        $booleanChoices = [
+            $this->translator->trans('label.yes') => 1,
+            $this->translator->trans('label.no') => 0,
+        ];
+
+        $form->add('filterDepartmentIds', ChoiceType::class, [
+            'label' => 'label.department',
+            'choices' => $this->filterChoiceProvider->departmentChoices(),
+            'multiple' => true,
+            'required' => false,
+            'disabled' => $disabled || $isAxis('department'),
+        ]);
+        $form->add('filterSpecialityIds', ChoiceType::class, [
+            'label' => 'label.speciality',
+            'choices' => $this->filterChoiceProvider->specialityChoices(),
+            'multiple' => true,
+            'required' => false,
+            'disabled' => $disabled || $isAxis('speciality'),
+        ]);
+        $form->add('filterUrgency', ChoiceType::class, [
+            'label' => 'label.urgency',
+            'choices' => $this->filterChoiceProvider->urgencyChoices(),
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('urgency'),
+        ]);
+        $form->add('filterTransportType', ChoiceType::class, [
+            'label' => 'label.transport_type',
+            'choices' => $this->filterChoiceProvider->transportTypeChoices(),
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('transport_type'),
+        ]);
+        $form->add('filterGender', ChoiceType::class, [
+            'label' => 'label.gender',
+            'choices' => $this->filterChoiceProvider->genderChoices(),
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('gender'),
+        ]);
+        $form->add('filterAgeGroup', ChoiceType::class, [
+            'label' => 'label.age_group',
+            'choices' => $this->filterChoiceProvider->ageGroupChoices(),
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('age_group'),
+        ]);
+        $form->add('filterResus', ChoiceType::class, [
+            'label' => 'label.requires_resus',
+            'choices' => $booleanChoices,
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('resus'),
+        ]);
+        $form->add('filterCpr', ChoiceType::class, [
+            'label' => 'label.is_cpr',
+            'choices' => $booleanChoices,
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('cpr'),
+        ]);
+        $form->add('filterVentilation', ChoiceType::class, [
+            'label' => 'label.is_ventilated',
+            'choices' => $booleanChoices,
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('ventilation'),
+        ]);
+        $form->add('filterAssignmentId', ChoiceType::class, [
+            'label' => 'label.assignment',
+            'choices' => $this->filterChoiceProvider->assignmentChoices(),
+            'required' => false,
+            'placeholder' => 'label.all',
+            'disabled' => $disabled || $isAxis('assignment'),
+        ]);
     }
 
     /**
@@ -402,21 +565,7 @@ final class ExplorerEditFormType extends AbstractType
             return $formData;
         }
 
-        return new ExplorerEditFormData(
-            scopePeriod: $formData->scopePeriod,
-            dataSource: $formData->dataSource,
-            rowDimension: $formData->rowDimension,
-            rowGrain: $formData->rowGrain,
-            columnDimension: $formData->columnDimension,
-            columnGrain: $resolvedColumnGrain->value,
-            metric: $formData->metric,
-            showPercentOfTotal: $formData->showPercentOfTotal,
-            chartType: $formData->chartType,
-            tableLayout: $formData->tableLayout,
-            chartRowLimit: $formData->chartRowLimit,
-            hospitalPopulation: $formData->hospitalPopulation,
-            additionalTableMetrics: $formData->additionalTableMetrics,
-        );
+        return $this->rebuildFormData($formData, ['columnGrain' => $resolvedColumnGrain->value]);
     }
 
     private function resolveColumnAxis(
@@ -538,5 +687,37 @@ final class ExplorerEditFormType extends AbstractType
             $this->translator->trans('stats.generic_analysis.table.row_limit_top_5') => ExplorerChartRowLimit::Top5->value,
             $this->translator->trans('stats.generic_analysis.table.row_limit_top_10') => ExplorerChartRowLimit::Top10->value,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function rebuildFormData(ExplorerEditFormData $source, array $overrides): ExplorerEditFormData
+    {
+        return new ExplorerEditFormData(
+            scopePeriod: $overrides['scopePeriod'] ?? $source->scopePeriod,
+            dataSource: $overrides['dataSource'] ?? $source->dataSource,
+            rowDimension: $overrides['rowDimension'] ?? $source->rowDimension,
+            rowGrain: \array_key_exists('rowGrain', $overrides) ? $overrides['rowGrain'] : $source->rowGrain,
+            columnDimension: \array_key_exists('columnDimension', $overrides) ? $overrides['columnDimension'] : $source->columnDimension,
+            columnGrain: \array_key_exists('columnGrain', $overrides) ? $overrides['columnGrain'] : $source->columnGrain,
+            metric: $overrides['metric'] ?? $source->metric,
+            showPercentOfTotal: $overrides['showPercentOfTotal'] ?? $source->showPercentOfTotal,
+            chartType: $overrides['chartType'] ?? $source->chartType,
+            tableLayout: $overrides['tableLayout'] ?? $source->tableLayout,
+            chartRowLimit: $overrides['chartRowLimit'] ?? $source->chartRowLimit,
+            hospitalPopulation: $overrides['hospitalPopulation'] ?? $source->hospitalPopulation,
+            additionalTableMetrics: $overrides['additionalTableMetrics'] ?? $source->additionalTableMetrics,
+            filterDepartmentIds: $source->filterDepartmentIds,
+            filterSpecialityIds: $source->filterSpecialityIds,
+            filterUrgency: $source->filterUrgency,
+            filterTransportType: $source->filterTransportType,
+            filterGender: $source->filterGender,
+            filterAgeGroup: $source->filterAgeGroup,
+            filterResus: $source->filterResus,
+            filterCpr: $source->filterCpr,
+            filterVentilation: $source->filterVentilation,
+            filterAssignmentId: $source->filterAssignmentId,
+        );
     }
 }

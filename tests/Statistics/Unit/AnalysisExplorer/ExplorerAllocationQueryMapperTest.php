@@ -84,7 +84,28 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
         self::assertSame('urgency', $mapped->seriesDimensionKey);
     }
 
-    private function query(AnalysisAxisRef $rowAxis, ?AnalysisAxisRef $columnAxis): AnalysisQuery
+    public function testMapsFiltersToGenericQuery(): void
+    {
+        $mapped = $this->mapper->map($this->query(
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+            null,
+            filters: [
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'urgency',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::Equals,
+                    value: 1,
+                ),
+            ],
+        ));
+
+        self::assertCount(1, $mapped->filters);
+        self::assertSame('urgency', $mapped->filters[0]->dimensionKey);
+    }
+
+    /**
+     * @param list<\App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter> $filters
+     */
+    private function query(AnalysisAxisRef $rowAxis, ?AnalysisAxisRef $columnAxis, array $filters = []): AnalysisQuery
     {
         return new AnalysisQuery(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
@@ -94,6 +115,7 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
             columnAxis: $columnAxis,
             scopeCriteria: StatisticsScopeCriteria::public(),
             periodBounds: new StatisticsPeriodBounds(null),
+            filters: $filters,
         );
     }
 }

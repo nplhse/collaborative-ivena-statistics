@@ -32,6 +32,7 @@ final readonly class ExplorerAnalysisQueryFactory
             scopeCriteria: $this->statisticsScopeResolver->resolveCriteria($context),
             periodBounds: StatisticsPeriodResolver::resolve($config->statisticsFilter),
             hospitalPopulationMode: $config->hospitalPopulationMode,
+            filters: $config->filters,
         );
     }
 }

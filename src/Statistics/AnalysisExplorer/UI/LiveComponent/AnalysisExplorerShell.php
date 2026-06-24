@@ -16,6 +16,7 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditAxisSwapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
@@ -195,6 +196,7 @@ final class AnalysisExplorerShell
         private readonly ExplorerDescriptionFactory $descriptionFactory,
         private readonly ExplorerEditFormSummaryFactory $editFormSummaryFactory,
         private readonly ExplorerEditAxisSwapper $editAxisSwapper,
+        private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -300,6 +302,19 @@ final class AnalysisExplorerShell
         }
 
         return $this->editFormSummaryFactory->summarize($formData, $this->resolveUser());
+    }
+
+    /**
+     * @return list<array{label: string, value: string}>
+     */
+    public function activeFilterBadges(): array
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return [];
+        }
+
+        return $this->filterBadgePresenter->present($config);
     }
 
     public function canSwapEditAxes(): bool
