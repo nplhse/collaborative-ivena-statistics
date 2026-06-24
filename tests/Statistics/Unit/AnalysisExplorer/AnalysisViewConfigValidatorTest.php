@@ -29,7 +29,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
         $this->expectNotToPerformAssertions();
 
         $validator = new AnalysisViewConfigValidator(
-            $this->createAllocationsCapabilitiesProvider(),
+            $this->createDataSourceCapabilitiesRegistry(),
             $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
@@ -55,7 +55,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
         $this->expectNotToPerformAssertions();
 
         $validator = new AnalysisViewConfigValidator(
-            $this->createAllocationsCapabilitiesProvider(),
+            $this->createDataSourceCapabilitiesRegistry(),
             $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
@@ -79,7 +79,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
     public function testTimeRowsWithGenderColumnsRejectsBarChartType(): void
     {
         $validator = new AnalysisViewConfigValidator(
-            $this->createAllocationsCapabilitiesProvider(),
+            $this->createDataSourceCapabilitiesRegistry(),
             $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
@@ -110,7 +110,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
     public function testTimeRowsWithTotalGrainRejectsConfig(): void
     {
         $validator = new AnalysisViewConfigValidator(
-            $this->createAllocationsCapabilitiesProvider(),
+            $this->createDataSourceCapabilitiesRegistry(),
             $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );
@@ -140,7 +140,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
     public function testRateAndDistributionMetricsRejectConfig(): void
     {
         $validator = new AnalysisViewConfigValidator(
-            $this->createAllocationsCapabilitiesProvider(),
+            $this->createDataSourceCapabilitiesRegistry(),
             $this->createExplorerMetricCapabilityPolicy(),
             $this->createSecurityWithoutUser(),
         );

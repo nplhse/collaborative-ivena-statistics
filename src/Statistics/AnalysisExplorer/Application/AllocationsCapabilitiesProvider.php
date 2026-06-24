@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Application\Contract\DataSourceCapabilitiesProviderInterface;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
@@ -15,7 +16,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
 use App\User\Domain\Entity\User;
 
-final class AllocationsCapabilitiesProvider
+final class AllocationsCapabilitiesProvider implements DataSourceCapabilitiesProviderInterface
 {
     private ?DataSourceCapabilities $defaultCapabilities = null;
 
@@ -26,6 +27,12 @@ final class AllocationsCapabilitiesProvider
     ) {
     }
 
+    #[\Override]
+    public function supports(AnalysisDataSourceKey $dataSourceKey): bool
+    {
+        return AnalysisDataSourceKey::Allocations === $dataSourceKey;
+    }
+
     public function capabilities(): DataSourceCapabilities
     {
         return $this->defaultCapabilities ??= $this->buildCapabilities(
@@ -33,6 +40,7 @@ final class AllocationsCapabilitiesProvider
         );
     }
 
+    #[\Override]
     public function capabilitiesFor(?User $user, StatisticsFilter $filter): DataSourceCapabilities
     {
         $dimensions = [];

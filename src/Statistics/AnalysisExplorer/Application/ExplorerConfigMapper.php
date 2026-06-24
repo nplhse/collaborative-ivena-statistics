@@ -12,6 +12,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\AnalysisExplorer\Domain\Enum\PresentationMode;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
@@ -31,7 +32,7 @@ final readonly class ExplorerConfigMapper
         private ExplorerStatisticsFilterInputFactory $filterInputFactory,
         private StatisticsFilterFactory $statisticsFilterFactory,
         private ExplorerTitleFactory $titleFactory,
-        private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private DataSourceCapabilitiesRegistry $capabilitiesRegistry,
         private AnalysisAxisResolver $axisResolver,
         private AnalysisAxisUpgradeMapper $axisUpgradeMapper,
         private ExplorerConfigPreviewFactory $previewFactory,
@@ -44,6 +45,7 @@ final readonly class ExplorerConfigMapper
     {
         return new ExplorerEditFormData(
             scopePeriod: $this->sideFromFilter($config->statisticsFilter),
+            dataSource: $config->dataSourceKey->value,
             rowDimension: $config->rowAxis->dimensionKey->value,
             rowGrain: $config->rowAxis->resolvedGrain()->value,
             columnDimension: $config->columnAxis?->dimensionKey->value,
@@ -53,6 +55,11 @@ final readonly class ExplorerConfigMapper
             chartType: $config->presentation->chartType->value,
             tableLayout: $config->presentation->tableLayout->value,
             chartRowLimit: $config->presentation->chartRowLimit->value,
+            hospitalPopulation: $config->hospitalPopulationMode->value,
+            additionalTableMetrics: AnalysisMetricKey::additionalTableMetricValues(
+                $config->metricKeys,
+                $config->visualMetricKey,
+            ),
         );
     }
 
@@ -63,10 +70,10 @@ final readonly class ExplorerConfigMapper
             $user,
         );
 
-        $visualMetricKey = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::AllocationCount;
+        $visualMetricKey = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::defaultFor($base->dataSourceKey);
         $chartType = ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar;
         $tableLayout = TableLayout::tryFrom($formData->tableLayout) ?? TableLayout::Flat;
-        $capabilities = $this->capabilitiesProvider->capabilitiesFor($user, $filter);
+        $capabilities = $this->capabilitiesRegistry->capabilitiesFor($base->dataSourceKey, $user, $filter);
 
         [$rowAxis, $columnAxis] = $this->axesFromFormData($formData, $capabilities);
 
@@ -92,6 +99,9 @@ final readonly class ExplorerConfigMapper
             $chartRowLimit = ExplorerChartRowLimit::All;
         }
 
+        $hospitalPopulationMode = ExplorerHospitalPopulationMode::tryFrom($formData->hospitalPopulation)
+            ?? $base->hospitalPopulationMode;
+
         return $base
             ->withStatisticsFilter($filter)
             ->withAxes($rowAxis, $columnAxis)
@@ -102,7 +112,8 @@ final readonly class ExplorerConfigMapper
                 tableLayout: $tableLayout,
                 chartRowLimit: $chartRowLimit,
             ))
-            ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis));
+            ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis))
+            ->withHospitalPopulationMode($hospitalPopulationMode);
     }
 
     /**
@@ -113,6 +124,7 @@ final readonly class ExplorerConfigMapper
         $query = [
             'scope' => $this->scopeToStateArray($config->statisticsFilter),
             'period' => $this->periodToStateArray($config->statisticsFilter),
+            'hospitalPopulation' => $config->hospitalPopulationMode->value,
             'metrics' => array_map(static fn (AnalysisMetricKey $key): string => $key->value, $config->metricKeys),
             'visualMetric' => $config->visualMetricKey->value,
             'rows' => $config->rowAxis->toStateArray(),
@@ -145,20 +157,24 @@ final readonly class ExplorerConfigMapper
         $state = $this->upgradeMetricState($state);
         $state = $this->upgradeAxisState($state);
 
+        $dataSourceKey = AnalysisDataSourceKey::tryFrom((string) ($state['dataSource'] ?? 'allocations')) ?? AnalysisDataSourceKey::Allocations;
+
         $scopePeriod = $this->scopePeriodFromState($state);
         $filter = $this->statisticsFilterFactory->createFromInput(
             $this->filterInputFactory->fromSideFormData($scopePeriod),
             $user,
         );
-        $capabilities = $this->capabilitiesProvider->capabilitiesFor($user, $filter);
+        $capabilities = $this->capabilitiesRegistry->capabilitiesFor($dataSourceKey, $user, $filter);
 
         [$metricKeys, $visualMetricKey] = $this->metricKeysFromState($state['query'] ?? []);
         [$rowAxis, $columnAxis] = $this->axesFromState($state['query'] ?? [], $capabilities);
 
+        $queryState = \is_array($state['query'] ?? null) ? $state['query'] : [];
         $chartRowLimit = ExplorerChartRowLimit::fromValue((string) ($state['presentation']['chartRowLimit'] ?? ExplorerChartRowLimit::All->value));
 
         $formData = new ExplorerEditFormData(
             scopePeriod: $scopePeriod,
+            dataSource: $dataSourceKey->value,
             rowDimension: $rowAxis->dimensionKey->value,
             rowGrain: $rowAxis->resolvedGrain()->value,
             columnDimension: $columnAxis?->dimensionKey->value,
@@ -168,10 +184,12 @@ final readonly class ExplorerConfigMapper
             chartType: (string) ($state['presentation']['chartType'] ?? ChartPresentationType::Bar->value),
             tableLayout: (string) ($state['presentation']['tableLayout'] ?? TableLayout::Flat->value),
             chartRowLimit: $chartRowLimit->value,
+            hospitalPopulation: (string) ($queryState['hospitalPopulation'] ?? ExplorerHospitalPopulationMode::Participating->value),
+            additionalTableMetrics: AnalysisMetricKey::additionalTableMetricValues($metricKeys, $visualMetricKey),
         );
 
         $base = new AnalysisViewConfig(
-            dataSourceKey: AnalysisDataSourceKey::tryFrom((string) ($state['dataSource'] ?? 'allocations')) ?? AnalysisDataSourceKey::Allocations,
+            dataSourceKey: $dataSourceKey,
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
             rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
@@ -204,9 +222,13 @@ final readonly class ExplorerConfigMapper
      */
     public function buildViewConfig(array $filterState, array $viewPreferences, ?User $user): AnalysisViewConfig
     {
+        $dataSourceKey = AnalysisDataSourceKey::tryFrom((string) ($viewPreferences['dataSource'] ?? AnalysisDataSourceKey::Allocations->value))
+            ?? AnalysisDataSourceKey::Allocations;
+        [$metrics, $visualMetric] = $this->resolveMetricsFromPreferences($viewPreferences, $dataSourceKey);
+
         $query = array_merge($filterState, [
-            'metrics' => $viewPreferences['metrics'] ?? [AnalysisMetricKey::AllocationCount->value],
-            'visualMetric' => $viewPreferences['visualMetric'] ?? ($viewPreferences['metric'] ?? AnalysisMetricKey::AllocationCount->value),
+            'metrics' => $metrics,
+            'visualMetric' => $visualMetric,
         ]);
 
         if (isset($viewPreferences['rows']) && \is_array($viewPreferences['rows'])) {
@@ -228,8 +250,10 @@ final readonly class ExplorerConfigMapper
 
         $state = [
             'schemaVersion' => self::SCHEMA_VERSION,
-            'dataSource' => AnalysisDataSourceKey::Allocations->value,
-            'query' => $query,
+            'dataSource' => (string) ($viewPreferences['dataSource'] ?? AnalysisDataSourceKey::Allocations->value),
+            'query' => array_merge($query, [
+                'hospitalPopulation' => (string) ($viewPreferences['hospitalPopulation'] ?? ExplorerHospitalPopulationMode::Participating->value),
+            ]),
             'presentation' => [
                 'mode' => PresentationMode::Chart->value,
                 'chartType' => $viewPreferences['chartType'] ?? ChartPresentationType::Bar->value,
@@ -391,6 +415,53 @@ final readonly class ExplorerConfigMapper
             'year' => $filter->referenceYear,
             'quarter' => $filter->referenceQuarter,
             'month' => $filter->referenceMonth,
+        ];
+    }
+
+    /**
+     * @return array{0: list<AnalysisMetricKey>, 1: AnalysisMetricKey}
+     */
+    /**
+     * @param array<string, mixed> $viewPreferences
+     *
+     * @return array{0: list<string>, 1: string}
+     */
+    private function resolveMetricsFromPreferences(array $viewPreferences, AnalysisDataSourceKey $dataSourceKey): array
+    {
+        if (isset($viewPreferences['metrics']) && \is_array($viewPreferences['metrics'])) {
+            $metrics = [];
+            foreach ($viewPreferences['metrics'] as $metric) {
+                if ('' !== (string) $metric) {
+                    $metrics[] = (string) $metric;
+                }
+            }
+
+            if ([] === $metrics) {
+                $defaultMetric = AnalysisMetricKey::defaultFor($dataSourceKey)->value;
+
+                return [[$defaultMetric], $defaultMetric];
+            }
+
+            $visualMetric = (string) ($viewPreferences['visualMetric']
+                ?? ($viewPreferences['metric'] ?? $metrics[0]));
+
+            return [$metrics, $visualMetric];
+        }
+
+        if (isset($viewPreferences['metric']) && '' !== (string) $viewPreferences['metric']) {
+            $metric = (string) $viewPreferences['metric'];
+
+            return [
+                [$metric],
+                (string) ($viewPreferences['visualMetric'] ?? $metric),
+            ];
+        }
+
+        $defaultMetric = AnalysisMetricKey::defaultFor($dataSourceKey)->value;
+
+        return [
+            [$defaultMetric],
+            (string) ($viewPreferences['visualMetric'] ?? $defaultMetric),
         ];
     }
 

@@ -10,9 +10,12 @@ use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableRow;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\BoxPlotTableColumn;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
@@ -27,11 +30,16 @@ final readonly class ExplorerResultsTablePresenter
         private MetricValueFormatter $metricValueFormatter,
         private ExplorerTablePercentHelper $percentHelper,
         private ExplorerMetricSummabilityPolicy $summabilityPolicy,
+        private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
     }
 
     public function create(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
+        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
+            return $this->createDistributionFlatTable($viewConfig, $result);
+        }
+
         if (!$result->hasColumnAxis()) {
             return $this->createFlatTable($viewConfig, $result);
         }
@@ -47,32 +55,26 @@ final readonly class ExplorerResultsTablePresenter
         $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
         $visibleMetricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
         $metricColumns = $this->metricColumns($visibleMetricKeys);
-        $grandTotal = $result->totalFor(AnalysisMetricKey::AllocationCount);
         $rows = [];
 
         foreach ($result->rows as $row) {
             $formattedMetricPercentValues = [];
             if ($showPercentOfTotal) {
                 foreach ($visibleMetricKeys as $metricKey) {
-                    if (AnalysisMetricKey::AllocationCount !== $metricKey) {
+                    if (!$this->summabilityPolicy->supportsPercentShare($metricKey)) {
                         continue;
                     }
 
-                    $percent = $row->valueFor(AnalysisMetricKey::PercentOfTotal);
-                    if (null === $percent) {
-                        $percent = $this->percentHelper->percentOfTotal(
-                            $row->valueFor(AnalysisMetricKey::AllocationCount),
-                            $grandTotal,
-                        );
-                    }
-
-                    $formattedMetricPercentValues[$metricKey->value] = $this->percentHelper->formatPercent($percent);
+                    $formattedMetricPercentValues[$metricKey->value] = $this->percentHelper->formatPercent(
+                        $this->resolveFlatPercentShare($row, $metricKey, $result),
+                    );
                 }
             }
 
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $row->bucketLabel,
                 formattedMetricValues: $this->formatRowValues($visibleMetricKeys, $row->metricValues),
+                metricValues: $this->rawRowValues($visibleMetricKeys, $row->metricValues),
                 formattedMetricPercentValues: $formattedMetricPercentValues,
             );
         }
@@ -80,7 +82,7 @@ final readonly class ExplorerResultsTablePresenter
         $formattedTotalsPercentValues = [];
         if ($showPercentOfTotal) {
             foreach ($visibleMetricKeys as $metricKey) {
-                if (AnalysisMetricKey::AllocationCount !== $metricKey) {
+                if (!$this->summabilityPolicy->supportsPercentShare($metricKey)) {
                     continue;
                 }
 
@@ -97,6 +99,107 @@ final readonly class ExplorerResultsTablePresenter
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
             showPercentOfTotal: $showPercentOfTotal,
             formattedTotalsPercentValues: $formattedTotalsPercentValues,
+            footerRowLabel: $this->footerRowLabel($visibleMetricKeys),
+        );
+    }
+
+    private function createDistributionFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
+    {
+        $tableColumns = $this->profileRegistry->tableColumnsFor($viewConfig->visualMetricKey);
+        $hasSeries = $result->hasSeries();
+        $metricColumns = [];
+        if ($hasSeries) {
+            $metricColumns[] = new ExplorerResultsTableMetricColumn(
+                key: 'series',
+                label: $this->distributionSeriesAxisLabel($viewConfig, $result),
+            );
+        }
+        foreach ($tableColumns as $column) {
+            $metricColumns[] = new ExplorerResultsTableMetricColumn(
+                key: $column->value,
+                label: $this->translator->trans($column->labelTranslationKey()),
+            );
+        }
+
+        $rows = [];
+        foreach ($result->rows as $row) {
+            $formattedMetricValues = $this->formatBoxPlotRowValues($tableColumns, $row->boxPlot, $viewConfig->visualMetricKey);
+            $metricValues = $this->rawBoxPlotRowValues($tableColumns, $row->boxPlot);
+            if ($hasSeries) {
+                $formattedMetricValues = ['series' => $row->seriesLabel ?? '—'] + $formattedMetricValues;
+                $metricValues = ['series' => $row->seriesLabel ?? ''] + $metricValues;
+            }
+
+            $rows[] = new ExplorerResultsTableRow(
+                bucketLabel: $row->bucketLabel,
+                formattedMetricValues: $formattedMetricValues,
+                metricValues: $metricValues,
+            );
+        }
+
+        return new ExplorerResultsTableViewModel(
+            primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
+            metricColumns: $metricColumns,
+            rows: $rows,
+            formattedTotals: [],
+            tableLayout: TableLayout::Flat,
+            rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
+            columnAxisLabel: $hasSeries ? $this->distributionSeriesAxisLabel($viewConfig, $result) : '',
+            showPercentOfTotal: false,
+            formattedTotalsPercentValues: [],
+        );
+    }
+
+    private function distributionSeriesAxisLabel(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): string
+    {
+        if ($viewConfig->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($viewConfig->columnAxis);
+        }
+
+        if ($result->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($result->columnAxis);
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population');
+    }
+
+    /**
+     * @param list<BoxPlotTableColumn> $tableColumns
+     *
+     * @return array<string, string>
+     */
+    private function formatBoxPlotRowValues(array $tableColumns, ?BoxPlotStats $boxPlot, AnalysisMetricKey $visualMetricKey): array
+    {
+        $formatted = [];
+        foreach ($tableColumns as $column) {
+            $formatted[$column->value] = $this->formatBoxPlotColumnValue($column, $boxPlot, $visualMetricKey);
+        }
+
+        return $formatted;
+    }
+
+    private function formatBoxPlotColumnValue(BoxPlotTableColumn $column, ?BoxPlotStats $boxPlot, AnalysisMetricKey $visualMetricKey): string
+    {
+        if (!$boxPlot instanceof BoxPlotStats) {
+            return '—';
+        }
+
+        $value = match ($column) {
+            BoxPlotTableColumn::Count => $boxPlot->count,
+            BoxPlotTableColumn::Min => $boxPlot->minimum,
+            BoxPlotTableColumn::P25 => $boxPlot->p25,
+            BoxPlotTableColumn::Median => $boxPlot->median,
+            BoxPlotTableColumn::P75 => $boxPlot->p75,
+            BoxPlotTableColumn::Max => $boxPlot->maximum,
+        };
+
+        if (BoxPlotTableColumn::Count === $column) {
+            return (string) $value;
+        }
+
+        return $this->metricValueFormatter->format(
+            $this->metricRegistry->get($this->profileRegistry->formatRegistryKeyFor($visualMetricKey)),
+            $value,
         );
     }
 
@@ -216,7 +319,7 @@ final readonly class ExplorerResultsTablePresenter
                     $value = $matrix->valueFor($rowKey, $colKey, $metricKey);
                     $seriesValues[$label] = $value;
                     $formattedSeriesValues[$label] = $this->formatMetricValue($metricKey, $value);
-                    if ($showPercentOfTotal && AnalysisMetricKey::AllocationCount === $metricKey) {
+                    if ($showPercentOfTotal && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
                         $formattedSeriesPercentValues[$label] = $this->percentHelper->formatPercent(
                             $this->percentHelper->percentOfRow($value, $rowTotal),
                         );
@@ -280,6 +383,7 @@ final readonly class ExplorerResultsTablePresenter
             $columns[] = new ExplorerResultsTableMetricColumn(
                 key: $metricKey->value,
                 label: $this->metricLabel($metricKey),
+                footerLabel: $this->footerLabelForMetric($metricKey),
             );
         }
 
@@ -303,6 +407,48 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         return $formatted;
+    }
+
+    /**
+     * @param list<AnalysisMetricKey>       $metricKeys
+     * @param array<string, int|float|null> $values
+     *
+     * @return array<string, int|float|null>
+     */
+    private function rawRowValues(array $metricKeys, array $values): array
+    {
+        $raw = [];
+        foreach ($metricKeys as $metricKey) {
+            $raw[$metricKey->value] = $values[$metricKey->value] ?? null;
+        }
+
+        return $raw;
+    }
+
+    /**
+     * @param list<BoxPlotTableColumn> $tableColumns
+     *
+     * @return array<string, int|float|null>
+     */
+    private function rawBoxPlotRowValues(array $tableColumns, ?BoxPlotStats $boxPlot): array
+    {
+        if (!$boxPlot instanceof BoxPlotStats) {
+            return [];
+        }
+
+        $raw = [];
+        foreach ($tableColumns as $column) {
+            $raw[$column->value] = match ($column) {
+                BoxPlotTableColumn::Count => $boxPlot->count,
+                BoxPlotTableColumn::Min => $boxPlot->minimum,
+                BoxPlotTableColumn::P25 => $boxPlot->p25,
+                BoxPlotTableColumn::Median => $boxPlot->median,
+                BoxPlotTableColumn::P75 => $boxPlot->p75,
+                BoxPlotTableColumn::Max => $boxPlot->maximum,
+            };
+        }
+
+        return $raw;
     }
 
     /**
@@ -355,6 +501,66 @@ final readonly class ExplorerResultsTablePresenter
 
     private function metricLabel(AnalysisMetricKey $metricKey): string
     {
+        $profile = $this->profileRegistry->profileFor($metricKey);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey);
+        }
+
         return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value);
+    }
+
+    private function countMetricForPercent(AnalysisRunResult $result): ?AnalysisMetricKey
+    {
+        foreach ([AnalysisMetricKey::AllocationCount, AnalysisMetricKey::HospitalCount] as $metricKey) {
+            if (\in_array($metricKey, $result->metricKeys, true)) {
+                return $metricKey;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveFlatPercentShare(
+        AnalysisResultRow $row,
+        AnalysisMetricKey $metricKey,
+        AnalysisRunResult $result,
+    ): ?float {
+        $countMetric = $this->countMetricForPercent($result);
+        if ($metricKey === $countMetric) {
+            $sqlPercent = $row->valueFor(AnalysisMetricKey::PercentOfTotal);
+            if (null !== $sqlPercent) {
+                return (float) $sqlPercent;
+            }
+        }
+
+        return $this->percentHelper->percentOfTotal(
+            $row->valueFor($metricKey),
+            $result->totalFor($metricKey),
+        );
+    }
+
+    /**
+     * @param list<AnalysisMetricKey> $visibleMetricKeys
+     */
+    private function footerRowLabel(array $visibleMetricKeys): string
+    {
+        if (1 !== \count($visibleMetricKeys)) {
+            return '';
+        }
+
+        return $this->footerLabelForMetric($visibleMetricKeys[0]);
+    }
+
+    private function footerLabelForMetric(AnalysisMetricKey $metricKey): string
+    {
+        return match ($metricKey) {
+            AnalysisMetricKey::AvgBeds,
+            AnalysisMetricKey::AvgAllocationsPerHospital => $this->translator->trans('stats.analysis_explorer.table.footer_average'),
+            AnalysisMetricKey::MinBeds,
+            AnalysisMetricKey::MinAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_minimum'),
+            AnalysisMetricKey::MaxBeds,
+            AnalysisMetricKey::MaxAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_maximum'),
+            default => $this->translator->trans('stats.analysis_explorer.table.footer_total'),
+        };
     }
 }

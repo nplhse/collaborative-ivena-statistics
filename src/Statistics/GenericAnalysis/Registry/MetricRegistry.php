@@ -6,6 +6,8 @@ namespace App\Statistics\GenericAnalysis\Registry;
 
 use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
 use App\Statistics\GenericAnalysis\Domain\DTO\MetricDefinition;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalMetricClass;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricComputationKind;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricFormat;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricSourceType;
@@ -38,6 +40,17 @@ final class MetricRegistry
     public function all(): array
     {
         return array_values($this->metrics);
+    }
+
+    /**
+     * @return list<MetricDefinition>
+     */
+    public function forDataSource(AnalysisDataSource $dataSource): array
+    {
+        return array_values(array_filter(
+            $this->metrics,
+            static fn (MetricDefinition $metric): bool => $metric->dataSource === $dataSource,
+        ));
     }
 
     private function register(MetricDefinition $metric): void
@@ -89,6 +102,7 @@ final class MetricRegistry
 
         $this->registerTransportMetrics();
         $this->registerBooleanRateMetrics();
+        $this->registerHospitalMetrics();
 
         // TODO: min_*, max_*, p95_*, stddev_*, distinct_* aggregates.
         // TODO: ci95_percent (Wilson interval), ci95_mean (classic CI) — MetricComputationKind::InferentialStub.
@@ -182,6 +196,120 @@ final class MetricRegistry
         $this->registerBooleanRateMetric('pregnancy_rate', 'Pregnancy rate', 'is_pregnant', 45);
         $this->registerBooleanRateMetric('work_accident_rate', 'Work accident rate', 'is_work_accident', 46);
         $this->registerBooleanRateMetric('with_physician_rate', 'Physician accompaniment rate', 'is_with_physician', 47);
+    }
+
+    private function registerHospitalMetrics(): void
+    {
+        $source = AnalysisDataSource::Hospitals;
+        $structural = HospitalMetricClass::Structural;
+        $allocationDerived = HospitalMetricClass::AllocationDerived;
+
+        $this->register(new MetricDefinition(
+            key: 'hospital_count',
+            label: 'Hospital count',
+            metricType: MetricType::Count,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'COUNT(DISTINCT h.id)::INT AS hospital_count',
+            description: 'Number of hospitals in scope',
+            isDefault: true,
+            sortPriority: 10,
+            dataSource: $source,
+            hospitalMetricClass: $structural,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'sum_beds',
+            label: 'Total beds',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'COALESCE(SUM(h.beds), 0)::INT AS sum_beds',
+            defaultFormat: MetricFormat::Integer,
+            sortPriority: 11,
+            dataSource: $source,
+            hospitalMetricClass: $structural,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'avg_beds',
+            label: 'Average beds',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'AVG(h.beds)::DOUBLE PRECISION AS avg_beds',
+            defaultFormat: MetricFormat::Decimal,
+            defaultPrecision: 1,
+            sortPriority: 12,
+            dataSource: $source,
+            hospitalMetricClass: $structural,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'min_beds',
+            label: 'Minimum beds',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'MIN(h.beds)::INT AS min_beds',
+            sortPriority: 13,
+            dataSource: $source,
+            hospitalMetricClass: $structural,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'max_beds',
+            label: 'Maximum beds',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'MAX(h.beds)::INT AS max_beds',
+            sortPriority: 14,
+            dataSource: $source,
+            hospitalMetricClass: $structural,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'total_allocations',
+            label: 'Total allocations',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'COALESCE(SUM(alloc.cnt), 0)::INT AS total_allocations',
+            defaultFormat: MetricFormat::Integer,
+            sortPriority: 20,
+            dataSource: $source,
+            hospitalMetricClass: $allocationDerived,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'avg_allocations_per_hospital',
+            label: 'Average allocations per hospital',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: '(COALESCE(SUM(alloc.cnt), 0)::DOUBLE PRECISION / NULLIF(COUNT(DISTINCT h.id), 0)) AS avg_allocations_per_hospital',
+            defaultFormat: MetricFormat::Decimal,
+            defaultPrecision: 1,
+            sortPriority: 21,
+            dataSource: $source,
+            hospitalMetricClass: $allocationDerived,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'min_allocations',
+            label: 'Minimum allocations',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'COALESCE(MIN(alloc.cnt), 0)::INT AS min_allocations',
+            sortPriority: 22,
+            dataSource: $source,
+            hospitalMetricClass: $allocationDerived,
+        ));
+
+        $this->register(new MetricDefinition(
+            key: 'max_allocations',
+            label: 'Maximum allocations',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: 'COALESCE(MAX(alloc.cnt), 0)::INT AS max_allocations',
+            sortPriority: 23,
+            dataSource: $source,
+            hospitalMetricClass: $allocationDerived,
+        ));
     }
 
     private function registerBooleanRateMetric(

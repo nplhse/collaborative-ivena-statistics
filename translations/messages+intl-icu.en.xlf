@@ -61,6 +61,10 @@
         <source>action.cancel</source>
         <target>Cancel</target>
       </trans-unit>
+      <trans-unit id="actClose01" resname="action.close">
+        <source>action.close</source>
+        <target>Close</target>
+      </trans-unit>
       <trans-unit id="PgKXiv_" resname="btn.save.changes">
         <source>btn.save.changes</source>
         <target>Save changes</target>
@@ -7269,7 +7273,7 @@
       </trans-unit>
       <trans-unit id="statsAexM10b" resname="stats.analysis_explorer.edit.show_percent_of_total_help">
         <source>stats.analysis_explorer.edit.show_percent_of_total_help</source>
-        <target>Shows percentages in the table. For matrices: share within the row; otherwise share of the grand total.</target>
+        <target>Shows shares in the table: within the row for matrices, otherwise of the grand total. Applies to count and summable metrics (e.g. total beds), not average, min, or max.</target>
       </trans-unit>
       <trans-unit id="statsAexM11" resname="stats.analysis_explorer.validation.incompatible_metrics">
         <source>stats.analysis_explorer.validation.incompatible_metrics</source>
@@ -7387,6 +7391,10 @@
         <source>stats.analysis_explorer.chart.heatmap</source>
         <target>Heatmap</target>
       </trans-unit>
+      <trans-unit id="statsAex33c" resname="stats.analysis_explorer.chart.box_plot">
+        <source>stats.analysis_explorer.chart.box_plot</source>
+        <target>Box plot</target>
+      </trans-unit>
       <trans-unit id="statsAex34" resname="stats.analysis_explorer.allocations_by_gender_over_time">
         <source>stats.analysis_explorer.allocations_by_gender_over_time</source>
         <target>Allocations by gender over time</target>
@@ -7426,6 +7434,18 @@
       <trans-unit id="statsAex43" resname="stats.analysis_explorer.table.footer_total">
         <source>stats.analysis_explorer.table.footer_total</source>
         <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsAexFooterAvg" resname="stats.analysis_explorer.table.footer_average">
+        <source>stats.analysis_explorer.table.footer_average</source>
+        <target>Avg.</target>
+      </trans-unit>
+      <trans-unit id="statsAexFooterMin" resname="stats.analysis_explorer.table.footer_minimum">
+        <source>stats.analysis_explorer.table.footer_minimum</source>
+        <target>Min.</target>
+      </trans-unit>
+      <trans-unit id="statsAexFooterMax" resname="stats.analysis_explorer.table.footer_maximum">
+        <source>stats.analysis_explorer.table.footer_maximum</source>
+        <target>Max.</target>
       </trans-unit>
       <trans-unit id="statsAex44" resname="stats.analysis_explorer.validation.unsupported_dimension">
         <source>stats.analysis_explorer.validation.unsupported_dimension</source>
@@ -7518,6 +7538,10 @@
       <trans-unit id="statsAex55" resname="stats.analysis_explorer.library.category.allocations">
         <source>stats.analysis_explorer.library.category.allocations</source>
         <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAex55h" resname="stats.analysis_explorer.library.category.hospitals">
+        <source>stats.analysis_explorer.library.category.hospitals</source>
+        <target>Hospitals</target>
       </trans-unit>
       <trans-unit id="statsAex56" resname="stats.analysis_explorer.library.card.dimension">
         <source>stats.analysis_explorer.library.card.dimension</source>
@@ -7614,6 +7638,10 @@
       <trans-unit id="statsAex78" resname="stats.analysis_explorer.library.empty.my_views">
         <source>stats.analysis_explorer.library.empty.my_views</source>
         <target>You have not saved any personal views yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex78a" resname="stats.analysis_explorer.library.empty.search">
+        <source>stats.analysis_explorer.library.empty.search</source>
+        <target>No views match your search.</target>
       </trans-unit>
       <trans-unit id="statsAex79" resname="stats.analysis_explorer.library.empty.system">
         <source>stats.analysis_explorer.library.empty.system</source>
@@ -7970,6 +7998,202 @@
       <trans-unit id="statsAex166" resname="stats.analysis_explorer.view_metadata.saved">
         <source>stats.analysis_explorer.view_metadata.saved</source>
         <target>View details saved.</target>
+      </trans-unit>
+      <trans-unit id="statsAexDs01" resname="stats.analysis_explorer.data_source.label">
+        <source>stats.analysis_explorer.data_source.label</source>
+        <target>Data source</target>
+      </trans-unit>
+      <trans-unit id="statsAexDs02" resname="stats.analysis_explorer.data_source.allocations">
+        <source>stats.analysis_explorer.data_source.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAexDs03" resname="stats.analysis_explorer.data_source.hospitals">
+        <source>stats.analysis_explorer.data_source.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsAexDs04" resname="stats.analysis_explorer.data_source.context.allocations">
+        <source>stats.analysis_explorer.data_source.context.allocations</source>
+        <target>Allocation counts from the statistics projection, filtered by scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsAexDs05" resname="stats.analysis_explorer.data_source.context.hospitals">
+        <source>stats.analysis_explorer.data_source.context.hospitals</source>
+        <target>Hospital master data snapshot: structure, beds, and allocation-derived metrics per hospital.</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp01" resname="stats.analysis_explorer.hospital_population.all">
+        <source>stats.analysis_explorer.hospital_population.all</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp02" resname="stats.analysis_explorer.hospital_population.participating">
+        <source>stats.analysis_explorer.hospital_population.participating</source>
+        <target>Participating hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp03" resname="stats.analysis_explorer.hospital_population.compare">
+        <source>stats.analysis_explorer.hospital_population.compare</source>
+        <target>Compare participating vs non-participating</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp04" resname="stats.analysis_explorer.edit.hospital_population">
+        <source>stats.analysis_explorer.edit.hospital_population</source>
+        <target>Hospital population</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp05" resname="stats.analysis_explorer.edit.hospital_population_help">
+        <source>stats.analysis_explorer.edit.hospital_population_help</source>
+        <target>Which hospitals are included in the analysis.</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp06" resname="stats.analysis_explorer.edit.section.hospital_population">
+        <source>stats.analysis_explorer.edit.section.hospital_population</source>
+        <target>Population</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp07" resname="stats.analysis_explorer.edit.section.hospital_population_help">
+        <source>stats.analysis_explorer.edit.section.hospital_population_help</source>
+        <target>Filter hospitals by participation status or compare both groups side by side.</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc01" resname="stats.analysis_explorer.metric.hospital_count">
+        <source>stats.analysis_explorer.metric.hospital_count</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc02" resname="stats.analysis_explorer.metric.sum_beds">
+        <source>stats.analysis_explorer.metric.sum_beds</source>
+        <target>Total beds</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc03" resname="stats.analysis_explorer.metric.avg_beds">
+        <source>stats.analysis_explorer.metric.avg_beds</source>
+        <target>Average beds</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc04" resname="stats.analysis_explorer.metric.min_beds">
+        <source>stats.analysis_explorer.metric.min_beds</source>
+        <target>Minimum beds</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc05" resname="stats.analysis_explorer.metric.max_beds">
+        <source>stats.analysis_explorer.metric.max_beds</source>
+        <target>Maximum beds</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc06" resname="stats.analysis_explorer.metric.total_allocations">
+        <source>stats.analysis_explorer.metric.total_allocations</source>
+        <target>Total allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc07" resname="stats.analysis_explorer.metric.avg_allocations_per_hospital">
+        <source>stats.analysis_explorer.metric.avg_allocations_per_hospital</source>
+        <target>Average allocations per hospital</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc08" resname="stats.analysis_explorer.metric.min_allocations">
+        <source>stats.analysis_explorer.metric.min_allocations</source>
+        <target>Minimum allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAexHc09" resname="stats.analysis_explorer.metric.max_allocations">
+        <source>stats.analysis_explorer.metric.max_allocations</source>
+        <target>Maximum allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAexMp01" resname="stats.analysis_explorer.metric_profile.beds_distribution">
+        <source>stats.analysis_explorer.metric_profile.beds_distribution</source>
+        <target>Beds distribution (box plot)</target>
+      </trans-unit>
+      <trans-unit id="statsAexMp02" resname="stats.analysis_explorer.metric_profile.allocations_per_hospital_distribution">
+        <source>stats.analysis_explorer.metric_profile.allocations_per_hospital_distribution</source>
+        <target>Allocations per hospital distribution (box plot)</target>
+      </trans-unit>
+      <trans-unit id="statsAexMp03" resname="stats.analysis_explorer.metric_profile.transport_time_distribution">
+        <source>stats.analysis_explorer.metric_profile.transport_time_distribution</source>
+        <target>Transport time distribution (box plot)</target>
+      </trans-unit>
+      <trans-unit id="statsAexMp04" resname="stats.analysis_explorer.metric_profile.transport_time_per_hospital_distribution">
+        <source>stats.analysis_explorer.metric_profile.transport_time_per_hospital_distribution</source>
+        <target>Transport time per hospital distribution (box plot)</target>
+      </trans-unit>
+      <trans-unit id="statsAexMg01" resname="stats.analysis_explorer.metric_group.beds">
+        <source>stats.analysis_explorer.metric_group.beds</source>
+        <target>Beds</target>
+      </trans-unit>
+      <trans-unit id="statsAexMg02" resname="stats.analysis_explorer.metric_group.allocations">
+        <source>stats.analysis_explorer.metric_group.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAexMg03" resname="stats.analysis_explorer.metric_group.counts">
+        <source>stats.analysis_explorer.metric_group.counts</source>
+        <target>Counts</target>
+      </trans-unit>
+      <trans-unit id="statsAexMg04" resname="stats.analysis_explorer.metric_group.transport_times">
+        <source>stats.analysis_explorer.metric_group.transport_times</source>
+        <target>Transport times</target>
+      </trans-unit>
+      <trans-unit id="statsAexBx01" resname="stats.analysis_explorer.box_plot.column.distribution_count">
+        <source>stats.analysis_explorer.box_plot.column.distribution_count</source>
+        <target>n</target>
+      </trans-unit>
+      <trans-unit id="statsAexBx02" resname="stats.analysis_explorer.box_plot.column.distribution_min">
+        <source>stats.analysis_explorer.box_plot.column.distribution_min</source>
+        <target>Min</target>
+      </trans-unit>
+      <trans-unit id="statsAexBx03" resname="stats.analysis_explorer.box_plot.column.distribution_p25">
+        <source>stats.analysis_explorer.box_plot.column.distribution_p25</source>
+        <target>P25</target>
+      </trans-unit>
+      <trans-unit id="statsAexBx04" resname="stats.analysis_explorer.box_plot.column.distribution_median">
+        <source>stats.analysis_explorer.box_plot.column.distribution_median</source>
+        <target>Median</target>
+      </trans-unit>
+      <trans-unit id="statsAexBx05" resname="stats.analysis_explorer.box_plot.column.distribution_p75">
+        <source>stats.analysis_explorer.box_plot.column.distribution_p75</source>
+        <target>P75</target>
+      </trans-unit>
+      <trans-unit id="statsAexBx06" resname="stats.analysis_explorer.box_plot.column.distribution_max">
+        <source>stats.analysis_explorer.box_plot.column.distribution_max</source>
+        <target>Max</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd01" resname="stats.analysis_explorer.dimension.hospital_master_cohort">
+        <source>stats.analysis_explorer.dimension.hospital_master_cohort</source>
+        <target>Master cohort</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd02" resname="stats.analysis_explorer.dimension.hospital_tier">
+        <source>stats.analysis_explorer.dimension.hospital_tier</source>
+        <target>Care tier</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd03" resname="stats.analysis_explorer.dimension.hospital_size">
+        <source>stats.analysis_explorer.dimension.hospital_size</source>
+        <target>Size class</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd04" resname="stats.analysis_explorer.dimension.hospital_location">
+        <source>stats.analysis_explorer.dimension.hospital_location</source>
+        <target>Location</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd05" resname="stats.analysis_explorer.dimension.hospital_state">
+        <source>stats.analysis_explorer.dimension.hospital_state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd06" resname="stats.analysis_explorer.dimension.hospital_dispatch_area">
+        <source>stats.analysis_explorer.dimension.hospital_dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd07" resname="stats.analysis_explorer.dimension.hospital_entity">
+        <source>stats.analysis_explorer.dimension.hospital_entity</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="statsAexHd08" resname="stats.analysis_explorer.dimension.hospital_population_group">
+        <source>stats.analysis_explorer.dimension.hospital_population_group</source>
+        <target>Participation group</target>
+      </trans-unit>
+      <trans-unit id="statsAexSv01" resname="stats.analysis_explorer.saved_view.data_source_mismatch">
+        <source>stats.analysis_explorer.saved_view.data_source_mismatch</source>
+        <target>This saved view belongs to a different data source. Showing the default analysis for the selected source instead.</target>
+      </trans-unit>
+      <trans-unit id="statsGaHp01" resname="stats.generic_analysis.hospital_population.participating">
+        <source>stats.generic_analysis.hospital_population.participating</source>
+        <target>Participating</target>
+      </trans-unit>
+      <trans-unit id="statsGaHp02" resname="stats.generic_analysis.hospital_population.non_participating">
+        <source>stats.generic_analysis.hospital_population.non_participating</source>
+        <target>Non-participating</target>
+      </trans-unit>
+      <trans-unit id="statsGa37p" resname="stats.generic_analysis.period.allocation_derived_hint">
+        <source>stats.generic_analysis.period.allocation_derived_hint</source>
+        <target>Structural hospital metrics such as bed counts are independent of the selected time period. Allocation-derived metrics respect the period filter.</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp08" resname="stats.analysis_explorer.edit.additional_table_metrics">
+        <source>stats.analysis_explorer.edit.additional_table_metrics</source>
+        <target>Additional table metrics</target>
+      </trans-unit>
+      <trans-unit id="statsAexHp09" resname="stats.analysis_explorer.edit.additional_table_metrics_help">
+        <source>stats.analysis_explorer.edit.additional_table_metrics_help</source>
+        <target>Optional extra columns in the results table. The chart always uses the chart metric above.</target>
       </trans-unit>
     </body>
   </file>

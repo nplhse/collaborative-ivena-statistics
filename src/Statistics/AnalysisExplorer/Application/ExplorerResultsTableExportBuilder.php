@@ -7,9 +7,11 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\BoxPlotTableColumn;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\GenericAnalysis\Application\Export\TabularExportColumn;
 use App\Statistics\GenericAnalysis\Application\Export\TabularExportDocument;
@@ -21,11 +23,16 @@ final readonly class ExplorerResultsTableExportBuilder
         private TranslatorInterface $translator,
         private ExplorerTablePercentHelper $percentHelper,
         private ExplorerMetricSummabilityPolicy $summabilityPolicy,
+        private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
     }
 
     public function build(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
+        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
+            return $this->buildDistributionFlatDocument($viewConfig, $result);
+        }
+
         if (!$result->hasColumnAxis()) {
             return $this->buildFlatDocument($viewConfig, $result);
         }
@@ -39,6 +46,7 @@ final readonly class ExplorerResultsTableExportBuilder
     private function buildFlatDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
         $showPercent = $viewConfig->showsPercentOfTotal();
+        $countMetric = $this->countMetricForPercent($result);
         $headers = [
             new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
         ];
@@ -48,15 +56,14 @@ final readonly class ExplorerResultsTableExportBuilder
             }
 
             $headers[] = new TabularExportColumn($metricKey->value, $this->metricLabel($metricKey));
-            if ($showPercent && AnalysisMetricKey::AllocationCount === $metricKey) {
+            if ($showPercent && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
                 $headers[] = new TabularExportColumn(
-                    'percent_of_total',
+                    $this->flatPercentColumnKey($metricKey, $countMetric),
                     $this->translator->trans('stats.analysis_explorer.export.percent_of_total'),
                 );
             }
         }
 
-        $grandTotal = $result->totalFor(AnalysisMetricKey::AllocationCount);
         $rows = [];
         foreach ($result->rows as $row) {
             $cells = [$row->bucketLabel];
@@ -66,15 +73,8 @@ final readonly class ExplorerResultsTableExportBuilder
                 }
 
                 $cells[] = $row->valueFor($metricKey);
-                if ($showPercent && AnalysisMetricKey::AllocationCount === $metricKey) {
-                    $percent = $row->valueFor(AnalysisMetricKey::PercentOfTotal);
-                    if (null === $percent) {
-                        $percent = $this->percentHelper->percentOfTotal(
-                            $row->valueFor(AnalysisMetricKey::AllocationCount),
-                            $grandTotal,
-                        );
-                    }
-                    $cells[] = $percent;
+                if ($showPercent && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
+                    $cells[] = $this->resolveFlatPercentShare($row, $metricKey, $result, $countMetric);
                 }
             }
             $rows[] = $cells;
@@ -89,7 +89,7 @@ final readonly class ExplorerResultsTableExportBuilder
                 }
 
                 $footer[] = $result->totalFor($metricKey);
-                if ($showPercent && AnalysisMetricKey::AllocationCount === $metricKey) {
+                if ($showPercent && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
                     $footer[] = 100.0;
                 }
             }
@@ -97,6 +97,70 @@ final readonly class ExplorerResultsTableExportBuilder
         }
 
         return new TabularExportDocument($headers, $rows, $footerRows);
+    }
+
+    private function buildDistributionFlatDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
+    {
+        $tableColumns = $this->profileRegistry->tableColumnsFor($viewConfig->visualMetricKey);
+        $hasSeries = $result->hasSeries();
+        $headers = [
+            new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
+        ];
+        if ($hasSeries) {
+            $headers[] = new TabularExportColumn(
+                'series',
+                $this->distributionSeriesAxisLabel($viewConfig, $result),
+            );
+        }
+        foreach ($tableColumns as $column) {
+            $headers[] = new TabularExportColumn(
+                $column->value,
+                $this->translator->trans($column->labelTranslationKey()),
+            );
+        }
+
+        $rows = [];
+        foreach ($result->rows as $row) {
+            $cells = [$row->bucketLabel];
+            if ($hasSeries) {
+                $cells[] = $row->seriesLabel ?? '';
+            }
+            foreach ($tableColumns as $column) {
+                $cells[] = $this->rawBoxPlotColumnValue($column, $row->boxPlot);
+            }
+            $rows[] = $cells;
+        }
+
+        return new TabularExportDocument($headers, $rows);
+    }
+
+    private function distributionSeriesAxisLabel(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): string
+    {
+        if ($viewConfig->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($viewConfig->columnAxis);
+        }
+
+        if ($result->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($result->columnAxis);
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population');
+    }
+
+    private function rawBoxPlotColumnValue(BoxPlotTableColumn $column, ?\App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats $boxPlot): int|float|null
+    {
+        if (!$boxPlot instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats) {
+            return null;
+        }
+
+        return match ($column) {
+            BoxPlotTableColumn::Count => $boxPlot->count,
+            BoxPlotTableColumn::Min => $boxPlot->minimum,
+            BoxPlotTableColumn::P25 => $boxPlot->p25,
+            BoxPlotTableColumn::Median => $boxPlot->median,
+            BoxPlotTableColumn::P75 => $boxPlot->p75,
+            BoxPlotTableColumn::Max => $boxPlot->maximum,
+        };
     }
 
     private function buildMatrixDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
@@ -216,10 +280,10 @@ final readonly class ExplorerResultsTableExportBuilder
 
                 foreach ($columnValues as $value) {
                     $cells[] = $value;
-                    if ($showPercent && AnalysisMetricKey::AllocationCount === $metricKey) {
-                        $cells[] = $this->percentHelper->percentOfRow($value, $rowTotal);
-                    } elseif ($showPercent) {
-                        $cells[] = null;
+                    if ($showPercent) {
+                        $cells[] = $this->summabilityPolicy->supportsPercentShare($metricKey)
+                            ? $this->percentHelper->percentOfRow($value, $rowTotal)
+                            : null;
                     }
                 }
                 $rows[] = $cells;
@@ -260,11 +324,55 @@ final readonly class ExplorerResultsTableExportBuilder
 
     private function metricLabel(AnalysisMetricKey $metricKey): string
     {
+        $profile = $this->profileRegistry->profileFor($metricKey);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey);
+        }
+
         return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value);
     }
 
     private function totalLabel(): string
     {
         return $this->translator->trans('stats.analysis_explorer.table.footer_total');
+    }
+
+    private function countMetricForPercent(AnalysisRunResult $result): ?AnalysisMetricKey
+    {
+        foreach ([AnalysisMetricKey::AllocationCount, AnalysisMetricKey::HospitalCount] as $metricKey) {
+            if (\in_array($metricKey, $result->metricKeys, true)) {
+                return $metricKey;
+            }
+        }
+
+        return null;
+    }
+
+    private function flatPercentColumnKey(AnalysisMetricKey $metricKey, ?AnalysisMetricKey $countMetric): string
+    {
+        if ($metricKey === $countMetric) {
+            return 'percent_of_total';
+        }
+
+        return $metricKey->value.'_percent';
+    }
+
+    private function resolveFlatPercentShare(
+        AnalysisResultRow $row,
+        AnalysisMetricKey $metricKey,
+        AnalysisRunResult $result,
+        ?AnalysisMetricKey $countMetric,
+    ): ?float {
+        if ($metricKey === $countMetric) {
+            $sqlPercent = $row->valueFor(AnalysisMetricKey::PercentOfTotal);
+            if (null !== $sqlPercent) {
+                return (float) $sqlPercent;
+            }
+        }
+
+        return $this->percentHelper->percentOfTotal(
+            $row->valueFor($metricKey),
+            $result->totalFor($metricKey),
+        );
     }
 }

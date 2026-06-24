@@ -9,33 +9,43 @@ use App\Statistics\AnalysisExplorer\Application\AllocationsCapabilitiesProvider;
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisUpgradeMapper;
 use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionLabelResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisTotalsCalculator;
+use App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationAnalysisExecutor;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationQueryMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAllocationResultMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
+use App\Statistics\AnalysisExplorer\Application\ExplorerHospitalQueryMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCatalog;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricKeyMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerMetricProfileRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricSummabilityPolicy;
+use App\Statistics\AnalysisExplorer\Application\ExplorerQueryMapperRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTablePercentHelper;
+use App\Statistics\AnalysisExplorer\Application\HospitalsCapabilitiesProvider;
+use App\Statistics\AnalysisExplorer\Application\HospitalsDistributionResultMapper;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
+use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsDistributionQuery;
 use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\GenericAnalysis\Application\ChartPrimaryBucketLimiter;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
+use App\Statistics\GenericAnalysis\Application\HospitalPopulationModifier;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Application\RelativeDistributionCalculator;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisQuery;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisSqlBuilder;
+use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationDistributionSqlBuilder;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
+use App\Statistics\HospitalPopulation\Application\DescriptiveStatisticsCalculator;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -54,6 +64,22 @@ trait AnalysisExplorerTestSupport
             $this->createExplorerMetricCatalog(),
             $this->createExplorerMetricCapabilityPolicy(),
         );
+    }
+
+    protected function createHospitalsCapabilitiesProvider(): HospitalsCapabilitiesProvider
+    {
+        return new HospitalsCapabilitiesProvider(
+            $this->createExplorerMetricCatalog(),
+            $this->createExplorerMetricCapabilityPolicy(),
+        );
+    }
+
+    protected function createDataSourceCapabilitiesRegistry(): DataSourceCapabilitiesRegistry
+    {
+        return new DataSourceCapabilitiesRegistry([
+            $this->createAllocationsCapabilitiesProvider(),
+            $this->createHospitalsCapabilitiesProvider(),
+        ]);
     }
 
     protected function createDimensionPolicy(): GenericAnalysisDimensionPolicy
@@ -108,13 +134,35 @@ trait AnalysisExplorerTestSupport
         return new ExplorerAllocationQueryMapper($this->createExplorerMetricKeyMapper());
     }
 
+    protected function createExplorerMetricProfileRegistry(): ExplorerMetricProfileRegistry
+    {
+        return new ExplorerMetricProfileRegistry();
+    }
+
     protected function createExplorerMetricCapabilityPolicy(): ExplorerMetricCapabilityPolicy
     {
         return new ExplorerMetricCapabilityPolicy(
             $this->createExplorerMetricCatalog(),
-            $this->createExplorerAllocationQueryMapper(),
+            $this->createExplorerQueryMapperRegistry(),
             $this->createMetricCompatibilityChecker(),
+            $this->createExplorerMetricProfileRegistry(),
         );
+    }
+
+    protected function createExplorerHospitalQueryMapper(): ExplorerHospitalQueryMapper
+    {
+        return new ExplorerHospitalQueryMapper(
+            $this->createExplorerMetricKeyMapper(),
+            new HospitalPopulationModifier(),
+        );
+    }
+
+    protected function createExplorerQueryMapperRegistry(): ExplorerQueryMapperRegistry
+    {
+        return new ExplorerQueryMapperRegistry([
+            $this->createExplorerAllocationQueryMapper(),
+            $this->createExplorerHospitalQueryMapper(),
+        ]);
     }
 
     protected function createExplorerChartPresenter(): ExplorerChartPresenter
@@ -135,6 +183,7 @@ trait AnalysisExplorerTestSupport
             $metricRegistry,
             new ChartPrimaryBucketLimiter($translator),
             $translator,
+            $this->createExplorerMetricProfileRegistry(),
         );
     }
 
@@ -145,7 +194,7 @@ trait AnalysisExplorerTestSupport
 
     protected function createExplorerMetricSummabilityPolicy(): ExplorerMetricSummabilityPolicy
     {
-        return new ExplorerMetricSummabilityPolicy($this->createExplorerMetricCatalog());
+        return new ExplorerMetricSummabilityPolicy();
     }
 
     /**
@@ -179,6 +228,7 @@ trait AnalysisExplorerTestSupport
             $metricValueFormatter,
             new ExplorerTablePercentHelper($metricRegistry, $metricValueFormatter),
             $this->createExplorerMetricSummabilityPolicy(),
+            $this->createExplorerMetricProfileRegistry(),
         );
     }
 
@@ -197,8 +247,16 @@ trait AnalysisExplorerTestSupport
             new HospitalCohortLabelResolver($translator),
         );
 
+        $profileRegistry = $this->createExplorerMetricProfileRegistry();
+        $distributionResultMapper = new HospitalsDistributionResultMapper(
+            $dimensionRegistry,
+            $labelResolver,
+            new DescriptiveStatisticsCalculator(),
+            $profileRegistry,
+        );
+
         $executor = new ExplorerAllocationAnalysisExecutor(
-            $this->createExplorerAllocationQueryMapper(),
+            $this->createExplorerQueryMapperRegistry(),
             new GenericAllocationAnalysisQuery(
                 $connection,
                 new GenericAllocationAnalysisSqlBuilder(
@@ -215,8 +273,36 @@ trait AnalysisExplorerTestSupport
                 $labelResolver,
                 $this->createExplorerMetricKeyMapper(),
             ),
+            new AllocationsDistributionQuery(
+                $connection,
+                $this->createExplorerQueryMapperRegistry(),
+                new GenericAllocationDistributionSqlBuilder(
+                    $dimensionRegistry,
+                    new GenericAnalysisScopeSqlFilter(),
+                ),
+                $distributionResultMapper,
+                $profileRegistry,
+            ),
         );
 
         return new AllocationsCountQuery($executor);
+    }
+
+    /**
+     * @param list<array{0: string, 1: array<string, mixed>, 2: ?string, 3: ?string, 4: string}> $messages
+     */
+    protected function stubExplorerTranslator(array $messages = []): TranslatorInterface
+    {
+        $defaults = [
+            ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
+            ['stats.analysis_explorer.table.footer_average', [], null, null, 'Ø'],
+            ['stats.analysis_explorer.table.footer_minimum', [], null, null, 'Min.'],
+            ['stats.analysis_explorer.table.footer_maximum', [], null, null, 'Max.'],
+        ];
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap(array_merge($defaults, $messages));
+
+        return $translator;
     }
 }

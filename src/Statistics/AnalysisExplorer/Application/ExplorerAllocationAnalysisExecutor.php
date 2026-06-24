@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
+use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsDistributionQuery;
 use App\Statistics\GenericAnalysis\Application\MetricCompatibilityChecker;
 use App\Statistics\GenericAnalysis\Application\RelativeDistributionCalculator;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisQuery;
@@ -13,11 +14,12 @@ use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysi
 final readonly class ExplorerAllocationAnalysisExecutor
 {
     public function __construct(
-        private ExplorerAllocationQueryMapper $queryMapper,
+        private ExplorerQueryMapperRegistry $queryMapperRegistry,
         private GenericAllocationAnalysisQuery $genericQuery,
         private MetricCompatibilityChecker $metricCompatibilityChecker,
         private RelativeDistributionCalculator $relativeDistributionCalculator,
         private ExplorerAllocationResultMapper $resultMapper,
+        private AllocationsDistributionQuery $allocationsDistributionQuery,
     ) {
     }
 
@@ -30,7 +32,11 @@ final readonly class ExplorerAllocationAnalysisExecutor
             return [];
         }
 
-        $gaQuery = $this->queryMapper->map($query);
+        if ($query->visualMetricKey->isDistributionProfile()) {
+            return $this->allocationsDistributionQuery->execute($query);
+        }
+
+        $gaQuery = $this->queryMapperRegistry->map($query);
         $this->metricCompatibilityChecker->resolveAndValidate($gaQuery);
         $raw = $this->genericQuery->execute($gaQuery);
         $enriched = $this->relativeDistributionCalculator->enrich($raw, $gaQuery->resolvedMetricKeys());

@@ -35,6 +35,9 @@ final readonly class ExplorerConfigPreviewFactory
                 chartType: ChartPresentationType::tryFrom($formData->chartType) ?? ChartPresentationType::Bar,
                 tableLayout: TableLayout::tryFrom($formData->tableLayout) ?? TableLayout::Flat,
             ),
+            hospitalPopulationMode: \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode::tryFrom($formData->hospitalPopulation)
+                ?? \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode::Participating,
+            additionalTableMetrics: $formData->additionalTableMetrics,
         );
     }
 
@@ -54,9 +57,14 @@ final readonly class ExplorerConfigPreviewFactory
             $config->presentation,
             $config->statisticsFilter,
             $config->title,
+            $config->hospitalPopulationMode,
+            AnalysisMetricKey::additionalTableMetricValues($config->metricKeys, $config->visualMetricKey),
         );
     }
 
+    /**
+     * @param list<string> $additionalTableMetrics
+     */
     private function buildConfig(
         DataSourceCapabilities $capabilities,
         AnalysisAxisRef $rowAxis,
@@ -66,8 +74,10 @@ final readonly class ExplorerConfigPreviewFactory
         PresentationConfig $presentation,
         ?StatisticsFilter $statisticsFilter = null,
         string $title = '',
+        \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode $hospitalPopulationMode = \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode::Participating,
+        array $additionalTableMetrics = [],
     ): AnalysisViewConfig {
-        $metricKeys = $this->resolveMetricKeys($visualMetricKey, $showPercentOfTotal);
+        $metricKeys = $this->resolveMetricKeys($visualMetricKey, $showPercentOfTotal, $additionalTableMetrics);
 
         return new AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
@@ -83,16 +93,44 @@ final readonly class ExplorerConfigPreviewFactory
             ),
             presentation: $presentation,
             title: $title,
+            hospitalPopulationMode: $hospitalPopulationMode,
         );
     }
 
     /**
+     * @param list<string> $additionalTableMetrics
+     *
      * @return list<AnalysisMetricKey>
      */
-    private function resolveMetricKeys(AnalysisMetricKey $visualMetricKey, bool $showPercentOfTotal): array
-    {
+    private function resolveMetricKeys(
+        AnalysisMetricKey $visualMetricKey,
+        bool $showPercentOfTotal,
+        array $additionalTableMetrics,
+    ): array {
+        if ($visualMetricKey->isDistributionProfile()) {
+            return [$visualMetricKey];
+        }
+
         $metricKeys = [$visualMetricKey];
-        if ($showPercentOfTotal && AnalysisMetricKey::AllocationCount === $visualMetricKey) {
+
+        foreach ($additionalTableMetrics as $value) {
+            if ('' === $value) {
+                continue;
+            }
+
+            $metricKey = AnalysisMetricKey::tryFrom($value);
+            if (!$metricKey instanceof AnalysisMetricKey
+                || $metricKey === $visualMetricKey
+                || AnalysisMetricKey::PercentOfTotal === $metricKey) {
+                continue;
+            }
+
+            if (!\in_array($metricKey, $metricKeys, true)) {
+                $metricKeys[] = $metricKey;
+            }
+        }
+
+        if ($showPercentOfTotal && \in_array($visualMetricKey, [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::HospitalCount], true)) {
             $metricKeys[] = AnalysisMetricKey::PercentOfTotal;
         }
 

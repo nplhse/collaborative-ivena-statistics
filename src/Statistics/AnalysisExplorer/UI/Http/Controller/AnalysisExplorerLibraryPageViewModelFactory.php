@@ -37,6 +37,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         $activeCategory = self::TAB_ALL === $activeTab
             ? $this->normalizeCategoryFilter($request->query->getString(ExplorerLibraryQueryKeys::CATEGORY))
             : null;
+        $searchQuery = $this->normalizeSearchQuery($request->query->getString(ExplorerLibraryQueryKeys::SEARCH));
 
         return new AnalysisExplorerLibraryPageViewModel(
             activeTab: $activeTab,
@@ -45,9 +46,17 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             categoryFilters: self::TAB_ALL === $activeTab
                 ? $this->categoryFilters($request, $activeCategory)
                 : [],
-            cards: $this->cardsForTab($request, $user, $activeTab, $activeCategory),
+            cards: $this->cardsForTab($request, $user, $activeTab, $activeCategory, $searchQuery),
             isLoggedIn: $isLoggedIn,
+            searchQuery: $searchQuery ?? '',
         );
+    }
+
+    private function normalizeSearchQuery(string $search): ?string
+    {
+        $search = trim($search);
+
+        return '' === $search ? null : $search;
     }
 
     private function resolveActiveTab(Request $request, bool $isLoggedIn): string
@@ -75,39 +84,77 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     /**
      * @return list<array<string, mixed>>
      */
-    private function cardsForTab(Request $request, ?User $user, string $activeTab, ?string $activeCategory): array
-    {
-        return match ($activeTab) {
+    private function cardsForTab(
+        Request $request,
+        ?User $user,
+        string $activeTab,
+        ?string $activeCategory,
+        ?string $searchQuery,
+    ): array {
+        $views = match ($activeTab) {
             self::TAB_FAVORITES => $user instanceof User
-                ? array_map(
-                    fn (SavedExplorerView $view): array => $this->buildCard($request, $view, $user),
-                    $this->favoriteService->listViewsForUser($user),
-                )
+                ? $this->favoriteService->listViewsForUser($user)
                 : [],
             self::TAB_MY_VIEWS => $user instanceof User
-                ? array_map(
-                    fn (SavedExplorerView $view): array => $this->buildCard($request, $view, $user),
-                    $this->repository->findByCreatorOrdered($user),
-                )
+                ? $this->repository->findByCreatorOrdered($user)
                 : [],
-            default => $this->systemViewCards($request, $user, $activeCategory),
+            default => $this->systemViewsForCategory($activeCategory),
         };
-    }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function systemViewCards(Request $request, ?User $user, ?string $activeCategory): array
-    {
         $cards = [];
-        foreach ($this->repository->findAllSystemViewsOrdered() as $view) {
-            $categoryKey = $this->categoryKey($view->getCategory());
-            if (null !== $activeCategory && $categoryKey !== $activeCategory) {
+        foreach ($views as $view) {
+            if (!$this->matchesSearch($view, $searchQuery)) {
                 continue;
             }
 
             $cards[] = $this->buildCard($request, $view, $user);
         }
+
+        return $this->sortCardsAlphabetically($cards);
+    }
+
+    /**
+     * @return list<SavedExplorerView>
+     */
+    private function systemViewsForCategory(?string $activeCategory): array
+    {
+        if (null === $activeCategory) {
+            return $this->repository->findAllSystemViewsOrdered();
+        }
+
+        $views = [];
+        foreach ($this->repository->findAllSystemViewsOrdered() as $view) {
+            if ($this->categoryKey($view->getCategory()) === $activeCategory) {
+                $views[] = $view;
+            }
+        }
+
+        return $views;
+    }
+
+    private function matchesSearch(SavedExplorerView $view, ?string $searchQuery): bool
+    {
+        if (null === $searchQuery) {
+            return true;
+        }
+
+        $needle = mb_strtolower($searchQuery);
+        $haystack = mb_strtolower(trim($view->getTitle()."\n".($view->getDescription() ?? '')));
+
+        return str_contains($haystack, $needle);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $cards
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function sortCardsAlphabetically(array $cards): array
+    {
+        usort(
+            $cards,
+            static fn (array $left, array $right): int => strcasecmp((string) $left['title'], (string) $right['title']),
+        );
 
         return $cards;
     }
@@ -128,7 +175,13 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             }
         }
 
-        return array_values($categories);
+        $categories = array_values($categories);
+        usort(
+            $categories,
+            static fn (array $left, array $right): int => strcasecmp($left['label'], $right['label']),
+        );
+
+        return $categories;
     }
 
     /**
@@ -207,10 +260,24 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     private function tabQuery(Request $request, string $tab, array $extra = []): array
     {
         return array_merge(
-            $this->scopeQuery($request),
+            $this->libraryQuery($request),
             [ExplorerLibraryQueryKeys::TAB => $tab],
             $extra,
         );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function libraryQuery(Request $request): array
+    {
+        $query = $this->scopeQuery($request);
+        $search = $this->normalizeSearchQuery($request->query->getString(ExplorerLibraryQueryKeys::SEARCH));
+        if (null !== $search) {
+            $query[ExplorerLibraryQueryKeys::SEARCH] = $search;
+        }
+
+        return $query;
     }
 
     /**

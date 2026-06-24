@@ -54,7 +54,7 @@ final class SavedExplorerViewFavoriteRepository extends ServiceEntityRepository
             ->from(SavedExplorerView::class, 'v')
             ->innerJoin(SavedExplorerViewFavorite::class, 'f', 'WITH', 'f.savedView = v AND IDENTITY(f.user) = :userId')
             ->setParameter('userId', $user->getId(), Types::INTEGER)
-            ->orderBy('f.createdAt', 'DESC')
+            ->orderBy('v.title', 'ASC')
             ->getQuery()
             ->getResult();
 

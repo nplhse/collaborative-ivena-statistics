@@ -7,6 +7,7 @@ namespace App\Statistics\GenericAnalysis\Infrastructure\Query;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricComputationKind;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
 use Doctrine\DBAL\Connection;
@@ -26,6 +27,7 @@ final readonly class GenericAllocationAnalysisQuery
     public function execute(AnalysisQuery $query): AnalysisResult
     {
         $metricKeys = $query->resolvedMetricKeys();
+        $baseMetricKey = $query->dataSource->distributionBaseMetricKey();
 
         if ($this->hasEmptyHospitalScope($query)) {
             return new AnalysisResult(
@@ -35,6 +37,8 @@ final readonly class GenericAllocationAnalysisQuery
                 metricKeys: $metricKeys,
                 seriesDimensionKey: $query->seriesDimensionKey,
                 includeNullBuckets: $query->includeNullBuckets,
+                distributionBaseMetricKey: $baseMetricKey,
+                dataSource: AnalysisDataSource::Allocations,
             );
         }
 
@@ -48,7 +52,7 @@ final readonly class GenericAllocationAnalysisQuery
 
         foreach ($raw as $row) {
             $metrics = $this->mapMetrics($row, $sqlMetricKeys);
-            $grandTotal += (int) ($metrics['count'] ?? 0);
+            $grandTotal += (int) ($metrics[$baseMetricKey] ?? 0);
             $rows[] = new AnalysisResultRow(
                 bucket: $this->normalizeBucketValue($row['bucket']),
                 metrics: $metrics,
@@ -63,6 +67,8 @@ final readonly class GenericAllocationAnalysisQuery
             metricKeys: $metricKeys,
             seriesDimensionKey: $query->seriesDimensionKey,
             includeNullBuckets: $query->includeNullBuckets,
+            distributionBaseMetricKey: $baseMetricKey,
+            dataSource: AnalysisDataSource::Allocations,
         );
     }
 

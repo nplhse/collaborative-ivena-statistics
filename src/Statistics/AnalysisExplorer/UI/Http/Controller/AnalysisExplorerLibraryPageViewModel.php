@@ -18,6 +18,7 @@ final readonly class AnalysisExplorerLibraryPageViewModel
         public array $categoryFilters,
         public array $cards,
         public bool $isLoggedIn,
+        public string $searchQuery = '',
     ) {
     }
 }

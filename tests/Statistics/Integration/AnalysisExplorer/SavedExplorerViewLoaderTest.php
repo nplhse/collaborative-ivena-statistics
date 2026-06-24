@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
@@ -56,6 +57,30 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
         self::assertFalse($result->notFound);
         self::assertSame('year', $result->state['query']['rows']['grain'] ?? null);
         self::assertSame('line', $result->state['presentation']['chartType'] ?? null);
+    }
+
+    public function testHospitalSystemViewLoadsWithoutExplicitDataSource(): void
+    {
+        $result = $this->loader->load('hospitals-by-tier', $this->publicFilter(), null);
+
+        self::assertFalse($result->notFound);
+        self::assertFalse($result->usedFallback);
+        self::assertSame('hospitals', $result->state['dataSource'] ?? null);
+        self::assertSame('hospital_tier', $result->state['query']['rows']['dimension'] ?? null);
+    }
+
+    public function testExplicitDataSourceMismatchFallsBack(): void
+    {
+        $result = $this->loader->load(
+            'hospitals-by-tier',
+            $this->publicFilter(),
+            null,
+            AnalysisDataSourceKey::Allocations,
+        );
+
+        self::assertTrue($result->usedFallback);
+        self::assertSame(['stats.analysis_explorer.saved_view.data_source_mismatch'], $result->warnings);
+        self::assertSame('allocations', $result->state['dataSource'] ?? null);
     }
 
     public function testUnknownViewIsNotFound(): void

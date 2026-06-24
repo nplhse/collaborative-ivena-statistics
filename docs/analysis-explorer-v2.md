@@ -47,7 +47,9 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library page lists **Overview** (system views with category filters), **Favorites**, and **My views** for signed-in users.
+The analysis library page lists **Overview** (38 system views with category filters), **Favorites**, and **My views** for signed-in users.
+
+Library standards, dashboard alignment, and phased refactor backlog: [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md).
 
 Loading flow:
 
@@ -63,7 +65,8 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 ## Current limitations (intentional)
 
 - No sharing, dashboards, or recommended views.
-- Only the `allocations` data source (no separate hospitals data source).
+- Two data sources: `allocations` (default blank explorer) and `hospitals` (master-data snapshot). The active source is fixed per saved view via `configJson.dataSource`; hospital analyses are opened from the library or via `?dataSource=hospitals` on the blank explorer route only.
+- Hospital time-series views are not a default focus; temporal axes are reserved for allocation-derived hospital metrics in system views.
 - CSV/table export (Alpha): results table as CSV with raw values (server-side `StreamedResponse`) and chart as PNG (client-side via ApexCharts `dataURI`).
 - No URL-encoded config sharing.
 - No delete workflow for saved views.
@@ -77,31 +80,35 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 
 ```text
 AnalysisExplorerController
-  └─ appliedConfigState (default from DefaultAnalysisViewFactory)
+  └─ appliedConfigState (default from DefaultAnalysisViewFactoryRegistry per dataSource)
        └─ AnalysisExplorerShell (LiveComponent)
-            ├─ ExplorerConfigMapper (state ↔ AnalysisViewConfig)
+            ├─ ExplorerConfigMapper (state ↔ AnalysisViewConfig, schema v3 + hospitalPopulation)
             ├─ AnalysisViewConfigNormalizer / AnalysisViewConfigValidator
-            ├─ ExplorerEditFormType + ExplorerEditFormNormalizer
-            ├─ AllocationsCapabilitiesProvider (scoped via GenericAnalysisDimensionPolicy)
+            ├─ DataSourceCapabilitiesRegistry
+            │     ├─ AllocationsCapabilitiesProvider
+            │     └─ HospitalsCapabilitiesProvider
+            ├─ ExplorerEditFormType + ExplorerEditFormNormalizer (hospital population in drawer)
             ├─ AnalysisAxisResolver / AnalysisAxisUpgradeMapper
-            ├─ AllocationsAnalysisRunner → AllocationsCountQuery
-            │     ├─ ExplorerAllocationQueryMapper → GenericAllocationAnalysisQuery
-            │     └─ ExplorerAllocationResultMapper + AnalysisDimensionLabelResolver
+            ├─ AnalysisRunnerRegistry
+            │     ├─ AllocationsAnalysisRunner → AllocationsCountQuery → ExplorerAllocationAnalysisExecutor
+            │     └─ HospitalsAnalysisRunner → HospitalsCountQuery → ExplorerHospitalAnalysisExecutor
+            ├─ ExplorerQueryMapperRegistry (allocation + hospital mappers)
             ├─ AnalysisMatrix + AnalysisTotalsCalculator
             ├─ ExplorerChartPresenter
             └─ ExplorerResultsTablePresenter
 ```
 
-Explorer queries reuse **Generic Analysis** aggregation (`GenericAllocationAnalysisQuery` + `DimensionRegistry` + `MetricRegistry`) via a thin bridge layer. `ExplorerAllocationAnalysisExecutor` runs SQL aggregates and `RelativeDistributionCalculator` for `percent_of_total`. Label and value formatting reuse GA `MetricValueFormatter`.
+Explorer queries reuse **Generic Analysis** aggregation via a thin bridge layer. Allocations use `GenericAllocationAnalysisQuery`; hospitals use `GenericHospitalAnalysisQuery` with `HospitalPopulationModifier` for `all` / `participating` / `compare` modes. `ExplorerQueryMapperRegistry` selects the mapper by `dataSourceKey`.
 
 ### Metric model (Phase 7)
 
 | Category | Explorer key | GA key | Notes |
 |---|---|---|---|
 | Count | `allocation_count` | `count` | Primary default; charts use `visualMetric` |
-| Distribution | `percent_of_total` | `percent_of_total` | Optional table column via checkbox |
+| Distribution | `percent_of_total` | `percent_of_total` | Optional table column via checkbox; applies to all summable table metrics (count, sum beds, …), not avg/min/max |
 | Rate | `*_rate` | same | SQL aggregate per bucket |
 | Statistical | `mean_transport_time`, … | same | Registered, not enabled yet |
+| Distribution profile | `transport_time_distribution` | — | Allocations: per-allocation transport minutes, box plot |
 
 Multi-metric tables: `metricKeys[]` in config; charts use a single `visualMetric`. Boolean breakdown counts (e.g. CPR cases) use dimension + `allocation_count`, not a separate metric.
 
@@ -181,6 +188,44 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
 ```
 
 v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Serialisation always writes v3.
+
+### Hospitals data source
+
+| Item | Value |
+|---|---|
+| Blank explorer URL | `?dataSource=hospitals` opens the hospitals default; saved views use `configJson.dataSource` (no in-page switcher) |
+| Default view | `hospital_master_cohort` × `hospital_count`, population `participating`, bar chart |
+| Available metrics | Aggregate metrics (`hospital_count`, `sum_beds`, …) plus distribution profiles (`beds_distribution`, `allocations_per_hospital_distribution`, `transport_time_per_hospital_distribution`) |
+| Multi-metric tables | Chart metric + optional additional table metrics in the edit drawer (aggregate metrics only; distribution profiles use fixed n/min/p25/median/p75/max columns) |
+| Distribution profiles | Selecting a profile sets `chartType` to `box_plot`, runs raw-value SQL (per hospital or per allocation depending on data source), and aggregates with `DescriptiveStatisticsCalculator` per `(row bucket, series)` cell. Transport-time profiles format values in minutes. Supports an optional column axis or hospital compare mode as the series dimension; not combinable with temporal row dimensions. Compare mode and a manual column axis remain mutually exclusive. |
+| Box plot chart type | `box_plot` — only available when `visualMetric` is a distribution profile |
+| Schema field | `query.hospitalPopulation` (`all`, `participating`, `compare`) |
+| System views category | `Hospitals` (seeded by `statistics:explorer-views:sync`) |
+
+```json
+{
+  "schemaVersion": 3,
+  "dataSource": "hospitals",
+  "query": {
+    "scope": { "group": "public", "detail": null },
+    "period": { "type": "all", "year": null, "quarter": null, "month": null },
+    "hospitalPopulation": "participating",
+    "metrics": ["hospital_count"],
+    "visualMetric": "hospital_count",
+    "rows": { "dimension": "hospital_master_cohort", "grain": "total" },
+    "columns": null
+  },
+  "presentation": {
+    "mode": "chart",
+    "chartType": "bar",
+    "tableLayout": "flat",
+    "chartRowLimit": "all"
+  },
+  "title": "Hospitals by master cohort"
+}
+```
+
+Saved views are bound to `configJson.dataSource`. When opening a saved view without `?dataSource=` in the URL, the stored data source is used automatically. The query parameter is an explicit override only: if it conflicts with the saved view (e.g. `?dataSource=allocations` on a hospitals view), the explorer shows `stats.analysis_explorer.saved_view.data_source_mismatch` and falls back to the default for the requested source.
 
 UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
 

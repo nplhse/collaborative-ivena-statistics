@@ -96,6 +96,21 @@ final class ExplorerMetricCapabilityPolicyTest extends TestCase
         );
     }
 
+    public function testHospitalAllocationDerivedMetricsAreAllowedForTierBreakdown(): void
+    {
+        $config = $this->hospitalConfig(
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            metricKeys: [AnalysisMetricKey::TotalAllocations, AnalysisMetricKey::AvgAllocationsPerHospital],
+            visualMetricKey: AnalysisMetricKey::TotalAllocations,
+        );
+
+        $available = $this->policy->metricsForConfig($config);
+
+        self::assertContains(AnalysisMetricKey::TotalAllocations, $available);
+        self::assertContains(AnalysisMetricKey::AvgAllocationsPerHospital, $available);
+        self::assertContains(AnalysisMetricKey::SumBeds, $available);
+    }
+
     private function config(AnalysisAxisRef $rowAxis, ?AnalysisAxisRef $columnAxis): AnalysisViewConfig
     {
         return new AnalysisViewConfig(
@@ -112,6 +127,31 @@ final class ExplorerMetricCapabilityPolicyTest extends TestCase
             ),
             presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
             title: 'Test',
+        );
+    }
+
+    /**
+     * @param list<AnalysisMetricKey> $metricKeys
+     */
+    private function hospitalConfig(
+        AnalysisAxisRef $rowAxis,
+        array $metricKeys,
+        AnalysisMetricKey $visualMetricKey,
+    ): AnalysisViewConfig {
+        return new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: $metricKeys,
+            visualMetricKey: $visualMetricKey,
+            rowAxis: $rowAxis,
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            title: 'Hospitals test',
         );
     }
 }

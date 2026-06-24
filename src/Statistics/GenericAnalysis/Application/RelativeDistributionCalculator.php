@@ -23,21 +23,22 @@ final class RelativeDistributionCalculator
         $includePercentOfBucket = \in_array('percent_of_bucket', $metricKeys, true);
 
         $grandTotal = $result->grandTotal;
-        $bucketTotals = $includePercentOfBucket ? $this->bucketTotals($result->rows) : [];
+        $baseMetricKey = $result->distributionBaseMetricKey;
+        $bucketTotals = $includePercentOfBucket ? $this->bucketTotals($result->rows, $baseMetricKey) : [];
 
         $enriched = [];
         foreach ($result->rows as $row) {
             $derivedMetrics = [];
-            $count = $row->countValue();
+            $baseValue = (int) $row->baseMetricValue($baseMetricKey);
 
             if ($includePercentOfTotal) {
-                $derivedMetrics['percent_of_total'] = $this->percent($count, $grandTotal);
+                $derivedMetrics['percent_of_total'] = $this->percent($baseValue, $grandTotal);
             }
 
             if ($includePercentOfBucket) {
                 $bucketKey = $this->key($row->bucket);
                 $bucketTotal = $bucketTotals[$bucketKey] ?? 0;
-                $derivedMetrics['percent_of_bucket'] = $this->percent($count, $bucketTotal);
+                $derivedMetrics['percent_of_bucket'] = $this->percent($baseValue, $bucketTotal);
             }
 
             $enriched[] = [
@@ -54,12 +55,12 @@ final class RelativeDistributionCalculator
      *
      * @return array<string, int>
      */
-    private function bucketTotals(array $rows): array
+    private function bucketTotals(array $rows, string $baseMetricKey): array
     {
         $totals = [];
         foreach ($rows as $row) {
             $key = $this->key($row->bucket);
-            $totals[$key] = ($totals[$key] ?? 0) + $row->countValue();
+            $totals[$key] = ($totals[$key] ?? 0) + (int) $row->baseMetricValue($baseMetricKey);
         }
 
         return $totals;

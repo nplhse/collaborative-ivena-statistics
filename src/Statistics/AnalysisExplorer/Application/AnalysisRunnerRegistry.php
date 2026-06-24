@@ -13,6 +13,7 @@ final readonly class AnalysisRunnerRegistry
 {
     public function __construct(
         private AllocationsAnalysisRunner $allocationsAnalysisRunner,
+        private HospitalsAnalysisRunner $hospitalsAnalysisRunner,
     ) {
     }
 
@@ -42,6 +43,6 @@ final readonly class AnalysisRunnerRegistry
      */
     private function runners(): array
     {
-        return [$this->allocationsAnalysisRunner];
+        return [$this->allocationsAnalysisRunner, $this->hospitalsAnalysisRunner];
     }
 }

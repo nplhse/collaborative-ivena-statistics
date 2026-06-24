@@ -7,6 +7,7 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
@@ -260,6 +261,49 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         ], null);
 
         self::assertSame(ExplorerChartRowLimit::All, $legacyState->presentation->chartRowLimit);
+    }
+
+    public function testBuildViewConfigFromLegacyDistributionMetricResolvesBoxPlot(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $filterState = [
+            'scope' => ['group' => 'public', 'detail' => null],
+            'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+        ];
+
+        $config = $mapper->buildViewConfig($filterState, [
+            'dataSource' => AnalysisDataSourceKey::Hospitals->value,
+            'dimension' => 'hospital_tier',
+            'metric' => AnalysisMetricKey::BedsDistribution->value,
+            'chartType' => ChartPresentationType::BoxPlot->value,
+            'title' => 'Beds distribution by tier',
+        ], null);
+
+        self::assertSame([AnalysisMetricKey::BedsDistribution], $config->metricKeys);
+        self::assertSame(AnalysisMetricKey::BedsDistribution, $config->visualMetricKey);
+        self::assertSame(ChartPresentationType::BoxPlot, $config->presentation->chartType);
+    }
+
+    public function testBuildViewConfigUsesDataSourceDefaultWhenNoMetric(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $filterState = [
+            'scope' => ['group' => 'public', 'detail' => null],
+            'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+        ];
+
+        $config = $mapper->buildViewConfig($filterState, [
+            'dataSource' => AnalysisDataSourceKey::Hospitals->value,
+            'dimension' => 'hospital_tier',
+            'title' => 'Hospitals by tier',
+        ], null);
+
+        self::assertSame([AnalysisMetricKey::HospitalCount], $config->metricKeys);
+        self::assertSame(AnalysisMetricKey::HospitalCount, $config->visualMetricKey);
     }
 
     public function testMergeChartRowLimitIntoState(): void

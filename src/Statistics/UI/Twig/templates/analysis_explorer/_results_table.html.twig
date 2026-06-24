@@ -4,13 +4,6 @@
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
         <div>
             <h3 class="card-title mb-0">{{ 'stats.analysis_explorer.table.title'|trans }}</h3>
-            {% if table and table.formattedTotals is not empty and not table.hasMetricSubRows %}
-                <div class="text-secondary small mt-1" data-testid="stats-analysis-explorer-results-count">
-                    {% for column in table.metricColumns %}
-                        {{ column.label }}: {{ table.formattedTotals[column.key] ?? '—' }}{% if not loop.last %} · {% endif %}
-                    {% endfor %}
-                </div>
-            {% endif %}
         </div>
         {% if exportCsvUrl %}
             <form method="post"
@@ -31,34 +24,88 @@
     </div>
     <div class="card-body p-0 stats-aex-table-card-body">
         <div class="stats-aex-table-scroll"
-             data-testid="stats-analysis-explorer-table-scroll">
+             data-testid="stats-analysis-explorer-table-scroll"
+             {% if table and table.isClientSortable %}data-controller="analysis-explorer-table-sort"{% endif %}>
             <table class="table table-vcenter card-table table-striped table-hover mb-0 stats-aex-table"
                    data-testid="stats-analysis-explorer-table-body">
                 <thead>
                     <tr>
-                        <th>{{ table ? table.rowAxisLabel|default(table.primaryDimensionLabel) : '' }}</th>
-                        {% if table and table.hasMetricSubRows %}
-                            <th class="text-nowrap">{{ 'stats.analysis_explorer.table.metric'|trans }}</th>
-                            {% for seriesLabel in table.seriesLabels %}
-                                <th class="text-end text-nowrap">{{ seriesLabel }}</th>
-                            {% endfor %}
-                        {% elseif table and table.hasSeries %}
-                            {% for seriesLabel in table.seriesLabels %}
-                                <th class="text-end text-nowrap">{{ seriesLabel }}</th>
-                            {% endfor %}
-                            <th class="text-end text-nowrap border-start">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
-                        {% elseif table %}
-                            {% for column in table.metricColumns %}
-                                <th class="text-end text-nowrap">{{ column.label }}</th>
-                            {% endfor %}
+                        {% if table and table.isClientSortable %}
+                            <th>
+                                <button type="button"
+                                        class="table-sort btn btn-link p-0 text-reset text-decoration-none fw-medium border-0"
+                                        data-sort-index="0"
+                                        data-sort-type="text"
+                                        data-action="analysis-explorer-table-sort#sort">
+                                    {{ table.rowAxisLabel|default(table.primaryDimensionLabel) }}
+                                </button>
+                            </th>
+                            {% if table.hasSeries %}
+                                {% for seriesLabel in table.seriesLabels %}
+                                    {% set columnIndex = loop.index %}
+                                    <th class="text-end text-nowrap">
+                                        <button type="button"
+                                                class="table-sort btn btn-link p-0 text-reset text-decoration-none fw-medium border-0 text-end w-100"
+                                                data-sort-index="{{ columnIndex }}"
+                                                data-sort-type="number"
+                                                data-action="analysis-explorer-table-sort#sort">
+                                            {{ seriesLabel }}
+                                        </button>
+                                    </th>
+                                {% endfor %}
+                                <th class="text-end text-nowrap border-start">
+                                    <button type="button"
+                                            class="table-sort btn btn-link p-0 text-reset text-decoration-none fw-medium border-0 text-end w-100"
+                                            data-sort-index="{{ table.seriesLabels|length + 1 }}"
+                                            data-sort-type="number"
+                                            data-action="analysis-explorer-table-sort#sort">
+                                        {{ 'stats.analysis_explorer.table.footer_total'|trans }}
+                                    </button>
+                                </th>
+                            {% else %}
+                                {% for column in table.metricColumns %}
+                                    {% set columnIndex = loop.index %}
+                                    {% set sortType = column.key == 'series' ? 'text' : 'number' %}
+                                    <th class="text-end text-nowrap">
+                                        <button type="button"
+                                                class="table-sort btn btn-link p-0 text-reset text-decoration-none fw-medium border-0 text-end w-100"
+                                                data-sort-index="{{ columnIndex }}"
+                                                data-sort-type="{{ sortType }}"
+                                                data-action="analysis-explorer-table-sort#sort">
+                                            {{ column.label }}
+                                        </button>
+                                    </th>
+                                {% endfor %}
+                            {% endif %}
+                        {% else %}
+                            <th>{{ table ? table.rowAxisLabel|default(table.primaryDimensionLabel) : '' }}</th>
+                            {% if table and table.hasMetricSubRows %}
+                                <th class="text-nowrap">{{ 'stats.analysis_explorer.table.metric'|trans }}</th>
+                                {% for seriesLabel in table.seriesLabels %}
+                                    <th class="text-end text-nowrap">{{ seriesLabel }}</th>
+                                {% endfor %}
+                            {% elseif table and table.hasSeries %}
+                                {% for seriesLabel in table.seriesLabels %}
+                                    <th class="text-end text-nowrap">{{ seriesLabel }}</th>
+                                {% endfor %}
+                                <th class="text-end text-nowrap border-start">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                            {% elseif table %}
+                                {% for column in table.metricColumns %}
+                                    <th class="text-end text-nowrap">{{ column.label }}</th>
+                                {% endfor %}
+                            {% endif %}
                         {% endif %}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody {% if table and table.isClientSortable %}data-analysis-explorer-table-sort-target="body"{% endif %}>
                     {% if table %}
                         {% for row in table.rows %}
                             <tr>
-                                <th scope="row" class="fw-normal">{{ row.bucketLabel }}</th>
+                                <th scope="row"
+                                    class="fw-normal"
+                                    {% if table.isClientSortable %}data-sort-value="{{ row.bucketLabel }}"{% endif %}>
+                                    {{ row.bucketLabel }}
+                                </th>
                                 {% if table.hasMetricSubRows %}
                                     <td class="text-nowrap">{{ row.metricSubRowLabel }}</td>
                                     {% for seriesLabel in table.seriesLabels %}
@@ -71,14 +118,16 @@
                                     {% endfor %}
                                 {% elseif table.hasSeries %}
                                     {% for seriesLabel in table.seriesLabels %}
-                                        <td class="text-end text-nowrap">
+                                        <td class="text-end text-nowrap"
+                                            {% if table.isClientSortable %}data-sort-value="{{ row.seriesValues[seriesLabel] ?? '' }}"{% endif %}>
                                             <div class="fw-medium">{{ row.formattedSeriesValues[seriesLabel] ?? '—' }}</div>
                                             {% if table.showPercentOfTotal and row.formattedSeriesPercentValues[seriesLabel] is defined and row.formattedSeriesPercentValues[seriesLabel] %}
                                                 <div class="small text-secondary">{{ row.formattedSeriesPercentValues[seriesLabel] }}</div>
                                             {% endif %}
                                         </td>
                                     {% endfor %}
-                                    <td class="text-end text-nowrap fw-semibold border-start">
+                                    <td class="text-end text-nowrap fw-semibold border-start"
+                                        {% if table.isClientSortable %}data-sort-value="{{ row.rowTotal }}"{% endif %}>
                                         <div>{{ row.formattedRowTotal }}</div>
                                         {% if table.showPercentOfTotal and row.formattedRowTotalPercent %}
                                             <div class="small text-secondary fw-normal">{{ row.formattedRowTotalPercent }}</div>
@@ -86,7 +135,8 @@
                                     </td>
                                 {% else %}
                                     {% for column in table.metricColumns %}
-                                        <td class="text-end text-nowrap">
+                                        <td class="text-end text-nowrap"
+                                            {% if table.isClientSortable %}data-sort-value="{{ row.metricValues[column.key] ?? '' }}"{% endif %}>
                                             <div class="fw-medium">{{ row.formattedMetricValues[column.key] ?? '—' }}</div>
                                             {% if table.showPercentOfTotal and row.formattedMetricPercentValues[column.key] is defined and row.formattedMetricPercentValues[column.key] %}
                                                 <div class="small text-secondary">{{ row.formattedMetricPercentValues[column.key] }}</div>
@@ -141,9 +191,16 @@
                 {% elseif table and table.hasData and not table.hasSeries %}
                     <tfoot class="table-light">
                         <tr data-testid="stats-analysis-explorer-table-footer">
-                            <th scope="row">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                            <th scope="row">
+                                {% if table.metricColumns|length == 1 %}
+                                    {{ table.metricColumns[0].footerLabel }}
+                                {% endif %}
+                            </th>
                             {% for column in table.metricColumns %}
                                 <td class="text-end text-nowrap fw-semibold">
+                                    {% if table.metricColumns|length > 1 %}
+                                        <span class="text-secondary fw-normal me-1">{{ column.footerLabel }}</span>
+                                    {% endif %}
                                     <div>{{ table.formattedTotals[column.key] ?? '—' }}</div>
                                     {% if table.showPercentOfTotal and table.formattedTotalsPercentValues[column.key] is defined and table.formattedTotalsPercentValues[column.key] %}
                                         <div class="small text-secondary fw-normal">{{ table.formattedTotalsPercentValues[column.key] }}</div>

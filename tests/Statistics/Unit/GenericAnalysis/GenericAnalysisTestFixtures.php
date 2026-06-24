@@ -8,6 +8,8 @@ use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
 
 final class GenericAnalysisTestFixtures
 {
@@ -34,6 +36,8 @@ final class GenericAnalysisTestFixtures
         string $primary = 'month',
         ?string $series = null,
         array $metricKeys = [],
+        AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
+        HospitalPopulationMode $hospitalPopulationMode = HospitalPopulationMode::All,
     ): AnalysisQuery {
         return new AnalysisQuery(
             primaryDimensionKey: $primary,
@@ -41,6 +45,8 @@ final class GenericAnalysisTestFixtures
             periodBounds: new StatisticsPeriodBounds(null),
             seriesDimensionKey: $series,
             metricKeys: $metricKeys,
+            dataSource: $dataSource,
+            hospitalPopulationMode: $hospitalPopulationMode,
         );
     }
 }

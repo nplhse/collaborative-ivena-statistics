@@ -1,0 +1,71 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Statistics\GenericAnalysis\Application;
+
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalPopulationMode;
+use App\Statistics\GenericAnalysis\Domain\Exception\InvalidAnalysisConfigurationException;
+use App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants;
+
+final readonly class HospitalPopulationModifier
+{
+    public function supports(AnalysisDataSource $dataSource): bool
+    {
+        return AnalysisDataSource::Hospitals === $dataSource;
+    }
+
+    public function validate(AnalysisQuery $query): void
+    {
+        if (!$this->supports($query->dataSource)) {
+            return;
+        }
+
+        if (HospitalPopulationMode::Compare !== $query->hospitalPopulationMode) {
+            return;
+        }
+
+        if (null === $query->seriesDimensionKey) {
+            return;
+        }
+
+        $populationKey = HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY;
+        if ($populationKey === $query->primaryDimensionKey) {
+            return;
+        }
+
+        if ($populationKey !== $query->seriesDimensionKey) {
+            throw InvalidAnalysisConfigurationException::withMessage('Compare population mode cannot be combined with a manual series dimension.');
+        }
+    }
+
+    public function prepareForExecution(AnalysisQuery $query): AnalysisQuery
+    {
+        if (!$this->supports($query->dataSource)) {
+            return $query;
+        }
+
+        if (HospitalPopulationMode::Compare !== $query->hospitalPopulationMode) {
+            return $query;
+        }
+
+        if (HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY === $query->primaryDimensionKey) {
+            return $query;
+        }
+
+        return new AnalysisQuery(
+            primaryDimensionKey: $query->primaryDimensionKey,
+            scopeCriteria: $query->scopeCriteria,
+            periodBounds: $query->periodBounds,
+            seriesDimensionKey: HospitalAnalysisConstants::POPULATION_GROUP_DIMENSION_KEY,
+            metricKeys: $query->metricKeys,
+            visualMetricKey: $query->visualMetricKey,
+            filters: $query->filters,
+            includeNullBuckets: $query->includeNullBuckets,
+            dataSource: $query->dataSource,
+            hospitalPopulationMode: $query->hospitalPopulationMode,
+        );
+    }
+}

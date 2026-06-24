@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
+use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
@@ -22,6 +23,7 @@ final readonly class ExplorerChartPresenter
         private MetricRegistry $metricRegistry,
         private ChartPrimaryBucketLimiter $primaryBucketLimiter,
         private TranslatorInterface $translator,
+        private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
     }
 
@@ -36,6 +38,7 @@ final readonly class ExplorerChartPresenter
 
         $spec = $result->hasSeries()
             ? match ($presentation->chartType) {
+                ChartPresentationType::BoxPlot => $this->buildMultiSeriesBoxPlotSpec($result, $presentation),
                 ChartPresentationType::Heatmap => $this->buildHeatmapSpec($result, $presentation),
                 default => $this->buildMultiSeriesSpec($result, $presentation),
             }
@@ -61,6 +64,10 @@ final readonly class ExplorerChartPresenter
      */
     private function buildSingleSeriesSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
     {
+        if (ChartPresentationType::BoxPlot === $presentation->chartType) {
+            return $this->buildBoxPlotSpec($result, $presentation);
+        }
+
         $labels = [];
         $values = [];
 
@@ -84,6 +91,152 @@ final readonly class ExplorerChartPresenter
             'percentScale' => 'percent' === $this->metricFormat($result->visualMetricKey),
             'xAxisLabel' => $this->axisLabel($result->rowAxis),
             'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildBoxPlotSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
+    {
+        $points = [];
+        foreach ($result->rows as $row) {
+            if (!$row->boxPlot instanceof BoxPlotStats) {
+                continue;
+            }
+
+            $points[] = [
+                'x' => $row->bucketLabel,
+                'y' => $row->boxPlot->apexValues(),
+            ];
+        }
+
+        $labels = array_map(static fn (array $point): string => $point['x'], $points);
+        $cap = $presentation->chartRowLimit->cap();
+        if (null !== $cap && \count($labels) > $cap && !$result->rowAxis->dimensionKey->isTemporalPrimary()) {
+            [$limitedLabels] = $this->primaryBucketLimiter->limit(
+                $labels,
+                array_map(static fn (array $point): float => $point['y'][2] ?? 0.0, $points),
+                [],
+                $cap,
+                includeRemainderBucket: false,
+            );
+            $limitedLabelSet = array_flip($limitedLabels);
+            $points = array_values(array_filter(
+                $points,
+                static fn (array $point): bool => isset($limitedLabelSet[$point['x']]),
+            ));
+        }
+
+        return [
+            'chartType' => 'boxPlot',
+            'series' => [[
+                'name' => $this->metricLabel($result->visualMetricKey),
+                'type' => 'boxPlot',
+                'data' => $points,
+            ]],
+            'xAxisLabel' => $this->axisLabel($result->rowAxis),
+            'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
+            'valueFormat' => $this->metricFormat($result->visualMetricKey),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildMultiSeriesBoxPlotSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
+    {
+        $matrix = AnalysisMatrix::fromRunResult($result);
+
+        /** @var array<string, array<string, \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow>> $rowsByCell */
+        $rowsByCell = [];
+        foreach ($result->rows as $row) {
+            if (!$row->boxPlot instanceof BoxPlotStats) {
+                continue;
+            }
+
+            $rowsByCell[$row->bucket][$row->seriesKey ?? ''] = $row;
+        }
+
+        $orderedRowKeys = $matrix->orderedRowKeys;
+        $rowLabels = $matrix->chartLabels();
+        $cap = $presentation->chartRowLimit->cap();
+        if (null !== $cap && \count($rowLabels) > $cap && !$result->rowAxis->dimensionKey->isTemporalPrimary()) {
+            $rowWeights = [];
+            foreach ($orderedRowKeys as $rowKey) {
+                $weight = 0.0;
+                foreach ($matrix->orderedColumnKeys as $colKey) {
+                    $weight = max($weight, $matrix->valueFor($rowKey, $colKey, $result->visualMetricKey));
+                }
+                $rowWeights[] = $weight;
+            }
+
+            [$limitedRowLabels] = $this->primaryBucketLimiter->limit(
+                $rowLabels,
+                $rowWeights,
+                [],
+                $cap,
+                includeRemainderBucket: false,
+            );
+            $limitedLabelSet = array_flip($limitedRowLabels);
+            $orderedRowKeys = array_values(array_filter(
+                $orderedRowKeys,
+                static fn (string $rowKey): bool => isset($limitedLabelSet[$matrix->rowLabels[$rowKey]]),
+            ));
+        }
+
+        $chartSeries = [];
+        $columnKeys = [] !== $matrix->orderedColumnKeys
+            ? $matrix->orderedColumnKeys
+            : array_values(array_unique(array_map(
+                static fn (\App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow $row): string => $row->seriesKey ?? '',
+                $result->rows,
+            )));
+
+        foreach ($columnKeys as $colKey) {
+            $points = [];
+            foreach ($orderedRowKeys as $rowKey) {
+                $row = $rowsByCell[$rowKey][$colKey] ?? null;
+                if (!$row instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow
+                    || !$row->boxPlot instanceof BoxPlotStats) {
+                    continue;
+                }
+
+                $points[] = [
+                    'x' => $row->bucketLabel,
+                    'y' => $row->boxPlot->apexValues(),
+                ];
+            }
+
+            if ([] === $points) {
+                continue;
+            }
+
+            $seriesLabel = $matrix->columnLabels[$colKey] ?? $colKey;
+            foreach ($rowsByCell as $rowBuckets) {
+                if (isset($rowBuckets[$colKey]) && null !== $rowBuckets[$colKey]->seriesLabel) {
+                    $seriesLabel = $rowBuckets[$colKey]->seriesLabel;
+                    break;
+                }
+            }
+
+            $chartSeries[] = [
+                'name' => $seriesLabel,
+                'type' => 'boxPlot',
+                'data' => $points,
+            ];
+        }
+
+        $columnAxis = $result->columnAxis;
+
+        return [
+            'chartType' => 'boxPlot',
+            'series' => $chartSeries,
+            'multiSeries' => true,
+            'xAxisLabel' => $this->axisLabel($result->rowAxis),
+            'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
+            'seriesAxisLabel' => $columnAxis instanceof AnalysisAxisRef ? $this->axisLabel($columnAxis) : null,
+            'valueFormat' => $this->metricFormat($result->visualMetricKey),
         ];
     }
 
@@ -250,11 +403,20 @@ final readonly class ExplorerChartPresenter
 
     private function metricLabel(AnalysisMetricKey $metricKey): string
     {
+        $profile = $this->profileRegistry->profileFor($metricKey);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey);
+        }
+
         return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->label;
     }
 
     private function metricFormat(AnalysisMetricKey $metricKey): string
     {
+        if ($metricKey->isDistributionProfile()) {
+            return $this->metricRegistry->get($this->profileRegistry->formatRegistryKeyFor($metricKey))->defaultFormat->value;
+        }
+
         return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->defaultFormat->value;
     }
 }

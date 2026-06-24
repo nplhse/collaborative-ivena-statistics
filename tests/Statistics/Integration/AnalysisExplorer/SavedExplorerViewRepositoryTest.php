@@ -87,14 +87,14 @@ final class SavedExplorerViewRepositoryTest extends KernelTestCase
         $first = $this->seeder->sync();
         $second = $this->seeder->sync();
 
-        self::assertSame(14, $first->created);
+        self::assertSame(38, $first->created);
         self::assertSame(0, $first->updated);
         self::assertSame(0, $second->created);
         self::assertSame(0, $second->updated);
-        self::assertSame(14, $second->skipped);
+        self::assertSame(38, $second->skipped);
 
         $views = $this->repository->findAllSystemViewsOrdered();
-        self::assertCount(14, $views);
+        self::assertCount(38, $views);
         $admin = UserFactory::find(['username' => 'admin']);
         foreach ($views as $view) {
             self::assertTrue($view->wasCreatedBy($admin));
@@ -102,5 +102,7 @@ final class SavedExplorerViewRepositoryTest extends KernelTestCase
         $slugs = array_map(static fn (SavedExplorerView $view): ?string => $view->getSlug(), $views);
         self::assertContains('allocations-over-time', $slugs);
         self::assertContains('urgency-over-time', $slugs);
+        self::assertContains('allocations-weekday-by-day-time-heatmap', $slugs);
+        self::assertContains('beds-distribution-by-location', $slugs);
     }
 }

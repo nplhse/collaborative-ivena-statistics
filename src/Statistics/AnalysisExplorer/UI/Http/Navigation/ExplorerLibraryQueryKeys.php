@@ -9,4 +9,6 @@ final class ExplorerLibraryQueryKeys
     public const string TAB = 'tab';
 
     public const string CATEGORY = 'category';
+
+    public const string SEARCH = 'search';
 }

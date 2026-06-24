@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Domain\DTO;
 
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
+use App\Statistics\GenericAnalysis\Domain\Enum\HospitalMetricClass;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricComputationKind;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricFormat;
 use App\Statistics\GenericAnalysis\Domain\Enum\MetricSourceType;
@@ -36,6 +38,8 @@ final readonly class MetricDefinition
         public bool $isDefault = false,
         public bool $isExperimental = false,
         public int $sortPriority = 100,
+        public AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
+        public ?HospitalMetricClass $hospitalMetricClass = null,
     ) {
     }
 }

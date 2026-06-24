@@ -779,6 +779,7 @@ final class AnalysisExplorerShell
 
         return new ExplorerEditFormData(
             scopePeriod: $scopePeriod,
+            dataSource: \is_string($submitted['dataSource'] ?? null) ? $submitted['dataSource'] : $formData->dataSource,
             rowDimension: \is_string($submitted['rowDimension'] ?? null) ? $submitted['rowDimension'] : $formData->rowDimension,
             rowGrain: \array_key_exists('rowGrain', $submitted)
                 ? (\is_string($submitted['rowGrain']) ? $submitted['rowGrain'] : null)
@@ -794,6 +795,13 @@ final class AnalysisExplorerShell
             chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $formData->chartType,
             tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $formData->tableLayout,
             chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $formData->chartRowLimit,
+            hospitalPopulation: \is_string($submitted['hospitalPopulation'] ?? null) ? $submitted['hospitalPopulation'] : $formData->hospitalPopulation,
+            additionalTableMetrics: \array_key_exists('additionalTableMetrics', $submitted)
+                ? array_values(array_filter(
+                    \is_array($submitted['additionalTableMetrics']) ? $submitted['additionalTableMetrics'] : [],
+                    static fn (mixed $value): bool => \is_string($value) && '' !== $value,
+                ))
+                : $formData->additionalTableMetrics,
         );
     }
 

@@ -126,6 +126,99 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
         return buildAnalysisHeatmapOptions(data, { chartHeightProfile });
     }
 
+    if (data.chartType === 'boxPlot') {
+        const series = Array.isArray(data.series) ? data.series : [];
+        if (series.length === 0) {
+            return null;
+        }
+
+        const isMulti = data.multiSeries === true && series.length > 1;
+        const chartFontFamily = resolveAnalysisChartFontFamily();
+        const categoryAxisTitle =
+            typeof data.xAxisLabel === 'string' && data.xAxisLabel !== ''
+                ? data.xAxisLabel
+                : undefined;
+        const valueAxisTitle =
+            typeof data.yAxisLabel === 'string' && data.yAxisLabel !== ''
+                ? data.yAxisLabel
+                : typeof data.valueLabel === 'string' && data.valueLabel !== ''
+                  ? data.valueLabel
+                  : undefined;
+        const multiSeriesPalette = [
+            '#206bc4',
+            '#d63939',
+            '#74b816',
+            '#fab005',
+            '#ae3ec9',
+            '#15aabf',
+            '#fd7e14',
+            '#7048e8',
+        ];
+
+        return {
+            chart: {
+                type: 'boxPlot',
+                height: resolveAnalysisChartHeight({
+                    isMulti,
+                    seriesCount: series.length,
+                    profile: chartHeightProfile,
+                }),
+                toolbar: { show: false },
+                fontFamily: chartFontFamily,
+                zoom: { enabled: false },
+                animations: {
+                    enabled: true,
+                },
+            },
+            series,
+            colors: isMulti ? multiSeriesPalette.slice(0, series.length) : ['#206bc4'],
+            plotOptions: {
+                boxPlot: isMulti
+                    ? {}
+                    : {
+                          colors: {
+                              upper: '#206bc4',
+                              lower: '#206bc4',
+                          },
+                      },
+            },
+            xaxis: {
+                type: 'category',
+                title: buildAxisTitleConfig(categoryAxisTitle, { offsetY: 6 }),
+                labels: {
+                    trim: true,
+                    style: {
+                        fontFamily: chartFontFamily,
+                    },
+                },
+            },
+            yaxis: {
+                title: buildAxisTitleConfig(valueAxisTitle, { offsetX: 0 }),
+                labels: {
+                    formatter: (value) => {
+                        const n = typeof value === 'number' ? value : Number(value);
+                        return Number.isFinite(n) ? String(Math.round(n)) : '—';
+                    },
+                    style: {
+                        fontFamily: chartFontFamily,
+                    },
+                },
+            },
+            legend: { show: isMulti },
+            dataLabels: { enabled: false },
+            grid: {
+                strokeDashArray: 4,
+                borderColor: 'rgba(0,0,0,0.04)',
+                padding: {
+                    top: 8,
+                    right: 12,
+                    bottom: 8,
+                    left: 12,
+                },
+            },
+        };
+    }
+
     const labels = Array.isArray(data.labels) ? data.labels : [];
     if (labels.length === 0) {
         return null;

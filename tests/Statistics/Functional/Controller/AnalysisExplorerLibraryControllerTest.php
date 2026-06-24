@@ -73,4 +73,26 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
             $crawler->filter('[data-testid="stats-analysis-explorer-view-card-'.$overTime->getId().'"]')->count(),
         );
     }
+
+    public function testLibrarySearchFiltersVisibleCards(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedExplorerSystemViews();
+
+        $repository = self::getContainer()->get(SavedExplorerViewRepository::class);
+        $genderView = $repository->findBySlug('gender-distribution');
+        $overTime = $repository->findBySlug('allocations-over-time');
+        self::assertNotNull($genderView?->getId());
+        self::assertNotNull($overTime?->getId());
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/library?scope=public&period=all&search=gender',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-search-input"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-view-card-'.$genderView->getId().'"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-view-card-'.$overTime->getId().'"]');
+    }
 }

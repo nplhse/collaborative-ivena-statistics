@@ -14,7 +14,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 final readonly class AnalysisViewConfigValidator
 {
     public function __construct(
-        private AllocationsCapabilitiesProvider $capabilitiesProvider,
+        private DataSourceCapabilitiesRegistry $capabilitiesRegistry,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private Security $security,
     ) {
@@ -32,14 +32,14 @@ final readonly class AnalysisViewConfigValidator
             throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.incompatible_metrics', $this->buildParameters($config));
         }
 
-        $allowedMetrics = $this->capabilitiesProvider->metricsForConfig($config);
+        $allowedMetrics = $this->metricCapabilityPolicy->metricsForConfig($config);
         foreach ($config->metricKeys as $metricKey) {
             if (!\in_array($metricKey, $allowedMetrics, true)) {
                 throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric', $this->buildParameters($config));
             }
         }
 
-        if (!$this->metricCapabilityPolicy->isChartable($config->visualMetricKey)) {
+        if (!$this->metricCapabilityPolicy->isChartable($config->visualMetricKey, $config->dataSourceKey)) {
             throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric', $this->buildParameters($config));
         }
     }
@@ -48,7 +48,8 @@ final readonly class AnalysisViewConfigValidator
     {
         $user = $this->security->getUser();
 
-        return $this->capabilitiesProvider->capabilitiesFor(
+        return $this->capabilitiesRegistry->capabilitiesFor(
+            $config->dataSourceKey,
             $user instanceof User ? $user : null,
             $config->statisticsFilter,
         );

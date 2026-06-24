@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Domain\DTO;
 
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 
 /**
@@ -33,6 +34,7 @@ final readonly class AnalysisDimension
         public bool $sortAscending = true,
         public array $nullBucketKeys = [],
         public ?string $requiresNonNullSourceColumn = null,
+        public AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
     ) {
     }
 

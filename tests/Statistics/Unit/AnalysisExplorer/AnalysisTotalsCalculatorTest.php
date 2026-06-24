@@ -96,4 +96,42 @@ final class AnalysisTotalsCalculatorTest extends TestCase
 
         self::assertNull($totals->grandFor(AnalysisMetricKey::ResusRate));
     }
+
+    public function testComputesWeightedAverageBedsGrandTotal(): void
+    {
+        $rows = [
+            new AnalysisResultRow('a', 'A', null, null, [
+                'hospital_count' => 10,
+                'avg_beds' => 100.0,
+            ]),
+            new AnalysisResultRow('b', 'B', null, null, [
+                'hospital_count' => 16,
+                'avg_beds' => 200.0,
+            ]),
+        ];
+
+        $totals = $this->calculator->calculate($rows, [
+            AnalysisMetricKey::HospitalCount,
+            AnalysisMetricKey::AvgBeds,
+        ]);
+
+        self::assertSame(26.0, $totals->grandFor(AnalysisMetricKey::HospitalCount));
+        self::assertEqualsWithDelta(161.538, $totals->grandFor(AnalysisMetricKey::AvgBeds), 0.001);
+    }
+
+    public function testComputesMinAndMaxBedsGrandTotals(): void
+    {
+        $rows = [
+            new AnalysisResultRow('a', 'A', null, null, ['min_beds' => 20.0, 'max_beds' => 80.0]),
+            new AnalysisResultRow('b', 'B', null, null, ['min_beds' => 10.0, 'max_beds' => 120.0]),
+        ];
+
+        $totals = $this->calculator->calculate($rows, [
+            AnalysisMetricKey::MinBeds,
+            AnalysisMetricKey::MaxBeds,
+        ]);
+
+        self::assertSame(10.0, $totals->grandFor(AnalysisMetricKey::MinBeds));
+        self::assertSame(120.0, $totals->grandFor(AnalysisMetricKey::MaxBeds));
+    }
 }

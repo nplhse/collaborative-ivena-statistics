@@ -155,4 +155,58 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
         );
         self::assertSame('all', $invalidTab->activeTab);
     }
+
+    public function testCreateSortsCardsAlphabeticallyByTitle(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $page = $this->factory->create(Request::create('/statistics/analysis/library', Request::METHOD_GET), $user);
+
+        $titles = array_map(static fn (array $card): string => $card['title'], $page->cards);
+
+        for ($index = 1, $count = \count($titles); $index < $count; ++$index) {
+            self::assertLessThanOrEqual(0, strcasecmp($titles[$index - 1], $titles[$index]));
+        }
+    }
+
+    public function testCreateFiltersCardsBySearchInTitleAndDescription(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $page = $this->factory->create(
+            Request::create(
+                '/statistics/analysis/library?'.ExplorerLibraryQueryKeys::SEARCH.'=gender',
+                Request::METHOD_GET,
+            ),
+            $user,
+        );
+
+        self::assertSame('gender', $page->searchQuery);
+        self::assertNotEmpty($page->cards);
+        foreach ($page->cards as $card) {
+            $haystack = mb_strtolower($card['title']."\n".$card['description']);
+            self::assertStringContainsString('gender', $haystack);
+        }
+
+        $noMatch = $this->factory->create(
+            Request::create(
+                '/statistics/analysis/library?'.ExplorerLibraryQueryKeys::SEARCH.'=zzznomatchzzz',
+                Request::METHOD_GET,
+            ),
+            $user,
+        );
+        self::assertSame([], $noMatch->cards);
+    }
+
+    public function testCreatePreservesSearchInTabUrls(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $page = $this->factory->create(
+            Request::create(
+                '/statistics/analysis/library?'.ExplorerLibraryQueryKeys::SEARCH.'=tier',
+                Request::METHOD_GET,
+            ),
+            $user,
+        );
+
+        self::assertStringContainsString(ExplorerLibraryQueryKeys::SEARCH.'=tier', $page->tabs[1]['url']);
+    }
 }

@@ -10,6 +10,7 @@ final class ExplorerEditFormData
 {
     public function __construct(
         public StatisticsScopePeriodFormData $scopePeriod = new StatisticsScopePeriodFormData(),
+        public string $dataSource = 'allocations',
         public string $rowDimension = 'time',
         public ?string $rowGrain = 'month',
         public ?string $columnDimension = null,
@@ -19,6 +20,9 @@ final class ExplorerEditFormData
         public string $chartType = 'bar',
         public string $tableLayout = 'flat',
         public string $chartRowLimit = 'all',
+        public string $hospitalPopulation = 'participating',
+        /** @var list<string> */
+        public array $additionalTableMetrics = [],
     ) {
     }
 }
