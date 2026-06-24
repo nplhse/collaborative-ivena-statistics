@@ -84,4 +84,42 @@ final class GenericHospitalDistributionSqlBuilderTest extends TestCase
 
         self::assertStringContainsString('h.is_participating = true', $sql);
     }
+
+    public function testBuildsMedianTransportTimePerHospitalDistribution(): void
+    {
+        [$sql, $params] = $this->builder->build(
+            new AnalysisQuery(
+                primaryDimensionKey: 'hospital_tier',
+                scopeCriteria: StatisticsScopeCriteria::public(),
+                periodBounds: new StatisticsPeriodBounds(null),
+                dataSource: AnalysisDataSource::Hospitals,
+            ),
+            ExplorerDistributionValueSource::HospitalMedianTransportTime,
+        );
+
+        self::assertStringContainsString('alloc.median_transport::DOUBLE PRECISION AS value', $sql);
+        self::assertStringContainsString('PERCENTILE_CONT(0.5)', $sql);
+        self::assertStringContainsString('arrival_at IS NOT NULL', $sql);
+        self::assertSame([], $params);
+    }
+
+    public function testBuildsBedsDistributionWithSeriesAndCompareMode(): void
+    {
+        [$sql] = $this->builder->build(
+            new AnalysisQuery(
+                primaryDimensionKey: 'hospital_tier',
+                scopeCriteria: StatisticsScopeCriteria::public(),
+                periodBounds: new StatisticsPeriodBounds(null),
+                seriesDimensionKey: 'hospital_population_group',
+                dataSource: AnalysisDataSource::Hospitals,
+                hospitalPopulationMode: HospitalPopulationMode::Compare,
+            ),
+            ExplorerDistributionValueSource::HospitalBeds,
+        );
+
+        self::assertStringContainsString('g.population_group AS series', $sql);
+        self::assertStringContainsString('CROSS JOIN (VALUES', $sql);
+        self::assertStringContainsString('h.is_participating = true', $sql);
+        self::assertStringContainsString('ORDER BY bucket, series', $sql);
+    }
 }
