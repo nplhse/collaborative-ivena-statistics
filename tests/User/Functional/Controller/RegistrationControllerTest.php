@@ -12,6 +12,7 @@ use App\User\Domain\Factory\UserFactory;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Mime\Email;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
@@ -210,5 +211,28 @@ final class RegistrationControllerTest extends WebTestCase
 
         \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertTrue($user->isVerified());
+    }
+
+    public function testRegistrationPasswordFieldHasAccessibleVisibilityToggle(): void
+    {
+        $this->browser()
+            ->visit('/register')
+            ->assertSuccessful()
+            ->assertSeeElement('input[name="registration_form[plainPassword]"][type="password"]')
+            ->assertSeeElement('[data-testid="password-toggle-registration_form_plainPassword"]')
+            ->use(static function (Crawler $crawler): void {
+                $input = $crawler->filter('input[name="registration_form[plainPassword]"]');
+                $toggle = $crawler->filter('[data-testid="password-toggle-registration_form_plainPassword"]');
+
+                self::assertSame('registration_form[plainPassword]', $input->attr('name'));
+                self::assertNull($input->attr('autocomplete'));
+                self::assertSame('password', $input->attr('type'));
+                self::assertSame('button', $toggle->attr('type'));
+                self::assertSame('false', $toggle->attr('aria-pressed'));
+                self::assertSame('registration_form_plainPassword', $toggle->attr('aria-controls'));
+                self::assertNotEmpty($toggle->attr('aria-label'));
+                self::assertSame('Show password', $toggle->attr('aria-label'));
+            })
+        ;
     }
 }
