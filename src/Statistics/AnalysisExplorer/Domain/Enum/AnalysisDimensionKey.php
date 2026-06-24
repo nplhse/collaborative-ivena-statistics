@@ -21,6 +21,7 @@ enum AnalysisDimensionKey: string
     case Weekday = 'weekday';
     case Hour = 'hour';
     case TransportType = 'transport_type';
+    case TransportTimeBucket = 'transport_time_bucket';
     case DayTimeBucket = 'day_time_bucket';
     case ShiftBucket = 'shift_bucket';
     case Resus = 'resus';
@@ -31,6 +32,7 @@ enum AnalysisDimensionKey: string
     case WorkAccident = 'workAccident';
     case Pregnancy = 'pregnancy';
     case WithPhysician = 'with_physician';
+    case PeriodTotal = 'period_total';
     case Hospital = 'hospital';
     case State = 'state';
     case DispatchArea = 'dispatchArea';
@@ -78,6 +80,7 @@ enum AnalysisDimensionKey: string
             self::Weekday,
             self::Hour,
             self::TransportType,
+            self::TransportTimeBucket,
             self::DayTimeBucket,
             self::ShiftBucket,
             self::Resus,
@@ -88,6 +91,7 @@ enum AnalysisDimensionKey: string
             self::WorkAccident,
             self::Pregnancy,
             self::WithPhysician,
+            self::PeriodTotal,
             self::Hospital,
             self::State,
             self::DispatchArea,

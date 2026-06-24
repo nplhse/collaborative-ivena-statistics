@@ -196,6 +196,17 @@ final class MetricRegistry
         $this->registerBooleanRateMetric('pregnancy_rate', 'Pregnancy rate', 'is_pregnant', 45);
         $this->registerBooleanRateMetric('work_accident_rate', 'Work accident rate', 'is_work_accident', 46);
         $this->registerBooleanRateMetric('with_physician_rate', 'Physician accompaniment rate', 'is_with_physician', 47);
+        $this->register(new MetricDefinition(
+            key: 'infection_rate',
+            label: 'Infection rate',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            sqlSelectExpression: '(COUNT(*) FILTER (WHERE infection_id IS NOT NULL)::DOUBLE PRECISION / NULLIF(COUNT(*), 0) * 100)::DOUBLE PRECISION AS infection_rate',
+            sourceColumn: 'infection_id',
+            defaultFormat: MetricFormat::Percent,
+            defaultPrecision: 1,
+            sortPriority: 48,
+        ));
     }
 
     private function registerHospitalMetrics(): void

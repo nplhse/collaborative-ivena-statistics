@@ -13,6 +13,7 @@ use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsShiftBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
@@ -85,6 +86,16 @@ SQL;
         $this->register($this->temporalDimension('quarter', 'created_quarter', 'Quarter', [1, 2, 3, 4]));
         $this->register($this->temporalDimension('month', 'created_month', 'Month', range(1, 12)));
         $this->register($this->temporalDimension('week', 'created_week', 'Calendar week', range(1, 53)));
+        $this->register(new AnalysisDimension(
+            key: 'period_total',
+            column: '',
+            label: 'Total',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: "'total'",
+            fixedBuckets: ['total'],
+            valueLabels: ['total' => 'Total'],
+            dataSource: AnalysisDataSource::Allocations,
+        ));
         $this->register(new AnalysisDimension(
             key: 'weekday',
             column: 'created_weekday',
@@ -184,6 +195,7 @@ SQL;
         $this->register($this->transportTypeDimension());
         $this->register($this->dayTimeBucketDimension());
         $this->register($this->shiftBucketDimension());
+        $this->register($this->transportTimeBucketDimension());
 
         $boolean = static fn (string $key, string $column, string $label): AnalysisDimension => new AnalysisDimension(
             key: $key,
@@ -387,6 +399,26 @@ SQL;
             recommendedChartType: 'bar',
             fixedBuckets: $fixedBuckets,
             valueLabelTranslationKeys: $translationKeys,
+        );
+    }
+
+    private function transportTimeBucketDimension(): AnalysisDimension
+    {
+        $translationKeys = [];
+        foreach (StatisticsTransportTimeBucketSql::DISPLAY_BUCKET_KEYS as $bucketKey) {
+            $translationKeys[$bucketKey] = 'statistics.distribution.transport_time_bucket.'.$bucketKey;
+        }
+
+        return new AnalysisDimension(
+            key: 'transport_time_bucket',
+            column: 'transport_time_minutes',
+            label: 'Transport time bucket',
+            type: AnalysisDimensionType::Categorical,
+            recommendedChartType: 'bar',
+            sqlExpression: StatisticsTransportTimeBucketSql::CASE_EXPRESSION,
+            fixedBuckets: StatisticsTransportTimeBucketSql::DISPLAY_BUCKET_KEYS,
+            valueLabelTranslationKeys: $translationKeys,
+            nullBucketKeys: ['unknown'],
         );
     }
 

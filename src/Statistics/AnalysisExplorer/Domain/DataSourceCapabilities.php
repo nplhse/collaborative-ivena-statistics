@@ -60,6 +60,10 @@ final readonly class DataSourceCapabilities
             return [ChartPresentationType::BoxPlot];
         }
 
+        if ($this->usesMultiMetricComparisonChart($config)) {
+            return [ChartPresentationType::GroupedBar];
+        }
+
         if ($this->usesMultiSeriesChart($config)) {
             return [
                 ChartPresentationType::GroupedBar,
@@ -76,6 +80,10 @@ final readonly class DataSourceCapabilities
     {
         if ($config->visualMetricKey->isDistributionProfile()) {
             return ChartPresentationType::BoxPlot;
+        }
+
+        if ($this->usesMultiMetricComparisonChart($config)) {
+            return ChartPresentationType::GroupedBar;
         }
 
         if ($this->usesMultiSeriesChart($config)) {
@@ -120,6 +128,16 @@ final readonly class DataSourceCapabilities
 
         return AnalysisDataSourceKey::Hospitals === $config->dataSourceKey
             && ExplorerHospitalPopulationMode::Compare === $config->hospitalPopulationMode;
+    }
+
+    public function usesMultiMetricComparisonChart(AnalysisViewConfig $config): bool
+    {
+        if ($config->hasColumnAxis()) {
+            return false;
+        }
+
+        return \count($config->metricKeys) > 1
+            && AnalysisDimensionKey::PeriodTotal === $config->rowAxis->dimensionKey;
     }
 
     public function supportsAxis(AnalysisAxisRef $axis): bool
