@@ -42,4 +42,42 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
             ['label' => 'Urgency', 'value' => 'Emergency Care'],
         ], $badges);
     }
+
+    public function testPresentsAgeGroupInfectionAndBooleanNo(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $key): string => match ($key) {
+            'label.age_group' => 'Age group',
+            'label.infection' => 'Infection',
+            'label.is_cpr' => 'CPR',
+            'label.urgency' => 'Urgency',
+            'label.yes' => 'Yes',
+            'label.no' => 'No',
+            'allocation.urgency.2' => 'Inpatient care',
+            default => $key,
+        });
+
+        $presenter = new StatisticsDrawerFilterBadgePresenter($translator);
+
+        $badges = $presenter->present(
+            [
+                'age_group' => 'under_18',
+                'infection' => '5',
+                'isCPR' => '0',
+                'urgency' => '2',
+                'department' => '',
+            ],
+            [
+                'age_group' => ['under_18' => 'Under 18'],
+                'infection' => [5 => 'MRSA'],
+            ],
+        );
+
+        self::assertSame([
+            ['label' => 'Age group', 'value' => 'Under 18'],
+            ['label' => 'CPR', 'value' => 'No'],
+            ['label' => 'Infection', 'value' => 'MRSA'],
+            ['label' => 'Urgency', 'value' => 'Inpatient care'],
+        ], $badges);
+    }
 }

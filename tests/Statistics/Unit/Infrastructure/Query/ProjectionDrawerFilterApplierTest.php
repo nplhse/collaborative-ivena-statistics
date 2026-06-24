@@ -57,6 +57,62 @@ final class ProjectionDrawerFilterApplierTest extends TestCase
         ));
     }
 
+    public function testAppliesDemographicAndAllocationFilters(): void
+    {
+        $qb = $this->createQueryBuilderMock();
+        $qb->expects(self::exactly(5))
+            ->method('andWhere')
+            ->willReturnSelf();
+        $qb->expects(self::exactly(4))
+            ->method('setParameter')
+            ->willReturnSelf();
+
+        $this->applier->apply($qb, new StatisticsDrawerFilter(
+            gender: 2,
+            urgency: 1,
+            ageGroup: StatisticsAgeGroupFilter::OVER_80,
+            department: 10,
+            speciality: 3,
+        ));
+    }
+
+    public function testAppliesRemainingClinicalFlagsAndInfectionId(): void
+    {
+        $qb = $this->createQueryBuilderMock();
+        $qb->expects(self::exactly(8))
+            ->method('andWhere')
+            ->willReturnCallback(function (string $condition) use ($qb): QueryBuilder {
+                static $calls = 0;
+                match ($calls++) {
+                    0 => self::assertSame('p.requiresCathlab = :drawerRequiresCathlab', $condition),
+                    1 => self::assertSame('p.isVentilated = :drawerIsVentilated', $condition),
+                    2 => self::assertSame('p.isShock = :drawerIsShock', $condition),
+                    3 => self::assertSame('p.isCpr = :drawerIsCpr', $condition),
+                    4 => self::assertSame('p.isPregnant = :drawerIsPregnant', $condition),
+                    5 => self::assertSame('p.isWorkAccident = :drawerIsWorkAccident', $condition),
+                    6 => self::assertSame('p.infectionId IS NULL', $condition),
+                    7 => self::assertSame('p.infectionId = :drawerInfectionId', $condition),
+                    default => self::fail('Unexpected andWhere call'),
+                };
+
+                return $qb;
+            });
+        $qb->expects(self::exactly(7))
+            ->method('setParameter')
+            ->willReturnSelf();
+
+        $this->applier->apply($qb, new StatisticsDrawerFilter(
+            requiresCathlab: true,
+            isVentilated: false,
+            isShock: true,
+            isCpr: false,
+            isPregnant: true,
+            isWorkAccident: false,
+            isInfectious: false,
+            infection: 42,
+        ));
+    }
+
     /**
      * @return QueryBuilder&MockObject
      */

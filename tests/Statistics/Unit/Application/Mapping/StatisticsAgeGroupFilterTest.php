@@ -15,6 +15,13 @@ final class StatisticsAgeGroupFilterTest extends TestCase
         self::assertContains(StatisticsAgeGroupFilter::OVER_80, StatisticsAgeGroupFilter::AGGREGATE_KEYS);
     }
 
+    public function testIsAggregate(): void
+    {
+        self::assertTrue(StatisticsAgeGroupFilter::isAggregate(StatisticsAgeGroupFilter::UNDER_18));
+        self::assertTrue(StatisticsAgeGroupFilter::isAggregate(StatisticsAgeGroupFilter::OVER_80));
+        self::assertFalse(StatisticsAgeGroupFilter::isAggregate('30_39'));
+    }
+
     public function testSqlConditionForAggregateBuckets(): void
     {
         self::assertSame(
@@ -32,6 +39,14 @@ final class StatisticsAgeGroupFilterTest extends TestCase
         self::assertSame(
             'p.age >= 30 AND p.age <= 39',
             StatisticsAgeGroupFilter::sqlCondition('p.age', '30_39'),
+        );
+        self::assertSame(
+            'p.age IS NOT NULL AND p.age <= 18',
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_18'),
+        );
+        self::assertSame(
+            'p.age >= 90 AND p.age <= 99',
+            StatisticsAgeGroupFilter::sqlCondition('p.age', '90_99'),
         );
     }
 
