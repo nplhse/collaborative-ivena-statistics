@@ -233,6 +233,14 @@
         <source>help.blog.published_at</source>
         <target>Only published posts with a timestamp in the past become publicly visible.</target>
       </trans-unit>
+      <trans-unit id="bloga023" resname="help.blog.slug">
+        <source>help.blog.slug</source>
+        <target>Leave empty to generate automatically from the title.</target>
+      </trans-unit>
+      <trans-unit id="pagea001" resname="help.page.slug">
+        <source>help.page.slug</source>
+        <target>Leave empty to generate automatically from the title.</target>
+      </trans-unit>
       <trans-unit id="kpi001" resname="kpi.section.title">
         <source>kpi.section.title</source>
         <target>Key metrics (last 30 days)</target>

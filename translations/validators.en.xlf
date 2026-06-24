@@ -721,6 +721,14 @@
         <source>page.validation.slug_format</source>
         <target>The slug may only contain lowercase letters, numbers, and hyphens.</target>
       </trans-unit>
+      <trans-unit id="postv001" resname="post.validation.slug_format">
+        <source>post.validation.slug_format</source>
+        <target>The slug may only contain lowercase letters, numbers, and hyphens.</target>
+      </trans-unit>
+      <trans-unit id="postv002" resname="post.validation.slug_unique">
+        <source>post.validation.slug_unique</source>
+        <target>This slug is already in use by another post.</target>
+      </trans-unit>
       <trans-unit id="pagev004" resname="page.validation.parent_not_self">
         <source>page.validation.parent_not_self</source>
         <target>A page cannot be its own parent.</target>

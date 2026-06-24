@@ -5,25 +5,30 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Blog;
 
 use App\Content\Application\Blog\PostContentSanitizer;
+use App\Content\Application\Blog\PostSlugResolver;
 use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
-use App\Content\Infrastructure\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -33,7 +38,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class PostCrudController extends AbstractCrudController
 {
     public function __construct(
-        private readonly PostRepository $postRepository,
+        private readonly PostSlugResolver $postSlugResolver,
         private readonly TranslatorInterface $translator,
         private readonly PostContentSanitizer $postContentSanitizer,
         private readonly MediaLibraryAdminUrlProvider $mediaLibraryAdminUrlProvider,
@@ -75,7 +80,10 @@ final class PostCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->onlyOnDetail();
         yield TextField::new('title', 'label.title');
-        yield TextField::new('slug', 'label.slug')->setDisabled()->hideOnIndex();
+        yield TextField::new('slug', 'label.slug')
+            ->setRequired(false)
+            ->setHelp('help.blog.slug')
+            ->hideOnIndex();
         yield AssociationField::new('category', 'label.category');
         yield AssociationField::new('tags', 'label.tags')->autocomplete()->hideOnIndex();
         yield ChoiceField::new('status', 'label.status')
@@ -101,6 +109,32 @@ final class PostCrudController extends AbstractCrudController
         yield DateTimeField::new('updatedAt', 'label.updated')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
     }
 
+    /**
+     * @return FormBuilderInterface<Post>
+     */
+    #[\Override]
+    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
+        $this->addSlugResolutionListener($builder);
+
+        return $builder;
+    }
+
+    /**
+     * @return FormBuilderInterface<Post>
+     */
+    #[\Override]
+    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
+        $this->addSlugResolutionListener($builder);
+
+        return $builder;
+    }
+
     #[\Override]
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
@@ -108,9 +142,7 @@ final class PostCrudController extends AbstractCrudController
             return;
         }
 
-        $this->ensurePublishDataConsistency($entityInstance);
-        $entityInstance->setSlug($this->buildUniqueSlug($entityInstance, null));
-        $entityInstance->setContent($this->postContentSanitizer->sanitize((string) $entityInstance->getContent()));
+        $this->preparePost($entityInstance, null);
 
         parent::persistEntity($entityManager, $entityInstance);
     }
@@ -122,11 +154,35 @@ final class PostCrudController extends AbstractCrudController
             return;
         }
 
-        $this->ensurePublishDataConsistency($entityInstance);
-        $entityInstance->setSlug($this->buildUniqueSlug($entityInstance, $entityInstance->getId()));
-        $entityInstance->setContent($this->postContentSanitizer->sanitize((string) $entityInstance->getContent()));
+        $this->preparePost($entityInstance, $entityInstance->getId());
 
         parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    /**
+     * @param FormBuilderInterface<Post> $builder
+     */
+    private function addSlugResolutionListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $post = $event->getData();
+            if (!$post instanceof Post) {
+                return;
+            }
+
+            if ('' === trim((string) $post->getTitle())) {
+                return;
+            }
+
+            $this->postSlugResolver->resolve($post, $post->getId());
+        }, 512);
+    }
+
+    private function preparePost(Post $post, ?int $excludeId): void
+    {
+        $this->ensurePublishDataConsistency($post);
+        $this->postSlugResolver->resolve($post, $excludeId);
+        $post->setContent($this->postContentSanitizer->sanitize((string) $post->getContent()));
     }
 
     private function ensurePublishDataConsistency(Post $post): void
@@ -134,21 +190,6 @@ final class PostCrudController extends AbstractCrudController
         if (PostStatus::PUBLISHED === $post->getStatus() && !$post->getPublishedAt() instanceof \DateTimeImmutable) {
             $post->setPublishedAt(new \DateTimeImmutable('now'));
         }
-    }
-
-    private function buildUniqueSlug(Post $post, ?int $excludeId): string
-    {
-        $title = (string) $post->getTitle();
-        $base = strtolower(new AsciiSlugger()->slug($title)->toString());
-        $candidate = $base;
-        $counter = 2;
-
-        while ($this->postRepository->slugExists($candidate, $excludeId)) {
-            $candidate = $base.'-'.$counter;
-            ++$counter;
-        }
-
-        return $candidate;
     }
 
     private function buildContentHelp(): string
