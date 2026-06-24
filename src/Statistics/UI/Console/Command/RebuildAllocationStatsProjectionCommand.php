@@ -10,7 +10,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -18,22 +17,19 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'app:statistics:rebuild-projection',
     description: 'Rebuild allocation_stats_projection from existing allocations.',
 )]
-final class RebuildAllocationStatsProjectionCommand extends Command
+final readonly class RebuildAllocationStatsProjectionCommand
 {
     private const int GC_EVERY_N_IMPORTS = 25;
 
     public function __construct(
-        private readonly Connection $connection,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly AllocationStatsProjectionRebuildInterface $rebuilder,
+        private Connection $connection,
+        private EntityManagerInterface $entityManager,
+        private AllocationStatsProjectionRebuildInterface $rebuilder,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(SymfonyStyle $io, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
         $io->title('Rebuilding allocation_stats_projection');
 
         $startedAt = microtime(true);
