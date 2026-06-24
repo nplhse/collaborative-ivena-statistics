@@ -16,6 +16,8 @@ enum AnalysisMetricKey: string
     case PregnancyRate = 'pregnancy_rate';
     case WorkAccidentRate = 'work_accident_rate';
     case WithPhysicianRate = 'with_physician_rate';
+    case PrevalenceRate = 'prevalence_rate';
+    case InfectionRate = 'infection_rate';
     case MeanTransportTime = 'mean_transport_time';
     case MedianTransportTime = 'median_transport_time';
     case P25TransportTime = 'p25_transport_time';
@@ -63,7 +65,9 @@ enum AnalysisMetricKey: string
             self::CathlabRate,
             self::PregnancyRate,
             self::WorkAccidentRate,
-            self::WithPhysicianRate => ExplorerMetricCategory::Rate,
+            self::WithPhysicianRate,
+            self::PrevalenceRate,
+            self::InfectionRate => ExplorerMetricCategory::Rate,
             self::MeanTransportTime,
             self::MedianTransportTime,
             self::P25TransportTime,
@@ -115,6 +119,8 @@ enum AnalysisMetricKey: string
             self::PregnancyRate,
             self::WorkAccidentRate,
             self::WithPhysicianRate,
+            self::PrevalenceRate,
+            self::InfectionRate,
             self::MeanTransportTime,
             self::MedianTransportTime,
             self::P25TransportTime,

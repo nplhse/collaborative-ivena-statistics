@@ -26,11 +26,15 @@ This document records product decisions from the chart inventory (Overview, Indi
 
 | Slug | Dimension | Replaces / complements |
 |------|-----------|------------------------|
-| `resus-distribution` | `resus` | Overview clinical resources |
-| `cathlab-distribution` | `cathlab` | Overview clinical resources |
-| `cpr-distribution` | `cpr` | Overview clinical features |
-| `ventilation-distribution` | `ventilation` | Overview clinical features |
-| `shock-distribution` | `shock` | Overview clinical features |
+| `overview-clinical-resources` | `clinical_resources` | Overview clinical resources (prevalence rate bar chart) |
+| `overview-clinical-features` | `clinical_features` | Overview clinical features (prevalence rate bar chart) |
+| `clinical-resources-by-gender` | `clinical_resources` × `gender` | Grouped comparison example |
+| `clinical-features-by-urgency` | `clinical_features` × `urgency` | Grouped comparison example |
+| `resus-distribution` | `resus` | Single-indicator yes/no breakdown |
+| `cathlab-distribution` | `cathlab` | Single-indicator yes/no breakdown |
+| `cpr-distribution` | `cpr` | Single-indicator yes/no breakdown |
+| `ventilation-distribution` | `ventilation` | Single-indicator yes/no breakdown |
+| `shock-distribution` | `shock` | Single-indicator yes/no breakdown |
 
 (`with-physician-distribution` already existed.)
 
@@ -68,7 +72,7 @@ Legend: **Link** = replace chart with library deep-link; **Keep** = stay bespoke
 | Age groups bar | `age-group-distribution` | **Link** |
 | Transport time buckets bar | — (gap: no `transport_time_bucket` dimension) | **Keep** until bucket dimension or stat metric |
 | Gender / urgency progress | `gender-distribution`, `urgency-distribution` | **Link** (optional embed) |
-| Clinical resources / features | `resus-distribution`, `cathlab-distribution`, `cpr-distribution`, … | **Link** after phase 1 seeds |
+| Clinical resources / features | `overview-clinical-resources`, `overview-clinical-features` | **Link** (dimensions-based prevalence charts) |
 | Transport type progress | `transport-type-distribution` | **Link** |
 | Top reports tables | `allocations-by-department`, `allocations-by-speciality`, … | **Link** with `chartRowLimit=top_10` where useful |
 | Executive KPIs, hospital insights | — | **Keep** |

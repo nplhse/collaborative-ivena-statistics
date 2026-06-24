@@ -21,7 +21,11 @@
             {% set transportTimeValues = transportTimeValues|merge([row.count]) %}
         {% endfor %}
         <div class="card-header py-2">
-            <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans }}</h3>
+            {{ include('@Statistics/dashboard/_linked_card_title.html.twig', {
+                link: overviewPortalLinks.transportTime[0] ?? null,
+                test_id: 'stats-cross-nav-overview-transport-time',
+                title: 'stats.indication.section.transport_time',
+            }) }}
         </div>
         <div class="card-body">
             <div class="chart-sm"

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Application;
 
+use App\Statistics\Application\Mapping\ClinicalIndicatorDefinitions;
 use App\Statistics\GenericAnalysis\Application\DTO\MetricCompatibilityResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
@@ -50,6 +51,15 @@ final readonly class MetricCompatibilityChecker
 
         if (MetricComputationKind::InferentialStub === $metric->computationKind) {
             return MetricCompatibilityResult::denied('Metric is not implemented yet.');
+        }
+
+        if ('prevalence_rate' === $metric->key) {
+            if (!ClinicalIndicatorDefinitions::isUnpivotDimension($query->primaryDimensionKey)
+                && !ClinicalIndicatorDefinitions::isUnpivotDimension((string) $query->seriesDimensionKey)) {
+                return MetricCompatibilityResult::denied('Prevalence rate requires a clinical indicator dimension.');
+            }
+
+            return MetricCompatibilityResult::allowed();
         }
 
         if ($metric->key === $query->dataSource->distributionBaseMetricKey()) {

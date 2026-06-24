@@ -121,7 +121,10 @@ final readonly class HospitalSummaryProvider
                         new StatisticWidgetNavigationTarget(
                             'stats.nav.overview_urgency_to_analysis',
                             'app_stats_analysis_explorer_view',
-                            ['view' => $this->legacyViewMapper->slugForLegacyViewKey('urgency_by_month')],
+                            [
+                                'view' => $this->legacyViewMapper->slugForLegacyViewKey('urgency_by_month'),
+                                'period' => 'all_time',
+                            ],
                             self::ANALYTICS_REMOVE_KEYS,
                         ),
                     ],

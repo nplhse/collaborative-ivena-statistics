@@ -64,7 +64,7 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
 
         self::assertSame('Total allocations', $card['dimension']);
         self::assertSame('Month', $card['grain']);
-        self::assertSame('Bar chart', $card['chartType']);
+        self::assertSame('Line chart', $card['chartType']);
         self::assertTrue($card['isSystem']);
         self::assertSame('allocations', $card['categoryKey']);
         self::assertSame('Allocations', $card['categoryLabel']);

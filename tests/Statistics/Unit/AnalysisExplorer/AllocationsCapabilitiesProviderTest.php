@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -116,6 +118,50 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
             ),
             title: 'Test',
         );
+    }
+
+    public function testChartTypesForClinicalResourcesUseBarAndGroupedBarWithColumnAxis(): void
+    {
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
+        $singleSeriesConfig = new \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::PrevalenceRate],
+            visualMetricKey: AnalysisMetricKey::PrevalenceRate,
+            rowAxis: \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::ClinicalResources),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
+                chartType: ChartPresentationType::Bar,
+            ),
+            title: 'Clinical resources overview',
+        );
+        $groupedConfig = $singleSeriesConfig->withAxes(
+            \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::ClinicalResources),
+            \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+        )->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
+            chartType: ChartPresentationType::GroupedBar,
+        ));
+
+        self::assertSame(
+            [ChartPresentationType::Bar, ChartPresentationType::Line],
+            $capabilities->chartTypesFor($singleSeriesConfig),
+        );
+        self::assertSame(
+            [
+                ChartPresentationType::GroupedBar,
+                ChartPresentationType::StackedBar,
+                ChartPresentationType::Line,
+                ChartPresentationType::Heatmap,
+            ],
+            $capabilities->chartTypesFor($groupedConfig),
+        );
+        self::assertContains(AnalysisDimensionKey::ClinicalResources, $capabilities->dimensions);
+        self::assertContains(AnalysisDimensionKey::ClinicalFeatures, $capabilities->dimensions);
     }
 
     public function testScopedCapabilitiesExcludeHospitalOnPublicScope(): void

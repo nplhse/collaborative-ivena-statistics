@@ -191,4 +191,40 @@ final class ExplorerChartPresenterTest extends TestCase
         self::assertSame('Male', $specs['box_plot']['series'][0]['name']);
         self::assertSame('Urgent', $specs['box_plot']['series'][0]['data'][0]['x']);
     }
+
+    public function testBuildsClinicalResourcesPrevalenceBarSpec(): void
+    {
+        $presenter = $this->createExplorerChartPresenter();
+        $result = new AnalysisRunResult(
+            title: 'Clinical resources overview',
+            metricKeys: [AnalysisMetricKey::PrevalenceRate],
+            visualMetricKey: AnalysisMetricKey::PrevalenceRate,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::ClinicalResources),
+            columnAxis: null,
+            rows: [
+                new AnalysisResultRow(
+                    bucket: 'resus',
+                    bucketLabel: 'Resuscitation required',
+                    seriesKey: null,
+                    seriesLabel: null,
+                    metricValues: ['prevalence_rate' => 12.5],
+                ),
+                new AnalysisResultRow(
+                    bucket: 'cathlab',
+                    bucketLabel: 'Cath lab required',
+                    seriesKey: null,
+                    seriesLabel: null,
+                    metricValues: ['prevalence_rate' => 8.0],
+                ),
+            ],
+            totals: new AnalysisTotals(grand: ['prevalence_rate' => null]),
+        );
+
+        $specs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Bar));
+
+        self::assertSame('bar', $specs['bar']['chartType']);
+        self::assertSame(['Resuscitation required', 'Cath lab required'], $specs['bar']['labels']);
+        self::assertSame([12.5, 8.0], $specs['bar']['values']);
+        self::assertTrue($specs['bar']['percentScale']);
+    }
 }
