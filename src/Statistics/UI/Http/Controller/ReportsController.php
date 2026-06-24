@@ -7,6 +7,9 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\Report\ReportDefinitionRegistry;
 use App\Statistics\Application\StatisticsContextFactory;
+use App\Statistics\Application\StatisticsDrawerFilterFactory;
+use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +28,9 @@ final class ReportsController extends AbstractController
         private readonly ReportsPagePresenter $reportsPagePresenter,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
-        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
+        private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
+        private readonly StatisticsDrawerFilterFactory $statisticsDrawerFilterFactory,
+        private readonly StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
@@ -46,7 +51,8 @@ final class ReportsController extends AbstractController
             return $this->redirectToRoute('app_stats_reports', $publicRedirect['query']);
         }
 
-        $context = $this->statisticsContextFactory->create($user, $filter);
+        $drawerFilter = $this->statisticsDrawerFilterFactory->fromRequest($request);
+        $context = $this->statisticsContextFactory->create($user, $filter, drawerFilter: $drawerFilter);
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
             'app_stats_reports',
@@ -68,7 +74,7 @@ final class ReportsController extends AbstractController
             $reportWidget,
             $this->reportDefinitionRegistry->all(),
         );
-        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
+        $statsFilterDrawer = $this->statisticsFilterDrawerViewModelFactory->create($request);
         $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create($request, 'app_stats_reports', $filter);
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
@@ -99,9 +105,12 @@ final class ReportsController extends AbstractController
             'statsUseOverviewPeriodControls' => true,
             'reportsPage' => $reportsPage,
             'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'reports', $definition->key()),
-            'statsFilterDrawerValues' => $drawerState['values'],
-            'statsActiveFilterCount' => $drawerState['activeCount'],
-            'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_reports'),
+            'statsFilterDrawer' => $statsFilterDrawer,
+            'statsFilterDrawerResetUrl' => $this->statisticsNavigationUrlBuilder->build(
+                $request,
+                'app_stats_reports',
+                removeKeys: StatisticsQueryKeys::DRAWER_FILTERS,
+            ),
         ]);
     }
 }

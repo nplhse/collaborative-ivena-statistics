@@ -2,6 +2,10 @@
 
 <div class="col-auto ms-auto d-print-none">
     <div class="btn-list">
+        {% if statsShowFilterDrawer|default(false) %}
+            {{ include('@Statistics/_filter_drawer_trigger.html.twig') }}
+        {% endif %}
+
         {% if statsShowCompareLaunchButton|default(false) %}
             <button type="button"
                     class="btn btn-outline-primary"

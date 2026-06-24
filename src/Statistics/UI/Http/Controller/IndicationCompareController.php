@@ -32,7 +32,7 @@ final class IndicationCompareController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
-        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
+        private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
         private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
         private readonly IndicationCompareChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
@@ -107,7 +107,7 @@ final class IndicationCompareController extends AbstractController
             'app_stats_indication_compare',
             $filter,
         );
-        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
+        $statsFilterDrawer = $this->statisticsFilterDrawerViewModelFactory->create($request);
 
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
@@ -144,8 +144,7 @@ final class IndicationCompareController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
-            'statsFilterDrawerValues' => $drawerState['values'],
-            'statsActiveFilterCount' => $drawerState['activeCount'],
+            'statsFilterDrawer' => $statsFilterDrawer,
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_indication_compare', $compareQueryParams),
             'statsShowCompareEditButton' => true,
         ]);

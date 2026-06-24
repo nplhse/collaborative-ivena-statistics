@@ -13,7 +13,7 @@ use App\Statistics\CaseFlow\Application\CaseFlowModeResolver;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowCriteria;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
-use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerStateFactory;
+use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -35,7 +35,7 @@ final class CaseFlowController extends AbstractController
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
-        private readonly StatisticsFilterDrawerStateFactory $statisticsFilterDrawerStateFactory,
+        private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
         private readonly CaseFlowChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
     ) {
@@ -78,7 +78,7 @@ final class CaseFlowController extends AbstractController
             'app_stats_case_flow',
             $filter,
         );
-        $drawerState = $this->statisticsFilterDrawerStateFactory->fromRequest($request);
+        $statsFilterDrawer = $this->statisticsFilterDrawerViewModelFactory->create($request);
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
             $user,
@@ -108,8 +108,7 @@ final class CaseFlowController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
-            'statsFilterDrawerValues' => $drawerState['values'],
-            'statsActiveFilterCount' => $drawerState['activeCount'],
+            'statsFilterDrawer' => $statsFilterDrawer,
             'statsFilterDrawerResetUrl' => $this->generateUrl('app_stats_case_flow'),
         ]);
     }
