@@ -9,7 +9,6 @@ use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
-use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
@@ -43,9 +42,7 @@ final readonly class ExplorerChartPresenter
                 ChartPresentationType::Heatmap => $this->buildHeatmapSpec($result, $presentation),
                 default => $this->buildMultiSeriesSpec($result, $presentation),
             }
-        : ($this->isMetricComparisonChart($result, $presentation)
-            ? $this->buildMetricComparisonSpec($result)
-            : $this->buildSingleSeriesSpec($result, $presentation));
+        : $this->buildSingleSeriesSpec($result, $presentation);
 
         return [
             $presentation->chartType->value => $spec,
@@ -60,45 +57,6 @@ final readonly class ExplorerChartPresenter
     public function hasChart(AnalysisRunResult $result): bool
     {
         return [] !== $result->rows;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildMetricComparisonSpec(AnalysisRunResult $result): array
-    {
-        $row = $result->rows[0] ?? null;
-        $labels = [];
-        $values = [];
-
-        foreach ($result->metricKeys as $metricKey) {
-            $labels[] = $this->metricLabel($metricKey);
-            $values[] = $row instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow
-                ? $row->visualValue($metricKey)
-                : $result->totalFor($metricKey);
-        }
-
-        $visualMetricKey = $result->visualMetricKey;
-
-        return [
-            'chartType' => 'bar',
-            'labels' => $labels,
-            'values' => $values,
-            'counts' => $values,
-            'barGrouped' => true,
-            'valueLabel' => $this->metricLabel($visualMetricKey),
-            'valueFormat' => $this->metricFormat($visualMetricKey),
-            'percentScale' => 'percent' === $this->metricFormat($visualMetricKey),
-            'xAxisLabel' => $this->translator->trans('stats.analysis_explorer.metric_comparison.axis'),
-            'yAxisLabel' => $this->metricLabel($visualMetricKey),
-        ];
-    }
-
-    private function isMetricComparisonChart(AnalysisRunResult $result, PresentationConfig $presentation): bool
-    {
-        return ChartPresentationType::GroupedBar === $presentation->chartType
-            && \count($result->metricKeys) > 1
-            && AnalysisDimensionKey::PeriodTotal === $result->rowAxis->dimensionKey;
     }
 
     /**

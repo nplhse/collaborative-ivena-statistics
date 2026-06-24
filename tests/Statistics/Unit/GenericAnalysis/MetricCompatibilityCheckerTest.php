@@ -75,4 +75,17 @@ final class MetricCompatibilityCheckerTest extends TestCase
 
         self::assertSame('count', $definitions[0]->key);
     }
+
+    public function testPrevalenceRateAllowedWhenClinicalDimensionIsSeries(): void
+    {
+        $query = GenericAnalysisTestFixtures::defaultQuery(
+            'gender',
+            'clinical_resources',
+            ['prevalence_rate'],
+        );
+
+        $definitions = $this->checker->resolveAndValidate($query);
+
+        self::assertSame('prevalence_rate', $definitions[0]->key);
+    }
 }

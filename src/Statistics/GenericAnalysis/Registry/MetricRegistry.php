@@ -197,6 +197,15 @@ final class MetricRegistry
         $this->registerBooleanRateMetric('work_accident_rate', 'Work accident rate', 'is_work_accident', 46);
         $this->registerBooleanRateMetric('with_physician_rate', 'Physician accompaniment rate', 'is_with_physician', 47);
         $this->register(new MetricDefinition(
+            key: 'prevalence_rate',
+            label: 'Share of allocations',
+            metricType: MetricType::NumericAggregate,
+            computationKind: MetricComputationKind::SqlAggregate,
+            defaultFormat: MetricFormat::Percent,
+            defaultPrecision: 1,
+            sortPriority: 25,
+        ));
+        $this->register(new MetricDefinition(
             key: 'infection_rate',
             label: 'Infection rate',
             metricType: MetricType::NumericAggregate,

@@ -81,6 +81,10 @@
         <source>stats.analysis_explorer.metric.infection_rate</source>
         <target>Infektionsrate</target>
       </trans-unit>
+      <trans-unit id="statsAexM09c" resname="stats.analysis_explorer.metric.prevalence_rate">
+        <source>stats.analysis_explorer.metric.prevalence_rate</source>
+        <target>Anteil der Einsätze (%)</target>
+      </trans-unit>
       <trans-unit id="statsAexM10" resname="stats.analysis_explorer.edit.show_percent_of_total">
         <source>stats.analysis_explorer.edit.show_percent_of_total</source>
         <target>Anteil am Gesamt anzeigen</target>
@@ -573,13 +577,13 @@
         <source>stats.analysis_explorer.dimension.hour</source>
         <target>Stunde</target>
       </trans-unit>
-      <trans-unit id="statsAex107b" resname="stats.analysis_explorer.dimension.period_total">
-        <source>stats.analysis_explorer.dimension.period_total</source>
-        <target>Gesamt</target>
+      <trans-unit id="statsAex107b" resname="stats.analysis_explorer.dimension.clinical_resources">
+        <source>stats.analysis_explorer.dimension.clinical_resources</source>
+        <target>Klinische Ressourcen</target>
       </trans-unit>
-      <trans-unit id="statsAexCmpAx" resname="stats.analysis_explorer.metric_comparison.axis">
-        <source>stats.analysis_explorer.metric_comparison.axis</source>
-        <target>Metrik</target>
+      <trans-unit id="statsAex107c" resname="stats.analysis_explorer.dimension.clinical_features">
+        <source>stats.analysis_explorer.dimension.clinical_features</source>
+        <target>Klinische Merkmale</target>
       </trans-unit>
       <trans-unit id="statsNavHmHr" resname="stats.nav.overview_allocations_by_hour">
         <source>stats.nav.overview_allocations_by_hour</source>

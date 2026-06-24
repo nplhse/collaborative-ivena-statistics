@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Infrastructure\Query;
 
+use App\Statistics\Application\Mapping\ClinicalIndicatorDefinitions;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
@@ -21,6 +22,10 @@ use Doctrine\DBAL\ArrayParameterType;
  */
 final readonly class GenericAllocationAnalysisSqlBuilder
 {
+    private const string ALLOCATION_ALIAS = 'a';
+    private const string PRIMARY_UNPIVOT_ALIAS = 'i';
+    private const string SERIES_UNPIVOT_ALIAS = 'j';
+
     public function __construct(
         private DimensionRegistry $dimensionRegistry,
         private MetricRegistry $metricRegistry,
@@ -37,9 +42,23 @@ final readonly class GenericAllocationAnalysisSqlBuilder
         $series = null !== $query->seriesDimensionKey
             ? $this->dimensionRegistry->get($query->seriesDimensionKey)
             : null;
+        $primaryIsUnpivot = ClinicalIndicatorDefinitions::isUnpivotDimension($primary->key);
+        $seriesIsUnpivot = $series instanceof AnalysisDimension
+            && ClinicalIndicatorDefinitions::isUnpivotDimension($series->key);
+        $usesAllocationAlias = $primaryIsUnpivot || $seriesIsUnpivot;
 
-        $bucketExpr = $primary->selectExpression();
-        $seriesExpr = $series?->selectExpression();
+        $bucketExpr = $primaryIsUnpivot
+            ? self::PRIMARY_UNPIVOT_ALIAS.'.indicator_key'
+            : ($usesAllocationAlias ? $this->aliasedSelectExpression($primary) : $primary->selectExpression());
+        $seriesExpr = null;
+        if ($series instanceof AnalysisDimension) {
+            $seriesExpr = match (true) {
+                $primaryIsUnpivot && $seriesIsUnpivot => self::SERIES_UNPIVOT_ALIAS.'.indicator_key',
+                $seriesIsUnpivot => self::PRIMARY_UNPIVOT_ALIAS.'.indicator_key',
+                $usesAllocationAlias => $this->aliasedSelectExpression($series),
+                default => $series->selectExpression(),
+            };
+        }
 
         $selectParts = [
             sprintf('%s AS bucket', $bucketExpr),
@@ -52,6 +71,16 @@ final readonly class GenericAllocationAnalysisSqlBuilder
         }
 
         foreach ($this->sqlAggregateMetricKeys($query) as $metricKey) {
+            if ($usesAllocationAlias) {
+                $selectParts[] = match ($metricKey) {
+                    'count' => $this->unpivotCountExpression($primaryIsUnpivot, $seriesIsUnpivot),
+                    'prevalence_rate' => $this->unpivotPrevalenceRateExpression($primaryIsUnpivot, $seriesIsUnpivot),
+                    default => $this->metricRegistry->get($metricKey)->sqlSelectExpression
+                        ?? throw new \LogicException(sprintf('Metric "%s" is not supported for clinical indicator dimensions.', $metricKey)),
+                };
+                continue;
+            }
+
             $metric = $this->metricRegistry->get($metricKey);
             if (null !== $metric->sqlSelectExpression) {
                 $selectParts[] = $metric->sqlSelectExpression;
@@ -63,27 +92,32 @@ final readonly class GenericAllocationAnalysisSqlBuilder
             $query->periodBounds,
         );
 
+        if ($usesAllocationAlias) {
+            $conditions = $this->qualifyScopeConditions($conditions);
+        }
+
         $types = $this->scopeSqlFilter->parameterTypes($params);
 
         if (!$query->includeNullBuckets) {
-            $this->appendExcludeNullConditions($conditions, $params, $types, $primary);
+            $this->appendExcludeNullConditions($conditions, $params, $types, $primary, $usesAllocationAlias);
             if ($series instanceof AnalysisDimension) {
-                $this->appendExcludeNullConditions($conditions, $params, $types, $series);
+                $this->appendExcludeNullConditions($conditions, $params, $types, $series, $usesAllocationAlias);
             }
         }
 
         foreach ($query->filters as $filter) {
-            [$filterSql, $filterParams, $filterTypes] = $this->buildFilter($filter);
+            [$filterSql, $filterParams, $filterTypes] = $this->buildFilter($filter, $usesAllocationAlias);
             $conditions[] = $filterSql;
             $params = array_merge($params, $filterParams);
             $types = array_merge($types, $filterTypes);
         }
 
-        $table = $this->scopeSqlFilter->tableName();
+        $fromClause = $this->buildFromClause($primary, $series, $primaryIsUnpivot, $seriesIsUnpivot);
+
         $sql = sprintf(
             "SELECT\n    %s\nFROM %s\nWHERE %s\nGROUP BY %s\nORDER BY %s",
             implode(",\n    ", $selectParts),
-            $table,
+            $fromClause,
             implode(' AND ', $conditions),
             implode(', ', $groupParts),
             implode(', ', $groupParts),
@@ -108,6 +142,124 @@ final readonly class GenericAllocationAnalysisSqlBuilder
         return $keys;
     }
 
+    private function unpivotCountExpression(bool $primaryIsUnpivot, bool $seriesIsUnpivot): string
+    {
+        return sprintf(
+            'COUNT(*) FILTER (WHERE %s)::INT AS count',
+            $this->unpivotFilterCondition($primaryIsUnpivot, $seriesIsUnpivot),
+        );
+    }
+
+    private function unpivotPrevalenceRateExpression(bool $primaryIsUnpivot, bool $seriesIsUnpivot): string
+    {
+        return sprintf(
+            '(COUNT(*) FILTER (WHERE %s)::DOUBLE PRECISION / NULLIF(COUNT(*), 0) * 100)::DOUBLE PRECISION AS prevalence_rate',
+            $this->unpivotFilterCondition($primaryIsUnpivot, $seriesIsUnpivot),
+        );
+    }
+
+    private function unpivotFilterCondition(bool $primaryIsUnpivot, bool $seriesIsUnpivot): string
+    {
+        if ($primaryIsUnpivot && $seriesIsUnpivot) {
+            return sprintf(
+                '(%s) AND (%s)',
+                ClinicalIndicatorDefinitions::indicatorMatchCaseExpression(
+                    self::ALLOCATION_ALIAS,
+                    self::PRIMARY_UNPIVOT_ALIAS,
+                ),
+                ClinicalIndicatorDefinitions::indicatorMatchCaseExpression(
+                    self::ALLOCATION_ALIAS,
+                    self::SERIES_UNPIVOT_ALIAS,
+                ),
+            );
+        }
+
+        if ($primaryIsUnpivot) {
+            return ClinicalIndicatorDefinitions::indicatorMatchCaseExpression(
+                self::ALLOCATION_ALIAS,
+                self::PRIMARY_UNPIVOT_ALIAS,
+            );
+        }
+
+        return ClinicalIndicatorDefinitions::indicatorMatchCaseExpression(
+            self::ALLOCATION_ALIAS,
+            self::PRIMARY_UNPIVOT_ALIAS,
+        );
+    }
+
+    private function buildFromClause(
+        AnalysisDimension $primary,
+        ?AnalysisDimension $series,
+        bool $primaryIsUnpivot,
+        bool $seriesIsUnpivot,
+    ): string {
+        if (!$primaryIsUnpivot && !$seriesIsUnpivot) {
+            return $this->scopeSqlFilter->tableName();
+        }
+
+        $parts = [
+            sprintf('%s %s', $this->scopeSqlFilter->tableName(), self::ALLOCATION_ALIAS),
+        ];
+
+        if ($primaryIsUnpivot) {
+            $parts[] = 'CROSS JOIN '.ClinicalIndicatorDefinitions::crossJoinValuesSql(
+                $primary->key,
+                self::PRIMARY_UNPIVOT_ALIAS,
+            );
+        }
+
+        if ($seriesIsUnpivot && $series instanceof AnalysisDimension) {
+            $parts[] = 'CROSS JOIN '.ClinicalIndicatorDefinitions::crossJoinValuesSql(
+                $series->key,
+                $primaryIsUnpivot ? self::SERIES_UNPIVOT_ALIAS : self::PRIMARY_UNPIVOT_ALIAS,
+            );
+        }
+
+        return implode("\n", $parts);
+    }
+
+    private function aliasedSelectExpression(AnalysisDimension $dimension): string
+    {
+        if (null === $dimension->sqlExpression) {
+            return self::ALLOCATION_ALIAS.'.'.$dimension->column;
+        }
+
+        if ('' !== $dimension->column && str_contains($dimension->sqlExpression, $dimension->column)) {
+            return str_replace($dimension->column, self::ALLOCATION_ALIAS.'.'.$dimension->column, $dimension->sqlExpression);
+        }
+
+        return $dimension->sqlExpression;
+    }
+
+    /**
+     * @param list<string> $conditions
+     *
+     * @return list<string>
+     */
+    private function qualifyScopeConditions(array $conditions): array
+    {
+        $columns = [
+            'created_at',
+            'hospital_id',
+            'hospital_location_code',
+            'hospital_tier_code',
+        ];
+
+        $qualified = [];
+        foreach ($conditions as $condition) {
+            foreach ($columns as $column) {
+                $condition = preg_replace(
+                    '/\b'.preg_quote($column, '/').'\b/',
+                    self::ALLOCATION_ALIAS.'.'.$column,
+                    $condition,
+                ) ?? $condition;
+            }
+            $qualified[] = $condition;
+        }
+
+        return $qualified;
+    }
+
     /**
      * @param list<string>         $conditions
      * @param array<string, mixed> $params
@@ -118,12 +270,20 @@ final readonly class GenericAllocationAnalysisSqlBuilder
         array &$params,
         array &$types,
         AnalysisDimension $dimension,
+        bool $usesAllocationAlias,
     ): void {
-        $expr = $dimension->selectExpression();
+        if (ClinicalIndicatorDefinitions::isUnpivotDimension($dimension->key)) {
+            return;
+        }
+
+        $expr = $usesAllocationAlias ? $this->aliasedSelectExpression($dimension) : $dimension->selectExpression();
         $conditions[] = sprintf('%s IS NOT NULL', $expr);
 
         if (null !== $dimension->requiresNonNullSourceColumn) {
-            $conditions[] = sprintf('%s IS NOT NULL', $dimension->requiresNonNullSourceColumn);
+            $sourceColumn = $usesAllocationAlias
+                ? self::ALLOCATION_ALIAS.'.'.$dimension->requiresNonNullSourceColumn
+                : $dimension->requiresNonNullSourceColumn;
+            $conditions[] = sprintf('%s IS NOT NULL', $sourceColumn);
         }
 
         if ([] !== $dimension->nullBucketKeys) {
@@ -137,14 +297,14 @@ final readonly class GenericAllocationAnalysisSqlBuilder
     /**
      * @return array{0: string, 1: array<string, mixed>, 2: array<string, mixed>}
      */
-    private function buildFilter(AnalysisFilter $filter): array
+    private function buildFilter(AnalysisFilter $filter, bool $usesAllocationAlias): array
     {
         if (!$this->dimensionRegistry->has($filter->dimensionKey)) {
             throw UnknownAnalysisDimensionException::forKey($filter->dimensionKey);
         }
 
         $dimension = $this->dimensionRegistry->get($filter->dimensionKey);
-        $expr = $dimension->selectExpression();
+        $expr = $usesAllocationAlias ? $this->aliasedSelectExpression($dimension) : $dimension->selectExpression();
         $paramBase = 'filter_'.(preg_replace('/[^a-z0-9_]/', '_', $filter->dimensionKey) ?? $filter->dimensionKey);
 
         return match ($filter->operator) {

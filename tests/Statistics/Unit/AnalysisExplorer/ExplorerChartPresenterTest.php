@@ -192,35 +192,39 @@ final class ExplorerChartPresenterTest extends TestCase
         self::assertSame('Urgent', $specs['box_plot']['series'][0]['data'][0]['x']);
     }
 
-    public function testBuildsMetricComparisonGroupedBarSpec(): void
+    public function testBuildsClinicalResourcesPrevalenceBarSpec(): void
     {
         $presenter = $this->createExplorerChartPresenter();
         $result = new AnalysisRunResult(
             title: 'Clinical resources overview',
-            metricKeys: [AnalysisMetricKey::ResusRate, AnalysisMetricKey::CathlabRate],
-            visualMetricKey: AnalysisMetricKey::ResusRate,
-            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::PeriodTotal),
+            metricKeys: [AnalysisMetricKey::PrevalenceRate],
+            visualMetricKey: AnalysisMetricKey::PrevalenceRate,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::ClinicalResources),
             columnAxis: null,
             rows: [
                 new AnalysisResultRow(
-                    bucket: 'total',
-                    bucketLabel: 'Total',
+                    bucket: 'resus',
+                    bucketLabel: 'Resuscitation required',
                     seriesKey: null,
                     seriesLabel: null,
-                    metricValues: [
-                        'resus_rate' => 12.5,
-                        'cathlab_rate' => 8.0,
-                    ],
+                    metricValues: ['prevalence_rate' => 12.5],
+                ),
+                new AnalysisResultRow(
+                    bucket: 'cathlab',
+                    bucketLabel: 'Cath lab required',
+                    seriesKey: null,
+                    seriesLabel: null,
+                    metricValues: ['prevalence_rate' => 8.0],
                 ),
             ],
-            totals: new AnalysisTotals(grand: ['resus_rate' => null, 'cathlab_rate' => null]),
+            totals: new AnalysisTotals(grand: ['prevalence_rate' => null]),
         );
 
-        $specs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::GroupedBar));
+        $specs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::Bar));
 
-        self::assertTrue($specs['grouped_bar']['barGrouped']);
-        self::assertSame(['Resus rate', 'Cath lab rate'], $specs['grouped_bar']['labels']);
-        self::assertSame([12.5, 8.0], $specs['grouped_bar']['values']);
-        self::assertTrue($specs['grouped_bar']['percentScale']);
+        self::assertSame('bar', $specs['bar']['chartType']);
+        self::assertSame(['Resuscitation required', 'Cath lab required'], $specs['bar']['labels']);
+        self::assertSame([12.5, 8.0], $specs['bar']['values']);
+        self::assertTrue($specs['bar']['percentScale']);
     }
 }

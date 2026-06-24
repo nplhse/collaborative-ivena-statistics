@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class ExplorerSystemViewSeederTest extends KernelTestCase
 {
-    private const int EXPECTED_SYSTEM_VIEW_COUNT = 42;
+    private const int EXPECTED_SYSTEM_VIEW_COUNT = 44;
 
     public function testDefinitionsCountMatchesLibraryStandardSet(): void
     {
@@ -78,6 +78,8 @@ final class ExplorerSystemViewSeederTest extends KernelTestCase
         self::assertContains('transport-time-bucket-distribution', $slugs);
         self::assertContains('overview-clinical-resources', $slugs);
         self::assertContains('overview-clinical-features', $slugs);
+        self::assertContains('clinical-resources-by-gender', $slugs);
+        self::assertContains('clinical-features-by-urgency', $slugs);
         self::assertContains('beds-distribution-by-location', $slugs);
         self::assertContains('cpr-distribution', $slugs);
     }

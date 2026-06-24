@@ -13,6 +13,8 @@ use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsShiftBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Application\Mapping\ClinicalIndicatorDefinition;
+use App\Statistics\Application\Mapping\ClinicalIndicatorDefinitions;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
@@ -86,15 +88,15 @@ SQL;
         $this->register($this->temporalDimension('quarter', 'created_quarter', 'Quarter', [1, 2, 3, 4]));
         $this->register($this->temporalDimension('month', 'created_month', 'Month', range(1, 12)));
         $this->register($this->temporalDimension('week', 'created_week', 'Calendar week', range(1, 53)));
-        $this->register(new AnalysisDimension(
-            key: 'period_total',
-            column: '',
-            label: 'Total',
-            type: AnalysisDimensionType::Categorical,
-            sqlExpression: "'total'",
-            fixedBuckets: ['total'],
-            valueLabels: ['total' => 'Total'],
-            dataSource: AnalysisDataSource::Allocations,
+        $this->register($this->clinicalIndicatorDimension(
+            ClinicalIndicatorDefinitions::DIMENSION_RESOURCES,
+            'Clinical resources',
+            ClinicalIndicatorDefinitions::forDimension(ClinicalIndicatorDefinitions::DIMENSION_RESOURCES),
+        ));
+        $this->register($this->clinicalIndicatorDimension(
+            ClinicalIndicatorDefinitions::DIMENSION_FEATURES,
+            'Clinical features',
+            ClinicalIndicatorDefinitions::forDimension(ClinicalIndicatorDefinitions::DIMENSION_FEATURES),
         ));
         $this->register(new AnalysisDimension(
             key: 'weekday',
@@ -397,6 +399,33 @@ SQL;
             label: 'Shift bucket',
             type: AnalysisDimensionType::Categorical,
             recommendedChartType: 'bar',
+            fixedBuckets: $fixedBuckets,
+            valueLabelTranslationKeys: $translationKeys,
+        );
+    }
+
+    /**
+     * @param list<ClinicalIndicatorDefinition> $definitions
+     */
+    private function clinicalIndicatorDimension(
+        string $key,
+        string $label,
+        array $definitions,
+    ): AnalysisDimension {
+        $fixedBuckets = [];
+        $translationKeys = [];
+        foreach ($definitions as $definition) {
+            $fixedBuckets[] = $definition->bucketKey;
+            $translationKeys[$definition->bucketKey] = $definition->labelTranslationKey;
+        }
+
+        return new AnalysisDimension(
+            key: $key,
+            column: 'indicator_key',
+            label: $label,
+            type: AnalysisDimensionType::Categorical,
+            recommendedChartType: 'bar',
+            sqlExpression: 'i.indicator_key',
             fixedBuckets: $fixedBuckets,
             valueLabelTranslationKeys: $translationKeys,
         );

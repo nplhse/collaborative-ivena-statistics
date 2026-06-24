@@ -244,6 +244,33 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertStringContainsString('"bar"', $specsRaw);
     }
 
+    public function testOverviewClinicalResourcesViewOpensInExplorer(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation(requiresResus: true);
+        $client->followRedirects(true);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/overview-clinical-resources?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-title"]',
+            'Clinical resources overview',
+        );
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-section-analysis"]');
+
+        $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
+        self::assertGreaterThan(0, $chart->count());
+        $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
+        self::assertNotNull($specsRaw);
+        $this->assertStringContainsString('"bar"', $specsRaw);
+        $this->assertStringContainsString('"percentScale":true', $specsRaw);
+    }
+
     #[\PHPUnit\Framework\Attributes\DataProvider('demoViewProvider')]
     public function testSavedViewOpensInExplorer(string $slug, string $title, string $chartType): void
     {
@@ -362,8 +389,10 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-chart-row-limit"]');
     }
 
-    private function seedProjectionWithAllocation(?\DateTimeImmutable $arrivalAt = null): void
-    {
+    private function seedProjectionWithAllocation(
+        ?\DateTimeImmutable $arrivalAt = null,
+        ?bool $requiresResus = null,
+    ): void {
         $user = UserFactory::createOne(['username' => 'analysis-explorer-test']);
         $state = StateFactory::createOne(['name' => 'Explorer State', 'createdBy' => $user]);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'Explorer Dispatch']);
@@ -387,6 +416,9 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         ];
         if ($arrivalAt instanceof \DateTimeImmutable) {
             $allocationAttributes['arrivalAt'] = $arrivalAt;
+        }
+        if (null !== $requiresResus) {
+            $allocationAttributes['requiresResus'] = $requiresResus;
         }
         AllocationFactory::createOne($allocationAttributes);
 

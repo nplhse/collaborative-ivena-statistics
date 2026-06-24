@@ -162,6 +162,75 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         self::assertStringContainsString('AS resus_rate', $sql);
     }
 
+    public function testBuildsClinicalResourcesUnpivotSql(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'clinical_resources',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            metricKeys: ['prevalence_rate'],
+        ));
+
+        self::assertStringContainsString('CROSS JOIN (VALUES (\'resus\'), (\'cathlab\')) AS i(indicator_key)', $sql);
+        self::assertStringContainsString('i.indicator_key AS bucket', $sql);
+        self::assertStringContainsString('a.requires_resus IS TRUE', $sql);
+        self::assertStringContainsString('a.requires_cathlab IS TRUE', $sql);
+        self::assertStringContainsString('AS prevalence_rate', $sql);
+        self::assertStringContainsString('FROM allocation_stats_projection a', $sql);
+    }
+
+    public function testClinicalUnpivotQualifiesScopeColumnsWithoutBreakingParameterNames(): void
+    {
+        $from = new \DateTimeImmutable('2024-01-01 00:00:00');
+        $to = new \DateTimeImmutable('2025-01-01 00:00:00');
+
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'clinical_resources',
+            scopeCriteria: new StatisticsScopeCriteria([10, 20]),
+            periodBounds: new StatisticsPeriodBounds($from, $to),
+            metricKeys: ['prevalence_rate'],
+        ));
+
+        self::assertStringContainsString('a.hospital_id IN (:scope_hospital_ids)', $sql);
+        self::assertStringContainsString('a.created_at >= :period_from', $sql);
+        self::assertStringContainsString('a.created_at < :period_to_exclusive', $sql);
+        self::assertStringNotContainsString(':scope_a.', $sql);
+        self::assertSame([10, 20], $params['scope_hospital_ids']);
+    }
+
+    public function testBuildsClinicalResourcesAsSeriesColumn(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'gender',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            seriesDimensionKey: 'clinical_resources',
+            metricKeys: ['prevalence_rate'],
+        ));
+
+        self::assertStringContainsString('a.gender_code AS bucket', $sql);
+        self::assertStringContainsString('i.indicator_key AS series', $sql);
+        self::assertStringContainsString("CROSS JOIN (VALUES ('resus'), ('cathlab')) AS i(indicator_key)", $sql);
+        self::assertStringContainsString('FROM allocation_stats_projection a', $sql);
+        self::assertStringContainsString('AS prevalence_rate', $sql);
+    }
+
+    public function testBuildsClinicalFeaturesUnpivotSqlWithSeries(): void
+    {
+        [$sql] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'clinical_features',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            seriesDimensionKey: 'gender',
+            metricKeys: ['count', 'prevalence_rate'],
+        ));
+
+        self::assertStringContainsString('a.gender_code AS series', $sql);
+        self::assertStringContainsString('GROUP BY bucket, series', $sql);
+        self::assertStringContainsString('a.infection_id IS NOT NULL', $sql);
+        self::assertStringContainsString('COUNT(*) FILTER (WHERE CASE i.indicator_key', $sql);
+    }
+
     public function testEmptyHospitalScopeUsesImpossibleCondition(): void
     {
         [$sql] = $this->builder->build(new AnalysisQuery(

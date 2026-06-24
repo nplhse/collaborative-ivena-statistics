@@ -244,10 +244,10 @@ Legacy flat state (`scopeGroup`, `period`, `dimensionGrain`, …) is upgraded on
 | Data source | `allocations` |
 | Count metric | `allocation_count` (maps to GA `count`) |
 | Distribution metric | `percent_of_total` (table column; requires `allocation_count`, breakdown + `total` grain) |
-| Rate metrics | `cpr_rate`, `resus_rate`, `shock_rate`, `ventilation_rate`, `cathlab_rate`, `pregnancy_rate`, `work_accident_rate`, `with_physician_rate` |
+| Rate metrics | `prevalence_rate` (clinical indicator dimensions only), `cpr_rate`, `resus_rate`, `shock_rate`, `ventilation_rate`, `cathlab_rate`, `pregnancy_rate`, `work_accident_rate`, `with_physician_rate`, `infection_rate` |
 | Statistical metrics | catalogued but disabled in Phase 7 (`mean_transport_time`, …) |
 | Temporal dimension | `time` — grains: `month`, `year`, `quarter`, `week` |
-| Breakdown dimensions | `gender`, `urgency`, `age_group`, `department`, `hospital_cohort`, `speciality`, `occasion`, `assignment`, `indication`, `infection`, `weekday`, `hour`, `resus`, `cathlab`, `cpr`, `ventilation`, `shock`, `workAccident`, `pregnancy`, `with_physician`, `secondary_indication`, `transport_type`, `day_time_bucket`, `shift_bucket` |
+| Breakdown dimensions | `gender`, `urgency`, `age_group`, `department`, `hospital_cohort`, `speciality`, `occasion`, `assignment`, `indication`, `infection`, `weekday`, `hour`, `clinical_resources`, `clinical_features`, `resus`, `cathlab`, `cpr`, `ventilation`, `shock`, `workAccident`, `pregnancy`, `with_physician`, `secondary_indication`, `transport_type`, `transport_time_bucket`, `day_time_bucket`, `shift_bucket` |
 | Scope-gated breakdowns | `hospital`, `state`, `dispatchArea` (visible when `GenericAnalysisDimensionPolicy` allows for user + filter scope) |
 | Grains (breakdown dims) | `total` (default); `month`, `year` for multi-series over time |
 | Charts | `bar`, `line`; multi-series (breakdown + month/year): `grouped_bar`, `stacked_bar`, `line` |

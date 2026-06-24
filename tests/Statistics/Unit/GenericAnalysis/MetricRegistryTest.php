@@ -73,6 +73,14 @@ final class MetricRegistryTest extends TestCase
         }
     }
 
+    public function testRegistersPrevalenceRateMetric(): void
+    {
+        self::assertTrue($this->registry->has('prevalence_rate'));
+        $metric = $this->registry->get('prevalence_rate');
+        self::assertSame(MetricFormat::Percent, $metric->defaultFormat);
+        self::assertSame(MetricComputationKind::SqlAggregate, $metric->computationKind);
+    }
+
     public function testRegistersInfectionRateMetric(): void
     {
         self::assertTrue($this->registry->has('infection_rate'));

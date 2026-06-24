@@ -32,7 +32,8 @@ enum AnalysisDimensionKey: string
     case WorkAccident = 'workAccident';
     case Pregnancy = 'pregnancy';
     case WithPhysician = 'with_physician';
-    case PeriodTotal = 'period_total';
+    case ClinicalResources = 'clinical_resources';
+    case ClinicalFeatures = 'clinical_features';
     case Hospital = 'hospital';
     case State = 'state';
     case DispatchArea = 'dispatchArea';
@@ -91,7 +92,8 @@ enum AnalysisDimensionKey: string
             self::WorkAccident,
             self::Pregnancy,
             self::WithPhysician,
-            self::PeriodTotal,
+            self::ClinicalResources,
+            self::ClinicalFeatures,
             self::Hospital,
             self::State,
             self::DispatchArea,

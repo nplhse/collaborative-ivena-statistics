@@ -120,14 +120,14 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
         );
     }
 
-    public function testChartTypesForPeriodTotalMultiMetricComparisonUseGroupedBar(): void
+    public function testChartTypesForClinicalResourcesUseBarAndGroupedBarWithColumnAxis(): void
     {
         $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
-        $config = new \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig(
+        $singleSeriesConfig = new \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig(
             dataSourceKey: AnalysisDataSourceKey::Allocations,
-            metricKeys: [AnalysisMetricKey::ResusRate, AnalysisMetricKey::CathlabRate],
-            visualMetricKey: AnalysisMetricKey::ResusRate,
-            rowAxis: \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::PeriodTotal),
+            metricKeys: [AnalysisMetricKey::PrevalenceRate],
+            visualMetricKey: AnalysisMetricKey::PrevalenceRate,
+            rowAxis: \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::ClinicalResources),
             columnAxis: null,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
@@ -136,14 +136,32 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
                 period: StatisticsFilterPeriod::All,
             ),
             presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
-                chartType: ChartPresentationType::GroupedBar,
+                chartType: ChartPresentationType::Bar,
             ),
             title: 'Clinical resources overview',
         );
+        $groupedConfig = $singleSeriesConfig->withAxes(
+            \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::ClinicalResources),
+            \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+        )->withPresentation(new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
+            chartType: ChartPresentationType::GroupedBar,
+        ));
 
-        self::assertTrue($capabilities->usesMultiMetricComparisonChart($config));
-        self::assertSame([ChartPresentationType::GroupedBar], $capabilities->chartTypesFor($config));
-        self::assertSame(ChartPresentationType::GroupedBar, $capabilities->defaultChartTypeFor($config));
+        self::assertSame(
+            [ChartPresentationType::Bar, ChartPresentationType::Line],
+            $capabilities->chartTypesFor($singleSeriesConfig),
+        );
+        self::assertSame(
+            [
+                ChartPresentationType::GroupedBar,
+                ChartPresentationType::StackedBar,
+                ChartPresentationType::Line,
+                ChartPresentationType::Heatmap,
+            ],
+            $capabilities->chartTypesFor($groupedConfig),
+        );
+        self::assertContains(AnalysisDimensionKey::ClinicalResources, $capabilities->dimensions);
+        self::assertContains(AnalysisDimensionKey::ClinicalFeatures, $capabilities->dimensions);
     }
 
     public function testScopedCapabilitiesExcludeHospitalOnPublicScope(): void
