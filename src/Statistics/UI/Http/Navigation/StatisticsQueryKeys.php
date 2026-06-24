@@ -21,9 +21,6 @@ final class StatisticsQueryKeys
     public const string CHART = 'chart';
     public const string DIMENSION = 'dimension';
     public const string CHART_MEASURE = 'chart_measure';
-    public const string ROWS = 'rows';
-    public const string COLS = 'cols';
-    public const string MEASURE = 'measure';
 
     public const string COMPARISON_SCOPE = 'comparison_scope';
     public const string COMPARISON_COHORT = 'comparison_cohort';
@@ -94,13 +91,6 @@ final class StatisticsQueryKeys
     public const array REMOVE_QUARTER_DEPENDENT = [
         self::QUARTER,
         self::MONTH,
-    ];
-
-    /** @var list<string> */
-    public const array PIVOT_STALE = [
-        self::DIMENSION,
-        self::CHART_MEASURE,
-        self::CHART,
     ];
 
     /** @var list<string> */
