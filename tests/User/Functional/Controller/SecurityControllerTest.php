@@ -7,6 +7,7 @@ namespace App\Tests\User\Functional\Controller;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -135,6 +136,29 @@ final class SecurityControllerTest extends WebTestCase
             ->visit('/settings')
             ->assertSuccessful()
             ->assertSee('Login')
+        ;
+    }
+
+    public function testLoginPasswordFieldHasAccessibleVisibilityToggle(): void
+    {
+        $this->browser()
+            ->visit('/login')
+            ->assertSuccessful()
+            ->assertSeeElement('input[name="login[password]"][type="password"]')
+            ->assertSeeElement('[data-testid="password-toggle-login_password"]')
+            ->use(static function (Crawler $crawler): void {
+                $input = $crawler->filter('input[name="login[password]"]');
+                $toggle = $crawler->filter('[data-testid="password-toggle-login_password"]');
+
+                self::assertSame('login[password]', $input->attr('name'));
+                self::assertNull($input->attr('autocomplete'));
+                self::assertSame('password', $input->attr('type'));
+                self::assertSame('button', $toggle->attr('type'));
+                self::assertSame('false', $toggle->attr('aria-pressed'));
+                self::assertSame('login_password', $toggle->attr('aria-controls'));
+                self::assertNotEmpty($toggle->attr('aria-label'));
+                self::assertSame('Show password', $toggle->attr('aria-label'));
+            })
         ;
     }
 }

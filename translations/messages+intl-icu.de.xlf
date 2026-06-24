@@ -1297,6 +1297,14 @@
         <source>allocation.urgency.3</source>
         <target>Ambulante Versorgung</target>
       </trans-unit>
+      <trans-unit id="pwdShow01De" resname="label.password.show">
+        <source>label.password.show</source>
+        <target>Passwort anzeigen</target>
+      </trans-unit>
+      <trans-unit id="pwdHide01De" resname="label.password.hide">
+        <source>label.password.hide</source>
+        <target>Passwort verbergen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
