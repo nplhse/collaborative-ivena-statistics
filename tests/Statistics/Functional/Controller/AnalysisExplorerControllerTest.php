@@ -102,6 +102,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-title"]', 'Beds distribution by tier');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+        $this->assertSelectorExists('[data-generic-analysis-chart-default-type-value="box_plot"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
     }
 
@@ -124,6 +125,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
             'Transport time distribution by urgency',
         );
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+        $this->assertSelectorExists('[data-generic-analysis-chart-default-type-value="box_plot"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
     }
 

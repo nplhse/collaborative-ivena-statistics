@@ -222,9 +222,13 @@ final readonly class ExplorerConfigMapper
      */
     public function buildViewConfig(array $filterState, array $viewPreferences, ?User $user): AnalysisViewConfig
     {
+        $dataSourceKey = AnalysisDataSourceKey::tryFrom((string) ($viewPreferences['dataSource'] ?? AnalysisDataSourceKey::Allocations->value))
+            ?? AnalysisDataSourceKey::Allocations;
+        [$metrics, $visualMetric] = $this->resolveMetricsFromPreferences($viewPreferences, $dataSourceKey);
+
         $query = array_merge($filterState, [
-            'metrics' => $viewPreferences['metrics'] ?? [AnalysisMetricKey::AllocationCount->value],
-            'visualMetric' => $viewPreferences['visualMetric'] ?? ($viewPreferences['metric'] ?? AnalysisMetricKey::AllocationCount->value),
+            'metrics' => $metrics,
+            'visualMetric' => $visualMetric,
         ]);
 
         if (isset($viewPreferences['rows']) && \is_array($viewPreferences['rows'])) {
@@ -411,6 +415,53 @@ final readonly class ExplorerConfigMapper
             'year' => $filter->referenceYear,
             'quarter' => $filter->referenceQuarter,
             'month' => $filter->referenceMonth,
+        ];
+    }
+
+    /**
+     * @return array{0: list<AnalysisMetricKey>, 1: AnalysisMetricKey}
+     */
+    /**
+     * @param array<string, mixed> $viewPreferences
+     *
+     * @return array{0: list<string>, 1: string}
+     */
+    private function resolveMetricsFromPreferences(array $viewPreferences, AnalysisDataSourceKey $dataSourceKey): array
+    {
+        if (isset($viewPreferences['metrics']) && \is_array($viewPreferences['metrics'])) {
+            $metrics = [];
+            foreach ($viewPreferences['metrics'] as $metric) {
+                if ('' !== (string) $metric) {
+                    $metrics[] = (string) $metric;
+                }
+            }
+
+            if ([] === $metrics) {
+                $defaultMetric = AnalysisMetricKey::defaultFor($dataSourceKey)->value;
+
+                return [[$defaultMetric], $defaultMetric];
+            }
+
+            $visualMetric = (string) ($viewPreferences['visualMetric']
+                ?? ($viewPreferences['metric'] ?? $metrics[0]));
+
+            return [$metrics, $visualMetric];
+        }
+
+        if (isset($viewPreferences['metric']) && '' !== (string) $viewPreferences['metric']) {
+            $metric = (string) $viewPreferences['metric'];
+
+            return [
+                [$metric],
+                (string) ($viewPreferences['visualMetric'] ?? $metric),
+            ];
+        }
+
+        $defaultMetric = AnalysisMetricKey::defaultFor($dataSourceKey)->value;
+
+        return [
+            [$defaultMetric],
+            (string) ($viewPreferences['visualMetric'] ?? $defaultMetric),
         ];
     }
 
