@@ -35,4 +35,26 @@ final class PagePathSynchronizationValidationTest extends KernelTestCase
         self::assertCount(0, $violationsAfter);
         self::assertSame('/test-123', $page->getPath());
     }
+
+    public function testEmptySlugIsGeneratedFromTitleBeforeValidation(): void
+    {
+        self::bootKernel();
+
+        $resolver = self::getContainer()->get(PagePathResolver::class);
+        $validator = self::getContainer()->get(ValidatorInterface::class);
+
+        $page = new Page();
+        $page
+            ->setTitle('Generated From Title')
+            ->setSlug('')
+            ->setStatus(Page::STATUS_DRAFT)
+            ->setVisibility(Page::VISIBILITY_PUBLIC);
+
+        $resolver->synchronize($page);
+
+        $violations = $validator->validate($page);
+        self::assertCount(0, $violations);
+        self::assertSame('generated-from-title', $page->getSlug());
+        self::assertSame('/generated-from-title', $page->getPath());
+    }
 }
