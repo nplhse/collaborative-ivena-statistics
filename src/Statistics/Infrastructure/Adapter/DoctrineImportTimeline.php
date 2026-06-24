@@ -6,7 +6,9 @@ namespace App\Statistics\Infrastructure\Adapter;
 
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Statistics\Application\Contract\ImportTimelineInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(ImportTimelineInterface::class)]
 final readonly class DoctrineImportTimeline implements ImportTimelineInterface
 {
     public function __construct(

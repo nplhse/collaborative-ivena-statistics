@@ -9,12 +9,14 @@ use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\User\Infrastructure\Security\FeedbackRecipientEmailResolver;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
-/** @psalm-suppress UnusedClass Wired via services.yaml alias to TransactionalMailer. */
+/** @psalm-suppress UnusedClass */
+#[AsAlias(TransactionalMailer::class)]
 final readonly class SymfonyTransactionalMailer implements TransactionalMailer
 {
     private const string SUBJECT_VERIFICATION = 'Please confirm your email address';

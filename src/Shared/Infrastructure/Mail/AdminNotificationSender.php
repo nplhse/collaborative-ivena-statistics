@@ -10,11 +10,13 @@ use App\Shared\Application\Notification\AdminNotificationType;
 use App\User\Infrastructure\Security\NotificationRecipientEmailResolver;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /** @psalm-suppress UnusedClass */
+#[AsAlias(AdminNotificationSenderInterface::class)]
 final readonly class AdminNotificationSender implements AdminNotificationSenderInterface
 {
     /** @psalm-suppress PossiblyUnusedMethod */
