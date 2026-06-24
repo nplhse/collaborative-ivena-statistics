@@ -28,6 +28,10 @@ final readonly class ExplorerResultsTableExportBuilder
 
     public function build(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
+        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
+            return $this->buildDistributionFlatDocument($viewConfig, $result);
+        }
+
         if (!$result->hasColumnAxis()) {
             return $this->buildFlatDocument($viewConfig, $result);
         }
@@ -40,10 +44,6 @@ final readonly class ExplorerResultsTableExportBuilder
 
     private function buildFlatDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
-        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
-            return $this->buildDistributionFlatDocument($viewConfig, $result);
-        }
-
         $showPercent = $viewConfig->showsPercentOfTotal();
         $headers = [
             new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
@@ -108,9 +108,16 @@ final readonly class ExplorerResultsTableExportBuilder
     private function buildDistributionFlatDocument(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): TabularExportDocument
     {
         $tableColumns = $this->profileRegistry->tableColumnsFor($viewConfig->visualMetricKey);
+        $hasSeries = $result->hasSeries();
         $headers = [
             new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
         ];
+        if ($hasSeries) {
+            $headers[] = new TabularExportColumn(
+                'series',
+                $this->distributionSeriesAxisLabel($viewConfig, $result),
+            );
+        }
         foreach ($tableColumns as $column) {
             $headers[] = new TabularExportColumn(
                 $column->value,
@@ -121,6 +128,9 @@ final readonly class ExplorerResultsTableExportBuilder
         $rows = [];
         foreach ($result->rows as $row) {
             $cells = [$row->bucketLabel];
+            if ($hasSeries) {
+                $cells[] = $row->seriesLabel ?? '';
+            }
             foreach ($tableColumns as $column) {
                 $cells[] = $this->rawBoxPlotColumnValue($column, $row->boxPlot);
             }
@@ -128,6 +138,19 @@ final readonly class ExplorerResultsTableExportBuilder
         }
 
         return new TabularExportDocument($headers, $rows);
+    }
+
+    private function distributionSeriesAxisLabel(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): string
+    {
+        if ($viewConfig->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($viewConfig->columnAxis);
+        }
+
+        if ($result->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($result->columnAxis);
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population');
     }
 
     private function rawBoxPlotColumnValue(BoxPlotTableColumn $column, ?\App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats $boxPlot): int|float|null

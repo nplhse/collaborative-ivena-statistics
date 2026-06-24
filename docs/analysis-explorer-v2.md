@@ -106,6 +106,7 @@ Explorer queries reuse **Generic Analysis** aggregation via a thin bridge layer.
 | Distribution | `percent_of_total` | `percent_of_total` | Optional table column via checkbox |
 | Rate | `*_rate` | same | SQL aggregate per bucket |
 | Statistical | `mean_transport_time`, … | same | Registered, not enabled yet |
+| Distribution profile | `transport_time_distribution` | — | Allocations: per-allocation transport minutes, box plot |
 
 Multi-metric tables: `metricKeys[]` in config; charts use a single `visualMetric`. Boolean breakdown counts (e.g. CPR cases) use dimension + `allocation_count`, not a separate metric.
 
@@ -192,9 +193,9 @@ v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpg
 |---|---|
 | Blank explorer URL | `?dataSource=hospitals` opens the hospitals default; saved views use `configJson.dataSource` (no in-page switcher) |
 | Default view | `hospital_master_cohort` × `hospital_count`, population `participating`, bar chart |
-| Available metrics | Aggregate metrics (`hospital_count`, `sum_beds`, …) plus distribution profiles (`beds_distribution`, `allocations_per_hospital_distribution`) |
+| Available metrics | Aggregate metrics (`hospital_count`, `sum_beds`, …) plus distribution profiles (`beds_distribution`, `allocations_per_hospital_distribution`, `transport_time_per_hospital_distribution`) |
 | Multi-metric tables | Chart metric + optional additional table metrics in the edit drawer (aggregate metrics only; distribution profiles use fixed n/min/p25/median/p75/max columns) |
-| Distribution profiles | Selecting a profile sets `chartType` to `box_plot`, runs per-hospital raw-value SQL, and aggregates with `DescriptiveStatisticsCalculator` per row bucket. Not combinable with column axis, compare mode, or temporal row dimensions. |
+| Distribution profiles | Selecting a profile sets `chartType` to `box_plot`, runs raw-value SQL (per hospital or per allocation depending on data source), and aggregates with `DescriptiveStatisticsCalculator` per `(row bucket, series)` cell. Transport-time profiles format values in minutes. Supports an optional column axis or hospital compare mode as the series dimension; not combinable with temporal row dimensions. Compare mode and a manual column axis remain mutually exclusive. |
 | Box plot chart type | `box_plot` — only available when `visualMetric` is a distribution profile |
 | Schema field | `query.hospitalPopulation` (`all`, `participating`, `compare`) |
 | System views category | `Hospitals` (seeded by `statistics:explorer-views:sync`) |

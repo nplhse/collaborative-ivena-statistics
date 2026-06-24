@@ -132,6 +132,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
             return null;
         }
 
+        const isMulti = data.multiSeries === true && series.length > 1;
         const chartFontFamily = resolveAnalysisChartFontFamily();
         const categoryAxisTitle =
             typeof data.xAxisLabel === 'string' && data.xAxisLabel !== ''
@@ -143,13 +144,23 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
                 : typeof data.valueLabel === 'string' && data.valueLabel !== ''
                   ? data.valueLabel
                   : undefined;
+        const multiSeriesPalette = [
+            '#206bc4',
+            '#d63939',
+            '#74b816',
+            '#fab005',
+            '#ae3ec9',
+            '#15aabf',
+            '#fd7e14',
+            '#7048e8',
+        ];
 
         return {
             chart: {
                 type: 'boxPlot',
                 height: resolveAnalysisChartHeight({
-                    isMulti: false,
-                    seriesCount: 1,
+                    isMulti,
+                    seriesCount: series.length,
                     profile: chartHeightProfile,
                 }),
                 toolbar: { show: false },
@@ -160,14 +171,16 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
                 },
             },
             series,
-            colors: ['#206bc4'],
+            colors: isMulti ? multiSeriesPalette.slice(0, series.length) : ['#206bc4'],
             plotOptions: {
-                boxPlot: {
-                    colors: {
-                        upper: '#206bc4',
-                        lower: '#206bc4',
-                    },
-                },
+                boxPlot: isMulti
+                    ? {}
+                    : {
+                          colors: {
+                              upper: '#206bc4',
+                              lower: '#206bc4',
+                          },
+                      },
             },
             xaxis: {
                 type: 'category',
@@ -191,7 +204,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
                     },
                 },
             },
-            legend: { show: false },
+            legend: { show: isMulti },
             dataLabels: { enabled: false },
             grid: {
                 strokeDashArray: 4,

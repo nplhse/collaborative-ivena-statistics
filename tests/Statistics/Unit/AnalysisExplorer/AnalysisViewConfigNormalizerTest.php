@@ -137,6 +137,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
 
         self::assertSame(ChartPresentationType::BoxPlot, $normalized->presentation->chartType);
         self::assertSame([AnalysisMetricKey::BedsDistribution], $normalized->metricKeys);
-        self::assertNull($normalized->columnAxis);
+        self::assertSame(AnalysisDimensionKey::HospitalLocation, $normalized->columnAxis?->dimensionKey);
+        self::assertSame(\App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat, $normalized->presentation->tableLayout);
     }
 }

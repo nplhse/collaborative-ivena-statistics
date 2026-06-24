@@ -126,4 +126,69 @@ final class ExplorerChartPresenterTest extends TestCase
         self::assertSame('Tier A', $specs['box_plot']['series'][0]['data'][0]['x']);
         self::assertSame([10.0, 20.0, 50.0, 80.0, 100.0], $specs['box_plot']['series'][0]['data'][0]['y']);
     }
+
+    public function testBuildsBoxPlotSpecWithMinutesFormatForTransportTimeProfile(): void
+    {
+        $presenter = $this->createExplorerChartPresenter();
+        $result = new AnalysisRunResult(
+            title: 'Transport time distribution by urgency',
+            metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+            visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: null,
+            rows: [
+                new AnalysisResultRow(
+                    bucket: '1',
+                    bucketLabel: 'Urgent',
+                    seriesKey: null,
+                    seriesLabel: null,
+                    metricValues: ['transport_time_distribution' => 25.0],
+                    boxPlot: new BoxPlotStats(5, 10.0, 15.0, 25.0, 35.0, 45.0),
+                ),
+            ],
+            totals: new AnalysisTotals(grand: ['transport_time_distribution' => 25.0]),
+        );
+
+        $specs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::BoxPlot));
+
+        self::assertSame('minutes', $specs['box_plot']['valueFormat']);
+    }
+
+    public function testBuildsMultiSeriesBoxPlotSpecForDistributionMatrix(): void
+    {
+        $presenter = $this->createExplorerChartPresenter();
+        $result = new AnalysisRunResult(
+            title: 'Transport time by urgency and gender',
+            metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+            visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            rows: [
+                new AnalysisResultRow(
+                    bucket: '1',
+                    bucketLabel: 'Urgent',
+                    seriesKey: '1',
+                    seriesLabel: 'Male',
+                    metricValues: ['transport_time_distribution' => 25.0],
+                    boxPlot: new BoxPlotStats(5, 10.0, 15.0, 25.0, 35.0, 45.0),
+                ),
+                new AnalysisResultRow(
+                    bucket: '1',
+                    bucketLabel: 'Urgent',
+                    seriesKey: '2',
+                    seriesLabel: 'Female',
+                    metricValues: ['transport_time_distribution' => 30.0],
+                    boxPlot: new BoxPlotStats(4, 12.0, 18.0, 30.0, 38.0, 48.0),
+                ),
+            ],
+            totals: new AnalysisTotals(grand: ['transport_time_distribution' => 27.5]),
+        );
+
+        $specs = $presenter->buildSpecs($result, new PresentationConfig(chartType: ChartPresentationType::BoxPlot));
+
+        self::assertTrue($specs['box_plot']['multiSeries']);
+        self::assertCount(2, $specs['box_plot']['series']);
+        self::assertSame('Male', $specs['box_plot']['series'][0]['name']);
+        self::assertSame('Urgent', $specs['box_plot']['series'][0]['data'][0]['x']);
+    }
 }

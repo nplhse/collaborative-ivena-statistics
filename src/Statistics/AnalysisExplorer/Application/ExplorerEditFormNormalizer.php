@@ -91,9 +91,6 @@ final readonly class ExplorerEditFormNormalizer
         }
 
         $isDistributionProfile = $metric->isDistributionProfile();
-        if ($isDistributionProfile) {
-            $columnAxis = null;
-        }
 
         $additionalTableMetrics = [];
         if (!$isDistributionProfile) {
@@ -128,7 +125,7 @@ final readonly class ExplorerEditFormNormalizer
         }
 
         $tableLayout = TableLayout::tryFrom($formData->tableLayout) ?? TableLayout::Flat;
-        if (!$columnAxis instanceof AnalysisAxisRef) {
+        if ($isDistributionProfile || !$columnAxis instanceof AnalysisAxisRef) {
             $tableLayout = TableLayout::Flat;
         }
 

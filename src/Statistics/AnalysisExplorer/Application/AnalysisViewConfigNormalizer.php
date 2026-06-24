@@ -37,9 +37,7 @@ final readonly class AnalysisViewConfigNormalizer
                 : \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::time($capabilities->defaultTimeGrain));
 
         $columnAxis = $config->columnAxis;
-        if ($requestedDistributionProfile instanceof \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey) {
-            $columnAxis = null;
-        } elseif ($columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef) {
+        if ($columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef) {
             if (!$capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
                 $columnAxis = null;
             } else {
@@ -72,7 +70,6 @@ final readonly class AnalysisViewConfigNormalizer
             $chartType = ChartPresentationType::BoxPlot;
         } elseif ($visualMetricKey->isDistributionProfile()) {
             $metricKeys = [$visualMetricKey];
-            $columnAxis = null;
             $chartType = ChartPresentationType::BoxPlot;
         } else {
             $allowedChartTypes = $capabilities->chartTypesFor($previewConfig);
@@ -82,7 +79,9 @@ final readonly class AnalysisViewConfigNormalizer
         }
 
         $tableLayout = $config->presentation->tableLayout;
-        if (!$columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat !== $tableLayout) {
+        if ($visualMetricKey->isDistributionProfile() || $requestedDistributionProfile instanceof \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey) {
+            $tableLayout = \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat;
+        } elseif (!$columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat !== $tableLayout) {
             $tableLayout = \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat;
         } elseif ($columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat === $tableLayout) {
             $tableLayout = $this->tableLayoutResolver->resolveForConfig($previewConfig);

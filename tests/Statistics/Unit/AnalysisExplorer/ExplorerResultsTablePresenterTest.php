@@ -446,6 +446,80 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertSame('100', $table->rows[0]->formattedMetricValues['distribution_max']);
     }
 
+    public function testCreateBuildsTwoDimensionalBoxPlotDistributionTableWithSeriesColumn(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.urgency', [], null, null, 'Urgency'],
+            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
+            ['stats.analysis_explorer.box_plot.column.distribution_count', [], null, null, 'Count'],
+            ['stats.analysis_explorer.box_plot.column.distribution_min', [], null, null, 'Min'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], null, null, 'P25'],
+            ['stats.analysis_explorer.box_plot.column.distribution_median', [], null, null, 'Median'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], null, null, 'P75'],
+            ['stats.analysis_explorer.box_plot.column.distribution_max', [], null, null, 'Max'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $columnAxis = AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+            visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: $columnAxis,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::BoxPlot),
+            title: 'Transport time by urgency and gender',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Transport time by urgency and gender',
+                metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+                visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+                columnAxis: $columnAxis,
+                rows: [
+                    new AnalysisResultRow(
+                        bucket: '1',
+                        bucketLabel: 'High',
+                        seriesKey: 'male',
+                        seriesLabel: 'Male',
+                        metricValues: ['transport_time_distribution' => 25.0],
+                        boxPlot: new BoxPlotStats(4, 10.0, 15.0, 25.0, 35.0, 45.0),
+                    ),
+                    new AnalysisResultRow(
+                        bucket: '1',
+                        bucketLabel: 'High',
+                        seriesKey: 'female',
+                        seriesLabel: 'Female',
+                        metricValues: ['transport_time_distribution' => 30.0],
+                        boxPlot: new BoxPlotStats(3, 12.0, 18.0, 30.0, 40.0, 50.0),
+                    ),
+                ],
+                totals: new AnalysisTotals(grand: ['transport_time_distribution' => 55.0]),
+            ),
+        );
+
+        self::assertSame('Gender', $table->metricColumns[0]->label);
+        self::assertSame('series', $table->metricColumns[0]->key);
+        self::assertSame('Count', $table->metricColumns[1]->label);
+        self::assertCount(2, $table->rows);
+        self::assertSame('High', $table->rows[0]->bucketLabel);
+        self::assertSame('Male', $table->rows[0]->formattedMetricValues['series']);
+        self::assertSame('25 min', $table->rows[0]->formattedMetricValues['distribution_median']);
+        self::assertSame('Female', $table->rows[1]->formattedMetricValues['series']);
+        self::assertSame('30 min', $table->rows[1]->formattedMetricValues['distribution_median']);
+        self::assertSame('Gender', $table->columnAxisLabel);
+    }
+
     public function testCreateShowsMultipleHospitalMetricsInFlatTable(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
@@ -504,5 +578,61 @@ final class ExplorerResultsTablePresenterTest extends TestCase
         self::assertSame('avg_beds', $table->metricColumns[1]->key);
         self::assertSame('5', $table->rows[0]->formattedMetricValues['hospital_count']);
         self::assertSame('120,5', $table->rows[0]->formattedMetricValues['avg_beds']);
+    }
+
+    public function testCreateFormatsTransportTimeDistributionInMinutes(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnMap([
+            ['stats.analysis_explorer.dimension.urgency', [], null, null, 'Urgency'],
+            ['stats.analysis_explorer.box_plot.column.distribution_count', [], null, null, 'n'],
+            ['stats.analysis_explorer.box_plot.column.distribution_min', [], null, null, 'Min'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], null, null, 'P25'],
+            ['stats.analysis_explorer.box_plot.column.distribution_median', [], null, null, 'Median'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], null, null, 'P75'],
+            ['stats.analysis_explorer.box_plot.column.distribution_max', [], null, null, 'Max'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+            visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::BoxPlot),
+            title: 'Transport time distribution by urgency',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Transport time distribution by urgency',
+                metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+                visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+                columnAxis: null,
+                rows: [
+                    new AnalysisResultRow(
+                        bucket: '1',
+                        bucketLabel: 'Urgent',
+                        seriesKey: null,
+                        seriesLabel: null,
+                        metricValues: ['transport_time_distribution' => 25.0],
+                        boxPlot: new BoxPlotStats(5, 10.0, 15.0, 25.0, 35.0, 45.0),
+                    ),
+                ],
+                totals: new AnalysisTotals(grand: ['transport_time_distribution' => 25.0]),
+            ),
+        );
+
+        self::assertSame('25 min', $table->rows[0]->formattedMetricValues['distribution_median']);
+        self::assertSame('10 min', $table->rows[0]->formattedMetricValues['distribution_min']);
     }
 }

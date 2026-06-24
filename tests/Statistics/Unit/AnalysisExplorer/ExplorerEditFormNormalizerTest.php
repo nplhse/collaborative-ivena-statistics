@@ -87,6 +87,26 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         self::assertSame('stacked_bar', $normalized->chartType);
     }
 
+    public function testDistributionProfileKeepsColumnAxis(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'allocations',
+            rowDimension: 'urgency',
+            rowGrain: 'total',
+            columnDimension: 'gender',
+            columnGrain: 'total',
+            metric: 'transport_time_distribution',
+            chartType: 'box_plot',
+        ));
+
+        self::assertSame('urgency', $normalized->rowDimension);
+        self::assertSame('gender', $normalized->columnDimension);
+        self::assertSame('transport_time_distribution', $normalized->metric);
+        self::assertSame('box_plot', $normalized->chartType);
+        self::assertSame('flat', $normalized->tableLayout);
+    }
+
     public function testTimeRowsWithGenderColumnsForceColumnGrainTotal(): void
     {
         $normalized = $this->normalizer->normalize($this->formData(

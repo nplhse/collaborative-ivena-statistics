@@ -35,6 +35,10 @@ final readonly class ExplorerResultsTablePresenter
 
     public function create(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
+        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
+            return $this->createDistributionFlatTable($viewConfig, $result);
+        }
+
         if (!$result->hasColumnAxis()) {
             return $this->createFlatTable($viewConfig, $result);
         }
@@ -47,10 +51,6 @@ final readonly class ExplorerResultsTablePresenter
 
     private function createFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
-        if ($viewConfig->visualMetricKey->isDistributionProfile()) {
-            return $this->createDistributionFlatTable($viewConfig, $result);
-        }
-
         $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
         $visibleMetricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
         $metricColumns = $this->metricColumns($visibleMetricKeys);
@@ -110,7 +110,14 @@ final readonly class ExplorerResultsTablePresenter
     private function createDistributionFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
         $tableColumns = $this->profileRegistry->tableColumnsFor($viewConfig->visualMetricKey);
+        $hasSeries = $result->hasSeries();
         $metricColumns = [];
+        if ($hasSeries) {
+            $metricColumns[] = new ExplorerResultsTableMetricColumn(
+                key: 'series',
+                label: $this->distributionSeriesAxisLabel($viewConfig, $result),
+            );
+        }
         foreach ($tableColumns as $column) {
             $metricColumns[] = new ExplorerResultsTableMetricColumn(
                 key: $column->value,
@@ -120,9 +127,14 @@ final readonly class ExplorerResultsTablePresenter
 
         $rows = [];
         foreach ($result->rows as $row) {
+            $formattedMetricValues = $this->formatBoxPlotRowValues($tableColumns, $row->boxPlot, $viewConfig->visualMetricKey);
+            if ($hasSeries) {
+                $formattedMetricValues = ['series' => $row->seriesLabel ?? '—'] + $formattedMetricValues;
+            }
+
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $row->bucketLabel,
-                formattedMetricValues: $this->formatBoxPlotRowValues($tableColumns, $row->boxPlot),
+                formattedMetricValues: $formattedMetricValues,
             );
         }
 
@@ -133,9 +145,23 @@ final readonly class ExplorerResultsTablePresenter
             formattedTotals: [],
             tableLayout: TableLayout::Flat,
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
+            columnAxisLabel: $hasSeries ? $this->distributionSeriesAxisLabel($viewConfig, $result) : '',
             showPercentOfTotal: false,
             formattedTotalsPercentValues: [],
         );
+    }
+
+    private function distributionSeriesAxisLabel(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): string
+    {
+        if ($viewConfig->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($viewConfig->columnAxis);
+        }
+
+        if ($result->columnAxis instanceof AnalysisAxisRef) {
+            return $this->axisLabel($result->columnAxis);
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population');
     }
 
     /**
@@ -143,17 +169,17 @@ final readonly class ExplorerResultsTablePresenter
      *
      * @return array<string, string>
      */
-    private function formatBoxPlotRowValues(array $tableColumns, ?BoxPlotStats $boxPlot): array
+    private function formatBoxPlotRowValues(array $tableColumns, ?BoxPlotStats $boxPlot, AnalysisMetricKey $visualMetricKey): array
     {
         $formatted = [];
         foreach ($tableColumns as $column) {
-            $formatted[$column->value] = $this->formatBoxPlotColumnValue($column, $boxPlot);
+            $formatted[$column->value] = $this->formatBoxPlotColumnValue($column, $boxPlot, $visualMetricKey);
         }
 
         return $formatted;
     }
 
-    private function formatBoxPlotColumnValue(BoxPlotTableColumn $column, ?BoxPlotStats $boxPlot): string
+    private function formatBoxPlotColumnValue(BoxPlotTableColumn $column, ?BoxPlotStats $boxPlot, AnalysisMetricKey $visualMetricKey): string
     {
         if (!$boxPlot instanceof BoxPlotStats) {
             return '—';
@@ -173,7 +199,7 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         return $this->metricValueFormatter->format(
-            $this->metricRegistry->get('avg_beds'),
+            $this->metricRegistry->get($this->profileRegistry->formatRegistryKeyFor($visualMetricKey)),
             $value,
         );
     }

@@ -38,6 +38,7 @@ final readonly class ExplorerChartPresenter
 
         $spec = $result->hasSeries()
             ? match ($presentation->chartType) {
+                ChartPresentationType::BoxPlot => $this->buildMultiSeriesBoxPlotSpec($result, $presentation),
                 ChartPresentationType::Heatmap => $this->buildHeatmapSpec($result, $presentation),
                 default => $this->buildMultiSeriesSpec($result, $presentation),
             }
@@ -136,6 +137,106 @@ final readonly class ExplorerChartPresenter
             ]],
             'xAxisLabel' => $this->axisLabel($result->rowAxis),
             'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
+            'valueFormat' => $this->metricFormat($result->visualMetricKey),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildMultiSeriesBoxPlotSpec(AnalysisRunResult $result, PresentationConfig $presentation): array
+    {
+        $matrix = AnalysisMatrix::fromRunResult($result);
+
+        /** @var array<string, array<string, \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow>> $rowsByCell */
+        $rowsByCell = [];
+        foreach ($result->rows as $row) {
+            if (!$row->boxPlot instanceof BoxPlotStats) {
+                continue;
+            }
+
+            $rowsByCell[$row->bucket][$row->seriesKey ?? ''] = $row;
+        }
+
+        $orderedRowKeys = $matrix->orderedRowKeys;
+        $rowLabels = $matrix->chartLabels();
+        $cap = $presentation->chartRowLimit->cap();
+        if (null !== $cap && \count($rowLabels) > $cap && !$result->rowAxis->dimensionKey->isTemporalPrimary()) {
+            $rowWeights = [];
+            foreach ($orderedRowKeys as $rowKey) {
+                $weight = 0.0;
+                foreach ($matrix->orderedColumnKeys as $colKey) {
+                    $weight = max($weight, $matrix->valueFor($rowKey, $colKey, $result->visualMetricKey));
+                }
+                $rowWeights[] = $weight;
+            }
+
+            [$limitedRowLabels] = $this->primaryBucketLimiter->limit(
+                $rowLabels,
+                $rowWeights,
+                [],
+                $cap,
+                includeRemainderBucket: false,
+            );
+            $limitedLabelSet = array_flip($limitedRowLabels);
+            $orderedRowKeys = array_values(array_filter(
+                $orderedRowKeys,
+                static fn (string $rowKey): bool => isset($limitedLabelSet[$matrix->rowLabels[$rowKey]]),
+            ));
+        }
+
+        $chartSeries = [];
+        $columnKeys = [] !== $matrix->orderedColumnKeys
+            ? $matrix->orderedColumnKeys
+            : array_values(array_unique(array_map(
+                static fn (\App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow $row): string => $row->seriesKey ?? '',
+                $result->rows,
+            )));
+
+        foreach ($columnKeys as $colKey) {
+            $points = [];
+            foreach ($orderedRowKeys as $rowKey) {
+                $row = $rowsByCell[$rowKey][$colKey] ?? null;
+                if (!$row instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow
+                    || !$row->boxPlot instanceof BoxPlotStats) {
+                    continue;
+                }
+
+                $points[] = [
+                    'x' => $row->bucketLabel,
+                    'y' => $row->boxPlot->apexValues(),
+                ];
+            }
+
+            if ([] === $points) {
+                continue;
+            }
+
+            $seriesLabel = $matrix->columnLabels[$colKey] ?? $colKey;
+            foreach ($rowsByCell as $rowBuckets) {
+                if (isset($rowBuckets[$colKey]) && null !== $rowBuckets[$colKey]->seriesLabel) {
+                    $seriesLabel = $rowBuckets[$colKey]->seriesLabel;
+                    break;
+                }
+            }
+
+            $chartSeries[] = [
+                'name' => $seriesLabel,
+                'type' => 'boxPlot',
+                'data' => $points,
+            ];
+        }
+
+        $columnAxis = $result->columnAxis;
+
+        return [
+            'chartType' => 'boxPlot',
+            'series' => $chartSeries,
+            'multiSeries' => true,
+            'xAxisLabel' => $this->axisLabel($result->rowAxis),
+            'yAxisLabel' => $this->metricLabel($result->visualMetricKey),
+            'seriesAxisLabel' => $columnAxis instanceof AnalysisAxisRef ? $this->axisLabel($columnAxis) : null,
+            'valueFormat' => $this->metricFormat($result->visualMetricKey),
         ];
     }
 
@@ -313,7 +414,7 @@ final readonly class ExplorerChartPresenter
     private function metricFormat(AnalysisMetricKey $metricKey): string
     {
         if ($metricKey->isDistributionProfile()) {
-            return 'decimal';
+            return $this->metricRegistry->get($this->profileRegistry->formatRegistryKeyFor($metricKey))->defaultFormat->value;
         }
 
         return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->defaultFormat->value;
