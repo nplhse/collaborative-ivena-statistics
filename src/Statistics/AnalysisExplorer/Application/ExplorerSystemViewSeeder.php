@@ -277,6 +277,19 @@ final readonly class ExplorerSystemViewSeeder
                     'title' => 'Secondary indication distribution',
                 ],
             ],
+            [
+                'slug' => 'transport-time-distribution-by-urgency',
+                'title' => 'Transport time distribution by urgency',
+                'description' => 'Distribution of transport times in minutes per urgency level as a box plot.',
+                'category' => self::CATEGORY_ALLOCATIONS,
+                'preferences' => [
+                    'dimension' => 'urgency',
+                    'grain' => 'total',
+                    'metric' => 'transport_time_distribution',
+                    'chartType' => 'box_plot',
+                    'title' => 'Transport time distribution by urgency',
+                ],
+            ],
         ];
     }
 
@@ -393,6 +406,18 @@ final readonly class ExplorerSystemViewSeeder
                     'metric' => 'allocations_per_hospital_distribution',
                     'chartType' => 'box_plot',
                     'title' => 'Allocations distribution by tier',
+                ]),
+            ],
+            [
+                'slug' => 'transport-time-distribution-by-tier',
+                'title' => 'Transport time distribution by tier',
+                'description' => 'Distribution of median transport times per hospital by care tier as a box plot.',
+                'category' => self::CATEGORY_HOSPITALS,
+                'preferences' => array_merge($hospitalBase, [
+                    'dimension' => 'hospital_tier',
+                    'metric' => 'transport_time_per_hospital_distribution',
+                    'chartType' => 'box_plot',
+                    'title' => 'Transport time distribution by tier',
                 ]),
             ],
         ];

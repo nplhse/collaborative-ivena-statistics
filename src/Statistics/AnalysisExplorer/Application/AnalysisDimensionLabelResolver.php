@@ -47,6 +47,32 @@ final class AnalysisDimensionLabelResolver
         $this->entityLabelsByDimension = $labels;
     }
 
+    /**
+     * @param list<array{bucket: mixed, series?: mixed, value: mixed}> $rawRows
+     */
+    public function warmDistributionEntityLabels(
+        array $rawRows,
+        AnalysisDimension $primary,
+        ?AnalysisDimension $series,
+    ): void {
+        /** @var array<string, list<int>> $idsByDimension */
+        $idsByDimension = [];
+
+        foreach ($rawRows as $rawRow) {
+            $this->collectEntityId($idsByDimension, $primary->key, $rawRow['bucket'] ?? null);
+            if ($series instanceof AnalysisDimension) {
+                $this->collectEntityId($idsByDimension, $series->key, $rawRow['series'] ?? null);
+            }
+        }
+
+        $labels = [];
+        foreach ($idsByDimension as $dimensionKey => $ids) {
+            $labels[$dimensionKey] = $this->entityLabelResolver->resolve($dimensionKey, $ids);
+        }
+
+        $this->entityLabelsByDimension = $labels;
+    }
+
     public function labelFor(AnalysisDimension $dimension, int|string|float|null $bucket): string
     {
         if (null === $bucket || '' === $bucket) {

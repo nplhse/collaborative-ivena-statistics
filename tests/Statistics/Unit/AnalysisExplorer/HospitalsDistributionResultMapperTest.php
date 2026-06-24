@@ -72,4 +72,99 @@ final class HospitalsDistributionResultMapperTest extends TestCase
         self::assertSame(20.0, $rows[0]->boxPlot->median);
         self::assertSame(100.0, $rows[1]->boxPlot->median);
     }
+
+    public function testCastsNumericBucketKeysToString(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+
+        $entityLabelResolver = $this->createMock(GenericAnalysisEntityLabelResolverInterface::class);
+        $entityLabelResolver->method('supports')->willReturn(false);
+
+        $mapper = new HospitalsDistributionResultMapper(
+            new DimensionRegistry(),
+            new AnalysisDimensionLabelResolver(
+                $translator,
+                $entityLabelResolver,
+                new HospitalCohortLabelResolver($translator),
+            ),
+            new DescriptiveStatisticsCalculator(),
+            new ExplorerMetricProfileRegistry(),
+        );
+
+        $gaQuery = new GenericAnalysisQuery(
+            primaryDimensionKey: 'urgency',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            metricKeys: ['transport_time_distribution'],
+        );
+        $query = new AnalysisQuery(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+            visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: null,
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+        );
+
+        $rows = $mapper->map([
+            ['bucket' => 1, 'value' => 20.0],
+            ['bucket' => 1, 'value' => 40.0],
+        ], $gaQuery, $query);
+
+        self::assertCount(1, $rows);
+        self::assertSame('1', $rows[0]->bucket);
+        self::assertSame(30.0, $rows[0]->boxPlot?->median);
+    }
+
+    public function testMapsRawValuesIntoBoxPlotRowsPerBucketAndSeries(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
+
+        $entityLabelResolver = $this->createMock(GenericAnalysisEntityLabelResolverInterface::class);
+        $entityLabelResolver->method('supports')->willReturn(false);
+
+        $mapper = new HospitalsDistributionResultMapper(
+            new DimensionRegistry(),
+            new AnalysisDimensionLabelResolver(
+                $translator,
+                $entityLabelResolver,
+                new HospitalCohortLabelResolver($translator),
+            ),
+            new DescriptiveStatisticsCalculator(),
+            new ExplorerMetricProfileRegistry(),
+        );
+
+        $gaQuery = new GenericAnalysisQuery(
+            primaryDimensionKey: 'urgency',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            seriesDimensionKey: 'gender',
+            metricKeys: ['transport_time_distribution'],
+        );
+        $query = new AnalysisQuery(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::TransportTimeDistribution],
+            visualMetricKey: AnalysisMetricKey::TransportTimeDistribution,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Gender),
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+        );
+
+        $rows = $mapper->map([
+            ['bucket' => 1, 'series' => 1, 'value' => 20.0],
+            ['bucket' => 1, 'series' => 1, 'value' => 40.0],
+            ['bucket' => 1, 'series' => 2, 'value' => 60.0],
+        ], $gaQuery, $query);
+
+        self::assertCount(2, $rows);
+        self::assertSame('1', $rows[0]->bucket);
+        self::assertSame('1', $rows[0]->seriesKey);
+        self::assertSame(30.0, $rows[0]->boxPlot?->median);
+        self::assertSame('2', $rows[1]->seriesKey);
+        self::assertSame(60.0, $rows[1]->boxPlot?->median);
+    }
 }

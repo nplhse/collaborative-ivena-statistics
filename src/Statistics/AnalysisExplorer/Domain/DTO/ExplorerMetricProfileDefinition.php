@@ -22,6 +22,7 @@ final readonly class ExplorerMetricProfileDefinition
         public ExplorerDistributionValueSource $valueSource,
         public array $tableColumns,
         public bool $allowsAdditionalTableMetrics = false,
+        public ?string $formatRegistryKey = null,
     ) {
     }
 }

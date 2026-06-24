@@ -10,7 +10,6 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\BoxPlotTableColumn;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerDistributionValueSource;
-use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 
 final class ExplorerMetricProfileRegistry
 {
@@ -35,6 +34,24 @@ final class ExplorerMetricProfileRegistry
                 chartType: ChartPresentationType::BoxPlot,
                 valueSource: ExplorerDistributionValueSource::AllocationsPerHospital,
                 tableColumns: BoxPlotTableColumn::cases(),
+            ),
+            AnalysisMetricKey::TransportTimeDistribution->value => new ExplorerMetricProfileDefinition(
+                storageKey: AnalysisMetricKey::TransportTimeDistribution,
+                labelTranslationKey: 'stats.analysis_explorer.metric_profile.transport_time_distribution',
+                groupTranslationKey: 'stats.analysis_explorer.metric_group.transport_times',
+                chartType: ChartPresentationType::BoxPlot,
+                valueSource: ExplorerDistributionValueSource::AllocationTransportTime,
+                tableColumns: BoxPlotTableColumn::cases(),
+                formatRegistryKey: 'median_transport_time',
+            ),
+            AnalysisMetricKey::TransportTimePerHospitalDistribution->value => new ExplorerMetricProfileDefinition(
+                storageKey: AnalysisMetricKey::TransportTimePerHospitalDistribution,
+                labelTranslationKey: 'stats.analysis_explorer.metric_profile.transport_time_per_hospital_distribution',
+                groupTranslationKey: 'stats.analysis_explorer.metric_group.transport_times',
+                chartType: ChartPresentationType::BoxPlot,
+                valueSource: ExplorerDistributionValueSource::HospitalMedianTransportTime,
+                tableColumns: BoxPlotTableColumn::cases(),
+                formatRegistryKey: 'median_transport_time',
             ),
         ];
     }
@@ -78,20 +95,22 @@ final class ExplorerMetricProfileRegistry
         return $this->profileFor($metricKey)?->chartType;
     }
 
+    public function formatRegistryKeyFor(AnalysisMetricKey $metricKey): string
+    {
+        $profile = $this->profileFor($metricKey);
+        if (!$profile instanceof ExplorerMetricProfileDefinition || null === $profile->formatRegistryKey) {
+            return 'avg_beds';
+        }
+
+        return $profile->formatRegistryKey;
+    }
+
     public function isAllowedForConfig(AnalysisViewConfig $config): bool
     {
         if (!$this->isProfile($config->visualMetricKey)) {
             return true;
         }
 
-        if ($config->hasColumnAxis()) {
-            return false;
-        }
-
-        if ($config->rowAxis->dimensionKey->isTemporalPrimary()) {
-            return false;
-        }
-
-        return ExplorerHospitalPopulationMode::Compare !== $config->hospitalPopulationMode;
+        return !$config->rowAxis->dimensionKey->isTemporalPrimary();
     }
 }

@@ -889,6 +889,14 @@
         <source>stats.analysis_explorer.metric_profile.allocations_per_hospital_distribution</source>
         <target>Allocationen pro Krankenhaus – Verteilung (Box-Plot)</target>
       </trans-unit>
+      <trans-unit id="statsAexMp03" resname="stats.analysis_explorer.metric_profile.transport_time_distribution">
+        <source>stats.analysis_explorer.metric_profile.transport_time_distribution</source>
+        <target>Transportzeit – Verteilung (Box-Plot)</target>
+      </trans-unit>
+      <trans-unit id="statsAexMp04" resname="stats.analysis_explorer.metric_profile.transport_time_per_hospital_distribution">
+        <source>stats.analysis_explorer.metric_profile.transport_time_per_hospital_distribution</source>
+        <target>Transportzeit pro Krankenhaus – Verteilung (Box-Plot)</target>
+      </trans-unit>
       <trans-unit id="statsAexMg01" resname="stats.analysis_explorer.metric_group.beds">
         <source>stats.analysis_explorer.metric_group.beds</source>
         <target>Betten</target>
@@ -900,6 +908,10 @@
       <trans-unit id="statsAexMg03" resname="stats.analysis_explorer.metric_group.counts">
         <source>stats.analysis_explorer.metric_group.counts</source>
         <target>Zählungen</target>
+      </trans-unit>
+      <trans-unit id="statsAexMg04" resname="stats.analysis_explorer.metric_group.transport_times">
+        <source>stats.analysis_explorer.metric_group.transport_times</source>
+        <target>Transportzeiten</target>
       </trans-unit>
       <trans-unit id="statsAexBx01" resname="stats.analysis_explorer.box_plot.column.distribution_count">
         <source>stats.analysis_explorer.box_plot.column.distribution_count</source>

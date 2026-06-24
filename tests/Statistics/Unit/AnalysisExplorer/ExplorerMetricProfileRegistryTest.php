@@ -32,7 +32,18 @@ final class ExplorerMetricProfileRegistryTest extends TestCase
     {
         self::assertTrue($this->registry->isProfile(AnalysisMetricKey::BedsDistribution));
         self::assertTrue($this->registry->isProfile(AnalysisMetricKey::AllocationsPerHospitalDistribution));
+        self::assertTrue($this->registry->isProfile(AnalysisMetricKey::TransportTimeDistribution));
+        self::assertTrue($this->registry->isProfile(AnalysisMetricKey::TransportTimePerHospitalDistribution));
         self::assertFalse($this->registry->isProfile(AnalysisMetricKey::AvgBeds));
+    }
+
+    public function testTransportTimeProfilesUseMinutesFormatRegistryKey(): void
+    {
+        $profile = $this->registry->profileFor(AnalysisMetricKey::TransportTimeDistribution);
+
+        self::assertNotNull($profile);
+        self::assertSame('median_transport_time', $profile->formatRegistryKey);
+        self::assertSame('median_transport_time', $this->registry->formatRegistryKeyFor(AnalysisMetricKey::TransportTimePerHospitalDistribution));
     }
 
     public function testProfileDefinesBoxPlotChartAndTableColumns(): void
@@ -45,14 +56,14 @@ final class ExplorerMetricProfileRegistryTest extends TestCase
         self::assertSame(BoxPlotTableColumn::cases(), $this->registry->tableColumnsFor(AnalysisMetricKey::BedsDistribution));
     }
 
-    public function testProfileIsRejectedForCompareModeAndColumnAxis(): void
+    public function testProfileAllowsColumnAxisAndCompareButRejectsTemporalRowAxis(): void
     {
         $baseConfig = $this->hospitalConfig();
 
         self::assertTrue($this->registry->isAllowedForConfig($baseConfig));
 
         $compareConfig = $baseConfig->withHospitalPopulationMode(ExplorerHospitalPopulationMode::Compare);
-        self::assertFalse($this->registry->isAllowedForConfig($compareConfig));
+        self::assertTrue($this->registry->isAllowedForConfig($compareConfig));
 
         $matrixConfig = new AnalysisViewConfig(
             dataSourceKey: $baseConfig->dataSourceKey,
@@ -65,7 +76,20 @@ final class ExplorerMetricProfileRegistryTest extends TestCase
             title: $baseConfig->title,
             hospitalPopulationMode: $baseConfig->hospitalPopulationMode,
         );
-        self::assertFalse($this->registry->isAllowedForConfig($matrixConfig));
+        self::assertTrue($this->registry->isAllowedForConfig($matrixConfig));
+
+        $temporalConfig = new AnalysisViewConfig(
+            dataSourceKey: $baseConfig->dataSourceKey,
+            metricKeys: $baseConfig->metricKeys,
+            visualMetricKey: $baseConfig->visualMetricKey,
+            rowAxis: AnalysisAxisRef::time(\App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain::Month),
+            columnAxis: null,
+            statisticsFilter: $baseConfig->statisticsFilter,
+            presentation: $baseConfig->presentation,
+            title: $baseConfig->title,
+            hospitalPopulationMode: $baseConfig->hospitalPopulationMode,
+        );
+        self::assertFalse($this->registry->isAllowedForConfig($temporalConfig));
     }
 
     private function hospitalConfig(): AnalysisViewConfig

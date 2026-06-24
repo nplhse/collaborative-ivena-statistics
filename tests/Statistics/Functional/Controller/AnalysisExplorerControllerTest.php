@@ -105,6 +105,28 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
     }
 
+    public function testTransportTimeDistributionSavedViewRendersBoxPlotTable(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation(arrivalAt: new \DateTimeImmutable('2026-01-15 10:00:00'));
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/transport-time-distribution-by-urgency?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-title"]',
+            'Transport time distribution by urgency',
+        );
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
+    }
+
     public function testHospitalCompareSavedViewOpensWithoutFormCycleError(): void
     {
         $client = $this->createClientAsRoleUser();
@@ -312,7 +334,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-chart-row-limit"]');
     }
 
-    private function seedProjectionWithAllocation(): void
+    private function seedProjectionWithAllocation(?\DateTimeImmutable $arrivalAt = null): void
     {
         $user = UserFactory::createOne(['username' => 'analysis-explorer-test']);
         $state = StateFactory::createOne(['name' => 'Explorer State', 'createdBy' => $user]);
@@ -326,7 +348,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         InfectionFactory::createOne(['name' => 'Explorer Infection']);
         $raw = IndicationRawFactory::createOne(['name' => 'Explorer Raw']);
         $normalized = IndicationNormalizedFactory::createOne(['name' => 'Explorer Normalized']);
-        AllocationFactory::createOne([
+        $allocationAttributes = [
             'createdAt' => new \DateTimeImmutable('today'),
             'import' => $import,
             'hospital' => $hospital,
@@ -334,7 +356,11 @@ final class AnalysisExplorerControllerTest extends WebTestCase
             'dispatchArea' => $dispatchArea,
             'indicationRaw' => $raw,
             'indicationNormalized' => $normalized,
-        ]);
+        ];
+        if ($arrivalAt instanceof \DateTimeImmutable) {
+            $allocationAttributes['arrivalAt'] = $arrivalAt;
+        }
+        AllocationFactory::createOne($allocationAttributes);
 
         $this->rebuildProjectionForImports([(int) $import->getId()]);
     }

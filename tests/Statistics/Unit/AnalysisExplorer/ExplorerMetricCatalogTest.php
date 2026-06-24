@@ -80,8 +80,17 @@ final class ExplorerMetricCatalogTest extends TestCase
         self::assertContains(AnalysisMetricKey::HospitalCount, $enabled);
         self::assertContains(AnalysisMetricKey::BedsDistribution, $enabled);
         self::assertContains(AnalysisMetricKey::AllocationsPerHospitalDistribution, $enabled);
+        self::assertContains(AnalysisMetricKey::TransportTimePerHospitalDistribution, $enabled);
         self::assertContains(AnalysisMetricKey::MaxAllocations, $enabled);
-        self::assertCount(12, $enabled);
+        self::assertCount(13, $enabled);
+    }
+
+    public function testTransportTimeDistributionProfileIsEnabledForAllocations(): void
+    {
+        $enabled = $this->catalog->enabledKeysForDataSource(AnalysisDataSourceKey::Allocations);
+
+        self::assertContains(AnalysisMetricKey::TransportTimeDistribution, $enabled);
+        self::assertNotContains(AnalysisMetricKey::TransportTimePerHospitalDistribution, $enabled);
     }
 
     public function testDistributionProfilesHaveNoGaDefinition(): void

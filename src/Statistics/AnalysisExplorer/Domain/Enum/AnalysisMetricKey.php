@@ -32,6 +32,8 @@ enum AnalysisMetricKey: string
     case MaxAllocations = 'max_allocations';
     case BedsDistribution = 'beds_distribution';
     case AllocationsPerHospitalDistribution = 'allocations_per_hospital_distribution';
+    case TransportTimeDistribution = 'transport_time_distribution';
+    case TransportTimePerHospitalDistribution = 'transport_time_per_hospital_distribution';
 
     public function registryKey(): string
     {
@@ -76,7 +78,9 @@ enum AnalysisMetricKey: string
             self::MinAllocations,
             self::MaxAllocations => ExplorerMetricCategory::NumericAggregate,
             self::BedsDistribution,
-            self::AllocationsPerHospitalDistribution => ExplorerMetricCategory::DistributionProfile,
+            self::AllocationsPerHospitalDistribution,
+            self::TransportTimeDistribution,
+            self::TransportTimePerHospitalDistribution => ExplorerMetricCategory::DistributionProfile,
         };
     }
 
@@ -116,6 +120,7 @@ enum AnalysisMetricKey: string
             self::P25TransportTime,
             self::P75TransportTime,
             self::P90TransportTime,
+            self::TransportTimeDistribution,
         ];
     }
 
@@ -159,6 +164,7 @@ enum AnalysisMetricKey: string
             self::MaxAllocations,
             self::BedsDistribution,
             self::AllocationsPerHospitalDistribution,
+            self::TransportTimePerHospitalDistribution,
         ];
     }
 

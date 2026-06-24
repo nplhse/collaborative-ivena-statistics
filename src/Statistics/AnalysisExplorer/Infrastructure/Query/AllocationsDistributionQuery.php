@@ -9,15 +9,15 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerQueryMapperRegistry;
 use App\Statistics\AnalysisExplorer\Application\HospitalsDistributionResultMapper;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
-use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericHospitalDistributionSqlBuilder;
+use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationDistributionSqlBuilder;
 use Doctrine\DBAL\Connection;
 
-final readonly class HospitalsDistributionQuery
+final readonly class AllocationsDistributionQuery
 {
     public function __construct(
         private Connection $connection,
         private ExplorerQueryMapperRegistry $queryMapperRegistry,
-        private GenericHospitalDistributionSqlBuilder $sqlBuilder,
+        private GenericAllocationDistributionSqlBuilder $sqlBuilder,
         private HospitalsDistributionResultMapper $resultMapper,
         private ExplorerMetricProfileRegistry $profileRegistry,
     ) {
@@ -34,7 +34,7 @@ final readonly class HospitalsDistributionQuery
         }
 
         $gaQuery = $this->queryMapperRegistry->map($query);
-        [$sql, $params, $types] = $this->sqlBuilder->build($gaQuery, $profile->valueSource);
+        [$sql, $params, $types] = $this->sqlBuilder->build($gaQuery);
 
         /** @var list<array{bucket: mixed, series?: mixed, value: mixed}> $rawRows */
         $rawRows = $this->connection->executeQuery($sql, $params, $types)->fetchAllAssociative();

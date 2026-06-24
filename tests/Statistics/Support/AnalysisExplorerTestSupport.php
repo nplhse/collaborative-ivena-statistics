@@ -24,10 +24,12 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerQueryMapperRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTablePercentHelper;
 use App\Statistics\AnalysisExplorer\Application\HospitalsCapabilitiesProvider;
+use App\Statistics\AnalysisExplorer\Application\HospitalsDistributionResultMapper;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsCountQuery;
+use App\Statistics\AnalysisExplorer\Infrastructure\Query\AllocationsDistributionQuery;
 use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\GenericAnalysis\Application\ChartPrimaryBucketLimiter;
@@ -39,9 +41,11 @@ use App\Statistics\GenericAnalysis\Application\MetricValueFormatter;
 use App\Statistics\GenericAnalysis\Application\RelativeDistributionCalculator;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisQuery;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationAnalysisSqlBuilder;
+use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAllocationDistributionSqlBuilder;
 use App\Statistics\GenericAnalysis\Infrastructure\Query\GenericAnalysisScopeSqlFilter;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\GenericAnalysis\Registry\MetricRegistry;
+use App\Statistics\HospitalPopulation\Application\DescriptiveStatisticsCalculator;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -243,6 +247,14 @@ trait AnalysisExplorerTestSupport
             new HospitalCohortLabelResolver($translator),
         );
 
+        $profileRegistry = $this->createExplorerMetricProfileRegistry();
+        $distributionResultMapper = new HospitalsDistributionResultMapper(
+            $dimensionRegistry,
+            $labelResolver,
+            new DescriptiveStatisticsCalculator(),
+            $profileRegistry,
+        );
+
         $executor = new ExplorerAllocationAnalysisExecutor(
             $this->createExplorerQueryMapperRegistry(),
             new GenericAllocationAnalysisQuery(
@@ -260,6 +272,16 @@ trait AnalysisExplorerTestSupport
                 $dimensionRegistry,
                 $labelResolver,
                 $this->createExplorerMetricKeyMapper(),
+            ),
+            new AllocationsDistributionQuery(
+                $connection,
+                $this->createExplorerQueryMapperRegistry(),
+                new GenericAllocationDistributionSqlBuilder(
+                    $dimensionRegistry,
+                    new GenericAnalysisScopeSqlFilter(),
+                ),
+                $distributionResultMapper,
+                $profileRegistry,
             ),
         );
 

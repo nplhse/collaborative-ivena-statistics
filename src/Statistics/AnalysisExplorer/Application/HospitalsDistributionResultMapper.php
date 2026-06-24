@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisResultRow;
 use App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats;
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery as GenericAnalysisQuery;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\Statistics\HospitalPopulation\Application\DescriptiveStatisticsCalculator;
@@ -22,7 +23,7 @@ final readonly class HospitalsDistributionResultMapper
     }
 
     /**
-     * @param list<array{bucket: mixed, value: mixed}> $rawRows
+     * @param list<array{bucket: mixed, series?: mixed, value: mixed}> $rawRows
      *
      * @return list<AnalysisResultRow>
      */
@@ -34,7 +35,14 @@ final readonly class HospitalsDistributionResultMapper
         }
 
         $primary = $this->dimensionRegistry->get($gaQuery->primaryDimensionKey);
-        $valuesByBucket = [];
+        $series = null !== $gaQuery->seriesDimensionKey
+            ? $this->dimensionRegistry->get($gaQuery->seriesDimensionKey)
+            : null;
+
+        $this->labelResolver->warmDistributionEntityLabels($rawRows, $primary, $series);
+
+        /** @var array<string, list<float>> $valuesByCell keyed by "bucket|series" */
+        $valuesByCell = [];
 
         foreach ($rawRows as $rawRow) {
             $bucket = $rawRow['bucket'] ?? null;
@@ -43,25 +51,38 @@ final readonly class HospitalsDistributionResultMapper
             }
 
             $bucketKey = (string) $bucket;
+            $seriesValue = $rawRow['series'] ?? null;
+            if ($series instanceof AnalysisDimension && (null === $seriesValue || '' === $seriesValue)) {
+                continue;
+            }
+
+            $seriesKey = null !== $seriesValue && '' !== $seriesValue ? (string) $seriesValue : '';
             $value = $rawRow['value'] ?? null;
             if (!is_numeric($value)) {
                 continue;
             }
 
-            $valuesByBucket[$bucketKey][] = (float) $value;
+            $valuesByCell[$bucketKey.'|'.$seriesKey][] = (float) $value;
         }
 
         $rows = [];
-        foreach ($valuesByBucket as $bucketKey => $values) {
+        foreach ($valuesByCell as $cellKey => $values) {
+            $separatorPosition = strpos($cellKey, '|');
+            $bucketKey = false === $separatorPosition ? $cellKey : substr($cellKey, 0, $separatorPosition);
+            $seriesKey = false === $separatorPosition ? '' : substr($cellKey, $separatorPosition + 1);
             $stats = BoxPlotStats::fromDescriptiveStats(
                 $this->descriptiveStatisticsCalculator->calculate($values),
             );
 
+            $resolvedSeriesKey = '' === $seriesKey ? null : $seriesKey;
+
             $rows[] = new AnalysisResultRow(
                 bucket: $bucketKey,
                 bucketLabel: $this->labelResolver->labelFor($primary, $bucketKey),
-                seriesKey: null,
-                seriesLabel: null,
+                seriesKey: $resolvedSeriesKey,
+                seriesLabel: $series instanceof AnalysisDimension && null !== $resolvedSeriesKey
+                    ? $this->labelResolver->labelFor($series, $resolvedSeriesKey)
+                    : null,
                 metricValues: [
                     $query->visualMetricKey->value => $stats->median,
                 ],
@@ -71,7 +92,14 @@ final readonly class HospitalsDistributionResultMapper
 
         usort(
             $rows,
-            static fn (AnalysisResultRow $left, AnalysisResultRow $right): int => $left->bucket <=> $right->bucket,
+            static function (AnalysisResultRow $left, AnalysisResultRow $right): int {
+                $bucketCompare = $left->bucket <=> $right->bucket;
+                if (0 !== $bucketCompare) {
+                    return $bucketCompare;
+                }
+
+                return ($left->seriesKey ?? '') <=> ($right->seriesKey ?? '');
+            },
         );
 
         return $rows;
