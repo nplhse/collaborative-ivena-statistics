@@ -60,6 +60,12 @@ final readonly class AllocationQueryParametersDTO
         public ?int $isInfectious = null,
 
         public ?int $infection = null,
+
+        public ?int $department = null,
+
+        public ?int $speciality = null,
+
+        public ?string $transportType = null,
     ) {
     }
 }

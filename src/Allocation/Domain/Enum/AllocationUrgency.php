@@ -39,4 +39,22 @@ enum AllocationUrgency: int
             self::OUTPATIENT => 'label.urgency.outpatient',
         };
     }
+
+    public static function tryFromQueryValue(mixed $value): ?self
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        if (\is_string($value)) {
+            $value = trim($value);
+            if ('' === $value || !ctype_digit($value)) {
+                return null;
+            }
+        } elseif (!\is_int($value)) {
+            return null;
+        }
+
+        return self::tryFrom((int) $value);
+    }
 }

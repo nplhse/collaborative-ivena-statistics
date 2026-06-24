@@ -12,6 +12,7 @@ use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\State;
+use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
@@ -123,8 +124,11 @@ final readonly class ListAllocationsQuery
         }
 
         if (null !== $queryParametersDTO->urgency && '' !== $queryParametersDTO->urgency) {
-            $qb->andWhere('a.urgency = :urgency')
-                ->setParameter('urgency', AllocationUrgency::from($queryParametersDTO->urgency));
+            $urgency = AllocationUrgency::tryFromQueryValue($queryParametersDTO->urgency);
+            if ($urgency instanceof AllocationUrgency) {
+                $qb->andWhere('a.urgency = :urgency')
+                    ->setParameter('urgency', $urgency->value);
+            }
         }
 
         if (null !== $queryParametersDTO->state) {
@@ -187,6 +191,21 @@ final readonly class ListAllocationsQuery
         if (null !== $queryParametersDTO->secondaryTransport) {
             $qb->andWhere('st.id = :secondaryTransportId')
                 ->setParameter('secondaryTransportId', $queryParametersDTO->secondaryTransport);
+        }
+
+        if (null !== $queryParametersDTO->department) {
+            $qb->andWhere('IDENTITY(a.department) = :departmentId')
+                ->setParameter('departmentId', $queryParametersDTO->department);
+        }
+
+        if (null !== $queryParametersDTO->speciality) {
+            $qb->andWhere('IDENTITY(a.speciality) = :specialityId')
+                ->setParameter('specialityId', $queryParametersDTO->speciality);
+        }
+
+        if (null !== $queryParametersDTO->transportType && '' !== $queryParametersDTO->transportType) {
+            $qb->andWhere('a.transportType = :transportType')
+                ->setParameter('transportType', AllocationTransportType::from($queryParametersDTO->transportType));
         }
 
         $estimatedNumResults = $this->estimateNumResults($qb);

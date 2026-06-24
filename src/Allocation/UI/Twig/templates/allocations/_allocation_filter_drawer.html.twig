@@ -1,0 +1,243 @@
+{% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
+
+{% set hospitalActive = filters.tier is not empty
+    or filters.location is not empty
+    or filters.size is not empty %}
+{% set geographyActive = filters.state is not null
+    or filters.dispatchArea is not null %}
+{% set allocationActive = filters.urgency is not empty
+    or filters.indication is not null
+    or filters.secondaryTransport is not null
+    or filters.department is not null
+    or filters.speciality is not null
+    or filters.transportType is not empty %}
+{% set clinicalActive = filters.requiresResus is not null
+    or filters.requiresCathlab is not null
+    or filters.isVentilated is not null
+    or filters.isShock is not null
+    or filters.isCPR is not null
+    or filters.isPregnant is not null
+    or filters.isWorkAccident is not null
+    or filters.isInfectious is not null
+    or filters.infection is not null %}
+
+<div class="offcanvas offcanvas-end filter-drawer"
+     tabindex="-1"
+     id="allocation-filters"
+     aria-labelledby="allocation-filters-label"
+     data-testid="allocation-filters-drawer">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="allocation-filters-label">
+            {{ 'label.filter.results'|trans }}
+        </h2>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="{{ 'action.close'|trans }}"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <form method="get" action="{{ path('app_explore_allocation_list') }}" id="allocation-filter-form">
+            <div class="accordion accordion-flush" id="allocation-filter-drawer-accordion">
+                <div class="accordion-item">
+                    {{ editAccordion.header(
+                        'allocation-filter-hospital-heading',
+                        'allocation-filter-hospital-panel',
+                        'label.hospital'|trans,
+                        'allocation-filter-section-hospital',
+                        hospitalActive,
+                    ) }}
+                    {{ editAccordion.panel_start('allocation-filter-hospital-panel', 'allocation-filter-hospital-heading', hospitalActive) }}
+                        <div class="accordion-body">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.tier'|trans }}</label>
+                                    <select name="tier" class="form-select">
+                                        <option value="">{{ 'label.all_tiers'|trans }}</option>
+                                        {% for tier in tiers %}
+                                            <option value="{{ tier.value }}" {{ filters.tier == tier.value ? 'selected' }}>
+                                                {{ ('hospital.tier.' ~ tier.value)|trans }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.location'|trans }}</label>
+                                    <select name="location" class="form-select">
+                                        <option value="">{{ 'label.all_locations'|trans }}</option>
+                                        {% for location in locations %}
+                                            <option value="{{ location.value }}" {{ filters.location == location.value ? 'selected' }}>
+                                                {{ ('hospital.location.' ~ location.value)|trans }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.size'|trans }}</label>
+                                    <select name="size" class="form-select">
+                                        <option value="">{{ 'label.all_sizes'|trans }}</option>
+                                        {% for size in sizes %}
+                                            <option value="{{ size.value }}" {{ filters.size == size.value ? 'selected' }}>
+                                                {{ ('hospital.size.' ~ size.value)|trans }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+
+                <div class="accordion-item">
+                    {{ editAccordion.header(
+                        'allocation-filter-geography-heading',
+                        'allocation-filter-geography-panel',
+                        'stats.analysis_explorer.dimension_group.geography'|trans,
+                        'allocation-filter-section-geography',
+                        geographyActive,
+                    ) }}
+                    {{ editAccordion.panel_start('allocation-filter-geography-panel', 'allocation-filter-geography-heading', geographyActive) }}
+                        <div class="accordion-body">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.state'|trans }}</label>
+                                    <select name="state" class="form-select">
+                                        <option value="">{{ 'label.all_states'|trans }}</option>
+                                        {% for state in states %}
+                                            <option value="{{ state.id }}" {{ filters.state == state.id ? 'selected' }}>
+                                                {{ state.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.dispatch_area'|trans }}</label>
+                                    <select name="dispatchArea" class="form-select">
+                                        <option value="">{{ 'label.all_dispatch_areas'|trans }}</option>
+                                        {% for area in dispatchAreas %}
+                                            <option value="{{ area.id }}" {{ filters.dispatchArea == area.id ? 'selected' }}>
+                                                {{ area.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+
+                <div class="accordion-item">
+                    {{ editAccordion.header(
+                        'allocation-filter-allocation-heading',
+                        'allocation-filter-allocation-panel',
+                        'label.allocation'|trans,
+                        'allocation-filter-section-allocation',
+                        allocationActive,
+                    ) }}
+                    {{ editAccordion.panel_start('allocation-filter-allocation-panel', 'allocation-filter-allocation-heading', allocationActive) }}
+                        <div class="accordion-body">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.urgency'|trans }}</label>
+                                    <select name="urgency" class="form-select">
+                                        <option value="">{{ 'label.all_urgencies'|trans }}</option>
+                                        {% for urgency in urgencies %}
+                                            <option value="{{ urgency.value }}" {{ filters.urgency == urgency.value ? 'selected' }}>
+                                                {{ ('allocation.urgency.' ~ urgency.value)|trans }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'stats.analysis_explorer.dimension.transport_type'|trans }}</label>
+                                    <select name="transportType" class="form-select">
+                                        <option value="">{{ 'label.all_transport_types'|trans }}</option>
+                                        {% for transportType in transportTypes %}
+                                            <option value="{{ transportType.value }}" {{ filters.transportType == transportType.value ? 'selected' }}>
+                                                {{ transportType.label()|trans }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.indication.normalized'|trans }}</label>
+                                    <select name="indication" class="form-select">
+                                        <option value="">{{ 'label.all_indications'|trans }}</option>
+                                        {% for indication in indications %}
+                                            {% if indication.code > 0 %}
+                                                <option value="{{ indication.code }}" {{ filters.indication == indication.code ? 'selected' }}>
+                                                    {{ indication.name }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.secondary_transport'|trans }}</label>
+                                    <select name="secondaryTransport" class="form-select">
+                                        <option value="">{{ 'label.all_secondary_transports'|trans }}</option>
+                                        {% for st in secondaryTransports %}
+                                            <option value="{{ st.id }}" {{ filters.secondaryTransport == st.id ? 'selected' }}>
+                                                {{ st.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.department'|trans }}</label>
+                                    <select name="department" class="form-select">
+                                        <option value="">{{ 'label.all_departments'|trans }}</option>
+                                        {% for department in departments %}
+                                            <option value="{{ department.id }}" {{ filters.department == department.id ? 'selected' }}>
+                                                {{ department.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.speciality'|trans }}</label>
+                                    <select name="speciality" class="form-select">
+                                        <option value="">{{ 'label.all_specialities'|trans }}</option>
+                                        {% for speciality in specialities %}
+                                            <option value="{{ speciality.id }}" {{ filters.speciality == speciality.id ? 'selected' }}>
+                                                {{ speciality.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+
+                <div class="accordion-item">
+                    {{ editAccordion.header(
+                        'allocation-filter-clinical-heading',
+                        'allocation-filter-clinical-panel',
+                        'stats.analysis_explorer.dimension_group.clinical_care'|trans,
+                        'allocation-filter-section-clinical',
+                        clinicalActive,
+                    ) }}
+                    {{ editAccordion.panel_start('allocation-filter-clinical-panel', 'allocation-filter-clinical-heading', clinicalActive) }}
+                        <div class="accordion-body">
+                            {{ include('@Shared/_includes/_clinical_care_filter_checkboxes.html.twig', {
+                                values: filters,
+                                infections: infections,
+                                infectionSelectId: 'allocation-filter-infection',
+                            }) }}
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{ include('@Statistics/_filter_drawer_footer.html.twig', {
+        formId: 'allocation-filter-form',
+        showReset: true,
+        resetUrl: path('app_explore_allocation_list'),
+        cancelTestId: 'allocation-filters-cancel',
+        applyTestId: 'allocation-filters-apply',
+        resetTestId: 'allocation-filters-reset',
+    }) }}
+</div>
