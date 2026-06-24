@@ -46,7 +46,7 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-view-card-'.$view->getId().'"]');
         $this->assertSelectorTextContains(
             '[data-testid="stats-analysis-explorer-view-card-'.$view->getId().'"]',
-            'Total allocations',
+            'Time period',
         );
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-open-'.$view->getId().'"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-category-badge-allocations"]');
