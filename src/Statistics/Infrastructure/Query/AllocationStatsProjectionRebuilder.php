@@ -108,7 +108,9 @@ INSERT INTO allocation_stats_projection (
     is_shock,
     is_pregnant,
     is_work_accident,
-    is_with_physician
+    is_with_physician,
+    secondary_transport_id,
+    department_was_closed
 )
 SELECT
     a.id,
@@ -177,7 +179,9 @@ SELECT
     a.is_shock,
     a.is_pregnant,
     a.is_work_accident,
-    a.is_with_physician
+    a.is_with_physician,
+    a.secondary_transport_id,
+    a.department_was_closed
 FROM allocation a
 INNER JOIN hospital h ON h.id = a.hospital_id
 WHERE a.import_id = :importId

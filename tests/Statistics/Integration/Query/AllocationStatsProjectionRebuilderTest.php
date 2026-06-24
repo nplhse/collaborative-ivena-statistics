@@ -67,7 +67,7 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         DepartmentFactory::createOne(['name' => 'StatsProjDepartment']);
         AssignmentFactory::createOne(['name' => 'StatsProjAssignment']);
         OccasionFactory::createOne(['name' => 'StatsProjOccasion']);
-        SecondaryTransportFactory::createOne(['name' => 'StatsProjSecondary']);
+        $secondaryTransport = SecondaryTransportFactory::createOne(['name' => 'StatsProjSecondary']);
         InfectionFactory::createOne(['name' => 'StatsProjInfection']);
         IndicationRawFactory::createOne(['name' => 'StatsProjIndRaw', 'code' => 912_345]);
         $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'StatsProjIndNorm']);
@@ -99,6 +99,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
             'indicationNormalized' => $indicationNormalized,
             'secondaryIndicationRaw' => $secondaryIndicationRaw,
             'secondaryIndicationNormalized' => $secondaryIndicationNormalized,
+            'secondaryTransport' => $secondaryTransport,
+            'departmentWasClosed' => true,
         ]);
 
         $importId = $import->getId();
@@ -157,6 +159,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertTrue($this->toBool($row['is_ventilated']));
         self::assertTrue($this->toBool($row['is_work_accident']));
         self::assertFalse($this->toBool($row['is_with_physician']));
+        self::assertSame($secondaryTransport->getId(), (int) $row['secondary_transport_id']);
+        self::assertTrue($this->toBool($row['department_was_closed']));
 
         $repo = self::getContainer()->get(AllocationStatsProjectionRepository::class);
         $projection = $repo->find($allocationId);
@@ -201,6 +205,8 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertTrue($projection->isVentilated());
         self::assertTrue($projection->isWorkAccident());
         self::assertFalse($projection->isWithPhysician());
+        self::assertSame($secondaryTransport->getId(), $projection->getSecondaryTransportId());
+        self::assertTrue($projection->isDepartmentWasClosed());
     }
 
     public function testRebuildTwiceKeepsStableRowCountPerImport(): void
