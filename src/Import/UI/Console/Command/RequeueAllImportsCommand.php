@@ -9,45 +9,28 @@ use App\Import\Application\DTO\ImportRequeueBatchSummary;
 use App\Import\Application\ImportDispatchExitCode;
 use App\Import\Application\Service\ImportRequeueBatchOrchestrator;
 use App\Import\Application\Service\ImportRequeueRunControl;
+use App\Import\UI\Console\Input\ImportRequeueInput;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:import:requeue-all',
     description: 'Re-queue all allocation imports via Messenger sequentially. Exit codes: 0=all dispatched, 1=some dispatch failures, 2=critical (signal, max retries, invalid options). Requires ext-pcntl for graceful SIGINT/SIGTERM handling.',
 )]
-final class RequeueAllImportsCommand extends Command implements SignalableCommandInterface
+final class RequeueAllImportsCommand implements SignalableCommandInterface
 {
     private ?ImportRequeueRunControl $runControl = null;
 
     public function __construct(
         private readonly ImportRequeueBatchOrchestrator $orchestrator,
     ) {
-        parent::__construct();
-    }
-
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Show which imports would be dispatched without persisting or dispatching')
-            ->addOption('from-id', null, InputOption::VALUE_REQUIRED, 'Start from this import ID', '1')
-            ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Limit the number of imports to process')
-            ->addOption('only-id', null, InputOption::VALUE_REQUIRED, 'Process only this import ID')
-            ->addOption('resume', null, InputOption::VALUE_NONE, 'Resume the latest incomplete batch run')
-            ->addOption('run-id', null, InputOption::VALUE_REQUIRED, 'Resume a specific batch run by ID')
-            ->addOption('max-retries-per-import', null, InputOption::VALUE_REQUIRED, 'Max dispatch attempts per import before critical exit', '3');
     }
 
     /**
      * @return list<int>
      */
-    #[\Override]
     public function getSubscribedSignals(): array
     {
         if (!\function_exists('pcntl_signal')) {
@@ -57,7 +40,6 @@ final class RequeueAllImportsCommand extends Command implements SignalableComman
         return [\SIGINT, \SIGTERM];
     }
 
-    #[\Override]
     public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
     {
         $this->runControl?->requestStop($signal);
@@ -65,28 +47,18 @@ final class RequeueAllImportsCommand extends Command implements SignalableComman
         return false;
     }
 
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $fromId = max(1, (int) $input->getOption('from-id'));
-        $limitOption = $input->getOption('limit');
-        $limit = null !== $limitOption && '' !== $limitOption ? max(1, (int) $limitOption) : null;
-        $onlyIdOption = $input->getOption('only-id');
-        $onlyId = null !== $onlyIdOption && '' !== $onlyIdOption ? (int) $onlyIdOption : null;
-        $runIdOption = $input->getOption('run-id');
-        $runId = null !== $runIdOption && '' !== $runIdOption ? (int) $runIdOption : null;
-        $maxRetries = max(1, (int) $input->getOption('max-retries-per-import'));
-
+    public function __invoke(
+        SymfonyStyle $io,
+        #[MapInput] ImportRequeueInput $input,
+    ): int {
         $options = new ImportRequeueBatchOptions(
-            dryRun: (bool) $input->getOption('dry-run'),
-            fromId: $fromId,
-            limit: $limit,
-            onlyId: $onlyId,
-            resume: (bool) $input->getOption('resume'),
-            runId: $runId,
-            maxRetriesPerImport: $maxRetries,
+            dryRun: $input->dryRun,
+            fromId: $input->fromId,
+            limit: $input->limit,
+            onlyId: $input->onlyId,
+            resume: $input->resume,
+            runId: $input->runId,
+            maxRetriesPerImport: $input->maxRetriesPerImport,
         );
 
         $this->runControl = new ImportRequeueRunControl();
