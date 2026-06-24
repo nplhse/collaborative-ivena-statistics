@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -116,6 +118,32 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
             ),
             title: 'Test',
         );
+    }
+
+    public function testChartTypesForPeriodTotalMultiMetricComparisonUseGroupedBar(): void
+    {
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
+        $config = new \App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::ResusRate, AnalysisMetricKey::CathlabRate],
+            visualMetricKey: AnalysisMetricKey::ResusRate,
+            rowAxis: \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown(AnalysisDimensionKey::PeriodTotal),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
+                chartType: ChartPresentationType::GroupedBar,
+            ),
+            title: 'Clinical resources overview',
+        );
+
+        self::assertTrue($capabilities->usesMultiMetricComparisonChart($config));
+        self::assertSame([ChartPresentationType::GroupedBar], $capabilities->chartTypesFor($config));
+        self::assertSame(ChartPresentationType::GroupedBar, $capabilities->defaultChartTypeFor($config));
     }
 
     public function testScopedCapabilitiesExcludeHospitalOnPublicScope(): void

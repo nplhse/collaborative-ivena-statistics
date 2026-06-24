@@ -210,12 +210,38 @@ final class AnalysisExplorerControllerTest extends WebTestCase
      */
     public static function demoViewProvider(): \Generator
     {
-        yield 'allocations over time' => ['allocations-over-time', 'Allocations over time', '"bar"'];
+        yield 'allocations over time' => ['allocations-over-time', 'Allocations over time', '"line"'];
         yield 'allocations by year' => ['allocations-by-year', 'Allocations by year', '"line"'];
         yield 'gender distribution' => ['gender-distribution', 'Gender distribution', '"bar"'];
         yield 'gender over time' => ['gender-over-time', 'Gender over time', '"grouped_bar"'];
         yield 'urgency distribution' => ['urgency-distribution', 'Urgency distribution', '"bar"'];
         yield 'urgency over time' => ['urgency-over-time', 'Urgency over time', '"stacked_bar"'];
+    }
+
+    public function testTransportTimeBucketDistributionViewOpensInExplorer(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation(new \DateTimeImmutable('today +30 minutes'));
+        $client->followRedirects(true);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer/transport-time-bucket-distribution?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-title"]',
+            'Transport time bucket distribution',
+        );
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
+
+        $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
+        self::assertGreaterThan(0, $chart->count());
+        $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
+        self::assertNotNull($specsRaw);
+        $this->assertStringContainsString('"bar"', $specsRaw);
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('demoViewProvider')]

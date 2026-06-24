@@ -73,6 +73,15 @@ final class MetricRegistryTest extends TestCase
         }
     }
 
+    public function testRegistersInfectionRateMetric(): void
+    {
+        self::assertTrue($this->registry->has('infection_rate'));
+        $metric = $this->registry->get('infection_rate');
+        self::assertSame(MetricFormat::Percent, $metric->defaultFormat);
+        self::assertSame('infection_id', $metric->sourceColumn);
+        self::assertStringContainsString('infection_id IS NOT NULL', $metric->sqlSelectExpression ?? '');
+    }
+
     public function testCountSqlAliasIsWhitelisted(): void
     {
         $count = $this->registry->get('count');

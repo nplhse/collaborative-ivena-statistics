@@ -37,21 +37,23 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         $this->factory = new OverviewPortalNavigationFactory(new ExplorerLegacyAnalyticsViewMapper());
     }
 
-    public function testResourcesOverTimeTargetPointsToAllocationsOverTimeExplorerView(): void
+    public function testResourcesOverTimeTargetPointsToClinicalResourcesComparisonView(): void
     {
         $request = Request::create('/statistics/?scope=public&period=all_time&dimension=resources');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->resourcesOverTimeTarget());
 
-        self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $url);
+        self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-resources', $url);
+        self::assertStringContainsString('period=all', $url);
         self::assertStringNotContainsString('dimension=resources', $url);
     }
 
-    public function testClinicalFeaturesOverTimeTargetPointsToAllocationsOverTimeExplorerView(): void
+    public function testClinicalFeaturesOverTimeTargetPointsToClinicalFeaturesComparisonView(): void
     {
         $request = Request::create('/statistics/?scope=public&period=all_time&dimension=features');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->clinicalFeaturesOverTimeTarget());
 
-        self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $url);
+        self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-features', $url);
+        self::assertStringContainsString('period=all', $url);
         self::assertStringNotContainsString('dimension=features', $url);
     }
 
@@ -61,21 +63,26 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         $navigation = $this->factory->build();
 
         self::assertCount(1, $navigation->timeSeries);
-        self::assertCount(1, $navigation->heatmapDayTime);
-        self::assertCount(1, $navigation->heatmapShift);
+        self::assertCount(1, $navigation->heatmapHour);
+        self::assertCount(1, $navigation->heatmapWeekday);
         self::assertCount(1, $navigation->ageGroups);
+        self::assertCount(1, $navigation->transportTime);
 
         $timeSeriesUrl = $this->urlBuilder->buildFromTarget($request, $navigation->timeSeries[0]);
         self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $timeSeriesUrl);
+        self::assertStringContainsString('period=all_time', $timeSeriesUrl);
         self::assertStringNotContainsString('report=legacy', $timeSeriesUrl);
 
-        $heatmapDayUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapDayTime[0]);
-        self::assertStringContainsString('/statistics/analysis/explorer/day-time-bucket-distribution', $heatmapDayUrl);
+        $heatmapHourUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapHour[0]);
+        self::assertStringContainsString('/statistics/analysis/explorer/allocations-by-hour', $heatmapHourUrl);
 
-        $heatmapShiftUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapShift[0]);
-        self::assertStringContainsString('/statistics/analysis/explorer/allocations-by-weekday', $heatmapShiftUrl);
+        $heatmapWeekdayUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapWeekday[0]);
+        self::assertStringContainsString('/statistics/analysis/explorer/allocations-by-weekday', $heatmapWeekdayUrl);
 
         $ageGroupsUrl = $this->urlBuilder->buildFromTarget($request, $navigation->ageGroups[0]);
         self::assertStringContainsString('/statistics/analysis/explorer/age-group-distribution', $ageGroupsUrl);
+
+        $transportTimeUrl = $this->urlBuilder->buildFromTarget($request, $navigation->transportTime[0]);
+        self::assertStringContainsString('/statistics/analysis/explorer/transport-time-bucket-distribution', $transportTimeUrl);
     }
 }

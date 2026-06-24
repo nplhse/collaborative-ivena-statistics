@@ -3243,13 +3243,17 @@
         <source>stats.overview.kpi.base_short</source>
         <target>Base</target>
       </trans-unit>
-      <trans-unit id="statsNavHmDt" resname="stats.nav.overview_heatmap_daytime_to_analysis">
-        <source>stats.nav.overview_heatmap_daytime_to_analysis</source>
-        <target>Open allocations by hour</target>
+      <trans-unit id="statsNavHmHr" resname="stats.nav.overview_allocations_by_hour">
+        <source>stats.nav.overview_allocations_by_hour</source>
+        <target>Allocations by hour</target>
       </trans-unit>
-      <trans-unit id="statsNavHmSh" resname="stats.nav.overview_heatmap_shift_to_analysis">
-        <source>stats.nav.overview_heatmap_shift_to_analysis</source>
+      <trans-unit id="statsNavHmWd" resname="stats.nav.overview_allocations_by_weekday_short">
+        <source>stats.nav.overview_allocations_by_weekday_short</source>
         <target>weekday</target>
+      </trans-unit>
+      <trans-unit id="statsNavTt" resname="stats.nav.overview_transport_time_to_analysis">
+        <source>stats.nav.overview_transport_time_to_analysis</source>
+        <target>Open transport time distribution</target>
       </trans-unit>
       <trans-unit id="statsNavAg" resname="stats.nav.overview_age_groups_to_analysis">
         <source>stats.nav.overview_age_groups_to_analysis</source>
@@ -7075,6 +7079,10 @@
         <source>stats.analysis_explorer.metric.with_physician_rate</source>
         <target>Physician accompaniment rate</target>
       </trans-unit>
+      <trans-unit id="statsAexM09b" resname="stats.analysis_explorer.metric.infection_rate">
+        <source>stats.analysis_explorer.metric.infection_rate</source>
+        <target>Infection rate</target>
+      </trans-unit>
       <trans-unit id="statsAexM10" resname="stats.analysis_explorer.edit.show_percent_of_total">
         <source>stats.analysis_explorer.edit.show_percent_of_total</source>
         <target>Show share of total</target>
@@ -7567,9 +7575,21 @@
         <source>stats.analysis_explorer.dimension.hour</source>
         <target>Hour</target>
       </trans-unit>
+      <trans-unit id="statsAex107b" resname="stats.analysis_explorer.dimension.period_total">
+        <source>stats.analysis_explorer.dimension.period_total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="statsAexCmpAx" resname="stats.analysis_explorer.metric_comparison.axis">
+        <source>stats.analysis_explorer.metric_comparison.axis</source>
+        <target>Metric</target>
+      </trans-unit>
       <trans-unit id="statsAex108" resname="stats.analysis_explorer.dimension.transport_type">
         <source>stats.analysis_explorer.dimension.transport_type</source>
         <target>Transport type</target>
+      </trans-unit>
+      <trans-unit id="statsAex108b" resname="stats.analysis_explorer.dimension.transport_time_bucket">
+        <source>stats.analysis_explorer.dimension.transport_time_bucket</source>
+        <target>Transport time bucket</target>
       </trans-unit>
       <trans-unit id="statsAex109" resname="stats.analysis_explorer.dimension.day_time_bucket">
         <source>stats.analysis_explorer.dimension.day_time_bucket</source>

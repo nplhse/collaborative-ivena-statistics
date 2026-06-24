@@ -34,7 +34,10 @@ final class ExplorerLegacyAnalyticsViewMapperTest extends TestCase
     public static function mappedViewKeysProvider(): iterable
     {
         yield 'allocations by month' => ['allocations_by_month', 'allocations-over-time'];
-        yield 'allocations by hour' => ['allocations_by_hour', 'day-time-bucket-distribution'];
+        yield 'allocations by hour' => ['allocations_by_hour', 'allocations-by-hour'];
+        yield 'weekday day-time heatmap' => ['allocations_weekday_daytime_heatmap', 'allocations-weekday-by-day-time-heatmap'];
+        yield 'clinical resources comparison' => ['clinical_resources_comparison', 'overview-clinical-resources'];
+        yield 'transport time bucket distribution' => ['transport_time_bucket_distribution', 'transport-time-bucket-distribution'];
         yield 'gender distribution' => ['gender_distribution', 'gender-distribution'];
     }
 }

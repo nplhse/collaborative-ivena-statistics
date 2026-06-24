@@ -152,8 +152,8 @@ final class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-cross-nav-overview-benchmarking"]');
         $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-time-series"]');
-        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-daytime"]');
-        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-shift"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-hour"]');
+        $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-heatmap-weekday"]');
         $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-age-groups"]');
         $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-gender"]');
         $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-urgency"]');
@@ -165,7 +165,7 @@ final class DashboardControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-indicators"]', 'Clinical features');
     }
 
-    public function testOverviewResourcesAndClinicalFeaturesLinkToAllocationsOverTimeExplorerView(): void
+    public function testOverviewResourcesAndClinicalFeaturesLinkToComparisonExplorerViews(): void
     {
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
@@ -173,10 +173,12 @@ final class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
 
         $resourcesHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->attr('href');
-        self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $resourcesHref);
+        self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-resources', $resourcesHref);
+        self::assertStringContainsString('period=all', $resourcesHref);
 
         $clinicalHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-indicators"]')->attr('href');
-        self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $clinicalHref);
+        self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-features', $clinicalHref);
+        self::assertStringContainsString('period=all', $clinicalHref);
     }
 
     public function testOverviewRedirectsToLast12MonthsWhenEnoughMonthlyDataExists(): void
