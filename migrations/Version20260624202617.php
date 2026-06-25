@@ -18,15 +18,6 @@ final class Version20260624202617 extends AbstractMigration
     {
         $this->addSql('ALTER TABLE allocation_stats_projection ADD COLUMN IF NOT EXISTS secondary_transport_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE allocation_stats_projection ADD COLUMN IF NOT EXISTS department_was_closed BOOLEAN DEFAULT NULL');
-
-        $this->addSql(<<<'SQL'
-UPDATE allocation_stats_projection p
-SET
-    secondary_transport_id = a.secondary_transport_id,
-    department_was_closed = a.department_was_closed
-FROM allocation a
-WHERE a.id = p.id
-SQL);
     }
 
     public function down(Schema $schema): void
