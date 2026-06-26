@@ -114,14 +114,14 @@ final class ReviewIndicationRawController extends AbstractController
 
     #[Route('/explore/indication/raw/review/start/matching', name: 'app_explore_indication_raw_review_start_matching', methods: ['GET'])]
     #[IsGranted(IndicationRawReviewVoter::EDIT_MATCH)]
-    public function startMatching(): Response
+    public function startMatching(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         return $this->redirectToFirstInSegment(IndicationRawReviewWorklistSegment::Unreviewed);
     }
 
     #[Route('/explore/indication/raw/review/start/reviewing', name: 'app_explore_indication_raw_review_start_reviewing', methods: ['GET'])]
     #[IsGranted(IndicationRawReviewVoter::REVIEW)]
-    public function startReviewing(): Response
+    public function startReviewing(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         return $this->redirectToFirstInSegment(IndicationRawReviewWorklistSegment::NeedsReview);
     }
@@ -153,7 +153,7 @@ final class ReviewIndicationRawController extends AbstractController
         IndicationRaw $raw,
         User $user,
         IndicationRawReviewWorklistQueryDTO $context,
-    ): Response {
+    ): \Symfony\Component\HttpFoundation\RedirectResponse {
         $comment = $raw->getReviewComment();
 
         if ($this->isButtonClicked($form, 'propose')) {
