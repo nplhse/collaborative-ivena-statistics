@@ -37,6 +37,7 @@ framework:
             App\Statistics\Application\Message\RebuildAllocationStatsProjection: async_priority_low
             App\Kpi\Application\Message\GenerateDailyKpisMessage: async_priority_low
             App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: async_priority_low
+            App\Allocation\Application\Message\BackfillAllocationsForIndicationRawMessage: async_priority_low
 
 when@dev:
     framework:
@@ -55,3 +56,4 @@ when@test:
                 App\Statistics\Application\Message\RebuildAllocationStatsProjection: sync
                 App\Kpi\Application\Message\GenerateDailyKpisMessage: sync
                 App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: sync
+                App\Allocation\Application\Message\BackfillAllocationsForIndicationRawMessage: sync

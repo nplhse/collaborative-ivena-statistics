@@ -39,6 +39,98 @@ final readonly class BackfillAllocationIndicationNormalizedService
         );
     }
 
+    public function runForIndicationRawId(int $indicationRawId): BackfillAllocationIndicationNormalizedResult
+    {
+        $this->syncRawNormalizedFromTargetForRawId($indicationRawId);
+        $primaryUpdated = $this->updateAllocationPrimaryForRawId($indicationRawId);
+        $secondaryUpdated = $this->updateAllocationSecondaryForRawId($indicationRawId);
+        $projectionUpdated = $this->updateProjectionForRawId($indicationRawId);
+
+        return new BackfillAllocationIndicationNormalizedResult(
+            1,
+            $primaryUpdated,
+            $secondaryUpdated,
+            $projectionUpdated,
+        );
+    }
+
+    private function syncRawNormalizedFromTargetForRawId(int $indicationRawId): void
+    {
+        $this->connection->executeStatement(
+            <<<'SQL'
+UPDATE indication_raw r
+SET normalized_id = r.target_id
+WHERE r.id = :rawId
+  AND r.normalized_id IS NULL
+  AND r.target_id IS NOT NULL
+SQL,
+            ['rawId' => $indicationRawId],
+        );
+    }
+
+    private function updateAllocationPrimaryForRawId(int $indicationRawId): int
+    {
+        return $this->connection->executeStatement(
+            <<<'SQL'
+UPDATE allocation a
+SET indication_normalized_id = COALESCE(r.normalized_id, r.target_id)
+FROM indication_raw r
+WHERE r.id = a.indication_raw_id
+  AND r.id = :rawId
+  AND a.indication_normalized_id IS NULL
+  AND COALESCE(r.normalized_id, r.target_id) IS NOT NULL
+SQL,
+            ['rawId' => $indicationRawId],
+        );
+    }
+
+    private function updateAllocationSecondaryForRawId(int $indicationRawId): int
+    {
+        return $this->connection->executeStatement(
+            <<<'SQL'
+UPDATE allocation a
+SET secondary_indication_normalized_id = COALESCE(r.normalized_id, r.target_id)
+FROM indication_raw r
+WHERE r.id = a.secondary_indication_raw_id
+  AND r.id = :rawId
+  AND a.secondary_indication_normalized_id IS NULL
+  AND COALESCE(r.normalized_id, r.target_id) IS NOT NULL
+SQL,
+            ['rawId' => $indicationRawId],
+        );
+    }
+
+    private function updateProjectionForRawId(int $indicationRawId): int
+    {
+        $primary = $this->connection->executeStatement(
+            <<<'SQL'
+UPDATE allocation_stats_projection p
+SET indication_normalized_id = COALESCE(r.normalized_id, r.target_id)
+FROM allocation a
+INNER JOIN indication_raw r ON r.id = a.indication_raw_id
+WHERE p.id = a.id
+  AND r.id = :rawId
+  AND COALESCE(r.normalized_id, r.target_id) IS NOT NULL
+SQL,
+            ['rawId' => $indicationRawId],
+        );
+
+        $secondary = $this->connection->executeStatement(
+            <<<'SQL'
+UPDATE allocation_stats_projection p
+SET secondary_indication_normalized_id = COALESCE(r.normalized_id, r.target_id)
+FROM allocation a
+INNER JOIN indication_raw r ON r.id = a.secondary_indication_raw_id
+WHERE p.id = a.id
+  AND r.id = :rawId
+  AND COALESCE(r.normalized_id, r.target_id) IS NOT NULL
+SQL,
+            ['rawId' => $indicationRawId],
+        );
+
+        return $primary + $secondary;
+    }
+
     private function countOrUpdateRawNormalizedFromTarget(bool $dryRun): int
     {
         $sql = <<<'SQL'

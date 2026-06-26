@@ -13,6 +13,7 @@ final readonly class BackfillAllocationIndicationNormalizedResult
         public int $rawNormalizedSyncedFromTarget,
         public int $allocationsPrimaryUpdated,
         public int $allocationsSecondaryUpdated,
+        public int $projectionRowsUpdated = 0,
     ) {
     }
 }
