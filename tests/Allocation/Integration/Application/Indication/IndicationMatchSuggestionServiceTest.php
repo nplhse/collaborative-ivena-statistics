@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Allocation\Unit\Application\Indication;
+namespace App\Tests\Allocation\Integration\Application\Indication;
 
 use App\Allocation\Application\Indication\IndicationMatchSuggestionService;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;

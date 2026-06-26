@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Allocation\Unit\Infrastructure\Security\Voter;
+namespace App\Tests\Allocation\Integration\Infrastructure\Security;
 
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter;
