@@ -226,4 +226,193 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
     }
+
+    public function testRejectMatchResetsToUnreviewed(): void
+    {
+        $client = self::createClient();
+        $proposer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $normalized = IndicationNormalizedFactory::createOne(['code' => 556, 'name' => 'Reject Norm']);
+        $raw = IndicationRawFactory::createOne([
+            'code' => 556,
+            'name' => 'Reject Raw',
+            'target' => $normalized,
+            'firstMatchedBy' => $proposer,
+            'firstMatchedAt' => new \DateTimeImmutable(),
+            'reviewStatus' => IndicationRawReviewStatus::NeedsReview,
+        ]);
+
+        $client->loginUser($reviewer);
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d', $raw->getId()));
+        $client->submit($crawler->selectButton('Reject match')->form());
+
+        /** @var IndicationRawRepository $repo */
+        $repo = self::getContainer()->get(IndicationRawRepository::class);
+        $reloaded = $repo->find($raw->getId());
+        self::assertNotNull($reloaded);
+        self::assertSame(IndicationRawReviewStatus::Unreviewed, $reloaded->getReviewStatus());
+        self::assertNull($reloaded->getTarget());
+    }
+
+    public function testReviewIgnoreAndNotMatchableCloseWithoutMatch(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $ignoreRaw = IndicationRawFactory::createOne(['code' => 557, 'name' => 'Ignore Raw']);
+        $notMatchableRaw = IndicationRawFactory::createOne(['code' => 558, 'name' => 'NM Raw']);
+        $client->loginUser($reviewer);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d', $ignoreRaw->getId()));
+        $client->submit($crawler->selectButton('Ignore')->form());
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d', $notMatchableRaw->getId()));
+        $client->submit($crawler->selectButton('Not matchable')->form());
+
+        /** @var IndicationRawRepository $repo */
+        $repo = self::getContainer()->get(IndicationRawRepository::class);
+        $reloadedIgnore = $repo->find($ignoreRaw->getId());
+        $reloadedNotMatchable = $repo->find($notMatchableRaw->getId());
+        self::assertNotNull($reloadedIgnore);
+        self::assertNotNull($reloadedNotMatchable);
+        self::assertSame(IndicationRawReviewStatus::Ignored, $reloadedIgnore->getReviewStatus());
+        self::assertSame(IndicationRawReviewStatus::NotMatchable, $reloadedNotMatchable->getReviewStatus());
+    }
+
+    public function testReopenIgnoredRawReturnsToUnreviewed(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $raw = IndicationRawFactory::createOne([
+            'code' => 559,
+            'name' => 'Ignored Raw',
+            'reviewStatus' => IndicationRawReviewStatus::Ignored,
+        ]);
+        $client->loginUser($reviewer);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d', $raw->getId()));
+        $client->submit($crawler->selectButton('Reopen for review')->form());
+
+        /** @var IndicationRawRepository $repo */
+        $repo = self::getContainer()->get(IndicationRawRepository::class);
+        $reloaded = $repo->find($raw->getId());
+        self::assertNotNull($reloaded);
+        self::assertSame(IndicationRawReviewStatus::Unreviewed, $reloaded->getReviewStatus());
+    }
+
+    public function testSaveCommentPersistsComment(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $raw = IndicationRawFactory::createOne(['code' => 560, 'name' => 'Comment Raw']);
+        $client->loginUser($reviewer);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d', $raw->getId()));
+        $form = $crawler->selectButton('Save comment')->form();
+        $form['indication_raw_review[reviewComment]'] = 'Needs second opinion';
+        $client->submit($form);
+
+        /** @var IndicationRawRepository $repo */
+        $repo = self::getContainer()->get(IndicationRawRepository::class);
+        $reloaded = $repo->find($raw->getId());
+        self::assertNotNull($reloaded);
+        self::assertSame('Needs second opinion', $reloaded->getReviewComment());
+    }
+
+    public function testSkipRedirectsToNextOpenItem(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $first = IndicationRawFactory::createOne([
+            'code' => 561,
+            'name' => 'First Skip Raw',
+            'createdAt' => new \DateTimeImmutable('2026-01-01'),
+        ]);
+        $second = IndicationRawFactory::createOne([
+            'code' => 562,
+            'name' => 'Second Skip Raw',
+            'createdAt' => new \DateTimeImmutable('2026-01-02'),
+        ]);
+        $client->loginUser($reviewer);
+
+        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d/skip', $first->getId()));
+
+        self::assertResponseStatusCodeSame(302);
+        self::assertStringContainsString(
+            sprintf('/explore/indication/raw/review/%d', $second->getId()),
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testSkipWithNoNextRedirectsToWorklist(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $raw = IndicationRawFactory::createOne(['code' => 563, 'name' => 'Only Raw']);
+        $client->loginUser($reviewer);
+
+        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d/skip', $raw->getId()));
+
+        self::assertResponseStatusCodeSame(302);
+        self::assertStringContainsString(
+            '/explore/indication/raw/review?segment=open',
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testProposeWithoutTargetShowsFlashAndStaysOnPage(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $raw = IndicationRawFactory::createOne(['code' => 564, 'name' => 'No Target Raw']);
+        $client->loginUser($reviewer);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d', $raw->getId()));
+        $client->submit($crawler->selectButton('Propose match')->form());
+
+        self::assertResponseStatusCodeSame(302);
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert-danger', 'Please select a normalized indication.');
+    }
+
+    public function testMatchedRawShowsApprovedActivityForDifferentViewer(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $viewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $normalized = IndicationNormalizedFactory::createOne(['code' => 565, 'name' => 'Matched Norm']);
+        $raw = IndicationRawFactory::createOne([
+            'code' => 565,
+            'name' => 'Matched Raw',
+            'target' => $normalized,
+            'reviewStatus' => IndicationRawReviewStatus::Matched,
+            'reviewedBy' => $reviewer,
+            'reviewedAt' => new \DateTimeImmutable(),
+        ]);
+        $client->loginUser($viewer);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/review/%d', $raw->getId()));
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($reviewer->getUserIdentifier(), $crawler->filter('.card-body dl')->text());
+    }
 }
