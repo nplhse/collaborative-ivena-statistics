@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -43,7 +44,8 @@ final class IndicationRawCrudController extends AbstractCrudController
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_EDIT, Action::INDEX);
+            ->add(Crud::PAGE_EDIT, Action::INDEX)
+            ->disable(Action::NEW, Action::EDIT);
     }
 
     #[\Override]
@@ -58,6 +60,19 @@ final class IndicationRawCrudController extends AbstractCrudController
         yield AssociationField::new('normalized', 'Normalized');
         yield AssociationField::new('target', 'Target')
             ->hideOnIndex();
+        yield TextField::new('reviewStatus', 'Review status')
+            ->hideOnForm();
+        yield TextareaField::new('reviewComment', 'Review comment')
+            ->hideOnIndex()
+            ->hideOnForm();
+        yield DateTimeField::new('reviewedAt', 'Reviewed at')
+            ->hideOnForm();
+        yield AssociationField::new('reviewedBy', 'Reviewed by')
+            ->onlyOnDetail();
+        yield AssociationField::new('firstMatchedBy', 'First matched by')
+            ->onlyOnDetail();
+        yield DateTimeField::new('firstMatchedAt', 'First matched at')
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt', 'Created')
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();

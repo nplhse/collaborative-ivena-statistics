@@ -104,6 +104,7 @@ final class UserCrudController extends AbstractCrudController
                 'User' => UserRole::USER,
                 'Receives Feedback' => UserRole::FEEDBACK_RECIPIENT,
                 'Receives notifications' => UserRole::RECEIVES_NOTIFICATION,
+                'Reviews indications' => UserRole::REVIEW_INDICATIONS,
             ])
             ->allowMultipleChoices()
             ->renderAsBadges([
@@ -112,6 +113,7 @@ final class UserCrudController extends AbstractCrudController
                 UserRole::USER => 'primary',
                 UserRole::FEEDBACK_RECIPIENT => 'success',
                 UserRole::RECEIVES_NOTIFICATION => 'info',
+                UserRole::REVIEW_INDICATIONS => 'secondary',
             ]);
         yield TextField::new('password')
             ->setFormType(PasswordType::class)

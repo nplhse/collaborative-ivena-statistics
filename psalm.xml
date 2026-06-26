@@ -42,6 +42,9 @@
                 <directory name="src/*/UI/Console/Command/" />
                 <directory name="src/*/UI/Http/Controller" />
                 <directory name="src/*/UI/Http/DTO/" />
+                <directory name="src/Allocation/Application/" />
+                <directory name="src/*/Infrastructure/Security/Voter/" />
+                <directory name="src/*/UI/Form/" />
                 <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/DataFixtures"/>
                 <directory name="src/Import/Application/Factory" />
@@ -73,6 +76,7 @@
                 <directory name="src/*/Infrastructure/EventSubscriber/" />
                 <directory name="src/*/Infrastructure/Factory/" />
                 <directory name="src/*/UI/Twig/Components" />
+                <directory name="src/*/UI/Form/" />
                 <directory name="src/*/UI/Twig" />
                 <directory name="src/*/UI/Http/Controller" />
                 <directory name="src/*/UI/Console/Command" />
