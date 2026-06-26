@@ -51,7 +51,7 @@ final class ListIndicationsRawControllerTest extends WebTestCase
         $nameRowText = $rows->eq(0)->filter('td')->eq(1)->text();
         self::assertSame('Test Indication', trim($nameRowText));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(4)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(5)->text();
         self::assertSame('area-user', trim($userRow));
     }
 
