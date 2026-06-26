@@ -56,14 +56,14 @@ security:
         - { path: ^/_error/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/hospitals, roles: ROLE_PARTICIPANT }
-        - { path: ^/explore/indication/raw/assign, roles: ROLE_ADMIN }
+        - { path: ^/explore/indication/raw/assign, roles: ROLE_PARTICIPANT }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
         - { path: ^/statistics, roles: ROLE_USER }
         - { path: ^/login/confirm, roles: IS_AUTHENTICATED_REMEMBERED }
         # - { path: ^/profile, roles: ROLE_USER }
 
     role_hierarchy:
-        ROLE_ADMIN: ROLE_PARTICIPANT
+        ROLE_ADMIN: [ROLE_PARTICIPANT, ROLE_REVIEW_INDICATIONS]
 
 when@test:
     security:

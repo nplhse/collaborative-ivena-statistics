@@ -1305,6 +1305,130 @@
         <source>label.password.hide</source>
         <target>Passwort verbergen</target>
       </trans-unit>
+      <trans-unit id="IndRevWLDe" resname="title.indication.review_worklist">
+        <source>title.indication.review_worklist</source>
+        <target>Indikations-Review-Worklist</target>
+      </trans-unit>
+      <trans-unit id="IndRevRwDe" resname="title.indication.review_raw">
+        <source>title.indication.review_raw</source>
+        <target>Raw-Indikation prüfen</target>
+      </trans-unit>
+      <trans-unit id="IndRevRwNDe" resname="title.indication.review_raw_named">
+        <source>title.indication.review_raw_named</source>
+        <target>Indikation: {name} ({code})</target>
+      </trans-unit>
+      <trans-unit id="IndLblMPbDe" resname="label.indication.match_proposed_by">
+        <source>label.indication.match_proposed_by</source>
+        <target>Match vorgeschlagen von</target>
+      </trans-unit>
+      <trans-unit id="IndLblRVbDe" resname="label.indication.reviewed_by">
+        <source>label.indication.reviewed_by</source>
+        <target>Geprüft von</target>
+      </trans-unit>
+      <trans-unit id="IndLblRAbDe" resname="label.indication.review_approved_by">
+        <source>label.indication.review_approved_by</source>
+        <target>Freigegeben von</target>
+      </trans-unit>
+      <trans-unit id="IndLblRRbDe" resname="label.indication.review_rejected_by">
+        <source>label.indication.review_rejected_by</source>
+        <target>Match abgelehnt von</target>
+      </trans-unit>
+      <trans-unit id="IndTabRevDe" resname="indication.tab.review">
+        <source>indication.tab.review</source>
+        <target>Review-Worklist</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRWLDe" resname="btn.indication.review_worklist">
+        <source>btn.indication.review_worklist</source>
+        <target>Review-Worklist</target>
+      </trans-unit>
+      <trans-unit id="IndSegUnrDe" resname="indication.review.segment.unreviewed">
+        <source>indication.review.segment.unreviewed</source>
+        <target>Ungeprüft</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStMDe" resname="btn.indication.start_matching">
+        <source>btn.indication.start_matching</source>
+        <target>Matching starten</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStRDe" resname="btn.indication.start_reviewing">
+        <source>btn.indication.start_reviewing</source>
+        <target>Review starten</target>
+      </trans-unit>
+      <trans-unit id="FlsIndAppDe" resname="flash.indication.review.approved">
+        <source>flash.indication.review.approved</source>
+        <target>Match freigegeben. Zuweisungen werden im Hintergrund aktualisiert.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAwtDe" resname="help.indication.review.awaiting_other_reviewer">
+        <source>help.indication.review.awaiting_other_reviewer</source>
+        <target>Die Freigabe muss durch einen anderen Reviewer erfolgen (Vier-Augen-Prinzip).</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfaDe" resname="btn.indication.submit_for_approval">
+        <source>btn.indication.submit_for_approval</source>
+        <target>Zur Freigabe vorschlagen</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMaaDe" resname="btn.indication.match_and_approve">
+        <source>btn.indication.match_and_approve</source>
+        <target>Matchen und freigeben</target>
+      </trans-unit>
+      <trans-unit id="BtnIndPrpDe" resname="btn.indication.propose_match">
+        <source>btn.indication.propose_match</source>
+        <target>Match vorschlagen</target>
+      </trans-unit>
+      <trans-unit id="BtnIndAcpDe" resname="btn.indication.accept_match">
+        <source>btn.indication.accept_match</source>
+        <target>Annehmen</target>
+      </trans-unit>
+      <trans-unit id="BtnIndNMtDe" resname="btn.indication.not_matchable">
+        <source>btn.indication.not_matchable</source>
+        <target>Nicht zuordenbar</target>
+      </trans-unit>
+      <trans-unit id="BtnIndIgnDe" resname="btn.indication.ignore">
+        <source>btn.indication.ignore</source>
+        <target>Ignorieren</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMnmDe" resname="btn.indication.mark_not_matchable">
+        <source>btn.indication.mark_not_matchable</source>
+        <target>Als nicht zuordenbar markieren</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfnDe" resname="btn.indication.skip_for_now">
+        <source>btn.indication.skip_for_now</source>
+        <target>Vorläufig überspringen</target>
+      </trans-unit>
+      <trans-unit id="IndRevAprDe" resname="title.indication.review_approval">
+        <source>title.indication.review_approval</source>
+        <target>Freigabe</target>
+      </trans-unit>
+      <trans-unit id="IndRevAsgDe" resname="title.indication.review_assignment">
+        <source>title.indication.review_assignment</source>
+        <target>Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="IndRevDecDe" resname="title.indication.review_decision">
+        <source>title.indication.review_decision</source>
+        <target>Entscheidung</target>
+      </trans-unit>
+      <trans-unit id="LblOrSepDe" resname="label.or">
+        <source>label.or</source>
+        <target>oder</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAprDe" resname="help.indication.review.approval_actions">
+        <source>help.indication.review.approval_actions</source>
+        <target>Vorgeschlagenes Match bestätigen oder ablehnen.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAdmDe" resname="help.indication.review.admin_fast_path">
+        <source>help.indication.review.admin_fast_path</source>
+        <target>Admin: Match setzen und direkt freigeben (ohne Vier-Augen-Prüfung).</target>
+      </trans-unit>
+      <trans-unit id="HlpIndSfaDe" resname="help.indication.review.submit_for_approval">
+        <source>help.indication.review.submit_for_approval</source>
+        <target>Ausgewähltes Match zur Freigabe durch eine andere Person vorschlagen.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndCwmDe" resname="help.indication.review.close_without_match">
+        <source>help.indication.review.close_without_match</source>
+        <target>Ohne Zuordnung zu einer normalisierten Indikation abschließen.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndMaaDe" resname="flash.indication.review.matched_and_approved">
+        <source>flash.indication.review.matched_and_approved</source>
+        <target>Match gesetzt und freigegeben. Zuweisungen werden im Hintergrund aktualisiert.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

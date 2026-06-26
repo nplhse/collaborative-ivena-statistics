@@ -1,0 +1,167 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.indication.review_worklist'|trans }} - {{ parent() }}{% endblock %}
+
+{% block turbo_drive %}data-turbo=true{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('@Shared/_includes/subnav_explore.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'title.indication.list', path: path('app_explore_indication_list') },
+                { label: 'title.indication.review_worklist' }
+            ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.indication.review_worklist'|trans }}</h2>
+                    <p class="text-secondary mt-1">
+                        {{ 'label.pagination_numbers'|trans({
+                            first: paginator.firstResultNumber,
+                            last: paginator.lastResultNumber,
+                            total: num_results,
+                        }) }}
+                    </p>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        {% if can_edit_match %}
+                            <a href="{{ path('app_explore_indication_raw_review_start_matching') }}" class="btn" target="_top">
+                                {{ 'btn.indication.start_matching'|trans }}
+                            </a>
+                        {% endif %}
+                        {% if can_review %}
+                            <a href="{{ path('app_explore_indication_raw_review_start_reviewing') }}" class="btn" target="_top">
+                                {{ 'btn.indication.start_reviewing'|trans }}
+                            </a>
+                        {% endif %}
+                        <form
+                            method="GET"
+                            action="{{ path('app_explore_indication_raw_review_worklist') }}"
+                            data-controller="autosubmit"
+                            data-turbo-frame="indication-review-list"
+                        >
+                            <div class="input-icon">
+                                <input
+                                    type="search"
+                                    name="search"
+                                    value="{{ query.search }}"
+                                    aria-label="{{ 'label.search'|trans }}"
+                                    placeholder="{{ 'label.search'|trans }}"
+                                    class="form-control d-inline-block w-9"
+                                    data-action="autosubmit#debouncedSubmit"
+                                >
+                                <span class="input-icon-addon">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24" height="24" viewBox="0 0 24 24"
+                                        stroke-width="2" stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <circle cx="10" cy="10" r="7" />
+                                        <line x1="21" y1="21" x2="15" y2="15" />
+                                    </svg>
+                                </span>
+                            </div>
+                            <input type="hidden" name="segment" value="{{ query.segment.value }}">
+                            {% if query.sortBy != 'createdAt' %}
+                                <input type="hidden" name="sortBy" value="{{ query.sortBy }}">
+                            {% endif %}
+                            {% if query.orderBy != 'asc' %}
+                                <input type="hidden" name="orderBy" value="{{ query.orderBy }}">
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <turbo-frame id="indication-review-list" data-turbo-action="advance">
+        {% if query.search is not empty %}
+            <twig:Alert type="info" :message="'label.searching_for'|trans({term: query.search})" />
+        {% endif %}
+
+        <twig:DataTable
+            :paginator="paginator"
+            :paginationRoute="'app_explore_indication_raw_review_worklist'"
+            :tabs="segment_tabs"
+        >
+            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+
+            <table class="table table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>{{ 'label.indication.code'|trans }}</th>
+                    <th>{{ 'label.name'|trans }}</th>
+                    <th>{{ 'label.indication.review_status'|trans }}</th>
+                    <th>
+                        <a class="text-muted" href="{{ path('app_explore_indication_raw_review_worklist', {
+                            segment: query.segment.value,
+                            search: query.search,
+                            sortBy: 'occurrence',
+                            orderBy: query.sortBy == 'occurrence' and query.orderBy == 'desc' ? 'asc' : 'desc',
+                        }) }}">
+                            {{ 'label.indication.occurrences'|trans }}
+                            {{ pagination.sortArrow('occurrence', query.sortBy, query.orderBy) }}
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-muted" href="{{ path('app_explore_indication_raw_review_worklist', {
+                            segment: query.segment.value,
+                            search: query.search,
+                            sortBy: 'createdAt',
+                            orderBy: query.sortBy == 'createdAt' and query.orderBy == 'asc' ? 'desc' : 'asc',
+                        }) }}">
+                            {{ 'label.created_at'|trans }}
+                            {{ pagination.sortArrow('createdAt', query.sortBy, query.orderBy) }}
+                        </a>
+                    </th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for raw in results %}
+                    {% set counts = occurrence_counts[raw.id]|default({occurrence_count: 0}) %}
+                    <tr>
+                        <td><span class="badge">{{ raw.code }}</span></td>
+                        <td>{{ raw.name }}</td>
+                        <td>
+                            <span class="badge bg-{{ raw.reviewStatus.value == 'needs_review' ? 'warning' : (raw.reviewStatus.value == 'matched' ? 'success' : 'secondary') }}-lt">
+                                {{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans }}
+                            </span>
+                        </td>
+                        <td>{{ counts.occurrence_count }}</td>
+                        <td>{{ raw.createdAt|date('d.m.Y H:i') }}</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_explore_indication_raw_review', {id: raw.id, segment: query.segment.value, search: query.search}) }}" target="_top">
+                                {{ 'btn.indication.review'|trans }}
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-secondary text-center py-4">{{ 'label.search_no_results'|trans }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </twig:DataTable>
+    </turbo-frame>
+{% endblock %}

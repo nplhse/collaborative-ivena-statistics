@@ -40,6 +40,10 @@
                 <!-- Page title actions -->
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
+                        <a href="{{ path('app_explore_indication_raw_review_worklist') }}" class="btn" target="_top">
+                            <twig:ux:icon name="tabler:clipboard-check" class="w-3 h-3 me-1" />
+                            {{ 'btn.indication.review_worklist'|trans }}
+                        </a>
                         <form
                             method="GET"
                             action="{{ path('app_explore_indication_list') }}"
@@ -117,7 +121,10 @@
                                 {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
                             </a>
                         </th>
-                        <th class="col-4">
+                        <th class="col-2">
+                            {{ 'label.indication.review_status'|trans }}
+                        </th>
+                        <th class="col-2">
                             <a class="text-muted">
                                 {{ 'label.normalized'|trans }}
                             </a>
@@ -155,13 +162,12 @@
                         </td>
                         {% if active_type == 'raw' %}
                             <td>
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    <a href="{{ path('app_explore_indication_raw_assign', {id: indication.id}) }}" target="_top">
-                                        {{ indication.name }}
-                                    </a>
-                                {% else %}
+                                <a href="{{ path('app_explore_indication_raw_review', {id: indication.id}) }}" target="_top">
                                     {{ indication.name }}
-                                {% endif %}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-lt">{{ ('indication.review.status.' ~ indication.reviewStatus.value)|trans }}</span>
                             </td>
                             <td>
                                 {% if indication.target is not null %}

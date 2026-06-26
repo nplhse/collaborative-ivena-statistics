@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Domain\Entity;
 
+use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Shared\Domain\Traits\Blamable;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
@@ -51,6 +52,26 @@ class IndicationRaw implements \Stringable
 
     #[ORM\ManyToOne(inversedBy: 'children')]
     private ?IndicationNormalized $target = null;
+
+    #[ORM\Column(enumType: IndicationRawReviewStatus::class, options: ['default' => 'unreviewed'])]
+    private IndicationRawReviewStatus $reviewStatus = IndicationRawReviewStatus::Unreviewed;
+
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT, nullable: true)]
+    private ?string $reviewComment = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $reviewedAt = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $reviewedBy = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $firstMatchedBy = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $firstMatchedAt = null;
 
     public function __construct()
     {
@@ -156,7 +177,91 @@ class IndicationRaw implements \Stringable
         $this->target = $target;
         if ($target instanceof IndicationNormalized) {
             $this->normalized = $target;
+        } elseif (null === $target) {
+            $this->normalized = null;
         }
+
+        return $this;
+    }
+
+    public function getReviewStatus(): IndicationRawReviewStatus
+    {
+        return $this->reviewStatus;
+    }
+
+    public function setReviewStatus(IndicationRawReviewStatus $reviewStatus): static
+    {
+        $this->reviewStatus = $reviewStatus;
+
+        return $this;
+    }
+
+    public function getReviewComment(): ?string
+    {
+        return $this->reviewComment;
+    }
+
+    public function setReviewComment(?string $reviewComment): static
+    {
+        $this->reviewComment = $reviewComment;
+
+        return $this;
+    }
+
+    public function getReviewedAt(): ?\DateTimeImmutable
+    {
+        return $this->reviewedAt;
+    }
+
+    public function setReviewedAt(?\DateTimeImmutable $reviewedAt): static
+    {
+        $this->reviewedAt = $reviewedAt;
+
+        return $this;
+    }
+
+    public function getReviewedBy(): ?User
+    {
+        return $this->reviewedBy;
+    }
+
+    public function setReviewedBy(?User $reviewedBy): static
+    {
+        $this->reviewedBy = $reviewedBy;
+
+        return $this;
+    }
+
+    public function getFirstMatchedBy(): ?User
+    {
+        return $this->firstMatchedBy;
+    }
+
+    public function setFirstMatchedBy(?User $firstMatchedBy): static
+    {
+        $this->firstMatchedBy = $firstMatchedBy;
+
+        return $this;
+    }
+
+    public function getFirstMatchedAt(): ?\DateTimeImmutable
+    {
+        return $this->firstMatchedAt;
+    }
+
+    public function setFirstMatchedAt(?\DateTimeImmutable $firstMatchedAt): static
+    {
+        $this->firstMatchedAt = $firstMatchedAt;
+
+        return $this;
+    }
+
+    public function clearMatchAssignment(): static
+    {
+        $this->target = null;
+        $this->normalized = null;
+        $this->firstMatchedBy = null;
+        $this->firstMatchedAt = null;
 
         return $this;
     }

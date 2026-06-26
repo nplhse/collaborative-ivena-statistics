@@ -2727,6 +2727,282 @@
         <source>title.indication.list</source>
         <target>Listing Indications</target>
       </trans-unit>
+      <trans-unit id="IndRevWL" resname="title.indication.review_worklist">
+        <source>title.indication.review_worklist</source>
+        <target>Indication review worklist</target>
+      </trans-unit>
+      <trans-unit id="IndRevRw" resname="title.indication.review_raw">
+        <source>title.indication.review_raw</source>
+        <target>Review raw indication</target>
+      </trans-unit>
+      <trans-unit id="IndRevRwN" resname="title.indication.review_raw_named">
+        <source>title.indication.review_raw_named</source>
+        <target>Indication: {name} ({code})</target>
+      </trans-unit>
+      <trans-unit id="IndRevCtx" resname="title.indication.review_context">
+        <source>title.indication.review_context</source>
+        <target>Context</target>
+      </trans-unit>
+      <trans-unit id="IndRevApr" resname="title.indication.review_approval">
+        <source>title.indication.review_approval</source>
+        <target>Approval</target>
+      </trans-unit>
+      <trans-unit id="IndRevAsg" resname="title.indication.review_assignment">
+        <source>title.indication.review_assignment</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="IndRevDec" resname="title.indication.review_decision">
+        <source>title.indication.review_decision</source>
+        <target>Decision</target>
+      </trans-unit>
+      <trans-unit id="LblOrSep" resname="label.or">
+        <source>label.or</source>
+        <target>or</target>
+      </trans-unit>
+      <trans-unit id="IndRevSug" resname="title.indication.suggestions">
+        <source>title.indication.suggestions</source>
+        <target>Match suggestions</target>
+      </trans-unit>
+      <trans-unit id="IndRevSmp" resname="title.indication.sample_allocations">
+        <source>title.indication.sample_allocations</source>
+        <target>Sample allocations</target>
+      </trans-unit>
+      <trans-unit id="IndTabRev" resname="indication.tab.review">
+        <source>indication.tab.review</source>
+        <target>Review worklist</target>
+      </trans-unit>
+      <trans-unit id="IndLblRSt" resname="label.indication.review_status">
+        <source>label.indication.review_status</source>
+        <target>Review status</target>
+      </trans-unit>
+      <trans-unit id="IndLblOcc" resname="label.indication.occurrences">
+        <source>label.indication.occurrences</source>
+        <target>Occurrences</target>
+      </trans-unit>
+      <trans-unit id="IndLblRCm" resname="label.indication.review_comment">
+        <source>label.indication.review_comment</source>
+        <target>Review comment</target>
+      </trans-unit>
+      <trans-unit id="IndLblFMb" resname="label.indication.first_matched_by">
+        <source>label.indication.first_matched_by</source>
+        <target>First matched by</target>
+      </trans-unit>
+      <trans-unit id="IndLblMPb" resname="label.indication.match_proposed_by">
+        <source>label.indication.match_proposed_by</source>
+        <target>Match proposed by</target>
+      </trans-unit>
+      <trans-unit id="IndLblRVb" resname="label.indication.reviewed_by">
+        <source>label.indication.reviewed_by</source>
+        <target>Reviewed by</target>
+      </trans-unit>
+      <trans-unit id="IndLblRAb" resname="label.indication.review_approved_by">
+        <source>label.indication.review_approved_by</source>
+        <target>Approved by</target>
+      </trans-unit>
+      <trans-unit id="IndLblRRb" resname="label.indication.review_rejected_by">
+        <source>label.indication.review_rejected_by</source>
+        <target>Match rejected by</target>
+      </trans-unit>
+      <trans-unit id="IndLblPTg" resname="label.indication.proposed_target">
+        <source>label.indication.proposed_target</source>
+        <target>Proposed target</target>
+      </trans-unit>
+      <trans-unit id="IndLblCAt" resname="label.created_at">
+        <source>label.created_at</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRWL" resname="btn.indication.review_worklist">
+        <source>btn.indication.review_worklist</source>
+        <target>Review worklist</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRev" resname="btn.indication.review">
+        <source>btn.indication.review</source>
+        <target>Review</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStr" resname="btn.indication.start_review">
+        <source>btn.indication.start_review</source>
+        <target>Start review</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStM" resname="btn.indication.start_matching">
+        <source>btn.indication.start_matching</source>
+        <target>Start matching</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStR" resname="btn.indication.start_reviewing">
+        <source>btn.indication.start_reviewing</source>
+        <target>Start reviewing</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSkp" resname="btn.indication.skip">
+        <source>btn.indication.skip</source>
+        <target>Skip</target>
+      </trans-unit>
+      <trans-unit id="BtnIndPrp" resname="btn.indication.propose_match">
+        <source>btn.indication.propose_match</source>
+        <target>Propose match</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfa" resname="btn.indication.submit_for_approval">
+        <source>btn.indication.submit_for_approval</source>
+        <target>Submit for approval</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMaa" resname="btn.indication.match_and_approve">
+        <source>btn.indication.match_and_approve</source>
+        <target>Match and approve</target>
+      </trans-unit>
+      <trans-unit id="BtnIndApp" resname="btn.indication.approve_match">
+        <source>btn.indication.approve_match</source>
+        <target>Approve match</target>
+      </trans-unit>
+      <trans-unit id="BtnIndAcp" resname="btn.indication.accept_match">
+        <source>btn.indication.accept_match</source>
+        <target>Accept</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRej" resname="btn.indication.reject_match">
+        <source>btn.indication.reject_match</source>
+        <target>Reject match</target>
+      </trans-unit>
+      <trans-unit id="BtnIndNMt" resname="btn.indication.not_matchable">
+        <source>btn.indication.not_matchable</source>
+        <target>Not matchable</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMnm" resname="btn.indication.mark_not_matchable">
+        <source>btn.indication.mark_not_matchable</source>
+        <target>Mark as not matchable</target>
+      </trans-unit>
+      <trans-unit id="BtnIndIgn" resname="btn.indication.ignore">
+        <source>btn.indication.ignore</source>
+        <target>Ignore</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfn" resname="btn.indication.skip_for_now">
+        <source>btn.indication.skip_for_now</source>
+        <target>Skip for now</target>
+      </trans-unit>
+      <trans-unit id="BtnIndReo" resname="btn.indication.reopen">
+        <source>btn.indication.reopen</source>
+        <target>Reopen for review</target>
+      </trans-unit>
+      <trans-unit id="BtnSavCmt" resname="btn.save.comment">
+        <source>btn.save.comment</source>
+        <target>Save comment</target>
+      </trans-unit>
+      <trans-unit id="BtnSearch" resname="btn.search">
+        <source>btn.search</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="FlsIndPrp" resname="flash.indication.review.proposed">
+        <source>flash.indication.review.proposed</source>
+        <target>Match proposed and awaiting approval.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndApp" resname="flash.indication.review.approved">
+        <source>flash.indication.review.approved</source>
+        <target>Match approved. Allocations will be updated in the background.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndRej" resname="flash.indication.review.rejected">
+        <source>flash.indication.review.rejected</source>
+        <target>Proposed match rejected.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndNMt" resname="flash.indication.review.not_matchable">
+        <source>flash.indication.review.not_matchable</source>
+        <target>Marked as not matchable.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndIgn" resname="flash.indication.review.ignored">
+        <source>flash.indication.review.ignored</source>
+        <target>Indication ignored.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndReo" resname="flash.indication.review.reopened">
+        <source>flash.indication.review.reopened</source>
+        <target>Indication reopened for review.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndCmt" resname="flash.indication.review.comment_saved">
+        <source>flash.indication.review.comment_saved</source>
+        <target>Comment saved.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndNoM" resname="flash.indication.review.no_more_open">
+        <source>flash.indication.review.no_more_open</source>
+        <target>No more open indications in this queue.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndTrg" resname="flash.indication.review.target_required">
+        <source>flash.indication.review.target_required</source>
+        <target>Please select a normalized indication.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAwt" resname="help.indication.review.awaiting_other_reviewer">
+        <source>help.indication.review.awaiting_other_reviewer</source>
+        <target>Approval must be done by a different reviewer (four-eyes principle).</target>
+      </trans-unit>
+      <trans-unit id="HlpIndApr" resname="help.indication.review.approval_actions">
+        <source>help.indication.review.approval_actions</source>
+        <target>Confirm or reject the proposed match.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAdm" resname="help.indication.review.admin_fast_path">
+        <source>help.indication.review.admin_fast_path</source>
+        <target>Admin: match and approve in one step (bypasses four-eyes review).</target>
+      </trans-unit>
+      <trans-unit id="HlpIndSfa" resname="help.indication.review.submit_for_approval">
+        <source>help.indication.review.submit_for_approval</source>
+        <target>Propose the selected match for review by another person.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndCwm" resname="help.indication.review.close_without_match">
+        <source>help.indication.review.close_without_match</source>
+        <target>Close without assigning a normalized indication.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndMaa" resname="flash.indication.review.matched_and_approved">
+        <source>flash.indication.review.matched_and_approved</source>
+        <target>Match set and approved. Allocations will be updated in the background.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndTop" resname="help.indication.review.top_open">
+        <source>help.indication.review.top_open</source>
+        <target>Top 50 by occurrence — {total} open entries in total</target>
+      </trans-unit>
+      <trans-unit id="IndSegOpn" resname="indication.review.segment.open">
+        <source>indication.review.segment.open</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="IndSegUnr" resname="indication.review.segment.unreviewed">
+        <source>indication.review.segment.unreviewed</source>
+        <target>Unreviewed</target>
+      </trans-unit>
+      <trans-unit id="IndSegNRv" resname="indication.review.segment.needs_review">
+        <source>indication.review.segment.needs_review</source>
+        <target>Awaiting approval</target>
+      </trans-unit>
+      <trans-unit id="IndSegNew" resname="indication.review.segment.new">
+        <source>indication.review.segment.new</source>
+        <target>New (30 days)</target>
+      </trans-unit>
+      <trans-unit id="IndSegTop" resname="indication.review.segment.top_open">
+        <source>indication.review.segment.top_open</source>
+        <target>Most frequent open</target>
+      </trans-unit>
+      <trans-unit id="IndSegMat" resname="indication.review.segment.matched">
+        <source>indication.review.segment.matched</source>
+        <target>Matched</target>
+      </trans-unit>
+      <trans-unit id="IndSegNMt" resname="indication.review.segment.not_matchable">
+        <source>indication.review.segment.not_matchable</source>
+        <target>Not matchable</target>
+      </trans-unit>
+      <trans-unit id="IndSegIgn" resname="indication.review.segment.ignored">
+        <source>indication.review.segment.ignored</source>
+        <target>Ignored</target>
+      </trans-unit>
+      <trans-unit id="IndStUnr" resname="indication.review.status.unreviewed">
+        <source>indication.review.status.unreviewed</source>
+        <target>Unreviewed</target>
+      </trans-unit>
+      <trans-unit id="IndStNrv" resname="indication.review.status.needs_review">
+        <source>indication.review.status.needs_review</source>
+        <target>Awaiting approval</target>
+      </trans-unit>
+      <trans-unit id="IndStMat" resname="indication.review.status.matched">
+        <source>indication.review.status.matched</source>
+        <target>Matched</target>
+      </trans-unit>
+      <trans-unit id="IndStNMt" resname="indication.review.status.not_matchable">
+        <source>indication.review.status.not_matchable</source>
+        <target>Not matchable</target>
+      </trans-unit>
+      <trans-unit id="IndStIgn" resname="indication.review.status.ignored">
+        <source>indication.review.status.ignored</source>
+        <target>Ignored</target>
+      </trans-unit>
       <trans-unit id="wCSNNqO" resname="title.infection.list">
         <source>title.infection.list</source>
         <target>Listing Infections</target>

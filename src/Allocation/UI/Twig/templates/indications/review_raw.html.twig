@@ -1,0 +1,291 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% macro button_label(icon, label, iconClass) %}
+    <twig:ux:icon name="{{ icon }}" class="{{ iconClass|default('w-3 h-3') }}" /> {{ label }}
+{% endmacro %}
+
+{% macro button_label_after(label, icon) %}
+    {{ label }} <twig:ux:icon name="{{ icon }}" class="w-3 h-3 ms-1" />
+{% endmacro %}
+
+{% block title %}{{ 'title.indication.review_raw'|trans }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include(('@Shared/_includes/subnav_explore.html.twig')) }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    {% import _self as review %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'title.indication.review_worklist', path: path('app_explore_indication_raw_review_worklist') },
+                { label: 'title.indication.review_raw' }
+            ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.indication.review_raw_named'|trans({'%name%': raw.name, '%code%': raw.code}) }}</h2>
+                    <p class="text-secondary mt-1">
+                        <span class="badge bg-secondary-lt">{{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans }}</span>
+                    </p>
+                </div>
+                <div class="col-auto d-flex align-items-center gap-2">
+                    {% if can_edit_match and raw.reviewStatus.value in ['ignored', 'not_matchable'] %}
+                        {{ form_widget(form.reopen, {
+                            label: review.button_label('tabler:refresh', 'btn.indication.reopen'|trans),
+                            label_html: true,
+                            attr: {class: 'btn btn-outline-secondary', form: 'indication-raw-review-form'},
+                        }) }}
+                    {% endif %}
+                    <a href="{{ path('app_explore_indication_raw_review_skip', {id: raw.id, segment: context.segment.value, search: context.search}) }}" class="btn">
+                        {{ 'btn.indication.skip'|trans }}
+                        <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 ms-1" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% import _self as review %}
+    {% set show_approval = raw.reviewStatus.value == 'needs_review' %}
+    {% set show_assignment = can_edit_match and raw.reviewStatus.value in ['unreviewed', 'needs_review'] %}
+    {% set show_close_without_match = can_review and raw.reviewStatus.value in ['unreviewed', 'needs_review'] %}
+    {% set show_reject = show_approval and can_review %}
+    {% set show_propose = can_edit_match and not is_admin and raw.reviewStatus.value == 'unreviewed' %}
+    {% set show_accept = show_approval and can_review and not is_admin %}
+    {% set show_admin_approve = show_approval and can_review and is_admin %}
+    {% set show_match_and_approve = is_admin and can_edit_match and raw.reviewStatus.value == 'unreviewed' %}
+    {% set show_reopen_in_header = can_edit_match and raw.reviewStatus.value in ['ignored', 'not_matchable'] %}
+    {% set show_save_comment = can_edit_match or can_review %}
+    {% set show_actions = show_close_without_match or show_reject or show_propose or show_accept or show_admin_approve or show_match_and_approve %}
+
+    {{ form_start(form, {attr: {id: 'indication-raw-review-form'}}) }}
+    {% set listId = form.target.vars.id ~ '-datalist' %}
+    {% set hiddenSelector = '#' ~ form.target.vars.id %}
+
+    <div class="row row-cards">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'title.indication.review_context'|trans }}</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-5">{{ 'label.created_at'|trans }}</dt>
+                        <dd class="col-7">{{ raw.createdAt|date('d.m.Y H:i') }}</dd>
+                        <dt class="col-5">{{ 'label.indication.occurrences'|trans }}</dt>
+                        <dd class="col-7">{{ occurrence_count }}</dd>
+                        {% for activity in other_user_activities %}
+                            <dt class="col-5">{{ activity.label|trans }}</dt>
+                            <dd class="col-7">{{ activity.user }}, {{ activity.at|date('d.m.Y H:i') }}</dd>
+                        {% endfor %}
+                        {% if raw.target %}
+                            <dt class="col-5">{{ 'label.indication.proposed_target'|trans }}</dt>
+                            <dd class="col-7">{{ raw.target.name }} ({{ raw.target.code }})</dd>
+                        {% endif %}
+                    </dl>
+
+                    {% if suggestions is not empty %}
+                        <h4 class="subheader">{{ 'title.indication.suggestions'|trans }}</h4>
+                        <ul class="list-unstyled">
+                            {% for suggestion in suggestions %}
+                                <li class="mb-1">
+                                    <button type="button" class="btn btn-sm btn-ghost-secondary suggestion-pick" data-label="{{ suggestion.label }}" data-id="{{ suggestion.id }}">
+                                        {{ suggestion.label }}
+                                    </button>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if sample_allocations is not empty %}
+                        <h4 class="subheader mt-3">{{ 'title.indication.sample_allocations'|trans }}</h4>
+                        <ul class="list-unstyled">
+                            {% for allocation in sample_allocations %}
+                                <li>
+                                    <a href="{{ path('app_explore_allocation_show', {id: allocation.id}) }}" target="_top">
+                                        #{{ allocation.id }} — {{ allocation.created_at|date('d.m.Y') }}
+                                        {% if allocation.hospital_name %} ({{ allocation.hospital_name }}){% endif %}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ 'title.indication.review_decision'|trans }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if show_approval and not can_review %}
+                        <twig:Alert type="warning" :message="'help.indication.review.awaiting_other_reviewer'|trans" />
+                    {% endif %}
+
+                    {{ form_row(form.code) }}
+                    {{ form_row(form.name) }}
+
+                    {% if show_assignment %}
+                        {{ form_row(form.target_label, {
+                            attr: form.target_label.vars.attr|merge({
+                                list: listId,
+                                value: initial_label ?? '',
+                                'data-datalist-chooser-list-id-value': listId,
+                                'data-datalist-chooser-hidden-selector-value': hiddenSelector,
+                            }),
+                        }) }}
+
+                        <datalist id="{{ listId }}">
+                            {% for row in datalist %}
+                                <option value="{{ row.label }}" data-id="{{ row.id }}"></option>
+                            {% endfor %}
+                        </datalist>
+
+                        {{ form_widget(form.target) }}
+                    {% else %}
+                        {{ form_row(form.target_label, {
+                            disabled: true,
+                            attr: {
+                                value: initial_label ?? '',
+                                disabled: true,
+                                class: 'form-control',
+                            },
+                        }) }}
+                        {{ form_widget(form.target) }}
+                    {% endif %}
+
+                    {{ form_row(form.reviewComment) }}
+
+                    {% if show_save_comment %}
+                        <div class="mt-2">
+                            {{ form_widget(form.saveComment, {
+                                label: review.button_label('tabler:device-floppy', 'btn.save.comment'|trans, 'w-3 h-3 me-1'),
+                                label_html: true,
+                                attr: {class: 'btn'},
+                            }) }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3" id="indication-review-actions">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center w-100">
+                <a href="{{ path('app_explore_indication_raw_review_worklist', {segment: context.segment.value}) }}" class="btn btn-link px-0">
+                    {{ 'btn.cancel'|trans }}
+                </a>
+
+                <div class="d-flex flex-wrap align-items-center justify-content-end flex-grow-1 gap-2">
+                    {% if show_close_without_match or show_reject or show_match_and_approve or show_propose or show_accept %}
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            {% if show_close_without_match %}
+                                <div class="btn-group{% if show_reject %} me-2{% endif %}" role="group" aria-label="{{ 'help.indication.review.close_without_match'|trans }}">
+                                    {{ form_widget(form.notMatchable, {
+                                        label: review.button_label('tabler:link-off', 'btn.indication.not_matchable'|trans, 'w-3 h-3 me-1'),
+                                        label_html: true,
+                                        attr: {class: 'btn btn-outline-warning'},
+                                    }) }}
+                                    {{ form_widget(form.ignore, {
+                                        label: review.button_label('tabler:eye-off', 'btn.indication.ignore'|trans, 'w-3 h-3 me-1'),
+                                        label_html: true,
+                                        attr: {class: 'btn btn-outline-secondary'},
+                                    }) }}
+                                </div>
+                            {% endif %}
+
+                            {% if show_reject %}
+                                {{ form_widget(form.reject, {
+                                    label: review.button_label('tabler:ban', 'btn.indication.reject_match'|trans, 'w-3 h-3 me-1'),
+                                    label_html: true,
+                                    attr: {class: 'btn btn-danger'},
+                                }) }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% if show_match_and_approve or show_propose or show_accept or show_admin_approve %}
+                        <div class="{% if show_close_without_match or show_reject %}ms-3{% endif %}">
+                            {% if show_match_and_approve %}
+                                {{ form_widget(form.matchAndApprove, {
+                                    label: review.button_label_after('btn.indication.match_and_approve'|trans, 'tabler:bolt'),
+                                    label_html: true,
+                                    attr: {class: 'btn btn-success'},
+                                }) }}
+                            {% elseif show_propose %}
+                                {{ form_widget(form.propose, {
+                                    label: review.button_label_after('btn.indication.propose_match'|trans, 'tabler:send'),
+                                    label_html: true,
+                                    attr: {class: 'btn btn-primary'},
+                                }) }}
+                            {% elseif show_admin_approve %}
+                                {{ form_widget(form.approve, {
+                                    label: review.button_label_after('btn.indication.approve_match'|trans, 'tabler:circle-check'),
+                                    label_html: true,
+                                    attr: {class: 'btn btn-success'},
+                                }) }}
+                            {% elseif show_accept %}
+                                {{ form_widget(form.approve, {
+                                    label: review.button_label_after('btn.indication.accept_match'|trans, 'tabler:circle-check'),
+                                    label_html: true,
+                                    attr: {class: 'btn btn-success'},
+                                }) }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-none">
+        {% if not show_accept and not show_admin_approve %}
+            {{ form_widget(form.approve) }}
+        {% endif %}
+        {% if not show_reject %}
+            {{ form_widget(form.reject) }}
+        {% endif %}
+        {% if not show_match_and_approve %}
+            {{ form_widget(form.matchAndApprove) }}
+        {% endif %}
+        {% if not show_propose %}
+            {{ form_widget(form.propose) }}
+        {% endif %}
+        {% if not show_close_without_match %}
+            {{ form_widget(form.notMatchable) }}
+            {{ form_widget(form.ignore) }}
+        {% endif %}
+        {% if not show_save_comment %}
+            {{ form_widget(form.saveComment) }}
+        {% endif %}
+        {% if not show_reopen_in_header %}
+            {{ form_widget(form.reopen) }}
+        {% endif %}
+    </div>
+    {{ form_end(form) }}
+
+    <script>
+        document.querySelectorAll('.suggestion-pick').forEach((button) => {
+            button.addEventListener('click', () => {
+                const labelInput = document.querySelector('[name="{{ form.target_label.vars.full_name }}"]');
+                const hiddenInput = document.querySelector('[name="{{ form.target.vars.full_name }}"]');
+                if (labelInput) labelInput.value = button.dataset.label;
+                if (hiddenInput) hiddenInput.value = button.dataset.id;
+            });
+        });
+    </script>
+{% endblock %}
