@@ -21,6 +21,7 @@ final class HospitalTest extends TestCase
         $this->assertNull($hospital->getUpdatedAt());
         $this->assertNull($hospital->getName());
         $this->assertNull($hospital->getBeds());
+        $this->assertSame('', $hospital->getAddress()->getStreet());
     }
 
     public function testToStringShowsNameOrFallback(): void
