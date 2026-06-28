@@ -76,6 +76,7 @@ final class RebuildAllocationStatsProjectionCommandTest extends KernelTestCase
 
         $display = $tester->getDisplay();
         self::assertStringContainsString('Projection table truncated.', $display);
+        self::assertStringContainsString('Refreshing materialized views', $display);
         self::assertStringContainsString('Projection rebuild finished. Imports processed: 2', $display);
     }
 
@@ -91,7 +92,7 @@ final class RebuildAllocationStatsProjectionCommandTest extends KernelTestCase
         $tester->assertCommandIsSuccessful();
 
         self::assertSame(0, $exitCode);
-        self::assertStringContainsString('No allocations found. Projection table remains empty.', $tester->getDisplay());
+        self::assertStringContainsString('Projection table remains empty. Materialized views refreshed.', $tester->getDisplay());
     }
 
     #[Test]

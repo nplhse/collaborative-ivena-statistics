@@ -118,7 +118,6 @@ final class StatisticsFilterFormChoiceProviderTest extends KernelTestCase
             'dispatchArea' => $emptyDispatchArea,
             'owner' => $user,
         ]);
-        $this->refreshStatisticsMaterializedViews();
 
         $registeredDispatchId = (string) $emptyDispatchArea->getId();
         self::assertArrayNotHasKey(

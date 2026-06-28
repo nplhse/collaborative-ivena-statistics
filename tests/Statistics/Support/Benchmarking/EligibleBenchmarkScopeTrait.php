@@ -20,15 +20,14 @@ use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
-use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
-use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait;
+use App\Statistics\Application\Message\RebuildAllocationStatsProjection;
+use App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler;
 use App\User\Domain\Entity\User;
 use Zenstruck\Foundry\Test\Factories;
 
 trait EligibleBenchmarkScopeTrait
 {
     use Factories;
-    use RefreshesStatisticsMaterializedViewsTrait;
 
     /**
      * @return array{state: State, dispatchArea: DispatchArea, hospitalA: Hospital, hospitalB: Hospital}
@@ -83,10 +82,9 @@ trait EligibleBenchmarkScopeTrait
             'arrivalAt' => new \DateTimeImmutable('2025-06-02 11:20:00'),
         ]);
 
-        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
-        $rebuilder->rebuildForImport($importA->getId());
-        $rebuilder->rebuildForImport($importB->getId());
-        $this->refreshStatisticsMaterializedViews();
+        $rebuilder = self::getContainer()->get(RebuildAllocationStatsProjectionHandler::class);
+        $rebuilder(new RebuildAllocationStatsProjection($importA->getId()));
+        $rebuilder(new RebuildAllocationStatsProjection($importB->getId()));
 
         return [
             'state' => $state,
