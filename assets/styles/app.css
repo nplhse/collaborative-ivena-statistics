@@ -4,6 +4,11 @@
     border-bottom: none !important;
 }
 
+.allocation-row-department-closed > td,
+.allocation-row-department-closed > th {
+    background-color: var(--tblr-red-lt) !important;
+}
+
 /* Hide CSV item in the ApexCharts export menu */
 .apexcharts-menu-item.exportCSV {
     display: none;

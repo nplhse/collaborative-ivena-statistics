@@ -10,10 +10,12 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
+use App\Allocation\Infrastructure\Repository\AssignmentRepository;
 use App\Allocation\Infrastructure\Repository\DepartmentRepository;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
 use App\Allocation\Infrastructure\Repository\InfectionRepository;
+use App\Allocation\Infrastructure\Repository\OccasionRepository;
 use App\Allocation\Infrastructure\Repository\SecondaryTransportRepository;
 use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Allocation\Infrastructure\Repository\StateRepository;
@@ -35,6 +37,8 @@ final class ListAllocationsController extends AbstractController
         private readonly InfectionRepository $infectionRepository,
         private readonly DepartmentRepository $departmentRepository,
         private readonly SpecialityRepository $specialityRepository,
+        private readonly AssignmentRepository $assignmentRepository,
+        private readonly OccasionRepository $occasionRepository,
     ) {
     }
 
@@ -61,6 +65,8 @@ final class ListAllocationsController extends AbstractController
             'infections' => $this->infectionRepository->findBy([], ['name' => 'ASC']),
             'departments' => $this->departmentRepository->findBy([], ['name' => 'ASC']),
             'specialities' => $this->specialityRepository->findBy([], ['name' => 'ASC']),
+            'assignments' => $this->assignmentRepository->findBy([], ['name' => 'ASC']),
+            'occasions' => $this->occasionRepository->findBy([], ['name' => 'ASC']),
             'transportTypes' => AllocationTransportType::cases(),
         ]);
     }
@@ -78,6 +84,9 @@ final class ListAllocationsController extends AbstractController
             'secondaryTransport',
             'department',
             'speciality',
+            'assignment',
+            'occasion',
+            'departmentWasClosed',
             'transportType',
             'dispatchArea',
             'state',

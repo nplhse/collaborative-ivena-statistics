@@ -1,4 +1,4 @@
-{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes) %}
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions) %}
     {% set rawFilters = [] %}
 
     {# --- Simple string filters --- #}
@@ -58,6 +58,10 @@
 
     {% if filters.isInfectious is not null %}
         {% set rawFilters = rawFilters|merge([{key: 'label.is_infectious', value: filters.isInfectious ? 'Yes' : 'No'}]) %}
+    {% endif %}
+
+    {% if filters.departmentWasClosed is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: filters.departmentWasClosed ? 'Yes' : 'No'}]) %}
     {% endif %}
 
     {# --- Lookup: State (id → name) --- #}
@@ -135,6 +139,32 @@
         {% endfor %}
         {% if specialityName is not null %}
             {% set rawFilters = rawFilters|merge([{key: 'label.speciality', value: specialityName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Assignment (id → name) --- #}
+    {% if filters.assignment is not null and assignments is defined %}
+        {% set assignmentName = null %}
+        {% for assignment in assignments %}
+            {% if assignmentName is null and assignment.id == filters.assignment %}
+                {% set assignmentName = assignment.name %}
+            {% endif %}
+        {% endfor %}
+        {% if assignmentName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.assignment', value: assignmentName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Occasion (id → name) --- #}
+    {% if filters.occasion is not null and occasions is defined %}
+        {% set occasionName = null %}
+        {% for occasion in occasions %}
+            {% if occasionName is null and occasion.id == filters.occasion %}
+                {% set occasionName = occasion.name %}
+            {% endif %}
+        {% endfor %}
+        {% if occasionName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.occasion', value: occasionName}]) %}
         {% endif %}
     {% endif %}
 
