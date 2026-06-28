@@ -68,7 +68,7 @@
         {% if activeFilterCount > 0 %}
             <div class="alert alert-info" role="alert">
                 <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
-                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes) }}
+                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, hospitalScopeOptions) }}
             </div>
         {% endif %}
 

@@ -1,5 +1,22 @@
-{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes) %}
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, hospitalScopeOptions = null) %}
     {% set rawFilters = [] %}
+
+    {% set selectedHospitalFilter = filters.resolvedHospitalFilter %}
+    {% if selectedHospitalFilter is not empty and hospitalScopeOptions is not null %}
+        {% if selectedHospitalFilter == 'my_hospitals' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.hospital', value: hospitalScopeOptions.scopeLabel}]) %}
+        {% else %}
+            {% set hospitalName = null %}
+            {% for hospital in hospitalScopeOptions.hospitals %}
+                {% if hospitalName is null and hospital.id == selectedHospitalFilter %}
+                    {% set hospitalName = hospital.name %}
+                {% endif %}
+            {% endfor %}
+            {% if hospitalName is not null %}
+                {% set rawFilters = rawFilters|merge([{key: 'label.hospital', value: hospitalName}]) %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
 
     {# --- Simple string filters --- #}
     {% if filters.urgency is not empty %}

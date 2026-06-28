@@ -1,6 +1,7 @@
 {% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
 
-{% set hospitalActive = filters.tier is not empty
+{% set hospitalActive = filters.resolvedHospitalFilter is not empty
+    or filters.tier is not empty
     or filters.location is not empty
     or filters.size is not empty %}
 {% set geographyActive = filters.state is not null
@@ -50,6 +51,28 @@
                     {{ editAccordion.panel_start('allocation-filter-hospital-panel', 'allocation-filter-hospital-heading', hospitalActive) }}
                         <div class="accordion-body">
                             <div class="row g-2">
+                                {% if hospitalScopeOptions is defined and hospitalScopeOptions is not null %}
+                                    {% set selectedHospitalFilter = filters.resolvedHospitalFilter %}
+                                    <div class="col-12">
+                                        <label class="form-label" for="allocation-filter-hospital">{{ 'label.hospital'|trans }}</label>
+                                        <select name="hospitalFilter" id="allocation-filter-hospital" class="form-select" data-testid="allocation-filter-hospital">
+                                            <option value="" {{ selectedHospitalFilter == '' ? 'selected' }}>
+                                                {{ hospitalScopeOptions.allClinicsLabel }}
+                                            </option>
+                                            <option value="my_hospitals" {{ selectedHospitalFilter == 'my_hospitals' ? 'selected' }}>
+                                                {{ hospitalScopeOptions.scopeLabel }}
+                                            </option>
+                                            {% if hospitalScopeOptions.hospitals is not empty %}
+                                                <option disabled>────────────</option>
+                                                {% for hospital in hospitalScopeOptions.hospitals %}
+                                                    <option value="{{ hospital.id }}" {{ selectedHospitalFilter == hospital.id ~ '' ? 'selected' }}>
+                                                        {{ hospital.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                {% endif %}
                                 <div class="col-12">
                                     <label class="form-label">{{ 'label.tier'|trans }}</label>
                                     <select name="tier" class="form-select">

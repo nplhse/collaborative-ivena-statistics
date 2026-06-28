@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Query;
 
+use App\Allocation\Application\Allocations\AllocationListFilterCriteriaFactory;
 use App\Allocation\Application\Export\AllocationListFilterApplicator;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
@@ -16,6 +17,7 @@ use App\Allocation\Domain\Entity\State;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\CursorCodec;
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
+use App\User\Domain\Entity\User;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,10 +28,11 @@ final readonly class ListAllocationsQuery
         private EntityManagerInterface $entityManager,
         private CursorCodec $cursorCodec,
         private AllocationListFilterApplicator $filterApplicator,
+        private AllocationListFilterCriteriaFactory $filterCriteriaFactory,
     ) {
     }
 
-    public function getPaginator(AllocationQueryParametersDTO $queryParametersDTO): CursorPaginator
+    public function getPaginator(AllocationQueryParametersDTO $queryParametersDTO, ?User $user = null): CursorPaginator
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('a.id, a.createdAt, a.arrivalAt, s.id as state_id, s.name as state, da.id as dispatchArea_id, da.name as dispatchArea,
@@ -100,7 +103,7 @@ final readonly class ListAllocationsQuery
             default => 'a.arrivalAt',
         };
 
-        $this->filterApplicator->apply($qb, $queryParametersDTO->toListFilterCriteria());
+        $this->filterApplicator->apply($qb, $this->filterCriteriaFactory->fromQuery($queryParametersDTO, $user));
 
         $estimatedNumResults = $this->estimateNumResults($qb);
 
@@ -245,6 +248,12 @@ final readonly class ListAllocationsQuery
 
         if ($value instanceof \DateTimeInterface) {
             return "'".$value->format('Y-m-d H:i:s')."'";
+        }
+
+        if (\is_array($value)) {
+            $quoted = array_map($this->quoteForExplain(...), $value);
+
+            return '('.implode(', ', $quoted).')';
         }
 
         if (\is_int($value) || \is_float($value)) {
