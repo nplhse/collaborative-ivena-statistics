@@ -11,6 +11,9 @@
     or filters.secondaryTransport is not null
     or filters.department is not null
     or filters.speciality is not null
+    or filters.assignment is not null
+    or filters.occasion is not null
+    or filters.departmentWasClosed is not null
     or filters.transportType is not empty %}
 {% set clinicalActive = filters.requiresResus is not null
     or filters.requiresCathlab is not null
@@ -172,6 +175,28 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
+                                    <label class="form-label">{{ 'label.assignment'|trans }}</label>
+                                    <select name="assignment" class="form-select">
+                                        <option value="">{{ 'label.all_assignments'|trans }}</option>
+                                        {% for assignment in assignments %}
+                                            <option value="{{ assignment.id }}" {{ filters.assignment == assignment.id ? 'selected' }}>
+                                                {{ assignment.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ 'label.occasion'|trans }}</label>
+                                    <select name="occasion" class="form-select">
+                                        <option value="">{{ 'label.all_occasions'|trans }}</option>
+                                        {% for occasion in occasions %}
+                                            <option value="{{ occasion.id }}" {{ filters.occasion == occasion.id ? 'selected' }}>
+                                                {{ occasion.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
                                     <label class="form-label">{{ 'stats.analysis_explorer.dimension.transport_type'|trans }}</label>
                                     <select name="transportType" class="form-select">
                                         <option value="">{{ 'label.all_transport_types'|trans }}</option>
@@ -227,6 +252,18 @@
                                             </option>
                                         {% endfor %}
                                     </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-check form-switch mb-0">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="departmentWasClosed"
+                                               value="1"
+                                               data-testid="allocation-filter-department-was-closed"
+                                               {{ filters.departmentWasClosed ? 'checked' }}>
+                                        <span class="form-check-label">{{ 'field.departmentWasClosed'|trans }}</span>
+                                    </label>
+                                    <div class="form-text">{{ 'help.export.department_was_closed_filter'|trans }}</div>
                                 </div>
                             </div>
                         </div>

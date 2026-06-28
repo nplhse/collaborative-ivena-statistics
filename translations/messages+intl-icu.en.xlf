@@ -713,6 +713,10 @@
         <source>field.departmentWasClosed</source>
         <target>Department was closed</target>
       </trans-unit>
+      <trans-unit id="abbrDeptClosedEn" resname="abbr.department_was_closed">
+        <source>abbr.department_was_closed</source>
+        <target>Closed</target>
+      </trans-unit>
       <trans-unit id="allocAllTt" resname="label.all_transport_types">
         <source>label.all_transport_types</source>
         <target>All transport types</target>

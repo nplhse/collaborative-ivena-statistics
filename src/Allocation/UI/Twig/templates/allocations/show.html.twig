@@ -64,9 +64,7 @@
                             <span class="text-muted">({{ allocation.speciality }})</span>
 
                             {% if allocation.departmentWasClosed %}
-                                <span class="badge bg-red-lt text-red ms-2 d-inline-flex align-items-center" title="Department was closed">
-                                    <twig:ux:icon name="tabler:alert-square-rounded" class="w-3 h-3" /> closed
-                                </span>
+                                {{ include('@Allocation/allocations/_department_was_closed_indicator.html.twig') }}
                             {% endif %}
                         </div>
                     </div>
