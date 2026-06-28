@@ -217,6 +217,67 @@ final class ListAllocationsControllerTest extends WebTestCase
         self::assertSame([(int) $matchingAllocation->getId()], $ids);
     }
 
+    public function testAssignmentOccasionAndDepartmentWasClosedFilters(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $assignment = AssignmentFactory::find(['name' => 'Test Assignment']);
+        $occasion = OccasionFactory::find(['name' => 'Test Occasion']);
+
+        $matchingAllocation = AllocationFactory::createOne([
+            'assignment' => $assignment,
+            'occasion' => $occasion,
+            'departmentWasClosed' => true,
+        ]);
+        AllocationFactory::createOne([
+            'departmentWasClosed' => false,
+        ]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf(
+                '/explore/allocation?assignment=%d&occasion=%d&departmentWasClosed=1&limit=50',
+                $assignment->getId(),
+                $occasion->getId(),
+            )
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="assignment"]');
+        self::assertSelectorExists('select[name="occasion"]');
+        self::assertSelectorExists('[data-testid="allocation-filter-department-was-closed"]');
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([(int) $matchingAllocation->getId()], $ids);
+        self::assertSelectorExists('.alert.alert-info');
+        self::assertSelectorTextContains('.alert.alert-info', 'Test Assignment');
+        self::assertSelectorTextContains('.alert.alert-info', 'Test Occasion');
+    }
+
+    public function testDepartmentWasClosedAllocationShowsRowHighlightAndIndicator(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        AllocationFactory::createOne(['departmentWasClosed' => true]);
+        AllocationFactory::createOne(['departmentWasClosed' => false]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?limit=50'
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('tr.allocation-row-department-closed');
+        self::assertSelectorExists('[data-testid="department-was-closed-indicator"]');
+        self::assertCount(1, $crawler->filter('tr.allocation-row-department-closed'));
+        self::assertCount(
+            0,
+            $crawler->filter('[data-testid="department-was-closed-indicator"] .w-3.h-3 + *'),
+            'Properties indicator should render icon only without trailing text.',
+        );
+    }
+
     private function seedDependencies(): void
     {
         UserFactory::createOne(['username' => 'area-user']);

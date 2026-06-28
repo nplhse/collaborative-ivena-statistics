@@ -118,6 +118,50 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertStringContainsString(HospitalTier::cases()[0]->value, $pageText);
     }
 
+    public function testShowDisplaysDepartmentWasClosedIndicator(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $department = DepartmentFactory::createOne(['name' => 'Closed Department']);
+        $speciality = SpecialityFactory::createOne(['name' => 'Closed Speciality']);
+        $assignment = AssignmentFactory::createOne();
+        $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test Indication']);
+        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
+        $hospital = HospitalFactory::createOne([
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => $assignment,
+            'department' => $department,
+            'speciality' => $speciality,
+            'indicationRaw' => $indicationRaw,
+            'indicationNormalized' => $indicationNormalized,
+            'occasion' => OccasionFactory::createOne(),
+            'departmentWasClosed' => true,
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.department-line [data-testid="department-was-closed-indicator"]');
+        self::assertSelectorTextContains('.department-line', 'Closed');
+    }
+
     public function testShowRejectsPostMethod(): void
     {
         $client = $this->createClientAsParticipant();

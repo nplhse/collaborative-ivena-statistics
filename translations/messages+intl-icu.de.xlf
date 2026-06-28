@@ -1217,6 +1217,10 @@
         <source>field.departmentWasClosed</source>
         <target>Fachbereich war abgemeldet</target>
       </trans-unit>
+      <trans-unit id="abbrDeptClosedDe" resname="abbr.department_was_closed">
+        <source>abbr.department_was_closed</source>
+        <target>Abgm.</target>
+      </trans-unit>
       <trans-unit id="lblAllTiersDe" resname="label.all_tiers">
         <source>label.all_tiers</source>
         <target>Alle Versorgungsstufen</target>
