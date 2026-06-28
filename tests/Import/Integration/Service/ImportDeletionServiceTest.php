@@ -24,7 +24,10 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportRepository;
-use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Message\RebuildAllocationStatsProjection;
+use App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler;
+use App\Statistics\Infrastructure\Entity\ProjectionHospitalDimension;
+use App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -82,10 +85,53 @@ final class ImportDeletionServiceTest extends KernelTestCase
         }
     }
 
+    public function testDeleteLastImportRefreshesMaterializedViews(): void
+    {
+        ['import' => $import, 'csvPath' => $csvPath, 'importId' => $importId, 'hospitalId' => $hospitalId] = $this->arrangeImportWithAllocation();
+
+        try {
+            self::assertInstanceOf(
+                ProjectionHospitalDimension::class,
+                $this->em->find(ProjectionHospitalDimension::class, $hospitalId),
+            );
+
+            $this->deletionService->delete($import);
+
+            $this->em->clear();
+            self::assertNull($this->em->find(ProjectionHospitalDimension::class, $hospitalId));
+        } finally {
+            if (\is_file($csvPath)) {
+                @unlink($csvPath);
+            }
+        }
+    }
+
+    public function testDeleteImportKeepsHospitalInMaterializedViewsWhenOtherImportsExist(): void
+    {
+        ['import' => $firstImport, 'hospitalId' => $hospitalId] = $this->arrangeImportWithAllocation('DeleteKeepA');
+        $secondImport = $this->arrangeSecondImportForSameHospital($firstImport);
+
+        try {
+            $this->deletionService->delete($firstImport);
+
+            $this->em->clear();
+            self::assertInstanceOf(
+                ProjectionHospitalDimension::class,
+                $this->em->find(ProjectionHospitalDimension::class, $hospitalId),
+            );
+            self::assertNotNull($this->imports->find((int) $secondImport->getId()));
+        } finally {
+            $csvPath = $secondImport->getFilePath();
+            if (\is_string($csvPath) && '' !== $csvPath && \is_file($csvPath)) {
+                @unlink($csvPath);
+            }
+        }
+    }
+
     /**
-     * @return array{import: Import, importId: int, csvPath: string}
+     * @return array{import: Import, importId: int, csvPath: string, hospitalId: int}
      */
-    private function arrangeImportWithAllocation(): array
+    private function arrangeImportWithAllocation(string $namePrefix = 'DeleteService'): array
     {
         UserFactory::createOne();
         $state = StateFactory::createOne();
@@ -99,7 +145,7 @@ final class ImportDeletionServiceTest extends KernelTestCase
         file_put_contents($csvPath, "header1;header2\nvalue1;value2\n");
 
         $importProxy = ImportFactory::createOne([
-            'name' => 'Delete Service IT',
+            'name' => $namePrefix.' IT',
             'hospital' => $hospital,
             'type' => ImportType::ALLOCATION,
             'status' => ImportStatus::COMPLETED,
@@ -132,12 +178,56 @@ final class ImportDeletionServiceTest extends KernelTestCase
         ]);
 
         $importId = (int) $importProxy->getId();
-        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($importId);
+        self::getContainer()->get(OverviewMaterializedViewsInstaller::class)->ensureInstalled();
+        self::getContainer()->get(RebuildAllocationStatsProjectionHandler::class)
+            ->__invoke(new RebuildAllocationStatsProjection($importId));
 
         /** @var Import $import */
         $import = $this->imports->find($importId);
 
-        return ['import' => $import, 'importId' => $importId, 'csvPath' => $csvPath];
+        return ['import' => $import, 'importId' => $importId, 'csvPath' => $csvPath, 'hospitalId' => (int) $hospital->getId()];
+    }
+
+    private function arrangeSecondImportForSameHospital(Import $firstImport): Import
+    {
+        $hospital = $firstImport->getHospital();
+        self::assertNotNull($hospital);
+
+        $csvPath = sys_get_temp_dir().'/ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv';
+        file_put_contents($csvPath, "header1;header2\nvalue1;value2\n");
+
+        $importProxy = ImportFactory::createOne([
+            'name' => 'DeleteKeepB IT',
+            'hospital' => $hospital,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::COMPLETED,
+            'filePath' => $csvPath,
+            'fileExtension' => 'csv',
+            'fileMimeType' => 'text/csv',
+            'fileSize' => (int) filesize($csvPath),
+            'rowCount' => 1,
+            'rowsPassed' => 1,
+            'rowsRejected' => 0,
+            'runCount' => 1,
+            'runTime' => 50,
+        ]);
+
+        AllocationFactory::createOne([
+            'import' => $importProxy,
+            'hospital' => $hospital,
+            'dispatchArea' => $hospital->getDispatchArea(),
+            'state' => $hospital->getState(),
+        ]);
+
+        $importId = (int) $importProxy->getId();
+        self::getContainer()->get(RebuildAllocationStatsProjectionHandler::class)
+            ->__invoke(new RebuildAllocationStatsProjection($importId));
+
+        /** @var Import $import */
+        $import = $this->imports->find($importId);
+        self::assertInstanceOf(Import::class, $import);
+
+        return $import;
     }
 
     private function countAllocationsForImport(int $importId): int

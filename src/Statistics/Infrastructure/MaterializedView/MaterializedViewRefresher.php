@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\MaterializedView;
 
+use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class MaterializedViewRefresher
+final readonly class MaterializedViewRefresher implements MaterializedViewRefresherInterface
 {
     public function __construct(
         private Connection $connection,
         private LoggerInterface $logger,
+        #[Autowire('%kernel.environment%')]
+        private string $kernelEnvironment,
     ) {
     }
 
@@ -20,8 +24,11 @@ final readonly class MaterializedViewRefresher
      *
      * @return list<array{view: string, success: bool, message: string}>
      */
-    public function refresh(array $groups = [], bool $concurrently = true): array
+    #[\Override]
+    public function refresh(array $groups = [], ?bool $concurrently = null): array
     {
+        $concurrently ??= 'test' !== $this->kernelEnvironment;
+
         $results = [];
         foreach (StatisticsMaterializedViewGroups::viewsForGroups($groups) as $viewName) {
             $results[] = $this->refreshView($viewName, $concurrently);

@@ -22,7 +22,7 @@ journalctl --user -u messenger -f
 | Imports/mail stuck in queue | Worker not running | Start/restart worker and inspect queue |
 | `import.failed.precondition` | Missing CSV or invalid path | Verify import file path and file availability |
 | Requeue exits with code `2` | Critical error / retry limit | Fix affected import, retry |
-| Statistics look outdated | Materialized views not refreshed | Run `app:statistics:refresh-mviews` |
+| Statistics look outdated | Messenger worker not processing projection rebuild, manual projection SQL, or hospital metadata changed without re-import | Check worker queue; run `app:statistics:refresh-mviews` if projection was changed outside the app |
 | Feedback saved, no admin mail | No eligible recipients | Check Admin + Receives Feedback roles |
 | Mail links point to `localhost` | Missing/wrong `APP_URL` in prod | Fix `APP_URL`, clear cache, restart worker |
 
