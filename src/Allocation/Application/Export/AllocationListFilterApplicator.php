@@ -11,6 +11,7 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\QueryBuilder;
 
 final class AllocationListFilterApplicator
@@ -20,6 +21,15 @@ final class AllocationListFilterApplicator
         if (null !== $criteria->importId) {
             $qb->andWhere('a.import = :importId')
                 ->setParameter('importId', $criteria->importId);
+        }
+
+        if (null !== $criteria->hospitalIds) {
+            if ([] === $criteria->hospitalIds) {
+                $qb->andWhere('1 = 0');
+            } else {
+                $qb->andWhere('h.id IN (:hospitalIds)')
+                    ->setParameter('hospitalIds', $criteria->hospitalIds, ArrayParameterType::INTEGER);
+            }
         }
 
         if (null !== $criteria->tier && '' !== $criteria->tier) {

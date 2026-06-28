@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\DTO;
 
+use App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver;
 use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -73,7 +74,33 @@ final readonly class AllocationQueryParametersDTO
         public ?int $departmentWasClosed = null,
 
         public ?string $transportType = null,
+
+        #[Assert\Choice(choices: [AllocationListHospitalScopeResolver::SCOPE_MY_HOSPITALS])]
+        public ?string $hospitalScope = null,
+
+        #[Assert\GreaterThan(0)]
+        public ?int $hospital = null,
+
+        #[Assert\Regex(pattern: '/^(my_hospitals|\d+)$/')]
+        public ?string $hospitalFilter = null,
     ) {
+    }
+
+    public function resolvedHospitalFilter(): string
+    {
+        if (null !== $this->hospitalFilter && '' !== $this->hospitalFilter) {
+            return $this->hospitalFilter;
+        }
+
+        if (AllocationListHospitalScopeResolver::SCOPE_MY_HOSPITALS === $this->hospitalScope) {
+            if (null !== $this->hospital && $this->hospital > 0) {
+                return (string) $this->hospital;
+            }
+
+            return AllocationListHospitalScopeResolver::SCOPE_MY_HOSPITALS;
+        }
+
+        return '';
     }
 
     public function toListFilterCriteria(): AllocationListFilterCriteria

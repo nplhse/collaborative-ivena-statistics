@@ -1505,6 +1505,90 @@
         <source>error.export.invalid_filter</source>
         <target>Bitte prüfen Sie die Export-Filter.</target>
       </trans-unit>
+      <trans-unit id="OnbCardDe01" resname="onboarding.card.title">
+        <source>onboarding.card.title</source>
+        <target>Erste Schritte</target>
+      </trans-unit>
+      <trans-unit id="OnbCardDe02" resname="onboarding.card.intro">
+        <source>onboarding.card.intro</source>
+        <target>Schließen Sie diese Schritte ab, um mit Ihren Klinikdaten zu starten.</target>
+      </trans-unit>
+      <trans-unit id="OnbCardDe03" resname="onboarding.card.progress">
+        <source>onboarding.card.progress</source>
+        <target>{completed} von {total} erledigt</target>
+      </trans-unit>
+      <trans-unit id="OnbCardDe04" resname="onboarding.card.completed_popover_title">
+        <source>onboarding.card.completed_popover_title</source>
+        <target>Erledigte Schritte</target>
+      </trans-unit>
+      <trans-unit id="OnbActDe01" resname="onboarding.action.mark_complete">
+        <source>onboarding.action.mark_complete</source>
+        <target>Als erledigt markieren</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe01" resname="onboarding.steps.request_clinic_access.title">
+        <source>onboarding.steps.request_clinic_access.title</source>
+        <target>Zugang zur eigenen Klinik anfragen</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe02" resname="onboarding.steps.request_clinic_access.description">
+        <source>onboarding.steps.request_clinic_access.description</source>
+        <target>Bitten Sie das Team, Ihr Konto der richtigen Klinik zuzuordnen.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe03" resname="onboarding.steps.request_clinic_access.action">
+        <source>onboarding.steps.request_clinic_access.action</source>
+        <target>Anfrage senden</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe04" resname="onboarding.steps.request_clinic_access.feedback_message">
+        <source>onboarding.steps.request_clinic_access.feedback_message</source>
+        <target>Hallo, ich möchte Zugriff auf meine Klinik erhalten. Klinik: [bitte Namen eintragen]. Vielen Dank!</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe05" resname="onboarding.steps.verify_own_clinic.title">
+        <source>onboarding.steps.verify_own_clinic.title</source>
+        <target>Eigene Kliniken prüfen</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe06" resname="onboarding.steps.verify_own_clinic.description">
+        <source>onboarding.steps.verify_own_clinic.description</source>
+        <target>Prüfen Sie, ob Klinikprofil und Einstellungen korrekt sind.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe07" resname="onboarding.steps.verify_own_clinic.action">
+        <source>onboarding.steps.verify_own_clinic.action</source>
+        <target>Meine Kliniken öffnen</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe08" resname="onboarding.steps.start_first_import.title">
+        <source>onboarding.steps.start_first_import.title</source>
+        <target>Ersten Datenimport starten</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe09" resname="onboarding.steps.start_first_import.description">
+        <source>onboarding.steps.start_first_import.description</source>
+        <target>Laden Sie Verlegungsdaten für Ihre Klinik hoch, um mit der Analyse zu beginnen.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe10" resname="onboarding.steps.start_first_import.action">
+        <source>onboarding.steps.start_first_import.action</source>
+        <target>Import starten</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe11" resname="onboarding.steps.view_explore_data.title">
+        <source>onboarding.steps.view_explore_data.title</source>
+        <target>Importierte Einsätze ansehen</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe12" resname="onboarding.steps.view_explore_data.description">
+        <source>onboarding.steps.view_explore_data.description</source>
+        <target>Durchsuchen Sie Rohdaten der Verlegungen im Explorer.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe13" resname="onboarding.steps.view_explore_data.action">
+        <source>onboarding.steps.view_explore_data.action</source>
+        <target>Explorer öffnen</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe14" resname="onboarding.steps.view_overview_statistics.title">
+        <source>onboarding.steps.view_overview_statistics.title</source>
+        <target>Overview-Statistiken ansehen</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe15" resname="onboarding.steps.view_overview_statistics.description">
+        <source>onboarding.steps.view_overview_statistics.description</source>
+        <target>Öffnen Sie das Statistik-Dashboard für Trends und Verteilungen.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpDe16" resname="onboarding.steps.view_overview_statistics.action">
+        <source>onboarding.steps.view_overview_statistics.action</source>
+        <target>Statistik öffnen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

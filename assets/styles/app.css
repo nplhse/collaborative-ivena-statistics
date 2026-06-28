@@ -84,6 +84,21 @@
     }
 }
 
+.onboarding-step-action-icon {
+    animation: onboarding-action-nudge 1.4s ease-in-out infinite;
+}
+
+@keyframes onboarding-action-nudge {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(0.2em);
+    }
+}
+
 .case-flow-map-square {
     position: relative;
     width: 100%;

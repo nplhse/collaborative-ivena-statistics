@@ -217,6 +217,168 @@ final class ListAllocationsControllerTest extends WebTestCase
         self::assertSame([(int) $matchingAllocation->getId()], $ids);
     }
 
+    public function testMyHospitalsScopeFiltersToAccessibleHospitals(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne([
+            'username' => 'allocation-scope-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $state = StateFactory::createOne(['createdBy' => $owner, 'name' => 'Scope State']);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $owner, 'state' => $state, 'name' => 'Scope Area']);
+        $ownHospital = HospitalFactory::createOne([
+            'createdBy' => $owner,
+            'owner' => $owner,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+            'name' => 'Own Hospital',
+        ]);
+        $otherOwner = UserFactory::createOne([
+            'username' => 'allocation-scope-other-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $otherHospital = HospitalFactory::createOne([
+            'createdBy' => $otherOwner,
+            'owner' => $otherOwner,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+            'name' => 'Other Hospital',
+        ]);
+        $this->seedLookupDependencies();
+
+        $ownImport = ImportFactory::createOne(['name' => 'Own Import', 'hospital' => $ownHospital]);
+        $otherImport = ImportFactory::createOne(['name' => 'Other Import', 'hospital' => $otherHospital]);
+
+        $ownAllocation = AllocationFactory::createOne(['hospital' => $ownHospital, 'import' => $ownImport]);
+        AllocationFactory::createOne(['hospital' => $otherHospital, 'import' => $otherImport]);
+
+        $client->loginUser($owner);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?hospitalFilter=my_hospitals&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="allocation-filter-hospital"]');
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([(int) $ownAllocation->getId()], $ids);
+    }
+
+    public function testSingleHospitalFilterSelectsAccessibleHospital(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne([
+            'username' => 'allocation-filter-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $state = StateFactory::createOne(['createdBy' => $owner]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $owner, 'state' => $state]);
+        $hospitalA = HospitalFactory::createOne([
+            'createdBy' => $owner,
+            'owner' => $owner,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+            'name' => 'Hospital A',
+        ]);
+        $hospitalB = HospitalFactory::createOne([
+            'createdBy' => $owner,
+            'owner' => $owner,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+            'name' => 'Hospital B',
+        ]);
+        $this->seedLookupDependencies();
+
+        $importA = ImportFactory::createOne(['hospital' => $hospitalA]);
+        $importB = ImportFactory::createOne(['hospital' => $hospitalB]);
+        $allocationA = AllocationFactory::createOne(['hospital' => $hospitalA, 'import' => $importA]);
+        AllocationFactory::createOne(['hospital' => $hospitalB, 'import' => $importB]);
+
+        $client->loginUser($owner);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?hospitalFilter=%d&limit=50', $hospitalA->getId()),
+        );
+
+        self::assertResponseIsSuccessful();
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([(int) $allocationA->getId()], $ids);
+    }
+
+    public function testLegacyHospitalScopeQueryStillWorks(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne([
+            'username' => 'allocation-legacy-scope-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $state = StateFactory::createOne(['createdBy' => $owner]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $owner, 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'createdBy' => $owner,
+            'owner' => $owner,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+        ]);
+        $this->seedLookupDependencies();
+
+        $import = ImportFactory::createOne(['hospital' => $hospital]);
+        $allocation = AllocationFactory::createOne(['hospital' => $hospital, 'import' => $import]);
+
+        $client->loginUser($owner);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?hospitalScope=my_hospitals&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSame([(int) $allocation->getId()], $this->extractAllocationIds($crawler));
+    }
+
+    public function testMyHospitalsScopeWithHospitalDetailFiltersToSingleHospital(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne([
+            'username' => 'allocation-scope-detail-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $state = StateFactory::createOne(['createdBy' => $owner]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $owner, 'state' => $state]);
+        $hospitalA = HospitalFactory::createOne([
+            'createdBy' => $owner,
+            'owner' => $owner,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+            'name' => 'Hospital A',
+        ]);
+        $hospitalB = HospitalFactory::createOne([
+            'createdBy' => $owner,
+            'owner' => $owner,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+            'name' => 'Hospital B',
+        ]);
+        $this->seedLookupDependencies();
+
+        $importA = ImportFactory::createOne(['hospital' => $hospitalA]);
+        $importB = ImportFactory::createOne(['hospital' => $hospitalB]);
+        $allocationA = AllocationFactory::createOne(['hospital' => $hospitalA, 'import' => $importA]);
+        AllocationFactory::createOne(['hospital' => $hospitalB, 'import' => $importB]);
+
+        $client->loginUser($owner);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf(
+                '/explore/allocation?hospitalScope=my_hospitals&hospital=%d&limit=50',
+                $hospitalA->getId(),
+            ),
+        );
+
+        self::assertResponseIsSuccessful();
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([(int) $allocationA->getId()], $ids);
+    }
+
     public function testAssignmentOccasionAndDepartmentWasClosedFilters(): void
     {
         $client = $this->createClientAsParticipant();
@@ -285,6 +447,11 @@ final class ListAllocationsControllerTest extends WebTestCase
         DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
         HospitalFactory::createOne(['name' => 'Test Hospital']);
         ImportFactory::createOne(['name' => 'Test Import']);
+        $this->seedLookupDependencies();
+    }
+
+    private function seedLookupDependencies(): void
+    {
         SpecialityFactory::createOne(['name' => 'Innere Medizin']);
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
         AssignmentFactory::createOne(['name' => 'Test Assignment']);

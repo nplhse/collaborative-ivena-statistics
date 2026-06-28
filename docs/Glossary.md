@@ -15,6 +15,7 @@
 | Distribution pattern | YAML file describing statistical weights for synthetic allocations |
 | Messenger worker | Process that consumes asynchronous messages |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |
+| Participant onboarding | Dashboard checklist for `ROLE_PARTICIPANT`; see [participant-onboarding.md](participant-onboarding.md) |
 | Audit context | Context for traceable changes and events |
 
 ## Important commands
@@ -29,4 +30,5 @@
 | `app:fixtures:validate-patterns` | Validate committed distribution pattern YAML files |
 | `app:fixtures:export-patterns` | Export distribution patterns from allocation statistics |
 | `doctrine:fixtures:load --group=dev` | Load full local demo dataset (reference + allocations + content) |
+| `app:onboarding:initialize` | Backfill completed onboarding steps for existing participants |
 | `app:analyze-import-rejects` | Aggregate and analyze rejects |

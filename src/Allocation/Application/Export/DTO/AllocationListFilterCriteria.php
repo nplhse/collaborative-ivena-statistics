@@ -31,6 +31,8 @@ final readonly class AllocationListFilterCriteria
         public ?int $occasion = null,
         public ?int $departmentWasClosed = null,
         public ?string $transportType = null,
+        /** @var list<int>|null */
+        public ?array $hospitalIds = null,
     ) {
     }
 }
