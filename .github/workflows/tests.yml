@@ -10,6 +10,39 @@ permissions:
     contents: read
 
 jobs:
+    prod-smoke:
+        name: Prod kernel smoke
+        runs-on: ubuntu-latest
+        env:
+            APP_ENV: prod
+            APP_DEBUG: 0
+            APP_SECRET: ci-test-placeholder-not-for-production
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+
+            - name: Install PHP with extensions
+              uses: shivammathur/setup-php@v2
+              with:
+                  extensions: "intl, mbstring, zip"
+                  php-version: '8.4'
+                  tools: composer:v2
+
+            - name: Set composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+              shell: bash
+
+            - name: Cache composer
+              uses: actions/cache@v5
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-prod-${{ hashFiles('composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-prod-
+
+            - name: Install production dependencies
+              run: composer install --no-dev --no-interaction --no-progress
+
     unit:
         name: Unit (PHP ${{ matrix.php-version }})
         runs-on: ubuntu-latest
