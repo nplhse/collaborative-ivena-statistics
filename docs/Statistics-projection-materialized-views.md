@@ -36,7 +36,26 @@ Typical flow:
 3. Dashboard and overview queries often read from the views for performance.
 4. Deeper or legacy comparisons may still use `AllocationStatsProjectionScopeQuery`, which queries `allocation_stats_projection` directly.
 
-Because of this split, **the projection table and the materialized views can disagree** until a refresh runs. That is expected; only the projection is updated automatically on import rebuild.
+Because of this split, **the projection table and the materialized views can disagree** until a refresh runs. The application refreshes overview materialized views automatically when structural projection changes occur (see below). Routine re-imports of existing hospitals do not trigger a refresh.
+
+## Automatic materialized view refresh
+
+Overview materialized views are refreshed automatically when the hospital structure in `allocation_stats_projection` changes:
+
+| Trigger | Refresh? | Implementation |
+|---------|----------|----------------|
+| First import for a hospital (new `hospital_id` in projection) | Yes | `RebuildAllocationStatsProjectionHandler` after `rebuildForImport()` |
+| Re-import of an existing hospital | No | Hospital already present in projection |
+| Import deletion removing a hospital's last projection rows | Yes | `ImportRelatedDataCleanupService` after cleanup |
+| Bulk rebuild (`app:statistics:rebuild-projection`) | Yes (always) | Command refreshes overview views at the end |
+
+Detection uses `ProjectionOverviewChangeDetector` (cheap `EXISTS` queries on `allocation` / `allocation_stats_projection`).
+
+Manual refresh remains available for repair:
+
+```bash
+php bin/console app:statistics:refresh-mviews --overview
+```
 
 ## Production and development operations
 
@@ -48,13 +67,13 @@ After imports or loading allocation fixtures:
 php bin/console app:statistics:rebuild-projection
 ```
 
-Or rely on the async handler that calls `AllocationStatsProjectionRebuilder::rebuildForImport()` per import.
+Or rely on the async handler that calls `AllocationStatsProjectionRebuilder::rebuildForImport()` per import. When a hospital appears in the projection for the first time, the handler also refreshes overview materialized views.
 
-Rebuilding the projection **does not** refresh materialized views.
+Rebuilding the projection via the bulk command refreshes overview materialized views at the end. Per-import rebuilds refresh materialized views only when a new hospital enters the projection.
 
-### Refresh materialized views
+### Refresh materialized views (manual)
 
-After bulk projection changes:
+For repair or after unusual operations (e.g. direct SQL on the projection table):
 
 ```bash
 # All registered groups (currently: overview)
@@ -82,7 +101,7 @@ Implications for materialized views:
 
 - **Schema reset** (drop + recreate + MV install) runs **once per PHPUnit process** when the first `#[ResetDatabase]` test class starts — not before every test method.
 - **MV data** refreshed inside a test (via `RefreshesStatisticsMaterializedViewsTrait`) is rolled back with the test transaction; the view definitions persist.
-- **MV refresh after projection rebuild remains mandatory** when assertions use MV-backed queries or `StatisticsFilterFactory` scope rules.
+- **MV refresh after projection rebuild** is required in tests that call `AllocationStatsProjectionRebuilder` directly without going through `RebuildAllocationStatsProjectionHandler`. Tests that use the handler for first-import scenarios get automatic refresh when a new hospital enters the projection.
 
 Configuration: `config/packages/dama_doctrine_test_bundle.yaml`, PHPUnit extension in `phpunit.dist.xml`.
 
@@ -161,9 +180,11 @@ self::getContainer()
 | Drop before reset | `StatisticsMaterializedViewDropper` | Test reset hook (DBAL) |
 | Foundry decorator | `App\Tests\Support\Foundry\MaterializedViewAwareOrmResetter` | Test env only |
 | Install / refresh helper | `OverviewMaterializedViewsInstaller` | Test install + `refreshIfInstalled()` |
-| Refresh service | `MaterializedViewRefresher` | Used by console command and test trait |
-| Console command | `app:statistics:refresh-mviews` | Production refresh |
-| Projection rebuilder | `AllocationStatsProjectionRebuilder` | Does not refresh MVs |
+| Refresh service | `MaterializedViewRefresher` | Used by console command, handler, import cleanup, and test trait |
+| Structural change detector | `ProjectionOverviewChangeDetector` | Decides when handler/cleanup should refresh overview MVs |
+| Detector / refresher contracts | `ProjectionOverviewChangeDetectorInterface`, `MaterializedViewRefresherInterface` | Autowired into handler and import cleanup |
+| Console command | `app:statistics:refresh-mviews` | Manual repair refresh |
+| Projection rebuilder | `AllocationStatsProjectionRebuilder` | Does not refresh MVs by itself; use handler or bulk command |
 | Test trait | `RefreshesStatisticsMaterializedViewsTrait` | `tests/Support/MaterializedView/` |
 
 ## Related documentation
