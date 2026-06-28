@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Console\Command;
 
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher;
+use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -25,6 +27,7 @@ final readonly class RebuildAllocationStatsProjectionCommand
         private Connection $connection,
         private EntityManagerInterface $entityManager,
         private AllocationStatsProjectionRebuildInterface $rebuilder,
+        private MaterializedViewRefresher $materializedViewRefresher,
     ) {
     }
 
@@ -40,7 +43,10 @@ final readonly class RebuildAllocationStatsProjectionCommand
 
             $importIds = $this->fetchImportIdsFromAllocations();
             if ([] === $importIds) {
-                $io->success('No allocations found. Projection table remains empty.');
+                $io->writeln('<info>No allocations found. Refreshing materialized views for empty projection.</info>');
+                $this->refreshOverviewMaterializedViews($io);
+
+                $io->success('Projection table remains empty. Materialized views refreshed.');
 
                 return Command::SUCCESS;
             }
@@ -59,6 +65,13 @@ final readonly class RebuildAllocationStatsProjectionCommand
 
             $progress->finish();
             $output->writeln('');
+
+            $io->section('Refreshing materialized views');
+            if ($this->refreshOverviewMaterializedViews($io)) {
+                $io->warning('Projection rebuild completed but some materialized view refreshes failed.');
+
+                return Command::FAILURE;
+            }
         } catch (\Throwable $e) {
             $io->error(sprintf('Projection rebuild failed: %s', $e->getMessage()));
 
@@ -91,5 +104,20 @@ final readonly class RebuildAllocationStatsProjectionCommand
             ->fetchFirstColumn('SELECT DISTINCT import_id FROM allocation ORDER BY import_id ASC');
 
         return array_map(static fn (int|string $value): int => (int) $value, $rows);
+    }
+
+    private function refreshOverviewMaterializedViews(SymfonyStyle $io): bool
+    {
+        $failed = false;
+        foreach ($this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]) as $refreshResult) {
+            if ($refreshResult['success']) {
+                $io->success($refreshResult['message']);
+            } else {
+                $failed = true;
+                $io->error($refreshResult['message']);
+            }
+        }
+
+        return $failed;
     }
 }

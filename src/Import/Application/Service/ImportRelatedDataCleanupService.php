@@ -9,6 +9,9 @@ use App\Allocation\Infrastructure\Repository\MciCaseRepository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
+use App\Statistics\Application\Contract\ProjectionOverviewChangeDetectorInterface;
+use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -24,6 +27,8 @@ final readonly class ImportRelatedDataCleanupService
         private AllocationRepository $allocationRepository,
         private MciCaseRepository $mciCaseRepository,
         private AllocationStatsProjectionRebuildInterface $statsProjectionRebuilder,
+        private ProjectionOverviewChangeDetectorInterface $projectionOverviewChangeDetector,
+        private MaterializedViewRefresherInterface $materializedViewRefresher,
         private LoggerInterface $importLogger,
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
@@ -33,6 +38,7 @@ final readonly class ImportRelatedDataCleanupService
     public function removeAll(Import $import): void
     {
         $importId = (int) $import->getId();
+        $needsMaterializedViewRefresh = $this->projectionOverviewChangeDetector->willRemoveHospitalsFromProjection($importId);
 
         $counts = $this->em->wrapInTransaction(function () use ($import, $importId): array {
             $assessmentIds = $this->collectAssessmentIdsForImport($importId);
@@ -45,6 +51,14 @@ final readonly class ImportRelatedDataCleanupService
                 'mci_cases' => $this->mciCaseRepository->deleteByImport($import),
             ];
         });
+
+        if ($needsMaterializedViewRefresh) {
+            $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]);
+            $this->importLogger->info('statistics_materialized_view.refreshed_after_structural_change', [
+                'import_id' => $importId,
+                'reason' => 'hospital_removed',
+            ]);
+        }
 
         $this->logCleanup(
             $importId,
