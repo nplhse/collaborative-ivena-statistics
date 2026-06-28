@@ -24,6 +24,10 @@ DirectoryIndex index.php
 
     RewriteEngine On
 
+    # Block common WordPress scanner and exploit probe paths before Symfony boots.
+    RewriteRule ^(wp-admin|wp-login\.php|xmlrpc\.php|wp-content|wp-includes|wp-json|wordpress|wp-config\.php)(/.*)?$ - [F,L,NC]
+    RewriteRule ^(\.env|vendor/phpunit|phpunit|setup\.php|config\.php|composer\.(json|lock))$ - [F,L,NC]
+
     # Determine the RewriteBase automatically and set it as environment variable.
     # If you are using Apache aliases to do mass virtual hosting or installed the
     # project in a subdirectory, the base path will be prepended to allow proper
