@@ -33,7 +33,7 @@ Typical layering per context:
 
 ## Key entry points
 
-- Routing: `config/routes/attributes.php`
+- Routing: `config/routes/attributes.php` (attribute routes from `**/UI/Http/Controller/` only; dev-only code under `src/` is not scanned)
 - Service wiring: `config/services.yaml`
 - Messenger routing: `config/packages/messenger.yaml`
 - Doctrine mapping: `config/packages/doctrine.yaml`
