@@ -30,6 +30,8 @@ Quick help and diagnostic commands:
 - [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md)
 - [data-quality-indicator.md](data-quality-indicator.md)
 - [analysis-explorer-v2.md](analysis-explorer-v2.md)
+- [participant-onboarding.md](participant-onboarding.md)
+- [explore-allocation-list.md](explore-allocation-list.md)
 - [Observability-sentry.md](Observability-sentry.md)
 
 ## For new developers

@@ -21,6 +21,7 @@ Typical layering per context:
 | `Admin` | EasyAdmin back office |
 | `Shared` | Cross-cutting concerns (audit, monitoring, infrastructure) |
 | `Content` | Content pages and blog |
+| `Onboarding` | Participant dashboard onboarding steps and progress |
 | `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |
 
 ## Core components
