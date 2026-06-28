@@ -48,7 +48,7 @@ final readonly class ExportHospitalFormOptionsProvider
         $hospitals = $this->hospitalRepository->findExportableHospitalSummaries($user);
         $choices = [];
         foreach ($hospitals as $row) {
-            $choices[(string) $row['name']] = $row['id'];
+            $choices[$row['name']] = $row['id'];
         }
 
         $hospitalIds = array_values($choices);
