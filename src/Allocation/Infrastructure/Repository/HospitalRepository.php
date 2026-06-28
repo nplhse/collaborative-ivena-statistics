@@ -263,6 +263,28 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     }
 
     /**
+     * @return list<array{id: int, name: string}>
+     */
+    public function findExportableHospitalSummaries(User $user): array
+    {
+        $rows = $this->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Export)
+            ->select('h.id AS id', 'h.name AS name')
+            ->orderBy('h.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = [
+                'id' => (int) $row['id'],
+                'name' => (string) $row['name'],
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
      * @return list<Hospital>
      */
     public function findParticipatingWithOwner(): array

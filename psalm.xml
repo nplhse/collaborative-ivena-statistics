@@ -25,12 +25,14 @@
         <ClassMustBeFinal>
             <errorLevel type="suppress">
                 <directory name="src/*/Domain/Entity"/>
+                <directory name="src/Shared/Application/Export/"/>
             </errorLevel>
         </ClassMustBeFinal>
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
                 <file name="src/Shared/Infrastructure/Pagination/Paginator.php" />
                 <file name="src/Shared/Infrastructure/Pagination/CursorPaginator.php" />
+                <directory name="src/Shared/Application/Export/" />
                 <directory name="src/*/Application/Contracts/" />
                 <directory name="src/*/Application/DTO/" />
                 <directory name="src/*/Application/Page/" />
@@ -63,6 +65,8 @@
         <PossiblyUnusedProperty>
             <errorLevel type="suppress">
                 <directory name="src/*/Application/DTO/" />
+                <directory name="src/Allocation/Application/Export/DTO/" />
+                <directory name="src/Shared/Application/Export/" />
                 <directory name="src/*/Application/Page/DTO/" />
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Query;
 
+use App\Allocation\Application\Export\AllocationListFilterApplicator;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
@@ -12,11 +13,6 @@ use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\State;
-use App\Allocation\Domain\Enum\AllocationTransportType;
-use App\Allocation\Domain\Enum\AllocationUrgency;
-use App\Allocation\Domain\Enum\HospitalLocation;
-use App\Allocation\Domain\Enum\HospitalSize;
-use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\CursorCodec;
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
@@ -29,6 +25,7 @@ final readonly class ListAllocationsQuery
     public function __construct(
         private EntityManagerInterface $entityManager,
         private CursorCodec $cursorCodec,
+        private AllocationListFilterApplicator $filterApplicator,
     ) {
     }
 
@@ -97,116 +94,13 @@ final readonly class ListAllocationsQuery
                 'a.secondaryIndicationNormalized = inor2.id'
             );
 
-        if (null !== $queryParametersDTO->importId) {
-            $qb->andWhere('a.import = :importId')
-            ->setParameter('importId', $queryParametersDTO->importId);
-        }
-
         $sortField = match ($queryParametersDTO->sortBy) {
             'arrivalAt' => 'a.arrivalAt',
             'age' => 'a.age',
             default => 'a.arrivalAt',
         };
 
-        if (null !== $queryParametersDTO->tier && '' !== $queryParametersDTO->tier) {
-            $qb->andWhere('h.tier = :tier')
-                ->setParameter('tier', HospitalTier::from($queryParametersDTO->tier));
-        }
-
-        if (null !== $queryParametersDTO->location && '' !== $queryParametersDTO->location) {
-            $qb->andWhere('h.location = :location')
-                ->setParameter('location', HospitalLocation::from($queryParametersDTO->location));
-        }
-
-        if (null !== $queryParametersDTO->size && '' !== $queryParametersDTO->size) {
-            $qb->andWhere('h.size = :size')
-                ->setParameter('size', HospitalSize::from($queryParametersDTO->size));
-        }
-
-        if (null !== $queryParametersDTO->urgency && '' !== $queryParametersDTO->urgency) {
-            $urgency = AllocationUrgency::tryFromQueryValue($queryParametersDTO->urgency);
-            if ($urgency instanceof AllocationUrgency) {
-                $qb->andWhere('a.urgency = :urgency')
-                    ->setParameter('urgency', $urgency->value);
-            }
-        }
-
-        if (null !== $queryParametersDTO->state) {
-            $qb->andWhere('s.id = :stateId')
-                ->setParameter('stateId', $queryParametersDTO->state);
-        }
-
-        if (null !== $queryParametersDTO->dispatchArea) {
-            $qb->andWhere('da.id = :dispatchAreaId')
-                ->setParameter('dispatchAreaId', $queryParametersDTO->dispatchArea);
-        }
-
-        if (null !== $queryParametersDTO->requiresResus) {
-            $qb->andWhere('a.requiresResus = :requiresResus')
-                ->setParameter(
-                    'requiresResus',
-                    filter_var($queryParametersDTO->requiresResus, FILTER_VALIDATE_BOOLEAN)
-                );
-        }
-
-        if (null !== $queryParametersDTO->requiresCathlab) {
-            $qb->andWhere('a.requiresCathlab = :requiresCathlab')
-                ->setParameter(
-                    'requiresCathlab',
-                    filter_var($queryParametersDTO->requiresCathlab, FILTER_VALIDATE_BOOLEAN)
-                );
-        }
-
-        foreach ([
-            'isVentilated' => 'a.isVentilated',
-            'isShock' => 'a.isShock',
-            'isCPR' => 'a.isCPR',
-            'isPregnant' => 'a.isPregnant',
-            'isWorkAccident' => 'a.isWorkAccident',
-        ] as $param => $booleanField) {
-            if (null !== $queryParametersDTO->{$param}) {
-                $qb->andWhere($booleanField.' = :'.$param)
-                    ->setParameter(
-                        $param,
-                        filter_var($queryParametersDTO->{$param}, FILTER_VALIDATE_BOOLEAN)
-                    );
-            }
-        }
-
-        if (null !== $queryParametersDTO->isInfectious) {
-            $isInfectious = filter_var($queryParametersDTO->isInfectious, FILTER_VALIDATE_BOOLEAN);
-            $qb->andWhere($isInfectious ? 'a.infection IS NOT NULL' : 'a.infection IS NULL');
-        }
-
-        if (null !== $queryParametersDTO->infection) {
-            $qb->andWhere('i.id = :infectionId')
-                ->setParameter('infectionId', $queryParametersDTO->infection);
-        }
-
-        if (null !== $queryParametersDTO->indication) {
-            $qb->andWhere('inor.code = :indication')
-                ->setParameter('indication', $queryParametersDTO->indication);
-        }
-
-        if (null !== $queryParametersDTO->secondaryTransport) {
-            $qb->andWhere('st.id = :secondaryTransportId')
-                ->setParameter('secondaryTransportId', $queryParametersDTO->secondaryTransport);
-        }
-
-        if (null !== $queryParametersDTO->department) {
-            $qb->andWhere('IDENTITY(a.department) = :departmentId')
-                ->setParameter('departmentId', $queryParametersDTO->department);
-        }
-
-        if (null !== $queryParametersDTO->speciality) {
-            $qb->andWhere('IDENTITY(a.speciality) = :specialityId')
-                ->setParameter('specialityId', $queryParametersDTO->speciality);
-        }
-
-        if (null !== $queryParametersDTO->transportType && '' !== $queryParametersDTO->transportType) {
-            $qb->andWhere('a.transportType = :transportType')
-                ->setParameter('transportType', AllocationTransportType::from($queryParametersDTO->transportType));
-        }
+        $this->filterApplicator->apply($qb, $queryParametersDTO->toListFilterCriteria());
 
         $estimatedNumResults = $this->estimateNumResults($qb);
 

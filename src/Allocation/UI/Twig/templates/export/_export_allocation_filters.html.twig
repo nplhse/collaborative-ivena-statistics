@@ -1,0 +1,101 @@
+{% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
+
+<div class="accordion accordion-flush" id="export-allocation-filter-accordion">
+    <div class="accordion-item">
+        {{ editAccordion.header(
+            'export-filter-period-heading',
+            'export-filter-period-panel',
+            'label.export.period'|trans,
+            'export-filter-section-period',
+            true,
+        ) }}
+        {{ editAccordion.panel_start('export-filter-period-panel', 'export-filter-period-heading', true) }}
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.dateFrom) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.dateTo) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.timeFrom) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.timeTo) }}
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">{{ 'help.export.period'|trans }}</p>
+            </div>
+        {{ editAccordion.panel_end() }}
+    </div>
+
+    {% if form.hospitals is defined %}
+        <div class="accordion-item">
+            {{ editAccordion.header(
+                'export-filter-hospital-heading',
+                'export-filter-hospital-panel',
+                form.vars.hospitals_section_label,
+                'export-filter-section-hospital',
+                false,
+            ) }}
+            {{ editAccordion.panel_start('export-filter-hospital-panel', 'export-filter-hospital-heading', false) }}
+                <div class="accordion-body">
+                    <div class="row g-2">
+                        {% for hospitalField in form.hospitals %}
+                            <div class="col-md-6">{{ form_widget(hospitalField) }}</div>
+                        {% endfor %}
+                    </div>
+                    {% if form.vars.hospitals_help %}
+                        <p class="text-muted small mb-0 mt-2">{{ form.vars.hospitals_help }}</p>
+                    {% endif %}
+                </div>
+            {{ editAccordion.panel_end() }}
+        </div>
+    {% endif %}
+
+    <div class="accordion-item">
+        {{ editAccordion.header(
+            'export-filter-allocation-heading',
+            'export-filter-allocation-panel',
+            'label.allocation'|trans,
+            'export-filter-section-allocation',
+            false,
+        ) }}
+        {{ editAccordion.panel_start('export-filter-allocation-panel', 'export-filter-allocation-heading', false) }}
+            <div class="accordion-body row g-3">
+                <div class="col-md-6">{{ form_row(form.urgency) }}</div>
+                <div class="col-md-6">{{ form_row(form.transportType) }}</div>
+                <div class="col-md-6">{{ form_row(form.indication) }}</div>
+                <div class="col-md-6">{{ form_row(form.secondaryTransport) }}</div>
+                <div class="col-md-6">{{ form_row(form.department) }}</div>
+                <div class="col-md-6">{{ form_row(form.speciality) }}</div>
+            </div>
+        {{ editAccordion.panel_end() }}
+    </div>
+
+    <div class="accordion-item">
+        {{ editAccordion.header(
+            'export-filter-clinical-heading',
+            'export-filter-clinical-panel',
+            'stats.analysis_explorer.dimension_group.clinical_care'|trans,
+            'export-filter-section-clinical',
+            false,
+        ) }}
+        {{ editAccordion.panel_start('export-filter-clinical-panel', 'export-filter-clinical-heading', false) }}
+            <div class="accordion-body">
+                <div class="row g-2">
+                    <div class="col-md-6">{{ form_row(form.requiresResus) }}</div>
+                    <div class="col-md-6">{{ form_row(form.requiresCathlab) }}</div>
+                    <div class="col-md-6">{{ form_row(form.isVentilated) }}</div>
+                    <div class="col-md-6">{{ form_row(form.isShock) }}</div>
+                    <div class="col-md-6">{{ form_row(form.isCPR) }}</div>
+                    <div class="col-md-6">{{ form_row(form.isPregnant) }}</div>
+                    <div class="col-md-6">{{ form_row(form.isWorkAccident) }}</div>
+                    <div class="col-md-6">{{ form_row(form.isInfectious) }}</div>
+                    <div class="col-md-6">{{ form_row(form.infection) }}</div>
+                </div>
+            </div>
+        {{ editAccordion.panel_end() }}
+    </div>
+</div>

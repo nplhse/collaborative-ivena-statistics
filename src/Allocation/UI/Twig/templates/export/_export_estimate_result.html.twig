@@ -1,0 +1,36 @@
+<turbo-frame id="export-estimate">
+    {% if error %}
+        <div class="alert alert-danger" role="alert" data-testid="export-estimate-error">
+            {{ 'error.export.invalid_filter'|trans }}
+        </div>
+    {% elseif estimate is not null %}
+        {% if estimate.blocked %}
+            <div class="alert alert-danger" role="alert" data-testid="export-estimate-blocked">
+                {{ 'error.export.too_many_rows'|trans({count: estimate.count}) }}
+            </div>
+        {% elseif estimate.warn %}
+            <div class="alert alert-warning" role="alert" data-testid="export-estimate-warning">
+                {{ 'warning.export.large_export'|trans({count: estimate.count}) }}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert" data-testid="export-estimate-ok">
+                {{ 'info.export.row_count'|trans({count: estimate.count}) }}
+            </div>
+        {% endif %}
+
+        {% if not estimate.blocked %}
+            <input type="hidden"
+                   form="export-allocations-form"
+                   name="_token"
+                   value="{{ csrf_token('export_allocations_csv') }}">
+            <button type="submit"
+                    class="btn btn-success"
+                    form="export-allocations-form"
+                    formaction="{{ path('app_hospitals_export_allocations_download') }}"
+                    data-turbo="false"
+                    data-testid="export-allocations-download">
+                {{ 'action.export.download_csv'|trans }}
+            </button>
+        {% endif %}
+    {% endif %}
+</turbo-frame>

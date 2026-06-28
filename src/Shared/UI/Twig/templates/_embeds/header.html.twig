@@ -47,6 +47,16 @@
                                     </a>
                                 </li>
                             {% endif %}
+                            {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\ExportVoter::EXPORT')) %}
+                                <li class="nav-item {{ route starts with 'app_hospitals_export' ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ path('app_hospitals_export_allocations') }}">
+                                        <span class="nav-link-title">
+                                            <twig:ux:icon name="tabler:database-export" style="height: 1.5em;" />
+                                            {{ 'link.export'|trans }}
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endif %}
                             <li class="nav-item {{ route starts with 'app_blog' ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ path('app_blog_index') }}">
                                     <span class="nav-link-title">
