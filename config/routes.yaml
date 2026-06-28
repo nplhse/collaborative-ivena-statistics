@@ -1,2 +1,2 @@
 # Controller routes are imported via config/routes/attributes.php
-# This is required to explicitly exclude Foundry/Faker directories
+# src/ is scanned for attribute routes; dev-only paths (Foundry, Faker, fixtures) are excluded for prod installs with --no-dev.

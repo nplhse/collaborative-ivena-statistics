@@ -11,6 +11,8 @@ This document describes how demo and reference data is loaded for local developm
 | Fixture classes | `src/DataFixtures/` | Loaders, groups, synthetic allocation generator |
 | Foundry factories | `src/*/Infrastructure/Factory/` | Ad-hoc test data; lookup factories align with reference names where possible |
 
+Factories live under `src/` but are registered only in `dev`/`test` (see `config/services/foundry.yaml`). Attribute route loading scans `src/` with glob excludes for dev-only directories (`**/Infrastructure/Factory`, `**/Infrastructure/Faker`, `DataFixtures`, `**/Domain/Factory`) so `composer install --no-dev` can boot the kernel in production.
+
 ## Loading fixtures
 
 ### Full dev dataset (default)

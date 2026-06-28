@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 return static function (RoutingConfigurator $routes): void {
+    // Prod-safe: scan src/ for attribute routes but exclude dev-only directories
+    // (Foundry factories, Faker providers, fixtures) that depend on require-dev packages.
     $routes->import('../../src/', 'attribute', false, [
         '../../src/DataFixtures',
-        '../../src/Allocation/Infrastructure/Factory',
-        '../../src/Allocation/Infrastructure/Faker',
-        '../../src/Content/Infrastructure/Factory',
-        '../../src/Import/Infrastructure/Factory',
-        '../../src/User/Domain/Factory',
+        '../../src/**/Infrastructure/Factory',
+        '../../src/**/Infrastructure/Faker',
+        '../../src/**/Domain/Factory',
     ]);
 };
