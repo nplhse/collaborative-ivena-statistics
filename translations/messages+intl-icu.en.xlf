@@ -8565,7 +8565,7 @@
       </trans-unit>
       <trans-unit id="OnbStpEn05" resname="onboarding.steps.verify_own_clinic.title">
         <source>onboarding.steps.verify_own_clinic.title</source>
-        <target>Review your clinic</target>
+        <target>Review your hospitals</target>
       </trans-unit>
       <trans-unit id="OnbStpEn06" resname="onboarding.steps.verify_own_clinic.description">
         <source>onboarding.steps.verify_own_clinic.description</source>
@@ -8573,7 +8573,7 @@
       </trans-unit>
       <trans-unit id="OnbStpEn07" resname="onboarding.steps.verify_own_clinic.action">
         <source>onboarding.steps.verify_own_clinic.action</source>
-        <target>Open clinics</target>
+        <target>Open my hospitals</target>
       </trans-unit>
       <trans-unit id="OnbStpEn08" resname="onboarding.steps.start_first_import.title">
         <source>onboarding.steps.start_first_import.title</source>

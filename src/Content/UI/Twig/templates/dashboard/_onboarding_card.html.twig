@@ -91,7 +91,7 @@
                                       action="{{ path('app_onboarding_step_complete', {stepKey: step.key.value}) }}"
                                       class="mb-0 flex-shrink-0">
                                     <input type="hidden" name="_token" value="{{ csrf_token('onboarding_complete_' ~ step.key.value) }}">
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+                                    <button type="submit" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1">
                                         {{ 'onboarding.action.mark_complete'|trans }}
                                         <twig:ux:icon name="tabler:check" class="onboarding-step-action-icon" style="height: 1.1em;" />
                                     </button>

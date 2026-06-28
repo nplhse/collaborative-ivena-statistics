@@ -1543,7 +1543,7 @@
       </trans-unit>
       <trans-unit id="OnbStpDe05" resname="onboarding.steps.verify_own_clinic.title">
         <source>onboarding.steps.verify_own_clinic.title</source>
-        <target>Eigene Klinik prüfen</target>
+        <target>Eigene Kliniken prüfen</target>
       </trans-unit>
       <trans-unit id="OnbStpDe06" resname="onboarding.steps.verify_own_clinic.description">
         <source>onboarding.steps.verify_own_clinic.description</source>
@@ -1551,7 +1551,7 @@
       </trans-unit>
       <trans-unit id="OnbStpDe07" resname="onboarding.steps.verify_own_clinic.action">
         <source>onboarding.steps.verify_own_clinic.action</source>
-        <target>Kliniken öffnen</target>
+        <target>Meine Kliniken öffnen</target>
       </trans-unit>
       <trans-unit id="OnbStpDe08" resname="onboarding.steps.start_first_import.title">
         <source>onboarding.steps.start_first_import.title</source>
