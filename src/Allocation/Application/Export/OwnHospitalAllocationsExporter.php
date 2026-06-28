@@ -18,8 +18,8 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
     /**
      * @var list<string>
      */
-    private const array CSV_HEADERS = [
-        'id',
+    private const array BASE_CSV_HEADERS = [
+        'row',
         'arrivalAt',
         'createdAt',
         'hospital',
@@ -30,9 +30,18 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
         'urgency',
         'transportType',
         'indicationNormalized',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private const array TAIL_CSV_HEADERS = [
         'secondaryTransport',
         'department',
         'speciality',
+        'departmentWasClosed',
+        'assignment',
+        'occasion',
         'requiresResus',
         'requiresCathlab',
         'isCPR',
@@ -48,6 +57,7 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
         private ExportAccessService $exportAccessService,
         private OwnHospitalAllocationsExportQuery $exportQuery,
         private CsvStreamExportResponseFactory $csvStreamExportResponseFactory,
+        private AllocationExportValueFormatter $exportValueFormatter,
     ) {
     }
 
@@ -86,12 +96,12 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
     public function writeCsv(User $user, object $criteria, $stream): int
     {
         $filter = $this->assertFilter($criteria);
-        $this->csvStreamExportResponseFactory->writeRow($stream, self::CSV_HEADERS);
+        $this->csvStreamExportResponseFactory->writeRow($stream, $this->resolveCsvHeaders($filter));
 
         $written = 0;
         foreach ($this->exportQuery->iterateRows($this->resolveHospitalIdsForExport($user, $filter), $filter) as $row) {
-            $this->csvStreamExportResponseFactory->writeRow($stream, $this->formatRow($row));
             ++$written;
+            $this->csvStreamExportResponseFactory->writeRow($stream, $this->formatRow($written, $row, $filter));
         }
 
         return $written;
@@ -127,27 +137,50 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
     }
 
     /**
+     * @return list<string>
+     */
+    private function resolveCsvHeaders(OwnHospitalAllocationsExportFilter $filter): array
+    {
+        $headers = self::BASE_CSV_HEADERS;
+        if ($filter->includeIndicationRaw) {
+            $headers[] = 'indicationRaw';
+        }
+
+        return array_merge($headers, self::TAIL_CSV_HEADERS);
+    }
+
+    /**
      * @param array<string, mixed> $row
      *
      * @return list<string|int|float|null>
      */
-    private function formatRow(array $row): array
+    private function formatRow(int $rowNumber, array $row, OwnHospitalAllocationsExportFilter $filter): array
     {
-        return [
-            $row['id'] ?? null,
+        $values = [
+            $rowNumber,
             $this->formatDateTime($row['arrivalAt'] ?? null),
             $this->formatDateTime($row['createdAt'] ?? null),
             $row['hospital'] ?? null,
             $row['state'] ?? null,
             $row['dispatchArea'] ?? null,
-            $this->formatEnum($row['gender'] ?? null),
+            $this->exportValueFormatter->gender($row['gender'] ?? null),
             $row['age'] ?? null,
-            $this->formatEnum($row['urgency'] ?? null),
-            $this->formatEnum($row['transportType'] ?? null),
+            $this->exportValueFormatter->urgency($row['urgency'] ?? null),
+            $this->exportValueFormatter->transportType($row['transportType'] ?? null),
             $row['indicationNormalized'] ?? null,
+        ];
+
+        if ($filter->includeIndicationRaw) {
+            $values[] = $row['indicationRaw'] ?? null;
+        }
+
+        return array_merge($values, [
             $row['secondaryTransport'] ?? null,
             $row['department'] ?? null,
             $row['speciality'] ?? null,
+            $this->formatBool($row['departmentWasClosed'] ?? null),
+            $row['assignment'] ?? null,
+            $row['occasion'] ?? null,
             $this->formatBool($row['requiresResus'] ?? null),
             $this->formatBool($row['requiresCathlab'] ?? null),
             $this->formatBool($row['isCPR'] ?? null),
@@ -157,22 +190,13 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
             $this->formatBool($row['isWorkAccident'] ?? null),
             $this->formatBool($row['isWithPhysician'] ?? null),
             $row['infection'] ?? null,
-        ];
+        ]);
     }
 
     private function formatDateTime(mixed $value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
             return $value->format('Y-m-d H:i:s');
-        }
-
-        return null === $value ? null : (string) $value;
-    }
-
-    private function formatEnum(mixed $value): ?string
-    {
-        if ($value instanceof \BackedEnum) {
-            return (string) $value->value;
         }
 
         return null === $value ? null : (string) $value;

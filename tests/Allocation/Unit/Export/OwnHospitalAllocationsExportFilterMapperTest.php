@@ -34,6 +34,35 @@ final class OwnHospitalAllocationsExportFilterMapperTest extends TestCase
         self::assertSame([3, 5], $filter->hospitalIds);
         self::assertSame('red', $filter->urgency);
         self::assertSame(1, $filter->requiresResus);
+        self::assertFalse($filter->includeIndicationRaw);
+    }
+
+    public function testIncludeIndicationRawFlagIsMapped(): void
+    {
+        $data = new OwnHospitalAllocationsExportFormData();
+        $data->dateFrom = new \DateTimeImmutable('2026-01-01');
+        $data->dateTo = new \DateTimeImmutable('2026-01-31');
+        $data->includeIndicationRaw = true;
+
+        $filter = $this->mapper->fromFormData($data);
+
+        self::assertTrue($filter->includeIndicationRaw);
+    }
+
+    public function testMapsAssignmentOccasionAndDepartmentWasClosed(): void
+    {
+        $data = new OwnHospitalAllocationsExportFormData();
+        $data->dateFrom = new \DateTimeImmutable('2026-01-01');
+        $data->dateTo = new \DateTimeImmutable('2026-01-31');
+        $data->assignment = 7;
+        $data->occasion = 9;
+        $data->departmentWasClosed = true;
+
+        $filter = $this->mapper->fromFormData($data);
+
+        self::assertSame(7, $filter->assignment);
+        self::assertSame(9, $filter->occasion);
+        self::assertSame(1, $filter->departmentWasClosed);
     }
 
     public function testEmptyHospitalSelectionMapsToNull(): void

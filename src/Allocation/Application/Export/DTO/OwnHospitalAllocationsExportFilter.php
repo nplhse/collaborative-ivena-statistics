@@ -29,7 +29,11 @@ final readonly class OwnHospitalAllocationsExportFilter
         public ?int $infection = null,
         public ?int $department = null,
         public ?int $speciality = null,
+        public ?int $assignment = null,
+        public ?int $occasion = null,
+        public ?int $departmentWasClosed = null,
         public ?string $transportType = null,
+        public bool $includeIndicationRaw = false,
     ) {
     }
 
@@ -50,6 +54,9 @@ final readonly class OwnHospitalAllocationsExportFilter
             infection: $this->infection,
             department: $this->department,
             speciality: $this->speciality,
+            assignment: $this->assignment,
+            occasion: $this->occasion,
+            departmentWasClosed: $this->departmentWasClosed,
             transportType: $this->transportType,
         );
     }
@@ -79,7 +86,11 @@ final readonly class OwnHospitalAllocationsExportFilter
             'infection' => $this->infection,
             'department' => $this->department,
             'speciality' => $this->speciality,
+            'assignment' => $this->assignment,
+            'occasion' => $this->occasion,
+            'departmentWasClosed' => $this->departmentWasClosed,
             'transportType' => $this->transportType,
+            'includeIndicationRaw' => $this->includeIndicationRaw,
         ];
     }
 }

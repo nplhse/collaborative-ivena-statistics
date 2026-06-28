@@ -117,6 +117,24 @@ final class AllocationListFilterApplicator
                 ->setParameter('specialityId', $criteria->speciality);
         }
 
+        if (null !== $criteria->assignment) {
+            $qb->andWhere('IDENTITY(a.assignment) = :assignmentId')
+                ->setParameter('assignmentId', $criteria->assignment);
+        }
+
+        if (null !== $criteria->occasion) {
+            $qb->andWhere('IDENTITY(a.occasion) = :occasionId')
+                ->setParameter('occasionId', $criteria->occasion);
+        }
+
+        if (null !== $criteria->departmentWasClosed) {
+            $qb->andWhere('a.departmentWasClosed = :departmentWasClosed')
+                ->setParameter(
+                    'departmentWasClosed',
+                    filter_var($criteria->departmentWasClosed, FILTER_VALIDATE_BOOLEAN),
+                );
+        }
+
         if (null !== $criteria->transportType && '' !== $criteria->transportType) {
             $qb->andWhere('a.transportType = :transportType')
                 ->setParameter('transportType', AllocationTransportType::from($criteria->transportType));

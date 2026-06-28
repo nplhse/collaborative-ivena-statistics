@@ -6,9 +6,11 @@ namespace App\Allocation\UI\Form;
 
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Infrastructure\Repository\AssignmentRepository;
 use App\Allocation\Infrastructure\Repository\DepartmentRepository;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
 use App\Allocation\Infrastructure\Repository\InfectionRepository;
+use App\Allocation\Infrastructure\Repository\OccasionRepository;
 use App\Allocation\Infrastructure\Repository\SecondaryTransportRepository;
 use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData;
@@ -22,6 +24,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @extends AbstractType<OwnHospitalAllocationsExportFormData>
@@ -35,6 +38,9 @@ final class OwnHospitalAllocationsExportType extends AbstractType
         private readonly InfectionRepository $infectionRepository,
         private readonly DepartmentRepository $departmentRepository,
         private readonly SpecialityRepository $specialityRepository,
+        private readonly AssignmentRepository $assignmentRepository,
+        private readonly OccasionRepository $occasionRepository,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -77,12 +83,22 @@ final class OwnHospitalAllocationsExportType extends AbstractType
 
         $builder
             ->add('urgency', ChoiceType::class, [
-                'choices' => $this->enumChoices(AllocationUrgency::cases()),
+                'choices' => $this->urgencyChoices(),
                 'required' => false,
                 'placeholder' => 'label.all_urgencies',
             ])
+            ->add('assignment', ChoiceType::class, [
+                'choices' => $this->entityIdChoices($this->assignmentRepository->findBy([], ['name' => 'ASC'])),
+                'required' => false,
+                'placeholder' => 'label.all_assignments',
+            ])
+            ->add('occasion', ChoiceType::class, [
+                'choices' => $this->entityIdChoices($this->occasionRepository->findBy([], ['name' => 'ASC'])),
+                'required' => false,
+                'placeholder' => 'label.all_occasions',
+            ])
             ->add('transportType', ChoiceType::class, [
-                'choices' => $this->enumChoices(AllocationTransportType::cases()),
+                'choices' => $this->transportTypeChoices(),
                 'required' => false,
                 'placeholder' => 'label.all_transport_types',
             ])
@@ -90,6 +106,11 @@ final class OwnHospitalAllocationsExportType extends AbstractType
                 'choices' => $this->indicationChoices(),
                 'required' => false,
                 'placeholder' => 'label.all_indications',
+            ])
+            ->add('includeIndicationRaw', CheckboxType::class, [
+                'required' => false,
+                'label' => 'field.includeIndicationRaw',
+                'help' => 'help.export.include_indication_raw',
             ])
             ->add('secondaryTransport', ChoiceType::class, [
                 'choices' => $this->entityIdChoices($this->secondaryTransportRepository->findBy([], ['name' => 'ASC'])),
@@ -105,6 +126,11 @@ final class OwnHospitalAllocationsExportType extends AbstractType
                 'choices' => $this->entityIdChoices($this->specialityRepository->findBy([], ['name' => 'ASC'])),
                 'required' => false,
                 'placeholder' => 'label.all_specialities',
+            ])
+            ->add('departmentWasClosed', CheckboxType::class, [
+                'required' => false,
+                'label' => 'field.departmentWasClosed',
+                'help' => 'help.export.department_was_closed_filter',
             ])
             ->add('requiresResus', CheckboxType::class, ['required' => false])
             ->add('requiresCathlab', CheckboxType::class, ['required' => false])
@@ -145,15 +171,44 @@ final class OwnHospitalAllocationsExportType extends AbstractType
     }
 
     /**
-     * @param list<\BackedEnum> $cases
-     *
      * @return array<string, string>
      */
-    private function enumChoices(array $cases): array
+    private function urgencyChoices(): array
     {
         $choices = [];
-        foreach ($cases as $case) {
-            $choices[(string) $case->value] = (string) $case->value;
+        foreach (AllocationUrgency::cases() as $case) {
+            $choices[$case->skLabel()] = (string) $case->value;
+        }
+
+        return $choices;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function transportTypeChoices(): array
+    {
+        $choices = [];
+        foreach (AllocationTransportType::cases() as $case) {
+            $choices[$this->translator->trans($case->label())] = $case->value;
+        }
+
+        return $choices;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function indicationChoices(): array
+    {
+        $choices = [];
+        foreach ($this->indicationNormalizedRepository->findAll() as $indication) {
+            $code = $indication->getCode();
+            if (null === $code || $code <= 0) {
+                continue;
+            }
+
+            $choices[(string) $indication->getName()] = $code;
         }
 
         return $choices;
@@ -178,24 +233,6 @@ final class OwnHospitalAllocationsExportType extends AbstractType
             }
 
             $choices[(string) $entity->getName()] = (int) $id;
-        }
-
-        return $choices;
-    }
-
-    /**
-     * @return array<string, int>
-     */
-    private function indicationChoices(): array
-    {
-        $choices = [];
-        foreach ($this->indicationNormalizedRepository->findAll() as $indication) {
-            $code = $indication->getCode();
-            if (null === $code || $code <= 0) {
-                continue;
-            }
-
-            $choices[(string) $indication->getName()] = $code;
         }
 
         return $choices;

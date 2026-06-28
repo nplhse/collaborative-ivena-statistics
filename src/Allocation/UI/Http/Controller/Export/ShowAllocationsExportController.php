@@ -32,6 +32,8 @@ final class ShowAllocationsExportController extends AbstractController
         $now = new \DateTimeImmutable('today');
         $defaultData->dateFrom = $now->modify('first day of this month');
         $defaultData->dateTo = $now;
+        $defaultData->timeFrom = $now->setTime(0, 0, 0);
+        $defaultData->timeTo = $now->setTime(23, 59, 59);
 
         $defaultData->hospitals = $this->exportHospitalFormOptionsProvider->defaultHospitalIdsFor($user);
 

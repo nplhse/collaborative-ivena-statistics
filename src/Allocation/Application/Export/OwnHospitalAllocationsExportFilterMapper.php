@@ -35,7 +35,11 @@ final class OwnHospitalAllocationsExportFilterMapper
             infection: $data->infection,
             department: $data->department,
             speciality: $data->speciality,
+            assignment: $data->assignment,
+            occasion: $data->occasion,
+            departmentWasClosed: $data->departmentWasClosed ? 1 : null,
             transportType: $this->emptyToNull($data->transportType),
+            includeIndicationRaw: $data->includeIndicationRaw,
         );
     }
 

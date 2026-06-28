@@ -9,11 +9,14 @@ use App\Allocation\Application\Export\DTO\ExportDateTimeRange;
 use App\Allocation\Application\Export\DTO\OwnHospitalAllocationsExportFilter;
 use App\Allocation\Application\Export\ExportDateTimeRangeResolver;
 use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationNormalized;
+use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
+use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Entity\State;
@@ -83,8 +86,11 @@ final readonly class OwnHospitalAllocationsExportQuery
             ->leftJoin(Infection::class, 'i', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.infection = i.id')
             ->leftJoin(SecondaryTransport::class, 'st', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.secondaryTransport = st.id')
             ->leftJoin(IndicationNormalized::class, 'inor', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.indicationNormalized = inor.id')
+            ->leftJoin(IndicationRaw::class, 'iraw', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.indicationRaw = iraw.id')
             ->leftJoin(Department::class, 'dep', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.department = dep.id')
             ->leftJoin(Speciality::class, 'spec', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.speciality = spec.id')
+            ->leftJoin(Assignment::class, 'asgn', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.assignment = asgn.id')
+            ->leftJoin(Occasion::class, 'occ', \Doctrine\ORM\Query\Expr\Join::WITH, 'a.occasion = occ.id')
             ->andWhere('h.id IN (:exportHospitalIds)')
             ->setParameter('exportHospitalIds', $exportHospitalIds);
 
@@ -110,7 +116,6 @@ final readonly class OwnHospitalAllocationsExportQuery
     private function exportSelectFields(): array
     {
         return [
-            'a.id',
             'a.arrivalAt',
             'a.createdAt',
             'h.name as hospital',
@@ -121,9 +126,13 @@ final readonly class OwnHospitalAllocationsExportQuery
             'a.urgency',
             'a.transportType',
             'inor.name as indicationNormalized',
+            'iraw.name as indicationRaw',
             'st.name as secondaryTransport',
             'dep.name as department',
             'spec.name as speciality',
+            'a.departmentWasClosed',
+            'asgn.name as assignment',
+            'occ.name as occasion',
             'a.requiresResus',
             'a.requiresCathlab',
             'a.isCPR',

@@ -136,6 +136,53 @@ final class OwnHospitalAllocationsExportQueryTest extends KernelTestCase
         self::assertSame(1, $count);
     }
 
+    public function testFiltersByAssignmentOccasionAndDepartmentWasClosed(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        $this->seedAllocationDependencies($hospital);
+
+        $assignmentA = AssignmentFactory::createOne(['name' => 'Assignment A']);
+        $assignmentB = AssignmentFactory::createOne(['name' => 'Assignment B']);
+        $occasionA = OccasionFactory::createOne(['name' => 'Occasion A']);
+        $occasionB = OccasionFactory::createOne(['name' => 'Occasion B']);
+
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-10 12:00:00'),
+            'assignment' => $assignmentA,
+            'occasion' => $occasionA,
+            'departmentWasClosed' => true,
+        ]);
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-11 12:00:00'),
+            'assignment' => $assignmentB,
+            'occasion' => $occasionB,
+            'departmentWasClosed' => false,
+        ]);
+
+        $hospitalId = (int) $hospital->getId();
+
+        self::assertSame(1, $this->query->count([$hospitalId], new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+            assignment: (int) $assignmentA->getId(),
+        )));
+        self::assertSame(1, $this->query->count([$hospitalId], new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+            occasion: (int) $occasionA->getId(),
+        )));
+        self::assertSame(1, $this->query->count([$hospitalId], new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+            departmentWasClosed: 1,
+        )));
+    }
+
     private function createJanuaryFilter(): OwnHospitalAllocationsExportFilter
     {
         return new OwnHospitalAllocationsExportFilter(

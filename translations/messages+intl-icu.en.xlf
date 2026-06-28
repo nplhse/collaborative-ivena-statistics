@@ -305,6 +305,10 @@
         <source>field.requiresResus</source>
         <target>Requires Resus</target>
       </trans-unit>
+      <trans-unit id="ExpFldEn01" resname="field.includeIndicationRaw">
+        <source>field.includeIndicationRaw</source>
+        <target>Include raw indication</target>
+      </trans-unit>
       <trans-unit id="d833nvj" resname="field.transportType">
         <source>field.transportType</source>
         <target>Transport Type</target>
@@ -696,6 +700,18 @@
       <trans-unit id="allocAllSpec" resname="label.all_specialities">
         <source>label.all_specialities</source>
         <target>All specialities</target>
+      </trans-unit>
+      <trans-unit id="allocAllAsgn" resname="label.all_assignments">
+        <source>label.all_assignments</source>
+        <target>All assignments</target>
+      </trans-unit>
+      <trans-unit id="allocAllOcc" resname="label.all_occasions">
+        <source>label.all_occasions</source>
+        <target>All occasions</target>
+      </trans-unit>
+      <trans-unit id="ExpFldEn02" resname="field.departmentWasClosed">
+        <source>field.departmentWasClosed</source>
+        <target>Department was closed</target>
       </trans-unit>
       <trans-unit id="allocAllTt" resname="label.all_transport_types">
         <source>label.all_transport_types</source>
@@ -8470,6 +8486,14 @@
       <trans-unit id="ExpHlpEn03" resname="help.export.hospitals">
         <source>help.export.hospitals</source>
         <target>All accessible hospitals are selected by default. Uncheck any to exclude them from the export.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn04" resname="help.export.include_indication_raw">
+        <source>help.export.include_indication_raw</source>
+        <target>Adds an extra column with the original indication text from the import.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn05" resname="help.export.department_was_closed_filter">
+        <source>help.export.department_was_closed_filter</source>
+        <target>Include only allocations where the department was closed.</target>
       </trans-unit>
       <trans-unit id="ExpLblEn01" resname="label.export.period">
         <source>label.export.period</source>

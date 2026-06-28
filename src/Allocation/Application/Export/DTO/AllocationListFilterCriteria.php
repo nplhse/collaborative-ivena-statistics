@@ -27,6 +27,9 @@ final readonly class AllocationListFilterCriteria
         public ?int $infection = null,
         public ?int $department = null,
         public ?int $speciality = null,
+        public ?int $assignment = null,
+        public ?int $occasion = null,
+        public ?int $departmentWasClosed = null,
         public ?string $transportType = null,
     ) {
     }

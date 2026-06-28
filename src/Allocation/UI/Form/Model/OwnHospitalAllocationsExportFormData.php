@@ -27,6 +27,12 @@ final class OwnHospitalAllocationsExportFormData
 
     public ?int $speciality = null;
 
+    public ?int $assignment = null;
+
+    public ?int $occasion = null;
+
+    public bool $departmentWasClosed = false;
+
     public ?string $transportType = null;
 
     public bool $requiresResus = false;
@@ -46,4 +52,6 @@ final class OwnHospitalAllocationsExportFormData
     public bool $isInfectious = false;
 
     public ?int $infection = null;
+
+    public bool $includeIndicationRaw = false;
 }
