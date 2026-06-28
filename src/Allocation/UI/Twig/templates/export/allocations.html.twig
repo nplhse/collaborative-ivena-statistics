@@ -36,17 +36,17 @@
                     },
                 }) }}
                     {{ include('@Allocation/export/_export_allocation_filters.html.twig') }}
-
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="submit"
-                                class="btn btn-primary"
-                                data-testid="export-allocations-prepare">
-                            {{ 'action.export.prepare'|trans }}
-                        </button>
-                    </div>
                 {{ form_end(form) }}
-
-                <turbo-frame id="export-estimate" class="mt-4"></turbo-frame>
+            </div>
+            <div class="card-footer d-flex align-items-center gap-2">
+                <button type="submit"
+                        class="btn btn-primary flex-shrink-0 d-inline-flex align-items-center gap-1"
+                        form="export-allocations-form"
+                        data-testid="export-allocations-prepare">
+                    <twig:ux:icon name="tabler:calculator" style="height: 1.1em;" aria-hidden="true" />
+                    {{ 'action.export.prepare'|trans }}
+                </button>
+                {{ include('@Allocation/export/_export_estimate_result.html.twig', {estimate: null, error: false}, false) }}
             </div>
         </div>
     </div>
