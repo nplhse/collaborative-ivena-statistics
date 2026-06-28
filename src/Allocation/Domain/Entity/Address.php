@@ -12,19 +12,19 @@ use Doctrine\ORM\Mapping as ORM;
 class Address
 {
     #[ORM\Column(type: Types::STRING)]
-    private string $street;
+    private string $street = '';
 
     #[ORM\Column(type: Types::STRING)]
-    private string $postalCode;
+    private string $postalCode = '';
 
     #[ORM\Column(type: Types::STRING)]
-    private string $city;
+    private string $city = '';
 
     #[ORM\Column(type: Types::STRING)]
-    private string $state;
+    private string $state = '';
 
     #[ORM\Column(type: Types::STRING)]
-    private string $country;
+    private string $country = '';
 
     public function getStreet(): string
     {
