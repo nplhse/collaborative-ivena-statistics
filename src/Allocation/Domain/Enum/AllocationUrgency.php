@@ -40,6 +40,11 @@ enum AllocationUrgency: int
         };
     }
 
+    public function skLabel(): string
+    {
+        return 'SK'.$this->value;
+    }
+
     public static function tryFromQueryValue(mixed $value): ?self
     {
         if (null === $value || '' === $value) {

@@ -1205,6 +1205,18 @@
         <source>label.all_specialities</source>
         <target>Alle Fachrichtungen</target>
       </trans-unit>
+      <trans-unit id="lblAllAssignmentsDe" resname="label.all_assignments">
+        <source>label.all_assignments</source>
+        <target>Alle Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="lblAllOccasionsDe" resname="label.all_occasions">
+        <source>label.all_occasions</source>
+        <target>Alle Anlässe</target>
+      </trans-unit>
+      <trans-unit id="ExpFldDe02" resname="field.departmentWasClosed">
+        <source>field.departmentWasClosed</source>
+        <target>Fachbereich war abgemeldet</target>
+      </trans-unit>
       <trans-unit id="lblAllTiersDe" resname="label.all_tiers">
         <source>label.all_tiers</source>
         <target>Alle Versorgungsstufen</target>
@@ -1428,6 +1440,66 @@
       <trans-unit id="FlsIndMaaDe" resname="flash.indication.review.matched_and_approved">
         <source>flash.indication.review.matched_and_approved</source>
         <target>Match gesetzt und freigegeben. Zuweisungen werden im Hintergrund aktualisiert.</target>
+      </trans-unit>
+      <trans-unit id="ExpLnkDe01" resname="link.export">
+        <source>link.export</source>
+        <target>Export</target>
+      </trans-unit>
+      <trans-unit id="ExpTitDe01" resname="title.export.allocations">
+        <source>title.export.allocations</source>
+        <target>Allocations exportieren</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe01" resname="help.export.allocations">
+        <source>help.export.allocations</source>
+        <target>Exportieren Sie Einsatzdaten Ihrer Krankenhäuser als CSV. Der Zeitraum wird als zusammenhängendes Intervall gefiltert.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe02" resname="help.export.period">
+        <source>help.export.period</source>
+        <target>Ohne Uhrzeit gilt Tagesbeginn (00:00:00) bzw. Tagesende (23:59:59). Datum und Uhrzeit bilden ein durchgängiges Intervall.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe03" resname="help.export.hospitals">
+        <source>help.export.hospitals</source>
+        <target>Alle zugänglichen Krankenhäuser sind standardmäßig ausgewählt. Deaktivieren Sie ein Krankenhaus, um es vom Export auszuschließen.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe04" resname="help.export.include_indication_raw">
+        <source>help.export.include_indication_raw</source>
+        <target>Fügt eine zusätzliche Spalte mit dem ursprünglichen Indikationstext aus dem Import hinzu.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe05" resname="help.export.department_was_closed_filter">
+        <source>help.export.department_was_closed_filter</source>
+        <target>Nur Zuweisungen exportieren, bei denen der Fachbereich abgemeldet war.</target>
+      </trans-unit>
+      <trans-unit id="ExpFldDe01" resname="field.includeIndicationRaw">
+        <source>field.includeIndicationRaw</source>
+        <target>Roh-Indikation mit exportieren</target>
+      </trans-unit>
+      <trans-unit id="ExpLblDe01" resname="label.export.period">
+        <source>label.export.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="ExpActDe01" resname="action.export.prepare">
+        <source>action.export.prepare</source>
+        <target>Export vorbereiten</target>
+      </trans-unit>
+      <trans-unit id="ExpActDe02" resname="action.export.download_csv">
+        <source>action.export.download_csv</source>
+        <target>CSV herunterladen</target>
+      </trans-unit>
+      <trans-unit id="ExpInfDe01" resname="info.export.row_count">
+        <source>info.export.row_count</source>
+        <target>{count, number} Datensätze werden exportiert.</target>
+      </trans-unit>
+      <trans-unit id="ExpWrnDe01" resname="warning.export.large_export">
+        <source>warning.export.large_export</source>
+        <target>Der Export ist groß ({count, number} Datensätze). Bitte prüfen Sie die Filter vor dem Download.</target>
+      </trans-unit>
+      <trans-unit id="ExpErrDe01" resname="error.export.too_many_rows">
+        <source>error.export.too_many_rows</source>
+        <target>Export blockiert: {count, number} Datensätze überschreiten das Limit. Bitte Filter enger setzen.</target>
+      </trans-unit>
+      <trans-unit id="ExpErrDe02" resname="error.export.invalid_filter">
+        <source>error.export.invalid_filter</source>
+        <target>Bitte prüfen Sie die Export-Filter.</target>
       </trans-unit>
     </body>
   </file>

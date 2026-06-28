@@ -1,0 +1,53 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.export.allocations'|trans }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.export.allocations' }
+            ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.export.allocations'|trans }}</h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ 'help.export.allocations'|trans }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form, {
+                    action: path('app_hospitals_export_allocations_estimate'),
+                    method: 'POST',
+                    attr: {
+                        id: 'export-allocations-form',
+                        'data-turbo-frame': 'export-estimate',
+                    },
+                }) }}
+                    {{ include('@Allocation/export/_export_allocation_filters.html.twig') }}
+                {{ form_end(form) }}
+            </div>
+            <div class="card-footer d-flex align-items-center gap-2">
+                <button type="submit"
+                        class="btn btn-primary flex-shrink-0 d-inline-flex align-items-center gap-1"
+                        form="export-allocations-form"
+                        data-testid="export-allocations-prepare">
+                    <twig:ux:icon name="tabler:calculator" style="height: 1.1em;" aria-hidden="true" />
+                    {{ 'action.export.prepare'|trans }}
+                </button>
+                {{ include('@Allocation/export/_export_estimate_result.html.twig', {estimate: null, error: false}, false) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\DTO;
 
+use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class AllocationQueryParametersDTO
@@ -67,5 +68,32 @@ final readonly class AllocationQueryParametersDTO
 
         public ?string $transportType = null,
     ) {
+    }
+
+    public function toListFilterCriteria(): AllocationListFilterCriteria
+    {
+        return new AllocationListFilterCriteria(
+            importId: $this->importId,
+            tier: $this->tier,
+            location: $this->location,
+            size: $this->size,
+            urgency: $this->urgency,
+            dispatchArea: $this->dispatchArea,
+            state: $this->state,
+            requiresResus: $this->requiresResus,
+            requiresCathlab: $this->requiresCathlab,
+            indication: $this->indication,
+            secondaryTransport: $this->secondaryTransport,
+            isVentilated: $this->isVentilated,
+            isShock: $this->isShock,
+            isCPR: $this->isCPR,
+            isPregnant: $this->isPregnant,
+            isWorkAccident: $this->isWorkAccident,
+            isInfectious: $this->isInfectious,
+            infection: $this->infection,
+            department: $this->department,
+            speciality: $this->speciality,
+            transportType: $this->transportType,
+        );
     }
 }

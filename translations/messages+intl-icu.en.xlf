@@ -305,6 +305,10 @@
         <source>field.requiresResus</source>
         <target>Requires Resus</target>
       </trans-unit>
+      <trans-unit id="ExpFldEn01" resname="field.includeIndicationRaw">
+        <source>field.includeIndicationRaw</source>
+        <target>Include raw indication</target>
+      </trans-unit>
       <trans-unit id="d833nvj" resname="field.transportType">
         <source>field.transportType</source>
         <target>Transport Type</target>
@@ -696,6 +700,18 @@
       <trans-unit id="allocAllSpec" resname="label.all_specialities">
         <source>label.all_specialities</source>
         <target>All specialities</target>
+      </trans-unit>
+      <trans-unit id="allocAllAsgn" resname="label.all_assignments">
+        <source>label.all_assignments</source>
+        <target>All assignments</target>
+      </trans-unit>
+      <trans-unit id="allocAllOcc" resname="label.all_occasions">
+        <source>label.all_occasions</source>
+        <target>All occasions</target>
+      </trans-unit>
+      <trans-unit id="ExpFldEn02" resname="field.departmentWasClosed">
+        <source>field.departmentWasClosed</source>
+        <target>Department was closed</target>
       </trans-unit>
       <trans-unit id="allocAllTt" resname="label.all_transport_types">
         <source>label.all_transport_types</source>
@@ -1432,6 +1448,10 @@
       <trans-unit id="000N_Am" resname="link.import">
         <source>link.import</source>
         <target>Import</target>
+      </trans-unit>
+      <trans-unit id="ExpLnkEn01" resname="link.export">
+        <source>link.export</source>
+        <target>Export</target>
       </trans-unit>
       <trans-unit id="4wLkxRO" resname="link.imports">
         <source>link.imports</source>
@@ -8450,6 +8470,58 @@
       <trans-unit id="statsAexHp09" resname="stats.analysis_explorer.edit.additional_table_metrics_help">
         <source>stats.analysis_explorer.edit.additional_table_metrics_help</source>
         <target>Optional extra columns in the results table. The chart always uses the chart metric above.</target>
+      </trans-unit>
+      <trans-unit id="ExpTitEn01" resname="title.export.allocations">
+        <source>title.export.allocations</source>
+        <target>Export allocations</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn01" resname="help.export.allocations">
+        <source>help.export.allocations</source>
+        <target>Export allocation data from your hospitals as CSV. The period is filtered as one continuous interval.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn02" resname="help.export.period">
+        <source>help.export.period</source>
+        <target>Without a time, day start (00:00:00) or day end (23:59:59) applies. Date and time form one continuous interval.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn03" resname="help.export.hospitals">
+        <source>help.export.hospitals</source>
+        <target>All accessible hospitals are selected by default. Uncheck any to exclude them from the export.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn04" resname="help.export.include_indication_raw">
+        <source>help.export.include_indication_raw</source>
+        <target>Adds an extra column with the original indication text from the import.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn05" resname="help.export.department_was_closed_filter">
+        <source>help.export.department_was_closed_filter</source>
+        <target>Include only allocations where the department was closed.</target>
+      </trans-unit>
+      <trans-unit id="ExpLblEn01" resname="label.export.period">
+        <source>label.export.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="ExpActEn01" resname="action.export.prepare">
+        <source>action.export.prepare</source>
+        <target>Prepare export</target>
+      </trans-unit>
+      <trans-unit id="ExpActEn02" resname="action.export.download_csv">
+        <source>action.export.download_csv</source>
+        <target>Download CSV</target>
+      </trans-unit>
+      <trans-unit id="ExpInfEn01" resname="info.export.row_count">
+        <source>info.export.row_count</source>
+        <target>{count, number} records will be exported.</target>
+      </trans-unit>
+      <trans-unit id="ExpWrnEn01" resname="warning.export.large_export">
+        <source>warning.export.large_export</source>
+        <target>This export is large ({count, number} records). Review your filters before downloading.</target>
+      </trans-unit>
+      <trans-unit id="ExpErrEn01" resname="error.export.too_many_rows">
+        <source>error.export.too_many_rows</source>
+        <target>Export blocked: {count, number} records exceed the limit. Narrow your filters.</target>
+      </trans-unit>
+      <trans-unit id="ExpErrEn02" resname="error.export.invalid_filter">
+        <source>error.export.invalid_filter</source>
+        <target>Please check the export filters.</target>
       </trans-unit>
     </body>
   </file>
