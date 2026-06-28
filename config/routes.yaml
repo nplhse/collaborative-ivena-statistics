@@ -1,2 +1,2 @@
 # Controller routes are imported via config/routes/attributes.php
-# Only **/UI/Http/Controller/ is scanned so dev-only code under src/ (Foundry, Faker, fixtures) is never loaded in prod.
+# src/ is scanned for attribute routes; dev-only paths (Foundry, Faker, fixtures) are excluded for prod installs with --no-dev.
