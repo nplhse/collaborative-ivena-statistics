@@ -340,6 +340,18 @@ above) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the wor
 Local development uses `make consume` (same transports, verbose). Mail is sent synchronously in `dev`; production 
 requires the worker for queued mail.
 
+### Scanner path blocking (Apache)
+
+`public/.htaccess` returns **403 Forbidden** for common WordPress scanner and exploit probe paths (for example `/wp-login.php`, `/xmlrpc.php`, `/.env`) before requests reach Symfony. This applies on production (Uberspace/Apache) only; local development with `symfony server` does not use `.htaccess`.
+
+After deploy, verify with:
+
+```bash
+curl -sI https://<host>/wp-login.php | head -1   # expect HTTP/1.1 403 Forbidden
+curl -sI https://<host>/.env | head -1           # expect HTTP/1.1 403 Forbidden
+curl -sI https://<host>/ | head -1               # expect HTTP/1.1 200 or 302
+```
+
 ## Troubleshooting
 
 | Symptom | Likely cause |
