@@ -17,6 +17,8 @@ use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Onboarding\Domain\Enum\OnboardingStepKey;
+use App\Onboarding\Infrastructure\Factory\UserOnboardingStepFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -169,5 +171,74 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Import new Allocations');
         self::assertSelectorExists('a[href="/hospitals"]');
         self::assertSelectorExists('a[href="/import/new"]');
+    }
+
+    public function testParticipantWithoutClinicSeesOnboardingCard(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'onboarding-participant',
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="dashboard-onboarding-card"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-request_clinic_access"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-verify_own_clinic"][data-testid-onboarding-locked="true"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-start_first_import"][data-testid-onboarding-locked="true"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-view_overview_statistics"][data-testid-onboarding-locked="true"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-view_explore_data"][data-testid-onboarding-locked="true"]');
+        self::assertSelectorNotExists('[data-testid="dashboard-onboarding-progress"]');
+    }
+
+    public function testParticipantSeesOnboardingProgressWhenSomeStepsCompleted(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'onboarding-progress-user',
+        ]);
+        UserOnboardingStepFactory::createOne([
+            'user' => $user,
+            'stepKey' => OnboardingStepKey::ViewExploreData,
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="dashboard-onboarding-progress"]');
+        self::assertSelectorExists('[data-testid="dashboard-onboarding-completed-popover"]');
+        self::assertSelectorTextContains('body', '1 of 5 completed');
+    }
+
+    public function testOnboardingCardHiddenWhenAllStepsCompleted(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'onboarding-complete-user',
+        ]);
+        $state = StateFactory::createOne(['createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $user, 'state' => $state]);
+        HospitalFactory::createOne([
+            'createdBy' => $user,
+            'dispatchArea' => $dispatchArea,
+            'owner' => $user,
+            'state' => $state,
+        ]);
+        UserOnboardingStepFactory::createOne(['user' => $user, 'stepKey' => OnboardingStepKey::VerifyOwnClinic]);
+        UserOnboardingStepFactory::createOne(['user' => $user, 'stepKey' => OnboardingStepKey::StartFirstImport]);
+        UserOnboardingStepFactory::createOne(['user' => $user, 'stepKey' => OnboardingStepKey::ViewExploreData]);
+        UserOnboardingStepFactory::createOne(['user' => $user, 'stepKey' => OnboardingStepKey::ViewOverviewStatistics]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="dashboard-onboarding-card"]');
     }
 }

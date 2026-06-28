@@ -71,6 +71,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Engagement/Domain/Entity'
                 prefix: 'App\Engagement\Domain\Entity'
+            Onboarding:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Onboarding/Domain/Entity'
+                prefix: 'App\Onboarding\Domain\Entity'
         schema_ignore_classes:
             - App\Statistics\Infrastructure\Entity\ProjectionStateHospitalCount
             - App\Statistics\Infrastructure\Entity\ProjectionDispatchAreaHospitalCount

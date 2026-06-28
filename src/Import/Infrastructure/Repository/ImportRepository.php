@@ -6,6 +6,7 @@ namespace App\Import\Infrastructure\Repository;
 
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
+use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
@@ -301,5 +302,24 @@ final class ImportRepository extends ServiceEntityRepository
             ->getResult();
 
         return $imports;
+    }
+
+    public function hasImportsCreatedByUserSince(User $user, \DateTimeImmutable $since): bool
+    {
+        $userId = $user->getId();
+        if (null === $userId) {
+            return false;
+        }
+
+        $count = (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->where('IDENTITY(i.createdBy) = :userId')
+            ->andWhere('i.createdAt >= :since')
+            ->setParameter('userId', $userId, Types::INTEGER)
+            ->setParameter('since', $since, Types::DATETIME_IMMUTABLE)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
     }
 }

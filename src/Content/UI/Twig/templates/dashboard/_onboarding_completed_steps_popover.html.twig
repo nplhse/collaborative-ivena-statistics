@@ -1,0 +1,22 @@
+<ul class="list-unstyled mb-0 small">
+    {% for step in completedSteps %}
+        <li class="d-flex align-items-start gap-2{% if not loop.last %} mb-1{% endif %}">
+            <span class="badge bg-primary-lt text-primary rounded-pill flex-shrink-0" aria-hidden="true">{{ step.position }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="1em"
+                 height="1em"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 class="text-success flex-shrink-0 mt-1"
+                 aria-hidden="true">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l5 5l10 -10"/>
+            </svg>
+            <span>{{ step.titleKey|trans }}</span>
+        </li>
+    {% endfor %}
+</ul>

@@ -9,6 +9,8 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
+use App\Onboarding\Application\OnboardingProgressService;
+use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +25,7 @@ final class DefaultController extends AbstractController
         private readonly AllocationRepository $allocationRepository,
         private readonly PostRepository $postRepository,
         private readonly PageSidebarDataProvider $pageSidebarDataProvider,
+        private readonly OnboardingProgressService $onboardingProgressService,
     ) {
     }
 
@@ -30,8 +33,14 @@ final class DefaultController extends AbstractController
     public function index(): Response
     {
         if ($this->isGranted('ROLE_USER')) {
+            $user = $this->getUser();
+            $onboardingCard = $user instanceof User
+                ? $this->onboardingProgressService->buildCardForUser($user)
+                : null;
+
             return $this->render('@Content/dashboard/dashboard.html.twig', [
                 'recentPosts' => $this->postRepository->findPublishedForIndex(5),
+                'onboardingCard' => $onboardingCard,
                 ...$this->pageSidebarDataProvider->getData(),
             ]);
         }
