@@ -103,7 +103,7 @@ final readonly class OnboardingProgressService
 
         $since = new \DateTimeImmutable(sprintf('-%d months', self::IMPORT_INIT_LOOKBACK_MONTHS));
         if (
-            $this->stepCatalog->isStepAvailableForUser($user, OnboardingStepKey::StartFirstImport)
+            $this->stepCatalog->hasImportPermission($user)
             && $this->importRepository->hasImportsCreatedByUserSince($user, $since)
         ) {
             $candidates[] = OnboardingStepKey::StartFirstImport;

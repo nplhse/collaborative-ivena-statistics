@@ -57,8 +57,53 @@ final class OnboardingStepCatalogTest extends DatabaseKernelTestCase
         self::assertTrue($this->findStep($steps, OnboardingStepKey::RequestClinicAccess)->isCompleted);
         self::assertFalse($this->findStep($steps, OnboardingStepKey::RequestClinicAccess)->isActionable);
         self::assertTrue($this->findStep($steps, OnboardingStepKey::VerifyOwnClinic)->isActionable);
+        self::assertFalse($this->findStep($steps, OnboardingStepKey::StartFirstImport)->isActionable);
+        self::assertFalse($this->findStep($steps, OnboardingStepKey::ViewExploreData)->isActionable);
+        self::assertFalse($this->findStep($steps, OnboardingStepKey::ViewOverviewStatistics)->isActionable);
+    }
+
+    public function testImportStepUnlocksAfterVerifyClinicCompleted(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $state = StateFactory::createOne(['createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $user, 'state' => $state]);
+        HospitalFactory::createOne([
+            'createdBy' => $user,
+            'dispatchArea' => $dispatchArea,
+            'owner' => $user,
+            'state' => $state,
+        ]);
+
+        $persisted = [
+            OnboardingStepKey::VerifyOwnClinic->value => true,
+        ];
+
+        $steps = $this->catalog->buildStepsForUser($user, $persisted);
+
         self::assertTrue($this->findStep($steps, OnboardingStepKey::StartFirstImport)->isActionable);
         self::assertFalse($this->findStep($steps, OnboardingStepKey::ViewExploreData)->isActionable);
+    }
+
+    public function testStatisticsStepUnlocksAfterExploreCompleted(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $state = StateFactory::createOne(['createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $user, 'state' => $state]);
+        HospitalFactory::createOne([
+            'createdBy' => $user,
+            'dispatchArea' => $dispatchArea,
+            'owner' => $user,
+            'state' => $state,
+        ]);
+
+        $persisted = [
+            OnboardingStepKey::VerifyOwnClinic->value => true,
+            OnboardingStepKey::StartFirstImport->value => true,
+            OnboardingStepKey::ViewExploreData->value => true,
+        ];
+
+        $steps = $this->catalog->buildStepsForUser($user, $persisted);
+
         self::assertTrue($this->findStep($steps, OnboardingStepKey::ViewOverviewStatistics)->isActionable);
     }
 

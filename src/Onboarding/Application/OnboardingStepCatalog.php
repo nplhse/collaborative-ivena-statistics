@@ -89,6 +89,11 @@ final readonly class OnboardingStepCatalog
         );
     }
 
+    public function hasImportPermission(User $user): bool
+    {
+        return [] !== $this->importListAccess->resolveAccessibleHospitalIds($user);
+    }
+
     /**
      * @param array<string, bool> $persistedCompleted keyed by step value
      */
@@ -129,14 +134,28 @@ final readonly class OnboardingStepCatalog
     ): bool {
         return match ($stepKey) {
             OnboardingStepKey::RequestClinicAccess => !$hasClinicAccess,
+            default => $this->arePreviousStepsCompleted($stepKey, $persistedCompleted, $hasClinicAccess)
+                && $this->meetsStepPermission(
+                    $stepKey,
+                    $hasClinicAccess,
+                    $hasImportPermission,
+                    $hasStatisticsPermission,
+                ),
+        };
+    }
+
+    private function meetsStepPermission(
+        OnboardingStepKey $stepKey,
+        bool $hasClinicAccess,
+        bool $hasImportPermission,
+        bool $hasStatisticsPermission,
+    ): bool {
+        return match ($stepKey) {
             OnboardingStepKey::VerifyOwnClinic => $hasClinicAccess,
             OnboardingStepKey::StartFirstImport => $hasImportPermission,
-            OnboardingStepKey::ViewExploreData => $this->arePreviousStepsCompleted(
-                $stepKey,
-                $persistedCompleted,
-                $hasClinicAccess,
-            ),
+            OnboardingStepKey::ViewExploreData => true,
             OnboardingStepKey::ViewOverviewStatistics => $hasStatisticsPermission,
+            OnboardingStepKey::RequestClinicAccess => false,
         };
     }
 

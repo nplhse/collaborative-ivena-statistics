@@ -194,6 +194,34 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="dashboard-onboarding-progress"]');
     }
 
+    public function testHospitalOwnerSeesOnlyNextSequentialOnboardingStepActionable(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'username' => 'onboarding-owner-sequential',
+        ]);
+        $state = StateFactory::createOne(['createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne(['createdBy' => $user, 'state' => $state]);
+        HospitalFactory::createOne([
+            'createdBy' => $user,
+            'dispatchArea' => $dispatchArea,
+            'owner' => $user,
+            'state' => $state,
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="dashboard-onboarding-card"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-verify_own_clinic"]:not([data-testid-onboarding-locked])');
+        self::assertSelectorExists('[data-testid="onboarding-step-start_first_import"][data-testid-onboarding-locked="true"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-view_explore_data"][data-testid-onboarding-locked="true"]');
+        self::assertSelectorExists('[data-testid="onboarding-step-view_overview_statistics"][data-testid-onboarding-locked="true"]');
+        self::assertSelectorExists('[data-testid="dashboard-onboarding-progress"]');
+    }
+
     public function testParticipantSeesOnboardingProgressWhenSomeStepsCompleted(): void
     {
         $client = self::createClient();
