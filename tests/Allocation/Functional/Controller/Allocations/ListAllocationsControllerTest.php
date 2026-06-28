@@ -377,6 +377,8 @@ final class ListAllocationsControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $ids = $this->extractAllocationIds($crawler);
         self::assertSame([(int) $allocationA->getId()], $ids);
+    }
+
     public function testAssignmentOccasionAndDepartmentWasClosedFilters(): void
     {
         $client = $this->createClientAsParticipant();
