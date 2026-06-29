@@ -1129,6 +1129,102 @@
         <source>label.hospital</source>
         <target>Krankenhaus</target>
       </trans-unit>
+      <trans-unit id="De764a622b" resname="label.hospital.access_grants.overview">
+        <source>label.hospital.access_grants.overview</source>
+        <target>Benutzerberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="De9e15b4b4" resname="label.hospital.address_information">
+        <source>label.hospital.address_information</source>
+        <target>Adresse</target>
+      </trans-unit>
+      <trans-unit id="De7132027c" resname="label.hospital.back_to_profile">
+        <source>label.hospital.back_to_profile</source>
+        <target>Zurück zum Krankenhausprofil</target>
+      </trans-unit>
+      <trans-unit id="De0ea10b8f" resname="label.hospital.general_information">
+        <source>label.hospital.general_information</source>
+        <target>Allgemeine Informationen</target>
+      </trans-unit>
+      <trans-unit id="De711b5b0f" resname="label.hospital.manage_access">
+        <source>label.hospital.manage_access</source>
+        <target>Zugriff verwalten</target>
+      </trans-unit>
+      <trans-unit id="Dea9b24a17" resname="label.hospital.no_tier">
+        <source>label.hospital.no_tier</source>
+        <target>Keine Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De06687126" resname="label.hospital_access_grant.permissions">
+        <source>label.hospital_access_grant.permissions</source>
+        <target>Berechtigungen</target>
+      </trans-unit>
+      <trans-unit id="Defd0c7e69" resname="label.hospital_access_grant.search_user">
+        <source>label.hospital_access_grant.search_user</source>
+        <target>Teilnehmer nach Benutzernamen suchen</target>
+      </trans-unit>
+      <trans-unit id="Decf71c6d3" resname="label.hospital_access_grant.search_user_placeholder">
+        <source>label.hospital_access_grant.search_user_placeholder</source>
+        <target>Nach Benutzernamen suchen</target>
+      </trans-unit>
+      <trans-unit id="De0e2963ec" resname="label.hospital_access_grant.select_user">
+        <source>label.hospital_access_grant.select_user</source>
+        <target>Benutzer auswählen</target>
+      </trans-unit>
+      <trans-unit id="De7875a545" resname="label.hospital_access_grants.add">
+        <source>label.hospital_access_grants.add</source>
+        <target>Zugriff gewähren</target>
+      </trans-unit>
+      <trans-unit id="Def4e13d91" resname="label.hospital_access_grants.manage">
+        <source>label.hospital_access_grants.manage</source>
+        <target>Zugriff verwalten</target>
+      </trans-unit>
+      <trans-unit id="De4ca43d5a" resname="label.hospital_access_grants.matrix.denied">
+        <source>label.hospital_access_grants.matrix.denied</source>
+        <target>{username} hat nicht {permission}</target>
+      </trans-unit>
+      <trans-unit id="De276c29cb" resname="label.hospital_access_grants.matrix.granted">
+        <source>label.hospital_access_grants.matrix.granted</source>
+        <target>{username} hat {permission}</target>
+      </trans-unit>
+      <trans-unit id="De045ee03b" resname="label.hospital_beds">
+        <source>label.hospital_beds</source>
+        <target>Betten</target>
+      </trans-unit>
+      <trans-unit id="Ded13281aa" resname="label.hospital_location">
+        <source>label.hospital_location</source>
+        <target>Standort</target>
+      </trans-unit>
+      <trans-unit id="De5b82c99d" resname="label.hospital_permission.Benchmarking">
+        <source>label.hospital_permission.Benchmarking</source>
+        <target>Benchmarking-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="De31f5fe93" resname="label.hospital_permission.Export">
+        <source>label.hospital_permission.Export</source>
+        <target>Export-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="Deee37261a" resname="label.hospital_permission.Import">
+        <source>label.hospital_permission.Import</source>
+        <target>Import-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="Deef04d0ba" resname="label.hospital_permission.Statistics">
+        <source>label.hospital_permission.Statistics</source>
+        <target>Statistik-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="De0acc47a9" resname="label.hospital_permission.View">
+        <source>label.hospital_permission.View</source>
+        <target>Details ansehen</target>
+      </trans-unit>
+      <trans-unit id="Dec574a32b" resname="label.hospital_size">
+        <source>label.hospital_size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="De162a10cb" resname="label.hospital_tier">
+        <source>label.hospital_tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="Dec09e83f3" resname="label.hospitals.participating">
+        <source>label.hospitals.participating</source>
+        <target>Teilnehmende Krankenhäuser</target>
+      </trans-unit>
       <trans-unit id="IndLblMPbDe" resname="label.indication.match_proposed_by">
         <source>label.indication.match_proposed_by</source>
         <target>Match vorgeschlagen von</target>
@@ -2556,6 +2652,38 @@
       <trans-unit id="statsNavTt" resname="stats.nav.overview_transport_time_to_analysis">
         <source>stats.nav.overview_transport_time_to_analysis</source>
         <target>Transportzeitverteilung öffnen</target>
+      </trans-unit>
+      <trans-unit id="Ded85229a0" resname="text.confirm_password.intro">
+        <source>text.confirm_password.intro</source>
+        <target>Zu Ihrer Sicherheit geben Sie bitte Ihr Passwort erneut ein, bevor Sie Ihre E-Mail-Adresse ändern.</target>
+      </trans-unit>
+      <trans-unit id="De50ba89dd" resname="text.registration.check_email_intro">
+        <source>text.registration.check_email_intro</source>
+        <target>Ihre Registrierung war fast abgeschlossen. Bitte prüfen Sie Ihren Posteingang und klicken Sie auf den Verifizierungslink, um Ihr Konto zu aktivieren. Anschließend können Sie sich anmelden.</target>
+      </trans-unit>
+      <trans-unit id="De99ac359c" resname="text.registration.no_email">
+        <source>text.registration.no_email</source>
+        <target>Keine E-Mail erhalten?</target>
+      </trans-unit>
+      <trans-unit id="Deb8e48ff0" resname="text.reset_password.check_email_intro">
+        <source>text.reset_password.check_email_intro</source>
+        <target>Wenn Ihr Konto existiert und Ihre E-Mail verifiziert ist, wurde ein Link zum Zurücksetzen des Passworts gesendet.</target>
+      </trans-unit>
+      <trans-unit id="De7670fad5" resname="text.reset_password.expires_in">
+        <source>text.reset_password.expires_in</source>
+        <target>Der Link läuft ab in</target>
+      </trans-unit>
+      <trans-unit id="Deaec89c01" resname="text.reset_password.no_email">
+        <source>text.reset_password.no_email</source>
+        <target>Keine E-Mail erhalten?</target>
+      </trans-unit>
+      <trans-unit id="De14215967" resname="text.settings.account_intro">
+        <source>text.settings.account_intro</source>
+        <target>Verwalten Sie Ihr Benutzerprofil, Ihre E-Mail-Adresse und Ihr Passwort.</target>
+      </trans-unit>
+      <trans-unit id="Deaea59dac" resname="text.settings.notifications_intro">
+        <source>text.settings.notifications_intro</source>
+        <target>Wählen Sie, welche E-Mails Sie erhalten möchten.</target>
       </trans-unit>
       <trans-unit id="De240dcf6c" resname="title.allocation.list">
         <source>title.allocation.list</source>
