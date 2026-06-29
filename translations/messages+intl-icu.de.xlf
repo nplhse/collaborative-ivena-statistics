@@ -3757,6 +3757,38 @@
         <source>public.stats.users</source>
         <target>Benutzer</target>
       </trans-unit>
+      <trans-unit id="Dedc694ea7" resname="statistics.distribution.age.18_29">
+        <source>statistics.distribution.age.18_29</source>
+        <target>18–29</target>
+      </trans-unit>
+      <trans-unit id="De7a060469" resname="statistics.distribution.age.30_39">
+        <source>statistics.distribution.age.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="De87674ebe" resname="statistics.distribution.age.40_49">
+        <source>statistics.distribution.age.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="Dea31c564f" resname="statistics.distribution.age.50_59">
+        <source>statistics.distribution.age.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="Decf917f5c" resname="statistics.distribution.age.60_69">
+        <source>statistics.distribution.age.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="Deebea67ad" resname="statistics.distribution.age.70_79">
+        <source>statistics.distribution.age.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="Deee22ecb3" resname="statistics.distribution.age.80_89">
+        <source>statistics.distribution.age.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="Deca59f442" resname="statistics.distribution.age.90_99">
+        <source>statistics.distribution.age.90_99</source>
+        <target>90–99 (und älter)</target>
+      </trans-unit>
       <trans-unit id="statsAgeOv80" resname="statistics.distribution.age.over_80">
         <source>statistics.distribution.age.over_80</source>
         <target>80 und älter</target>
@@ -3764,6 +3796,502 @@
       <trans-unit id="KtY8Hdy" resname="statistics.distribution.age.under_18">
         <source>statistics.distribution.age.under_18</source>
         <target>Unter 18</target>
+      </trans-unit>
+      <trans-unit id="De2c576d9f" resname="statistics.distribution.age.unknown">
+        <source>statistics.distribution.age.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Defe2e323d" resname="statistics.distribution.apply">
+        <source>statistics.distribution.apply</source>
+        <target>Anwenden</target>
+      </trans-unit>
+      <trans-unit id="Deb8fc8629" resname="statistics.distribution.assignment.invalid_id">
+        <source>statistics.distribution.assignment.invalid_id</source>
+        <target>Unbekannter Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="De762b6167" resname="statistics.distribution.bar_basis">
+        <source>statistics.distribution.bar_basis</source>
+        <target>Balkenwerte</target>
+      </trans-unit>
+      <trans-unit id="De5be75163" resname="statistics.distribution.bar_basis.average">
+        <source>statistics.distribution.bar_basis.average</source>
+        <target>Durchschnitt pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De7b8031aa" resname="statistics.distribution.bar_basis.average.table_mean_per_hospital">
+        <source>statistics.distribution.bar_basis.average.table_mean_per_hospital</source>
+        <target>Durchschn. Fälle pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De38f541c3" resname="statistics.distribution.bar_basis.average.yaxis_per_hospital">
+        <source>statistics.distribution.bar_basis.average.yaxis_per_hospital</source>
+        <target>Durchschn. Fälle pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De7ee765e6" resname="statistics.distribution.bar_basis.counts">
+        <source>statistics.distribution.bar_basis.counts</source>
+        <target>Anzahlen / Anteil</target>
+      </trans-unit>
+      <trans-unit id="Deae5bd62a" resname="statistics.distribution.boxplot.empty">
+        <source>statistics.distribution.boxplot.empty</source>
+        <target>Für diese Auswahl liegen keine Zeilen mit bekanntem Alter vor; der Box-Plot wird nicht angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Deedaa9385" resname="statistics.distribution.boxplot.title">
+        <source>statistics.distribution.boxplot.title</source>
+        <target>Altersverteilung nach Kategorie (Min., Quartile, Median, Max.)</target>
+      </trans-unit>
+      <trans-unit id="De19bde649" resname="statistics.distribution.boxplot.yaxis_age">
+        <source>statistics.distribution.boxplot.yaxis_age</source>
+        <target>Alter (Jahre)</target>
+      </trans-unit>
+      <trans-unit id="De3df6e2af" resname="statistics.distribution.boxplot.yaxis_generic">
+        <source>statistics.distribution.boxplot.yaxis_generic</source>
+        <target>Wert</target>
+      </trans-unit>
+      <trans-unit id="De591329d8" resname="statistics.distribution.chart_mode">
+        <source>statistics.distribution.chart_mode</source>
+        <target>Diagramm</target>
+      </trans-unit>
+      <trans-unit id="De5b96a190" resname="statistics.distribution.chart_mode.absolute">
+        <source>statistics.distribution.chart_mode.absolute</source>
+        <target>Anzahlen (gruppierte Balken)</target>
+      </trans-unit>
+      <trans-unit id="Deff9e5f04" resname="statistics.distribution.chart_mode.grouped">
+        <source>statistics.distribution.chart_mode.grouped</source>
+        <target>Gruppierte Balken</target>
+      </trans-unit>
+      <trans-unit id="De4a983c23" resname="statistics.distribution.chart_mode.percent">
+        <source>statistics.distribution.chart_mode.percent</source>
+        <target>Prozent (100 % gestapelt)</target>
+      </trans-unit>
+      <trans-unit id="De486014a5" resname="statistics.distribution.chart_mode.percent_of_total">
+        <source>statistics.distribution.chart_mode.percent_of_total</source>
+        <target>Anteil an Gesamt</target>
+      </trans-unit>
+      <trans-unit id="De6067fe77" resname="statistics.distribution.chart_mode.stacked">
+        <source>statistics.distribution.chart_mode.stacked</source>
+        <target>Gestapelte Balken</target>
+      </trans-unit>
+      <trans-unit id="De4207395a" resname="statistics.distribution.chart_type">
+        <source>statistics.distribution.chart_type</source>
+        <target>Diagrammtyp</target>
+      </trans-unit>
+      <trans-unit id="Deb08ed50b" resname="statistics.distribution.chart_type.bar">
+        <source>statistics.distribution.chart_type.bar</source>
+        <target>Balkendiagramm</target>
+      </trans-unit>
+      <trans-unit id="Defc2380cb" resname="statistics.distribution.chart_type.boxplot">
+        <source>statistics.distribution.chart_type.boxplot</source>
+        <target>Box-Plot</target>
+      </trans-unit>
+      <trans-unit id="Ded9822cea" resname="statistics.distribution.count_series">
+        <source>statistics.distribution.count_series</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="De2d3b8a6d" resname="statistics.distribution.dashboard_age_cohort_link">
+        <source>statistics.distribution.dashboard_age_cohort_link</source>
+        <target>Detaillierte Kohortenverteilung (Mittelalter &amp; Box-Plot)</target>
+      </trans-unit>
+      <trans-unit id="De82b1c675" resname="statistics.distribution.dashboard_age_cohort_link_hint">
+        <source>statistics.distribution.dashboard_age_cohort_link_hint</source>
+        <target>Statistik → Verteilung → Alterskohorten: Tabelle, Filter und Box-Plot nach Kategorie.</target>
+      </trans-unit>
+      <trans-unit id="Dec6b0a9d8" resname="statistics.distribution.dim.age_cohort">
+        <source>statistics.distribution.dim.age_cohort</source>
+        <target>Alterskohorten</target>
+      </trans-unit>
+      <trans-unit id="De3c34517e" resname="statistics.distribution.dim.assignment">
+        <source>statistics.distribution.dim.assignment</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="Def59594f5" resname="statistics.distribution.dim.gender">
+        <source>statistics.distribution.dim.gender</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="De20c8f1db" resname="statistics.distribution.dim.hospital_location">
+        <source>statistics.distribution.dim.hospital_location</source>
+        <target>Krankenhausstandort</target>
+      </trans-unit>
+      <trans-unit id="Deced627c5" resname="statistics.distribution.dim.hospital_tier">
+        <source>statistics.distribution.dim.hospital_tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De82e41ac0" resname="statistics.distribution.dim.hour">
+        <source>statistics.distribution.dim.hour</source>
+        <target>Tagesstunde</target>
+      </trans-unit>
+      <trans-unit id="De5a52f8f2" resname="statistics.distribution.dim.is_cpr">
+        <source>statistics.distribution.dim.is_cpr</source>
+        <target>Reanimation</target>
+      </trans-unit>
+      <trans-unit id="Def6f8e9dc" resname="statistics.distribution.dim.is_pregnant">
+        <source>statistics.distribution.dim.is_pregnant</source>
+        <target>Schwangerschaft</target>
+      </trans-unit>
+      <trans-unit id="Dea136e9d9" resname="statistics.distribution.dim.is_shock">
+        <source>statistics.distribution.dim.is_shock</source>
+        <target>Schock</target>
+      </trans-unit>
+      <trans-unit id="De94c22fce" resname="statistics.distribution.dim.is_ventilated">
+        <source>statistics.distribution.dim.is_ventilated</source>
+        <target>Beatmung</target>
+      </trans-unit>
+      <trans-unit id="De0bf80c44" resname="statistics.distribution.dim.is_with_physician">
+        <source>statistics.distribution.dim.is_with_physician</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="De2e76dcf5" resname="statistics.distribution.dim.is_work_accident">
+        <source>statistics.distribution.dim.is_work_accident</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="De3655680b" resname="statistics.distribution.dim.occasion">
+        <source>statistics.distribution.dim.occasion</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="De74346042" resname="statistics.distribution.dim.requires_cathlab">
+        <source>statistics.distribution.dim.requires_cathlab</source>
+        <target>Herzkatheter angefordert</target>
+      </trans-unit>
+      <trans-unit id="De17c20555" resname="statistics.distribution.dim.requires_resus">
+        <source>statistics.distribution.dim.requires_resus</source>
+        <target>Schockraum angefordert</target>
+      </trans-unit>
+      <trans-unit id="De2e724d9f" resname="statistics.distribution.dim.transport_time_bucket">
+        <source>statistics.distribution.dim.transport_time_bucket</source>
+        <target>Transportzeit (Gruppe)</target>
+      </trans-unit>
+      <trans-unit id="De324bc333" resname="statistics.distribution.dim.urgency">
+        <source>statistics.distribution.dim.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="De1eb9233e" resname="statistics.distribution.dim.weekday">
+        <source>statistics.distribution.dim.weekday</source>
+        <target>Wochentag</target>
+      </trans-unit>
+      <trans-unit id="De2bc683e6" resname="statistics.distribution.empty">
+        <source>statistics.distribution.empty</source>
+        <target>Die Projektion enthält noch keine Zeilen. Importieren Sie Daten und erstellen Sie die Zuweisungsstatistik-Projektion neu, um hier Diagramme zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="De4263cc2f" resname="statistics.distribution.entity_name_missing">
+        <source>statistics.distribution.entity_name_missing</source>
+        <target>ID {id}</target>
+      </trans-unit>
+      <trans-unit id="De399c0ee1" resname="statistics.distribution.filter.date_range">
+        <source>statistics.distribution.filter.date_range</source>
+        <target>Datumsbereich</target>
+      </trans-unit>
+      <trans-unit id="De4083efc1" resname="statistics.distribution.filter.date_range.all_cases">
+        <source>statistics.distribution.filter.date_range.all_cases</source>
+        <target>Alle Fälle</target>
+      </trans-unit>
+      <trans-unit id="De8388feb2" resname="statistics.distribution.filter.date_range.last_12_months">
+        <source>statistics.distribution.filter.date_range.last_12_months</source>
+        <target>Letzte 12 Monate</target>
+      </trans-unit>
+      <trans-unit id="De2de470ee" resname="statistics.distribution.filter.hospital_location">
+        <source>statistics.distribution.filter.hospital_location</source>
+        <target>Krankenhausstandort</target>
+      </trans-unit>
+      <trans-unit id="Dee59309a3" resname="statistics.distribution.filter.hospital_tier">
+        <source>statistics.distribution.filter.hospital_tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De2ec1fae7" resname="statistics.distribution.group">
+        <source>statistics.distribution.group</source>
+        <target>Gruppieren nach</target>
+      </trans-unit>
+      <trans-unit id="Def0b60fe4" resname="statistics.distribution.group.location">
+        <source>statistics.distribution.group.location</source>
+        <target>Krankenhausstandort</target>
+      </trans-unit>
+      <trans-unit id="De554c36b9" resname="statistics.distribution.group.tier">
+        <source>statistics.distribution.group.tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="Decaf06883" resname="statistics.distribution.group_none">
+        <source>statistics.distribution.group_none</source>
+        <target>Keine</target>
+      </trans-unit>
+      <trans-unit id="De304d2d99" resname="statistics.distribution.hour.slot">
+        <source>statistics.distribution.hour.slot</source>
+        <target>{hour}:00</target>
+      </trans-unit>
+      <trans-unit id="De480797e6" resname="statistics.distribution.hour.unknown">
+        <source>statistics.distribution.hour.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De486d8e47" resname="statistics.distribution.import">
+        <source>statistics.distribution.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="De9cfcd632" resname="statistics.distribution.import_name">
+        <source>statistics.distribution.import_name</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="De29cdbf09" resname="statistics.distribution.location_not_set">
+        <source>statistics.distribution.location_not_set</source>
+        <target>Standort nicht gesetzt</target>
+      </trans-unit>
+      <trans-unit id="De096d5d2e" resname="statistics.distribution.metric.age.table_mean">
+        <source>statistics.distribution.metric.age.table_mean</source>
+        <target>Mittelalter</target>
+      </trans-unit>
+      <trans-unit id="De720aa379" resname="statistics.distribution.metric.age.yaxis">
+        <source>statistics.distribution.metric.age.yaxis</source>
+        <target>Alter (Jahre)</target>
+      </trans-unit>
+      <trans-unit id="Ded25238f1" resname="statistics.distribution.metric.transport_time_minutes.table_mean">
+        <source>statistics.distribution.metric.transport_time_minutes.table_mean</source>
+        <target>Durchschn. Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="Deecca2a20" resname="statistics.distribution.metric.transport_time_minutes.yaxis">
+        <source>statistics.distribution.metric.transport_time_minutes.yaxis</source>
+        <target>Transportzeit (Minuten)</target>
+      </trans-unit>
+      <trans-unit id="De5abbf2f4" resname="statistics.distribution.no_imports">
+        <source>statistics.distribution.no_imports</source>
+        <target>Keine Importe gefunden.</target>
+      </trans-unit>
+      <trans-unit id="Dedcad53fe" resname="statistics.distribution.occasion.invalid_id">
+        <source>statistics.distribution.occasion.invalid_id</source>
+        <target>Unbekannter Anlass</target>
+      </trans-unit>
+      <trans-unit id="Def891909c" resname="statistics.distribution.occasion.none">
+        <source>statistics.distribution.occasion.none</source>
+        <target>Kein Anlass</target>
+      </trans-unit>
+      <trans-unit id="De8f13de75" resname="statistics.distribution.pick_intro">
+        <source>statistics.distribution.pick_intro</source>
+        <target>Wählen Sie einen Import aus, um Zuweisungsverteilungen aus der Projektion anzuzeigen.</target>
+      </trans-unit>
+      <trans-unit id="De9c2e712c" resname="statistics.distribution.primary">
+        <source>statistics.distribution.primary</source>
+        <target>Primärkategorie</target>
+      </trans-unit>
+      <trans-unit id="De324fa7e9" resname="statistics.distribution.scope_all">
+        <source>statistics.distribution.scope_all</source>
+        <target>Aggregiert über die gesamte Zuweisungsstatistik-Projektion: %count% Zeilen insgesamt.</target>
+      </trans-unit>
+      <trans-unit id="De869c42ad" resname="statistics.distribution.section.age">
+        <source>statistics.distribution.section.age</source>
+        <target>Alterskohorten</target>
+      </trans-unit>
+      <trans-unit id="De6827e471" resname="statistics.distribution.section.assignment">
+        <source>statistics.distribution.section.assignment</source>
+        <target>Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="De87d03e3d" resname="statistics.distribution.section.gender">
+        <source>statistics.distribution.section.gender</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="De03750dfe" resname="statistics.distribution.section.occasion">
+        <source>statistics.distribution.section.occasion</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="De658a3193" resname="statistics.distribution.section.resources">
+        <source>statistics.distribution.section.resources</source>
+        <target>Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="Dee2bb39e2" resname="statistics.distribution.section.time">
+        <source>statistics.distribution.section.time</source>
+        <target>Wochentag &amp; Stunde</target>
+      </trans-unit>
+      <trans-unit id="Dea4379519" resname="statistics.distribution.section.traits">
+        <source>statistics.distribution.section.traits</source>
+        <target>Klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="Dec388b30f" resname="statistics.distribution.section.transport_time">
+        <source>statistics.distribution.section.transport_time</source>
+        <target>Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="Dea786cc1b" resname="statistics.distribution.section.urgency">
+        <source>statistics.distribution.section.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="De31e9fd41" resname="statistics.distribution.table.category">
+        <source>statistics.distribution.table.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="De66a811ca" resname="statistics.distribution.table.count">
+        <source>statistics.distribution.table.count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="De8eb1116d" resname="statistics.distribution.table.group">
+        <source>statistics.distribution.table.group</source>
+        <target>Gruppe</target>
+      </trans-unit>
+      <trans-unit id="Dee8522e46" resname="statistics.distribution.table.mean_age">
+        <source>statistics.distribution.table.mean_age</source>
+        <target>Mittelalter (Jahre)</target>
+      </trans-unit>
+      <trans-unit id="De1e5e43da" resname="statistics.distribution.table.metric_max">
+        <source>statistics.distribution.table.metric_max</source>
+        <target>Max.</target>
+      </trans-unit>
+      <trans-unit id="De8219c79f" resname="statistics.distribution.table.metric_mean">
+        <source>statistics.distribution.table.metric_mean</source>
+        <target>Mittelwert</target>
+      </trans-unit>
+      <trans-unit id="De567da12e" resname="statistics.distribution.table.metric_median">
+        <source>statistics.distribution.table.metric_median</source>
+        <target>Median</target>
+      </trans-unit>
+      <trans-unit id="De22537c83" resname="statistics.distribution.table.metric_min">
+        <source>statistics.distribution.table.metric_min</source>
+        <target>Min.</target>
+      </trans-unit>
+      <trans-unit id="De48d0d18d" resname="statistics.distribution.table.metric_n">
+        <source>statistics.distribution.table.metric_n</source>
+        <target>n (mit Wert)</target>
+      </trans-unit>
+      <trans-unit id="Deddc7ce65" resname="statistics.distribution.table.metric_q1">
+        <source>statistics.distribution.table.metric_q1</source>
+        <target>Q1</target>
+      </trans-unit>
+      <trans-unit id="De33c9af49" resname="statistics.distribution.table.metric_q3">
+        <source>statistics.distribution.table.metric_q3</source>
+        <target>Q3</target>
+      </trans-unit>
+      <trans-unit id="De1c69f0d2" resname="statistics.distribution.table.percent">
+        <source>statistics.distribution.table.percent</source>
+        <target>Prozent</target>
+      </trans-unit>
+      <trans-unit id="De215eb4f6" resname="statistics.distribution.table.total">
+        <source>statistics.distribution.table.total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="De7afcba85" resname="statistics.distribution.tier_not_set">
+        <source>statistics.distribution.tier_not_set</source>
+        <target>Versorgungsstufe nicht gesetzt</target>
+      </trans-unit>
+      <trans-unit id="De6837c649" resname="statistics.distribution.title">
+        <source>statistics.distribution.title</source>
+        <target>Verteilungen</target>
+      </trans-unit>
+      <trans-unit id="De303e3c9b" resname="statistics.distribution.transport_time_bucket.10_20">
+        <source>statistics.distribution.transport_time_bucket.10_20</source>
+        <target>10–20 Min.</target>
+      </trans-unit>
+      <trans-unit id="De6e85770a" resname="statistics.distribution.transport_time_bucket.20_30">
+        <source>statistics.distribution.transport_time_bucket.20_30</source>
+        <target>20–30 Min.</target>
+      </trans-unit>
+      <trans-unit id="De1ca4c87d" resname="statistics.distribution.transport_time_bucket.30_40">
+        <source>statistics.distribution.transport_time_bucket.30_40</source>
+        <target>30–40 Min.</target>
+      </trans-unit>
+      <trans-unit id="Deb79f252c" resname="statistics.distribution.transport_time_bucket.40_50">
+        <source>statistics.distribution.transport_time_bucket.40_50</source>
+        <target>40–50 Min.</target>
+      </trans-unit>
+      <trans-unit id="Dea1d25f5f" resname="statistics.distribution.transport_time_bucket.50_60">
+        <source>statistics.distribution.transport_time_bucket.50_60</source>
+        <target>50–60 Min.</target>
+      </trans-unit>
+      <trans-unit id="Deca23a3d2" resname="statistics.distribution.transport_time_bucket.over_60">
+        <source>statistics.distribution.transport_time_bucket.over_60</source>
+        <target>Über 60 Min.</target>
+      </trans-unit>
+      <trans-unit id="De305f9e0a" resname="statistics.distribution.transport_time_bucket.under_10">
+        <source>statistics.distribution.transport_time_bucket.under_10</source>
+        <target>Unter 10 Min.</target>
+      </trans-unit>
+      <trans-unit id="De022d51c5" resname="statistics.distribution.transport_time_bucket.unknown">
+        <source>statistics.distribution.transport_time_bucket.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De7df5e83b" resname="statistics.distribution.tri.is_cpr.no">
+        <source>statistics.distribution.tri.is_cpr.no</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="De38e75353" resname="statistics.distribution.tri.is_cpr.unknown">
+        <source>statistics.distribution.tri.is_cpr.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De49fe8eb8" resname="statistics.distribution.tri.is_cpr.yes">
+        <source>statistics.distribution.tri.is_cpr.yes</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="De457d7432" resname="statistics.distribution.tri.is_ventilated.no">
+        <source>statistics.distribution.tri.is_ventilated.no</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="De3ad899fd" resname="statistics.distribution.tri.is_ventilated.unknown">
+        <source>statistics.distribution.tri.is_ventilated.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De301abe80" resname="statistics.distribution.tri.is_ventilated.yes">
+        <source>statistics.distribution.tri.is_ventilated.yes</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="Ded7458847" resname="statistics.distribution.tri.is_with_physician.no">
+        <source>statistics.distribution.tri.is_with_physician.no</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="Deae5503ed" resname="statistics.distribution.tri.is_with_physician.unknown">
+        <source>statistics.distribution.tri.is_with_physician.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De10e703cf" resname="statistics.distribution.tri.is_with_physician.yes">
+        <source>statistics.distribution.tri.is_with_physician.yes</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="Dee6f10d26" resname="statistics.distribution.tri.requires_cathlab.no">
+        <source>statistics.distribution.tri.requires_cathlab.no</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="Ded48a4a67" resname="statistics.distribution.tri.requires_cathlab.unknown">
+        <source>statistics.distribution.tri.requires_cathlab.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De2a63e684" resname="statistics.distribution.tri.requires_cathlab.yes">
+        <source>statistics.distribution.tri.requires_cathlab.yes</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="Def9b31cde" resname="statistics.distribution.tri.requires_resus.no">
+        <source>statistics.distribution.tri.requires_resus.no</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="Defa2f3631" resname="statistics.distribution.tri.requires_resus.unknown">
+        <source>statistics.distribution.tri.requires_resus.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De991adebb" resname="statistics.distribution.tri.requires_resus.yes">
+        <source>statistics.distribution.tri.requires_resus.yes</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="De4af329d1" resname="statistics.distribution.unknown_code">
+        <source>statistics.distribution.unknown_code</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Ded51866de" resname="statistics.distribution.weekday.n1">
+        <source>statistics.distribution.weekday.n1</source>
+        <target>Montag</target>
+      </trans-unit>
+      <trans-unit id="De4c113764" resname="statistics.distribution.weekday.n2">
+        <source>statistics.distribution.weekday.n2</source>
+        <target>Dienstag</target>
+      </trans-unit>
+      <trans-unit id="De3b1607f2" resname="statistics.distribution.weekday.n3">
+        <source>statistics.distribution.weekday.n3</source>
+        <target>Mittwoch</target>
+      </trans-unit>
+      <trans-unit id="Dea5729251" resname="statistics.distribution.weekday.n4">
+        <source>statistics.distribution.weekday.n4</source>
+        <target>Donnerstag</target>
+      </trans-unit>
+      <trans-unit id="Ded275a2c7" resname="statistics.distribution.weekday.n5">
+        <source>statistics.distribution.weekday.n5</source>
+        <target>Freitag</target>
+      </trans-unit>
+      <trans-unit id="De4b7cf37d" resname="statistics.distribution.weekday.n6">
+        <source>statistics.distribution.weekday.n6</source>
+        <target>Samstag</target>
+      </trans-unit>
+      <trans-unit id="De3c7bc3eb" resname="statistics.distribution.weekday.n7">
+        <source>statistics.distribution.weekday.n7</source>
+        <target>Sonntag</target>
+      </trans-unit>
+      <trans-unit id="De2435c661" resname="statistics.distribution.weekday.unknown">
+        <source>statistics.distribution.weekday.unknown</source>
+        <target>Unbekannt</target>
       </trans-unit>
       <trans-unit id="statsAex62b" resname="stats.analysis_explorer.actions.save">
         <source>stats.analysis_explorer.actions.save</source>
