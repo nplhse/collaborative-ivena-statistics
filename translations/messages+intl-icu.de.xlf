@@ -5745,6 +5745,138 @@
         <source>stats.benchmark.weekday.wednesday</source>
         <target>Mittwoch</target>
       </trans-unit>
+      <trans-unit id="Ded2900385" resname="stats.generic_analysis.apply">
+        <source>stats.generic_analysis.apply</source>
+        <target>Anwenden</target>
+      </trans-unit>
+      <trans-unit id="De2092a56d" resname="stats.generic_analysis.based_on_preset">
+        <source>stats.generic_analysis.based_on_preset</source>
+        <target>Basierend auf {preset}</target>
+      </trans-unit>
+      <trans-unit id="Dec7599c4b" resname="stats.generic_analysis.chart.empty">
+        <source>stats.generic_analysis.chart.empty</source>
+        <target>Keine Diagrammdaten für den gewählten Bereich und Zeitraum.</target>
+      </trans-unit>
+      <trans-unit id="De79fe69ee" resname="stats.generic_analysis.chart.export_planned">
+        <source>stats.generic_analysis.chart.export_planned</source>
+        <target>Diagrammexport (PNG/CSV) ist geplant.</target>
+      </trans-unit>
+      <trans-unit id="Deea8b0524" resname="stats.generic_analysis.chart.remainder_bucket">
+        <source>stats.generic_analysis.chart.remainder_bucket</source>
+        <target>Sonstige</target>
+      </trans-unit>
+      <trans-unit id="De37a432af" resname="stats.generic_analysis.chart.remainder_series">
+        <source>stats.generic_analysis.chart.remainder_series</source>
+        <target>Sonstige</target>
+      </trans-unit>
+      <trans-unit id="De6843fc8d" resname="stats.generic_analysis.chart.subtitle_with_series">
+        <source>stats.generic_analysis.chart.subtitle_with_series</source>
+        <target>{primary} nach {series}</target>
+      </trans-unit>
+      <trans-unit id="Deeda9c24b" resname="stats.generic_analysis.chart.type.bar">
+        <source>stats.generic_analysis.chart.type.bar</source>
+        <target>Balken</target>
+      </trans-unit>
+      <trans-unit id="De62c2b540" resname="stats.generic_analysis.chart.type.grouped_bar">
+        <source>stats.generic_analysis.chart.type.grouped_bar</source>
+        <target>Gruppierte Balken</target>
+      </trans-unit>
+      <trans-unit id="Dece146f03" resname="stats.generic_analysis.chart.type.heatmap">
+        <source>stats.generic_analysis.chart.type.heatmap</source>
+        <target>Heatmap</target>
+      </trans-unit>
+      <trans-unit id="De8b739a20" resname="stats.generic_analysis.chart.type.horizontal_bar">
+        <source>stats.generic_analysis.chart.type.horizontal_bar</source>
+        <target>Horizontale Balken</target>
+      </trans-unit>
+      <trans-unit id="De06823056" resname="stats.generic_analysis.chart.type.line">
+        <source>stats.generic_analysis.chart.type.line</source>
+        <target>Linie</target>
+      </trans-unit>
+      <trans-unit id="Dee96e44b6" resname="stats.generic_analysis.chart.type.percent_stacked_bar">
+        <source>stats.generic_analysis.chart.type.percent_stacked_bar</source>
+        <target>100 % gestapelt</target>
+      </trans-unit>
+      <trans-unit id="Deb901ba9a" resname="stats.generic_analysis.chart.type.pie">
+        <source>stats.generic_analysis.chart.type.pie</source>
+        <target>Kreis</target>
+      </trans-unit>
+      <trans-unit id="De663c5944" resname="stats.generic_analysis.chart.type.stacked_bar">
+        <source>stats.generic_analysis.chart.type.stacked_bar</source>
+        <target>Gestapelte Balken</target>
+      </trans-unit>
+      <trans-unit id="De2028ba2a" resname="stats.generic_analysis.chart.type.table">
+        <source>stats.generic_analysis.chart.type.table</source>
+        <target>Tabelle</target>
+      </trans-unit>
+      <trans-unit id="De228104e4" resname="stats.generic_analysis.chart.type_selector_label">
+        <source>stats.generic_analysis.chart.type_selector_label</source>
+        <target>Diagrammtyp</target>
+      </trans-unit>
+      <trans-unit id="Dec4c39aa3" resname="stats.generic_analysis.chart.value_allocations">
+        <source>stats.generic_analysis.chart.value_allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De89da74bc" resname="stats.generic_analysis.chart.warning.heatmap_not_implemented">
+        <source>stats.generic_analysis.chart.warning.heatmap_not_implemented</source>
+        <target>Heatmap-Diagramme für Stunde und Wochentag sind noch nicht verfügbar. Nutzen Sie die Tabelle unten.</target>
+      </trans-unit>
+      <trans-unit id="De15600c45" resname="stats.generic_analysis.chart.warning.histogram_not_supported">
+        <source>stats.generic_analysis.chart.warning.histogram_not_supported</source>
+        <target>Histogramm-Diagramme werden noch nicht unterstützt. Nutzen Sie die Tabelle unten.</target>
+      </trans-unit>
+      <trans-unit id="De24fedcab" resname="stats.generic_analysis.chart.warning.many_buckets">
+        <source>stats.generic_analysis.chart.warning.many_buckets</source>
+        <target>Viele Kategorien — erwägen Sie ein horizontales Balkendiagramm.</target>
+      </trans-unit>
+      <trans-unit id="De983a4a2d" resname="stats.generic_analysis.chart.warning.many_series">
+        <source>stats.generic_analysis.chart.warning.many_series</source>
+        <target>Viele Serien — die Legende ist möglicherweise schwer lesbar.</target>
+      </trans-unit>
+      <trans-unit id="De9121021a" resname="stats.generic_analysis.chart.warning.numeric_dimension">
+        <source>stats.generic_analysis.chart.warning.numeric_dimension</source>
+        <target>Für diese numerische Dimension sind keine Diagramme verfügbar. Nutzen Sie die Tabelle unten.</target>
+      </trans-unit>
+      <trans-unit id="De13d0c26b" resname="stats.generic_analysis.chart.warning.top_limited">
+        <source>stats.generic_analysis.chart.warning.top_limited</source>
+        <target>Das Diagramm zeigt die Top-{limit}-Werte; verbleibende Werte werden als „Sonstige“ gruppiert.</target>
+      </trans-unit>
+      <trans-unit id="Def356539e" resname="stats.generic_analysis.chart.y_axis_allocations">
+        <source>stats.generic_analysis.chart.y_axis_allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De093052e8" resname="stats.generic_analysis.chart_json_title">
+        <source>stats.generic_analysis.chart_json_title</source>
+        <target>Diagrammdaten (JSON)</target>
+      </trans-unit>
+      <trans-unit id="Ded5dd266e" resname="stats.generic_analysis.config_card_title">
+        <source>stats.generic_analysis.config_card_title</source>
+        <target>Analysekonfiguration</target>
+      </trans-unit>
+      <trans-unit id="Ded015ce32" resname="stats.generic_analysis.custom_section">
+        <source>stats.generic_analysis.custom_section</source>
+        <target>Eigene Konfiguration</target>
+      </trans-unit>
+      <trans-unit id="Debdb777ed" resname="stats.generic_analysis.custom_title">
+        <source>stats.generic_analysis.custom_title</source>
+        <target>Eigene Analyse</target>
+      </trans-unit>
+      <trans-unit id="De097ffc21" resname="stats.generic_analysis.dimension_type.boolean">
+        <source>stats.generic_analysis.dimension_type.boolean</source>
+        <target>Ja / Nein</target>
+      </trans-unit>
+      <trans-unit id="De862ad825" resname="stats.generic_analysis.dimension_type.categorical">
+        <source>stats.generic_analysis.dimension_type.categorical</source>
+        <target>Kategorien</target>
+      </trans-unit>
+      <trans-unit id="Dec45be802" resname="stats.generic_analysis.dimension_type.numeric">
+        <source>stats.generic_analysis.dimension_type.numeric</source>
+        <target>Numerisch</target>
+      </trans-unit>
+      <trans-unit id="Deda5ff0b4" resname="stats.generic_analysis.dimension_type.temporal">
+        <source>stats.generic_analysis.dimension_type.temporal</source>
+        <target>Zeit</target>
+      </trans-unit>
       <trans-unit id="statsGaHp02" resname="stats.generic_analysis.hospital_population.non_participating">
         <source>stats.generic_analysis.hospital_population.non_participating</source>
         <target>Nicht teilnehmend</target>
@@ -5753,9 +5885,133 @@
         <source>stats.generic_analysis.hospital_population.participating</source>
         <target>Teilnehmend</target>
       </trans-unit>
+      <trans-unit id="Deefd1d5b3" resname="stats.generic_analysis.include_null_buckets">
+        <source>stats.generic_analysis.include_null_buckets</source>
+        <target>Unbekannte Werte einbeziehen</target>
+      </trans-unit>
+      <trans-unit id="Dec86f27ca" resname="stats.generic_analysis.meta.dimension">
+        <source>stats.generic_analysis.meta.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="Deeb86b5e3" resname="stats.generic_analysis.meta.series">
+        <source>stats.generic_analysis.meta.series</source>
+        <target>Serie</target>
+      </trans-unit>
+      <trans-unit id="Deeffcdefa" resname="stats.generic_analysis.meta.total">
+        <source>stats.generic_analysis.meta.total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="Decf5dbe7f" resname="stats.generic_analysis.metrics_hint">
+        <source>stats.generic_analysis.metrics_hint</source>
+        <target>Wählen Sie Werte für die Tabelle. Die Anzahl ist immer enthalten. Einige Kennzahlen erfordern eine Seriendimension.</target>
+      </trans-unit>
+      <trans-unit id="De3c84a7b6" resname="stats.generic_analysis.metrics_label">
+        <source>stats.generic_analysis.metrics_label</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="De7f1ab2b2" resname="stats.generic_analysis.no_data">
+        <source>stats.generic_analysis.no_data</source>
+        <target>Keine Daten für den gewählten Bereich und Zeitraum.</target>
+      </trans-unit>
+      <trans-unit id="Deb7d7ea5a" resname="stats.generic_analysis.page_pretitle">
+        <source>stats.generic_analysis.page_pretitle</source>
+        <target>Generische Analyse</target>
+      </trans-unit>
       <trans-unit id="statsGa37p" resname="stats.generic_analysis.period.allocation_derived_hint">
         <source>stats.generic_analysis.period.allocation_derived_hint</source>
         <target>Strukturelle Krankenhaus-Kennzahlen wie Bettenzahlen hängen nicht vom gewählten Zeitraum ab. Zuweisungsbasierte Metriken berücksichtigen den Periodenfilter.</target>
+      </trans-unit>
+      <trans-unit id="Dee7cc2c52" resname="stats.generic_analysis.preset_label">
+        <source>stats.generic_analysis.preset_label</source>
+        <target>Vordefinierte Analyse</target>
+      </trans-unit>
+      <trans-unit id="De9ed6499e" resname="stats.generic_analysis.primary_dimension">
+        <source>stats.generic_analysis.primary_dimension</source>
+        <target>Primärdimension</target>
+      </trans-unit>
+      <trans-unit id="De3195adc0" resname="stats.generic_analysis.reset_to_preset">
+        <source>stats.generic_analysis.reset_to_preset</source>
+        <target>Auf vordefinierte Analyse zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="Dee19ec20a" resname="stats.generic_analysis.restricted_dimensions_hint">
+        <source>stats.generic_analysis.restricted_dimensions_hint</source>
+        <target>Einige Dimensionen (Krankenhaus, Bundesland, Leitstelle) sind nur im passenden Bereichsfilter oben verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="Ded383b354" resname="stats.generic_analysis.results_count">
+        <source>stats.generic_analysis.results_count</source>
+        <target>{count} Ergebnisse</target>
+      </trans-unit>
+      <trans-unit id="Dec37c602a" resname="stats.generic_analysis.results_table_title">
+        <source>stats.generic_analysis.results_table_title</source>
+        <target>Ergebnisse</target>
+      </trans-unit>
+      <trans-unit id="Dee8d77192" resname="stats.generic_analysis.series_dimension">
+        <source>stats.generic_analysis.series_dimension</source>
+        <target>Seriendimension</target>
+      </trans-unit>
+      <trans-unit id="De130641ba" resname="stats.generic_analysis.series_none">
+        <source>stats.generic_analysis.series_none</source>
+        <target>— keine Serie —</target>
+      </trans-unit>
+      <trans-unit id="Deafa968c4" resname="stats.generic_analysis.table.bucket_total">
+        <source>stats.generic_analysis.table.bucket_total</source>
+        <target>Gruppensumme</target>
+      </trans-unit>
+      <trans-unit id="Dec08a97c9" resname="stats.generic_analysis.table.count">
+        <source>stats.generic_analysis.table.count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="Deea6397e0" resname="stats.generic_analysis.table.footer_total">
+        <source>stats.generic_analysis.table.footer_total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="De82914d95" resname="stats.generic_analysis.table.percent_bucket">
+        <source>stats.generic_analysis.table.percent_bucket</source>
+        <target>% der Gruppe</target>
+      </trans-unit>
+      <trans-unit id="Dedc8d1406" resname="stats.generic_analysis.table.percent_total">
+        <source>stats.generic_analysis.table.percent_total</source>
+        <target>Anteil an Gesamt</target>
+      </trans-unit>
+      <trans-unit id="De6e249ac9" resname="stats.generic_analysis.table.percent_total_tooltip">
+        <source>stats.generic_analysis.table.percent_total_tooltip</source>
+        <target>Anteil an Gesamt: {percent}%</target>
+      </trans-unit>
+      <trans-unit id="De8c15e240" resname="stats.generic_analysis.table.row_limit_all">
+        <source>stats.generic_analysis.table.row_limit_all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="Dea34ed14c" resname="stats.generic_analysis.table.row_limit_label">
+        <source>stats.generic_analysis.table.row_limit_label</source>
+        <target>Angezeigte Zeilen</target>
+      </trans-unit>
+      <trans-unit id="De075e7e97" resname="stats.generic_analysis.table.row_limit_top_10">
+        <source>stats.generic_analysis.table.row_limit_top_10</source>
+        <target>Top 10</target>
+      </trans-unit>
+      <trans-unit id="De3bbd3a0b" resname="stats.generic_analysis.table.row_limit_top_5">
+        <source>stats.generic_analysis.table.row_limit_top_5</source>
+        <target>Top 5</target>
+      </trans-unit>
+      <trans-unit id="Debaa0b8f3" resname="stats.generic_analysis.table_layout_grouped">
+        <source>stats.generic_analysis.table_layout_grouped</source>
+        <target>Nach Gruppe gruppiert</target>
+      </trans-unit>
+      <trans-unit id="Dee2866922" resname="stats.generic_analysis.table_layout_label">
+        <source>stats.generic_analysis.table_layout_label</source>
+        <target>Tabellenlayout</target>
+      </trans-unit>
+      <trans-unit id="De25591980" resname="stats.generic_analysis.table_layout_stacked">
+        <source>stats.generic_analysis.table_layout_stacked</source>
+        <target>Eine Zeile pro Serie</target>
+      </trans-unit>
+      <trans-unit id="Dec80b8c7f" resname="stats.generic_analysis.visual_metric">
+        <source>stats.generic_analysis.visual_metric</source>
+        <target>Diagramm-Kennzahl</target>
+      </trans-unit>
+      <trans-unit id="Deba98bf72" resname="stats.generic_analysis.visual_metric_hint">
+        <source>stats.generic_analysis.visual_metric_hint</source>
+        <target>Welche Kennzahl die Balken oder Linien im Diagramm steuert. Weitere ausgewählte Kennzahlen erscheinen in der Tabelle.</target>
       </trans-unit>
       <trans-unit id="Deb11ad3c1" resname="stats.hospital_population.allocation.allocations_share">
         <source>stats.hospital_population.allocation.allocations_share</source>
