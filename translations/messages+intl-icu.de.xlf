@@ -6737,6 +6737,274 @@
         <source>stats.nav.overview_transport_time_to_analysis</source>
         <target>Transportzeitverteilung öffnen</target>
       </trans-unit>
+      <trans-unit id="De92f63d3a" resname="stats.overview.executive.benchmark.insufficient">
+        <source>stats.overview.executive.benchmark.insufficient</source>
+        <target>Nicht genügend Fälle für einen verlässlichen Baseline-Vergleich.</target>
+      </trans-unit>
+      <trans-unit id="De78b1d853" resname="stats.overview.executive.benchmark.link">
+        <source>stats.overview.executive.benchmark.link</source>
+        <target>Details im Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="Ded7bad58c" resname="stats.overview.executive.benchmark.negative">
+        <source>stats.overview.executive.benchmark.negative</source>
+        <target>Größte negative Abweichungen</target>
+      </trans-unit>
+      <trans-unit id="Deb2cca297" resname="stats.overview.executive.benchmark.positive">
+        <source>stats.overview.executive.benchmark.positive</source>
+        <target>Größte positive Abweichungen</target>
+      </trans-unit>
+      <trans-unit id="De91d2b717" resname="stats.overview.executive.benchmark.status.above">
+        <source>stats.overview.executive.benchmark.status.above</source>
+        <target>Über Baseline</target>
+      </trans-unit>
+      <trans-unit id="De215a9377" resname="stats.overview.executive.benchmark.status.below">
+        <source>stats.overview.executive.benchmark.status.below</source>
+        <target>Unter Baseline</target>
+      </trans-unit>
+      <trans-unit id="De640035dd" resname="stats.overview.executive.benchmark.status.within">
+        <source>stats.overview.executive.benchmark.status.within</source>
+        <target>Innerhalb Baseline</target>
+      </trans-unit>
+      <trans-unit id="De406ea900" resname="stats.overview.executive.finding.empty">
+        <source>stats.overview.executive.finding.empty</source>
+        <target>Keine auffälligen Befunde für die aktuelle Auswahl.</target>
+      </trans-unit>
+      <trans-unit id="De9d6660b8" resname="stats.overview.executive.finding.indication_pop">
+        <source>stats.overview.executive.finding.indication_pop</source>
+        <target>{indication}-Fälle haben sich um {percent} gegenüber der Vorperiode verändert.</target>
+      </trans-unit>
+      <trans-unit id="Dedd6609fe" resname="stats.overview.executive.finding.link.benchmarking">
+        <source>stats.overview.executive.finding.link.benchmarking</source>
+        <target>Benchmarking öffnen</target>
+      </trans-unit>
+      <trans-unit id="Dedb7c183b" resname="stats.overview.executive.finding.link.data_quality">
+        <source>stats.overview.executive.finding.link.data_quality</source>
+        <target>Datenqualität ansehen</target>
+      </trans-unit>
+      <trans-unit id="De160b1ea4" resname="stats.overview.executive.finding.link.indication">
+        <source>stats.overview.executive.finding.link.indication</source>
+        <target>Indikation öffnen</target>
+      </trans-unit>
+      <trans-unit id="Dee77859e5" resname="stats.overview.executive.finding.link.overview">
+        <source>stats.overview.executive.finding.link.overview</source>
+        <target>Übersicht ansehen</target>
+      </trans-unit>
+      <trans-unit id="De9717fc40" resname="stats.overview.executive.finding.volume_pop">
+        <source>stats.overview.executive.finding.volume_pop</source>
+        <target>Fallzahl um {percent} gegenüber der Vorperiode verändert.</target>
+      </trans-unit>
+      <trans-unit id="Ded3858fb2" resname="stats.overview.executive.indication.link">
+        <source>stats.overview.executive.indication.link</source>
+        <target>Alle Indikationen</target>
+      </trans-unit>
+      <trans-unit id="De36680c1c" resname="stats.overview.executive.indication.other">
+        <source>stats.overview.executive.indication.other</source>
+        <target>Sonstige</target>
+      </trans-unit>
+      <trans-unit id="De1bcb0a9a" resname="stats.overview.executive.indication.trend">
+        <source>stats.overview.executive.indication.trend</source>
+        <target>Trend</target>
+      </trans-unit>
+      <trans-unit id="Deca8ca241" resname="stats.overview.executive.kpi.age_80_plus">
+        <source>stats.overview.executive.kpi.age_80_plus</source>
+        <target>Alter 80+</target>
+      </trans-unit>
+      <trans-unit id="Dec4828dfa" resname="stats.overview.executive.kpi.base_short">
+        <source>stats.overview.executive.kpi.base_short</source>
+        <target>Basis</target>
+      </trans-unit>
+      <trans-unit id="De457bdd83" resname="stats.overview.executive.kpi.cases_per_day">
+        <source>stats.overview.executive.kpi.cases_per_day</source>
+        <target>Fälle pro Tag</target>
+      </trans-unit>
+      <trans-unit id="De9e31e4bf" resname="stats.overview.executive.kpi.cases_per_day_hint">
+        <source>stats.overview.executive.kpi.cases_per_day_hint</source>
+        <target>Basierend auf der Länge des gewählten Zeitraums</target>
+      </trans-unit>
+      <trans-unit id="Deca1d1df7" resname="stats.overview.executive.kpi.current_short">
+        <source>stats.overview.executive.kpi.current_short</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="De08b66dff" resname="stats.overview.executive.kpi.data_completeness">
+        <source>stats.overview.executive.kpi.data_completeness</source>
+        <target>Datenvollständigkeit</target>
+      </trans-unit>
+      <trans-unit id="De45dccb27" resname="stats.overview.executive.kpi.median_age">
+        <source>stats.overview.executive.kpi.median_age</source>
+        <target>Medianalter</target>
+      </trans-unit>
+      <trans-unit id="Dee7676e6a" resname="stats.overview.executive.kpi.median_transport">
+        <source>stats.overview.executive.kpi.median_transport</source>
+        <target>Median Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="Debe9bbbe4" resname="stats.overview.executive.kpi.night_share">
+        <source>stats.overview.executive.kpi.night_share</source>
+        <target>Nachtanteil</target>
+      </trans-unit>
+      <trans-unit id="De71e6beb1" resname="stats.overview.executive.kpi.physician_rate">
+        <source>stats.overview.executive.kpi.physician_rate</source>
+        <target>Arztbegleitungsrate</target>
+      </trans-unit>
+      <trans-unit id="Ded2f27e0b" resname="stats.overview.executive.kpi.total_cases">
+        <source>stats.overview.executive.kpi.total_cases</source>
+        <target>Fälle gesamt</target>
+      </trans-unit>
+      <trans-unit id="Dee93dd61b" resname="stats.overview.executive.kpi.weekend_share">
+        <source>stats.overview.executive.kpi.weekend_share</source>
+        <target>Wochenendanteil</target>
+      </trans-unit>
+      <trans-unit id="De12139fd4" resname="stats.overview.executive.population.age">
+        <source>stats.overview.executive.population.age</source>
+        <target>Altersverteilung</target>
+      </trans-unit>
+      <trans-unit id="De95614895" resname="stats.overview.executive.population.gender">
+        <source>stats.overview.executive.population.gender</source>
+        <target>Geschlechterverteilung</target>
+      </trans-unit>
+      <trans-unit id="De7f9956b7" resname="stats.overview.executive.population.urgency">
+        <source>stats.overview.executive.population.urgency</source>
+        <target>Dringlichkeitsverteilung</target>
+      </trans-unit>
+      <trans-unit id="De16488bee" resname="stats.overview.executive.pretitle">
+        <source>stats.overview.executive.pretitle</source>
+        <target>Executive-Dashboard</target>
+      </trans-unit>
+      <trans-unit id="Dec0c0146a" resname="stats.overview.executive.section.benchmark">
+        <source>stats.overview.executive.section.benchmark</source>
+        <target>Benchmark-Zusammenfassung</target>
+      </trans-unit>
+      <trans-unit id="De565bca7c" resname="stats.overview.executive.section.deviations">
+        <source>stats.overview.executive.section.deviations</source>
+        <target>Größte Abweichungen</target>
+      </trans-unit>
+      <trans-unit id="Defba23759" resname="stats.overview.executive.section.indication_mix">
+        <source>stats.overview.executive.section.indication_mix</source>
+        <target>Indikationsmix</target>
+      </trans-unit>
+      <trans-unit id="De7498fd14" resname="stats.overview.executive.section.indications">
+        <source>stats.overview.executive.section.indications</source>
+        <target>Indikationsüberblick</target>
+      </trans-unit>
+      <trans-unit id="De6bd60496" resname="stats.overview.executive.section.key_findings">
+        <source>stats.overview.executive.section.key_findings</source>
+        <target>Wesentliches</target>
+      </trans-unit>
+      <trans-unit id="De096af688" resname="stats.overview.executive.section.kpis">
+        <source>stats.overview.executive.section.kpis</source>
+        <target>Weitere KPIs</target>
+      </trans-unit>
+      <trans-unit id="De435c3b09" resname="stats.overview.executive.section.population">
+        <source>stats.overview.executive.section.population</source>
+        <target>Grundgesamtheit &amp; Patientenprofil</target>
+      </trans-unit>
+      <trans-unit id="Def8a8bc6f" resname="stats.overview.executive.section.trends">
+        <source>stats.overview.executive.section.trends</source>
+        <target>Trends</target>
+      </trans-unit>
+      <trans-unit id="Deb4b3d058" resname="stats.overview.executive.trends.case_volume">
+        <source>stats.overview.executive.trends.case_volume</source>
+        <target>Fallzahl über die Zeit</target>
+      </trans-unit>
+      <trans-unit id="Dea7af8236" resname="stats.overview.executive.trends.indications">
+        <source>stats.overview.executive.trends.indications</source>
+        <target>Wesentliche Indikationstrends</target>
+      </trans-unit>
+      <trans-unit id="De16b0ee2a" resname="stats.overview.executive.trends.seasonal_hint">
+        <source>stats.overview.executive.trends.seasonal_hint</source>
+        <target>Längere Zeiträume können saisonale Muster sichtbar machen.</target>
+      </trans-unit>
+      <trans-unit id="De37a07af7" resname="stats.overview.hospital_summary.allocations_kpi">
+        <source>stats.overview.hospital_summary.allocations_kpi</source>
+        <target>{user, number, integer} Zuweisungen (von {total, number, integer}, {percent, number, :: .#}%)</target>
+      </trans-unit>
+      <trans-unit id="De30994589" resname="stats.overview.hospital_summary.gender_card_title">
+        <source>stats.overview.hospital_summary.gender_card_title</source>
+        <target>Geschlechterverteilung</target>
+      </trans-unit>
+      <trans-unit id="Deb351ca7b" resname="stats.overview.hospital_summary.gender_title">
+        <source>stats.overview.hospital_summary.gender_title</source>
+        <target>Geschlecht (Ihre Krankenhäuser)</target>
+      </trans-unit>
+      <trans-unit id="Ded8df663c" resname="stats.overview.hospital_summary.kpi_subheader">
+        <source>stats.overview.hospital_summary.kpi_subheader</source>
+        <target>Gesamtzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De53670746" resname="stats.overview.hospital_summary.kpi_subline">
+        <source>stats.overview.hospital_summary.kpi_subline</source>
+        <target>{percent, number, :: .#}% von {total, number, integer} Zuweisungen in diesem Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="Dea1b172da" resname="stats.overview.hospital_summary.placeholder">
+        <source>stats.overview.hospital_summary.placeholder</source>
+        <target>Detaillierte KPIs, Verteilungen und Top-Listen für Ihre Krankenhäuser erscheinen hier in einer künftigen Version.</target>
+      </trans-unit>
+      <trans-unit id="De89d6a26f" resname="stats.overview.hospital_summary.title">
+        <source>stats.overview.hospital_summary.title</source>
+        <target>Krankenhaus-Zusammenfassung</target>
+      </trans-unit>
+      <trans-unit id="De69264db9" resname="stats.overview.hospital_summary.unscoped_hint">
+        <source>stats.overview.hospital_summary.unscoped_hint</source>
+        <target>Es werden alle Krankenhäuser angezeigt — Ihrem Konto sind keine Krankenhäuser zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="Dee5f83bf9" resname="stats.overview.hospital_summary.urgency_card_title">
+        <source>stats.overview.hospital_summary.urgency_card_title</source>
+        <target>Notfall / Stationär / Ambulant</target>
+      </trans-unit>
+      <trans-unit id="De1a5c02b6" resname="stats.overview.hospital_summary.urgency_title">
+        <source>stats.overview.hospital_summary.urgency_title</source>
+        <target>Versorgungsart / Dringlichkeit (Ihre Krankenhäuser)</target>
+      </trans-unit>
+      <trans-unit id="De39889e4a" resname="stats.overview.hospital_summary.urgency_u1">
+        <source>stats.overview.hospital_summary.urgency_u1</source>
+        <target>U1</target>
+      </trans-unit>
+      <trans-unit id="Dea081cff0" resname="stats.overview.hospital_summary.urgency_u2">
+        <source>stats.overview.hospital_summary.urgency_u2</source>
+        <target>U2</target>
+      </trans-unit>
+      <trans-unit id="Ded786ff66" resname="stats.overview.hospital_summary.urgency_u3">
+        <source>stats.overview.hospital_summary.urgency_u3</source>
+        <target>U3</target>
+      </trans-unit>
+      <trans-unit id="De035e4972" resname="stats.overview.indication.link">
+        <source>stats.overview.indication.link</source>
+        <target>Alle Indikationen</target>
+      </trans-unit>
+      <trans-unit id="De954208d5" resname="stats.overview.indicators.card_title">
+        <source>stats.overview.indicators.card_title</source>
+        <target>Klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="De7f52ba1f" resname="stats.overview.kpi.base_short">
+        <source>stats.overview.kpi.base_short</source>
+        <target>Basis</target>
+      </trans-unit>
+      <trans-unit id="Defc86bd93" resname="stats.overview.kpi.cases_per_day">
+        <source>stats.overview.kpi.cases_per_day</source>
+        <target>Fälle pro Tag</target>
+      </trans-unit>
+      <trans-unit id="De5fd82032" resname="stats.overview.kpi.cases_per_day_aggregate">
+        <source>stats.overview.kpi.cases_per_day_aggregate</source>
+        <target>Durchschnittliches Tagesvolumen</target>
+      </trans-unit>
+      <trans-unit id="Deac891283" resname="stats.overview.kpi.cases_per_day_aggregate_hint">
+        <source>stats.overview.kpi.cases_per_day_aggregate_hint</source>
+        <target>Aggregiert über alle Krankenhäuser im gewählten Bereich.</target>
+      </trans-unit>
+      <trans-unit id="De73e07de7" resname="stats.overview.kpi.current_short">
+        <source>stats.overview.kpi.current_short</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="Dea6dd4be9" resname="stats.overview.pretitle">
+        <source>stats.overview.pretitle</source>
+        <target>Statistik</target>
+      </trans-unit>
+      <trans-unit id="Ded1014259" resname="stats.overview.section.key_findings">
+        <source>stats.overview.section.key_findings</source>
+        <target>Wesentliches</target>
+      </trans-unit>
+      <trans-unit id="Decca00383" resname="stats.overview.table.placeholder">
+        <source>stats.overview.table.placeholder</source>
+        <target>Tabellen-Widgets werden hier später verfügbar sein.</target>
+      </trans-unit>
       <trans-unit id="De1562264f" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
         <target>Dieses Formular ermöglicht es Ihnen, eine Indikation (original) mit einer passenden normalisierten Indikation aus der standardisierten Liste zu verknüpfen. Durch die Auswahl der passenden normalisierten Indikation tragen Sie zu einer einheitlichen Datenklassifikation bei und verbessern die Genauigkeit weiterer Analysen und Berichte.</target>
