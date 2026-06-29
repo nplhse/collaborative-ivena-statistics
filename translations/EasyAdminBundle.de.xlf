@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="ecFC4Sv" resname="action.add_new_item">
+        <source>action.add_new_item</source>
+        <target>Neues Element hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="wPEuKmL" resname="action.cancel">
+        <source>action.cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="Yy_rDAt" resname="action.choose_file">
+        <source>action.choose_file</source>
+        <target>Datei auswählen</target>
+      </trans-unit>
+      <trans-unit id="PO_UHtX" resname="action.close">
+        <source>action.close</source>
+        <target>Schließen</target>
+      </trans-unit>
+      <trans-unit id="QZwjCUi" resname="action.create">
+        <source>action.create</source>
+        <target>Erstellen</target>
+      </trans-unit>
+      <trans-unit id="8LdmlQF" resname="action.create_and_add_another">
+        <source>action.create_and_add_another</source>
+        <target>Erstellen und weiteres Element hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="_sQc_0h" resname="action.create_and_continue">
+        <source>action.create_and_continue</source>
+        <target>Erstellen und weiter bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="Cd4XVNn" resname="action.delete">
+        <source>action.delete</source>
+        <target>Löschen</target>
+      </trans-unit>
+      <trans-unit id="OKywmwj" resname="action.deselect">
+        <source>action.deselect</source>
+        <target>Auswahl aufheben</target>
+      </trans-unit>
+      <trans-unit id="Kl7UCW1" resname="action.detail">
+        <source>action.detail</source>
+        <target>Anzeigen</target>
+      </trans-unit>
+      <trans-unit id="SFB94SX" resname="action.edit">
+        <source>action.edit</source>
+        <target>Bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="FI_qUZL" resname="action.entity_actions">
+        <source>action.entity_actions</source>
+        <target>Aktionen</target>
+      </trans-unit>
+      <trans-unit id="fmmRlxg" resname="action.index">
+        <source>action.index</source>
+        <target>Zurück zur Übersicht</target>
+      </trans-unit>
+      <trans-unit id="GtNN3_c" resname="action.new">
+        <source>action.new</source>
+        <target>%entity_label_singular% hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="b5M9sxm" resname="action.remove_item">
+        <source>action.remove_item</source>
+        <target>Element entfernen</target>
+      </trans-unit>
+      <trans-unit id="80bO76v" resname="action.save">
+        <source>action.save</source>
+        <target>Änderungen speichern</target>
+      </trans-unit>
+      <trans-unit id="viEpaXN" resname="action.save_and_continue">
+        <source>action.save_and_continue</source>
+        <target>Speichern und weiter bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="tKPecTw" resname="action.search">
+        <source>action.search</source>
+        <target>Suchen</target>
+      </trans-unit>
+      <trans-unit id="sWw5MDD" resname="action.toggle_dropdown">
+        <source>action.toggle_dropdown</source>
+        <target>Dropdown umschalten</target>
+      </trans-unit>
+      <trans-unit id="aq8bq8Z" resname="action_confirmation_modal.action">
+        <source>action_confirmation_modal.action</source>
+        <target>Bestätigen</target>
+      </trans-unit>
+      <trans-unit id="4fQr56W" resname="action_confirmation_modal.title">
+        <source>action_confirmation_modal.title</source>
+        <target>Sind Sie sicher, dass Sie %action_name% möchten?</target>
+      </trans-unit>
+      <trans-unit id="_EDCsYO" resname="autocomplete.loading-more-results">
+        <source>autocomplete.loading-more-results</source>
+        <target>Lade mehr Ergebnisse…</target>
+      </trans-unit>
+      <trans-unit id="Mi9fRIF" resname="autocomplete.no-more-results">
+        <source>autocomplete.no-more-results</source>
+        <target>Keine weiteren Ergebnisse</target>
+      </trans-unit>
+      <trans-unit id="dc37768" resname="autocomplete.no-results-found">
+        <source>autocomplete.no-results-found</source>
+        <target>Keine Übereinstimmungen gefunden</target>
+      </trans-unit>
+      <trans-unit id="1QzA7HJ" resname="batch_action_modal.action">
+        <source>batch_action_modal.action</source>
+        <target>Fortfahren</target>
+      </trans-unit>
+      <trans-unit id="HzIn9A_" resname="batch_action_modal.content">
+        <source>batch_action_modal.content</source>
+        <target>Diese Aktion kann nicht rückgängig gemacht werden.</target>
+      </trans-unit>
+      <trans-unit id="IvOrJqD" resname="batch_action_modal.title">
+        <source>batch_action_modal.title</source>
+        <target>Sie sind dabei, die Aktion „%action_name%“ auf %num_items% Element(e) anzuwenden.</target>
+      </trans-unit>
+      <trans-unit id="GTjPPy9" resname="datagrid.hidden_results">
+        <source>datagrid.hidden_results</source>
+        <target>Einige Ergebnisse können aufgrund fehlender Berechtigungen nicht angezeigt werden.</target>
+      </trans-unit>
+      <trans-unit id="CO0E0pU" resname="datagrid.no_results">
+        <source>datagrid.no_results</source>
+        <target>Keine Ergebnisse gefunden.</target>
+      </trans-unit>
+      <trans-unit id="O8SUipq" resname="delete_modal.content">
+        <source>delete_modal.content</source>
+        <target>Diese Aktion kann nicht rückgängig gemacht werden.</target>
+      </trans-unit>
+      <trans-unit id=".DbNkeY" resname="delete_modal.title">
+        <source>delete_modal.title</source>
+        <target>Soll das Element wirklich gelöscht werden?</target>
+      </trans-unit>
+      <trans-unit id="9HL0Ip7" resname="exception.entity_not_found">
+        <source>exception.entity_not_found</source>
+        <target>Dieses Element ist nicht mehr verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="FM5k7ha" resname="exception.entity_remove">
+        <source>exception.entity_remove</source>
+        <target>Dieses Element kann nicht gelöscht werden, weil andere Elemente davon abhängen.</target>
+      </trans-unit>
+      <trans-unit id="ZtEIXY6" resname="exception.forbidden_action">
+        <source>exception.forbidden_action</source>
+        <target>Die gewünschte Aktion kann mit diesem Element nicht ausgeführt werden.</target>
+      </trans-unit>
+      <trans-unit id="8RbaU.G" resname="exception.general">
+        <source>exception.general</source>
+        <target>Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten.</target>
+      </trans-unit>
+      <trans-unit id="q2ZwEnG" resname="exception.general_403">
+        <source>exception.general_403</source>
+        <target>Sie haben keine Berechtigung, diese Aktion auszuführen.</target>
+      </trans-unit>
+      <trans-unit id="MFdqQlV" resname="exception.general_404">
+        <source>exception.general_404</source>
+        <target>Die angeforderte Seite wurde nicht gefunden.</target>
+      </trans-unit>
+      <trans-unit id="zQHmOZU" resname="exception.general_500">
+        <source>exception.general_500</source>
+        <target>Bei der Verarbeitung Ihrer Anfrage ist ein interner Fehler aufgetreten.</target>
+      </trans-unit>
+      <trans-unit id="9p498i9" resname="exception.insufficient_entity_permission">
+        <source>exception.insufficient_entity_permission</source>
+        <target>Sie haben keine Berechtigung, auf dieses Element zuzugreifen.</target>
+      </trans-unit>
+      <trans-unit id="MJQ4k4D" resname="field.code_editor.view_code">
+        <source>field.code_editor.view_code</source>
+        <target>Code anzeigen</target>
+      </trans-unit>
+      <trans-unit id="11gUR_y" resname="field.text_editor.view_content">
+        <source>field.text_editor.view_content</source>
+        <target>Inhalt anzeigen</target>
+      </trans-unit>
+      <trans-unit id="3Mq5DeM" resname="files">
+        <source>files</source>
+        <target>Dateien</target>
+      </trans-unit>
+      <trans-unit id="F7_Hyy1" resname="filter.button.apply">
+        <source>filter.button.apply</source>
+        <target>Anwenden</target>
+      </trans-unit>
+      <trans-unit id="GapHtez" resname="filter.button.clear">
+        <source>filter.button.clear</source>
+        <target>Zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="g4gIdL3" resname="filter.label.contains">
+        <source>filter.label.contains</source>
+        <target>enthält</target>
+      </trans-unit>
+      <trans-unit id="jg7iuXA" resname="filter.label.contains_all">
+        <source>filter.label.contains_all</source>
+        <target>enthält alle</target>
+      </trans-unit>
+      <trans-unit id="NpfseOl" resname="filter.label.ends_with">
+        <source>filter.label.ends_with</source>
+        <target>endet mit</target>
+      </trans-unit>
+      <trans-unit id="lirhme2" resname="filter.label.exactly">
+        <source>filter.label.exactly</source>
+        <target>ist genau</target>
+      </trans-unit>
+      <trans-unit id="lILPLIW" resname="filter.label.is_after">
+        <source>filter.label.is_after</source>
+        <target>ist nach</target>
+      </trans-unit>
+      <trans-unit id="N.cYa1i" resname="filter.label.is_after_or_same">
+        <source>filter.label.is_after_or_same</source>
+        <target>ist nach oder gleich</target>
+      </trans-unit>
+      <trans-unit id="qdKvceS" resname="filter.label.is_before">
+        <source>filter.label.is_before</source>
+        <target>ist vor</target>
+      </trans-unit>
+      <trans-unit id="88rRJdI" resname="filter.label.is_before_or_same">
+        <source>filter.label.is_before_or_same</source>
+        <target>ist vor oder gleich</target>
+      </trans-unit>
+      <trans-unit id="OdSRGV." resname="filter.label.is_between">
+        <source>filter.label.is_between</source>
+        <target>ist zwischen</target>
+      </trans-unit>
+      <trans-unit id="vjzlNau" resname="filter.label.is_equal_to">
+        <source>filter.label.is_equal_to</source>
+        <target>ist gleich</target>
+      </trans-unit>
+      <trans-unit id="JI.QY3a" resname="filter.label.is_greater_than">
+        <source>filter.label.is_greater_than</source>
+        <target>ist größer als</target>
+      </trans-unit>
+      <trans-unit id="9XIK3Tg" resname="filter.label.is_greater_than_or_equal_to">
+        <source>filter.label.is_greater_than_or_equal_to</source>
+        <target>ist größer oder gleich</target>
+      </trans-unit>
+      <trans-unit id="pgvCvpx" resname="filter.label.is_less_than">
+        <source>filter.label.is_less_than</source>
+        <target>ist kleiner als</target>
+      </trans-unit>
+      <trans-unit id="BHtCKZX" resname="filter.label.is_less_than_or_equal_to">
+        <source>filter.label.is_less_than_or_equal_to</source>
+        <target>ist kleiner oder gleich</target>
+      </trans-unit>
+      <trans-unit id="OZ6KB0." resname="filter.label.is_not_equal_to">
+        <source>filter.label.is_not_equal_to</source>
+        <target>ist nicht gleich</target>
+      </trans-unit>
+      <trans-unit id="EN6gBhA" resname="filter.label.is_not_same">
+        <source>filter.label.is_not_same</source>
+        <target>ist nicht gleich</target>
+      </trans-unit>
+      <trans-unit id="wcjVhvA" resname="filter.label.is_same">
+        <source>filter.label.is_same</source>
+        <target>ist gleich</target>
+      </trans-unit>
+      <trans-unit id="wlQF6T2" resname="filter.label.not_contains">
+        <source>filter.label.not_contains</source>
+        <target>enthält nicht</target>
+      </trans-unit>
+      <trans-unit id="ubdPK1K" resname="filter.label.not_exactly">
+        <source>filter.label.not_exactly</source>
+        <target>ist nicht genau</target>
+      </trans-unit>
+      <trans-unit id="VeJLrqA" resname="filter.label.starts_with">
+        <source>filter.label.starts_with</source>
+        <target>beginnt mit</target>
+      </trans-unit>
+      <trans-unit id="VH1tHkH" resname="filter.title">
+        <source>filter.title</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="dhxWMOj" resname="form.are_you_sure">
+        <source>form.are_you_sure</source>
+        <target>Vorgenommene Änderungen wurden noch nicht gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="j.bw5pu" resname="form.slug.confirm_text">
+        <source>form.slug.confirm_text</source>
+        <target>Wenn Sie den Slug ändern, kann dies Links auf anderen Seiten beschädigen.</target>
+      </trans-unit>
+      <trans-unit id="3VqDiBO" resname="form.tab.error_badge_title">
+        <source>form.tab.error_badge_title</source>
+        <target>Eine ungültige Eingabe|%count% ungültige Eingaben</target>
+      </trans-unit>
+      <trans-unit id="S2q7CDj" resname="label.empty">
+        <source>label.empty</source>
+        <target>Leer</target>
+      </trans-unit>
+      <trans-unit id="Sct9raH" resname="label.false">
+        <source>label.false</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="jWtNCZd" resname="label.form.empty_value">
+        <source>label.form.empty_value</source>
+        <target>kein Wert</target>
+      </trans-unit>
+      <trans-unit id="0EqWTob" resname="label.inaccessible">
+        <source>label.inaccessible</source>
+        <target>Nicht zugreifbar</target>
+      </trans-unit>
+      <trans-unit id="OLmlP81" resname="label.inaccessible.explanation">
+        <source>label.inaccessible.explanation</source>
+        <target>Es gibt keine Getter-Methode für diese Eigenschaft oder die Eigenschaft ist nicht public</target>
+      </trans-unit>
+      <trans-unit id="fAVSIIs" resname="label.null">
+        <source>label.null</source>
+        <target>Null</target>
+      </trans-unit>
+      <trans-unit id="hC8hTcO" resname="label.object">
+        <source>label.object</source>
+        <target>PHP-Objekt</target>
+      </trans-unit>
+      <trans-unit id="sS6ch7." resname="label.true">
+        <source>label.true</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="IsDUuMi" resname="login_page.forgot_password">
+        <source>login_page.forgot_password</source>
+        <target>Passwort vergessen?</target>
+      </trans-unit>
+      <trans-unit id="uxJWiMn" resname="login_page.password">
+        <source>login_page.password</source>
+        <target>Passwort</target>
+      </trans-unit>
+      <trans-unit id="GNqK_5o" resname="login_page.remember_me">
+        <source>login_page.remember_me</source>
+        <target>Angemeldet bleiben</target>
+      </trans-unit>
+      <trans-unit id="eiGmhDt" resname="login_page.sign_in">
+        <source>login_page.sign_in</source>
+        <target>Anmelden</target>
+      </trans-unit>
+      <trans-unit id="iFP0IOu" resname="login_page.username">
+        <source>login_page.username</source>
+        <target>Benutzername</target>
+      </trans-unit>
+      <trans-unit id="v78sY_o" resname="page_title.dashboard">
+        <source>page_title.dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id=".CGGHUd" resname="page_title.detail">
+        <source>page_title.detail</source>
+        <target><![CDATA[%entity_label_singular% <small>(#%entity_short_id%)</small>]]></target>
+      </trans-unit>
+      <trans-unit id="ACFBtmY" resname="page_title.edit">
+        <source>page_title.edit</source>
+        <target>%entity_label_singular% bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="nRSzgzm" resname="page_title.exception">
+        <source>page_title.exception</source>
+        <target>Fehler|Fehler</target>
+      </trans-unit>
+      <trans-unit id="1kAr566" resname="page_title.index">
+        <source>page_title.index</source>
+        <target>%entity_label_plural%</target>
+      </trans-unit>
+      <trans-unit id="oFMrjmJ" resname="page_title.new">
+        <source>page_title.new</source>
+        <target>%entity_label_singular% erstellen</target>
+      </trans-unit>
+      <trans-unit id="Gw2EjOi" resname="paginator.counter">
+        <source>paginator.counter</source>
+        <target><![CDATA[<strong>%start%</strong> - <strong>%end%</strong> von <strong>%results%</strong>]]></target>
+      </trans-unit>
+      <trans-unit id="29d8Vn4" resname="paginator.first">
+        <source>paginator.first</source>
+        <target>Erste</target>
+      </trans-unit>
+      <trans-unit id="lNsI3aT" resname="paginator.last">
+        <source>paginator.last</source>
+        <target>Letzte</target>
+      </trans-unit>
+      <trans-unit id="SaZbUiU" resname="paginator.next">
+        <source>paginator.next</source>
+        <target>Nächste</target>
+      </trans-unit>
+      <trans-unit id="ANpWHHW" resname="paginator.previous">
+        <source>paginator.previous</source>
+        <target>Zurück</target>
+      </trans-unit>
+      <trans-unit id="ZsypGha" resname="paginator.results">
+        <source>paginator.results</source>
+        <target><![CDATA[{0} Keine Ergebnisse|{1} <strong>1</strong> Ergebnis|]1,Inf] <strong>%count%</strong> Ergebnisse]]></target>
+      </trans-unit>
+      <trans-unit id="8ViDiWx" resname="settings.appearance.auto">
+        <source>settings.appearance.auto</source>
+        <target>Automatisch</target>
+      </trans-unit>
+      <trans-unit id="h3pBR4_" resname="settings.appearance.dark">
+        <source>settings.appearance.dark</source>
+        <target>Dunkel</target>
+      </trans-unit>
+      <trans-unit id="JBbrEd7" resname="settings.appearance.label">
+        <source>settings.appearance.label</source>
+        <target>Erscheinungsbild</target>
+      </trans-unit>
+      <trans-unit id="vxKYCsn" resname="settings.appearance.light">
+        <source>settings.appearance.light</source>
+        <target>Hell</target>
+      </trans-unit>
+      <trans-unit id="E5cimFA" resname="settings.locale">
+        <source>settings.locale</source>
+        <target>Sprache</target>
+      </trans-unit>
+      <trans-unit id=".eqAPKs" resname="user.anonymous">
+        <source>user.anonymous</source>
+        <target>Anonymer Benutzer</target>
+      </trans-unit>
+      <trans-unit id="IqJXXy9" resname="user.exit_impersonation">
+        <source>user.exit_impersonation</source>
+        <target>Identitätswechsel beenden</target>
+      </trans-unit>
+      <trans-unit id="kgatv6N" resname="user.logged_in_as">
+        <source>user.logged_in_as</source>
+        <target>Angemeldet als</target>
+      </trans-unit>
+      <trans-unit id="py7euFy" resname="user.sign_out">
+        <source>user.sign_out</source>
+        <target>Abmelden</target>
+      </trans-unit>
+      <trans-unit id="WvhDjWI" resname="user.unnamed">
+        <source>user.unnamed</source>
+        <target>Unbenannter Benutzer</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
