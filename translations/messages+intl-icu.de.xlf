@@ -479,7 +479,7 @@
       </trans-unit>
       <trans-unit id="De04d93e0b" resname="dashboard.next_steps.analysis.description">
         <source>dashboard.next_steps.analysis.description</source>
-        <target>Beginnen Sie mit der Statistik-Übersicht, bevor Sie in detaillierte Analysen einsteigen.</target>
+        <target>Betrachten Sie zuerst die Statistik-Übersicht, bevor Sie in detaillierte Analysen einsteigen.</target>
       </trans-unit>
       <trans-unit id="De614ff29f" resname="dashboard.next_steps.analysis.public.description">
         <source>dashboard.next_steps.analysis.public.description</source>
@@ -503,7 +503,7 @@
       </trans-unit>
       <trans-unit id="De9006196d" resname="dashboard.next_steps.explore.description">
         <source>dashboard.next_steps.explore.description</source>
-        <target>Durchsuchen Sie Zuweisungen, Indikationen, Transporte und weitere Quelldaten an einem Ort.</target>
+        <target>Erkunden Sie die Zuweisungen, Indikationen, Transportarten und weitere Stammdaten an einem Ort.</target>
       </trans-unit>
       <trans-unit id="De9eb9c6e5" resname="dashboard.next_steps.explore.title">
         <source>dashboard.next_steps.explore.title</source>
@@ -519,7 +519,7 @@
       </trans-unit>
       <trans-unit id="De592cd5f6" resname="dashboard.next_steps.hospitals.owned.description">
         <source>dashboard.next_steps.hospitals.owned.description</source>
-        <target>Prüfen Sie Ihre teilnehmenden Krankenhäuser und springen Sie zu den neuesten Zuweisungsdetails.</target>
+        <target>Schauen Sie sich Ihre eigenen teilnehmenden Krankenhäuser an.</target>
       </trans-unit>
       <trans-unit id="De6a79ffef" resname="dashboard.next_steps.hospitals.owned.title">
         <source>dashboard.next_steps.hospitals.owned.title</source>
@@ -527,7 +527,7 @@
       </trans-unit>
       <trans-unit id="De6f84eae1" resname="dashboard.next_steps.import.description">
         <source>dashboard.next_steps.import.description</source>
-        <target>Laden Sie einen neuen Zuweisungsimport hoch und halten Sie Ihren Datensatz aktuell.</target>
+        <target>Laden Sie einen neuen Import hoch und halten Sie Ihre Datensätze aktuell.</target>
       </trans-unit>
       <trans-unit id="Deef078c10" resname="dashboard.next_steps.import.title">
         <source>dashboard.next_steps.import.title</source>
