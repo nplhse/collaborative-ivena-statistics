@@ -817,6 +817,50 @@
         <source>info.export.row_count</source>
         <target>{count, number} Datensätze werden exportiert.</target>
       </trans-unit>
+      <trans-unit id="De22f2de4c" resname="label.accordion_item_title">
+        <source>label.accordion_item_title</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="Def6aec4cd" resname="label.accordion_items">
+        <source>label.accordion_items</source>
+        <target>Accordion-Einträge</target>
+      </trans-unit>
+      <trans-unit id="De88e14e7f" resname="label.accordion_open_by_default">
+        <source>label.accordion_open_by_default</source>
+        <target>Standardmäßig geöffnet</target>
+      </trans-unit>
+      <trans-unit id="Ded13557a6" resname="label.address">
+        <source>label.address</source>
+        <target>Adresse</target>
+      </trans-unit>
+      <trans-unit id="Dea7f23558" resname="label.address.city">
+        <source>label.address.city</source>
+        <target>Stadt</target>
+      </trans-unit>
+      <trans-unit id="De2db340d0" resname="label.address.country">
+        <source>label.address.country</source>
+        <target>Land</target>
+      </trans-unit>
+      <trans-unit id="De4022594a" resname="label.address.postal_code">
+        <source>label.address.postal_code</source>
+        <target>Postleitzahl</target>
+      </trans-unit>
+      <trans-unit id="Dee71d56bf" resname="label.address.state">
+        <source>label.address.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="De811bd8d5" resname="label.address.street">
+        <source>label.address.street</source>
+        <target>Straße</target>
+      </trans-unit>
+      <trans-unit id="Def8d03d89" resname="label.admin.cookies.essential_only">
+        <source>label.admin.cookies.essential_only</source>
+        <target>Nur notwendige</target>
+      </trans-unit>
+      <trans-unit id="De3943cd32" resname="label.admin.cookies.monitoring_enabled">
+        <source>label.admin.cookies.monitoring_enabled</source>
+        <target>Monitoring aktiviert</target>
+      </trans-unit>
       <trans-unit id="lblAgeDe" resname="label.age">
         <source>label.age</source>
         <target>Alter</target>
@@ -933,6 +977,10 @@
         <source>label.already_have_account</source>
         <target>Haben Sie bereits ein Konto?</target>
       </trans-unit>
+      <trans-unit id="Def0efc8b8" resname="label.append_content_block">
+        <source>label.append_content_block</source>
+        <target>Block zur Seite hinzufügen</target>
+      </trans-unit>
       <trans-unit id="lblArrivalAtDe" resname="label.arrival_at">
         <source>label.arrival_at</source>
         <target>Ankunft am</target>
@@ -1021,6 +1069,10 @@
         <source>label.authenticated</source>
         <target>Authentifiziert</target>
       </trans-unit>
+      <trans-unit id="De109a30e6" resname="label.author">
+        <source>label.author</source>
+        <target>Autor</target>
+      </trans-unit>
       <trans-unit id="lblBackDe" resname="label.back">
         <source>label.back</source>
         <target>Zurück</target>
@@ -1033,9 +1085,97 @@
         <source>label.backend</source>
         <target>Verwaltung</target>
       </trans-unit>
+      <trans-unit id="De5122f0a6" resname="label.background">
+        <source>label.background</source>
+        <target>Hintergrund</target>
+      </trans-unit>
       <trans-unit id="lblBasicInfoDe" resname="label.basic_info">
         <source>label.basic_info</source>
         <target>Basisinformationen</target>
+      </trans-unit>
+      <trans-unit id="Ded17bff48" resname="label.block">
+        <source>label.block</source>
+        <target>Block</target>
+      </trans-unit>
+      <trans-unit id="Dea7fa41a4" resname="label.block_type">
+        <source>label.block_type</source>
+        <target>Blocktyp</target>
+      </trans-unit>
+      <trans-unit id="De595cc2b3" resname="label.block_type.accordion">
+        <source>label.block_type.accordion</source>
+        <target>Accordion</target>
+      </trans-unit>
+      <trans-unit id="De4f6ec98d" resname="label.block_type.cta">
+        <source>label.block_type.cta</source>
+        <target>Call-To-Action</target>
+      </trans-unit>
+      <trans-unit id="Deb198a619" resname="label.block_type.headline">
+        <source>label.block_type.headline</source>
+        <target>Überschrift</target>
+      </trans-unit>
+      <trans-unit id="De1872cf02" resname="label.block_type.highlight">
+        <source>label.block_type.highlight</source>
+        <target>Hervorhebung</target>
+      </trans-unit>
+      <trans-unit id="De5d89a980" resname="label.block_type.image">
+        <source>label.block_type.image</source>
+        <target>Bild</target>
+      </trans-unit>
+      <trans-unit id="Def3c5662b" resname="label.block_type.quote">
+        <source>label.block_type.quote</source>
+        <target>Zitat</target>
+      </trans-unit>
+      <trans-unit id="Def9e4beb5" resname="label.block_type.richtext">
+        <source>label.block_type.richtext</source>
+        <target>Fließtext</target>
+      </trans-unit>
+      <trans-unit id="Dea6460692" resname="label.blog.categories">
+        <source>label.blog.categories</source>
+        <target>Kategorien</target>
+      </trans-unit>
+      <trans-unit id="De269cc770" resname="label.blog.category">
+        <source>label.blog.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="De2b2f5019" resname="label.blog.comment">
+        <source>label.blog.comment</source>
+        <target>Kommentar</target>
+      </trans-unit>
+      <trans-unit id="De7f4e489b" resname="label.blog.comments">
+        <source>label.blog.comments</source>
+        <target>Kommentare</target>
+      </trans-unit>
+      <trans-unit id="De8c2fffe2" resname="label.blog.post">
+        <source>label.blog.post</source>
+        <target>Blogbeitrag</target>
+      </trans-unit>
+      <trans-unit id="De558663a0" resname="label.blog.posts">
+        <source>label.blog.posts</source>
+        <target>Blogbeiträge</target>
+      </trans-unit>
+      <trans-unit id="De70b93023" resname="label.blog.tag">
+        <source>label.blog.tag</source>
+        <target>Schlagwort</target>
+      </trans-unit>
+      <trans-unit id="Deb9190749" resname="label.blog.tags">
+        <source>label.blog.tags</source>
+        <target>Schlagwörter</target>
+      </trans-unit>
+      <trans-unit id="De72305849" resname="label.btn.save">
+        <source>label.btn.save</source>
+        <target>Speichern</target>
+      </trans-unit>
+      <trans-unit id="Deb66ccbf2" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button-Beschriftung</target>
+      </trans-unit>
+      <trans-unit id="De1622e2ee" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button-URL</target>
+      </trans-unit>
+      <trans-unit id="Dea39ad792" resname="label.category">
+        <source>label.category</source>
+        <target>Kategorie</target>
       </trans-unit>
       <trans-unit id="lblCathReqDe" resname="label.cathlab.is_required">
         <source>label.cathlab.is_required</source>
@@ -1053,13 +1193,57 @@
         <source>label.confirm_password.submit</source>
         <target>Weiter</target>
       </trans-unit>
+      <trans-unit id="De22be088e" resname="label.content">
+        <source>label.content</source>
+        <target>Inhalt</target>
+      </trans-unit>
+      <trans-unit id="Dea668b0f9" resname="label.content_blocks">
+        <source>label.content_blocks</source>
+        <target>Inhaltsblöcke</target>
+      </trans-unit>
+      <trans-unit id="De6e468f9f" resname="label.created">
+        <source>label.created</source>
+        <target>Erstellt</target>
+      </trans-unit>
+      <trans-unit id="De66c4c0de" resname="label.created_at">
+        <source>label.created_at</source>
+        <target>Erstellt am</target>
+      </trans-unit>
+      <trans-unit id="De3358efa0" resname="label.created_by">
+        <source>label.created_by</source>
+        <target>Erstellt von</target>
+      </trans-unit>
+      <trans-unit id="De2a81228a" resname="label.cta_link_type">
+        <source>label.cta_link_type</source>
+        <target>Button-Linktyp</target>
+      </trans-unit>
+      <trans-unit id="De447fca46" resname="label.cta_link_type.media">
+        <source>label.cta_link_type.media</source>
+        <target>PDF aus Medienbibliothek</target>
+      </trans-unit>
+      <trans-unit id="De2a903fa0" resname="label.cta_link_type.url">
+        <source>label.cta_link_type.url</source>
+        <target>URL</target>
+      </trans-unit>
+      <trans-unit id="De972794a9" resname="label.delete">
+        <source>label.delete</source>
+        <target>Löschen</target>
+      </trans-unit>
       <trans-unit id="lblDepartmentDe" resname="label.department">
         <source>label.department</source>
         <target>Abteilung</target>
       </trans-unit>
+      <trans-unit id="De2128a0b0" resname="label.disabled">
+        <source>label.disabled</source>
+        <target>Deaktiviert</target>
+      </trans-unit>
       <trans-unit id="lblDispatchAreaDe" resname="label.dispatch_area">
         <source>label.dispatch_area</source>
         <target>Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="De141cfefe" resname="label.draft">
+        <source>label.draft</source>
+        <target>Entwurf</target>
       </trans-unit>
       <trans-unit id="lblEditDe" resname="label.edit">
         <source>label.edit</source>
@@ -1073,6 +1257,14 @@
         <source>label.email_address</source>
         <target>E-Mail-Adresse</target>
       </trans-unit>
+      <trans-unit id="De8c8283a3" resname="label.enabled">
+        <source>label.enabled</source>
+        <target>Aktiviert</target>
+      </trans-unit>
+      <trans-unit id="De02576f16" resname="label.exit_impersonation">
+        <source>label.exit_impersonation</source>
+        <target>Impersonierung beenden</target>
+      </trans-unit>
       <trans-unit id="lblExploreSubDe" resname="label.explore.index.subtitle">
         <source>label.explore.index.subtitle</source>
         <target>Übersicht aller verfügbaren Datensätze</target>
@@ -1084,6 +1276,14 @@
       <trans-unit id="lblFeaturesDe" resname="label.features">
         <source>label.features</source>
         <target>Funktionen</target>
+      </trans-unit>
+      <trans-unit id="De8cfb9a84" resname="label.file_size">
+        <source>label.file_size</source>
+        <target>Dateigröße (Bytes)</target>
+      </trans-unit>
+      <trans-unit id="De99dd2736" resname="label.filename">
+        <source>label.filename</source>
+        <target>Gespeicherter Dateiname</target>
       </trans-unit>
       <trans-unit id="lblFilterResultsDe" resname="label.filter.results">
         <source>label.filter.results</source>
@@ -1124,6 +1324,106 @@
       <trans-unit id="lblGenderOtherDe" resname="label.gender.other">
         <source>label.gender.other</source>
         <target>Divers</target>
+      </trans-unit>
+      <trans-unit id="De453eafee" resname="label.headline">
+        <source>label.headline</source>
+        <target>Überschrift</target>
+      </trans-unit>
+      <trans-unit id="Dee694fe5b" resname="label.headline_align">
+        <source>label.headline_align</source>
+        <target>Ausrichtung</target>
+      </trans-unit>
+      <trans-unit id="De2a048d28" resname="label.headline_align.center">
+        <source>label.headline_align.center</source>
+        <target>Zentriert</target>
+      </trans-unit>
+      <trans-unit id="De38b48504" resname="label.headline_align.left">
+        <source>label.headline_align.left</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="Def08c8b05" resname="label.headline_align.right">
+        <source>label.headline_align.right</source>
+        <target>Rechts</target>
+      </trans-unit>
+      <trans-unit id="Dea84e9283" resname="label.headline_level">
+        <source>label.headline_level</source>
+        <target>Überschriftenebene</target>
+      </trans-unit>
+      <trans-unit id="De00087213" resname="label.headline_level.h1">
+        <source>label.headline_level.h1</source>
+        <target>H1</target>
+      </trans-unit>
+      <trans-unit id="De990123a9" resname="label.headline_level.h2">
+        <source>label.headline_level.h2</source>
+        <target>H2</target>
+      </trans-unit>
+      <trans-unit id="Deee06133f" resname="label.headline_level.h3">
+        <source>label.headline_level.h3</source>
+        <target>H3</target>
+      </trans-unit>
+      <trans-unit id="De7062869c" resname="label.headline_level.h4">
+        <source>label.headline_level.h4</source>
+        <target>H4</target>
+      </trans-unit>
+      <trans-unit id="De4b824bd1" resname="label.headline_spacing_after">
+        <source>label.headline_spacing_after</source>
+        <target>Abstand danach</target>
+      </trans-unit>
+      <trans-unit id="De28f608ef" resname="label.headline_spacing_before">
+        <source>label.headline_spacing_before</source>
+        <target>Abstand davor</target>
+      </trans-unit>
+      <trans-unit id="De47b9d4eb" resname="label.headline_text">
+        <source>label.headline_text</source>
+        <target>Überschriftentext</target>
+      </trans-unit>
+      <trans-unit id="De667b0692" resname="label.highlight_icon">
+        <source>label.highlight_icon</source>
+        <target>Benutzerdefiniertes Icon</target>
+      </trans-unit>
+      <trans-unit id="De2f41578c" resname="label.highlight_icon_mode">
+        <source>label.highlight_icon_mode</source>
+        <target>Icon-Modus</target>
+      </trans-unit>
+      <trans-unit id="Debea5298c" resname="label.highlight_icon_mode.auto">
+        <source>label.highlight_icon_mode.auto</source>
+        <target>Automatisch nach Variante</target>
+      </trans-unit>
+      <trans-unit id="De85575cdf" resname="label.highlight_icon_mode.custom">
+        <source>label.highlight_icon_mode.custom</source>
+        <target>Benutzerdefiniertes Icon</target>
+      </trans-unit>
+      <trans-unit id="Dea78f0cb9" resname="label.highlight_icon_mode.none">
+        <source>label.highlight_icon_mode.none</source>
+        <target>Kein Icon</target>
+      </trans-unit>
+      <trans-unit id="De24356e70" resname="label.highlight_title">
+        <source>label.highlight_title</source>
+        <target>Titel (optional)</target>
+      </trans-unit>
+      <trans-unit id="Deaca1ce65" resname="label.highlight_variant">
+        <source>label.highlight_variant</source>
+        <target>Variante</target>
+      </trans-unit>
+      <trans-unit id="Debdaf5074" resname="label.highlight_variant.danger">
+        <source>label.highlight_variant.danger</source>
+        <target>Gefahr</target>
+      </trans-unit>
+      <trans-unit id="De4f562d89" resname="label.highlight_variant.info">
+        <source>label.highlight_variant.info</source>
+        <target>Info</target>
+      </trans-unit>
+      <trans-unit id="De4b62e6ca" resname="label.highlight_variant.note">
+        <source>label.highlight_variant.note</source>
+        <target>Hinweis</target>
+      </trans-unit>
+      <trans-unit id="De180c5514" resname="label.highlight_variant.success">
+        <source>label.highlight_variant.success</source>
+        <target>Erfolg</target>
+      </trans-unit>
+      <trans-unit id="De37421660" resname="label.highlight_variant.warning">
+        <source>label.highlight_variant.warning</source>
+        <target>Warnung</target>
       </trans-unit>
       <trans-unit id="lblHospitalDe" resname="label.hospital">
         <source>label.hospital</source>
@@ -1224,6 +1524,118 @@
       <trans-unit id="Dec09e83f3" resname="label.hospitals.participating">
         <source>label.hospitals.participating</source>
         <target>Teilnehmende Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="Deb1932a28" resname="label.image_alignment">
+        <source>label.image_alignment</source>
+        <target>Ausrichtung</target>
+      </trans-unit>
+      <trans-unit id="De9ad1f2ac" resname="label.image_alignment.center">
+        <source>label.image_alignment.center</source>
+        <target>Zentriert</target>
+      </trans-unit>
+      <trans-unit id="De455ddf0b" resname="label.image_alignment.full">
+        <source>label.image_alignment.full</source>
+        <target>Volle Breite</target>
+      </trans-unit>
+      <trans-unit id="Dedf45ecc3" resname="label.image_alignment.left">
+        <source>label.image_alignment.left</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="Def56b2d7f" resname="label.image_alignment.right">
+        <source>label.image_alignment.right</source>
+        <target>Rechts</target>
+      </trans-unit>
+      <trans-unit id="De8259ef58" resname="label.image_alt">
+        <source>label.image_alt</source>
+        <target>Alt-Text des Bildes</target>
+      </trans-unit>
+      <trans-unit id="Ded03933b9" resname="label.image_caption">
+        <source>label.image_caption</source>
+        <target>Bildunterschrift</target>
+      </trans-unit>
+      <trans-unit id="De8ad3c751" resname="label.image_float">
+        <source>label.image_float</source>
+        <target>Textumlauf</target>
+      </trans-unit>
+      <trans-unit id="De43ba9560" resname="label.image_float.left">
+        <source>label.image_float.left</source>
+        <target>Bild links, Text läuft rechts um</target>
+      </trans-unit>
+      <trans-unit id="De464d72c7" resname="label.image_float.none">
+        <source>label.image_float.none</source>
+        <target>Kein Umfluss</target>
+      </trans-unit>
+      <trans-unit id="Deba282054" resname="label.image_float.right">
+        <source>label.image_float.right</source>
+        <target>Bild rechts, Text läuft links um</target>
+      </trans-unit>
+      <trans-unit id="Dee8b08a02" resname="label.image_size">
+        <source>label.image_size</source>
+        <target>Bildgröße</target>
+      </trans-unit>
+      <trans-unit id="De54f01e55" resname="label.image_size.auto">
+        <source>label.image_size.auto</source>
+        <target>Natürliche Größe</target>
+      </trans-unit>
+      <trans-unit id="Dede857563" resname="label.image_size.lg">
+        <source>label.image_size.lg</source>
+        <target>Groß (volle Breite)</target>
+      </trans-unit>
+      <trans-unit id="De5e971598" resname="label.image_size.md">
+        <source>label.image_size.md</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="Def30a92e3" resname="label.image_size.sm">
+        <source>label.image_size.sm</source>
+        <target>Klein</target>
+      </trans-unit>
+      <trans-unit id="De5e5b437d" resname="label.image_url">
+        <source>label.image_url</source>
+        <target>Bild-URL</target>
+      </trans-unit>
+      <trans-unit id="Def4c63e9a" resname="label.image_width_mode">
+        <source>label.image_width_mode</source>
+        <target>Breitenmodus</target>
+      </trans-unit>
+      <trans-unit id="De491d8d48" resname="label.image_width_mode.percent">
+        <source>label.image_width_mode.percent</source>
+        <target>Prozent</target>
+      </trans-unit>
+      <trans-unit id="De85ea0b0a" resname="label.image_width_mode.preset">
+        <source>label.image_width_mode.preset</source>
+        <target>Voreinstellung</target>
+      </trans-unit>
+      <trans-unit id="De7f35732a" resname="label.image_width_mode.px">
+        <source>label.image_width_mode.px</source>
+        <target>Feste Pixel</target>
+      </trans-unit>
+      <trans-unit id="Deb3548169" resname="label.image_width_percent">
+        <source>label.image_width_percent</source>
+        <target>Breite in Prozent</target>
+      </trans-unit>
+      <trans-unit id="Dec3db4914" resname="label.image_width_preset">
+        <source>label.image_width_preset</source>
+        <target>Breiten-Voreinstellung</target>
+      </trans-unit>
+      <trans-unit id="De6b9f156d" resname="label.image_width_preset.full">
+        <source>label.image_width_preset.full</source>
+        <target>Volle Breite</target>
+      </trans-unit>
+      <trans-unit id="Defc9996d7" resname="label.image_width_preset.lg">
+        <source>label.image_width_preset.lg</source>
+        <target>Groß (75 %)</target>
+      </trans-unit>
+      <trans-unit id="De7c8bf62c" resname="label.image_width_preset.md">
+        <source>label.image_width_preset.md</source>
+        <target>Mittel (50 %)</target>
+      </trans-unit>
+      <trans-unit id="Ded1167157" resname="label.image_width_preset.sm">
+        <source>label.image_width_preset.sm</source>
+        <target>Klein (25 %)</target>
+      </trans-unit>
+      <trans-unit id="De257ea889" resname="label.image_width_px">
+        <source>label.image_width_px</source>
+        <target>Breite in Pixel</target>
       </trans-unit>
       <trans-unit id="IndLblMPbDe" resname="label.indication.match_proposed_by">
         <source>label.indication.match_proposed_by</source>
