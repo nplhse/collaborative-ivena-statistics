@@ -27,7 +27,7 @@
       </trans-unit>
       <trans-unit id="statsAex03" resname="stats.analysis_explorer.allocations_over_time">
         <source>stats.analysis_explorer.allocations_over_time</source>
-        <target>Verlegungen über die Zeit</target>
+        <target>Zuweisungen über die Zeit</target>
       </trans-unit>
       <trans-unit id="statsAex04" resname="stats.analysis_explorer.empty_state">
         <source>stats.analysis_explorer.empty_state</source>
@@ -39,7 +39,7 @@
       </trans-unit>
       <trans-unit id="statsAex06" resname="stats.analysis_explorer.metric.allocation_count">
         <source>stats.analysis_explorer.metric.allocation_count</source>
-        <target>Verlegungen</target>
+        <target>Zuweisungen</target>
       </trans-unit>
       <trans-unit id="statsAexM01" resname="stats.analysis_explorer.metric.percent_of_total">
         <source>stats.analysis_explorer.metric.percent_of_total</source>
@@ -83,7 +83,7 @@
       </trans-unit>
       <trans-unit id="statsAexM09c" resname="stats.analysis_explorer.metric.prevalence_rate">
         <source>stats.analysis_explorer.metric.prevalence_rate</source>
-        <target>Anteil der Einsätze (%)</target>
+        <target>Anteil der Zuweisungen (%)</target>
       </trans-unit>
       <trans-unit id="statsAexM10" resname="stats.analysis_explorer.edit.show_percent_of_total">
         <source>stats.analysis_explorer.edit.show_percent_of_total</source>
@@ -159,11 +159,11 @@
       </trans-unit>
       <trans-unit id="statsAex22" resname="stats.analysis_explorer.allocations_by_gender">
         <source>stats.analysis_explorer.allocations_by_gender</source>
-        <target>Verlegungen nach Geschlecht</target>
+        <target>Zuweisungen nach Geschlecht</target>
       </trans-unit>
       <trans-unit id="statsAex23" resname="stats.analysis_explorer.allocations_by_urgency">
         <source>stats.analysis_explorer.allocations_by_urgency</source>
-        <target>Verlegungen nach Dringlichkeit</target>
+        <target>Zuweisungen nach Dringlichkeit</target>
       </trans-unit>
       <trans-unit id="statsAex24" resname="stats.analysis_explorer.edit.dimension">
         <source>stats.analysis_explorer.edit.dimension</source>
@@ -215,11 +215,11 @@
       </trans-unit>
       <trans-unit id="statsAex34" resname="stats.analysis_explorer.allocations_by_gender_over_time">
         <source>stats.analysis_explorer.allocations_by_gender_over_time</source>
-        <target>Verlegungen nach Geschlecht über die Zeit</target>
+        <target>Zuweisungen nach Geschlecht über die Zeit</target>
       </trans-unit>
       <trans-unit id="statsAex35" resname="stats.analysis_explorer.allocations_by_urgency_over_time">
         <source>stats.analysis_explorer.allocations_by_urgency_over_time</source>
-        <target>Verlegungen nach Dringlichkeit über die Zeit</target>
+        <target>Zuweisungen nach Dringlichkeit über die Zeit</target>
       </trans-unit>
       <trans-unit id="statsAex36" resname="stats.analysis_explorer.empty_state.no_data">
         <source>stats.analysis_explorer.empty_state.no_data</source>
@@ -247,7 +247,7 @@
       </trans-unit>
       <trans-unit id="statsAex42" resname="stats.analysis_explorer.table.results_count">
         <source>stats.analysis_explorer.table.results_count</source>
-        <target>{count} Verlegungen</target>
+        <target>{count} Zuweisungen</target>
       </trans-unit>
       <trans-unit id="statsAex43" resname="stats.analysis_explorer.table.footer_total">
         <source>stats.analysis_explorer.table.footer_total</source>
@@ -471,15 +471,15 @@
       </trans-unit>
       <trans-unit id="statsAex81" resname="stats.analysis_explorer.description.time_month">
         <source>stats.analysis_explorer.description.time_month</source>
-        <target>Monatliche Verlegungszahlen im gewählten Zeitraum.</target>
+        <target>Monatliche Zuweisungszahlen im gewählten Zeitraum.</target>
       </trans-unit>
       <trans-unit id="statsAex82" resname="stats.analysis_explorer.description.time_year_line">
         <source>stats.analysis_explorer.description.time_year_line</source>
-        <target>Jährliche Verlegungssummen als Liniendiagramm.</target>
+        <target>Jährliche Zuweisungssummen als Liniendiagramm.</target>
       </trans-unit>
       <trans-unit id="statsAex83" resname="stats.analysis_explorer.description.time_year">
         <source>stats.analysis_explorer.description.time_year</source>
-        <target>Jährliche Verlegungszahlen im gewählten Zeitraum, dargestellt als {chart}.</target>
+        <target>Jährliche Zuweisungszahlen im gewählten Zeitraum, dargestellt als {chart}.</target>
       </trans-unit>
       <trans-unit id="statsAex84" resname="stats.analysis_explorer.description.time_total">
         <source>stats.analysis_explorer.description.time_total</source>
@@ -487,23 +487,23 @@
       </trans-unit>
       <trans-unit id="statsAex85" resname="stats.analysis_explorer.description.gender_total">
         <source>stats.analysis_explorer.description.gender_total</source>
-        <target>Verlegungszahlen gruppiert nach Patientengeschlecht.</target>
+        <target>Zuweisungszahlen gruppiert nach Patientengeschlecht.</target>
       </trans-unit>
       <trans-unit id="statsAex86" resname="stats.analysis_explorer.description.gender_over_time">
         <source>stats.analysis_explorer.description.gender_over_time</source>
-        <target>{grain} Verlegungszahlen aufgeteilt nach Geschlecht.</target>
+        <target>{grain} Zuweisungszahlen aufgeteilt nach Geschlecht.</target>
       </trans-unit>
       <trans-unit id="statsAex87" resname="stats.analysis_explorer.description.urgency_total">
         <source>stats.analysis_explorer.description.urgency_total</source>
-        <target>Verlegungszahlen gruppiert nach Dringlichkeitsstufe.</target>
+        <target>Zuweisungszahlen gruppiert nach Dringlichkeitsstufe.</target>
       </trans-unit>
       <trans-unit id="statsAex88" resname="stats.analysis_explorer.description.urgency_year_stacked">
         <source>stats.analysis_explorer.description.urgency_year_stacked</source>
-        <target>Jährliche Verlegungszahlen gestapelt nach Dringlichkeit.</target>
+        <target>Jährliche Zuweisungszahlen gestapelt nach Dringlichkeit.</target>
       </trans-unit>
       <trans-unit id="statsAex89" resname="stats.analysis_explorer.description.urgency_over_time">
         <source>stats.analysis_explorer.description.urgency_over_time</source>
-        <target>{grain} Verlegungszahlen nach Dringlichkeitsstufe, dargestellt als {chart}.</target>
+        <target>{grain} Zuweisungszahlen nach Dringlichkeitsstufe, dargestellt als {chart}.</target>
       </trans-unit>
       <trans-unit id="statsAex90" resname="stats.analysis_explorer.description.grain.month">
         <source>stats.analysis_explorer.description.grain.month</source>
@@ -515,23 +515,23 @@
       </trans-unit>
       <trans-unit id="statsAex92" resname="stats.analysis_explorer.allocations_by_dimension">
         <source>stats.analysis_explorer.allocations_by_dimension</source>
-        <target>Verlegungen nach {dimension}</target>
+        <target>Zuweisungen nach {dimension}</target>
       </trans-unit>
       <trans-unit id="statsAex93" resname="stats.analysis_explorer.allocations_by_dimension_over_time">
         <source>stats.analysis_explorer.allocations_by_dimension_over_time</source>
-        <target>Verlegungen nach {dimension} im Zeitverlauf</target>
+        <target>Zuweisungen nach {dimension} im Zeitverlauf</target>
       </trans-unit>
       <trans-unit id="statsAex94" resname="stats.analysis_explorer.description.temporal_primary">
         <source>stats.analysis_explorer.description.temporal_primary</source>
-        <target>{grain} Verlegungszahlen.</target>
+        <target>{grain} Zuweisungszahlen.</target>
       </trans-unit>
       <trans-unit id="statsAex95" resname="stats.analysis_explorer.description.breakdown_over_time">
         <source>stats.analysis_explorer.description.breakdown_over_time</source>
-        <target>{grain} Verlegungszahlen nach {dimension}, dargestellt als {chart}.</target>
+        <target>{grain} Zuweisungszahlen nach {dimension}, dargestellt als {chart}.</target>
       </trans-unit>
       <trans-unit id="statsAex96" resname="stats.analysis_explorer.description.breakdown_total">
         <source>stats.analysis_explorer.description.breakdown_total</source>
-        <target>Verlegungszahlen gruppiert nach {dimension}.</target>
+        <target>Zuweisungszahlen gruppiert nach {dimension}.</target>
       </trans-unit>
       <trans-unit id="statsAex97" resname="stats.analysis_explorer.dimension.age_group">
         <source>stats.analysis_explorer.dimension.age_group</source>
@@ -555,7 +555,7 @@
       </trans-unit>
       <trans-unit id="statsAex102" resname="stats.analysis_explorer.dimension.assignment">
         <source>stats.analysis_explorer.dimension.assignment</source>
-        <target>Verlegungsart</target>
+        <target>Zuweisungstyp</target>
       </trans-unit>
       <trans-unit id="statsAex103" resname="stats.analysis_explorer.dimension.indication">
         <source>stats.analysis_explorer.dimension.indication</source>
@@ -587,7 +587,7 @@
       </trans-unit>
       <trans-unit id="statsNavHmHr" resname="stats.nav.overview_allocations_by_hour">
         <source>stats.nav.overview_allocations_by_hour</source>
-        <target>Einsätze nach Stunde</target>
+        <target>Zuweisungen nach Stunde</target>
       </trans-unit>
       <trans-unit id="statsNavHmWd" resname="stats.nav.overview_allocations_by_weekday_short">
         <source>stats.nav.overview_allocations_by_weekday_short</source>
@@ -615,11 +615,11 @@
       </trans-unit>
       <trans-unit id="statsAex111" resname="stats.analysis_explorer.dimension.resus">
         <source>stats.analysis_explorer.dimension.resus</source>
-        <target>Reanimation erforderlich</target>
+        <target>Schockraum angefordert</target>
       </trans-unit>
       <trans-unit id="statsAex112" resname="stats.analysis_explorer.dimension.cathlab">
         <source>stats.analysis_explorer.dimension.cathlab</source>
-        <target>Herzkatheter erforderlich</target>
+        <target>Herzkatheter angefordert</target>
       </trans-unit>
       <trans-unit id="statsAex113" resname="stats.analysis_explorer.dimension.cpr">
         <source>stats.analysis_explorer.dimension.cpr</source>
@@ -655,7 +655,7 @@
       </trans-unit>
       <trans-unit id="statsAex121" resname="stats.analysis_explorer.dimension.dispatchArea">
         <source>stats.analysis_explorer.dimension.dispatchArea</source>
-        <target>Leitstellenbereich</target>
+        <target>Leitstelle</target>
       </trans-unit>
       <trans-unit id="statsAex122" resname="stats.analysis_explorer.dimension.quarter">
         <source>stats.analysis_explorer.dimension.quarter</source>
@@ -847,7 +847,7 @@
       </trans-unit>
       <trans-unit id="statsAexDs02" resname="stats.analysis_explorer.data_source.allocations">
         <source>stats.analysis_explorer.data_source.allocations</source>
-        <target>Allocationen</target>
+        <target>Zuweisungen</target>
       </trans-unit>
       <trans-unit id="statsAexDs03" resname="stats.analysis_explorer.data_source.hospitals">
         <source>stats.analysis_explorer.data_source.hospitals</source>
@@ -855,7 +855,7 @@
       </trans-unit>
       <trans-unit id="statsAexDs04" resname="stats.analysis_explorer.data_source.context.allocations">
         <source>stats.analysis_explorer.data_source.context.allocations</source>
-        <target>Allocationszahlen aus der Statistik-Projektion, gefiltert nach Scope und Zeitraum.</target>
+        <target>Zuweisungszahlen aus der Statistik-Projektion, gefiltert nach Bereich und Zeitraum.</target>
       </trans-unit>
       <trans-unit id="statsAexDs05" resname="stats.analysis_explorer.data_source.context.hospitals">
         <source>stats.analysis_explorer.data_source.context.hospitals</source>
@@ -923,19 +923,19 @@
       </trans-unit>
       <trans-unit id="statsAexHc06" resname="stats.analysis_explorer.metric.total_allocations">
         <source>stats.analysis_explorer.metric.total_allocations</source>
-        <target>Allocationen gesamt</target>
+        <target>Zuweisungen gesamt</target>
       </trans-unit>
       <trans-unit id="statsAexHc07" resname="stats.analysis_explorer.metric.avg_allocations_per_hospital">
         <source>stats.analysis_explorer.metric.avg_allocations_per_hospital</source>
-        <target>Durchschnittliche Allocationen pro Krankenhaus</target>
+        <target>Durchschnittliche Zuweisungen pro Krankenhaus</target>
       </trans-unit>
       <trans-unit id="statsAexHc08" resname="stats.analysis_explorer.metric.min_allocations">
         <source>stats.analysis_explorer.metric.min_allocations</source>
-        <target>Minimale Allocationen</target>
+        <target>Minimale Zuweisungen</target>
       </trans-unit>
       <trans-unit id="statsAexHc09" resname="stats.analysis_explorer.metric.max_allocations">
         <source>stats.analysis_explorer.metric.max_allocations</source>
-        <target>Maximale Allocationen</target>
+        <target>Maximale Zuweisungen</target>
       </trans-unit>
       <trans-unit id="statsAexMp01" resname="stats.analysis_explorer.metric_profile.beds_distribution">
         <source>stats.analysis_explorer.metric_profile.beds_distribution</source>
@@ -943,7 +943,7 @@
       </trans-unit>
       <trans-unit id="statsAexMp02" resname="stats.analysis_explorer.metric_profile.allocations_per_hospital_distribution">
         <source>stats.analysis_explorer.metric_profile.allocations_per_hospital_distribution</source>
-        <target>Allocationen pro Krankenhaus – Verteilung (Box-Plot)</target>
+        <target>Zuweisungen pro Krankenhaus – Verteilung (Box-Plot)</target>
       </trans-unit>
       <trans-unit id="statsAexMp03" resname="stats.analysis_explorer.metric_profile.transport_time_distribution">
         <source>stats.analysis_explorer.metric_profile.transport_time_distribution</source>
@@ -959,7 +959,7 @@
       </trans-unit>
       <trans-unit id="statsAexMg02" resname="stats.analysis_explorer.metric_group.allocations">
         <source>stats.analysis_explorer.metric_group.allocations</source>
-        <target>Allocationen</target>
+        <target>Zuweisungen</target>
       </trans-unit>
       <trans-unit id="statsAexMg03" resname="stats.analysis_explorer.metric_group.counts">
         <source>stats.analysis_explorer.metric_group.counts</source>
@@ -1015,7 +1015,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd06" resname="stats.analysis_explorer.dimension.hospital_dispatch_area">
         <source>stats.analysis_explorer.dimension.hospital_dispatch_area</source>
-        <target>Leitstellenbereich</target>
+        <target>Leitstelle</target>
       </trans-unit>
       <trans-unit id="statsAexHd07" resname="stats.analysis_explorer.dimension.hospital_entity">
         <source>stats.analysis_explorer.dimension.hospital_entity</source>
@@ -1039,7 +1039,7 @@
       </trans-unit>
       <trans-unit id="statsGa37p" resname="stats.generic_analysis.period.allocation_derived_hint">
         <source>stats.generic_analysis.period.allocation_derived_hint</source>
-        <target>Strukturelle Krankenhaus-Kennzahlen wie Bettenzahlen hängen nicht vom gewählten Zeitraum ab. Allocationsbasierte Metriken berücksichtigen den Periodenfilter.</target>
+        <target>Strukturelle Krankenhaus-Kennzahlen wie Bettenzahlen hängen nicht vom gewählten Zeitraum ab. Zuweisungsbasierte Metriken berücksichtigen den Periodenfilter.</target>
       </trans-unit>
       <trans-unit id="statsAexHp08" resname="stats.analysis_explorer.edit.additional_table_metrics">
         <source>stats.analysis_explorer.edit.additional_table_metrics</source>
@@ -1055,7 +1055,7 @@
       </trans-unit>
       <trans-unit id="statsAgeOv80" resname="statistics.distribution.age.over_80">
         <source>statistics.distribution.age.over_80</source>
-        <target>80 and older</target>
+        <target>80 und älter</target>
       </trans-unit>
       <trans-unit id="lblAgeDe" resname="label.age">
         <source>label.age</source>
@@ -1151,7 +1151,7 @@
       </trans-unit>
       <trans-unit id="lblAllocationDe" resname="label.allocation">
         <source>label.allocation</source>
-        <target>Verlegung</target>
+        <target>Zuweisung</target>
       </trans-unit>
       <trans-unit id="lblHospitalDe" resname="label.hospital">
         <source>label.hospital</source>
@@ -1175,7 +1175,7 @@
       </trans-unit>
       <trans-unit id="lblDispatchAreaDe" resname="label.dispatch_area">
         <source>label.dispatch_area</source>
-        <target>Leitstellenbereich</target>
+        <target>Leitstelle</target>
       </trans-unit>
       <trans-unit id="lblIndicationNormDe" resname="label.indication.normalized">
         <source>label.indication.normalized</source>
@@ -1239,7 +1239,7 @@
       </trans-unit>
       <trans-unit id="lblAllDispatchAreasDe" resname="label.all_dispatch_areas">
         <source>label.all_dispatch_areas</source>
-        <target>Alle Leitstellenbereiche</target>
+        <target>Alle Leitstellen</target>
       </trans-unit>
       <trans-unit id="lblAllIndicationsDe" resname="label.all_indications">
         <source>label.all_indications</source>
@@ -1259,11 +1259,11 @@
       </trans-unit>
       <trans-unit id="lblRequiresResusDe" resname="label.requires_resus">
         <source>label.requires_resus</source>
-        <target>Reanimation erforderlich</target>
+        <target>Schockraum angefordert</target>
       </trans-unit>
       <trans-unit id="lblRequiresCathlabDe" resname="label.requires_cathlab">
         <source>label.requires_cathlab</source>
-        <target>Herzkatheter erforderlich</target>
+        <target>Herzkatheter angefordert</target>
       </trans-unit>
       <trans-unit id="lblIsVentilatedDe" resname="label.is_ventilated">
         <source>label.is_ventilated</source>
@@ -1323,11 +1323,11 @@
       </trans-unit>
       <trans-unit id="IndRevWLDe" resname="title.indication.review_worklist">
         <source>title.indication.review_worklist</source>
-        <target>Indikations-Review-Worklist</target>
+        <target>Indikations-Review-Arbeitsliste</target>
       </trans-unit>
       <trans-unit id="IndRevRwDe" resname="title.indication.review_raw">
         <source>title.indication.review_raw</source>
-        <target>Raw-Indikation prüfen</target>
+        <target>Indikation (original) prüfen</target>
       </trans-unit>
       <trans-unit id="IndRevRwNDe" resname="title.indication.review_raw_named">
         <source>title.indication.review_raw_named</source>
@@ -1351,11 +1351,11 @@
       </trans-unit>
       <trans-unit id="IndTabRevDe" resname="indication.tab.review">
         <source>indication.tab.review</source>
-        <target>Review-Worklist</target>
+        <target>Arbeitsliste</target>
       </trans-unit>
       <trans-unit id="BtnIndRWLDe" resname="btn.indication.review_worklist">
         <source>btn.indication.review_worklist</source>
-        <target>Review-Worklist</target>
+        <target>Arbeitsliste</target>
       </trans-unit>
       <trans-unit id="IndSegUnrDe" resname="indication.review.segment.unreviewed">
         <source>indication.review.segment.unreviewed</source>
@@ -1451,7 +1451,7 @@
       </trans-unit>
       <trans-unit id="ExpTitDe01" resname="title.export.allocations">
         <source>title.export.allocations</source>
-        <target>Allocations exportieren</target>
+        <target>Zuweisungen exportieren</target>
       </trans-unit>
       <trans-unit id="ExpHlpDe01" resname="help.export.allocations">
         <source>help.export.allocations</source>
@@ -1475,7 +1475,7 @@
       </trans-unit>
       <trans-unit id="ExpFldDe01" resname="field.includeIndicationRaw">
         <source>field.includeIndicationRaw</source>
-        <target>Roh-Indikation mit exportieren</target>
+        <target>Original-Indikation mit exportieren</target>
       </trans-unit>
       <trans-unit id="ExpLblDe01" resname="label.export.period">
         <source>label.export.period</source>
@@ -1559,7 +1559,7 @@
       </trans-unit>
       <trans-unit id="OnbStpDe09" resname="onboarding.steps.start_first_import.description">
         <source>onboarding.steps.start_first_import.description</source>
-        <target>Laden Sie Verlegungsdaten für Ihre Klinik hoch, um mit der Analyse zu beginnen.</target>
+        <target>Laden Sie Zuweisungsdaten für Ihre Klinik hoch, um mit der Analyse zu beginnen.</target>
       </trans-unit>
       <trans-unit id="OnbStpDe10" resname="onboarding.steps.start_first_import.action">
         <source>onboarding.steps.start_first_import.action</source>
@@ -1567,11 +1567,11 @@
       </trans-unit>
       <trans-unit id="OnbStpDe11" resname="onboarding.steps.view_explore_data.title">
         <source>onboarding.steps.view_explore_data.title</source>
-        <target>Importierte Einsätze ansehen</target>
+        <target>Importierte Zuweisungen ansehen</target>
       </trans-unit>
       <trans-unit id="OnbStpDe12" resname="onboarding.steps.view_explore_data.description">
         <source>onboarding.steps.view_explore_data.description</source>
-        <target>Durchsuchen Sie Rohdaten der Verlegungen im Explorer.</target>
+        <target>Erkunden Sie Zuweisungsdaten im Explorer.</target>
       </trans-unit>
       <trans-unit id="OnbStpDe13" resname="onboarding.steps.view_explore_data.action">
         <source>onboarding.steps.view_explore_data.action</source>
