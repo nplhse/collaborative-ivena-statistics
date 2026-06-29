@@ -5745,6 +5745,234 @@
         <source>stats.benchmark.weekday.wednesday</source>
         <target>Mittwoch</target>
       </trans-unit>
+      <trans-unit id="Deb15c1a4b" resname="stats.data_quality.allocation.histogram.hospitals">
+        <source>stats.data_quality.allocation.histogram.hospitals</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De1b25bb15" resname="stats.data_quality.allocation.histogram.range">
+        <source>stats.data_quality.allocation.histogram.range</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De67a47c06" resname="stats.data_quality.allocation.histogram.share">
+        <source>stats.data_quality.allocation.histogram.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="De55e98e0f" resname="stats.data_quality.allocation.histogram.sufficient">
+        <source>stats.data_quality.allocation.histogram.sufficient</source>
+        <target>Ausreichend</target>
+      </trans-unit>
+      <trans-unit id="De668e2f0b" resname="stats.data_quality.allocation.histogram_help">
+        <source>stats.data_quality.allocation.histogram_help</source>
+        <target>Wie viele teilnehmende Krankenhäuser fallen in jeden Bereich von Zuweisungen für diese Indikation im gewählten Bereich und Zeitraum. Bereiche ab {threshold} Fällen gelten als ausreichendes Fallvolumen.</target>
+      </trans-unit>
+      <trans-unit id="De63ea4753" resname="stats.data_quality.allocation.histogram_title">
+        <source>stats.data_quality.allocation.histogram_title</source>
+        <target>Verteilung nach Fallvolumen</target>
+      </trans-unit>
+      <trans-unit id="Dec4b9c511" resname="stats.data_quality.allocation.mean">
+        <source>stats.data_quality.allocation.mean</source>
+        <target>Mittelwert pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De1d733367" resname="stats.data_quality.allocation.median">
+        <source>stats.data_quality.allocation.median</source>
+        <target>Median pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="Deee1a80ba" resname="stats.data_quality.allocation.participating_hospitals">
+        <source>stats.data_quality.allocation.participating_hospitals</source>
+        <target>Teilnehmende Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De48f90fe1" resname="stats.data_quality.allocation.sufficient_volume">
+        <source>stats.data_quality.allocation.sufficient_volume</source>
+        <target>Krankenhäuser mit ≥ {threshold} Fällen</target>
+      </trans-unit>
+      <trans-unit id="De3fe590ea" resname="stats.data_quality.allocation.summary_title">
+        <source>stats.data_quality.allocation.summary_title</source>
+        <target>Überblick</target>
+      </trans-unit>
+      <trans-unit id="De634a330a" resname="stats.data_quality.allocation.total">
+        <source>stats.data_quality.allocation.total</source>
+        <target>Gesamtzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De6afa8756" resname="stats.data_quality.dimension.allocation">
+        <source>stats.data_quality.dimension.allocation</source>
+        <target>Zuweisungsvolumen</target>
+      </trans-unit>
+      <trans-unit id="De40c69451" resname="stats.data_quality.dimension.allocation.hint_low">
+        <source>stats.data_quality.dimension.allocation.hint_low</source>
+        <target>Viele Krankenhäuser haben wenige Fälle</target>
+      </trans-unit>
+      <trans-unit id="De3ab5d061" resname="stats.data_quality.dimension.allocation.hint_ok">
+        <source>stats.data_quality.dimension.allocation.hint_ok</source>
+        <target>Ausreichendes Fallvolumen</target>
+      </trans-unit>
+      <trans-unit id="De2155b589" resname="stats.data_quality.dimension.allocation.metric">
+        <source>stats.data_quality.dimension.allocation.metric</source>
+        <target>Anteil ≥ {threshold} Fälle</target>
+      </trans-unit>
+      <trans-unit id="De062e459b" resname="stats.data_quality.dimension.coverage">
+        <source>stats.data_quality.dimension.coverage</source>
+        <target>Abdeckung</target>
+      </trans-unit>
+      <trans-unit id="Dec3c4c855" resname="stats.data_quality.dimension.coverage.hint">
+        <source>stats.data_quality.dimension.coverage.hint</source>
+        <target>{participating} von {total} Krankenhäusern einbezogen</target>
+      </trans-unit>
+      <trans-unit id="Dedd3a655f" resname="stats.data_quality.dimension.coverage.metric">
+        <source>stats.data_quality.dimension.coverage.metric</source>
+        <target>Abdeckung</target>
+      </trans-unit>
+      <trans-unit id="Def025fb79" resname="stats.data_quality.dimension.representativeness">
+        <source>stats.data_quality.dimension.representativeness</source>
+        <target>Repräsentativität</target>
+      </trans-unit>
+      <trans-unit id="De21950d6e" resname="stats.data_quality.dimension.representativeness.hint_divergent">
+        <source>stats.data_quality.dimension.representativeness.hint_divergent</source>
+        <target>Auffällige Abweichungen von der Krankenhausgrundgesamtheit</target>
+      </trans-unit>
+      <trans-unit id="De14628065" resname="stats.data_quality.dimension.representativeness.hint_similar">
+        <source>stats.data_quality.dimension.representativeness.hint_similar</source>
+        <target>Verteilungen sind ähnlich</target>
+      </trans-unit>
+      <trans-unit id="Debd18d80e" resname="stats.data_quality.dimension.representativeness.metric">
+        <source>stats.data_quality.dimension.representativeness.metric</source>
+        <target>Abweichung</target>
+      </trans-unit>
+      <trans-unit id="De440b1def" resname="stats.data_quality.dimension.subgroup">
+        <source>stats.data_quality.dimension.subgroup</source>
+        <target>Untergruppen-Abdeckung</target>
+      </trans-unit>
+      <trans-unit id="De188b6f46" resname="stats.data_quality.dimension.subgroup.hint_ok">
+        <source>stats.data_quality.dimension.subgroup.hint_ok</source>
+        <target>Relevante Untergruppen sind ausreichend abgedeckt</target>
+      </trans-unit>
+      <trans-unit id="De03422e72" resname="stats.data_quality.dimension.subgroup.hint_weak">
+        <source>stats.data_quality.dimension.subgroup.hint_weak</source>
+        <target>Einige Untergruppen sind schwach besetzt ({weakCount})</target>
+      </trans-unit>
+      <trans-unit id="De1dfc2b3f" resname="stats.data_quality.dimension.subgroup.metric">
+        <source>stats.data_quality.dimension.subgroup.metric</source>
+        <target>Abgedeckter Anteil</target>
+      </trans-unit>
+      <trans-unit id="Debab93b1a" resname="stats.data_quality.drawer.allocation_title">
+        <source>stats.data_quality.drawer.allocation_title</source>
+        <target>Zuweisungsvolumen</target>
+      </trans-unit>
+      <trans-unit id="De57eab1ec" resname="stats.data_quality.drawer.context">
+        <source>stats.data_quality.drawer.context</source>
+        <target>Für {scope} · {period}</target>
+      </trans-unit>
+      <trans-unit id="De57eb2d71" resname="stats.data_quality.drawer.dimensions_title">
+        <source>stats.data_quality.drawer.dimensions_title</source>
+        <target>Dimensionen</target>
+      </trans-unit>
+      <trans-unit id="De3737f8aa" resname="stats.data_quality.drawer.representativeness_title">
+        <source>stats.data_quality.drawer.representativeness_title</source>
+        <target>Details zur Repräsentativität</target>
+      </trans-unit>
+      <trans-unit id="De0ddf09f0" resname="stats.data_quality.drawer.title">
+        <source>stats.data_quality.drawer.title</source>
+        <target>Datenqualität</target>
+      </trans-unit>
+      <trans-unit id="De97632893" resname="stats.data_quality.drawer.weak_subgroups_title">
+        <source>stats.data_quality.drawer.weak_subgroups_title</source>
+        <target>Schwach abgedeckte Untergruppen</target>
+      </trans-unit>
+      <trans-unit id="Deaede75cd" resname="stats.data_quality.explanation.high">
+        <source>stats.data_quality.explanation.high</source>
+        <target>Die Statistik ist gut interpretierbar. Teilnehmende Krankenhäuser decken die gewählte Krankenhausgrundgesamtheit angemessen ab.</target>
+      </trans-unit>
+      <trans-unit id="De690d94eb" resname="stats.data_quality.explanation.low_allocation_volume">
+        <source>stats.data_quality.explanation.low_allocation_volume</source>
+        <target>Die Statistik ist nur eingeschränkt interpretierbar, weil viele Krankenhäuser zu wenige Fälle haben ({share}% mit ≥ {threshold}).</target>
+      </trans-unit>
+      <trans-unit id="De6bcbdf66" resname="stats.data_quality.explanation.low_coverage">
+        <source>stats.data_quality.explanation.low_coverage</source>
+        <target>Die Statistik ist kaum verlässlich, weil die Abdeckung niedrig ist ({percentage}%).</target>
+      </trans-unit>
+      <trans-unit id="Ded75c9489" resname="stats.data_quality.explanation.low_coverage_and_representativeness">
+        <source>stats.data_quality.explanation.low_coverage_and_representativeness</source>
+        <target>Die Statistik ist kaum verlässlich, weil die Abdeckung niedrig ist und teilnehmende Krankenhäuser stark von der Grundgesamtheit abweichen.</target>
+      </trans-unit>
+      <trans-unit id="De6b7d32d0" resname="stats.data_quality.explanation.low_representativeness">
+        <source>stats.data_quality.explanation.low_representativeness</source>
+        <target>Die Statistik ist nur eingeschränkt interpretierbar, weil teilnehmende Krankenhäuser von der Grundgesamtheit abweichen (Abweichung {difference}).</target>
+      </trans-unit>
+      <trans-unit id="Def8e3b9ac" resname="stats.data_quality.explanation.medium">
+        <source>stats.data_quality.explanation.medium</source>
+        <target>Die Statistik ist für den gewählten Bereich und Zeitraum nur mäßig interpretierbar.</target>
+      </trans-unit>
+      <trans-unit id="De34b82d5e" resname="stats.data_quality.explanation.weak_subgroups">
+        <source>stats.data_quality.explanation.weak_subgroups</source>
+        <target>Die Statistik ist nur eingeschränkt interpretierbar, weil mehrere relevante Untergruppen schwach besetzt sind.</target>
+      </trans-unit>
+      <trans-unit id="De7796436f" resname="stats.data_quality.indicator.label">
+        <source>stats.data_quality.indicator.label</source>
+        <target>Datenqualität</target>
+      </trans-unit>
+      <trans-unit id="De1c804a22" resname="stats.data_quality.level.high">
+        <source>stats.data_quality.level.high</source>
+        <target>Hoch</target>
+      </trans-unit>
+      <trans-unit id="Deafa52f21" resname="stats.data_quality.level.low">
+        <source>stats.data_quality.level.low</source>
+        <target>Niedrig</target>
+      </trans-unit>
+      <trans-unit id="De9763c9ec" resname="stats.data_quality.level.medium">
+        <source>stats.data_quality.level.medium</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="De766cebf2" resname="stats.data_quality.overall.label">
+        <source>stats.data_quality.overall.label</source>
+        <target>Gesamte Datenqualität</target>
+      </trans-unit>
+      <trans-unit id="Debef29588" resname="stats.data_quality.representativeness.care_level">
+        <source>stats.data_quality.representativeness.care_level</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De696de967" resname="stats.data_quality.representativeness.difference">
+        <source>stats.data_quality.representativeness.difference</source>
+        <target>Abweichung {value}</target>
+      </trans-unit>
+      <trans-unit id="De1f466781" resname="stats.data_quality.representativeness.help">
+        <source>stats.data_quality.representativeness.help</source>
+        <target>Vergleicht die Verteilung teilnehmender Krankenhäuser mit der vollständigen Krankenhausgrundgesamtheit nach Größe, Versorgungsstufe, Standorttyp und Landkreis. Eine geringere Abweichung bedeutet eine repräsentativere Stichprobe.</target>
+      </trans-unit>
+      <trans-unit id="De9f9d87d3" resname="stats.data_quality.representativeness.landkreis">
+        <source>stats.data_quality.representativeness.landkreis</source>
+        <target>Landkreis</target>
+      </trans-unit>
+      <trans-unit id="De38e49e9d" resname="stats.data_quality.representativeness.limited">
+        <source>stats.data_quality.representativeness.limited</source>
+        <target>Eingeschränkte Verlässlichkeit wegen kleiner Krankenhausgrundgesamtheit</target>
+      </trans-unit>
+      <trans-unit id="Dee0011f47" resname="stats.data_quality.representativeness.size">
+        <source>stats.data_quality.representativeness.size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="Dece2a6a9c" resname="stats.data_quality.representativeness.urbanity">
+        <source>stats.data_quality.representativeness.urbanity</source>
+        <target>Standorttyp</target>
+      </trans-unit>
+      <trans-unit id="De874405e1" resname="stats.data_quality.subgroup.help">
+        <source>stats.data_quality.subgroup.help</source>
+        <target>Prüft relevante Krankenhaus-Untergruppen (Größe × Versorgungsstufe und Standorttyp × Versorgungsstufe) auf ausreichende Teilnahme. Eine Untergruppe gilt als abgedeckt, wenn mindestens {minParticipants} Krankenhäuser Daten beitragen, oder alle Krankenhäuser in dieser Untergruppe, wenn weniger als {minParticipants} existieren. Bei weniger als 5 besetzten Untergruppen basiert die Bewertung auf dem Anteil abgedeckter Untergruppen.</target>
+      </trans-unit>
+      <trans-unit id="De20eed334" resname="stats.data_quality.table.dimension">
+        <source>stats.data_quality.table.dimension</source>
+        <target>Dimension</target>
+      </trans-unit>
+      <trans-unit id="Defab016fe" resname="stats.data_quality.table.hint">
+        <source>stats.data_quality.table.hint</source>
+        <target>Hinweis</target>
+      </trans-unit>
+      <trans-unit id="Def1a2c6da" resname="stats.data_quality.table.metric">
+        <source>stats.data_quality.table.metric</source>
+        <target>Kennzahl</target>
+      </trans-unit>
+      <trans-unit id="De0d748d25" resname="stats.data_quality.table.status">
+        <source>stats.data_quality.table.status</source>
+        <target>Status</target>
+      </trans-unit>
       <trans-unit id="Ded2900385" resname="stats.generic_analysis.apply">
         <source>stats.generic_analysis.apply</source>
         <target>Anwenden</target>
