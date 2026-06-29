@@ -405,6 +405,10 @@
         <source>flash.settings.notifications.updated</source>
         <target>Notification preferences saved.</target>
       </trans-unit>
+      <trans-unit id="LocSet01" resname="flash.settings.locale.updated">
+        <source>flash.settings.locale.updated</source>
+        <target>Language preference saved.</target>
+      </trans-unit>
       <trans-unit id="vHELHHc" resname="help.no_hospitals_assigned">
         <source>help.no_hospitals_assigned</source>
         <target>Sorry there are no hospitals assigned to your account.</target>
@@ -420,6 +424,10 @@
       <trans-unit id="notif02" resname="help.settings.notifications.monthly_reminder">
         <source>help.settings.notifications.monthly_reminder</source>
         <target>Receive a monthly email with hospital insights and a reminder to upload your latest data.</target>
+      </trans-unit>
+      <trans-unit id="LocSet03" resname="help.settings.language">
+        <source>help.settings.language</source>
+        <target>Choose the language used for the application interface.</target>
       </trans-unit>
       <trans-unit id="SZjOELg" resname="hospital.location.Mixed">
         <source>hospital.location.Mixed</source>
@@ -1320,6 +1328,14 @@
       <trans-unit id="VrOQPjb" resname="label.settings.set_new_password">
         <source>label.settings.set_new_password</source>
         <target>Set new password</target>
+      </trans-unit>
+      <trans-unit id="LocSet02" resname="label.settings.language">
+        <source>label.settings.language</source>
+        <target>Language</target>
+      </trans-unit>
+      <trans-unit id="LocSet04" resname="label.settings.language.automatic_default">
+        <source>label.settings.language.automatic_default</source>
+        <target>{language} (automatic default)</target>
       </trans-unit>
       <trans-unit id="VOPv4L_" resname="label.settings.verification_status">
         <source>label.settings.verification_status</source>
@@ -8610,6 +8626,26 @@
       <trans-unit id="OnbStpEn16" resname="onboarding.steps.view_overview_statistics.action">
         <source>onboarding.steps.view_overview_statistics.action</source>
         <target>Open statistics</target>
+      </trans-unit>
+      <trans-unit id="LocEn01" resname="locale.switch">
+        <source>locale.switch</source>
+        <target>Switch language</target>
+      </trans-unit>
+      <trans-unit id="LocEn02" resname="locale.english">
+        <source>locale.english</source>
+        <target>English</target>
+      </trans-unit>
+      <trans-unit id="LocEn03" resname="locale.german">
+        <source>locale.german</source>
+        <target>Deutsch</target>
+      </trans-unit>
+      <trans-unit id="LocEn04" resname="locale.english_short">
+        <source>locale.english_short</source>
+        <target>EN</target>
+      </trans-unit>
+      <trans-unit id="LocEn05" resname="locale.german_short">
+        <source>locale.german_short</source>
+        <target>DE</target>
       </trans-unit>
     </body>
   </file>

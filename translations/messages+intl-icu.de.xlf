@@ -1589,6 +1589,70 @@
         <source>onboarding.steps.view_overview_statistics.action</source>
         <target>Statistik öffnen</target>
       </trans-unit>
+      <trans-unit id="LocDe01" resname="locale.switch">
+        <source>locale.switch</source>
+        <target>Sprache wechseln</target>
+      </trans-unit>
+      <trans-unit id="LocDe02" resname="locale.english">
+        <source>locale.english</source>
+        <target>English</target>
+      </trans-unit>
+      <trans-unit id="LocDe03" resname="locale.german">
+        <source>locale.german</source>
+        <target>Deutsch</target>
+      </trans-unit>
+      <trans-unit id="LocDe04" resname="locale.english_short">
+        <source>locale.english_short</source>
+        <target>EN</target>
+      </trans-unit>
+      <trans-unit id="LocDe05" resname="locale.german_short">
+        <source>locale.german_short</source>
+        <target>DE</target>
+      </trans-unit>
+      <trans-unit id="LocDe06" resname="label.login">
+        <source>label.login</source>
+        <target>Anmelden</target>
+      </trans-unit>
+      <trans-unit id="LocDe07" resname="label.register">
+        <source>label.register</source>
+        <target>Registrieren</target>
+      </trans-unit>
+      <trans-unit id="LocDe08" resname="label.logout">
+        <source>label.logout</source>
+        <target>Abmelden</target>
+      </trans-unit>
+      <trans-unit id="LocDe09" resname="label.settings">
+        <source>label.settings</source>
+        <target>Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="LocDe10" resname="link.explore">
+        <source>link.explore</source>
+        <target>Explorer</target>
+      </trans-unit>
+      <trans-unit id="LocDe11" resname="link.statistics">
+        <source>link.statistics</source>
+        <target>Statistik</target>
+      </trans-unit>
+      <trans-unit id="LocDe12" resname="link.blog">
+        <source>link.blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="LocSetDe01" resname="flash.settings.locale.updated">
+        <source>flash.settings.locale.updated</source>
+        <target>Spracheinstellung gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="LocSetDe02" resname="label.settings.language">
+        <source>label.settings.language</source>
+        <target>Sprache</target>
+      </trans-unit>
+      <trans-unit id="LocSetDe04" resname="label.settings.language.automatic_default">
+        <source>label.settings.language.automatic_default</source>
+        <target>{language} (automatischer Standard)</target>
+      </trans-unit>
+      <trans-unit id="LocSetDe03" resname="help.settings.language">
+        <source>help.settings.language</source>
+        <target>Wählen Sie die Sprache für die Benutzeroberfläche.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
