@@ -113,6 +113,12 @@ fixtures: ## Load dev demo fixtures (replaces existing fixture data)
 trans: ## Extract translations from symfony
 	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc en
 
+trans-de: ## Extract missing DE translation skeletons (messages domain)
+	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc de
+
+trans-missing: ## Report missing DE translation keys by wave
+	@php bin/report-missing-translations.php --list-keys
+
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
 lint: lint-container lint-php lint-twig lint-trans lint-js static-analysis ## Run continuous integration pipeline
 
@@ -136,6 +142,10 @@ lint-php: ## Lint files with php-cs-fixer
 
 lint-trans: ## Lint translations
 	@$(CONSOLE) lint:translations --locale=en
+	@$(CONSOLE) lint:translations --locale=de
+
+lint-trans-de: ## Lint DE translation contents
+	@$(CONSOLE) lint:translations --locale=de
 
 lint-twig: ## Lint files with twig-cs-fixer
 	@$(TWIG_CS_FIXER)
