@@ -1105,6 +1105,90 @@
         <source>label.gender</source>
         <target>Geschlecht</target>
       </trans-unit>
+      <trans-unit id="lblGenderFemaleDe" resname="label.gender.female">
+        <source>label.gender.female</source>
+        <target>Weiblich</target>
+      </trans-unit>
+      <trans-unit id="lblGenderMaleDe" resname="label.gender.male">
+        <source>label.gender.male</source>
+        <target>Männlich</target>
+      </trans-unit>
+      <trans-unit id="lblGenderOtherDe" resname="label.gender.other">
+        <source>label.gender.other</source>
+        <target>Divers</target>
+      </trans-unit>
+      <trans-unit id="lblAssessAirAtRiskDe" resname="label.assessment.airway.at_risk">
+        <source>label.assessment.airway.at_risk</source>
+        <target>Atemweg gefährdet</target>
+      </trans-unit>
+      <trans-unit id="lblAssessAirCritDe" resname="label.assessment.airway.critical">
+        <source>label.assessment.airway.critical</source>
+        <target>Atemweg kritisch</target>
+      </trans-unit>
+      <trans-unit id="lblAssessAirFreeDe" resname="label.assessment.airway.free">
+        <source>label.assessment.airway.free</source>
+        <target>Atemweg frei</target>
+      </trans-unit>
+      <trans-unit id="lblAssessAirIntubDe" resname="label.assessment.airway.intubated">
+        <source>label.assessment.airway.intubated</source>
+        <target>Intubiert</target>
+      </trans-unit>
+      <trans-unit id="lblAssessBreathCpapDe" resname="label.assessment.breathing.cpap">
+        <source>label.assessment.breathing.cpap</source>
+        <target>CPAP</target>
+      </trans-unit>
+      <trans-unit id="lblAssessBreathInsufDe" resname="label.assessment.breathing.insufficient">
+        <source>label.assessment.breathing.insufficient</source>
+        <target>Atmung unzureichend</target>
+      </trans-unit>
+      <trans-unit id="lblAssessBreathInvDe" resname="label.assessment.breathing.invasive">
+        <source>label.assessment.breathing.invasive</source>
+        <target>Invasive Beatmung</target>
+      </trans-unit>
+      <trans-unit id="lblAssessBreathNivDe" resname="label.assessment.breathing.niv">
+        <source>label.assessment.breathing.niv</source>
+        <target>NIV</target>
+      </trans-unit>
+      <trans-unit id="lblAssessBreathSpontDe" resname="label.assessment.breathing.spontaneous">
+        <source>label.assessment.breathing.spontaneous</source>
+        <target>Spontanatmung</target>
+      </trans-unit>
+      <trans-unit id="lblAssessCircCprDe" resname="label.assessment.circulation.ongoing_cpr">
+        <source>label.assessment.circulation.ongoing_cpr</source>
+        <target>Laufende Reanimation</target>
+      </trans-unit>
+      <trans-unit id="lblAssessCircStableDe" resname="label.assessment.circulation.stable">
+        <source>label.assessment.circulation.stable</source>
+        <target>Kreislauf stabil</target>
+      </trans-unit>
+      <trans-unit id="lblAssessCircStableMedDe" resname="label.assessment.circulation.stable_with_medication">
+        <source>label.assessment.circulation.stable_with_medication</source>
+        <target>Stabil unter Medikation</target>
+      </trans-unit>
+      <trans-unit id="lblAssessCircUnstableDe" resname="label.assessment.circulation.unstable">
+        <source>label.assessment.circulation.unstable</source>
+        <target>Kreislauf instabil</target>
+      </trans-unit>
+      <trans-unit id="lblAssessDisAnesthDe" resname="label.assessment.disability.anesthetized">
+        <source>label.assessment.disability.anesthetized</source>
+        <target>Narkotisiert</target>
+      </trans-unit>
+      <trans-unit id="lblAssessDisAwakeDe" resname="label.assessment.disability.awake">
+        <source>label.assessment.disability.awake</source>
+        <target>Wach</target>
+      </trans-unit>
+      <trans-unit id="lblAssessDisGcs15De" resname="label.assessment.disability.gcs_below_15">
+        <source>label.assessment.disability.gcs_below_15</source>
+        <target>GCS &lt; 15</target>
+      </trans-unit>
+      <trans-unit id="lblAssessDisGcs9De" resname="label.assessment.disability.gcs_below_9">
+        <source>label.assessment.disability.gcs_below_9</source>
+        <target>GCS &lt; 9</target>
+      </trans-unit>
+      <trans-unit id="lblAssessDisSedatedDe" resname="label.assessment.disability.sedated">
+        <source>label.assessment.disability.sedated</source>
+        <target>Sediert</target>
+      </trans-unit>
       <trans-unit id="lblDepartmentDe" resname="label.department">
         <source>label.department</source>
         <target>Abteilung</target>
