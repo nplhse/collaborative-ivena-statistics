@@ -3671,11 +3671,11 @@
       </trans-unit>
       <trans-unit id="De6da39c82" resname="public.home.hero.title">
         <source>public.home.hero.title</source>
-        <target>Forschung gemeinsam.</target>
+        <target>Gemeinsam forschen.</target>
       </trans-unit>
       <trans-unit id="Dedda4fb78" resname="public.home.meta_title">
         <source>public.home.meta_title</source>
-        <target>Kollaborative Notfallversorgungsforschung</target>
+        <target>Kollaborative Notfall-Versorgungsforschung</target>
       </trans-unit>
       <trans-unit id="Deea61bd9b" resname="public.home.participation.free_note">
         <source>public.home.participation.free_note</source>
