@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="errors.title.error" resname="title.error">
+        <source>title.error</source>
+        <target>Etwas ist schiefgelaufen</target>
+      </trans-unit>
+      <trans-unit id="errors.msg403.title" resname="messages.403.title">
+        <source>messages.403.title</source>
+        <target>Zugriff verweigert</target>
+      </trans-unit>
+      <trans-unit id="errors.msg403.desc" resname="messages.403.description">
+        <source>messages.403.description</source>
+        <target>Sie haben keine Berechtigung, diese Seite anzusehen.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg404.title" resname="messages.404.title">
+        <source>messages.404.title</source>
+        <target>Seite nicht gefunden</target>
+      </trans-unit>
+      <trans-unit id="errors.msg404.desc" resname="messages.404.description">
+        <source>messages.404.description</source>
+        <target>Unter dieser Adresse wurde kein Inhalt gefunden. Möglicherweise folgten Sie einem veralteten oder falschen Link. Wenn Sie die URL selbst eingegeben haben, prüfen Sie sie auf Tippfehler.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg405.title" resname="messages.405.title">
+        <source>messages.405.title</source>
+        <target>Methode nicht erlaubt</target>
+      </trans-unit>
+      <trans-unit id="errors.msg405.desc" resname="messages.405.description">
+        <source>messages.405.description</source>
+        <target>Die für diese Anfrage verwendete HTTP-Methode wird auf dieser Seite nicht unterstützt.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg500.title" resname="messages.500.title">
+        <source>messages.500.title</source>
+        <target>Interner Fehler</target>
+      </trans-unit>
+      <trans-unit id="errors.msg500.desc" resname="messages.500.description">
+        <source>messages.500.description</source>
+        <target>Beim Laden dieser Seite ist ein Fehler aufgetreten. Das Team wurde benachrichtigt und wir werden versuchen, das Problem so schnell wie möglich zu beheben.</target>
+      </trans-unit>
+      <trans-unit id="errors.msg.default.title" resname="messages.default.title">
+        <source>messages.default.title</source>
+        <target>Fehler</target>
+      </trans-unit>
+      <trans-unit id="errors.msg.default.desc" resname="messages.default.description">
+        <source>messages.default.description</source>
+        <target>Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut oder nutzen Sie die Buttons unten.</target>
+      </trans-unit>
+      <trans-unit id="errors.cta.home" resname="cta.home">
+        <source>cta.home</source>
+        <target>Zur Startseite</target>
+      </trans-unit>
+      <trans-unit id="errors.cta.back" resname="cta.back">
+        <source>cta.back</source>
+        <target>Zurück</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
