@@ -1637,6 +1637,58 @@
         <source>label.image_width_px</source>
         <target>Breite in Pixel</target>
       </trans-unit>
+      <trans-unit id="De6979449a" resname="label.import.filter.all_hospitals">
+        <source>label.import.filter.all_hospitals</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De942183c5" resname="label.import.filter.all_owners">
+        <source>label.import.filter.all_owners</source>
+        <target>Alle Eigentümer</target>
+      </trans-unit>
+      <trans-unit id="De799ec28c" resname="label.import.filter.all_statuses">
+        <source>label.import.filter.all_statuses</source>
+        <target>Jeder Status</target>
+      </trans-unit>
+      <trans-unit id="De1dfdd53e" resname="label.import.filter.created_from">
+        <source>label.import.filter.created_from</source>
+        <target>Erstellt ab</target>
+      </trans-unit>
+      <trans-unit id="De1eeaae60" resname="label.import.filter.created_until">
+        <source>label.import.filter.created_until</source>
+        <target>Erstellt bis</target>
+      </trans-unit>
+      <trans-unit id="Dee3d9a439" resname="label.import.filter.owner">
+        <source>label.import.filter.owner</source>
+        <target>Krankenhaus-Eigentümer</target>
+      </trans-unit>
+      <trans-unit id="Dec14767ca" resname="label.import.new">
+        <source>label.import.new</source>
+        <target>Neuer Import</target>
+      </trans-unit>
+      <trans-unit id="De0b4cddd7" resname="label.import.section.quick_actions">
+        <source>label.import.section.quick_actions</source>
+        <target>Schnellaktionen</target>
+      </trans-unit>
+      <trans-unit id="De947dd0d3" resname="label.import.section.run">
+        <source>label.import.section.run</source>
+        <target>Ausführungsergebnisse</target>
+      </trans-unit>
+      <trans-unit id="De1154cf3b" resname="label.import.section.source_file">
+        <source>label.import.section.source_file</source>
+        <target>Quelldatei</target>
+      </trans-unit>
+      <trans-unit id="De3c1a2121" resname="label.indication">
+        <source>label.indication</source>
+        <target>Indikation</target>
+      </trans-unit>
+      <trans-unit id="De68ef184a" resname="label.indication.code">
+        <source>label.indication.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="De6f5b323b" resname="label.indication.first_matched_by">
+        <source>label.indication.first_matched_by</source>
+        <target>Erstmals zugeordnet von</target>
+      </trans-unit>
       <trans-unit id="IndLblMPbDe" resname="label.indication.match_proposed_by">
         <source>label.indication.match_proposed_by</source>
         <target>Match vorgeschlagen von</target>
@@ -1645,17 +1697,45 @@
         <source>label.indication.normalized</source>
         <target>Indikation (normalisiert)</target>
       </trans-unit>
+      <trans-unit id="Dee2590b2e" resname="label.indication.occurrences">
+        <source>label.indication.occurrences</source>
+        <target>Vorkommen</target>
+      </trans-unit>
+      <trans-unit id="Dec48a792f" resname="label.indication.proposed_target">
+        <source>label.indication.proposed_target</source>
+        <target>Vorgeschlagenes Match</target>
+      </trans-unit>
+      <trans-unit id="De3a186786" resname="label.indication.raw">
+        <source>label.indication.raw</source>
+        <target>Indikation (original)</target>
+      </trans-unit>
       <trans-unit id="IndLblRAbDe" resname="label.indication.review_approved_by">
         <source>label.indication.review_approved_by</source>
         <target>Freigegeben von</target>
+      </trans-unit>
+      <trans-unit id="De926a7df1" resname="label.indication.review_comment">
+        <source>label.indication.review_comment</source>
+        <target>Prüfkommentar</target>
       </trans-unit>
       <trans-unit id="IndLblRRbDe" resname="label.indication.review_rejected_by">
         <source>label.indication.review_rejected_by</source>
         <target>Match abgelehnt von</target>
       </trans-unit>
+      <trans-unit id="Ded39ae759" resname="label.indication.review_status">
+        <source>label.indication.review_status</source>
+        <target>Prüfstatus</target>
+      </trans-unit>
       <trans-unit id="IndLblRVbDe" resname="label.indication.reviewed_by">
         <source>label.indication.reviewed_by</source>
         <target>Geprüft von</target>
+      </trans-unit>
+      <trans-unit id="De2c4f6af3" resname="label.indication.secondary_normalized">
+        <source>label.indication.secondary_normalized</source>
+        <target>Sekundäre normalisierte Indikation</target>
+      </trans-unit>
+      <trans-unit id="De5af8a770" resname="label.indication.secondary_raw">
+        <source>label.indication.secondary_raw</source>
+        <target>Sekundäre Original-Indikation</target>
       </trans-unit>
       <trans-unit id="lblInfectionDe" resname="label.infection">
         <source>label.infection</source>
@@ -1684,6 +1764,50 @@
       <trans-unit id="lblIsWorkAccidentDe" resname="label.is_work_accident">
         <source>label.is_work_accident</source>
         <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="De89adfc11" resname="label.link.allocations">
+        <source>label.link.allocations</source>
+        <target>Die erfassten Zuweisungen mit allen zugehörigen Details, wie z.B. Indikation.</target>
+      </trans-unit>
+      <trans-unit id="De79ceee32" resname="label.link.assignments">
+        <source>label.link.assignments</source>
+        <target>Veranlasst der Zuweisung z.B. durch Patient, Arzt oder Rettungsdienst.</target>
+      </trans-unit>
+      <trans-unit id="De5fea063b" resname="label.link.departments">
+        <source>label.link.departments</source>
+        <target>Spezialisierte klinische Einheiten innerhalb eines Fachgebiets, z.B. Kardiologie.</target>
+      </trans-unit>
+      <trans-unit id="Dedf0e9ef1" resname="label.link.dispatch_areas">
+        <source>label.link.dispatch_areas</source>
+        <target>Von im System enthaltenen Leitstellen abgedeckte Regionen</target>
+      </trans-unit>
+      <trans-unit id="De1cb8ae40" resname="label.link.hospitals">
+        <source>label.link.hospitals</source>
+        <target>Übersicht aller Kliniken mit Teilnahme an notfallmedizinischer Versorgung.</target>
+      </trans-unit>
+      <trans-unit id="De4a2c66f6" resname="label.link.indications">
+        <source>label.link.indications</source>
+        <target>Vorläufige Verdachtsdiagnose, die das primäre medizinische Problem oder die Verletzung am Einsatzort zusammenfasst.</target>
+      </trans-unit>
+      <trans-unit id="De0dcf1ca2" resname="label.link.infections">
+        <source>label.link.infections</source>
+        <target>Potenzielle Infektionskrankheiten, die am Zielkrankenhaus eine Isolierung erfordern können.</target>
+      </trans-unit>
+      <trans-unit id="Ded7c3f978" resname="label.link.mci_cases">
+        <source>label.link.mci_cases</source>
+        <target>In IVENA erfasste MANV-Fälle mit den zugehörigen operativen und medizinischen Details.</target>
+      </trans-unit>
+      <trans-unit id="De30a9d4df" resname="label.link.occasions">
+        <source>label.link.occasions</source>
+        <target>Herkunft oder Kontext eines Notfalls, z.B. öffentlicher Raum, Arztpraxis oder häusliches Umfeld.</target>
+      </trans-unit>
+      <trans-unit id="De50180459" resname="label.link.secondary_transports">
+        <source>label.link.secondary_transports</source>
+        <target>Sekundärtransportarten für Interhospital- oder Folgetransporte.</target>
+      </trans-unit>
+      <trans-unit id="Decf535046" resname="label.link.specialities">
+        <source>label.link.specialities</source>
+        <target>Übergreifende medizinische Fachgebiete wie Innere Medizin oder Chirurgie.</target>
       </trans-unit>
       <trans-unit id="lblLocationDe" resname="label.location">
         <source>label.location</source>
@@ -1733,6 +1857,10 @@
         <source>label.settings</source>
         <target>Einstellungen</target>
       </trans-unit>
+      <trans-unit id="De2ddf7562" resname="label.settings.change_email">
+        <source>label.settings.change_email</source>
+        <target>E-Mail ändern</target>
+      </trans-unit>
       <trans-unit id="LocSetDe02" resname="label.settings.language">
         <source>label.settings.language</source>
         <target>Sprache</target>
@@ -1740,6 +1868,42 @@
       <trans-unit id="LocSetDe04" resname="label.settings.language.automatic_default">
         <source>label.settings.language.automatic_default</source>
         <target>{language} (automatischer Standard)</target>
+      </trans-unit>
+      <trans-unit id="De8f213401" resname="label.settings.my_account">
+        <source>label.settings.my_account</source>
+        <target>Mein Konto</target>
+      </trans-unit>
+      <trans-unit id="De9c2fa51b" resname="label.settings.notifications">
+        <source>label.settings.notifications</source>
+        <target>Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="Decbd56947" resname="label.settings.notifications.monthly_reminder">
+        <source>label.settings.notifications.monthly_reminder</source>
+        <target>Monatliche Erinnerung zur Dateneinreichung</target>
+      </trans-unit>
+      <trans-unit id="Decf669094" resname="label.settings.profile_details">
+        <source>label.settings.profile_details</source>
+        <target>Profildetails</target>
+      </trans-unit>
+      <trans-unit id="De85a30f0a" resname="label.settings.resend_verification">
+        <source>label.settings.resend_verification</source>
+        <target>Verifizierungs-E-Mail erneut senden</target>
+      </trans-unit>
+      <trans-unit id="Dea2dbc79d" resname="label.settings.save_email">
+        <source>label.settings.save_email</source>
+        <target>E-Mail speichern</target>
+      </trans-unit>
+      <trans-unit id="De9bc023f8" resname="label.settings.save_password">
+        <source>label.settings.save_password</source>
+        <target>Passwort speichern</target>
+      </trans-unit>
+      <trans-unit id="Debc337913" resname="label.settings.set_new_password">
+        <source>label.settings.set_new_password</source>
+        <target>Neues Passwort festlegen</target>
+      </trans-unit>
+      <trans-unit id="De01c17ebe" resname="label.settings.verification_status">
+        <source>label.settings.verification_status</source>
+        <target>Verifizierungsstatus:</target>
       </trans-unit>
       <trans-unit id="lblSizeDe" resname="label.size">
         <source>label.size</source>
@@ -1815,7 +1979,7 @@
       </trans-unit>
       <trans-unit id="lnkHospDe" resname="link.hospitals">
         <source>link.hospitals</source>
-        <target>Krankenhäuser</target>
+        <target>Kliniken</target>
       </trans-unit>
       <trans-unit id="lnkImportDe" resname="link.import">
         <source>link.import</source>
