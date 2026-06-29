@@ -829,6 +829,10 @@
         <source>label.accordion_open_by_default</source>
         <target>Standardmäßig geöffnet</target>
       </trans-unit>
+      <trans-unit id="Deab9ce8fd" resname="label.add_content_block">
+        <source>label.add_content_block</source>
+        <target>Inhaltsblock hinzufügen</target>
+      </trans-unit>
       <trans-unit id="Ded13557a6" resname="label.address">
         <source>label.address</source>
         <target>Adresse</target>
@@ -1525,6 +1529,18 @@
         <source>label.hospitals.participating</source>
         <target>Teilnehmende Krankenhäuser</target>
       </trans-unit>
+      <trans-unit id="De10f3a456" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="De311f9ca1" resname="label.html_snippet">
+        <source>label.html_snippet</source>
+        <target>HTML-Snippet</target>
+      </trans-unit>
+      <trans-unit id="De668a2d5e" resname="label.id">
+        <source>label.id</source>
+        <target>ID</target>
+      </trans-unit>
       <trans-unit id="Deb1932a28" resname="label.image_alignment">
         <source>label.image_alignment</source>
         <target>Ausrichtung</target>
@@ -1636,6 +1652,14 @@
       <trans-unit id="De257ea889" resname="label.image_width_px">
         <source>label.image_width_px</source>
         <target>Breite in Pixel</target>
+      </trans-unit>
+      <trans-unit id="De51d8b005" resname="label.impersonate">
+        <source>label.impersonate</source>
+        <target>Benutzer impersonieren</target>
+      </trans-unit>
+      <trans-unit id="De5650c9bb" resname="label.impersonation_active">
+        <source>label.impersonation_active</source>
+        <target>Als:</target>
       </trans-unit>
       <trans-unit id="De6979449a" resname="label.import.filter.all_hospitals">
         <source>label.import.filter.all_hospitals</source>
@@ -1749,6 +1773,18 @@
         <source>label.is_infectious</source>
         <target>Infektiös</target>
       </trans-unit>
+      <trans-unit id="De91f2d5bd" resname="label.is_participating">
+        <source>label.is_participating</source>
+        <target>Teilnahme</target>
+      </trans-unit>
+      <trans-unit id="De53356207" resname="label.is_participating.not">
+        <source>label.is_participating.not</source>
+        <target>Nimmt nicht teil</target>
+      </trans-unit>
+      <trans-unit id="De2ed7aadb" resname="label.is_participating.yes">
+        <source>label.is_participating.yes</source>
+        <target>Nimmt teil</target>
+      </trans-unit>
       <trans-unit id="lblIsPregnantDe" resname="label.is_pregnant">
         <source>label.is_pregnant</source>
         <target>Schwangerschaft</target>
@@ -1764,6 +1800,18 @@
       <trans-unit id="lblIsWorkAccidentDe" resname="label.is_work_accident">
         <source>label.is_work_accident</source>
         <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="De9e636197" resname="label.last_change">
+        <source>label.last_change</source>
+        <target>Letzte Änderung</target>
+      </trans-unit>
+      <trans-unit id="Dee98bc72b" resname="label.last_changed_at">
+        <source>label.last_changed_at</source>
+        <target>Zuletzt geändert am</target>
+      </trans-unit>
+      <trans-unit id="Debc17e855" resname="label.last_changed_by">
+        <source>label.last_changed_by</source>
+        <target>Zuletzt geändert von</target>
       </trans-unit>
       <trans-unit id="De89adfc11" resname="label.link.allocations">
         <source>label.link.allocations</source>
@@ -1813,6 +1861,10 @@
         <source>label.location</source>
         <target>Standort</target>
       </trans-unit>
+      <trans-unit id="Dee5219c3a" resname="label.locations">
+        <source>label.locations</source>
+        <target>Standorte</target>
+      </trans-unit>
       <trans-unit id="LocDe06" resname="label.login">
         <source>label.login</source>
         <target>Anmelden</target>
@@ -1821,13 +1873,153 @@
         <source>label.logout</source>
         <target>Abmelden</target>
       </trans-unit>
+      <trans-unit id="De384cc966" resname="label.media">
+        <source>label.media</source>
+        <target>Mediendatei</target>
+      </trans-unit>
+      <trans-unit id="Dea292ad35" resname="label.media_file">
+        <source>label.media_file</source>
+        <target>Datei hochladen</target>
+      </trans-unit>
+      <trans-unit id="De8e17dd83" resname="label.media_image">
+        <source>label.media_image</source>
+        <target>Bild aus Bibliothek</target>
+      </trans-unit>
+      <trans-unit id="De730233f5" resname="label.media_library">
+        <source>label.media_library</source>
+        <target>Medienbibliothek</target>
+      </trans-unit>
+      <trans-unit id="Deb7667ff1" resname="label.media_pdf">
+        <source>label.media_pdf</source>
+        <target>PDF aus Bibliothek</target>
+      </trans-unit>
+      <trans-unit id="Dea2d3cc0c" resname="label.media_type">
+        <source>label.media_type</source>
+        <target>Medientyp</target>
+      </trans-unit>
+      <trans-unit id="De14b310d1" resname="label.media_type.document">
+        <source>label.media_type.document</source>
+        <target>Dokument</target>
+      </trans-unit>
+      <trans-unit id="De3a416c7f" resname="label.media_type.image">
+        <source>label.media_type.image</source>
+        <target>Bild</target>
+      </trans-unit>
+      <trans-unit id="Ded0b6810b" resname="label.media_type.pdf">
+        <source>label.media_type.pdf</source>
+        <target>PDF</target>
+      </trans-unit>
+      <trans-unit id="De9bc187ac" resname="label.media_usage">
+        <source>label.media_usage</source>
+        <target>Verwendung im Inhalt</target>
+      </trans-unit>
+      <trans-unit id="Ded3c77cae" resname="label.mime_type">
+        <source>label.mime_type</source>
+        <target>MIME-Typ</target>
+      </trans-unit>
+      <trans-unit id="De8ec8db62" resname="label.move_block_down">
+        <source>label.move_block_down</source>
+        <target>Block nach unten</target>
+      </trans-unit>
+      <trans-unit id="De53e82fbd" resname="label.move_block_up">
+        <source>label.move_block_up</source>
+        <target>Block nach oben</target>
+      </trans-unit>
+      <trans-unit id="De32f3e5d3" resname="label.my_hospitals">
+        <source>label.my_hospitals</source>
+        <target>Meine Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De56a922b5" resname="label.name">
+        <source>label.name</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="De0ca54c8f" resname="label.next">
+        <source>label.next</source>
+        <target>Weiter</target>
+      </trans-unit>
       <trans-unit id="lblNoDe" resname="label.no">
         <source>label.no</source>
         <target>Nein</target>
       </trans-unit>
+      <trans-unit id="Decb6e6a56" resname="label.no_indication">
+        <source>label.no_indication</source>
+        <target>Keine normalisierte Indikation</target>
+      </trans-unit>
+      <trans-unit id="Deb28a7b34" resname="label.no_infection">
+        <source>label.no_infection</source>
+        <target>Keine Infektion</target>
+      </trans-unit>
+      <trans-unit id="De5f55c369" resname="label.no_occasion">
+        <source>label.no_occasion</source>
+        <target>Kein Anlass</target>
+      </trans-unit>
+      <trans-unit id="De7d81a72b" resname="label.no_secondary_indication">
+        <source>label.no_secondary_indication</source>
+        <target>Keine Sekundärindikation</target>
+      </trans-unit>
+      <trans-unit id="De0b909d05" resname="label.no_secondary_transport">
+        <source>label.no_secondary_transport</source>
+        <target>Kein Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="De9457c4e1" resname="label.normalized">
+        <source>label.normalized</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="De72e3be4a" resname="label.not_verified">
+        <source>label.not_verified</source>
+        <target>nicht verifiziert</target>
+      </trans-unit>
+      <trans-unit id="De2fb012b6" resname="label.occasion">
+        <source>label.occasion</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="Deb5f7a2c7" resname="label.open_in_new_tab">
+        <source>label.open_in_new_tab</source>
+        <target>In neuem Tab öffnen</target>
+      </trans-unit>
       <trans-unit id="LblOrSepDe" resname="label.or">
         <source>label.or</source>
         <target>oder</target>
+      </trans-unit>
+      <trans-unit id="Deba6590e0" resname="label.original_filename">
+        <source>label.original_filename</source>
+        <target>Ursprünglicher Dateiname</target>
+      </trans-unit>
+      <trans-unit id="De1c80ea93" resname="label.page">
+        <source>label.page</source>
+        <target>Seite</target>
+      </trans-unit>
+      <trans-unit id="Dee3f96d6b" resname="label.page_key">
+        <source>label.page_key</source>
+        <target>Seiten-Schlüssel</target>
+      </trans-unit>
+      <trans-unit id="De72148d1f" resname="label.pages">
+        <source>label.pages</source>
+        <target>Seiten</target>
+      </trans-unit>
+      <trans-unit id="De174cbc97" resname="label.pagination_numbers">
+        <source>label.pagination_numbers</source>
+        <target>{first}–{last} von {total} Ergebnissen</target>
+      </trans-unit>
+      <trans-unit id="Deff71927a" resname="label.pagination_results">
+        <source>label.pagination_results</source>
+        <target>{pageSize} Einträge</target>
+      </trans-unit>
+      <trans-unit id="De90bb8861" resname="label.parent">
+        <source>label.parent</source>
+        <target>Übergeordnet</target>
+      </trans-unit>
+      <trans-unit id="De7dda9df9" resname="label.parent_page">
+        <source>label.parent_page</source>
+        <target>Übergeordnete Seite</target>
+      </trans-unit>
+      <trans-unit id="De1800cf4f" resname="label.participation">
+        <source>label.participation</source>
+        <target>Teilnahme</target>
+      </trans-unit>
+      <trans-unit id="De90148886" resname="label.password">
+        <source>label.password</source>
+        <target>Passwort</target>
       </trans-unit>
       <trans-unit id="pwdHide01De" resname="label.password.hide">
         <source>label.password.hide</source>
@@ -1837,9 +2029,57 @@
         <source>label.password.show</source>
         <target>Passwort anzeigen</target>
       </trans-unit>
+      <trans-unit id="De03ded7bc" resname="label.path">
+        <source>label.path</source>
+        <target>Pfad</target>
+      </trans-unit>
+      <trans-unit id="De5200303e" resname="label.post">
+        <source>label.post</source>
+        <target>Beitrag</target>
+      </trans-unit>
+      <trans-unit id="De5a82a637" resname="label.pregnant">
+        <source>label.pregnant</source>
+        <target>Schwanger</target>
+      </trans-unit>
+      <trans-unit id="De65fe1717" resname="label.preview">
+        <source>label.preview</source>
+        <target>Vorschau</target>
+      </trans-unit>
+      <trans-unit id="Dea719538f" resname="label.previous">
+        <source>label.previous</source>
+        <target>Zurück</target>
+      </trans-unit>
+      <trans-unit id="De6a897531" resname="label.properties">
+        <source>label.properties</source>
+        <target>Eigenschaften</target>
+      </trans-unit>
+      <trans-unit id="De9681c633" resname="label.public">
+        <source>label.public</source>
+        <target>Öffentlich</target>
+      </trans-unit>
+      <trans-unit id="Def5557e92" resname="label.public_url">
+        <source>label.public_url</source>
+        <target>Öffentliche URL</target>
+      </trans-unit>
+      <trans-unit id="De9afbb697" resname="label.published">
+        <source>label.published</source>
+        <target>Veröffentlicht</target>
+      </trans-unit>
+      <trans-unit id="Ded383d319" resname="label.published_at">
+        <source>label.published_at</source>
+        <target>Veröffentlicht am</target>
+      </trans-unit>
+      <trans-unit id="De4426bcbb" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Zitat</target>
+      </trans-unit>
       <trans-unit id="LocDe07" resname="label.register">
         <source>label.register</source>
         <target>Registrieren</target>
+      </trans-unit>
+      <trans-unit id="De38a09349" resname="label.registration.accept_terms_prefix">
+        <source>label.registration.accept_terms_prefix</source>
+        <target>Ich akzeptiere die </target>
       </trans-unit>
       <trans-unit id="lblRequiresCathlabDe" resname="label.requires_cathlab">
         <source>label.requires_cathlab</source>
@@ -1849,9 +2089,41 @@
         <source>label.requires_resus</source>
         <target>Schockraum angefordert</target>
       </trans-unit>
+      <trans-unit id="De0e2876bc" resname="label.resus.is_required">
+        <source>label.resus.is_required</source>
+        <target>Schockraum angefordert</target>
+      </trans-unit>
+      <trans-unit id="De1277531d" resname="label.resus.not_required">
+        <source>label.resus.not_required</source>
+        <target>Schockraum nicht angefordert</target>
+      </trans-unit>
+      <trans-unit id="Dec785e700" resname="label.save_new_password">
+        <source>label.save_new_password</source>
+        <target>Neues Passwort speichern</target>
+      </trans-unit>
+      <trans-unit id="De19c53389" resname="label.search">
+        <source>label.search</source>
+        <target>Suchen</target>
+      </trans-unit>
+      <trans-unit id="Dec68439b1" resname="label.search_for">
+        <source>label.search_for</source>
+        <target>Suche nach: </target>
+      </trans-unit>
+      <trans-unit id="De5c30669e" resname="label.search_no_results">
+        <source>label.search_no_results</source>
+        <target>Leider keine Ergebnisse gefunden.</target>
+      </trans-unit>
+      <trans-unit id="De8a7079bd" resname="label.searching_for">
+        <source>label.searching_for</source>
+        <target>Suche nach: {term}</target>
+      </trans-unit>
       <trans-unit id="lblSecondaryTransportDe" resname="label.secondary_transport">
         <source>label.secondary_transport</source>
         <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="De938e5757" resname="label.send_reset_email">
+        <source>label.send_reset_email</source>
+        <target>E-Mail zum Zurücksetzen senden</target>
       </trans-unit>
       <trans-unit id="LocDe09" resname="label.settings">
         <source>label.settings</source>
@@ -1905,9 +2177,37 @@
         <source>label.settings.verification_status</source>
         <target>Verifizierungsstatus:</target>
       </trans-unit>
+      <trans-unit id="Deffee96ff" resname="label.signin">
+        <source>label.signin</source>
+        <target>Anmelden</target>
+      </trans-unit>
       <trans-unit id="lblSizeDe" resname="label.size">
         <source>label.size</source>
         <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="De9017c7d1" resname="label.slug">
+        <source>label.slug</source>
+        <target>Slug</target>
+      </trans-unit>
+      <trans-unit id="Dea8e5e01c" resname="label.sort_order">
+        <source>label.sort_order</source>
+        <target>Sortierreihenfolge</target>
+      </trans-unit>
+      <trans-unit id="Dec247c42d" resname="label.spacing.lg">
+        <source>label.spacing.lg</source>
+        <target>Groß</target>
+      </trans-unit>
+      <trans-unit id="De4255a4d6" resname="label.spacing.md">
+        <source>label.spacing.md</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="De9f46c633" resname="label.spacing.none">
+        <source>label.spacing.none</source>
+        <target>Keine</target>
+      </trans-unit>
+      <trans-unit id="Deefc823ad" resname="label.spacing.sm">
+        <source>label.spacing.sm</source>
+        <target>Klein</target>
       </trans-unit>
       <trans-unit id="lblSpecialityDe" resname="label.speciality">
         <source>label.speciality</source>
@@ -1917,17 +2217,101 @@
         <source>label.state</source>
         <target>Bundesland</target>
       </trans-unit>
+      <trans-unit id="Ded6358d32" resname="label.status">
+        <source>label.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="De6736c895" resname="label.tags">
+        <source>label.tags</source>
+        <target>Schlagwörter</target>
+      </trans-unit>
       <trans-unit id="lblTierDe" resname="label.tier">
         <source>label.tier</source>
         <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De378040b0" resname="label.timestamps">
+        <source>label.timestamps</source>
+        <target>Zeitstempel</target>
+      </trans-unit>
+      <trans-unit id="De79561001" resname="label.title">
+        <source>label.title</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="De946cf7ae" resname="label.transport">
+        <source>label.transport</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="Ded12c44ad" resname="label.transportType.air">
+        <source>label.transportType.air</source>
+        <target>Luft</target>
+      </trans-unit>
+      <trans-unit id="De08ad720d" resname="label.transportType.ground">
+        <source>label.transportType.ground</source>
+        <target>Boden</target>
       </trans-unit>
       <trans-unit id="lblTransportTypeDe" resname="label.transport_type">
         <source>label.transport_type</source>
         <target>Transportart</target>
       </trans-unit>
+      <trans-unit id="De865f4521" resname="label.try_again">
+        <source>label.try_again</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="De84540b9a" resname="label.type">
+        <source>label.type</source>
+        <target>Typ</target>
+      </trans-unit>
+      <trans-unit id="De1ae0aed0" resname="label.updated">
+        <source>label.updated</source>
+        <target>Aktualisiert</target>
+      </trans-unit>
+      <trans-unit id="Deae281969" resname="label.updated_at">
+        <source>label.updated_at</source>
+        <target>Aktualisiert am</target>
+      </trans-unit>
+      <trans-unit id="Defbb43617" resname="label.updated_by">
+        <source>label.updated_by</source>
+        <target>Aktualisiert von</target>
+      </trans-unit>
+      <trans-unit id="Deb7d42c4b" resname="label.uploaded_by">
+        <source>label.uploaded_by</source>
+        <target>Hochgeladen von</target>
+      </trans-unit>
       <trans-unit id="lblUrgencyDe" resname="label.urgency">
         <source>label.urgency</source>
         <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="Decab542a1" resname="label.urgency.emergency">
+        <source>label.urgency.emergency</source>
+        <target>Notfallversorgung</target>
+      </trans-unit>
+      <trans-unit id="Deb876caf1" resname="label.urgency.inpatient">
+        <source>label.urgency.inpatient</source>
+        <target>Stationäre Versorgung</target>
+      </trans-unit>
+      <trans-unit id="De14c5b11a" resname="label.urgency.outpatient">
+        <source>label.urgency.outpatient</source>
+        <target>Ambulante Versorgung</target>
+      </trans-unit>
+      <trans-unit id="De5d88c824" resname="label.username">
+        <source>label.username</source>
+        <target>Benutzername</target>
+      </trans-unit>
+      <trans-unit id="Deaa93314a" resname="label.verified">
+        <source>label.verified</source>
+        <target>verifiziert</target>
+      </trans-unit>
+      <trans-unit id="Debcc407f6" resname="label.visibility">
+        <source>label.visibility</source>
+        <target>Sichtbarkeit</target>
+      </trans-unit>
+      <trans-unit id="Dec941acc8" resname="label.without_owner">
+        <source>label.without_owner</source>
+        <target>Ohne Eigentümer</target>
+      </trans-unit>
+      <trans-unit id="Dee9d17c33" resname="label.work_accident">
+        <source>label.work_accident</source>
+        <target>Arbeitsunfall</target>
       </trans-unit>
       <trans-unit id="lblYesDe" resname="label.yes">
         <source>label.yes</source>
@@ -2163,11 +2547,11 @@
       </trans-unit>
       <trans-unit id="OnbStpDe13" resname="onboarding.steps.view_explore_data.action">
         <source>onboarding.steps.view_explore_data.action</source>
-        <target>Explorer öffnen</target>
+        <target>Erkunden öffnen</target>
       </trans-unit>
       <trans-unit id="OnbStpDe12" resname="onboarding.steps.view_explore_data.description">
         <source>onboarding.steps.view_explore_data.description</source>
-        <target>Erkunden Sie Zuweisungsdaten im Explorer.</target>
+        <target>Erkunden Sie Ihre eigenen Zuweisungsdaten.</target>
       </trans-unit>
       <trans-unit id="OnbStpDe11" resname="onboarding.steps.view_explore_data.title">
         <source>onboarding.steps.view_explore_data.title</source>
