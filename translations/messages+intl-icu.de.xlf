@@ -1065,9 +1065,253 @@
         <source>help.settings.username_fixed</source>
         <target>Der Benutzername ist festgelegt und kann nicht geändert werden.</target>
       </trans-unit>
+      <trans-unit id="De9795a8e8" resname="import.action.delete">
+        <source>import.action.delete</source>
+        <target>Import löschen</target>
+      </trans-unit>
+      <trans-unit id="De5c35af0b" resname="import.action.preview_mci_cases">
+        <source>import.action.preview_mci_cases</source>
+        <target>MANV-Fälle ansehen</target>
+      </trans-unit>
+      <trans-unit id="Def8de6b69" resname="import.action.preview_rows">
+        <source>import.action.preview_rows</source>
+        <target>Zuweisungen ansehen</target>
+      </trans-unit>
+      <trans-unit id="Ded71f9ba3" resname="import.delete.modal.body">
+        <source>import.delete.modal.body</source>
+        <target>Möchten Sie „{name}“ dauerhaft löschen? Alle Zuweisungen, Projektionen und zugehörigen Daten werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</target>
+      </trans-unit>
+      <trans-unit id="Def5c07991" resname="import.delete.modal.cancel">
+        <source>import.delete.modal.cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="Deb673c63a" resname="import.delete.modal.confirm">
+        <source>import.delete.modal.confirm</source>
+        <target>Dauerhaft löschen</target>
+      </trans-unit>
+      <trans-unit id="De418aef09" resname="import.delete.modal.title">
+        <source>import.delete.modal.title</source>
+        <target>Import löschen?</target>
+      </trans-unit>
+      <trans-unit id="De2a9e0a41" resname="import.delete.running_blocked_hint">
+        <source>import.delete.running_blocked_hint</source>
+        <target>Dieser Import wird gerade ausgeführt und kann deshalb nicht gelöscht werden.</target>
+      </trans-unit>
+      <trans-unit id="De30692471" resname="import.field.duplicationRate">
+        <source>import.field.duplicationRate</source>
+        <target>Duplikatsrate</target>
+      </trans-unit>
+      <trans-unit id="Deb64e06c5" resname="import.field.fileExtension">
+        <source>import.field.fileExtension</source>
+        <target>Erweiterung</target>
+      </trans-unit>
+      <trans-unit id="Def8008afe" resname="import.field.fileMimeType">
+        <source>import.field.fileMimeType</source>
+        <target>MIME-Typ</target>
+      </trans-unit>
+      <trans-unit id="De63c2ae9e" resname="import.field.fileSize">
+        <source>import.field.fileSize</source>
+        <target>Dateigröße</target>
+      </trans-unit>
+      <trans-unit id="De06e0f6b4" resname="import.field.rejectionRate">
+        <source>import.field.rejectionRate</source>
+        <target>Zurückweisungsrate</target>
+      </trans-unit>
+      <trans-unit id="De34ac6623" resname="import.field.rowCount">
+        <source>import.field.rowCount</source>
+        <target>Zeilenanzahl</target>
+      </trans-unit>
+      <trans-unit id="De93af500f" resname="import.field.rowsDeduplicated">
+        <source>import.field.rowsDeduplicated</source>
+        <target>Deduplizierte Zeilen (gesamt)</target>
+      </trans-unit>
+      <trans-unit id="De2152debf" resname="import.field.rowsDeduplicatedDiscarded">
+        <source>import.field.rowsDeduplicatedDiscarded</source>
+        <target>Deduplizierte Zeilen (verworfen)</target>
+      </trans-unit>
+      <trans-unit id="Dee3080541" resname="import.field.rowsDeduplicatedReplaced">
+        <source>import.field.rowsDeduplicatedReplaced</source>
+        <target>Deduplizierte Zeilen (ersetzt)</target>
+      </trans-unit>
+      <trans-unit id="De66e71753" resname="import.field.rowsPassed">
+        <source>import.field.rowsPassed</source>
+        <target>Erfolgreiche Zeilen</target>
+      </trans-unit>
+      <trans-unit id="De45972b58" resname="import.field.rowsRejected">
+        <source>import.field.rowsRejected</source>
+        <target>Zurückgewiesene Zeilen</target>
+      </trans-unit>
+      <trans-unit id="Ded3dbf6f0" resname="import.field.runCount">
+        <source>import.field.runCount</source>
+        <target>Anzahl Läufe</target>
+      </trans-unit>
+      <trans-unit id="Dedee22970" resname="import.field.runTime">
+        <source>import.field.runTime</source>
+        <target>Laufzeit</target>
+      </trans-unit>
+      <trans-unit id="Dedcb70933" resname="import.field.status">
+        <source>import.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Dea68644cc" resname="import.field.type">
+        <source>import.field.type</source>
+        <target>Typ</target>
+      </trans-unit>
+      <trans-unit id="De8b5fb0eb" resname="import.processing.error">
+        <source>import.processing.error</source>
+        <target>Status konnte nicht aktualisiert werden. Erneuter Versuch …</target>
+      </trans-unit>
+      <trans-unit id="De606971f3" resname="import.processing.hint">
+        <source>import.processing.hint</source>
+        <target>Ihre Datei wird im Hintergrund verarbeitet. Diese Seite aktualisiert sich automatisch.</target>
+      </trans-unit>
+      <trans-unit id="De521b5fb5" resname="import.processing.step.processing">
+        <source>import.processing.step.processing</source>
+        <target>Daten werden verarbeitet</target>
+      </trans-unit>
+      <trans-unit id="De85273798" resname="import.processing.step.processing_desc">
+        <source>import.processing.step.processing_desc</source>
+        <target>Zuweisungen werden validiert und importiert.</target>
+      </trans-unit>
+      <trans-unit id="Dec33238e0" resname="import.processing.step.result">
+        <source>import.processing.step.result</source>
+        <target>Ergebnis</target>
+      </trans-unit>
+      <trans-unit id="De35f40ad1" resname="import.processing.step.result.cancelled">
+        <source>import.processing.step.result.cancelled</source>
+        <target>Import abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="Def6f9ad78" resname="import.processing.step.result.completed">
+        <source>import.processing.step.result.completed</source>
+        <target>Abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="De793716b2" resname="import.processing.step.result.failed">
+        <source>import.processing.step.result.failed</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="De41ee5a7e" resname="import.processing.step.result.partial">
+        <source>import.processing.step.result.partial</source>
+        <target>Import mit Zurückweisungen abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="De6c4f5eac" resname="import.processing.step.uploaded">
+        <source>import.processing.step.uploaded</source>
+        <target>Datei hochgeladen</target>
+      </trans-unit>
+      <trans-unit id="De7a1b381f" resname="import.processing.step.uploaded_desc">
+        <source>import.processing.step.uploaded_desc</source>
+        <target>Ihre CSV-Datei wurde empfangen und zur Verarbeitung eingeplant.</target>
+      </trans-unit>
+      <trans-unit id="De1d83f2fc" resname="import.processing.view_detail">
+        <source>import.processing.view_detail</source>
+        <target>Importdetails ansehen</target>
+      </trans-unit>
+      <trans-unit id="De91c4a91a" resname="import.status.label.cancelled">
+        <source>import.status.label.cancelled</source>
+        <target>Abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="De52c90eb3" resname="import.status.label.completed">
+        <source>import.status.label.completed</source>
+        <target>Abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="De418ba321" resname="import.status.label.failed">
+        <source>import.status.label.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="De28d02435" resname="import.status.label.partial">
+        <source>import.status.label.partial</source>
+        <target>Teilweise</target>
+      </trans-unit>
+      <trans-unit id="De56028e78" resname="import.status.label.pending">
+        <source>import.status.label.pending</source>
+        <target>Ausstehend</target>
+      </trans-unit>
+      <trans-unit id="Deadf67dae" resname="import.status.label.running">
+        <source>import.status.label.running</source>
+        <target>Läuft</target>
+      </trans-unit>
+      <trans-unit id="De6f07ed81" resname="import.status.message.cancelled">
+        <source>import.status.message.cancelled</source>
+        <target>Der Import wurde abgebrochen.</target>
+      </trans-unit>
+      <trans-unit id="Deac0a4a28" resname="import.status.message.completed">
+        <source>import.status.message.completed</source>
+        <target>Der Import wurde erfolgreich abgeschlossen.</target>
+      </trans-unit>
+      <trans-unit id="Deaa840e66" resname="import.status.message.failed">
+        <source>import.status.message.failed</source>
+        <target>Der Import ist fehlgeschlagen.</target>
+      </trans-unit>
+      <trans-unit id="Dec083ffab" resname="import.status.message.partial">
+        <source>import.status.message.partial</source>
+        <target>Der Import wurde mit einigen zurückgewiesenen Zeilen abgeschlossen.</target>
+      </trans-unit>
+      <trans-unit id="Debe5155e6" resname="import.status.message.pending">
+        <source>import.status.message.pending</source>
+        <target>Der Import ist eingeplant und startet in Kürze.</target>
+      </trans-unit>
+      <trans-unit id="De45a5a630" resname="import.status.message.running">
+        <source>import.status.message.running</source>
+        <target>Zeilen werden verarbeitet.</target>
+      </trans-unit>
+      <trans-unit id="De122a5d6b" resname="indication.review.segment.ignored">
+        <source>indication.review.segment.ignored</source>
+        <target>Ignoriert</target>
+      </trans-unit>
+      <trans-unit id="De410b8c58" resname="indication.review.segment.matched">
+        <source>indication.review.segment.matched</source>
+        <target>Zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="De91957714" resname="indication.review.segment.needs_review">
+        <source>indication.review.segment.needs_review</source>
+        <target>Wartet auf Freigabe</target>
+      </trans-unit>
+      <trans-unit id="De48443f51" resname="indication.review.segment.new">
+        <source>indication.review.segment.new</source>
+        <target>Neu (30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="De171c636d" resname="indication.review.segment.not_matchable">
+        <source>indication.review.segment.not_matchable</source>
+        <target>Nicht zuordenbar</target>
+      </trans-unit>
+      <trans-unit id="Debe89f0a2" resname="indication.review.segment.open">
+        <source>indication.review.segment.open</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="De4f535f37" resname="indication.review.segment.top_open">
+        <source>indication.review.segment.top_open</source>
+        <target>Häufigste offene</target>
+      </trans-unit>
       <trans-unit id="IndSegUnrDe" resname="indication.review.segment.unreviewed">
         <source>indication.review.segment.unreviewed</source>
         <target>Ungeprüft</target>
+      </trans-unit>
+      <trans-unit id="De177e0b9a" resname="indication.review.status.ignored">
+        <source>indication.review.status.ignored</source>
+        <target>Ignoriert</target>
+      </trans-unit>
+      <trans-unit id="De445fdaa9" resname="indication.review.status.matched">
+        <source>indication.review.status.matched</source>
+        <target>Zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="De1c652cae" resname="indication.review.status.needs_review">
+        <source>indication.review.status.needs_review</source>
+        <target>Wartet auf Freigabe</target>
+      </trans-unit>
+      <trans-unit id="De3c25c9a4" resname="indication.review.status.not_matchable">
+        <source>indication.review.status.not_matchable</source>
+        <target>Nicht zuordenbar</target>
+      </trans-unit>
+      <trans-unit id="Dea0ef41c0" resname="indication.review.status.unreviewed">
+        <source>indication.review.status.unreviewed</source>
+        <target>Ungeprüft</target>
+      </trans-unit>
+      <trans-unit id="De8525108b" resname="indication.tab.normalized">
+        <source>indication.tab.normalized</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="De79f13bf4" resname="indication.tab.raw">
+        <source>indication.tab.raw</source>
+        <target>Indikation (original)</target>
       </trans-unit>
       <trans-unit id="IndTabRevDe" resname="indication.tab.review">
         <source>indication.tab.review</source>
