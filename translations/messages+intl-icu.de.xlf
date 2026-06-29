@@ -13,6 +13,30 @@
         <source>action.close</source>
         <target>Schließen</target>
       </trans-unit>
+      <trans-unit id="actCopySnipDe" resname="action.copy_snippet">
+        <source>action.copy_snippet</source>
+        <target>Snippet kopieren</target>
+      </trans-unit>
+      <trans-unit id="actSnipCopiedDe" resname="action.snippet_copied">
+        <source>action.snippet_copied</source>
+        <target>Kopiert!</target>
+      </trans-unit>
+      <trans-unit id="btnCancelDe" resname="btn.cancel">
+        <source>btn.cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="btnSearchDe" resname="btn.search">
+        <source>btn.search</source>
+        <target>Suchen</target>
+      </trans-unit>
+      <trans-unit id="btnSaveChgDe" resname="btn.save.changes">
+        <source>btn.save.changes</source>
+        <target>Änderungen speichern</target>
+      </trans-unit>
+      <trans-unit id="btnSaveCmtDe" resname="btn.save.comment">
+        <source>btn.save.comment</source>
+        <target>Kommentar speichern</target>
+      </trans-unit>
       <trans-unit id="statsLnkAe01" resname="link.stats.analysis_explorer">
         <source>link.stats.analysis_explorer</source>
         <target>Analyse-Explorer</target>
@@ -1189,6 +1213,154 @@
         <source>label.assessment.disability.sedated</source>
         <target>Sediert</target>
       </trans-unit>
+      <trans-unit id="lblAssessmentDe" resname="label.assessment">
+        <source>label.assessment</source>
+        <target>Assessment</target>
+      </trans-unit>
+      <trans-unit id="lblBackDe" resname="label.back">
+        <source>label.back</source>
+        <target>Zurück</target>
+      </trans-unit>
+      <trans-unit id="lblBackToListDe" resname="label.back_to_list">
+        <source>label.back_to_list</source>
+        <target>Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="lblBasicInfoDe" resname="label.basic_info">
+        <source>label.basic_info</source>
+        <target>Basisinformationen</target>
+      </trans-unit>
+      <trans-unit id="lblEditDe" resname="label.edit">
+        <source>label.edit</source>
+        <target>Bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="lblEmailDe" resname="label.email">
+        <source>label.email</source>
+        <target>E-Mail</target>
+      </trans-unit>
+      <trans-unit id="lblEmailAddrDe" resname="label.email_address">
+        <source>label.email_address</source>
+        <target>E-Mail-Adresse</target>
+      </trans-unit>
+      <trans-unit id="lblForgotPwdDe" resname="label.forgot_password">
+        <source>label.forgot_password</source>
+        <target>Passwort vergessen?</target>
+      </trans-unit>
+      <trans-unit id="lblExploreSubDe" resname="label.explore.index.subtitle">
+        <source>label.explore.index.subtitle</source>
+        <target>Übersicht aller verfügbaren Datensätze</target>
+      </trans-unit>
+      <trans-unit id="lblFeaturesDe" resname="label.features">
+        <source>label.features</source>
+        <target>Funktionen</target>
+      </trans-unit>
+      <trans-unit id="lblCathReqDe" resname="label.cathlab.is_required">
+        <source>label.cathlab.is_required</source>
+        <target>Herzkatheter angefordert</target>
+      </trans-unit>
+      <trans-unit id="lblCathNotReqDe" resname="label.cathlab.not_required">
+        <source>label.cathlab.not_required</source>
+        <target>Herzkatheter nicht angefordert</target>
+      </trans-unit>
+      <trans-unit id="lblArrivalAtDe" resname="label.arrival_at">
+        <source>label.arrival_at</source>
+        <target>Ankunft am</target>
+      </trans-unit>
+      <trans-unit id="lblAllModesDe" resname="label.all_modes">
+        <source>label.all_modes</source>
+        <target>Alle Modi</target>
+      </trans-unit>
+      <trans-unit id="lblAuthenticatedDe" resname="label.authenticated">
+        <source>label.authenticated</source>
+        <target>Authentifiziert</target>
+      </trans-unit>
+      <trans-unit id="lblConfirmPwdDe" resname="label.confirm_password">
+        <source>label.confirm_password</source>
+        <target>Passwort</target>
+      </trans-unit>
+      <trans-unit id="lblConfirmPwdSubDe" resname="label.confirm_password.submit">
+        <source>label.confirm_password.submit</source>
+        <target>Weiter</target>
+      </trans-unit>
+      <trans-unit id="lblHaveAccountDe" resname="label.already_have_account">
+        <source>label.already_have_account</source>
+        <target>Haben Sie bereits ein Konto?</target>
+      </trans-unit>
+      <trans-unit id="lblBackendDe" resname="label.backend">
+        <source>label.backend</source>
+        <target>Verwaltung</target>
+      </trans-unit>
+      <trans-unit id="fldAgeDe" resname="field.age">
+        <source>field.age</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="fldAssessAirDe" resname="field.assessment.airway">
+        <source>field.assessment.airway</source>
+        <target>Atemweg</target>
+      </trans-unit>
+      <trans-unit id="fldAssessBreathDe" resname="field.assessment.breathing">
+        <source>field.assessment.breathing</source>
+        <target>Atmung</target>
+      </trans-unit>
+      <trans-unit id="fldAssessCircDe" resname="field.assessment.circulation">
+        <source>field.assessment.circulation</source>
+        <target>Kreislauf</target>
+      </trans-unit>
+      <trans-unit id="fldAssessDisDe" resname="field.assessment.disability">
+        <source>field.assessment.disability</source>
+        <target>Neurologie</target>
+      </trans-unit>
+      <trans-unit id="fldFalseDe" resname="field.false">
+        <source>field.false</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="fldTrueDe" resname="field.true">
+        <source>field.true</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="fldGenderDe" resname="field.gender">
+        <source>field.gender</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="fldInfectionDe" resname="field.infection">
+        <source>field.infection</source>
+        <target>Infektiös?</target>
+      </trans-unit>
+      <trans-unit id="fldIsCprDe" resname="field.isCPR">
+        <source>field.isCPR</source>
+        <target>Reanimation</target>
+      </trans-unit>
+      <trans-unit id="fldWithPhysDe" resname="field.isWithPhysician">
+        <source>field.isWithPhysician</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="fldWithPhysNoDe" resname="field.isWithPhysician.false">
+        <source>field.isWithPhysician.false</source>
+        <target>Ohne Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="fldWithPhysYesDe" resname="field.isWithPhysician.true">
+        <source>field.isWithPhysician.true</source>
+        <target>Mit Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="fldReqCathDe" resname="field.requiresCathlab">
+        <source>field.requiresCathlab</source>
+        <target>Herzkatheter angefordert</target>
+      </trans-unit>
+      <trans-unit id="fldReqResusDe" resname="field.requiresResus">
+        <source>field.requiresResus</source>
+        <target>Schockraum angefordert</target>
+      </trans-unit>
+      <trans-unit id="fldTransportDe" resname="field.transportType">
+        <source>field.transportType</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="fldTransportUnkDe" resname="field.transportType.unknown">
+        <source>field.transportType.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="fldUrgencyDe" resname="field.urgency">
+        <source>field.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
       <trans-unit id="lblDepartmentDe" resname="label.department">
         <source>label.department</source>
         <target>Abteilung</target>
@@ -1720,6 +1892,130 @@
       <trans-unit id="LocDe12" resname="link.blog">
         <source>link.blog</source>
         <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="lnkAboutDe" resname="link.about">
+        <source>link.about</source>
+        <target>Über uns</target>
+      </trans-unit>
+      <trans-unit id="lnkAllocDe" resname="link.allocations">
+        <source>link.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="lnkAssignDe" resname="link.assignments">
+        <source>link.assignments</source>
+        <target>Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="lnkCookieDe" resname="link.cookie_preferences">
+        <source>link.cookie_preferences</source>
+        <target>Cookie-Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="lnkDeptDe" resname="link.departments">
+        <source>link.departments</source>
+        <target>Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="lnkDispatchDe" resname="link.dispatch_areas">
+        <source>link.dispatch_areas</source>
+        <target>Leitstellen</target>
+      </trans-unit>
+      <trans-unit id="lnkFeaturesDe" resname="link.features">
+        <source>link.features</source>
+        <target>Funktionen</target>
+      </trans-unit>
+      <trans-unit id="lnkHomeDe" resname="link.home">
+        <source>link.home</source>
+        <target>Startseite</target>
+      </trans-unit>
+      <trans-unit id="lnkHospDe" resname="link.hospitals">
+        <source>link.hospitals</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="lnkImportDe" resname="link.import">
+        <source>link.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="lnkImportsDe" resname="link.imports">
+        <source>link.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="lnkIndicDe" resname="link.indications">
+        <source>link.indications</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="lnkInfectDe" resname="link.infections">
+        <source>link.infections</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="lnkMciDe" resname="link.mci_cases">
+        <source>link.mci_cases</source>
+        <target>MANV-Fälle</target>
+      </trans-unit>
+      <trans-unit id="lnkOccasionDe" resname="link.occasions">
+        <source>link.occasions</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="lnkSecTransDe" resname="link.secondary_transports">
+        <source>link.secondary_transports</source>
+        <target>Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="lnkSpecDe" resname="link.specialities">
+        <source>link.specialities</source>
+        <target>Fachrichtungen</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsAnDe" resname="link.stats.analysis">
+        <source>link.stats.analysis</source>
+        <target>Analyse</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsAlDe" resname="link.stats.analytics_library">
+        <source>link.stats.analytics_library</source>
+        <target>Analyse-Bibliothek</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsBmDe" resname="link.stats.benchmarking">
+        <source>link.stats.benchmarking</source>
+        <target>Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsCfDe" resname="link.stats.case_flow">
+        <source>link.stats.case_flow</source>
+        <target>Fallverlauf</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsDashDe" resname="link.stats.dashboard">
+        <source>link.stats.dashboard</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsDistDe" resname="link.stats.distribution">
+        <source>link.stats.distribution</source>
+        <target>Verteilung</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsHpDe" resname="link.stats.hospital_population">
+        <source>link.stats.hospital_population</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsHospDe" resname="link.stats.hospitals">
+        <source>link.stats.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsIiDe" resname="link.stats.indication_insights">
+        <source>link.stats.indication_insights</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsRepDe" resname="link.stats.reports">
+        <source>link.stats.reports</source>
+        <target>Berichte</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsTgDe" resname="link.stats.time_grid">
+        <source>link.stats.time_grid</source>
+        <target>Zeitraster</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsTtDe" resname="link.stats.transport_time">
+        <source>link.stats.transport_time</source>
+        <target>Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="lnkTermsDe" resname="link.terms">
+        <source>link.terms</source>
+        <target>Nutzungsbedingungen</target>
+      </trans-unit>
+      <trans-unit id="lnkUsersDe" resname="link.users">
+        <source>link.users</source>
+        <target>Benutzer</target>
       </trans-unit>
       <trans-unit id="LocSetDe01" resname="flash.settings.locale.updated">
         <source>flash.settings.locale.updated</source>
