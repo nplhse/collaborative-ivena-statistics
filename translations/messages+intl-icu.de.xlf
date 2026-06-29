@@ -5757,6 +5757,378 @@
         <source>stats.generic_analysis.period.allocation_derived_hint</source>
         <target>Strukturelle Krankenhaus-Kennzahlen wie Bettenzahlen hängen nicht vom gewählten Zeitraum ab. Zuweisungsbasierte Metriken berücksichtigen den Periodenfilter.</target>
       </trans-unit>
+      <trans-unit id="Deb11ad3c1" resname="stats.hospital_population.allocation.allocations_share">
+        <source>stats.hospital_population.allocation.allocations_share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="De9c33afc5" resname="stats.hospital_population.allocation.allocations_total">
+        <source>stats.hospital_population.allocation.allocations_total</source>
+        <target>Gesamtzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De59993ae3" resname="stats.hospital_population.allocation.by_care_level">
+        <source>stats.hospital_population.allocation.by_care_level</source>
+        <target>Zuweisungen nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De215262f6" resname="stats.hospital_population.allocation.by_location">
+        <source>stats.hospital_population.allocation.by_location</source>
+        <target>Zuweisungen nach Standort</target>
+      </trans-unit>
+      <trans-unit id="Deb84e3809" resname="stats.hospital_population.allocation.by_size">
+        <source>stats.hospital_population.allocation.by_size</source>
+        <target>Zuweisungen nach Größe</target>
+      </trans-unit>
+      <trans-unit id="De6b108be9" resname="stats.hospital_population.allocation.by_tier">
+        <source>stats.hospital_population.allocation.by_tier</source>
+        <target>Zuweisungen nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De1040c568" resname="stats.hospital_population.allocation.chart_by_location">
+        <source>stats.hospital_population.allocation.chart_by_location</source>
+        <target>Zuweisungen nach Standort</target>
+      </trans-unit>
+      <trans-unit id="De01bbf847" resname="stats.hospital_population.allocation.chart_by_size">
+        <source>stats.hospital_population.allocation.chart_by_size</source>
+        <target>Zuweisungen nach Größe</target>
+      </trans-unit>
+      <trans-unit id="Ded2e54ba7" resname="stats.hospital_population.allocation.chart_by_tier">
+        <source>stats.hospital_population.allocation.chart_by_tier</source>
+        <target>Zuweisungen nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De84dc28fb" resname="stats.hospital_population.allocation.cross_table_location_by_tier">
+        <source>stats.hospital_population.allocation.cross_table_location_by_tier</source>
+        <target>Zuweisungen nach Standort und Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De223ee2f2" resname="stats.hospital_population.allocation.cross_table_share_hint">
+        <source>stats.hospital_population.allocation.cross_table_share_hint</source>
+        <target>Der Prozentsatz zeigt den Zellenanteil an allen Zuweisungen und hebt hervor, wo die Daten konzentriert sind.</target>
+      </trans-unit>
+      <trans-unit id="De49bfa5d8" resname="stats.hospital_population.allocation.cross_table_size_by_tier">
+        <source>stats.hospital_population.allocation.cross_table_size_by_tier</source>
+        <target>Zuweisungen nach Größe und Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De3f2bf997" resname="stats.hospital_population.allocation.histogram">
+        <source>stats.hospital_population.allocation.histogram</source>
+        <target>Zuweisungen pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De5014f9cf" resname="stats.hospital_population.allocation.hospitals_with_data">
+        <source>stats.hospital_population.allocation.hospitals_with_data</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De134d0c0b" resname="stats.hospital_population.allocation.hospitals_with_data_short">
+        <source>stats.hospital_population.allocation.hospitals_with_data_short</source>
+        <target>n={count}</target>
+      </trans-unit>
+      <trans-unit id="De638cb0d8" resname="stats.hospital_population.allocation.maximum">
+        <source>stats.hospital_population.allocation.maximum</source>
+        <target>Maximum pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="Def0f42a02" resname="stats.hospital_population.allocation.mean">
+        <source>stats.hospital_population.allocation.mean</source>
+        <target>Mittelwert pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="Dee7bccddd" resname="stats.hospital_population.allocation.mean_per_hospital">
+        <source>stats.hospital_population.allocation.mean_per_hospital</source>
+        <target>Mittelwert pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De413c68a2" resname="stats.hospital_population.allocation.mean_per_hospital_short">
+        <source>stats.hospital_population.allocation.mean_per_hospital_short</source>
+        <target>Ø {value}</target>
+      </trans-unit>
+      <trans-unit id="De4c29b951" resname="stats.hospital_population.allocation.median">
+        <source>stats.hospital_population.allocation.median</source>
+        <target>Median pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="Decd7b945a" resname="stats.hospital_population.allocation.percentiles">
+        <source>stats.hospital_population.allocation.percentiles</source>
+        <target>Perzentile pro Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="Dee7c03f3b" resname="stats.hospital_population.allocation.total">
+        <source>stats.hospital_population.allocation.total</source>
+        <target>Zuweisungen gesamt</target>
+      </trans-unit>
+      <trans-unit id="De06186e39" resname="stats.hospital_population.allocation_basis.intro">
+        <source>stats.hospital_population.allocation_basis.intro</source>
+        <target>Deskriptive Zusammenfassung der Zuweisungen pro teilnehmendem Krankenhaus. Keine operative Zuweisungsanalyse.</target>
+      </trans-unit>
+      <trans-unit id="Dea9f3ebab" resname="stats.hospital_population.beds_grouped_boxplot.care_level_unknown">
+        <source>stats.hospital_population.beds_grouped_boxplot.care_level_unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De9fd66419" resname="stats.hospital_population.beds_grouped_boxplot.yaxis">
+        <source>stats.hospital_population.beds_grouped_boxplot.yaxis</source>
+        <target>Bettenzahl</target>
+      </trans-unit>
+      <trans-unit id="De3e2b8cf0" resname="stats.hospital_population.beds_matrix.column_participants">
+        <source>stats.hospital_population.beds_matrix.column_participants</source>
+        <target>Teilnehmende (n={count})</target>
+      </trans-unit>
+      <trans-unit id="De680eac8d" resname="stats.hospital_population.beds_matrix.column_population">
+        <source>stats.hospital_population.beds_matrix.column_population</source>
+        <target>Alle Krankenhäuser (n={count})</target>
+      </trans-unit>
+      <trans-unit id="Deee9ccc65" resname="stats.hospital_population.beds_matrix.mean_sd">
+        <source>stats.hospital_population.beds_matrix.mean_sd</source>
+        <target>Mittelwert (SD)</target>
+      </trans-unit>
+      <trans-unit id="Debc299067" resname="stats.hospital_population.beds_matrix.section.central_tendency">
+        <source>stats.hospital_population.beds_matrix.section.central_tendency</source>
+        <target>Zentrale Tendenz</target>
+      </trans-unit>
+      <trans-unit id="De19bc7197" resname="stats.hospital_population.beds_matrix.section.percentiles">
+        <source>stats.hospital_population.beds_matrix.section.percentiles</source>
+        <target>Perzentile</target>
+      </trans-unit>
+      <trans-unit id="De0db990cc" resname="stats.hospital_population.beds_matrix.section.range">
+        <source>stats.hospital_population.beds_matrix.section.range</source>
+        <target>Spannweite</target>
+      </trans-unit>
+      <trans-unit id="De6c473fa6" resname="stats.hospital_population.beds_matrix.section.sample">
+        <source>stats.hospital_population.beds_matrix.section.sample</source>
+        <target>Stichprobe</target>
+      </trans-unit>
+      <trans-unit id="De6782cdb1" resname="stats.hospital_population.intro">
+        <source>stats.hospital_population.intro</source>
+        <target>Überblick über alle Krankenhäuser im Datensatz, Teilnehmerabdeckung und die zuweisungsbasierte Datengrundlage.</target>
+      </trans-unit>
+      <trans-unit id="Deb4fded35" resname="stats.hospital_population.kpi.coverage">
+        <source>stats.hospital_population.kpi.coverage</source>
+        <target>Abdeckung</target>
+      </trans-unit>
+      <trans-unit id="Ded6fd31b5" resname="stats.hospital_population.kpi.participants">
+        <source>stats.hospital_population.kpi.participants</source>
+        <target>Teilnehmende</target>
+      </trans-unit>
+      <trans-unit id="De782fc072" resname="stats.hospital_population.kpi.total_hospitals">
+        <source>stats.hospital_population.kpi.total_hospitals</source>
+        <target>Krankenhäuser gesamt</target>
+      </trans-unit>
+      <trans-unit id="Dee435fefb" resname="stats.hospital_population.map.legend_choropleth">
+        <source>stats.hospital_population.map.legend_choropleth</source>
+        <target>Die schattierten Regionen zeigen die regionale Abdeckung: den Anteil teilnehmender Krankenhäuser je Leitstelle im Verhältnis zu allen Krankenhäusern in diesem Bereich. Rot steht für niedrige, Gelb für mittlere und Grün für hohe Abdeckung.</target>
+      </trans-unit>
+      <trans-unit id="Dec4942202" resname="stats.hospital_population.map.legend_participants">
+        <source>stats.hospital_population.map.legend_participants</source>
+        <target>Blauer Pin: teilnehmendes Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De2b0790f7" resname="stats.hospital_population.map.legend_population">
+        <source>stats.hospital_population.map.legend_population</source>
+        <target>Grauer Pin: nicht teilnehmendes Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De9b170233" resname="stats.hospital_population.map.legend_size">
+        <source>stats.hospital_population.map.legend_size</source>
+        <target>Markergröße proportional zur Bettenzahl</target>
+      </trans-unit>
+      <trans-unit id="De407cd055" resname="stats.hospital_population.pretitle">
+        <source>stats.hospital_population.pretitle</source>
+        <target>Stammdaten &amp; Repräsentativität</target>
+      </trans-unit>
+      <trans-unit id="De036156aa" resname="stats.hospital_population.representativity.hint">
+        <source>stats.hospital_population.representativity.hint</source>
+        <target>Positives Delta bedeutet Überrepräsentation der Teilnehmenden; negatives Delta bedeutet Unterrepräsentation.</target>
+      </trans-unit>
+      <trans-unit id="De50f007a8" resname="stats.hospital_population.section.allocation_basis">
+        <source>stats.hospital_population.section.allocation_basis</source>
+        <target>Zuweisungsdatengrundlage</target>
+      </trans-unit>
+      <trans-unit id="Def0b89e86" resname="stats.hospital_population.section.beds_boxplot">
+        <source>stats.hospital_population.section.beds_boxplot</source>
+        <target>Betten-Box-Plot</target>
+      </trans-unit>
+      <trans-unit id="De2b03f750" resname="stats.hospital_population.section.beds_boxplot_care_level">
+        <source>stats.hospital_population.section.beds_boxplot_care_level</source>
+        <target>Betten nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De59130b73" resname="stats.hospital_population.section.beds_boxplot_location">
+        <source>stats.hospital_population.section.beds_boxplot_location</source>
+        <target>Betten nach Standort</target>
+      </trans-unit>
+      <trans-unit id="Dec5737a21" resname="stats.hospital_population.section.beds_boxplot_tier">
+        <source>stats.hospital_population.section.beds_boxplot_tier</source>
+        <target>Betten nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="Def372a9bf" resname="stats.hospital_population.section.beds_descriptive">
+        <source>stats.hospital_population.section.beds_descriptive</source>
+        <target>Betten – deskriptive Statistik</target>
+      </trans-unit>
+      <trans-unit id="De381c9fb2" resname="stats.hospital_population.section.beds_histogram">
+        <source>stats.hospital_population.section.beds_histogram</source>
+        <target>Betten-Histogramm</target>
+      </trans-unit>
+      <trans-unit id="De08278caf" resname="stats.hospital_population.section.beds_participants">
+        <source>stats.hospital_population.section.beds_participants</source>
+        <target>Betten – Teilnehmende</target>
+      </trans-unit>
+      <trans-unit id="De225e32c4" resname="stats.hospital_population.section.beds_population">
+        <source>stats.hospital_population.section.beds_population</source>
+        <target>Betten – alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De342f830f" resname="stats.hospital_population.section.care_level">
+        <source>stats.hospital_population.section.care_level</source>
+        <target>Verteilung nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="Defa3438aa" resname="stats.hospital_population.section.location_by_tier">
+        <source>stats.hospital_population.section.location_by_tier</source>
+        <target>Abdeckung nach Standort und Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De511f45b6" resname="stats.hospital_population.section.map">
+        <source>stats.hospital_population.section.map</source>
+        <target>Geografische Verteilung</target>
+      </trans-unit>
+      <trans-unit id="Deb136723b" resname="stats.hospital_population.section.regional_coverage">
+        <source>stats.hospital_population.section.regional_coverage</source>
+        <target>Leitstellen-Abdeckung</target>
+      </trans-unit>
+      <trans-unit id="De89b3ea38" resname="stats.hospital_population.section.size">
+        <source>stats.hospital_population.section.size</source>
+        <target>Verteilung nach Größe</target>
+      </trans-unit>
+      <trans-unit id="Deb7e92de3" resname="stats.hospital_population.section.size_by_tier">
+        <source>stats.hospital_population.section.size_by_tier</source>
+        <target>Abdeckung nach Größe und Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="Deace47eab" resname="stats.hospital_population.section.urbanity">
+        <source>stats.hospital_population.section.urbanity</source>
+        <target>Verteilung nach Standorttyp</target>
+      </trans-unit>
+      <trans-unit id="Dee961d878" resname="stats.hospital_population.sort.coverage_asc">
+        <source>stats.hospital_population.sort.coverage_asc</source>
+        <target>Abdeckung ↑</target>
+      </trans-unit>
+      <trans-unit id="De3d397a18" resname="stats.hospital_population.sort.coverage_desc">
+        <source>stats.hospital_population.sort.coverage_desc</source>
+        <target>Abdeckung ↓</target>
+      </trans-unit>
+      <trans-unit id="De2966950f" resname="stats.hospital_population.sort.label">
+        <source>stats.hospital_population.sort.label</source>
+        <target>Leitstellen sortieren</target>
+      </trans-unit>
+      <trans-unit id="De1fdb31e0" resname="stats.hospital_population.sort.participants">
+        <source>stats.hospital_population.sort.participants</source>
+        <target>Teilnehmende</target>
+      </trans-unit>
+      <trans-unit id="De2586ebe1" resname="stats.hospital_population.sort.population">
+        <source>stats.hospital_population.sort.population</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="Def9d74c58" resname="stats.hospital_population.stats.count">
+        <source>stats.hospital_population.stats.count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="Deda60423c" resname="stats.hospital_population.stats.iqr">
+        <source>stats.hospital_population.stats.iqr</source>
+        <target>IQR</target>
+      </trans-unit>
+      <trans-unit id="De311fdf43" resname="stats.hospital_population.stats.maximum">
+        <source>stats.hospital_population.stats.maximum</source>
+        <target>Maximum</target>
+      </trans-unit>
+      <trans-unit id="Dea21f627e" resname="stats.hospital_population.stats.mean">
+        <source>stats.hospital_population.stats.mean</source>
+        <target>Mittelwert</target>
+      </trans-unit>
+      <trans-unit id="Deb7a414e2" resname="stats.hospital_population.stats.median">
+        <source>stats.hospital_population.stats.median</source>
+        <target>Median</target>
+      </trans-unit>
+      <trans-unit id="De32ec3f0c" resname="stats.hospital_population.stats.minimum">
+        <source>stats.hospital_population.stats.minimum</source>
+        <target>Minimum</target>
+      </trans-unit>
+      <trans-unit id="Dea13cb57a" resname="stats.hospital_population.stats.p10">
+        <source>stats.hospital_population.stats.p10</source>
+        <target>P10</target>
+      </trans-unit>
+      <trans-unit id="Defa7b1236" resname="stats.hospital_population.stats.p25">
+        <source>stats.hospital_population.stats.p25</source>
+        <target>P25</target>
+      </trans-unit>
+      <trans-unit id="De870ce673" resname="stats.hospital_population.stats.p75">
+        <source>stats.hospital_population.stats.p75</source>
+        <target>P75</target>
+      </trans-unit>
+      <trans-unit id="De198fcbfd" resname="stats.hospital_population.stats.p95">
+        <source>stats.hospital_population.stats.p95</source>
+        <target>P95</target>
+      </trans-unit>
+      <trans-unit id="Deef895273" resname="stats.hospital_population.stats.range">
+        <source>stats.hospital_population.stats.range</source>
+        <target>Spannweite</target>
+      </trans-unit>
+      <trans-unit id="Deac20073a" resname="stats.hospital_population.stats.stddev">
+        <source>stats.hospital_population.stats.stddev</source>
+        <target>Standardabweichung</target>
+      </trans-unit>
+      <trans-unit id="De22b5ac6b" resname="stats.hospital_population.stats.sum">
+        <source>stats.hospital_population.stats.sum</source>
+        <target>Betten gesamt</target>
+      </trans-unit>
+      <trans-unit id="De852f672c" resname="stats.hospital_population.table.category">
+        <source>stats.hospital_population.table.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="Ded6358d86" resname="stats.hospital_population.table.coverage">
+        <source>stats.hospital_population.table.coverage</source>
+        <target>Abdeckung</target>
+      </trans-unit>
+      <trans-unit id="Ded315d0b2" resname="stats.hospital_population.table.coverage_delta">
+        <source>stats.hospital_population.table.coverage_delta</source>
+        <target>Abdeckung / Delta</target>
+      </trans-unit>
+      <trans-unit id="De902c1663" resname="stats.hospital_population.table.delta">
+        <source>stats.hospital_population.table.delta</source>
+        <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="De95bf1025" resname="stats.hospital_population.table.dispatch_area">
+        <source>stats.hospital_population.table.dispatch_area</source>
+        <target>Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="De6ea8d57e" resname="stats.hospital_population.table.empty">
+        <source>stats.hospital_population.table.empty</source>
+        <target>Keine Daten verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="Deddfdf726" resname="stats.hospital_population.table.location">
+        <source>stats.hospital_population.table.location</source>
+        <target>Standort</target>
+      </trans-unit>
+      <trans-unit id="Decf0b5f4e" resname="stats.hospital_population.table.participant_pct">
+        <source>stats.hospital_population.table.participant_pct</source>
+        <target>Teilnehmende %</target>
+      </trans-unit>
+      <trans-unit id="De317246d3" resname="stats.hospital_population.table.participants">
+        <source>stats.hospital_population.table.participants</source>
+        <target>Teilnehmende</target>
+      </trans-unit>
+      <trans-unit id="Dea29658e6" resname="stats.hospital_population.table.participants_short">
+        <source>stats.hospital_population.table.participants_short</source>
+        <target>Teiln.</target>
+      </trans-unit>
+      <trans-unit id="Dee824f2f1" resname="stats.hospital_population.table.population">
+        <source>stats.hospital_population.table.population</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De28c07869" resname="stats.hospital_population.table.population_pct">
+        <source>stats.hospital_population.table.population_pct</source>
+        <target>Alle Krankenhäuser %</target>
+      </trans-unit>
+      <trans-unit id="De618b0cce" resname="stats.hospital_population.table.population_short">
+        <source>stats.hospital_population.table.population_short</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="De2e9d812f" resname="stats.hospital_population.table.size">
+        <source>stats.hospital_population.table.size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="Dea5fc3a41" resname="stats.hospital_population.table.state">
+        <source>stats.hospital_population.table.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="Defdc332cf" resname="stats.hospital_population.table.tier">
+        <source>stats.hospital_population.table.tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De56b170fa" resname="stats.hospital_population.title">
+        <source>stats.hospital_population.title</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
       <trans-unit id="De4e9b0a87" resname="stats.indication.age_group.0_17">
         <source>stats.indication.age_group.0_17</source>
         <target>0–17</target>
