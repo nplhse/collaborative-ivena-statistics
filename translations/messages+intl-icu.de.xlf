@@ -4785,9 +4785,601 @@
         <source>stats.generic_analysis.period.allocation_derived_hint</source>
         <target>Strukturelle Krankenhaus-Kennzahlen wie Bettenzahlen hängen nicht vom gewählten Zeitraum ab. Zuweisungsbasierte Metriken berücksichtigen den Periodenfilter.</target>
       </trans-unit>
+      <trans-unit id="De4e9b0a87" resname="stats.indication.age_group.0_17">
+        <source>stats.indication.age_group.0_17</source>
+        <target>0–17</target>
+      </trans-unit>
+      <trans-unit id="De5a3a1e69" resname="stats.indication.age_group.18_29">
+        <source>stats.indication.age_group.18_29</source>
+        <target>18–29</target>
+      </trans-unit>
+      <trans-unit id="Defc5554a7" resname="stats.indication.age_group.30_39">
+        <source>stats.indication.age_group.30_39</source>
+        <target>30–39</target>
+      </trans-unit>
+      <trans-unit id="De01341e70" resname="stats.indication.age_group.40_49">
+        <source>stats.indication.age_group.40_49</source>
+        <target>40–49</target>
+      </trans-unit>
+      <trans-unit id="De254f0681" resname="stats.indication.age_group.50_59">
+        <source>stats.indication.age_group.50_59</source>
+        <target>50–59</target>
+      </trans-unit>
+      <trans-unit id="De49c22f92" resname="stats.indication.age_group.60_69">
+        <source>stats.indication.age_group.60_69</source>
+        <target>60–69</target>
+      </trans-unit>
+      <trans-unit id="De6db93763" resname="stats.indication.age_group.70_79">
+        <source>stats.indication.age_group.70_79</source>
+        <target>70–79</target>
+      </trans-unit>
+      <trans-unit id="De6871bc7d" resname="stats.indication.age_group.80_89">
+        <source>stats.indication.age_group.80_89</source>
+        <target>80–89</target>
+      </trans-unit>
+      <trans-unit id="De4c0aa48c" resname="stats.indication.age_group.90_99">
+        <source>stats.indication.age_group.90_99</source>
+        <target>90–99</target>
+      </trans-unit>
+      <trans-unit id="De89239aa5" resname="stats.indication.chart.moving_average">
+        <source>stats.indication.chart.moving_average</source>
+        <target>Gleitender Mittelwert</target>
+      </trans-unit>
+      <trans-unit id="Deaffdf9cd" resname="stats.indication.clinical.infectious">
+        <source>stats.indication.clinical.infectious</source>
+        <target>Infektionspatient</target>
+      </trans-unit>
+      <trans-unit id="Decfea1ff1" resname="stats.indication.compare.cta">
+        <source>stats.indication.compare.cta</source>
+        <target>Mit anderer Indikation vergleichen</target>
+      </trans-unit>
+      <trans-unit id="Debe8b0499" resname="stats.indication.compare.edit">
+        <source>stats.indication.compare.edit</source>
+        <target>Vergleich bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="De6c58b2dc" resname="stats.indication.compare.edit_modal.cancel">
+        <source>stats.indication.compare.edit_modal.cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="Ded010180a" resname="stats.indication.compare.edit_modal.title">
+        <source>stats.indication.compare.edit_modal.title</source>
+        <target>Vergleich bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="De849e20ed" resname="stats.indication.compare.error.empty_group">
+        <source>stats.indication.compare.error.empty_group</source>
+        <target>Der ausgewählten Gruppe sind noch keine Indikationen zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="De5d6d2d92" resname="stats.indication.compare.error.missing_selection">
+        <source>stats.indication.compare.error.missing_selection</source>
+        <target>Bitte wählen Sie zwei Vergleichsobjekte aus.</target>
+      </trans-unit>
+      <trans-unit id="De0da8f2d2" resname="stats.indication.compare.error.same_indication">
+        <source>stats.indication.compare.error.same_indication</source>
+        <target>Bitte wählen Sie zwei unterschiedliche Vergleichsobjekte aus.</target>
+      </trans-unit>
+      <trans-unit id="De11ae362f" resname="stats.indication.compare.insight.age_80_plus">
+        <source>stats.indication.compare.insight.age_80_plus</source>
+        <target>Patienten ab 80 Jahren treten bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De5d60f684" resname="stats.indication.compare.insight.age_80_plus_low">
+        <source>stats.indication.compare.insight.age_80_plus_low</source>
+        <target>Patienten ab 80 Jahren sind bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Deac9b6cde" resname="stats.indication.compare.insight.age_old">
+        <source>stats.indication.compare.insight.age_old</source>
+        <target>Indikation A weist ein deutlich höheres Medianalter auf ({percentA, number} vs. {percentB, number} Jahre).</target>
+      </trans-unit>
+      <trans-unit id="Ded23fcddf" resname="stats.indication.compare.insight.age_young">
+        <source>stats.indication.compare.insight.age_young</source>
+        <target>Indikation A weist ein deutlich niedrigeres Medianalter auf ({percentA, number} vs. {percentB, number} Jahre).</target>
+      </trans-unit>
+      <trans-unit id="De83aa85e1" resname="stats.indication.compare.insight.cathlab">
+        <source>stats.indication.compare.insight.cathlab</source>
+        <target>Herzkatheter-Anforderung tritt bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De76871894" resname="stats.indication.compare.insight.cathlab_low">
+        <source>stats.indication.compare.insight.cathlab_low</source>
+        <target>Herzkatheter-Anforderung ist bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Deb9f28577" resname="stats.indication.compare.insight.cpr">
+        <source>stats.indication.compare.insight.cpr</source>
+        <target>Reanimation tritt bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De5ac2a802" resname="stats.indication.compare.insight.cpr_low">
+        <source>stats.indication.compare.insight.cpr_low</source>
+        <target>Reanimation ist bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Dee6dc417e" resname="stats.indication.compare.insight.infectious">
+        <source>stats.indication.compare.insight.infectious</source>
+        <target>Infektionspatienten treten bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De41bf9c5d" resname="stats.indication.compare.insight.infectious_low">
+        <source>stats.indication.compare.insight.infectious_low</source>
+        <target>Infektionspatienten sind bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De3f783390" resname="stats.indication.compare.insight.night_daytime">
+        <source>stats.indication.compare.insight.night_daytime</source>
+        <target>Nachtfälle treten bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De150e05f5" resname="stats.indication.compare.insight.night_daytime_low">
+        <source>stats.indication.compare.insight.night_daytime_low</source>
+        <target>Nachtfälle sind bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Dea1fa6cf3" resname="stats.indication.compare.insight.physician">
+        <source>stats.indication.compare.insight.physician</source>
+        <target>Arztbegleitung tritt bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De457f701f" resname="stats.indication.compare.insight.physician_low">
+        <source>stats.indication.compare.insight.physician_low</source>
+        <target>Arztbegleitung tritt bei Indikation A seltener auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De14d0bdec" resname="stats.indication.compare.insight.physician_neutral">
+        <source>stats.indication.compare.insight.physician_neutral</source>
+        <target>Die Arztbegleitungsrate liegt zwischen beiden Indikationen auf ähnlichem Niveau ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De1cb4ed0e" resname="stats.indication.compare.insight.resus">
+        <source>stats.indication.compare.insight.resus</source>
+        <target>Schockraumanforderung tritt bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De0aae6268" resname="stats.indication.compare.insight.resus_low">
+        <source>stats.indication.compare.insight.resus_low</source>
+        <target>Schockraumanforderung ist bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Dec9766bf6" resname="stats.indication.compare.insight.shock">
+        <source>stats.indication.compare.insight.shock</source>
+        <target>Schock tritt bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Dea3b1a885" resname="stats.indication.compare.insight.shock_low">
+        <source>stats.indication.compare.insight.shock_low</source>
+        <target>Schock ist bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De700b2d0b" resname="stats.indication.compare.insight.transport_time_long">
+        <source>stats.indication.compare.insight.transport_time_long</source>
+        <target>Die mediane Transportzeit ist bei Indikation A länger ({percentA, number} vs. {percentB, number} Min.).</target>
+      </trans-unit>
+      <trans-unit id="De5bd83cc4" resname="stats.indication.compare.insight.transport_time_short">
+        <source>stats.indication.compare.insight.transport_time_short</source>
+        <target>Die mediane Transportzeit ist bei Indikation A kürzer ({percentA, number} vs. {percentB, number} Min.).</target>
+      </trans-unit>
+      <trans-unit id="De810fd14b" resname="stats.indication.compare.insight.urgency_emergency">
+        <source>stats.indication.compare.insight.urgency_emergency</source>
+        <target>Notfallversorgung tritt bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De029a4e19" resname="stats.indication.compare.insight.urgency_emergency_low">
+        <source>stats.indication.compare.insight.urgency_emergency_low</source>
+        <target>Notfallversorgung ist bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De0ea23851" resname="stats.indication.compare.insight.ventilation">
+        <source>stats.indication.compare.insight.ventilation</source>
+        <target>Beatmung tritt bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Defda34ed8" resname="stats.indication.compare.insight.ventilation_low">
+        <source>stats.indication.compare.insight.ventilation_low</source>
+        <target>Beatmung ist bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Dea5b5ec83" resname="stats.indication.compare.insight.weekend">
+        <source>stats.indication.compare.insight.weekend</source>
+        <target>Wochenendfälle treten bei Indikation A {ratio, number, :: .#}× häufiger auf ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Debff95cd0" resname="stats.indication.compare.insight.weekend_low">
+        <source>stats.indication.compare.insight.weekend_low</source>
+        <target>Wochenendfälle sind bei Indikation A seltener ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Dedc7d8b84" resname="stats.indication.compare.insights.empty">
+        <source>stats.indication.compare.insights.empty</source>
+        <target>Keine auffälligen Unterschiede zwischen diesen beiden Indikationen im gewählten Bereich.</target>
+      </trans-unit>
+      <trans-unit id="Dee9896254" resname="stats.indication.compare.insufficient_data">
+        <source>stats.indication.compare.insufficient_data</source>
+        <target>Eine oder beide Indikationen haben in diesem Bereich sehr wenige Fälle. Unterschiede mit Vorsicht interpretieren.</target>
+      </trans-unit>
+      <trans-unit id="Def89d05c8" resname="stats.indication.compare.launch_modal.title">
+        <source>stats.indication.compare.launch_modal.title</source>
+        <target>Mit anderer Indikation vergleichen</target>
+      </trans-unit>
+      <trans-unit id="De16d1e456" resname="stats.indication.compare.overlap_notice">
+        <source>stats.indication.compare.overlap_notice</source>
+        <target>Diese Vergleichsobjekte teilen eine oder mehrere Indikationen. Zuweisungen für gemeinsame Indikationen werden auf beiden Seiten gezählt.</target>
+      </trans-unit>
+      <trans-unit id="Dea5b7ec2a" resname="stats.indication.compare.picker_group_suffix">
+        <source>stats.indication.compare.picker_group_suffix</source>
+        <target> [Gruppe]</target>
+      </trans-unit>
+      <trans-unit id="De513848af" resname="stats.indication.compare.picker_help">
+        <source>stats.indication.compare.picker_help</source>
+        <target>Wählen Sie zwei Indikationen oder Gruppen aus, um deren Profile nebeneinander zu vergleichen. Gruppen sind mit [Gruppe] nach dem Namen gekennzeichnet.</target>
+      </trans-unit>
+      <trans-unit id="Deb26696c5" resname="stats.indication.compare.picker_title">
+        <source>stats.indication.compare.picker_title</source>
+        <target>Zwei Indikationen vergleichen</target>
+      </trans-unit>
+      <trans-unit id="Dee65ac428" resname="stats.indication.compare.section.insights">
+        <source>stats.indication.compare.section.insights</source>
+        <target>Auffällige Unterschiede</target>
+      </trans-unit>
+      <trans-unit id="Dea529d8d6" resname="stats.indication.compare.section.kpi">
+        <source>stats.indication.compare.section.kpi</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="De92956ed4" resname="stats.indication.compare.selection_title">
+        <source>stats.indication.compare.selection_title</source>
+        <target>Verglichene Indikationen</target>
+      </trans-unit>
+      <trans-unit id="De23307dc6" resname="stats.indication.compare.side_a">
+        <source>stats.indication.compare.side_a</source>
+        <target>Indikation A</target>
+      </trans-unit>
+      <trans-unit id="De09c3a5f1" resname="stats.indication.compare.side_a_short">
+        <source>stats.indication.compare.side_a_short</source>
+        <target>A</target>
+      </trans-unit>
+      <trans-unit id="Deba392c7c" resname="stats.indication.compare.side_b">
+        <source>stats.indication.compare.side_b</source>
+        <target>Indikation B</target>
+      </trans-unit>
+      <trans-unit id="De382bbf6c" resname="stats.indication.compare.side_b_short">
+        <source>stats.indication.compare.side_b_short</source>
+        <target>B</target>
+      </trans-unit>
+      <trans-unit id="De49997cbf" resname="stats.indication.compare.submit">
+        <source>stats.indication.compare.submit</source>
+        <target>Vergleichen</target>
+      </trans-unit>
+      <trans-unit id="Dee2579089" resname="stats.indication.compare.subtitle">
+        <source>stats.indication.compare.subtitle</source>
+        <target>Zwei Indikationen im gleichen Bereich vergleichen</target>
+      </trans-unit>
+      <trans-unit id="De5fb8142b" resname="stats.indication.compare.title">
+        <source>stats.indication.compare.title</source>
+        <target>Indikationsvergleich</target>
+      </trans-unit>
+      <trans-unit id="Dea72e388d" resname="stats.indication.compare.with">
+        <source>stats.indication.compare.with</source>
+        <target>Vergleichen mit</target>
+      </trans-unit>
+      <trans-unit id="Deee8a878d" resname="stats.indication.dashboard.breadcrumb">
+        <source>stats.indication.dashboard.breadcrumb</source>
+        <target>Indikationseinblicke</target>
+      </trans-unit>
+      <trans-unit id="Dec9a91006" resname="stats.indication.dashboard.case_count">
+        <source>stats.indication.dashboard.case_count</source>
+        <target>{count, number} Fälle im gewählten Bereich und Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="De86e2fa6e" resname="stats.indication.dashboard.title">
+        <source>stats.indication.dashboard.title</source>
+        <target>Indikationsprofil</target>
+      </trans-unit>
+      <trans-unit id="Deaa387af9" resname="stats.indication.day_time_bucket.afternoon">
+        <source>stats.indication.day_time_bucket.afternoon</source>
+        <target>Nachmittag (12:00–17:59)</target>
+      </trans-unit>
+      <trans-unit id="Dee8995a34" resname="stats.indication.day_time_bucket.evening">
+        <source>stats.indication.day_time_bucket.evening</source>
+        <target>Abend (18:00–23:59)</target>
+      </trans-unit>
+      <trans-unit id="De2d6f0c92" resname="stats.indication.day_time_bucket.morning">
+        <source>stats.indication.day_time_bucket.morning</source>
+        <target>Morgen (06:00–11:59)</target>
+      </trans-unit>
+      <trans-unit id="De16629edc" resname="stats.indication.day_time_bucket.night">
+        <source>stats.indication.day_time_bucket.night</source>
+        <target>Nacht (00:00–05:59)</target>
+      </trans-unit>
+      <trans-unit id="De48cb68ca" resname="stats.indication.distribution.empty">
+        <source>stats.indication.distribution.empty</source>
+        <target>Keine Daten</target>
+      </trans-unit>
+      <trans-unit id="De5ffca662" resname="stats.indication.gender.unknown">
+        <source>stats.indication.gender.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Dedbbadb12" resname="stats.indication.group.compare_members">
+        <source>stats.indication.group.compare_members</source>
+        <target>Mitglieder vergleichen</target>
+      </trans-unit>
+      <trans-unit id="Dec72e7740" resname="stats.indication.group.compare_preset_largest_smallest">
+        <source>stats.indication.group.compare_preset_largest_smallest</source>
+        <target>Größte vs. kleinste</target>
+      </trans-unit>
+      <trans-unit id="De77cffa73" resname="stats.indication.group.compare_preset_top_two">
+        <source>stats.indication.group.compare_preset_top_two</source>
+        <target>Top 2 nach Fallzahl</target>
+      </trans-unit>
+      <trans-unit id="Def8dce540" resname="stats.indication.group.compare_presets_label">
+        <source>stats.indication.group.compare_presets_label</source>
+        <target>Schnellauswahl</target>
+      </trans-unit>
+      <trans-unit id="Decc7f7475" resname="stats.indication.group.dashboard.title">
+        <source>stats.indication.group.dashboard.title</source>
+        <target>Indikationsgruppen-Einblick</target>
+      </trans-unit>
+      <trans-unit id="Def53d6d93" resname="stats.indication.group.empty">
+        <source>stats.indication.group.empty</source>
+        <target>Dieser Gruppe sind noch keine Indikationen zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="De29fc3766" resname="stats.indication.group.members_show_less">
+        <source>stats.indication.group.members_show_less</source>
+        <target>Weniger anzeigen</target>
+      </trans-unit>
+      <trans-unit id="De711851c5" resname="stats.indication.group.members_show_more">
+        <source>stats.indication.group.members_show_more</source>
+        <target>Mehr anzeigen</target>
+      </trans-unit>
+      <trans-unit id="De6c6c8f9a" resname="stats.indication.group.members_title">
+        <source>stats.indication.group.members_title</source>
+        <target>Gruppenmitglieder</target>
+      </trans-unit>
+      <trans-unit id="De8773fe41" resname="stats.indication.group.picker_empty">
+        <source>stats.indication.group.picker_empty</source>
+        <target>Es wurden noch keine Indikationsgruppen eingerichtet. Administratoren können Gruppen im Admin-Bereich anlegen.</target>
+      </trans-unit>
+      <trans-unit id="Dee113936d" resname="stats.indication.group.picker_label">
+        <source>stats.indication.group.picker_label</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="Dea2aa2ed6" resname="stats.indication.heatmap.mode.day_time">
+        <source>stats.indication.heatmap.mode.day_time</source>
+        <target>Tageszeit</target>
+      </trans-unit>
+      <trans-unit id="Dee098e6b0" resname="stats.indication.heatmap.mode.label">
+        <source>stats.indication.heatmap.mode.label</source>
+        <target>Auftretensansicht</target>
+      </trans-unit>
+      <trans-unit id="De4b348d1d" resname="stats.indication.heatmap.mode.shift">
+        <source>stats.indication.heatmap.mode.shift</source>
+        <target>Schichtmodell</target>
+      </trans-unit>
+      <trans-unit id="De79490a26" resname="stats.indication.heatmap.shift_ranges">
+        <source>stats.indication.heatmap.shift_ranges</source>
+        <target>Nachtschicht: 22:00–05:59 · Frühschicht: 06:00–13:59 · Spätschicht: 14:00–21:59</target>
+      </trans-unit>
+      <trans-unit id="Deca736933" resname="stats.indication.insight.age_80_plus">
+        <source>stats.indication.insight.age_80_plus</source>
+        <target>Patienten ab 80 Jahren treten {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De5553373c" resname="stats.indication.insight.age_old">
+        <source>stats.indication.insight.age_old</source>
+        <target>Das Medianalter ist deutlich höher als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Jahre).</target>
+      </trans-unit>
+      <trans-unit id="De42ce2d05" resname="stats.indication.insight.age_young">
+        <source>stats.indication.insight.age_young</source>
+        <target>Das Medianalter ist deutlich niedriger als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Jahre).</target>
+      </trans-unit>
+      <trans-unit id="De7a62de03" resname="stats.indication.insight.cathlab">
+        <source>stats.indication.insight.cathlab</source>
+        <target>Herzkatheter-Anforderung tritt {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Deb9beb187" resname="stats.indication.insight.cpr">
+        <source>stats.indication.insight.cpr</source>
+        <target>Reanimation tritt {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De31d3a928" resname="stats.indication.insight.gender_female_dominant">
+        <source>stats.indication.insight.gender_female_dominant</source>
+        <target>Weibliche Patienten sind überrepräsentiert ({indicationPercent, number}% vs. {baselinePercent, number}% bei anderen Indikationen).</target>
+      </trans-unit>
+      <trans-unit id="De793db899" resname="stats.indication.insight.gender_male_dominant">
+        <source>stats.indication.insight.gender_male_dominant</source>
+        <target>Männliche Patienten sind überrepräsentiert ({indicationPercent, number}% vs. {baselinePercent, number}% bei anderen Indikationen).</target>
+      </trans-unit>
+      <trans-unit id="De804a8b54" resname="stats.indication.insight.infectious">
+        <source>stats.indication.insight.infectious</source>
+        <target>Infektionspatienten treten {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De22dbf975" resname="stats.indication.insight.night_daytime">
+        <source>stats.indication.insight.night_daytime</source>
+        <target>Nachtfälle treten {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De310b8c29" resname="stats.indication.insight.physician">
+        <source>stats.indication.insight.physician</source>
+        <target>Arztbegleitung tritt {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De29bcf84a" resname="stats.indication.insight.resus">
+        <source>stats.indication.insight.resus</source>
+        <target>Schockraumanforderung tritt {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Defc7e7eb2" resname="stats.indication.insight.shock">
+        <source>stats.indication.insight.shock</source>
+        <target>Schock tritt {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Dede07d188" resname="stats.indication.insight.transport_time_long">
+        <source>stats.indication.insight.transport_time_long</source>
+        <target>Die mediane Transportzeit ist länger als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Min.).</target>
+      </trans-unit>
+      <trans-unit id="De2fc7e2a2" resname="stats.indication.insight.transport_time_short">
+        <source>stats.indication.insight.transport_time_short</source>
+        <target>Die mediane Transportzeit ist kürzer als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Min.).</target>
+      </trans-unit>
+      <trans-unit id="De1abaf024" resname="stats.indication.insight.urgency_emergency">
+        <source>stats.indication.insight.urgency_emergency</source>
+        <target>Notfallversorgung tritt {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Ded57f674d" resname="stats.indication.insight.ventilation">
+        <source>stats.indication.insight.ventilation</source>
+        <target>Beatmung tritt {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="De5c7db761" resname="stats.indication.insight.weekend">
+        <source>stats.indication.insight.weekend</source>
+        <target>Wochenendfälle treten {ratio, number, :: .#}× häufiger auf als bei anderen Indikationen ({indicationPercent, number}% vs. {baselinePercent, number}%).</target>
+      </trans-unit>
+      <trans-unit id="Deadf90618" resname="stats.indication.insights.empty">
+        <source>stats.indication.insights.empty</source>
+        <target>Nicht genügend Daten, um Einblicke für diese Indikation zu erzeugen.</target>
+      </trans-unit>
+      <trans-unit id="Def27817d7" resname="stats.indication.insights.index.picker_help">
+        <source>stats.indication.insights.index.picker_help</source>
+        <target>Geben Sie einen Namen oder Code ein, wählen Sie eine Indikation aus und öffnen Sie das zugehörige Profil.</target>
+      </trans-unit>
+      <trans-unit id="Deec1b2f94" resname="stats.indication.insights.index.picker_title">
+        <source>stats.indication.insights.index.picker_title</source>
+        <target>Alle Indikationen durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="De5338c313" resname="stats.indication.insights.index.pretitle">
+        <source>stats.indication.insights.index.pretitle</source>
+        <target>Indikationsprofile</target>
+      </trans-unit>
+      <trans-unit id="De00edd5a2" resname="stats.indication.insights.index.top_groups_title">
+        <source>stats.indication.insights.index.top_groups_title</source>
+        <target>Top 10 Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="De701ca5dd" resname="stats.indication.insights.index.top_title">
+        <source>stats.indication.insights.index.top_title</source>
+        <target>Top 25 Indikationen</target>
+      </trans-unit>
+      <trans-unit id="De0f5290c4" resname="stats.indication.insights.more">
+        <source>stats.indication.insights.more</source>
+        <target>+ {count, number} weitere Highlights</target>
+      </trans-unit>
+      <trans-unit id="Deb9d205ad" resname="stats.indication.insights.show_more">
+        <source>stats.indication.insights.show_more</source>
+        <target>{count, number} weitere Highlights anzeigen</target>
+      </trans-unit>
+      <trans-unit id="De188f3719" resname="stats.indication.kpi.cases">
+        <source>stats.indication.kpi.cases</source>
+        <target>Fälle</target>
+      </trans-unit>
+      <trans-unit id="De76922d27" resname="stats.indication.median_age">
+        <source>stats.indication.median_age</source>
+        <target>Medianalter: {age, number} Jahre</target>
+      </trans-unit>
+      <trans-unit id="De1d1528d2" resname="stats.indication.median_transport">
+        <source>stats.indication.median_transport</source>
+        <target>Median: {minutes, number} Min.</target>
+      </trans-unit>
+      <trans-unit id="De29d67982" resname="stats.indication.nav.profile">
+        <source>stats.indication.nav.profile</source>
+        <target>Profil ansehen</target>
+      </trans-unit>
+      <trans-unit id="De8c383dba" resname="stats.indication.newsbit.title">
+        <source>stats.indication.newsbit.title</source>
+        <target>Auf einen Blick</target>
+      </trans-unit>
+      <trans-unit id="Ded6c23c30" resname="stats.indication.newsbit.vs_other">
+        <source>stats.indication.newsbit.vs_other</source>
+        <target>vs. andere</target>
+      </trans-unit>
+      <trans-unit id="Deea34de0a" resname="stats.indication.picker.label">
+        <source>stats.indication.picker.label</source>
+        <target>Indikation</target>
+      </trans-unit>
+      <trans-unit id="Dea1a21d4e" resname="stats.indication.picker.placeholder">
+        <source>stats.indication.picker.placeholder</source>
+        <target>Nach Name oder Code suchen …</target>
+      </trans-unit>
+      <trans-unit id="De71d1a399" resname="stats.indication.picker.submit">
+        <source>stats.indication.picker.submit</source>
+        <target>Auswahl öffnen</target>
+      </trans-unit>
+      <trans-unit id="De67feb298" resname="stats.indication.section.age_groups">
+        <source>stats.indication.section.age_groups</source>
+        <target>Altersgruppen</target>
+      </trans-unit>
+      <trans-unit id="De30a6df09" resname="stats.indication.section.age_histogram">
+        <source>stats.indication.section.age_histogram</source>
+        <target>Altersverteilung</target>
+      </trans-unit>
+      <trans-unit id="Dee8a20c18" resname="stats.indication.section.clinical">
+        <source>stats.indication.section.clinical</source>
+        <target>Dringlichkeit und Einsatzmerkmale</target>
+      </trans-unit>
       <trans-unit id="statsInd10De" resname="stats.indication.section.demographics">
         <source>stats.indication.section.demographics</source>
         <target>Demografie</target>
+      </trans-unit>
+      <trans-unit id="De60e148a9" resname="stats.indication.section.heatmap">
+        <source>stats.indication.section.heatmap</source>
+        <target>Wochentag × Tageszeit</target>
+      </trans-unit>
+      <trans-unit id="De0c95dd09" resname="stats.indication.section.heatmap_table">
+        <source>stats.indication.section.heatmap_table</source>
+        <target>Heatmap-Datentabelle</target>
+      </trans-unit>
+      <trans-unit id="Dea8a78f27" resname="stats.indication.section.insights">
+        <source>stats.indication.section.insights</source>
+        <target>Charakteristische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="De3097776c" resname="stats.indication.section.occurrence">
+        <source>stats.indication.section.occurrence</source>
+        <target>Fallverteilung</target>
+      </trans-unit>
+      <trans-unit id="De03d8aaf8" resname="stats.indication.section.time_series">
+        <source>stats.indication.section.time_series</source>
+        <target>Fälle über die Zeit</target>
+      </trans-unit>
+      <trans-unit id="Deb2b247b3" resname="stats.indication.section.transport">
+        <source>stats.indication.section.transport</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="De733c1c5a" resname="stats.indication.section.transport_time">
+        <source>stats.indication.section.transport_time</source>
+        <target>Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="De567226a1" resname="stats.indication.section.urgency">
+        <source>stats.indication.section.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="De7a80c6ac" resname="stats.indication.section.weekday">
+        <source>stats.indication.section.weekday</source>
+        <target>Nach Wochentag</target>
+      </trans-unit>
+      <trans-unit id="Ded36db80d" resname="stats.indication.shift_bucket.early">
+        <source>stats.indication.shift_bucket.early</source>
+        <target>Frühschicht (06:00–13:59)</target>
+      </trans-unit>
+      <trans-unit id="Dee6a8d690" resname="stats.indication.shift_bucket.late">
+        <source>stats.indication.shift_bucket.late</source>
+        <target>Spätschicht (14:00–21:59)</target>
+      </trans-unit>
+      <trans-unit id="De613979d1" resname="stats.indication.shift_bucket.night">
+        <source>stats.indication.shift_bucket.night</source>
+        <target>Nachtschicht (22:00–05:59)</target>
+      </trans-unit>
+      <trans-unit id="De2d825865" resname="stats.indication.summary.gender_title">
+        <source>stats.indication.summary.gender_title</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="Dee0cdec47" resname="stats.indication.summary.urgency_title">
+        <source>stats.indication.summary.urgency_title</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="Decaa3f1f2" resname="stats.indication.transport.air">
+        <source>stats.indication.transport.air</source>
+        <target>Luft</target>
+      </trans-unit>
+      <trans-unit id="De8bf8dfd7" resname="stats.indication.transport.ground">
+        <source>stats.indication.transport.ground</source>
+        <target>Boden</target>
+      </trans-unit>
+      <trans-unit id="Def6d40e86" resname="stats.indication.transport.unknown">
+        <source>stats.indication.transport.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="Decafda72c" resname="stats.indication.weekday.1">
+        <source>stats.indication.weekday.1</source>
+        <target>Montag</target>
+      </trans-unit>
+      <trans-unit id="De53f4f696" resname="stats.indication.weekday.2">
+        <source>stats.indication.weekday.2</source>
+        <target>Dienstag</target>
+      </trans-unit>
+      <trans-unit id="De24f3c600" resname="stats.indication.weekday.3">
+        <source>stats.indication.weekday.3</source>
+        <target>Mittwoch</target>
+      </trans-unit>
+      <trans-unit id="Deba9753a3" resname="stats.indication.weekday.4">
+        <source>stats.indication.weekday.4</source>
+        <target>Donnerstag</target>
+      </trans-unit>
+      <trans-unit id="Decd906335" resname="stats.indication.weekday.5">
+        <source>stats.indication.weekday.5</source>
+        <target>Freitag</target>
+      </trans-unit>
+      <trans-unit id="De5499328f" resname="stats.indication.weekday.6">
+        <source>stats.indication.weekday.6</source>
+        <target>Samstag</target>
+      </trans-unit>
+      <trans-unit id="De239e0219" resname="stats.indication.weekday.7">
+        <source>stats.indication.weekday.7</source>
+        <target>Sonntag</target>
       </trans-unit>
       <trans-unit id="statsNavHmHr" resname="stats.nav.overview_allocations_by_hour">
         <source>stats.nav.overview_allocations_by_hour</source>
