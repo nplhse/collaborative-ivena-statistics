@@ -5917,6 +5917,174 @@
         <source>stats.benchmark.weekday.wednesday</source>
         <target>Mittwoch</target>
       </trans-unit>
+      <trans-unit id="De2821988e" resname="stats.case_flow.insight.elevated_transport_time">
+        <source>stats.case_flow.insight.elevated_transport_time</source>
+        <target>Überdurchschnittliche Transportzeiten (Mittelwert {mean, number} Min. vs. {baselineMean, number} Min. Baseline).</target>
+      </trans-unit>
+      <trans-unit id="De4e5c9bb7" resname="stats.case_flow.insight.high_centralization">
+        <source>stats.case_flow.insight.high_centralization</source>
+        <target>Hohe Zentralisierung: {share, number}% der Fälle werden in Einrichtungen mit umfassender Versorgung behandelt.</target>
+      </trans-unit>
+      <trans-unit id="De867f7112" resname="stats.case_flow.insight.predominantly_regional">
+        <source>stats.case_flow.insight.predominantly_regional</source>
+        <target>Versorgung überwiegend regional: {share, number}% der Fälle werden innerhalb der Herkunfts-Leitstelle versorgt.</target>
+      </trans-unit>
+      <trans-unit id="De81bb5617" resname="stats.case_flow.insight.urgency_concentration_origin">
+        <source>stats.case_flow.insight.urgency_concentration_origin</source>
+        <target>Notfallfälle sind geografisch konzentriert: {share, number}% stammen aus {origin}.</target>
+      </trans-unit>
+      <trans-unit id="De0ab3f6e9" resname="stats.case_flow.insights.title">
+        <source>stats.case_flow.insights.title</source>
+        <target>Automatische Einblicke</target>
+      </trans-unit>
+      <trans-unit id="De55b1e6e8" resname="stats.case_flow.kpi.centralization">
+        <source>stats.case_flow.kpi.centralization</source>
+        <target>Anteil umfassende Versorgung</target>
+      </trans-unit>
+      <trans-unit id="Ded8983aae" resname="stats.case_flow.kpi.emergency_share">
+        <source>stats.case_flow.kpi.emergency_share</source>
+        <target>Notfallanteil</target>
+      </trans-unit>
+      <trans-unit id="Dead4ba89a" resname="stats.case_flow.kpi.mean_transport">
+        <source>stats.case_flow.kpi.mean_transport</source>
+        <target>Mittlere Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="Deb19df260" resname="stats.case_flow.kpi.median_transport">
+        <source>stats.case_flow.kpi.median_transport</source>
+        <target>Median Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="De5259b074" resname="stats.case_flow.kpi.minutes">
+        <source>stats.case_flow.kpi.minutes</source>
+        <target>Min.</target>
+      </trans-unit>
+      <trans-unit id="De9b069b2c" resname="stats.case_flow.kpi.overregional_share">
+        <source>stats.case_flow.kpi.overregional_share</source>
+        <target>Anteil überregional</target>
+      </trans-unit>
+      <trans-unit id="Dea3302b3c" resname="stats.case_flow.kpi.regional_share">
+        <source>stats.case_flow.kpi.regional_share</source>
+        <target>Anteil regional</target>
+      </trans-unit>
+      <trans-unit id="De627a25de" resname="stats.case_flow.kpi.total_cases">
+        <source>stats.case_flow.kpi.total_cases</source>
+        <target>Fälle gesamt</target>
+      </trans-unit>
+      <trans-unit id="Dedb48342b" resname="stats.case_flow.location.mixed">
+        <source>stats.case_flow.location.mixed</source>
+        <target>Gemischt</target>
+      </trans-unit>
+      <trans-unit id="De441714bf" resname="stats.case_flow.location.rural">
+        <source>stats.case_flow.location.rural</source>
+        <target>Ländlich</target>
+      </trans-unit>
+      <trans-unit id="De99c8324a" resname="stats.case_flow.location.urban">
+        <source>stats.case_flow.location.urban</source>
+        <target>Städtisch</target>
+      </trans-unit>
+      <trans-unit id="De1665d389" resname="stats.case_flow.map.legend_hint">
+        <source>stats.case_flow.map.legend_hint</source>
+        <target>Graue Bereiche zeigen unterdrückte Werte wegen geringer Fallzahlen.</target>
+      </trans-unit>
+      <trans-unit id="De7ed6b683" resname="stats.case_flow.map.mode.absolute">
+        <source>stats.case_flow.map.mode.absolute</source>
+        <target>Absolut</target>
+      </trans-unit>
+      <trans-unit id="De92e53f07" resname="stats.case_flow.map.mode.label">
+        <source>stats.case_flow.map.mode.label</source>
+        <target>Kartenwert-Modus</target>
+      </trans-unit>
+      <trans-unit id="Deb652f70c" resname="stats.case_flow.map.mode.relative">
+        <source>stats.case_flow.map.mode.relative</source>
+        <target>Relativ (%)</target>
+      </trans-unit>
+      <trans-unit id="Debbb78026" resname="stats.case_flow.mode.hospital_origin">
+        <source>stats.case_flow.mode.hospital_origin</source>
+        <target>Herkunftsanalyse</target>
+      </trans-unit>
+      <trans-unit id="Dedff096cd" resname="stats.case_flow.mode.system_flow">
+        <source>stats.case_flow.mode.system_flow</source>
+        <target>Systemflussanalyse</target>
+      </trans-unit>
+      <trans-unit id="De5951ac56" resname="stats.case_flow.pool.suppressed">
+        <source>stats.case_flow.pool.suppressed</source>
+        <target>Unterdrückt</target>
+      </trans-unit>
+      <trans-unit id="De1c2f8000" resname="stats.case_flow.pool.unknown">
+        <source>stats.case_flow.pool.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De94283df9" resname="stats.case_flow.pretitle">
+        <source>stats.case_flow.pretitle</source>
+        <target>Versorgungsstruktur</target>
+      </trans-unit>
+      <trans-unit id="De885cc5ab" resname="stats.case_flow.section.destination_location">
+        <source>stats.case_flow.section.destination_location</source>
+        <target>Ziel nach Standorttyp</target>
+      </trans-unit>
+      <trans-unit id="De1948f601" resname="stats.case_flow.section.destination_size">
+        <source>stats.case_flow.section.destination_size</source>
+        <target>Ziel nach Krankenhausgröße</target>
+      </trans-unit>
+      <trans-unit id="Deca1645e1" resname="stats.case_flow.section.destination_tier">
+        <source>stats.case_flow.section.destination_tier</source>
+        <target>Ziel nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De9fb6aa9f" resname="stats.case_flow.section.flow_matrix">
+        <source>stats.case_flow.section.flow_matrix</source>
+        <target>Herkunft zu Ziel-Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="De06abf92a" resname="stats.case_flow.section.map">
+        <source>stats.case_flow.section.map</source>
+        <target>Leitstellenkarte Hessen</target>
+      </trans-unit>
+      <trans-unit id="De10f7b020" resname="stats.case_flow.section.origin_distribution">
+        <source>stats.case_flow.section.origin_distribution</source>
+        <target>Fallherkünfte</target>
+      </trans-unit>
+      <trans-unit id="Deec841f00" resname="stats.case_flow.section.transport_time">
+        <source>stats.case_flow.section.transport_time</source>
+        <target>Transportzeitverteilung</target>
+      </trans-unit>
+      <trans-unit id="Deda45e1e7" resname="stats.case_flow.section.urgency">
+        <source>stats.case_flow.section.urgency</source>
+        <target>Dringlichkeitsverteilung</target>
+      </trans-unit>
+      <trans-unit id="De72ec3252" resname="stats.case_flow.structure.empty">
+        <source>stats.case_flow.structure.empty</source>
+        <target>Keine Daten für diese Auswahl verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="Deefd9663b" resname="stats.case_flow.tier.basic">
+        <source>stats.case_flow.tier.basic</source>
+        <target>Basisversorgung</target>
+      </trans-unit>
+      <trans-unit id="Ded440f9e2" resname="stats.case_flow.tier.extended">
+        <source>stats.case_flow.tier.extended</source>
+        <target>Erweiterte Versorgung</target>
+      </trans-unit>
+      <trans-unit id="De2a6107ec" resname="stats.case_flow.tier.full">
+        <source>stats.case_flow.tier.full</source>
+        <target>Umfassende Versorgung</target>
+      </trans-unit>
+      <trans-unit id="De65c51eb7" resname="stats.case_flow.title">
+        <source>stats.case_flow.title</source>
+        <target>Patientenfluss</target>
+      </trans-unit>
+      <trans-unit id="De6378172c" resname="stats.case_flow.urgency.emergency">
+        <source>stats.case_flow.urgency.emergency</source>
+        <target>Notfall</target>
+      </trans-unit>
+      <trans-unit id="De11bb9f7c" resname="stats.case_flow.urgency.inpatient">
+        <source>stats.case_flow.urgency.inpatient</source>
+        <target>Stationär</target>
+      </trans-unit>
+      <trans-unit id="De876583d2" resname="stats.case_flow.urgency.outpatient">
+        <source>stats.case_flow.urgency.outpatient</source>
+        <target>Ambulant</target>
+      </trans-unit>
+      <trans-unit id="De9d38224c" resname="stats.case_flow.urgency.unknown">
+        <source>stats.case_flow.urgency.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
       <trans-unit id="Deb15c1a4b" resname="stats.data_quality.allocation.histogram.hospitals">
         <source>stats.data_quality.allocation.histogram.hospitals</source>
         <target>Krankenhäuser</target>
