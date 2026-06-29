@@ -1,0 +1,30 @@
+<div class="nav-item dropdown me-3">
+    <button
+        type="button"
+        class="btn btn-sm dropdown-toggle d-inline-flex align-items-center px-2 py-1"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        aria-label="{{ 'locale.switch'|trans }}"
+    >
+        <twig:ux:icon name="tabler:world" class="icon icon-sm" />
+        {% if app.request.locale == 'de' %}
+            {{ 'locale.german_short'|trans }}
+        {% else %}
+            {{ 'locale.english_short'|trans }}
+        {% endif %}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+        {% for locale in supportedLocales %}
+            <a
+                class="dropdown-item{% if app.request.locale == locale %} active{% endif %}"
+                href="{{ path('app_locale_switch', {locale: locale, _target_path: app.request.requestUri}) }}"
+            >
+                {% if locale == 'de' %}
+                    🇩🇪 {{ 'locale.german'|trans }}
+                {% else %}
+                    🇬🇧 {{ 'locale.english'|trans }}
+                {% endif %}
+            </a>
+        {% endfor %}
+    </div>
+</div>

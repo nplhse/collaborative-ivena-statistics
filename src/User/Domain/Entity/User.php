@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\Domain\Entity;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -60,6 +61,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
 
     #[ORM\Column(options: ['default' => true])]
     private bool $receivesMonthlySubmissionReminder = true;
+
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $locale = null;
 
     /**
      * @var Collection<int, Hospital>
@@ -204,6 +208,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
         $this->receivesMonthlySubmissionReminder = $receivesMonthlySubmissionReminder;
 
         return $this;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(?string $locale): static
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    public function hasExplicitLocale(): bool
+    {
+        return SupportedLocales::isSupported($this->locale);
     }
 
     /**

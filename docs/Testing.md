@@ -42,6 +42,16 @@ make phpstan
 make psalm
 ```
 
+## Translations (i18n)
+
+Extract and lint (see [Glossary-i18n-de.md](Glossary-i18n-de.md)):
+
+```bash
+make trans-de       # scaffold missing DE units from EN
+make lint-trans-de  # lint DE catalogue only
+make lint-trans     # lint EN + DE catalogues
+```
+
 ## Relevant configuration
 
 - PHPUnit: `phpunit.dist.xml`

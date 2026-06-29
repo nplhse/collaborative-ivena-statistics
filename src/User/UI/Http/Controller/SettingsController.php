@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Shared\Application\Locale\LocaleResolver;
+use App\Shared\Application\Locale\SupportedLocales;
+use App\Shared\Application\Locale\UserLocalePreferenceUpdater;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\SettingsEmailType;
+use App\User\UI\Form\SettingsLocaleType;
 use App\User\UI\Form\SettingsNotificationsType;
 use App\User\UI\Form\SettingsPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,13 +34,51 @@ final class SettingsController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
+        private readonly UserLocalePreferenceUpdater $userLocalePreferenceUpdater,
+        private readonly LocaleResolver $localeResolver,
     ) {
     }
 
-    #[Route('/settings', name: 'app_settings_index')]
-    public function index(): Response
+    #[Route('/settings', name: 'app_settings_index', methods: ['GET', 'POST'])]
+    public function index(Request $request): Response
     {
-        return $this->render('@User/settings/index.html.twig');
+        $user = $this->requireUser();
+        $automaticDefaultLocale = $this->localeResolver->resolveAutomaticDefault($request);
+
+        $currentLocale = $user->hasExplicitLocale()
+            ? (string) $user->getLocale()
+            : $automaticDefaultLocale;
+        if (!SupportedLocales::isSupported($currentLocale)) {
+            $currentLocale = SupportedLocales::DEFAULT;
+        }
+
+        $localeForm = $this->createForm(SettingsLocaleType::class, ['locale' => $currentLocale], [
+            'automatic_default_locale' => $automaticDefaultLocale,
+        ]);
+        $localeForm->handleRequest($request);
+
+        if ($localeForm->isSubmitted() && $localeForm->isValid()) {
+            /** @var array{locale: string} $data */
+            $data = $localeForm->getData();
+
+            $this->auditContext->beginIntent('user.settings.locale_updated', []);
+            try {
+                $cookie = $this->userLocalePreferenceUpdater->update($user, $data['locale'], $request);
+            } finally {
+                $this->auditContext->endIntent();
+            }
+
+            $this->addFlash('success', 'flash.settings.locale.updated');
+
+            $response = $this->redirectToRoute('app_settings_index');
+            $response->headers->setCookie($cookie);
+
+            return $response;
+        }
+
+        return $this->render('@User/settings/index.html.twig', [
+            'localeForm' => $localeForm,
+        ]);
     }
 
     #[Route('/settings/email/resend-verification', name: 'app_settings_resend_verification', methods: ['POST'])]

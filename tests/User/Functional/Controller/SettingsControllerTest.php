@@ -195,4 +195,44 @@ final class SettingsControllerTest extends WebTestCase
         \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertFalse($user->receivesMonthlySubmissionReminder());
     }
+
+    public function testUserCanChangeLanguageOnAccountSettings(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'locale-settings@example.test',
+            'isVerified' => true,
+            'username' => 'locale-settings-user',
+            'locale' => null,
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'locale-settings-user');
+        $browser
+            ->visit('/settings')
+            ->assertSuccessful()
+            ->assertSee('Language')
+            ->selectFieldOption('settings_locale[locale]', 'de')
+            ->click('Save')
+            ->assertSuccessful()
+            ->assertSee('Spracheinstellung gespeichert.')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('de', $user->getLocale());
+    }
+
+    public function testLanguageSettingsDropdownMarksAutomaticDefault(): void
+    {
+        UserFactory::new([
+            'email' => 'locale-default@example.test',
+            'isVerified' => true,
+            'username' => 'locale-default-user',
+            'locale' => 'en',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'locale-default-user')
+            ->visit('/settings')
+            ->assertSuccessful()
+            ->assertSee('English (automatic default)')
+        ;
+    }
 }

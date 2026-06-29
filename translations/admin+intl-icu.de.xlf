@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="frI4G1g" resname="help.import_reject.filter_import_id">
+        <source>help.import_reject.filter_import_id</source>
+        <target>Zurückweisungen nach Import-ID filtern</target>
+      </trans-unit>
+      <trans-unit id="T8dQbsk" resname="help.search_import_rejects">
+        <source>help.search_import_rejects</source>
+        <target>Suchen…</target>
+      </trans-unit>
+      <trans-unit id="IlEDRed" resname="help.search_no_results">
+        <source>help.search_no_results</source>
+        <target>Keine Ergebnisse</target>
+      </trans-unit>
+      <trans-unit id="kbyA0UD" resname="label.all_hospitals">
+        <source>label.all_hospitals</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="1GXuSep" resname="label.back_to_list">
+        <source>label.back_to_list</source>
+        <target>Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="r67iNDf" resname="label.copy">
+        <source>label.copy</source>
+        <target>Kopieren</target>
+      </trans-unit>
+      <trans-unit id="rsh4cOO" resname="label.created_at">
+        <source>label.created_at</source>
+        <target>Erstellt am</target>
+      </trans-unit>
+      <trans-unit id="id1d4o4" resname="label.dashboard">
+        <source>label.dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="JGx905C" resname="label.filter.results">
+        <source>label.filter.results</source>
+        <target>Ergebnisse</target>
+      </trans-unit>
+      <trans-unit id="RPew0g8" resname="label.filters">
+        <source>label.filters</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="NnR3dCM" resname="label.filters.active">
+        <source>label.filters.active</source>
+        <target>Aktive Filter</target>
+      </trans-unit>
+      <trans-unit id="5qtkGtz" resname="label.filters.apply">
+        <source>label.filters.apply</source>
+        <target>Filter anwenden</target>
+      </trans-unit>
+      <trans-unit id="xxRgaom" resname="label.filters.reset">
+        <source>label.filters.reset</source>
+        <target>Filter zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="wyzinGh" resname="label.hospital">
+        <source>label.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="5iCaIxJ" resname="label.import">
+        <source>label.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="GO4Pumy" resname="label.import_id">
+        <source>label.import_id</source>
+        <target>Import-ID</target>
+      </trans-unit>
+      <trans-unit id="ewkwj1j" resname="label.import_rejects">
+        <source>label.import_rejects</source>
+        <target>Import-Zurückweisungen</target>
+      </trans-unit>
+      <trans-unit id="PVqxUes" resname="label.line">
+        <source>label.line</source>
+        <target>Zeile</target>
+      </trans-unit>
+      <trans-unit id="kWSI57v" resname="label.messages">
+        <source>label.messages</source>
+        <target>Meldungen</target>
+      </trans-unit>
+      <trans-unit id="1NWs0ih" resname="label.metadata">
+        <source>label.metadata</source>
+        <target>Metadaten</target>
+      </trans-unit>
+      <trans-unit id="vlru9s9" resname="label.no_data">
+        <source>label.no_data</source>
+        <target>Keine Daten</target>
+      </trans-unit>
+      <trans-unit id="vwvDlgd" resname="label.no_messages">
+        <source>label.no_messages</source>
+        <target>Keine Meldungen</target>
+      </trans-unit>
+      <trans-unit id="Pak93P_" resname="label.pagination_numbers">
+        <source>label.pagination_numbers</source>
+        <target>{first}–{last} von {total} Ergebnissen.</target>
+      </trans-unit>
+      <trans-unit id="s2hW2D8" resname="label.row_fields">
+        <source>label.row_fields</source>
+        <target>Felder</target>
+      </trans-unit>
+      <trans-unit id="4Gyv.ze" resname="label.row_json">
+        <source>label.row_json</source>
+        <target>JSON-Daten</target>
+      </trans-unit>
+      <trans-unit id="iw9qUxb" resname="label.search">
+        <source>label.search</source>
+        <target>Suchen</target>
+      </trans-unit>
+      <trans-unit id="uARVlbj" resname="label.search_no_results">
+        <source>label.search_no_results</source>
+        <target>Keine Ergebnisse gefunden</target>
+      </trans-unit>
+      <trans-unit id="IUrg75n" resname="label.view">
+        <source>label.view</source>
+        <target>Details anzeigen</target>
+      </trans-unit>
+      <trans-unit id="WXOC9W_" resname="link.back_to_frontend">
+        <source>link.back_to_frontend</source>
+        <target>Zur Anwendung</target>
+      </trans-unit>
+      <trans-unit id="kkyF8Gb" resname="link.backend">
+        <source>link.backend</source>
+        <target>Verwaltung</target>
+      </trans-unit>
+      <trans-unit id="HUN_BXz" resname="placeholder.import_id">
+        <source>placeholder.import_id</source>
+        <target>Import-ID</target>
+      </trans-unit>
+      <trans-unit id="sN.KiAY" resname="placeholder.search_import_rejects">
+        <source>placeholder.search_import_rejects</source>
+        <target>Suchen…</target>
+      </trans-unit>
+      <trans-unit id="YE7XVBb" resname="title.dashboard">
+        <source>title.dashboard</source>
+        <target>Admin-Dashboard</target>
+      </trans-unit>
+      <trans-unit id="DpRvyMB" resname="title.import_reject.list">
+        <source>title.import_reject.list</source>
+        <target>Zurückgewiesene Importe</target>
+      </trans-unit>
+      <trans-unit id="zB0qi2q" resname="title.import_reject.show">
+        <source>title.import_reject.show</source>
+        <target>Zurückgewiesene Importe anzeigen</target>
+      </trans-unit>
+      <trans-unit id="bloga001" resname="label.blog.post">
+        <source>label.blog.post</source>
+        <target>Blogbeitrag</target>
+      </trans-unit>
+      <trans-unit id="bloga002" resname="label.blog.posts">
+        <source>label.blog.posts</source>
+        <target>Blogbeiträge</target>
+      </trans-unit>
+      <trans-unit id="bloga003" resname="label.blog.category">
+        <source>label.blog.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="bloga004" resname="label.blog.categories">
+        <source>label.blog.categories</source>
+        <target>Kategorien</target>
+      </trans-unit>
+      <trans-unit id="bloga005" resname="label.blog.tag">
+        <source>label.blog.tag</source>
+        <target>Schlagwort</target>
+      </trans-unit>
+      <trans-unit id="bloga006" resname="label.blog.tags">
+        <source>label.blog.tags</source>
+        <target>Schlagwörter</target>
+      </trans-unit>
+      <trans-unit id="bloga007" resname="label.blog.comment">
+        <source>label.blog.comment</source>
+        <target>Kommentar</target>
+      </trans-unit>
+      <trans-unit id="bloga008" resname="label.blog.comments">
+        <source>label.blog.comments</source>
+        <target>Kommentare</target>
+      </trans-unit>
+      <trans-unit id="bloga009" resname="label.title">
+        <source>label.title</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="bloga010" resname="label.slug">
+        <source>label.slug</source>
+        <target>Slug</target>
+      </trans-unit>
+      <trans-unit id="bloga011" resname="label.category">
+        <source>label.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="bloga012" resname="label.tags">
+        <source>label.tags</source>
+        <target>Schlagwörter</target>
+      </trans-unit>
+      <trans-unit id="bloga013" resname="label.draft">
+        <source>label.draft</source>
+        <target>Entwurf</target>
+      </trans-unit>
+      <trans-unit id="bloga014" resname="label.published">
+        <source>label.published</source>
+        <target>Veröffentlicht</target>
+      </trans-unit>
+      <trans-unit id="bloga015" resname="label.published_at">
+        <source>label.published_at</source>
+        <target>Veröffentlicht am</target>
+      </trans-unit>
+      <trans-unit id="bloga016" resname="label.content">
+        <source>label.content</source>
+        <target>Inhalt</target>
+      </trans-unit>
+      <trans-unit id="bloga017" resname="label.created">
+        <source>label.created</source>
+        <target>Erstellt</target>
+      </trans-unit>
+      <trans-unit id="bloga018" resname="label.updated">
+        <source>label.updated</source>
+        <target>Aktualisiert</target>
+      </trans-unit>
+      <trans-unit id="bloga019" resname="label.post">
+        <source>label.post</source>
+        <target>Beitrag</target>
+      </trans-unit>
+      <trans-unit id="bloga020" resname="label.author">
+        <source>label.author</source>
+        <target>Autor</target>
+      </trans-unit>
+      <trans-unit id="bloga021" resname="label.parent">
+        <source>label.parent</source>
+        <target>Übergeordnet</target>
+      </trans-unit>
+      <trans-unit id="bloga022" resname="help.blog.published_at">
+        <source>help.blog.published_at</source>
+        <target>Nur veröffentlichte Beiträge mit einem Zeitstempel in der Vergangenheit werden öffentlich sichtbar.</target>
+      </trans-unit>
+      <trans-unit id="bloga023" resname="help.blog.slug">
+        <source>help.blog.slug</source>
+        <target>Leer lassen, um automatisch aus dem Titel zu generieren.</target>
+      </trans-unit>
+      <trans-unit id="pagea001" resname="help.page.slug">
+        <source>help.page.slug</source>
+        <target>Leer lassen, um automatisch aus dem Titel zu generieren.</target>
+      </trans-unit>
+      <trans-unit id="kpi001" resname="kpi.section.title">
+        <source>kpi.section.title</source>
+        <target>Kennzahlen (letzte 30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="kpi002" resname="kpi.card.active_hospitals">
+        <source>kpi.card.active_hospitals</source>
+        <target>Aktive Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="kpi003" resname="kpi.card.imports">
+        <source>kpi.card.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="kpi004" resname="kpi.card.records_processed">
+        <source>kpi.card.records_processed</source>
+        <target>Verarbeitete Datensätze</target>
+      </trans-unit>
+      <trans-unit id="kpi005" resname="kpi.card.rejection_rate">
+        <source>kpi.card.rejection_rate</source>
+        <target>Zurückweisungsrate</target>
+      </trans-unit>
+      <trans-unit id="kpi006" resname="kpi.chart.title">
+        <source>kpi.chart.title</source>
+        <target>Tagesverlauf (letzte 30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="kpi007" resname="kpi.chart.records">
+        <source>kpi.chart.records</source>
+        <target>Datensätze pro Tag</target>
+      </trans-unit>
+      <trans-unit id="kpi008" resname="kpi.chart.rejection_rate">
+        <source>kpi.chart.rejection_rate</source>
+        <target>Zurückweisungsrate pro Tag</target>
+      </trans-unit>
+      <trans-unit id="kpi009" resname="kpi.failed_imports.title">
+        <source>kpi.failed_imports.title</source>
+        <target>Kürzlich fehlgeschlagene Importe</target>
+      </trans-unit>
+      <trans-unit id="kpi010" resname="kpi.failed_imports.date">
+        <source>kpi.failed_imports.date</source>
+        <target>Datum</target>
+      </trans-unit>
+      <trans-unit id="kpi011" resname="kpi.failed_imports.hospital">
+        <source>kpi.failed_imports.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="kpi012" resname="kpi.failed_imports.file">
+        <source>kpi.failed_imports.file</source>
+        <target>Dateiname</target>
+      </trans-unit>
+      <trans-unit id="kpi013" resname="kpi.failed_imports.status">
+        <source>kpi.failed_imports.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="kpi014" resname="kpi.failed_imports.reason">
+        <source>kpi.failed_imports.reason</source>
+        <target>Fehlergrund</target>
+      </trans-unit>
+      <trans-unit id="kpi015" resname="kpi.failed_imports.records">
+        <source>kpi.failed_imports.records</source>
+        <target>Datensätze</target>
+      </trans-unit>
+      <trans-unit id="kpi016" resname="kpi.failed_imports.rejections">
+        <source>kpi.failed_imports.rejections</source>
+        <target>Zurückweisungen</target>
+      </trans-unit>
+      <trans-unit id="kpi017" resname="kpi.failed_imports.empty">
+        <source>kpi.failed_imports.empty</source>
+        <target>Keine fehlgeschlagenen Importe gefunden.</target>
+      </trans-unit>
+      <trans-unit id="kpi018" resname="kpi.failure_reason.no_rows">
+        <source>kpi.failure_reason.no_rows</source>
+        <target>Keine verarbeitbaren Zeilen</target>
+      </trans-unit>
+      <trans-unit id="kpi019" resname="kpi.failure_reason.high_rejection">
+        <source>kpi.failure_reason.high_rejection</source>
+        <target>Zurückweisungsrate von 35 % oder höher</target>
+      </trans-unit>
+      <trans-unit id="kpi020" resname="kpi.failure_reason.generic">
+        <source>kpi.failure_reason.generic</source>
+        <target>Importverarbeitung fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="admMr01" resname="admin.hospital.action.send_reminder">
+        <source>admin.hospital.action.send_reminder</source>
+        <target>Monatliche Erinnerung senden</target>
+      </trans-unit>
+      <trans-unit id="admMr02" resname="admin.hospital.action.send_reminder.confirm">
+        <source>admin.hospital.action.send_reminder.confirm</source>
+        <target>Monatliche Erinnerung zur Dateneinreichung jetzt an den Krankenhausbesitzer senden?</target>
+      </trans-unit>
+      <trans-unit id="admMr03" resname="flash.admin.hospital.reminder.sent">
+        <source>flash.admin.hospital.reminder.sent</source>
+        <target>Monatliche Erinnerung zur Zustellung an den Krankenhausbesitzer eingeplant.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

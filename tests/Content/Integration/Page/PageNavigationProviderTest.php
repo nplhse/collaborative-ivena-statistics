@@ -102,6 +102,55 @@ final class PageNavigationProviderTest extends KernelTestCase
         self::assertSame('About us', $headerPages[0]->label);
     }
 
+    public function testGetHeaderPagesHidesAboutAndFeaturesForAuthenticatedUsers(): void
+    {
+        PageFactory::createOne([
+            'slug' => 'about-public',
+            'path' => '/about-public',
+            'key' => PageKey::About,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'title' => 'About us',
+        ]);
+
+        PageFactory::createOne([
+            'slug' => 'features-public',
+            'path' => '/features-public',
+            'key' => PageKey::Features,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'title' => 'Features',
+        ]);
+
+        PageFactory::createOne([
+            'slug' => 'faq-public',
+            'path' => '/faq-public',
+            'key' => PageKey::Faq,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'title' => 'FAQ',
+        ]);
+
+        $guestHeaderPages = $this->provider->getHeaderPages();
+        self::assertCount(3, $guestHeaderPages);
+        self::assertSame(
+            [PageKey::About, PageKey::Features, PageKey::Faq],
+            array_map(static fn (\App\Content\Application\Page\DTO\PageNavigationLink $link): PageKey => $link->key, $guestHeaderPages),
+        );
+
+        $user = \App\User\Domain\Factory\UserFactory::createOne(['username' => 'nav-user']);
+        $tokenStorage = self::getContainer()->get(\Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface::class);
+        $tokenStorage->setToken(new \Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken(
+            $user,
+            'main',
+            $user->getRoles(),
+        ));
+
+        $authenticatedHeaderPages = $this->provider->getHeaderPages();
+        self::assertCount(1, $authenticatedHeaderPages);
+        self::assertSame(PageKey::Faq, $authenticatedHeaderPages[0]->key);
+    }
+
     public function testGetFooterPagesRespectsKeyOrder(): void
     {
         PageFactory::createOne([

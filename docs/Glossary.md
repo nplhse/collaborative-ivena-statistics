@@ -1,5 +1,7 @@
 # Glossary
 
+For EN↔DE UI translation terms, open decisions, and MT rules see **[Glossary-i18n-de.md](Glossary-i18n-de.md)**.
+
 ## Terms
 
 | Term | Meaning |

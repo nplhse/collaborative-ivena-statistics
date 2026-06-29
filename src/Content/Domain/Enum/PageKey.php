@@ -17,4 +17,14 @@ enum PageKey: string
     {
         return 'page.key.'.$this->value;
     }
+
+    public function navIcon(): string
+    {
+        return match ($this) {
+            self::About => 'tabler:users-group',
+            self::Features => 'tabler:sparkles',
+            self::Faq => 'tabler:info-square-rounded',
+            default => 'tabler:file-text',
+        };
+    }
 }

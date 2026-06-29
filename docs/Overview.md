@@ -16,6 +16,7 @@ Entry point for project documentation.
 | Deployment | [Deployment.md](Deployment.md)                     | Deployer, worker, ops commands |
 | Troubleshooting | [Troubleshooting.md](Troubleshooting.md)           | Common problems and quick diagnosis |
 | Glossary | [Glossary.md](Glossary.md)                         | Project terms and abbreviations |
+| i18n glossary (DE) | [Glossary-i18n-de.md](Glossary-i18n-de.md)       | EN↔DE UI terms, translation rules, open decisions |
 
 ## Troubleshooting
 
