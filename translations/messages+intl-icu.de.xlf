@@ -5301,6 +5301,178 @@
         <source>stats.analysis_explorer.view_type.user</source>
         <target>Meine Ansicht</target>
       </trans-unit>
+      <trans-unit id="De9f024ec8" resname="stats.analytics_library.advanced_section">
+        <source>stats.analytics_library.advanced_section</source>
+        <target>Erweitert</target>
+      </trans-unit>
+      <trans-unit id="Dedbca6003" resname="stats.analytics_library.apply">
+        <source>stats.analytics_library.apply</source>
+        <target>Anwenden</target>
+      </trans-unit>
+      <trans-unit id="Debf61650a" resname="stats.analytics_library.builder_entry_action">
+        <source>stats.analytics_library.builder_entry_action</source>
+        <target>Builder starten</target>
+      </trans-unit>
+      <trans-unit id="De2a2087c3" resname="stats.analytics_library.builder_entry_description">
+        <source>stats.analytics_library.builder_entry_description</source>
+        <target>Konfigurieren Sie Dimensionen und Kennzahlen in einem Formular und führen Sie anschließend eine eigene Analyse aus.</target>
+      </trans-unit>
+      <trans-unit id="Dee47189b6" resname="stats.analytics_library.builder_entry_title">
+        <source>stats.analytics_library.builder_entry_title</source>
+        <target>Eigene Analyse erstellen</target>
+      </trans-unit>
+      <trans-unit id="Ded43e1103" resname="stats.analytics_library.builder_short">
+        <source>stats.analytics_library.builder_short</source>
+        <target>Builder</target>
+      </trans-unit>
+      <trans-unit id="Deb82b5fe1" resname="stats.analytics_library.card.chart">
+        <source>stats.analytics_library.card.chart</source>
+        <target>Diagramm</target>
+      </trans-unit>
+      <trans-unit id="De2aeb7cac" resname="stats.analytics_library.card.metrics">
+        <source>stats.analytics_library.card.metrics</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="Def2d8d64d" resname="stats.analytics_library.category.all">
+        <source>stats.analytics_library.category.all</source>
+        <target>Alle Kategorien</target>
+      </trans-unit>
+      <trans-unit id="De8e443078" resname="stats.analytics_library.category.benchmarking">
+        <source>stats.analytics_library.category.benchmarking</source>
+        <target>Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="Dec0d98f90" resname="stats.analytics_library.category.clinical">
+        <source>stats.analytics_library.category.clinical</source>
+        <target>Klinisch</target>
+      </trans-unit>
+      <trans-unit id="Ded0a7d3b3" resname="stats.analytics_library.category.hospitals">
+        <source>stats.analytics_library.category.hospitals</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De21954d75" resname="stats.analytics_library.category.operations">
+        <source>stats.analytics_library.category.operations</source>
+        <target>Operativ</target>
+      </trans-unit>
+      <trans-unit id="Dea6e1d2c7" resname="stats.analytics_library.category.patients">
+        <source>stats.analytics_library.category.patients</source>
+        <target>Patienten</target>
+      </trans-unit>
+      <trans-unit id="De0d6743df" resname="stats.analytics_library.category.time_and_trends">
+        <source>stats.analytics_library.category.time_and_trends</source>
+        <target>Zeit &amp; Trends</target>
+      </trans-unit>
+      <trans-unit id="De6aab8a3b" resname="stats.analytics_library.customize">
+        <source>stats.analytics_library.customize</source>
+        <target>Anpassen</target>
+      </trans-unit>
+      <trans-unit id="Deebcf1b58" resname="stats.analytics_library.customize_title">
+        <source>stats.analytics_library.customize_title</source>
+        <target>Analyse anpassen</target>
+      </trans-unit>
+      <trans-unit id="De62e208c0" resname="stats.analytics_library.edit">
+        <source>stats.analytics_library.edit</source>
+        <target>Bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="De78050eb7" resname="stats.analytics_library.empty_subtitle">
+        <source>stats.analytics_library.empty_subtitle</source>
+        <target>Versuchen Sie einen anderen Suchbegriff oder eine andere Kategorie.</target>
+      </trans-unit>
+      <trans-unit id="Deeb5316e3" resname="stats.analytics_library.empty_title">
+        <source>stats.analytics_library.empty_title</source>
+        <target>Keine Analysen gefunden</target>
+      </trans-unit>
+      <trans-unit id="De7443c6d2" resname="stats.analytics_library.export_coming_soon">
+        <source>stats.analytics_library.export_coming_soon</source>
+        <target>Demnächst verfügbar</target>
+      </trans-unit>
+      <trans-unit id="De23493f9e" resname="stats.analytics_library.export_title">
+        <source>stats.analytics_library.export_title</source>
+        <target>Export</target>
+      </trans-unit>
+      <trans-unit id="De5f527ebc" resname="stats.analytics_library.favorite">
+        <source>stats.analytics_library.favorite</source>
+        <target>Favorit</target>
+      </trans-unit>
+      <trans-unit id="Dee6ff4561" resname="stats.analytics_library.login_required_save">
+        <source>stats.analytics_library.login_required_save</source>
+        <target>Melden Sie sich an, um eigene Analyseansichten zu speichern.</target>
+      </trans-unit>
+      <trans-unit id="De47a7557e" resname="stats.analytics_library.open">
+        <source>stats.analytics_library.open</source>
+        <target>Öffnen</target>
+      </trans-unit>
+      <trans-unit id="De303f6e01" resname="stats.analytics_library.pretitle">
+        <source>stats.analytics_library.pretitle</source>
+        <target>Statistik</target>
+      </trans-unit>
+      <trans-unit id="De1eda2d7d" resname="stats.analytics_library.recent.last_used">
+        <source>stats.analytics_library.recent.last_used</source>
+        <target>Zuletzt genutzt</target>
+      </trans-unit>
+      <trans-unit id="De7f53e764" resname="stats.analytics_library.recent.most_frequent">
+        <source>stats.analytics_library.recent.most_frequent</source>
+        <target>Am häufigsten genutzt</target>
+      </trans-unit>
+      <trans-unit id="De36785351" resname="stats.analytics_library.reset">
+        <source>stats.analytics_library.reset</source>
+        <target>Auf Original zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="De0a9a87ec" resname="stats.analytics_library.save.description_label">
+        <source>stats.analytics_library.save.description_label</source>
+        <target>Beschreibung</target>
+      </trans-unit>
+      <trans-unit id="De0c6a4057" resname="stats.analytics_library.save.submit">
+        <source>stats.analytics_library.save.submit</source>
+        <target>Analyse speichern</target>
+      </trans-unit>
+      <trans-unit id="De13bc0c89" resname="stats.analytics_library.save.title_draft">
+        <source>stats.analytics_library.save.title_draft</source>
+        <target>{metric} nach {primary}</target>
+      </trans-unit>
+      <trans-unit id="De5b67caf5" resname="stats.analytics_library.save.title_label">
+        <source>stats.analytics_library.save.title_label</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="De59ed1090" resname="stats.analytics_library.save_as_title">
+        <source>stats.analytics_library.save_as_title</source>
+        <target>Als eigene Analyse speichern</target>
+      </trans-unit>
+      <trans-unit id="Dea0976204" resname="stats.analytics_library.search">
+        <source>stats.analytics_library.search</source>
+        <target>Suchen</target>
+      </trans-unit>
+      <trans-unit id="De67362806" resname="stats.analytics_library.search_placeholder">
+        <source>stats.analytics_library.search_placeholder</source>
+        <target>Analysen nach Titel, Beschreibung oder Schlagwort suchen …</target>
+      </trans-unit>
+      <trans-unit id="De2959daa6" resname="stats.analytics_library.tab.categories">
+        <source>stats.analytics_library.tab.categories</source>
+        <target>Kategorien</target>
+      </trans-unit>
+      <trans-unit id="De226df8ed" resname="stats.analytics_library.tab.favorites">
+        <source>stats.analytics_library.tab.favorites</source>
+        <target>Favoriten</target>
+      </trans-unit>
+      <trans-unit id="De23ea91c0" resname="stats.analytics_library.tab.recent">
+        <source>stats.analytics_library.tab.recent</source>
+        <target>Zuletzt genutzt</target>
+      </trans-unit>
+      <trans-unit id="De2346cf44" resname="stats.analytics_library.tab.recommended">
+        <source>stats.analytics_library.tab.recommended</source>
+        <target>Empfohlen</target>
+      </trans-unit>
+      <trans-unit id="De4dd39477" resname="stats.analytics_library.title">
+        <source>stats.analytics_library.title</source>
+        <target>Analyse</target>
+      </trans-unit>
+      <trans-unit id="De13942926" resname="stats.analytics_library.view_actions">
+        <source>stats.analytics_library.view_actions</source>
+        <target>Analyseaktionen</target>
+      </trans-unit>
+      <trans-unit id="Dee50638a8" resname="stats.analytics_library.view_pretitle">
+        <source>stats.analytics_library.view_pretitle</source>
+        <target>Analyse</target>
+      </trans-unit>
       <trans-unit id="De80913b69" resname="stats.benchmark.age_group.0_17">
         <source>stats.benchmark.age_group.0_17</source>
         <target>0–17</target>
