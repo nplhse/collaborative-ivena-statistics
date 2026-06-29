@@ -9,9 +9,21 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Repository\PageRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class PageNavigationProvider
 {
+    /** @var list<PageKey> */
+    private const array GUEST_ONLY_HEADER_KEYS = [
+        PageKey::About,
+        PageKey::Features,
+    ];
+
+    /** @var list<PageKey> */
+    private const array SHARED_HEADER_KEYS = [
+        PageKey::Faq,
+    ];
+
     /** @var array<string, Page>|null */
     private ?array $publishedByKey = null;
 
@@ -19,6 +31,7 @@ final class PageNavigationProvider
         private readonly PageRepository $pageRepository,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly PageAccessChecker $pageAccessChecker,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
@@ -51,11 +64,12 @@ final class PageNavigationProvider
      */
     public function getHeaderPages(): array
     {
-        return $this->buildLinksForKeys(
-            PageKey::About,
-            PageKey::Features,
-            PageKey::Faq,
-        );
+        $keys = self::SHARED_HEADER_KEYS;
+        if (!$this->authorizationChecker->isGranted('ROLE_USER')) {
+            $keys = [...self::GUEST_ONLY_HEADER_KEYS, ...$keys];
+        }
+
+        return $this->buildLinksForKeys(...$keys);
     }
 
     /**
