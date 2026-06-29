@@ -4801,6 +4801,34 @@
         <source>stats.analysis_explorer.dimension_group.geography</source>
         <target>Geografie</target>
       </trans-unit>
+      <trans-unit id="Deacd6097f" resname="stats.analysis_explorer.dimension_group.geography_and_participation">
+        <source>stats.analysis_explorer.dimension_group.geography_and_participation</source>
+        <target>Geografie und Teilnahme</target>
+      </trans-unit>
+      <trans-unit id="De12532480" resname="stats.analysis_explorer.dimension_group.hospital_and_geography">
+        <source>stats.analysis_explorer.dimension_group.hospital_and_geography</source>
+        <target>Krankenhaus und Geografie</target>
+      </trans-unit>
+      <trans-unit id="De64ec3ed7" resname="stats.analysis_explorer.dimension_group.hospital_profile">
+        <source>stats.analysis_explorer.dimension_group.hospital_profile</source>
+        <target>Krankenhausprofil</target>
+      </trans-unit>
+      <trans-unit id="Deb4482589" resname="stats.analysis_explorer.dimension_group.mission_and_allocation">
+        <source>stats.analysis_explorer.dimension_group.mission_and_allocation</source>
+        <target>Einsatz und Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="De8d6650ab" resname="stats.analysis_explorer.dimension_group.patient_and_demographics">
+        <source>stats.analysis_explorer.dimension_group.patient_and_demographics</source>
+        <target>Patient und Demografie</target>
+      </trans-unit>
+      <trans-unit id="Decf9411eb" resname="stats.analysis_explorer.dimension_group.time_and_calendar">
+        <source>stats.analysis_explorer.dimension_group.time_and_calendar</source>
+        <target>Zeit und Kalender</target>
+      </trans-unit>
+      <trans-unit id="Deff0697ee" resname="stats.analysis_explorer.dimension_group.transport_and_duration">
+        <source>stats.analysis_explorer.dimension_group.transport_and_duration</source>
+        <target>Transport und Dauer</target>
+      </trans-unit>
       <trans-unit id="statsAexHp08" resname="stats.analysis_explorer.edit.additional_table_metrics">
         <source>stats.analysis_explorer.edit.additional_table_metrics</source>
         <target>Zusätzliche Tabellenmetriken</target>
@@ -5281,9 +5309,17 @@
         <source>stats.analysis_explorer.metric_group.beds</source>
         <target>Betten</target>
       </trans-unit>
+      <trans-unit id="De9d5c986b" resname="stats.analysis_explorer.metric_group.clinical_rates">
+        <source>stats.analysis_explorer.metric_group.clinical_rates</source>
+        <target>Klinische Raten</target>
+      </trans-unit>
       <trans-unit id="statsAexMg03" resname="stats.analysis_explorer.metric_group.counts">
         <source>stats.analysis_explorer.metric_group.counts</source>
         <target>Zählungen</target>
+      </trans-unit>
+      <trans-unit id="De46529a4a" resname="stats.analysis_explorer.metric_group.shares">
+        <source>stats.analysis_explorer.metric_group.shares</source>
+        <target>Anteile und Verteilung</target>
       </trans-unit>
       <trans-unit id="statsAexMg04" resname="stats.analysis_explorer.metric_group.transport_times">
         <source>stats.analysis_explorer.metric_group.transport_times</source>
@@ -5452,6 +5488,90 @@
       <trans-unit id="statsAex70" resname="stats.analysis_explorer.view_type.user">
         <source>stats.analysis_explorer.view_type.user</source>
         <target>Meine Ansicht</target>
+      </trans-unit>
+      <trans-unit id="De616b28d4" resname="stats.analytics_builder.back_to_library">
+        <source>stats.analytics_builder.back_to_library</source>
+        <target>Zurück zur Analyse</target>
+      </trans-unit>
+      <trans-unit id="De5b16d6af" resname="stats.analytics_builder.description">
+        <source>stats.analytics_builder.description</source>
+        <target>Gleiche Steuerung wie im Analyse-Explorer, gruppiert für einen eigenen Lauf aus der Bibliothek.</target>
+      </trans-unit>
+      <trans-unit id="De59ada302" resname="stats.analytics_builder.form_title">
+        <source>stats.analytics_builder.form_title</source>
+        <target>Analysekonfiguration</target>
+      </trans-unit>
+      <trans-unit id="De7606179e" resname="stats.analytics_builder.launch">
+        <source>stats.analytics_builder.launch</source>
+        <target>Analyse ausführen</target>
+      </trans-unit>
+      <trans-unit id="Deb6997d07" resname="stats.analytics_builder.next">
+        <source>stats.analytics_builder.next</source>
+        <target>Weiter</target>
+      </trans-unit>
+      <trans-unit id="De61d94404" resname="stats.analytics_builder.page_description">
+        <source>stats.analytics_builder.page_description</source>
+        <target>Konfigurieren Sie Dimensionen, Kennzahlen und Diagrammdarstellung an einem Ort und öffnen Sie anschließend die Analyse.</target>
+      </trans-unit>
+      <trans-unit id="Def77d6229" resname="stats.analytics_builder.pretitle">
+        <source>stats.analytics_builder.pretitle</source>
+        <target>Erweitert</target>
+      </trans-unit>
+      <trans-unit id="Dee080d8c2" resname="stats.analytics_builder.review_hint">
+        <source>stats.analytics_builder.review_hint</source>
+        <target>Überprüfen Sie Ihre Auswahl und öffnen Sie die Analyse mit der gewählten Konfiguration.</target>
+      </trans-unit>
+      <trans-unit id="De40f8fe72" resname="stats.analytics_builder.section.chart_metric">
+        <source>stats.analytics_builder.section.chart_metric</source>
+        <target>Diagramm-Kennzahl</target>
+      </trans-unit>
+      <trans-unit id="Dec7e6cc1e" resname="stats.analytics_builder.section.chart_metric_hint">
+        <source>stats.analytics_builder.section.chart_metric_hint</source>
+        <target>Welche Kennzahl die Balken oder Linien im Diagramm steuert. Weitere ausgewählte Kennzahlen erscheinen in der Tabelle.</target>
+      </trans-unit>
+      <trans-unit id="De7164c276" resname="stats.analytics_builder.section.dimensions">
+        <source>stats.analytics_builder.section.dimensions</source>
+        <target>Dimensionen</target>
+      </trans-unit>
+      <trans-unit id="Debacf6be1" resname="stats.analytics_builder.section.dimensions_hint">
+        <source>stats.analytics_builder.section.dimensions_hint</source>
+        <target>Wählen Sie die Hauptgruppierung für Zeilen und Buckets und optional eine Seriendimension zur Aufteilung im Diagramm.</target>
+      </trans-unit>
+      <trans-unit id="De10c8ddb3" resname="stats.analytics_builder.section.metrics">
+        <source>stats.analytics_builder.section.metrics</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="De3fc4b561" resname="stats.analytics_builder.section.metrics_hint">
+        <source>stats.analytics_builder.section.metrics_hint</source>
+        <target>Wählen Sie Werte für die Tabelle. Die Anzahl ist immer enthalten. Einige Kennzahlen erfordern eine Seriendimension.</target>
+      </trans-unit>
+      <trans-unit id="Dec8d67c1b" resname="stats.analytics_builder.step.chart">
+        <source>stats.analytics_builder.step.chart</source>
+        <target>Diagrammtyp</target>
+      </trans-unit>
+      <trans-unit id="De7e6557d1" resname="stats.analytics_builder.step.goal">
+        <source>stats.analytics_builder.step.goal</source>
+        <target>Was möchten Sie analysieren?</target>
+      </trans-unit>
+      <trans-unit id="De66df7414" resname="stats.analytics_builder.step.metrics">
+        <source>stats.analytics_builder.step.metrics</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="De53103475" resname="stats.analytics_builder.step.primary">
+        <source>stats.analytics_builder.step.primary</source>
+        <target>Primärdimension</target>
+      </trans-unit>
+      <trans-unit id="De28b001aa" resname="stats.analytics_builder.step.review">
+        <source>stats.analytics_builder.step.review</source>
+        <target>Prüfen</target>
+      </trans-unit>
+      <trans-unit id="De45a97ded" resname="stats.analytics_builder.step.secondary">
+        <source>stats.analytics_builder.step.secondary</source>
+        <target>Aufschlüsselungsdimension (optional)</target>
+      </trans-unit>
+      <trans-unit id="De9a8f2722" resname="stats.analytics_builder.title">
+        <source>stats.analytics_builder.title</source>
+        <target>Analyse-Builder</target>
       </trans-unit>
       <trans-unit id="De9f024ec8" resname="stats.analytics_library.advanced_section">
         <source>stats.analytics_library.advanced_section</source>
@@ -6236,6 +6356,14 @@
       <trans-unit id="De9d38224c" resname="stats.case_flow.urgency.unknown">
         <source>stats.case_flow.urgency.unknown</source>
         <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="De0a3833cf" resname="stats.dashboard.heading.quarter">
+        <source>stats.dashboard.heading.quarter</source>
+        <target>Q{quarter} {year}</target>
+      </trans-unit>
+      <trans-unit id="De7027e0b8" resname="stats.dashboard.heading.year">
+        <source>stats.dashboard.heading.year</source>
+        <target>{year}</target>
       </trans-unit>
       <trans-unit id="Deb15c1a4b" resname="stats.data_quality.allocation.histogram.hospitals">
         <source>stats.data_quality.allocation.histogram.hospitals</source>
@@ -7805,6 +7933,10 @@
         <source>stats.indication.weekday.7</source>
         <target>Sonntag</target>
       </trans-unit>
+      <trans-unit id="De2d822d82" resname="stats.nav.overview_age_groups_to_analysis">
+        <source>stats.nav.overview_age_groups_to_analysis</source>
+        <target>Altersanalyse öffnen</target>
+      </trans-unit>
       <trans-unit id="statsNavHmHr" resname="stats.nav.overview_allocations_by_hour">
         <source>stats.nav.overview_allocations_by_hour</source>
         <target>Zuweisungen nach Stunde</target>
@@ -7813,9 +7945,33 @@
         <source>stats.nav.overview_allocations_by_weekday_short</source>
         <target>Wochentag</target>
       </trans-unit>
+      <trans-unit id="De533cc681" resname="stats.nav.overview_gender_to_analysis">
+        <source>stats.nav.overview_gender_to_analysis</source>
+        <target>In Analyse öffnen</target>
+      </trans-unit>
+      <trans-unit id="Ded208da09" resname="stats.nav.overview_indicators_to_analysis">
+        <source>stats.nav.overview_indicators_to_analysis</source>
+        <target>In Analyse öffnen</target>
+      </trans-unit>
+      <trans-unit id="Dedf5668f2" resname="stats.nav.overview_kpi_to_analysis">
+        <source>stats.nav.overview_kpi_to_analysis</source>
+        <target>Zuweisungen über die Zeit öffnen</target>
+      </trans-unit>
+      <trans-unit id="Ded428ffdb" resname="stats.nav.overview_resources_to_analysis">
+        <source>stats.nav.overview_resources_to_analysis</source>
+        <target>In Analyse öffnen</target>
+      </trans-unit>
       <trans-unit id="statsNavTt" resname="stats.nav.overview_transport_time_to_analysis">
         <source>stats.nav.overview_transport_time_to_analysis</source>
         <target>Transportzeitverteilung öffnen</target>
+      </trans-unit>
+      <trans-unit id="De4f36210d" resname="stats.nav.overview_urgency_to_analysis">
+        <source>stats.nav.overview_urgency_to_analysis</source>
+        <target>In Analyse öffnen</target>
+      </trans-unit>
+      <trans-unit id="De437273b7" resname="stats.nav.report_to_analysis_allocations_by_month">
+        <source>stats.nav.report_to_analysis_allocations_by_month</source>
+        <target>In Analyse öffnen</target>
       </trans-unit>
       <trans-unit id="De92f63d3a" resname="stats.overview.executive.benchmark.insufficient">
         <source>stats.overview.executive.benchmark.insufficient</source>
@@ -8084,6 +8240,30 @@
       <trans-unit id="Decca00383" resname="stats.overview.table.placeholder">
         <source>stats.overview.table.placeholder</source>
         <target>Tabellen-Widgets werden hier später verfügbar sein.</target>
+      </trans-unit>
+      <trans-unit id="De2d382f14" resname="stats.period.navigation.back">
+        <source>stats.period.navigation.back</source>
+        <target>zurück</target>
+      </trans-unit>
+      <trans-unit id="De49b95e34" resname="stats.period.navigation.forward">
+        <source>stats.period.navigation.forward</source>
+        <target>weiter</target>
+      </trans-unit>
+      <trans-unit id="Deac80d774" resname="stats.period.navigation.label">
+        <source>stats.period.navigation.label</source>
+        <target>Zeitraum-Navigation</target>
+      </trans-unit>
+      <trans-unit id="De44d9fe1f" resname="stats.period.navigation.next">
+        <source>stats.period.navigation.next</source>
+        <target>Nächster Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="Dec49598a7" resname="stats.period.navigation.parent">
+        <source>stats.period.navigation.parent</source>
+        <target>hoch</target>
+      </trans-unit>
+      <trans-unit id="De270e670d" resname="stats.period.navigation.previous">
+        <source>stats.period.navigation.previous</source>
+        <target>Vorheriger Zeitraum</target>
       </trans-unit>
       <trans-unit id="Dee27b6808" resname="stats.reports.nav.indication_profile">
         <source>stats.reports.nav.indication_profile</source>
