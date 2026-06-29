@@ -6465,6 +6465,110 @@
         <source>stats.data_quality.table.status</source>
         <target>Status</target>
       </trans-unit>
+      <trans-unit id="Ded334e64e" resname="stats.filter.cohort.label">
+        <source>stats.filter.cohort.label</source>
+        <target>{location} {tier}</target>
+      </trans-unit>
+      <trans-unit id="Debe6652b8" resname="stats.filter.hospital.all_hospitals">
+        <source>stats.filter.hospital.all_hospitals</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De3ae41512" resname="stats.filter.hospital.choose">
+        <source>stats.filter.hospital.choose</source>
+        <target>Krankenhaus wählen</target>
+      </trans-unit>
+      <trans-unit id="De2f7ec22f" resname="stats.filter.hospital.my_hospital">
+        <source>stats.filter.hospital.my_hospital</source>
+        <target>Mein Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De87bd52ff" resname="stats.filter.hospital.named_line">
+        <source>stats.filter.hospital.named_line</source>
+        <target>Krankenhaus: {name}</target>
+      </trans-unit>
+      <trans-unit id="De1e37dc31" resname="stats.filter.hospital_label">
+        <source>stats.filter.hospital_label</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="De9d5693b1" resname="stats.filter.period.all">
+        <source>stats.filter.period.all</source>
+        <target>Letzte 12 Monate</target>
+      </trans-unit>
+      <trans-unit id="De1c3d21e5" resname="stats.filter.period.all_time">
+        <source>stats.filter.period.all_time</source>
+        <target>Gesamter Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="De09fa11b7" resname="stats.filter.period.month">
+        <source>stats.filter.period.month</source>
+        <target>Monat</target>
+      </trans-unit>
+      <trans-unit id="De9658c924" resname="stats.filter.period.quarter">
+        <source>stats.filter.period.quarter</source>
+        <target>Quartal</target>
+      </trans-unit>
+      <trans-unit id="Deff2010a6" resname="stats.filter.period.year">
+        <source>stats.filter.period.year</source>
+        <target>Jahr</target>
+      </trans-unit>
+      <trans-unit id="De49958f3d" resname="stats.filter.period_label">
+        <source>stats.filter.period_label</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="De6de37412" resname="stats.filter.scope.choose_cohort">
+        <source>stats.filter.scope.choose_cohort</source>
+        <target>Kohorte wählen</target>
+      </trans-unit>
+      <trans-unit id="De15bdaa58" resname="stats.filter.scope.choose_dispatch_area">
+        <source>stats.filter.scope.choose_dispatch_area</source>
+        <target>Leitstelle wählen</target>
+      </trans-unit>
+      <trans-unit id="Deb139440f" resname="stats.filter.scope.choose_region">
+        <source>stats.filter.scope.choose_region</source>
+        <target>Bundesland wählen</target>
+      </trans-unit>
+      <trans-unit id="De45f6dc1e" resname="stats.filter.scope.cohort_too_small">
+        <source>stats.filter.scope.cohort_too_small</source>
+        <target>Die gewählte Kohorte umfasst weniger als 2 teilnehmende Krankenhäuser. Es werden stattdessen öffentliche Statistiken angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="De6ed671b9" resname="stats.filter.scope.dispatch_area">
+        <source>stats.filter.scope.dispatch_area</source>
+        <target>Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="Deee12bbf0" resname="stats.filter.scope.dispatch_area_invalid">
+        <source>stats.filter.scope.dispatch_area_invalid</source>
+        <target>Die gewählte Leitstelle hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen öffentliche Statistiken angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="De99b9a4a7" resname="stats.filter.scope.hospital_cohort">
+        <source>stats.filter.scope.hospital_cohort</source>
+        <target>Krankenhauskohorte</target>
+      </trans-unit>
+      <trans-unit id="De532540e4" resname="stats.filter.scope.hospital_cohorts">
+        <source>stats.filter.scope.hospital_cohorts</source>
+        <target>Krankenhauskohorten</target>
+      </trans-unit>
+      <trans-unit id="De6c1200f8" resname="stats.filter.scope.hospitals">
+        <source>stats.filter.scope.hospitals</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="Defc920435" resname="stats.filter.scope.my_hospitals">
+        <source>stats.filter.scope.my_hospitals</source>
+        <target>Meine Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="Deca1dcd6a" resname="stats.filter.scope.public">
+        <source>stats.filter.scope.public</source>
+        <target>Öffentlich</target>
+      </trans-unit>
+      <trans-unit id="Dede92e72a" resname="stats.filter.scope.state">
+        <source>stats.filter.scope.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="De470b0b8a" resname="stats.filter.scope.state_invalid">
+        <source>stats.filter.scope.state_invalid</source>
+        <target>Das gewählte Bundesland hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen öffentliche Statistiken angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="Deb3d8bb5d" resname="stats.filter.scope_label">
+        <source>stats.filter.scope_label</source>
+        <target>Bereich</target>
+      </trans-unit>
       <trans-unit id="Ded2900385" resname="stats.generic_analysis.apply">
         <source>stats.generic_analysis.apply</source>
         <target>Anwenden</target>
