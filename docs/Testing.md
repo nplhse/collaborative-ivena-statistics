@@ -44,18 +44,10 @@ make psalm
 
 ## Translations (i18n)
 
-Missing German keys by bounded-context wave (see [Glossary-i18n-de.md](Glossary-i18n-de.md)):
+Extract and lint (see [Glossary-i18n-de.md](Glossary-i18n-de.md)):
 
 ```bash
-make trans-missing                              # text summary + key list
-php bin/report-missing-translations.php --wave=shared --list-keys
-php bin/report-missing-translations.php --format=markdown --wave=stats
-```
-
-Extract and lint:
-
-```bash
-make trans-de       # scaffold missing DE units from EN (use before MT batches)
+make trans-de       # scaffold missing DE units from EN
 make lint-trans-de  # lint DE catalogue only
 make lint-trans     # lint EN + DE catalogues
 ```

@@ -65,9 +65,6 @@ jobs:
                   ./bin/console lint:translations --locale=en
                   ./bin/console lint:translations --locale=de
 
-            - name: Report missing DE translation keys
-              run: php bin/report-missing-translations.php --format=markdown
-
             - name: Check Symfony deprecations
               run: ./bin/check-deprecations
 

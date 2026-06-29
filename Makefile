@@ -116,9 +116,6 @@ trans: ## Extract translations from symfony
 trans-de: ## Extract missing DE translation skeletons (messages domain)
 	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc de
 
-trans-missing: ## Report missing DE translation keys by wave
-	@php bin/report-missing-translations.php --list-keys
-
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
 lint: lint-container lint-php lint-twig lint-trans lint-js static-analysis ## Run continuous integration pipeline
 

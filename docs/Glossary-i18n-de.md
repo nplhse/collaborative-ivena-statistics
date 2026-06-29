@@ -13,7 +13,7 @@ Dient als Referenz für manuelles Review und MT-Entwürfe (Phase 0 der Übersetz
 2. **Vorschläge mit `(?)`** prüfen — besonders wo bestehende DE-Übersetzungen widersprüchlich sind.
 3. Glossar ist bindend für Bulk-MT und modulweises Review.
 4. Neue Features: EN- und DE-Key im selben PR (siehe [analysis-explorer-v2.md](analysis-explorer-v2.md)).
-5. Fortschritt prüfen: `make trans-missing` (siehe [Testing.md](Testing.md)).
+5. Fortschritt prüfen: `make lint-trans-de` (siehe [Testing.md](Testing.md)).
 
 ---
 
@@ -336,6 +336,6 @@ Kontext-Modul: [z.B. stats.benchmark.*]
 
 ## Nächste Schritte (Übersetzungs-Rollout)
 
-1. **Phase 1 (Tooling):** `make trans-missing`, `make trans-de`, `make lint-trans-de` — siehe [Testing.md](Testing.md)
+1. **Phase 1 (Tooling):** `make trans-de`, `make lint-trans-de` — siehe [Testing.md](Testing.md)
 2. **Phase 2a — Terminologie-Audit:** bestehende DE-Einträge gegen dieses Glossar (Zuweisung statt Verlegung, Leitstelle, Schockraum, …)
 3. **Phase 2b — Wellen:** Shared/User → Content → Statistics → Import/Allocation (je Prefix-Batch MT + Review)
