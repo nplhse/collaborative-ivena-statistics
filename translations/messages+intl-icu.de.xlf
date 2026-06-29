@@ -7981,6 +7981,114 @@
         <source>stats.overview.table.placeholder</source>
         <target>Tabellen-Widgets werden hier später verfügbar sein.</target>
       </trans-unit>
+      <trans-unit id="Dee27b6808" resname="stats.reports.nav.indication_profile">
+        <source>stats.reports.nav.indication_profile</source>
+        <target>Indikationsprofil</target>
+      </trans-unit>
+      <trans-unit id="De3d88ff8d" resname="stats.reports.page_title">
+        <source>stats.reports.page_title</source>
+        <target>Berichte</target>
+      </trans-unit>
+      <trans-unit id="De262b7e71" resname="stats.reports.select_label">
+        <source>stats.reports.select_label</source>
+        <target>Bericht</target>
+      </trans-unit>
+      <trans-unit id="De63e6bde0" resname="stats.reports.table.assignment">
+        <source>stats.reports.table.assignment</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="De6ff258aa" resname="stats.reports.table.count">
+        <source>stats.reports.table.count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="De9e3e18d0" resname="stats.reports.table.department">
+        <source>stats.reports.table.department</source>
+        <target>Abteilung</target>
+      </trans-unit>
+      <trans-unit id="Deeebb65cf" resname="stats.reports.table.diagnosis">
+        <source>stats.reports.table.diagnosis</source>
+        <target>Indikation</target>
+      </trans-unit>
+      <trans-unit id="Dec63bedd2" resname="stats.reports.table.infection">
+        <source>stats.reports.table.infection</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="De5f11bfea" resname="stats.reports.table.occasion">
+        <source>stats.reports.table.occasion</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="De76221961" resname="stats.reports.table.rank">
+        <source>stats.reports.table.rank</source>
+        <target>Rang</target>
+      </trans-unit>
+      <trans-unit id="De92e2d795" resname="stats.reports.table.secondary_diagnosis">
+        <source>stats.reports.table.secondary_diagnosis</source>
+        <target>Sekundärindikation</target>
+      </trans-unit>
+      <trans-unit id="De052d8192" resname="stats.reports.table.share">
+        <source>stats.reports.table.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="Dea0f459d4" resname="stats.reports.table.speciality">
+        <source>stats.reports.table.speciality</source>
+        <target>Fachrichtung</target>
+      </trans-unit>
+      <trans-unit id="De683c6ffd" resname="stats.reports.top_assignments.description">
+        <source>stats.reports.top_assignments.description</source>
+        <target>Häufigste Zuweisungstypen.</target>
+      </trans-unit>
+      <trans-unit id="De1f2ae254" resname="stats.reports.top_assignments.label">
+        <source>stats.reports.top_assignments.label</source>
+        <target>Top-Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="Dedf3e4f0d" resname="stats.reports.top_departments.description">
+        <source>stats.reports.top_departments.description</source>
+        <target>Häufigste Abteilungen.</target>
+      </trans-unit>
+      <trans-unit id="De33113db9" resname="stats.reports.top_departments.label">
+        <source>stats.reports.top_departments.label</source>
+        <target>Top-Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="Dea45ebaae" resname="stats.reports.top_diagnoses.description">
+        <source>stats.reports.top_diagnoses.description</source>
+        <target>Häufigste Indikationsbezeichnungen.</target>
+      </trans-unit>
+      <trans-unit id="De423e969f" resname="stats.reports.top_diagnoses.label">
+        <source>stats.reports.top_diagnoses.label</source>
+        <target>Top-Indikationen</target>
+      </trans-unit>
+      <trans-unit id="Dedac4d941" resname="stats.reports.top_infections.description">
+        <source>stats.reports.top_infections.description</source>
+        <target>Häufigste Infektionsbezeichnungen.</target>
+      </trans-unit>
+      <trans-unit id="De0e7038d2" resname="stats.reports.top_infections.label">
+        <source>stats.reports.top_infections.label</source>
+        <target>Top-Infektionen</target>
+      </trans-unit>
+      <trans-unit id="Decfbe75bc" resname="stats.reports.top_occasions.description">
+        <source>stats.reports.top_occasions.description</source>
+        <target>Häufigste Anlässe.</target>
+      </trans-unit>
+      <trans-unit id="Debe7eaee9" resname="stats.reports.top_occasions.label">
+        <source>stats.reports.top_occasions.label</source>
+        <target>Top-Anlässe</target>
+      </trans-unit>
+      <trans-unit id="De2bf7d865" resname="stats.reports.top_secondary_diagnoses.description">
+        <source>stats.reports.top_secondary_diagnoses.description</source>
+        <target>Häufigste Sekundärindikationsbezeichnungen.</target>
+      </trans-unit>
+      <trans-unit id="De25e3ba4f" resname="stats.reports.top_secondary_diagnoses.label">
+        <source>stats.reports.top_secondary_diagnoses.label</source>
+        <target>Top-Sekundärindikationen</target>
+      </trans-unit>
+      <trans-unit id="De0d3434c8" resname="stats.reports.top_specialities.description">
+        <source>stats.reports.top_specialities.description</source>
+        <target>Häufigste Fachrichtungen.</target>
+      </trans-unit>
+      <trans-unit id="Dec4f20cb7" resname="stats.reports.top_specialities.label">
+        <source>stats.reports.top_specialities.label</source>
+        <target>Top-Fachrichtungen</target>
+      </trans-unit>
       <trans-unit id="De1562264f" resname="subtitle.indication.assign">
         <source>subtitle.indication.assign</source>
         <target>Dieses Formular ermöglicht es Ihnen, eine Indikation (original) mit einer passenden normalisierten Indikation aus der standardisierten Liste zu verknüpfen. Durch die Auswahl der passenden normalisierten Indikation tragen Sie zu einer einheitlichen Datenklassifikation bei und verbessern die Genauigkeit weiterer Analysen und Berichte.</target>
