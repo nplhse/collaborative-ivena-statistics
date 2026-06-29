@@ -53,6 +53,10 @@
         <source>btn.indication.accept_match</source>
         <target>Annehmen</target>
       </trans-unit>
+      <trans-unit id="Def19f6e97" resname="btn.indication.approve_match">
+        <source>btn.indication.approve_match</source>
+        <target>Match freigeben</target>
+      </trans-unit>
       <trans-unit id="BtnIndIgnDe" resname="btn.indication.ignore">
         <source>btn.indication.ignore</source>
         <target>Ignorieren</target>
@@ -73,9 +77,25 @@
         <source>btn.indication.propose_match</source>
         <target>Match vorschlagen</target>
       </trans-unit>
+      <trans-unit id="De64b684f5" resname="btn.indication.reject_match">
+        <source>btn.indication.reject_match</source>
+        <target>Match ablehnen</target>
+      </trans-unit>
+      <trans-unit id="De35f7ecf5" resname="btn.indication.reopen">
+        <source>btn.indication.reopen</source>
+        <target>Zur Prüfung wieder öffnen</target>
+      </trans-unit>
+      <trans-unit id="De6f7ac4df" resname="btn.indication.review">
+        <source>btn.indication.review</source>
+        <target>Prüfen</target>
+      </trans-unit>
       <trans-unit id="BtnIndRWLDe" resname="btn.indication.review_worklist">
         <source>btn.indication.review_worklist</source>
         <target>Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="De770ca5ca" resname="btn.indication.skip">
+        <source>btn.indication.skip</source>
+        <target>Überspringen</target>
       </trans-unit>
       <trans-unit id="BtnIndSfnDe" resname="btn.indication.skip_for_now">
         <source>btn.indication.skip_for_now</source>
@@ -84,6 +104,10 @@
       <trans-unit id="BtnIndStMDe" resname="btn.indication.start_matching">
         <source>btn.indication.start_matching</source>
         <target>Matching starten</target>
+      </trans-unit>
+      <trans-unit id="De92cefad5" resname="btn.indication.start_review">
+        <source>btn.indication.start_review</source>
+        <target>Prüfung starten</target>
       </trans-unit>
       <trans-unit id="BtnIndStRDe" resname="btn.indication.start_reviewing">
         <source>btn.indication.start_reviewing</source>
@@ -1267,7 +1291,7 @@
       </trans-unit>
       <trans-unit id="LocDe10" resname="link.explore">
         <source>link.explore</source>
-        <target>Explorer</target>
+        <target>Erkunden</target>
       </trans-unit>
       <trans-unit id="ExpLnkDe01" resname="link.export">
         <source>link.export</source>
@@ -1319,7 +1343,7 @@
       </trans-unit>
       <trans-unit id="LocDe11" resname="link.statistics">
         <source>link.statistics</source>
-        <target>Statistik</target>
+        <target>Statistiken</target>
       </trans-unit>
       <trans-unit id="lnkStatsAnDe" resname="link.stats.analysis">
         <source>link.stats.analysis</source>
@@ -1407,7 +1431,7 @@
       </trans-unit>
       <trans-unit id="OnbActDe01" resname="onboarding.action.mark_complete">
         <source>onboarding.action.mark_complete</source>
-        <target>Als erledigt markieren</target>
+        <target>Erledigt</target>
       </trans-unit>
       <trans-unit id="OnbCardDe04" resname="onboarding.card.completed_popover_title">
         <source>onboarding.card.completed_popover_title</source>
@@ -1415,7 +1439,7 @@
       </trans-unit>
       <trans-unit id="OnbCardDe02" resname="onboarding.card.intro">
         <source>onboarding.card.intro</source>
-        <target>Schließen Sie diese Schritte ab, um mit Ihren Klinikdaten zu starten.</target>
+        <target>Schließen Sie die folgenden Schritte ab, um mit der Nutzung der Seite zu starten.</target>
       </trans-unit>
       <trans-unit id="OnbCardDe03" resname="onboarding.card.progress">
         <source>onboarding.card.progress</source>
@@ -1459,7 +1483,7 @@
       </trans-unit>
       <trans-unit id="OnbStpDe06" resname="onboarding.steps.verify_own_clinic.description">
         <source>onboarding.steps.verify_own_clinic.description</source>
-        <target>Prüfen Sie, ob Klinikprofil und Einstellungen korrekt sind.</target>
+        <target>Prüfen Sie, ob die hinterlegten Angaben für Kliniken und Einstellungen korrekt sind.</target>
       </trans-unit>
       <trans-unit id="OnbStpDe05" resname="onboarding.steps.verify_own_clinic.title">
         <source>onboarding.steps.verify_own_clinic.title</source>
@@ -2533,9 +2557,113 @@
         <source>stats.nav.overview_transport_time_to_analysis</source>
         <target>Transportzeitverteilung öffnen</target>
       </trans-unit>
+      <trans-unit id="De240dcf6c" resname="title.allocation.list">
+        <source>title.allocation.list</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De52cbee75" resname="title.allocation.show">
+        <source>title.allocation.show</source>
+        <target>Zuweisungsdetails</target>
+      </trans-unit>
+      <trans-unit id="De7a4572da" resname="title.assignment.list">
+        <source>title.assignment.list</source>
+        <target>Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="Dee4f2a562" resname="title.check_email">
+        <source>title.check_email</source>
+        <target>E-Mail prüfen</target>
+      </trans-unit>
+      <trans-unit id="De85bb27d4" resname="title.confirm_password">
+        <source>title.confirm_password</source>
+        <target>Passwort bestätigen</target>
+      </trans-unit>
+      <trans-unit id="Dee4e71995" resname="title.dashboard">
+        <source>title.dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="De229be063" resname="title.data">
+        <source>title.data</source>
+        <target>Daten</target>
+      </trans-unit>
+      <trans-unit id="Defa5a12fd" resname="title.departments.list">
+        <source>title.departments.list</source>
+        <target>Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="De983ea9ef" resname="title.dispatch_area.list">
+        <source>title.dispatch_area.list</source>
+        <target>Leitstellen</target>
+      </trans-unit>
+      <trans-unit id="De6a6d312d" resname="title.explore">
+        <source>title.explore</source>
+        <target>Erkunden</target>
+      </trans-unit>
+      <trans-unit id="De614ab30f" resname="title.explore.index">
+        <source>title.explore.index</source>
+        <target>Daten erkunden</target>
+      </trans-unit>
       <trans-unit id="ExpTitDe01" resname="title.export.allocations">
         <source>title.export.allocations</source>
         <target>Zuweisungen exportieren</target>
+      </trans-unit>
+      <trans-unit id="De61ed2f63" resname="title.hospital.edit">
+        <source>title.hospital.edit</source>
+        <target>Krankenhaus bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="Dea4100961" resname="title.hospital.list">
+        <source>title.hospital.list</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De00ef372d" resname="title.hospital_access_grants">
+        <source>title.hospital_access_grants</source>
+        <target>Zugriffsberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="Deeeb1db4e" resname="title.hospital_access_grants.edit">
+        <source>title.hospital_access_grants.edit</source>
+        <target>Zugriffsberechtigung bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="De2b4cfd4c" resname="title.hospital_access_grants.list">
+        <source>title.hospital_access_grants.list</source>
+        <target>Benutzerberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="De5f91f193" resname="title.hospital_access_grants.new">
+        <source>title.hospital_access_grants.new</source>
+        <target>Zugriff gewähren</target>
+      </trans-unit>
+      <trans-unit id="De1664e107" resname="title.hospital_show">
+        <source>title.hospital_show</source>
+        <target>Krankenhausdetails</target>
+      </trans-unit>
+      <trans-unit id="De0067deff" resname="title.hospitals.my">
+        <source>title.hospitals.my</source>
+        <target>Meine Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De2c7f3a8c" resname="title.import.index">
+        <source>title.import.index</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="De1fb64d3f" resname="title.import.new">
+        <source>title.import.new</source>
+        <target>Neuer Import</target>
+      </trans-unit>
+      <trans-unit id="Def3d502f6" resname="title.import.processing">
+        <source>title.import.processing</source>
+        <target>Import wird verarbeitet</target>
+      </trans-unit>
+      <trans-unit id="De82aa142a" resname="title.import.show">
+        <source>title.import.show</source>
+        <target>Importdetails</target>
+      </trans-unit>
+      <trans-unit id="Ded7373d55" resname="title.indication.assign">
+        <source>title.indication.assign</source>
+        <target>Indikationen zuweisen</target>
+      </trans-unit>
+      <trans-unit id="De0f08acbf" resname="title.indication.assign_raw">
+        <source>title.indication.assign_raw</source>
+        <target>Original-Indikation zuweisen</target>
+      </trans-unit>
+      <trans-unit id="Debfd4b1cb" resname="title.indication.list">
+        <source>title.indication.list</source>
+        <target>Indikationen</target>
       </trans-unit>
       <trans-unit id="IndRevAprDe" resname="title.indication.review_approval">
         <source>title.indication.review_approval</source>
@@ -2544,6 +2672,10 @@
       <trans-unit id="IndRevAsgDe" resname="title.indication.review_assignment">
         <source>title.indication.review_assignment</source>
         <target>Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="Def2c9fad8" resname="title.indication.review_context">
+        <source>title.indication.review_context</source>
+        <target>Kontext</target>
       </trans-unit>
       <trans-unit id="IndRevDecDe" resname="title.indication.review_decision">
         <source>title.indication.review_decision</source>
@@ -2560,6 +2692,94 @@
       <trans-unit id="IndRevWLDe" resname="title.indication.review_worklist">
         <source>title.indication.review_worklist</source>
         <target>Indikations-Review-Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="De976594cc" resname="title.indication.sample_allocations">
+        <source>title.indication.sample_allocations</source>
+        <target>Beispiel-Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="Ded7bd2f4d" resname="title.indication.suggestions">
+        <source>title.indication.suggestions</source>
+        <target>Match-Vorschläge</target>
+      </trans-unit>
+      <trans-unit id="De0592010e" resname="title.infection.list">
+        <source>title.infection.list</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="Deaa87a303" resname="title.login">
+        <source>title.login</source>
+        <target>Anmelden</target>
+      </trans-unit>
+      <trans-unit id="De38015a1f" resname="title.mci_case.list">
+        <source>title.mci_case.list</source>
+        <target>MANV-Fälle</target>
+      </trans-unit>
+      <trans-unit id="De4ec77b06" resname="title.mci_case.show">
+        <source>title.mci_case.show</source>
+        <target>MANV-Falldetails</target>
+      </trans-unit>
+      <trans-unit id="De79545ae6" resname="title.occasion.list">
+        <source>title.occasion.list</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="De91ba2223" resname="title.register">
+        <source>title.register</source>
+        <target>Registrieren</target>
+      </trans-unit>
+      <trans-unit id="Ded6108fdb" resname="title.register_check_email">
+        <source>title.register_check_email</source>
+        <target>E-Mail prüfen</target>
+      </trans-unit>
+      <trans-unit id="De51856344" resname="title.reset_password">
+        <source>title.reset_password</source>
+        <target>Passwort zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="Def0bf1778" resname="title.secondary_transport.list">
+        <source>title.secondary_transport.list</source>
+        <target>Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="De86793661" resname="title.secondary_transport.show">
+        <source>title.secondary_transport.show</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="Def3234c8a" resname="title.set_new_password">
+        <source>title.set_new_password</source>
+        <target>Neues Passwort festlegen</target>
+      </trans-unit>
+      <trans-unit id="De2b06c2f2" resname="title.settings">
+        <source>title.settings</source>
+        <target>Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="Deef00464a" resname="title.settings.account">
+        <source>title.settings.account</source>
+        <target>Kontoeinstellungen</target>
+      </trans-unit>
+      <trans-unit id="De1f2e9ea2" resname="title.settings.change_email">
+        <source>title.settings.change_email</source>
+        <target>E-Mail ändern</target>
+      </trans-unit>
+      <trans-unit id="De0a831818" resname="title.settings.change_email_breadcrumb">
+        <source>title.settings.change_email_breadcrumb</source>
+        <target>Einstellungen / E-Mail ändern</target>
+      </trans-unit>
+      <trans-unit id="De12596166" resname="title.settings.change_password">
+        <source>title.settings.change_password</source>
+        <target>Passwort ändern</target>
+      </trans-unit>
+      <trans-unit id="Def5732b33" resname="title.settings.change_password_breadcrumb">
+        <source>title.settings.change_password_breadcrumb</source>
+        <target>Einstellungen / Passwort ändern</target>
+      </trans-unit>
+      <trans-unit id="De07799640" resname="title.settings.notifications">
+        <source>title.settings.notifications</source>
+        <target>Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="De888c4960" resname="title.speciality.list">
+        <source>title.speciality.list</source>
+        <target>Fachrichtungen</target>
+      </trans-unit>
+      <trans-unit id="Defd45ce84" resname="title.stats.overview">
+        <source>title.stats.overview</source>
+        <target>Übersicht</target>
       </trans-unit>
       <trans-unit id="ExpWrnDe01" resname="warning.export.large_export">
         <source>warning.export.large_export</source>
