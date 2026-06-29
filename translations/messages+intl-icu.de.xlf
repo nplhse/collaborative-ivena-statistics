@@ -3343,7 +3343,7 @@
       </trans-unit>
       <trans-unit id="Dee3a25a40" resname="monthly_reminder.kpi.transport">
         <source>monthly_reminder.kpi.transport</source>
-        <target>Median Transportzeit</target>
+        <target>Mediane Transportzeit</target>
       </trans-unit>
       <trans-unit id="De388ad48f" resname="monthly_reminder.kpi.transport_baseline_delta">
         <source>monthly_reminder.kpi.transport_baseline_delta</source>
