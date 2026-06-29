@@ -5999,7 +5999,7 @@
       </trans-unit>
       <trans-unit id="Deeba79609" resname="stats.benchmark.metric.median_transport">
         <source>stats.benchmark.metric.median_transport</source>
-        <target>Median Transportzeit</target>
+        <target>Mediane Transportzeit</target>
       </trans-unit>
       <trans-unit id="De9c396460" resname="stats.benchmark.metric.night_daytime">
         <source>stats.benchmark.metric.night_daytime</source>
@@ -6223,7 +6223,7 @@
       </trans-unit>
       <trans-unit id="Deb19df260" resname="stats.case_flow.kpi.median_transport">
         <source>stats.case_flow.kpi.median_transport</source>
-        <target>Median Transportzeit</target>
+        <target>Mediane Transportzeit</target>
       </trans-unit>
       <trans-unit id="De5259b074" resname="stats.case_flow.kpi.minutes">
         <source>stats.case_flow.kpi.minutes</source>
@@ -8071,7 +8071,7 @@
       </trans-unit>
       <trans-unit id="Dee7676e6a" resname="stats.overview.executive.kpi.median_transport">
         <source>stats.overview.executive.kpi.median_transport</source>
-        <target>Median Transportzeit</target>
+        <target>Mediane Transportzeit</target>
       </trans-unit>
       <trans-unit id="Debe9bbbe4" resname="stats.overview.executive.kpi.night_share">
         <source>stats.overview.executive.kpi.night_share</source>
