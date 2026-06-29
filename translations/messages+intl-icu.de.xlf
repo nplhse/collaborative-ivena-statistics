@@ -5,9 +5,29 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
+      <trans-unit id="De2f2ac638" resname="B+">
+        <source>B+</source>
+        <target>B+</target>
+      </trans-unit>
+      <trans-unit id="Ded5c52eb2" resname="H+">
+        <source>H+</source>
+        <target>H+</target>
+      </trans-unit>
+      <trans-unit id="De839f8934" resname="N+">
+        <source>N+</source>
+        <target>N+</target>
+      </trans-unit>
+      <trans-unit id="De65e8d469" resname="R+">
+        <source>R+</source>
+        <target>R+</target>
+      </trans-unit>
+      <trans-unit id="De7cf3e528" resname="S+">
+        <source>S+</source>
+        <target>S+</target>
+      </trans-unit>
       <trans-unit id="abbrDeptClosedDe" resname="abbr.department_was_closed">
         <source>abbr.department_was_closed</source>
-        <target>Abgm.</target>
+        <target>Abgemeldet</target>
       </trans-unit>
       <trans-unit id="actCancel01" resname="action.cancel">
         <source>action.cancel</source>
@@ -33,6 +53,98 @@
         <source>action.snippet_copied</source>
         <target>Kopiert!</target>
       </trans-unit>
+      <trans-unit id="Ded32eab5d" resname="admin.indication_group.action.view_statistics">
+        <source>admin.indication_group.action.view_statistics</source>
+        <target>In Statistik öffnen</target>
+      </trans-unit>
+      <trans-unit id="De8b431225" resname="admin.page.action.back_to_index">
+        <source>admin.page.action.back_to_index</source>
+        <target>Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="De9c4dbc85" resname="admin.page.action.view_public">
+        <source>admin.page.action.view_public</source>
+        <target>Seite ansehen</target>
+      </trans-unit>
+      <trans-unit id="Dec3ad4a07" resname="admin_notification.email.import_failed.action.view">
+        <source>admin_notification.email.import_failed.action.view</source>
+        <target>Importdetails ansehen</target>
+      </trans-unit>
+      <trans-unit id="De7362f7cf" resname="admin_notification.email.import_failed.heading">
+        <source>admin_notification.email.import_failed.heading</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="De8ac84dbb" resname="admin_notification.email.import_failed.intro">
+        <source>admin_notification.email.import_failed.intro</source>
+        <target>Ein Import ist fehlgeschlagen und sollte überprüft werden.</target>
+      </trans-unit>
+      <trans-unit id="Debbfbf0f0" resname="admin_notification.email.import_failed.title">
+        <source>admin_notification.email.import_failed.title</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Def3412f3d" resname="admin_notification.email.label.email">
+        <source>admin_notification.email.label.email</source>
+        <target>E-Mail</target>
+      </trans-unit>
+      <trans-unit id="De490eef38" resname="admin_notification.email.label.error">
+        <source>admin_notification.email.label.error</source>
+        <target>Fehlerdetails</target>
+      </trans-unit>
+      <trans-unit id="Deb385f3f9" resname="admin_notification.email.label.hospital">
+        <source>admin_notification.email.label.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="Decb2563e2" resname="admin_notification.email.label.import_name">
+        <source>admin_notification.email.label.import_name</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="Dec3bdfcae" resname="admin_notification.email.label.registered_at">
+        <source>admin_notification.email.label.registered_at</source>
+        <target>Registriert am</target>
+      </trans-unit>
+      <trans-unit id="Ded884f2bd" resname="admin_notification.email.label.rows">
+        <source>admin_notification.email.label.rows</source>
+        <target>Verarbeitete Zeilen</target>
+      </trans-unit>
+      <trans-unit id="De067fecaa" resname="admin_notification.email.label.runtime">
+        <source>admin_notification.email.label.runtime</source>
+        <target>Laufzeit</target>
+      </trans-unit>
+      <trans-unit id="De74144f7b" resname="admin_notification.email.label.status">
+        <source>admin_notification.email.label.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="De09593dd5" resname="admin_notification.email.label.username">
+        <source>admin_notification.email.label.username</source>
+        <target>Benutzername</target>
+      </trans-unit>
+      <trans-unit id="De9b961fce" resname="admin_notification.email.subject.import_failed">
+        <source>admin_notification.email.subject.import_failed</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Deb2e6763d" resname="admin_notification.email.subject.user_registered">
+        <source>admin_notification.email.subject.user_registered</source>
+        <target>Neue Benutzerregistrierung</target>
+      </trans-unit>
+      <trans-unit id="De26398721" resname="admin_notification.email.user_registered.action.grant_participant">
+        <source>admin_notification.email.user_registered.action.grant_participant</source>
+        <target>Teilnehmerrolle vergeben</target>
+      </trans-unit>
+      <trans-unit id="De982b8189" resname="admin_notification.email.user_registered.action.manage">
+        <source>admin_notification.email.user_registered.action.manage</source>
+        <target>Benutzer verwalten</target>
+      </trans-unit>
+      <trans-unit id="De63683a87" resname="admin_notification.email.user_registered.heading">
+        <source>admin_notification.email.user_registered.heading</source>
+        <target>Neuer Benutzer registriert</target>
+      </trans-unit>
+      <trans-unit id="De5dcc205e" resname="admin_notification.email.user_registered.intro">
+        <source>admin_notification.email.user_registered.intro</source>
+        <target>Ein neuer Benutzer hat sich registriert und benötigt möglicherweise Teilnehmerberechtigungen, bevor er die Plattform vollständig nutzen kann.</target>
+      </trans-unit>
+      <trans-unit id="De6cff9d15" resname="admin_notification.email.user_registered.title">
+        <source>admin_notification.email.user_registered.title</source>
+        <target>Neue Benutzerregistrierung</target>
+      </trans-unit>
       <trans-unit id="allocUrg1De" resname="allocation.urgency.1">
         <source>allocation.urgency.1</source>
         <target>Notfallversorgung</target>
@@ -44,6 +156,22 @@
       <trans-unit id="allocUrg3De" resname="allocation.urgency.3">
         <source>allocation.urgency.3</source>
         <target>Ambulante Versorgung</target>
+      </trans-unit>
+      <trans-unit id="De92626d38" resname="allocations.field.isPregnant">
+        <source>allocations.field.isPregnant</source>
+        <target>Schwangerschaft</target>
+      </trans-unit>
+      <trans-unit id="De05c35104" resname="allocations.field.isShock">
+        <source>allocations.field.isShock</source>
+        <target>Schock</target>
+      </trans-unit>
+      <trans-unit id="De44053a85" resname="allocations.field.isVentilated">
+        <source>allocations.field.isVentilated</source>
+        <target>Beatmung</target>
+      </trans-unit>
+      <trans-unit id="Deeacb1e07" resname="allocations.field.isWorkAccident">
+        <source>allocations.field.isWorkAccident</source>
+        <target>Arbeitsunfall</target>
       </trans-unit>
       <trans-unit id="De243afd28" resname="blog.action.read_more">
         <source>blog.action.read_more</source>
@@ -272,6 +400,10 @@
       <trans-unit id="btnSearchDe" resname="btn.search">
         <source>btn.search</source>
         <target>Suchen</target>
+      </trans-unit>
+      <trans-unit id="De0fffc3d3" resname="confirm.hospital_access_grant.delete">
+        <source>confirm.hospital_access_grant.delete</source>
+        <target>Diese Zugriffsberechtigung entfernen?</target>
       </trans-unit>
       <trans-unit id="CkyBanAllDe" resname="cookie.banner.accept_all">
         <source>cookie.banner.accept_all</source>
@@ -1065,6 +1197,42 @@
         <source>help.settings.username_fixed</source>
         <target>Der Benutzername ist festgelegt und kann nicht geändert werden.</target>
       </trans-unit>
+      <trans-unit id="De40b4ea77" resname="hospital.location.Mixed">
+        <source>hospital.location.Mixed</source>
+        <target>Gemischter Standort</target>
+      </trans-unit>
+      <trans-unit id="Dedfebcae3" resname="hospital.location.Rural">
+        <source>hospital.location.Rural</source>
+        <target>Ländlicher Standort</target>
+      </trans-unit>
+      <trans-unit id="De0234ec16" resname="hospital.location.Urban">
+        <source>hospital.location.Urban</source>
+        <target>Städtischer Standort</target>
+      </trans-unit>
+      <trans-unit id="Dec60f9ece" resname="hospital.size.Large">
+        <source>hospital.size.Large</source>
+        <target>Groß</target>
+      </trans-unit>
+      <trans-unit id="De96e9503c" resname="hospital.size.Medium">
+        <source>hospital.size.Medium</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="Deea215d63" resname="hospital.size.Small">
+        <source>hospital.size.Small</source>
+        <target>Klein</target>
+      </trans-unit>
+      <trans-unit id="Deea23589d" resname="hospital.tier.Basic">
+        <source>hospital.tier.Basic</source>
+        <target>Basisversorgung</target>
+      </trans-unit>
+      <trans-unit id="De1518d84a" resname="hospital.tier.Extended">
+        <source>hospital.tier.Extended</source>
+        <target>Erweiterte Versorgung</target>
+      </trans-unit>
+      <trans-unit id="Ded008b22b" resname="hospital.tier.Full">
+        <source>hospital.tier.Full</source>
+        <target>Umfassende Versorgung</target>
+      </trans-unit>
       <trans-unit id="De9795a8e8" resname="import.action.delete">
         <source>import.action.delete</source>
         <target>Import löschen</target>
@@ -1252,6 +1420,10 @@
       <trans-unit id="De45a5a630" resname="import.status.message.running">
         <source>import.status.message.running</source>
         <target>Zeilen werden verarbeitet.</target>
+      </trans-unit>
+      <trans-unit id="De09b75e2d" resname="imports.field.filePath">
+        <source>imports.field.filePath</source>
+        <target>Dateipfad</target>
       </trans-unit>
       <trans-unit id="De122a5d6b" resname="indication.review.segment.ignored">
         <source>indication.review.segment.ignored</source>
@@ -2989,6 +3161,282 @@
         <source>locale.switch</source>
         <target>Sprache wechseln</target>
       </trans-unit>
+      <trans-unit id="Deae8de51e" resname="menu.blog.categories">
+        <source>menu.blog.categories</source>
+        <target>Kategorien</target>
+      </trans-unit>
+      <trans-unit id="De1db8623e" resname="menu.blog.comments">
+        <source>menu.blog.comments</source>
+        <target>Kommentare</target>
+      </trans-unit>
+      <trans-unit id="Dea6cd1eb7" resname="menu.blog.posts">
+        <source>menu.blog.posts</source>
+        <target>Beiträge</target>
+      </trans-unit>
+      <trans-unit id="De4b15585b" resname="menu.blog.tags">
+        <source>menu.blog.tags</source>
+        <target>Schlagwörter</target>
+      </trans-unit>
+      <trans-unit id="De02dac947" resname="monthly_reminder.baseline.period_label">
+        <source>monthly_reminder.baseline.period_label</source>
+        <target>Ihre letzten 12 Monate</target>
+      </trans-unit>
+      <trans-unit id="De5149187b" resname="monthly_reminder.chart.allocations">
+        <source>monthly_reminder.chart.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De8eb670f3" resname="monthly_reminder.chart.imports">
+        <source>monthly_reminder.chart.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="De1bbde032" resname="monthly_reminder.cta.upload">
+        <source>monthly_reminder.cta.upload</source>
+        <target>Daten für {month} hochladen</target>
+      </trans-unit>
+      <trans-unit id="Def4661db9" resname="monthly_reminder.email.manage_notifications">
+        <source>monthly_reminder.email.manage_notifications</source>
+        <target>Benachrichtigungseinstellungen verwalten</target>
+      </trans-unit>
+      <trans-unit id="Dea64e6ae6" resname="monthly_reminder.error.already_sent_recently">
+        <source>monthly_reminder.error.already_sent_recently</source>
+        <target>Kürzlich wurde bereits eine Erinnerung gesendet. Bitte warten Sie einige Minuten, bevor Sie erneut senden.</target>
+      </trans-unit>
+      <trans-unit id="Debdbe23ca" resname="monthly_reminder.error.email_not_verified">
+        <source>monthly_reminder.error.email_not_verified</source>
+        <target>Die E-Mail-Adresse des Krankenhausesigentümers ist nicht verifiziert.</target>
+      </trans-unit>
+      <trans-unit id="De54f6f11e" resname="monthly_reminder.error.no_email">
+        <source>monthly_reminder.error.no_email</source>
+        <target>Der Krankenhausesigentümer hat keine E-Mail-Adresse.</target>
+      </trans-unit>
+      <trans-unit id="De7c046b16" resname="monthly_reminder.error.no_owner">
+        <source>monthly_reminder.error.no_owner</source>
+        <target>Diesem Krankenhaus ist kein Eigentümer zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="Ded02721f8" resname="monthly_reminder.error.not_participating">
+        <source>monthly_reminder.error.not_participating</source>
+        <target>Dieses Krankenhaus ist nicht als teilnehmend markiert.</target>
+      </trans-unit>
+      <trans-unit id="De8202f3d1" resname="monthly_reminder.error.opted_out">
+        <source>monthly_reminder.error.opted_out</source>
+        <target>Der Benutzer hat monatliche Erinnerungen abbestellt.</target>
+      </trans-unit>
+      <trans-unit id="De6f07bd39" resname="monthly_reminder.fallback.insight.platform.body">
+        <source>monthly_reminder.fallback.insight.platform.body</source>
+        <target>Sehen Sie, wie sich Ihr Krankenhaus im Vergleich abschneidet, sobald Ihre aktuellen Daten auf der Plattform verfügbar sind.</target>
+      </trans-unit>
+      <trans-unit id="De51e88d75" resname="monthly_reminder.fallback.insight.platform.title">
+        <source>monthly_reminder.fallback.insight.platform.title</source>
+        <target>Plattformaktivität</target>
+      </trans-unit>
+      <trans-unit id="De570af88a" resname="monthly_reminder.fallback.insight.upload.body">
+        <source>monthly_reminder.fallback.insight.upload.body</source>
+        <target>Laden Sie Ihre neuesten Daten hoch, um personalisierte Einblicke und Benchmarking für Ihr Krankenhaus freizuschalten.</target>
+      </trans-unit>
+      <trans-unit id="De03b86206" resname="monthly_reminder.fallback.insight.upload.title">
+        <source>monthly_reminder.fallback.insight.upload.title</source>
+        <target>Daten aktuell halten</target>
+      </trans-unit>
+      <trans-unit id="De27163738" resname="monthly_reminder.heading">
+        <source>monthly_reminder.heading</source>
+        <target>Monatsübersicht: {hospital}</target>
+      </trans-unit>
+      <trans-unit id="Debab4f494" resname="monthly_reminder.insight.benchmark.body">
+        <source>monthly_reminder.insight.benchmark.body</source>
+        <target>In {period}: {primary_percent}% vs. {baseline_percent}% über {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="Def95ae169" resname="monthly_reminder.insight.benchmark.title">
+        <source>monthly_reminder.insight.benchmark.title</source>
+        <target>Benchmark-Hinweis</target>
+      </trans-unit>
+      <trans-unit id="Dea5f6fb5f" resname="monthly_reminder.insight.cpr.body">
+        <source>monthly_reminder.insight.cpr.body</source>
+        <target>Reanimationsrate in {period}: {primary_percent}% vs. {baseline_percent}% über {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="Def5f3b85e" resname="monthly_reminder.insight.cpr.title">
+        <source>monthly_reminder.insight.cpr.title</source>
+        <target>Reanimationsrate</target>
+      </trans-unit>
+      <trans-unit id="De194eb3ed" resname="monthly_reminder.insight.direction.above">
+        <source>monthly_reminder.insight.direction.above</source>
+        <target>über</target>
+      </trans-unit>
+      <trans-unit id="Dea9c6978d" resname="monthly_reminder.insight.direction.below">
+        <source>monthly_reminder.insight.direction.below</source>
+        <target>unter</target>
+      </trans-unit>
+      <trans-unit id="Ded47b5b76" resname="monthly_reminder.insight.indication.body">
+        <source>monthly_reminder.insight.indication.body</source>
+        <target>{indication} in {period}: {primary_percent}% vs. {baseline_percent}% über {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="Deb730ad92" resname="monthly_reminder.insight.indication.title">
+        <source>monthly_reminder.insight.indication.title</source>
+        <target>Indikationsmix</target>
+      </trans-unit>
+      <trans-unit id="De087054f9" resname="monthly_reminder.insight.link">
+        <source>monthly_reminder.insight.link</source>
+        <target>Im Benchmarking ansehen</target>
+      </trans-unit>
+      <trans-unit id="De5e2c106a" resname="monthly_reminder.insight.physician.body">
+        <source>monthly_reminder.insight.physician.body</source>
+        <target>Arztbegleitungsrate in {period}: {primary_percent}% vs. {baseline_percent}% über {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="Dea3bba696" resname="monthly_reminder.insight.physician.title">
+        <source>monthly_reminder.insight.physician.title</source>
+        <target>Arztbegleitungsrate</target>
+      </trans-unit>
+      <trans-unit id="Deb54c819c" resname="monthly_reminder.insight.quality.body">
+        <source>monthly_reminder.insight.quality.body</source>
+        <target>Die Zurückweisungsrate hat sich um {delta} Prozentpunkte verbessert.</target>
+      </trans-unit>
+      <trans-unit id="Def78e912e" resname="monthly_reminder.insight.quality.title">
+        <source>monthly_reminder.insight.quality.title</source>
+        <target>Importqualität</target>
+      </trans-unit>
+      <trans-unit id="De2d47cadf" resname="monthly_reminder.insight.resus.body">
+        <source>monthly_reminder.insight.resus.body</source>
+        <target>Schockraumrate in {period}: {primary_percent}% vs. {baseline_percent}% über {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="De18c38a4f" resname="monthly_reminder.insight.resus.title">
+        <source>monthly_reminder.insight.resus.title</source>
+        <target>Schockraumrate</target>
+      </trans-unit>
+      <trans-unit id="De53687e94" resname="monthly_reminder.insight.volume_mom.body">
+        <source>monthly_reminder.insight.volume_mom.body</source>
+        <target>{percent} Zuweisungen im Vergleich zum Vormonat.</target>
+      </trans-unit>
+      <trans-unit id="Def9b33de3" resname="monthly_reminder.insight.volume_mom.title">
+        <source>monthly_reminder.insight.volume_mom.title</source>
+        <target>Volumen Monat über Monat</target>
+      </trans-unit>
+      <trans-unit id="De33de01c8" resname="monthly_reminder.insight.volume_yoy.body">
+        <source>monthly_reminder.insight.volume_yoy.body</source>
+        <target>{percent} Zuweisungen im Vergleich zum gleichen Monat im Vorjahr.</target>
+      </trans-unit>
+      <trans-unit id="De9b0e9643" resname="monthly_reminder.insight.volume_yoy.title">
+        <source>monthly_reminder.insight.volume_yoy.title</source>
+        <target>Volumen Jahr über Jahr</target>
+      </trans-unit>
+      <trans-unit id="Defc40296a" resname="monthly_reminder.kpi.allocations">
+        <source>monthly_reminder.kpi.allocations</source>
+        <target>Zuweisungen (Berichtsmonat)</target>
+      </trans-unit>
+      <trans-unit id="Deaecd814b" resname="monthly_reminder.kpi.last_import.date">
+        <source>monthly_reminder.kpi.last_import.date</source>
+        <target>Datenstand bis {date}</target>
+      </trans-unit>
+      <trans-unit id="De5f7d0364" resname="monthly_reminder.kpi.last_import.label">
+        <source>monthly_reminder.kpi.last_import.label</source>
+        <target>Letzter Import</target>
+      </trans-unit>
+      <trans-unit id="De7bc3b6fe" resname="monthly_reminder.kpi.last_import.none">
+        <source>monthly_reminder.kpi.last_import.none</source>
+        <target>Noch kein Import</target>
+      </trans-unit>
+      <trans-unit id="De48b0564b" resname="monthly_reminder.kpi.physician">
+        <source>monthly_reminder.kpi.physician</source>
+        <target>Arztbegleitungsrate</target>
+      </trans-unit>
+      <trans-unit id="De11b4e0db" resname="monthly_reminder.kpi.physician_baseline_delta">
+        <source>monthly_reminder.kpi.physician_baseline_delta</source>
+        <target>{delta} vs. {baseline}</target>
+      </trans-unit>
+      <trans-unit id="Dee3a25a40" resname="monthly_reminder.kpi.transport">
+        <source>monthly_reminder.kpi.transport</source>
+        <target>Median Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="De388ad48f" resname="monthly_reminder.kpi.transport_baseline_delta">
+        <source>monthly_reminder.kpi.transport_baseline_delta</source>
+        <target>{delta} Min. vs. {baseline}</target>
+      </trans-unit>
+      <trans-unit id="Dea9029a66" resname="monthly_reminder.link.benchmarking">
+        <source>monthly_reminder.link.benchmarking</source>
+        <target>Benchmarking öffnen</target>
+      </trans-unit>
+      <trans-unit id="De27d4afb7" resname="monthly_reminder.link.dashboard">
+        <source>monthly_reminder.link.dashboard</source>
+        <target>Statistik-Dashboard öffnen</target>
+      </trans-unit>
+      <trans-unit id="De173996c2" resname="monthly_reminder.month_year">
+        <source>monthly_reminder.month_year</source>
+        <target>{month} {year}</target>
+      </trans-unit>
+      <trans-unit id="Deabc3675a" resname="monthly_reminder.platform.allocations">
+        <source>monthly_reminder.platform.allocations</source>
+        <target>Plattform-Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De97dff514" resname="monthly_reminder.platform.hospitals">
+        <source>monthly_reminder.platform.hospitals</source>
+        <target>Aktive Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De63ba8ef6" resname="monthly_reminder.platform.imports">
+        <source>monthly_reminder.platform.imports</source>
+        <target>Importe im letzten Monat</target>
+      </trans-unit>
+      <trans-unit id="De3544dcd2" resname="monthly_reminder.preheader">
+        <source>monthly_reminder.preheader</source>
+        <target>{period}: {count} Zuweisungen ({delta} vs. Vormonat) — Daten für {upload_month} hochladen</target>
+      </trans-unit>
+      <trans-unit id="De65ccd827" resname="monthly_reminder.profile.gender">
+        <source>monthly_reminder.profile.gender</source>
+        <target>Geschlechterverteilung</target>
+      </trans-unit>
+      <trans-unit id="De5a062987" resname="monthly_reminder.profile.urgency">
+        <source>monthly_reminder.profile.urgency</source>
+        <target>Dringlichkeitsverteilung</target>
+      </trans-unit>
+      <trans-unit id="De13a14538" resname="monthly_reminder.section.insights">
+        <source>monthly_reminder.section.insights</source>
+        <target>Ihre Einblicke</target>
+      </trans-unit>
+      <trans-unit id="De200265b7" resname="monthly_reminder.section.platform">
+        <source>monthly_reminder.section.platform</source>
+        <target>Plattform-Trends</target>
+      </trans-unit>
+      <trans-unit id="Debdd4a799" resname="monthly_reminder.section.profile">
+        <source>monthly_reminder.section.profile</source>
+        <target>Klinisches Profil</target>
+      </trans-unit>
+      <trans-unit id="Dee384325a" resname="monthly_reminder.section.submission">
+        <source>monthly_reminder.section.submission</source>
+        <target>Dateneinreichung — letzte 12 Monate</target>
+      </trans-unit>
+      <trans-unit id="De78dbdc33" resname="monthly_reminder.section.trend">
+        <source>monthly_reminder.section.trend</source>
+        <target>Zuweisungstrend — letzte 12 Monate</target>
+      </trans-unit>
+      <trans-unit id="Dede6c3683" resname="monthly_reminder.subject">
+        <source>monthly_reminder.subject</source>
+        <target>Monatsübersicht: {hospital} ({period})</target>
+      </trans-unit>
+      <trans-unit id="De19e272c5" resname="monthly_reminder.submission.gap">
+        <source>monthly_reminder.submission.gap</source>
+        <target>Längste Lücke: {months} Monate ({from} – {to})</target>
+      </trans-unit>
+      <trans-unit id="Deac699b6a" resname="monthly_reminder.submission.progress">
+        <source>monthly_reminder.submission.progress</source>
+        <target>{completed} von {total} Monaten mit erfolgreichem Import</target>
+      </trans-unit>
+      <trans-unit id="Dec173aa8a" resname="monthly_reminder.trend.declining">
+        <source>monthly_reminder.trend.declining</source>
+        <target>In den letzten sechs Monaten ist das Volumen im Schnitt um {percent}% pro Monat gesunken.</target>
+      </trans-unit>
+      <trans-unit id="Deef40537e" resname="monthly_reminder.trend.growing">
+        <source>monthly_reminder.trend.growing</source>
+        <target>In den letzten sechs Monaten ist das Volumen im Schnitt um {percent}% pro Monat gewachsen.</target>
+      </trans-unit>
+      <trans-unit id="Deecfe51e7" resname="monthly_reminder.trend.growing_from_zero">
+        <source>monthly_reminder.trend.growing_from_zero</source>
+        <target>Die jüngsten Monate zeigen steigende Aktivität nach einer ruhigeren Phase.</target>
+      </trans-unit>
+      <trans-unit id="De9db9aa4a" resname="monthly_reminder.trend.stable">
+        <source>monthly_reminder.trend.stable</source>
+        <target>Das Volumen blieb in den letzten sechs Monaten relativ stabil.</target>
+      </trans-unit>
+      <trans-unit id="Dedc397657" resname="monthly_reminder.urgency.benchmark">
+        <source>monthly_reminder.urgency.benchmark</source>
+        <target>Anteil {urgency}: {percent}% ({delta} vs. {baseline})</target>
+      </trans-unit>
       <trans-unit id="OnbActDe01" resname="onboarding.action.mark_complete">
         <source>onboarding.action.mark_complete</source>
         <target>Erledigt</target>
@@ -4352,6 +4800,10 @@
       <trans-unit id="statsNavTt" resname="stats.nav.overview_transport_time_to_analysis">
         <source>stats.nav.overview_transport_time_to_analysis</source>
         <target>Transportzeitverteilung öffnen</target>
+      </trans-unit>
+      <trans-unit id="De1562264f" resname="subtitle.indication.assign">
+        <source>subtitle.indication.assign</source>
+        <target>Dieses Formular ermöglicht es Ihnen, eine Indikation (original) mit einer passenden normalisierten Indikation aus der standardisierten Liste zu verknüpfen. Durch die Auswahl der passenden normalisierten Indikation tragen Sie zu einer einheitlichen Datenklassifikation bei und verbessern die Genauigkeit weiterer Analysen und Berichte.</target>
       </trans-unit>
       <trans-unit id="Ded85229a0" resname="text.confirm_password.intro">
         <source>text.confirm_password.intro</source>
