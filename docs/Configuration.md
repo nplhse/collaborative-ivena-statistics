@@ -59,4 +59,15 @@ Routing examples:
 ## Operations-related configuration
 
 - [Deployment.md](Deployment.md)
+- [Beta-readiness-checklist.md](Beta-readiness-checklist.md)
 - [Observability-sentry.md](Observability-sentry.md)
+
+Validate environment variables:
+
+```bash
+php bin/console app:env:check              # dev profile locally
+php bin/console app:env:check --check-profile=beta --skip-database   # beta gate (format only)
+make env-check
+```
+
+See [Beta-readiness-checklist.md](Beta-readiness-checklist.md) for production verification steps.

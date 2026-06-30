@@ -14,7 +14,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
     name: 'app:install',
-    description: 'Run one-time server bootstrap (initial admin user and future install steps).',
+    description: 'Run one-time server bootstrap (initial admin user). Run app:env:check first.',
 )]
 final readonly class InstallCommand
 {

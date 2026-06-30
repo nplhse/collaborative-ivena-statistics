@@ -1,5 +1,5 @@
 .DEFAULT_GOAL = help
-.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules backup backup-db backup-files restore-db verify-restore-baseline verify-restore
+.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules backup backup-db backup-files restore-db verify-restore-baseline verify-restore env-check
 
 # Executables
 COMPOSER      = composer
@@ -126,6 +126,9 @@ verify-restore-baseline: ## Save DB metrics snapshot for restore drill
 
 verify-restore: ## Compare current DB metrics with saved baseline (exit 1 on mismatch)
 	@./bin/ops/verify-restore.sh verify
+
+env-check: ## Validate environment variables (dev profile; use --check-profile=beta on server)
+	@$(CONSOLE) app:env:check --skip-database
 
 fixtures: ## Load dev demo fixtures (replaces existing fixture data)
 	@$(SYMFONY) composer load-fixtures
