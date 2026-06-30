@@ -38,23 +38,24 @@ final readonly class HospitalInsightSelector
         string $benchmarkingUrl,
         string $baselinePeriodLabel,
         string $reportingPeriodLabel,
+        ?string $locale = null,
     ): array {
         $candidates = [];
 
         if (null !== $allocationYoyPercent && abs($allocationYoyPercent) >= self::VOLUME_CHANGE_THRESHOLD) {
             $candidates[] = new HospitalInsight(
-                $this->translator->trans('monthly_reminder.insight.volume_yoy.title'),
-                $this->translator->trans('monthly_reminder.insight.volume_yoy.body', [
+                $this->trans('monthly_reminder.insight.volume_yoy.title', [], $locale),
+                $this->trans('monthly_reminder.insight.volume_yoy.body', [
                     'percent' => $this->formatSignedPercent($allocationYoyPercent),
-                ]),
+                ], $locale),
                 $allocationYoyPercent >= 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
             );
         } elseif (null !== $allocationMomPercent && abs($allocationMomPercent) >= self::VOLUME_CHANGE_THRESHOLD) {
             $candidates[] = new HospitalInsight(
-                $this->translator->trans('monthly_reminder.insight.volume_mom.title'),
-                $this->translator->trans('monthly_reminder.insight.volume_mom.body', [
+                $this->trans('monthly_reminder.insight.volume_mom.title', [], $locale),
+                $this->trans('monthly_reminder.insight.volume_mom.body', [
                     'percent' => $this->formatSignedPercent($allocationMomPercent),
-                ]),
+                ], $locale),
                 $allocationMomPercent >= 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
             );
         }
@@ -65,6 +66,7 @@ final readonly class HospitalInsightSelector
                 $benchmarkingUrl,
                 $baselinePeriodLabel,
                 $reportingPeriodLabel,
+                $locale,
             );
             if ($insight instanceof HospitalInsight) {
                 $candidates[] = $insight;
@@ -76,6 +78,7 @@ final readonly class HospitalInsightSelector
             $benchmarkingUrl,
             $baselinePeriodLabel,
             $reportingPeriodLabel,
+            $locale,
         );
         if ($indicationInsight instanceof HospitalInsight) {
             $candidates[] = $indicationInsight;
@@ -83,10 +86,10 @@ final readonly class HospitalInsightSelector
 
         if (null !== $rejectionRateDeltaPp && $rejectionRateDeltaPp <= -1.0) {
             $candidates[] = new HospitalInsight(
-                $this->translator->trans('monthly_reminder.insight.quality.title'),
-                $this->translator->trans('monthly_reminder.insight.quality.body', [
+                $this->trans('monthly_reminder.insight.quality.title', [], $locale),
+                $this->trans('monthly_reminder.insight.quality.body', [
                     'delta' => number_format(abs($rejectionRateDeltaPp), 1, '.', ''),
-                ]),
+                ], $locale),
                 HospitalInsightTrend::Up,
             );
         }
@@ -99,6 +102,7 @@ final readonly class HospitalInsightSelector
         string $benchmarkingUrl,
         string $baselinePeriodLabel,
         string $reportingPeriodLabel,
+        ?string $locale,
     ): ?HospitalInsight {
         if (BenchmarkMetricFormat::Percent !== $metric->format) {
             return null;
@@ -116,14 +120,14 @@ final readonly class HospitalInsightSelector
         };
 
         return new HospitalInsight(
-            $this->translator->trans($key.'.title'),
-            $this->translator->trans($key.'.body', [
+            $this->trans($key.'.title', [], $locale),
+            $this->trans($key.'.body', [
                 'period' => $reportingPeriodLabel,
                 'primary_percent' => number_format($metric->primaryValue, 1, '.', ''),
                 'baseline_percent' => number_format($metric->comparisonValue, 1, '.', ''),
                 'delta_pp' => $this->formatSignedPercent($metric->absoluteDelta),
                 'baseline' => $baselinePeriodLabel,
-            ]),
+            ], $locale),
             $metric->absoluteDelta >= 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
             $benchmarkingUrl,
         );
@@ -134,6 +138,7 @@ final readonly class HospitalInsightSelector
         string $benchmarkingUrl,
         string $baselinePeriodLabel,
         string $reportingPeriodLabel,
+        ?string $locale,
     ): ?HospitalInsight {
         $top = null;
         $maxDeviation = 0.0;
@@ -150,20 +155,32 @@ final readonly class HospitalInsightSelector
         }
 
         return new HospitalInsight(
-            $this->translator->trans('monthly_reminder.insight.indication.title'),
-            $this->translator->trans('monthly_reminder.insight.indication.body', [
+            $this->trans('monthly_reminder.insight.indication.title', [], $locale),
+            $this->trans('monthly_reminder.insight.indication.body', [
                 'period' => $reportingPeriodLabel,
                 'indication' => $top->label,
                 'primary_percent' => number_format($top->primaryShare, 1, '.', ''),
                 'baseline_percent' => number_format($top->comparisonShare, 1, '.', ''),
                 'delta_pp' => $this->formatSignedPercent($top->primaryShare - $top->comparisonShare),
                 'baseline' => $baselinePeriodLabel,
-            ]),
+            ], $locale),
             $top->primaryShare >= $top->comparisonShare
                 ? HospitalInsightTrend::Up
                 : HospitalInsightTrend::Down,
             $benchmarkingUrl,
         );
+    }
+
+    /**
+     * @param array<string, string|int|float> $parameters
+     */
+    private function trans(string $id, array $parameters = [], ?string $locale = null): string
+    {
+        if (null !== $locale) {
+            return $this->translator->trans($id, $parameters, null, $locale);
+        }
+
+        return $this->translator->trans($id, $parameters);
     }
 
     private function formatSignedPercent(float $value): string
