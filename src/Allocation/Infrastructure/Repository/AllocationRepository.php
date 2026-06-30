@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Import\Domain\Entity\Import;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -33,7 +34,7 @@ final class AllocationRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<int, array{year: int, month: int, count: int}>
+     * @return list<array{year: int, month: int, count: int}>
      */
     public function countByMonthLast12Months(): array
     {
@@ -41,45 +42,7 @@ final class AllocationRepository extends ServiceEntityRepository
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        $buckets = [];
-
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $key = $createdAt->format('Y-m');
-
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
-
-            ++$buckets[$key];
-        }
-
-        $result = [];
-        foreach ($buckets as $key => $count) {
-            [$year, $month] = explode('-', $key);
-
-            $result[] = [
-                'year' => (int) $year,
-                'month' => (int) $month,
-                'count' => $count,
-            ];
-        }
-
-        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
-
-        return $result;
+        return $this->aggregateCountByMonthSince($from, null);
     }
 
     /**
@@ -87,7 +50,7 @@ final class AllocationRepository extends ServiceEntityRepository
      *
      * @param list<int> $hospitalIds
      *
-     * @return array<int, array{year: int, month: int, count: int}>
+     * @return list<array{year: int, month: int, count: int}>
      */
     public function countByMonthLast12MonthsForHospitals(array $hospitalIds): array
     {
@@ -99,42 +62,56 @@ final class AllocationRepository extends ServiceEntityRepository
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->andWhere('a.hospital IN (:hospitalIds)')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->setParameter('hospitalIds', $hospitalIds)
-            ->orderBy('a.createdAt', 'ASC');
+        return $this->aggregateCountByMonthSince($from, $hospitalIds);
+    }
 
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
+    /**
+     * @param list<int>|null $hospitalIds
+     *
+     * @return list<array{year: int, month: int, count: int}>
+     */
+    private function aggregateCountByMonthSince(\DateTimeImmutable $from, ?array $hospitalIds): array
+    {
+        $sql = <<<'SQL'
+SELECT EXTRACT(YEAR FROM created_at)::INT AS year,
+       EXTRACT(MONTH FROM created_at)::INT AS month,
+       COUNT(id)::INT AS count
+FROM allocation
+WHERE created_at >= :from
+  AND created_at IS NOT NULL
+SQL;
+        $params = ['from' => $from];
+        $types = ['from' => Types::DATETIME_IMMUTABLE];
 
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-            $key = $createdAt->format('Y-m');
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
-            ++$buckets[$key];
+        if (null !== $hospitalIds) {
+            $sql .= ' AND hospital_id IN (:hospitalIds)';
+            $params['hospitalIds'] = $hospitalIds;
+            $types['hospitalIds'] = ArrayParameterType::INTEGER;
         }
 
-        $result = [];
-        foreach ($buckets as $key => $count) {
-            [$year, $month] = explode('-', $key);
-            $result[] = [
-                'year' => (int) $year,
-                'month' => (int) $month,
-                'count' => $count,
-            ];
-        }
+        $sql .= ' GROUP BY 1, 2 ORDER BY 1 ASC, 2 ASC';
 
-        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
+        /** @var list<array{year:numeric-string|int,month:numeric-string|int,count:numeric-string|int}> $raw */
+        $raw = $this->getEntityManager()->getConnection()->fetchAllAssociative($sql, $params, $types);
 
-        return $result;
+        return $this->mapMonthCountRows($raw);
+    }
+
+    /**
+     * @param list<array{year:numeric-string|int,month:numeric-string|int,count:numeric-string|int}> $raw
+     *
+     * @return list<array{year: int, month: int, count: int}>
+     */
+    private function mapMonthCountRows(array $raw): array
+    {
+        return array_map(
+            static fn (array $row): array => [
+                'year' => (int) $row['year'],
+                'month' => (int) $row['month'],
+                'count' => (int) $row['count'],
+            ],
+            $raw,
+        );
     }
 
     public function countAll(): int

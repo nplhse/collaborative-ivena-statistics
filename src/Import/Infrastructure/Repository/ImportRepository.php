@@ -23,7 +23,7 @@ final class ImportRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<int, array{year: int, month: int, count: int}>
+     * @return list<array{year: int, month: int, count: int}>
      */
     public function countByMonthLast12Months(): array
     {
@@ -31,41 +31,41 @@ final class ImportRepository extends ServiceEntityRepository
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
-        $qb = $this->createQueryBuilder('i')
-            ->where('i.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('i.createdAt', 'ASC');
+        $sql = <<<'SQL'
+SELECT EXTRACT(YEAR FROM created_at)::INT AS year,
+       EXTRACT(MONTH FROM created_at)::INT AS month,
+       COUNT(id)::INT AS count
+FROM import
+WHERE created_at >= :from
+GROUP BY 1, 2
+ORDER BY 1 ASC, 2 ASC
+SQL;
 
-        /** @var Import[] $rows */
-        $rows = $qb->getQuery()->getResult();
+        /** @var list<array{year:numeric-string|int,month:numeric-string|int,count:numeric-string|int}> $raw */
+        $raw = $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            $sql,
+            ['from' => $from],
+            ['from' => Types::DATETIME_IMMUTABLE],
+        );
 
-        $buckets = [];
+        return $this->mapMonthCountRows($raw);
+    }
 
-        foreach ($rows as $import) {
-            $createdAt = $import->getCreatedAt();
-            $key = $createdAt->format('Y-m');
-
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
-
-            ++$buckets[$key];
-        }
-
-        $result = [];
-        foreach ($buckets as $key => $count) {
-            [$year, $month] = explode('-', $key);
-
-            $result[] = [
-                'year' => (int) $year,
-                'month' => (int) $month,
-                'count' => $count,
-            ];
-        }
-
-        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
-
-        return $result;
+    /**
+     * @param list<array{year:numeric-string|int,month:numeric-string|int,count:numeric-string|int}> $raw
+     *
+     * @return list<array{year: int, month: int, count: int}>
+     */
+    private function mapMonthCountRows(array $raw): array
+    {
+        return array_map(
+            static fn (array $row): array => [
+                'year' => (int) $row['year'],
+                'month' => (int) $row['month'],
+                'count' => (int) $row['count'],
+            ],
+            $raw,
+        );
     }
 
     /**
