@@ -22,7 +22,7 @@ final readonly class MonthlyReminderMailer
     ) {
     }
 
-    public function send(string $recipientEmail, MonthlyReminderContent $content): void
+    public function send(string $recipientEmail, MonthlyReminderContent $content, string $locale): void
     {
         $email = new TemplatedEmail()
             ->from(new Address($this->mailConfig->fromEmail, $this->mailConfig->fromName))
@@ -30,7 +30,8 @@ final readonly class MonthlyReminderMailer
             ->subject($this->translator->trans('monthly_reminder.subject', [
                 'hospital' => $content->hospitalName,
                 'period' => $content->reportingPeriodLabel,
-            ]))
+            ], null, $locale))
+            ->locale($locale)
             ->htmlTemplate('@Engagement/email/monthly_submission_reminder.html.twig')
             ->context([
                 'content' => $content,

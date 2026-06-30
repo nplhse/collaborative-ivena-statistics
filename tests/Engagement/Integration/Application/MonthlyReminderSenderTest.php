@@ -13,10 +13,13 @@ use App\Engagement\Application\MonthlyReminderSender;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Component\Lock\LockFactory;
 
 final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 {
+    use MailerAssertionsTrait;
     private MonthlyReminderSender $sender;
 
     protected function setUp(): void
@@ -176,6 +179,54 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
         self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
         self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+    }
+
+    public function testSendUsesOwnerGermanLocale(): void
+    {
+        $owner = UserFactory::createOne([
+            'email' => sprintf('de-owner-%s@example.test', bin2hex(random_bytes(4))),
+            'isVerified' => true,
+            'receivesMonthlySubmissionReminder' => true,
+            'locale' => 'de',
+        ]);
+        $hospital = $this->createHospital(optedOut: false, owner: $owner);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+
+        self::assertQueuedEmailCount(1);
+        $email = $this->findReminderEmail();
+        self::assertSame('de', $email->getLocale());
+        self::assertEmailSubjectContains($email, 'Monatsübersicht');
+    }
+
+    public function testSendUsesOwnerEnglishLocaleWhenExplicit(): void
+    {
+        $owner = UserFactory::createOne([
+            'email' => sprintf('en-owner-%s@example.test', bin2hex(random_bytes(4))),
+            'isVerified' => true,
+            'receivesMonthlySubmissionReminder' => true,
+            'locale' => 'en',
+        ]);
+        $hospital = $this->createHospital(optedOut: false, owner: $owner);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+
+        self::assertQueuedEmailCount(1);
+        $email = $this->findReminderEmail();
+        self::assertSame('en', $email->getLocale());
+        self::assertEmailSubjectContains($email, 'Monthly overview');
+        self::assertEmailSubjectNotContains($email, 'Monatsübersicht');
+    }
+
+    private function findReminderEmail(): TemplatedEmail
+    {
+        foreach (self::getMailerMessages() as $message) {
+            if ($message instanceof TemplatedEmail) {
+                return $message;
+            }
+        }
+
+        self::fail('Expected monthly reminder TemplatedEmail to be queued.');
     }
 
     private function createHospital(

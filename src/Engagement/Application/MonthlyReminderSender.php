@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
+use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Lock\LockFactory;
@@ -21,6 +22,7 @@ final readonly class MonthlyReminderSender
         private MonthlyReminderMailer $mailer,
         private MonthlyReminderPeriodResolver $periodResolver,
         private MonthlyReminderDispatchRepository $dispatchRepository,
+        private LocaleResolver $localeResolver,
         private AuditContext $auditContext,
         private LockFactory $lockFactory,
     ) {
@@ -83,7 +85,8 @@ final readonly class MonthlyReminderSender
             return ['monthly_reminder.error.already_sent_for_period'];
         }
 
-        $content = $this->contentBuilder->build($hospital, $referenceDate);
+        $ownerLocale = $this->localeResolver->resolveForUser($owner);
+        $content = $this->contentBuilder->build($hospital, $referenceDate, $ownerLocale);
         $reportingMonth = $content->reportingPeriodLabel;
 
         $this->auditContext->beginIntent('hospital.reminder_sent', [
@@ -91,9 +94,10 @@ final readonly class MonthlyReminderSender
             'owner_id' => $owner->getId(),
             'reporting_period' => $reportingMonth,
             'trigger' => $trigger->value,
+            'owner_locale' => $ownerLocale,
         ]);
         try {
-            $this->mailer->send($email, $content);
+            $this->mailer->send($email, $content, $ownerLocale);
 
             if (MonthlyReminderTrigger::Scheduler === $trigger) {
                 $this->dispatchRepository->save(new MonthlyReminderDispatch(
