@@ -42,7 +42,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
         $referenceDate = new \DateTimeImmutable('2026-06-17', new \DateTimeZone('Europe/Berlin'));
         $hospital = $this->seedHospital();
 
-        $content = $this->builder->build($hospital, $referenceDate);
+        $content = $this->builder->build($hospital, $referenceDate, 'en');
 
         self::assertFalse($content->isPersonalized);
         self::assertSame(0, $content->allocationCount);
@@ -93,7 +93,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
             5,
         );
 
-        $content = $this->builder->build($hospital, $referenceDate);
+        $content = $this->builder->build($hospital, $referenceDate, 'en');
 
         self::assertTrue($content->isPersonalized);
         self::assertGreaterThanOrEqual(20, $content->allocationCount);
@@ -101,6 +101,18 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
         self::assertGreaterThan(0, $content->submissionMonthsTotal);
         self::assertNotEmpty($content->chartBars);
         self::assertNull($content->platformAllocationCount);
+    }
+
+    public function testBuildUsesGermanPeriodLabelsForGermanLocale(): void
+    {
+        $referenceDate = new \DateTimeImmutable('2026-06-17', new \DateTimeZone('Europe/Berlin'));
+        $hospital = $this->seedHospital();
+
+        $content = $this->builder->build($hospital, $referenceDate, 'de');
+
+        self::assertStringContainsString('Mai 2026', $content->reportingPeriodLabel);
+        self::assertStringContainsString('Juni 2026', $content->uploadMonthLabel);
+        self::assertStringNotContainsString('May 2026', $content->reportingPeriodLabel);
     }
 
     private function seedHospital(): mixed
