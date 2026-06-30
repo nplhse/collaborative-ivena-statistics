@@ -1,5 +1,5 @@
 .DEFAULT_GOAL = help
-.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules
+.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules backup backup-db backup-files restore-db verify-restore-baseline verify-restore
 
 # Executables
 COMPOSER      = composer
@@ -106,6 +106,26 @@ compile: ## Execute some tasks before deployment
 
 consume: ## Consume messages from symfony messenger
 	@$(CONSOLE) messenger:consume async_priority_high async_priority_low scheduler_default -vv
+
+## —— Backups 💾 ———————————————————————————————————————————————————————————————
+backup-db: ## PostgreSQL dump to var/backups (uses Docker database service when running)
+	@./bin/ops/backup-database.sh
+
+backup-files: ## Archive var/imports and public/uploads/media to var/backups
+	@./bin/ops/backup-files.sh
+
+backup: backup-db backup-files ## Full backup (database + files)
+
+restore-db: ## Restore DB from BACKUP_FILE=var/backups/....dump RESTORE_CONFIRM=yes
+	@if [ -z "$(BACKUP_FILE)" ]; then echo "Set BACKUP_FILE=var/backups/ivena-stats-db-....dump" >&2; exit 1; fi
+	@if [ "$(RESTORE_CONFIRM)" != "yes" ]; then echo "Set RESTORE_CONFIRM=yes to confirm destructive restore." >&2; exit 1; fi
+	@RESTORE_CONFIRM=yes BACKUP_FILE="$(BACKUP_FILE)" ./bin/ops/restore-database.sh
+
+verify-restore-baseline: ## Save DB metrics snapshot for restore drill
+	@./bin/ops/verify-restore.sh baseline
+
+verify-restore: ## Compare current DB metrics with saved baseline (exit 1 on mismatch)
+	@./bin/ops/verify-restore.sh verify
 
 fixtures: ## Load dev demo fixtures (replaces existing fixture data)
 	@$(SYMFONY) composer load-fixtures
