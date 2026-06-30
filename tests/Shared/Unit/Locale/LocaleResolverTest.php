@@ -86,6 +86,21 @@ final class LocaleResolverTest extends TestCase
         self::assertSame('en', $this->resolver->resolve($request, $user));
     }
 
+    public function testResolveForUserReturnsExplicitLocale(): void
+    {
+        self::assertSame('de', $this->resolver->resolveForUser($this->createUserWithLocale('de')));
+    }
+
+    public function testResolveForUserFallsBackToDefaultWhenLocaleNotExplicit(): void
+    {
+        self::assertSame('en', $this->resolver->resolveForUser($this->createUserWithLocale(null)));
+    }
+
+    public function testResolveForUserFallsBackToDefaultForNullUser(): void
+    {
+        self::assertSame('en', $this->resolver->resolveForUser(null));
+    }
+
     private function createUserWithLocale(?string $locale): User
     {
         $user = new User();

@@ -41,6 +41,11 @@ final readonly class LocaleResolver
         return $this->resolveFromAcceptLanguage($request->headers->get('Accept-Language'));
     }
 
+    public function resolveForUser(?User $user): string
+    {
+        return $this->resolveFromUser($user) ?? SupportedLocales::DEFAULT;
+    }
+
     private function resolveFromUser(?User $user): ?string
     {
         if (!$user instanceof User || !$user->hasExplicitLocale()) {
