@@ -46,6 +46,35 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         self::assertStringContainsString('<!DOCTYPE html>', $tester->getDisplay());
     }
 
+    public function testPreviewRendersGermanTemplateForGermanOwner(): void
+    {
+        self::bootKernel();
+        $owner = UserFactory::createOne([
+            'email' => sprintf('preview-de-%s@example.test', bin2hex(random_bytes(4))),
+            'isVerified' => true,
+            'receivesMonthlySubmissionReminder' => true,
+            'locale' => 'de',
+        ]);
+        $state = StateFactory::createOne();
+        $dispatchArea = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'owner' => $owner,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'name' => 'Deutsches Testkrankenhaus',
+        ]);
+        $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
+
+        self::assertSame(Command::SUCCESS, $tester->execute([
+            '--hospital' => (string) $hospital->getId(),
+            '--date' => '2026-06-17',
+        ]));
+
+        $output = $tester->getDisplay();
+        self::assertStringContainsString('Monatsübersicht: Deutsches Testkrankenhaus', $output);
+        self::assertStringContainsString('Mai 2026', $output);
+    }
+
     public function testSendFailsForOptedOutOwnerAndShowsHint(): void
     {
         self::bootKernel();

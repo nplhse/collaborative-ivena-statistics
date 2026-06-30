@@ -10,13 +10,15 @@ use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderContentBuilder;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Engagement\UI\Console\Input\MonthlyReminderPreviewInput;
+use App\Shared\Application\Locale\LocaleResolver;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Mime\BodyRendererInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Environment;
 
 #[AsCommand(
     name: 'app:reminder:preview',
@@ -27,7 +29,8 @@ final readonly class MonthlyReminderPreviewCommand
     public function __construct(
         private HospitalRepository $hospitalRepository,
         private MonthlyReminderContentBuilder $contentBuilder,
-        private Environment $twig,
+        private BodyRendererInterface $bodyRenderer,
+        private LocaleResolver $localeResolver,
         private MonthlyReminderSender $reminderSender,
         private TranslatorInterface $translator,
         #[Autowire('%env(MAILER_DSN)%')] private string $mailerDsn,
@@ -53,12 +56,19 @@ final readonly class MonthlyReminderPreviewCommand
         }
 
         $referenceDate = $input->date;
+        $owner = $hospital->getOwner();
+        $ownerLocale = $this->localeResolver->resolveForUser($owner);
 
-        $content = $this->contentBuilder->build($hospital, $referenceDate);
-        $html = $this->twig->render('@Engagement/email/monthly_submission_reminder.html.twig', [
-            'content' => $content,
-            'app_title' => 'Preview',
-        ]);
+        $content = $this->contentBuilder->build($hospital, $referenceDate, $ownerLocale);
+        $previewEmail = new TemplatedEmail()
+            ->locale($ownerLocale)
+            ->htmlTemplate('@Engagement/email/monthly_submission_reminder.html.twig')
+            ->context([
+                'content' => $content,
+                'app_title' => 'Preview',
+            ]);
+        $this->bodyRenderer->render($previewEmail);
+        $html = (string) $previewEmail->getHtmlBody();
 
         $outputPath = $input->output;
         $shouldSend = $input->send;
