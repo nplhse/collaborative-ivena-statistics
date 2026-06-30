@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security;
 
+use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
@@ -19,18 +20,25 @@ final readonly class FeedbackRecipientResolver implements FeedbackRecipientEmail
     }
 
     /**
+     * @return list<User>
+     */
+    #[\Override]
+    public function resolveRecipientUsers(): array
+    {
+        return $this->userRepository->findEnabledVerifiedUsersWithRoles([
+            UserRole::ADMIN,
+            UserRole::FEEDBACK_RECIPIENT,
+        ]);
+    }
+
+    /**
      * @return list<string>
      */
     #[\Override]
     public function resolveRecipientEmails(): array
     {
-        $candidates = $this->userRepository->findEnabledVerifiedUsersWithRoles([
-            UserRole::ADMIN,
-            UserRole::FEEDBACK_RECIPIENT,
-        ]);
-
         $emails = [];
-        foreach ($candidates as $user) {
+        foreach ($this->resolveRecipientUsers() as $user) {
             $email = $user->getEmail();
             if (null === $email || '' === trim($email)) {
                 continue;

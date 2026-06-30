@@ -42,6 +42,8 @@ final class NotificationRecipientResolverTest extends KernelTestCase
         $resolver = self::getContainer()->get(NotificationRecipientResolver::class);
 
         self::assertSame(['notify@example.test'], $resolver->resolveRecipientEmails());
+        self::assertCount(1, $resolver->resolveRecipientUsers());
+        self::assertSame('notify@example.test', $resolver->resolveRecipientUsers()[0]->getEmail());
     }
 
     public function testDeduplicatesEmails(): void

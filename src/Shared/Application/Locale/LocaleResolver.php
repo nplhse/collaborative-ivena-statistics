@@ -46,6 +46,30 @@ final readonly class LocaleResolver
         return $this->resolveFromUser($user) ?? SupportedLocales::DEFAULT;
     }
 
+    /**
+     * @param iterable<User> $users
+     *
+     * @return array<string, list<string>>
+     */
+    public function groupEmailsByLocale(iterable $users): array
+    {
+        $grouped = [];
+        foreach ($users as $user) {
+            $email = $user->getEmail();
+            if (null === $email || '' === trim($email)) {
+                continue;
+            }
+
+            $locale = $this->resolveForUser($user);
+            $normalizedEmail = mb_strtolower(trim($email));
+            if (!\in_array($normalizedEmail, $grouped[$locale] ?? [], true)) {
+                $grouped[$locale][] = $normalizedEmail;
+            }
+        }
+
+        return $grouped;
+    }
+
     private function resolveFromUser(?User $user): ?string
     {
         if (!$user instanceof User || !$user->hasExplicitLocale()) {
