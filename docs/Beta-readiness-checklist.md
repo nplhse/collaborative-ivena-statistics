@@ -13,7 +13,7 @@ Related: [Configuration.md](Configuration.md), [Deployment.md](Deployment.md), [
 | P0-1 | Backup & restore strategy | Follow [Backup-restore.md](Backup-restore.md); restore drill with `make verify-restore` | done |
 | P0-2 | Production secrets & env | `php bin/console app:env:check --check-profile=beta` on server (see below) | done |
 | P0-3 | HTTP health endpoint | `curl -sS https://<host>/health` returns JSON with `checks.database: ok` | done |
-| P0-4 | SQL month aggregation | `countByMonthLast12Months()` uses SQL `GROUP BY` | planned |
+| P0-4 | SQL month aggregation | `countByMonthLast12Months()` uses SQL `GROUP BY` (see repository integration tests) | done |
 
 ### P0-2 on the server (Uberspace)
 
