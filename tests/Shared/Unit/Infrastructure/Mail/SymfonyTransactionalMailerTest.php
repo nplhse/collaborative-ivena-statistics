@@ -6,20 +6,25 @@ namespace App\Tests\Shared\Unit\Infrastructure\Mail;
 
 use App\Feedback\Domain\Entity\Feedback;
 use App\Feedback\Domain\Enum\FeedbackCategory;
+use App\Shared\Application\Locale\LocaleResolver;
+use App\Shared\Infrastructure\Locale\LocaleCookieManager;
 use App\Shared\Infrastructure\Mail\MailConfig;
 use App\Shared\Infrastructure\Mail\SymfonyTransactionalMailer;
+use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\FeedbackRecipientEmailResolver;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
 final class SymfonyTransactionalMailerTest extends TestCase
 {
-    public function testSendVerificationEmailUsesConfiguredSenderAndRecipient(): void
+    public function testSendVerificationEmailUsesConfiguredSenderRecipientAndLocale(): void
     {
+        $translator = $this->createTranslatorMock();
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
             ->method('send')
@@ -30,22 +35,24 @@ final class SymfonyTransactionalMailerTest extends TestCase
                     static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(),
                     $email->getTo(),
                 ));
-                self::assertSame('Please confirm your email address', $email->getSubject());
+                self::assertSame('E-Mail-Adresse bestätigen', $email->getSubject());
+                self::assertSame('de', $email->getLocale());
                 self::assertSame('@User/registration/confirmation_email.html.twig', $email->getHtmlTemplate());
 
                 return true;
             }));
 
-        $this->createMailer($mailer)->sendVerificationEmail(
+        $this->createMailer($mailer, translator: $translator)->sendVerificationEmail(
             'user@example.test',
             'https://example.test/verify',
             'key',
             ['%count%' => 1],
             'https://example.test/',
+            'de',
         );
     }
 
-    public function testSendPasswordResetEmailUsesConfiguredSenderAndAbsoluteResetUrl(): void
+    public function testSendPasswordResetEmailUsesConfiguredSenderAbsoluteResetUrlAndLocale(): void
     {
         $resetToken = new ResetPasswordToken(
             'selector_verifier',
@@ -63,6 +70,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
             )
             ->willReturn('https://example.test/reset-password/reset/selector_verifier');
 
+        $translator = $this->createTranslatorMock();
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
             ->method('send')
@@ -72,7 +80,8 @@ final class SymfonyTransactionalMailerTest extends TestCase
                     static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(),
                     $email->getTo(),
                 ));
-                self::assertSame('Your password reset request', $email->getSubject());
+                self::assertSame('Reset your password', $email->getSubject());
+                self::assertSame('en', $email->getLocale());
                 self::assertSame('@User/reset_password/email.html.twig', $email->getHtmlTemplate());
                 self::assertInstanceOf(ResetPasswordToken::class, $email->getContext()['resetToken'] ?? null);
                 self::assertSame(
@@ -83,22 +92,27 @@ final class SymfonyTransactionalMailerTest extends TestCase
                 return true;
             }));
 
-        $this->createMailer($mailer, urlGenerator: $urlGenerator)->sendPasswordResetEmail('reset@example.test', $resetToken);
+        $this->createMailer($mailer, urlGenerator: $urlGenerator, translator: $translator)->sendPasswordResetEmail(
+            'reset@example.test',
+            $resetToken,
+            'en',
+        );
     }
 
-    public function testSendAdminFeedbackEmailUsesAllResolvedRecipients(): void
+    public function testSendAdminFeedbackEmailUsesAllResolvedRecipientsGroupedByLocale(): void
     {
         $feedback = new Feedback()
             ->setCategory(FeedbackCategory::BUG)
             ->setMessage('Broken filter')
             ->setPageUrl('https://example.test/page');
 
-        $recipientResolver = $this->createMock(FeedbackRecipientEmailResolver::class);
-        $recipientResolver->method('resolveRecipientEmails')->willReturn([
-            'admin-a@example.test',
-            'admin-b@example.test',
-        ]);
+        $adminA = $this->createAdminUser('admin-a@example.test', 'de');
+        $adminB = $this->createAdminUser('admin-b@example.test', 'de');
 
+        $recipientResolver = $this->createMock(FeedbackRecipientEmailResolver::class);
+        $recipientResolver->method('resolveRecipientUsers')->willReturn([$adminA, $adminB]);
+
+        $translator = $this->createTranslatorMock();
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
             ->method('send')
@@ -108,12 +122,46 @@ final class SymfonyTransactionalMailerTest extends TestCase
                     array_map(static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(), $email->getTo()),
                 );
                 self::assertSame('[Test App] Feedback (bug)', $email->getSubject());
+                self::assertSame('de', $email->getLocale());
                 self::assertSame('@Feedback/email/admin_feedback_notification.html.twig', $email->getHtmlTemplate());
 
                 return true;
             }));
 
-        $this->createMailer($mailer, $recipientResolver)->sendAdminFeedbackEmail(
+        $this->createMailer($mailer, $recipientResolver, translator: $translator)->sendAdminFeedbackEmail(
+            $feedback,
+            FeedbackCategory::BUG,
+            '{}',
+        );
+    }
+
+    public function testSendAdminFeedbackEmailSendsSeparateMailsPerLocale(): void
+    {
+        $feedback = new Feedback()
+            ->setCategory(FeedbackCategory::BUG)
+            ->setMessage('Broken filter')
+            ->setPageUrl('https://example.test/page');
+
+        $recipientResolver = $this->createMock(FeedbackRecipientEmailResolver::class);
+        $recipientResolver->method('resolveRecipientUsers')->willReturn([
+            $this->createAdminUser('de-admin@example.test', 'de'),
+            $this->createAdminUser('en-admin@example.test', 'en'),
+        ]);
+
+        $localeResolver = new LocaleResolver(new LocaleCookieManager());
+
+        $translator = $this->createTranslatorMock();
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::exactly(2))
+            ->method('send')
+            ->with(self::callback(function (TemplatedEmail $email): bool {
+                $locale = $email->getLocale();
+                self::assertContains($locale, ['de', 'en']);
+
+                return true;
+            }));
+
+        $this->createMailer($mailer, $recipientResolver, translator: $translator, localeResolver: $localeResolver)->sendAdminFeedbackEmail(
             $feedback,
             FeedbackCategory::BUG,
             '{}',
@@ -128,7 +176,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
             ->setPageUrl('https://example.test/page');
 
         $recipientResolver = $this->createMock(FeedbackRecipientEmailResolver::class);
-        $recipientResolver->method('resolveRecipientEmails')->willReturn([]);
+        $recipientResolver->method('resolveRecipientUsers')->willReturn([]);
 
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::never())->method('send');
@@ -174,6 +222,8 @@ final class SymfonyTransactionalMailerTest extends TestCase
             $mailConfig,
             $this->createMock(FeedbackRecipientEmailResolver::class),
             $this->createMock(UrlGeneratorInterface::class),
+            $this->createTranslatorMock(),
+            new LocaleResolver(new LocaleCookieManager()),
             $this->createMock(LoggerInterface::class),
         )->sendVerificationEmail(
             'user@example.test',
@@ -181,6 +231,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
             'key',
             [],
             'https://example.test/',
+            'en',
         );
     }
 
@@ -189,6 +240,8 @@ final class SymfonyTransactionalMailerTest extends TestCase
         ?FeedbackRecipientEmailResolver $recipientResolver = null,
         ?LoggerInterface $logger = null,
         ?UrlGeneratorInterface $urlGenerator = null,
+        ?TranslatorInterface $translator = null,
+        ?LocaleResolver $localeResolver = null,
     ): SymfonyTransactionalMailer {
         return new SymfonyTransactionalMailer(
             $mailer,
@@ -200,7 +253,35 @@ final class SymfonyTransactionalMailerTest extends TestCase
             ),
             $recipientResolver ?? $this->createMock(FeedbackRecipientEmailResolver::class),
             $urlGenerator ?? $this->createMock(UrlGeneratorInterface::class),
+            $translator ?? $this->createTranslatorMock(),
+            $localeResolver ?? new LocaleResolver(new LocaleCookieManager()),
             $logger ?? $this->createMock(LoggerInterface::class),
         );
+    }
+
+    private function createTranslatorMock(): TranslatorInterface
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string => match ($id) {
+                'email.verify.title' => 'de' === $locale ? 'E-Mail-Adresse bestätigen' : 'Confirm your email address',
+                'email.reset_password.title' => 'de' === $locale ? 'Passwort zurücksetzen' : 'Reset your password',
+                'feedback.email.title' => 'Feedback',
+                default => $id,
+            },
+        );
+
+        return $translator;
+    }
+
+    private function createAdminUser(string $email, string $locale): User
+    {
+        $user = new User();
+        $user->setUsername(str_replace('@', '-', $email));
+        $user->setEmail($email);
+        $user->setPassword('hashed');
+        $user->setLocale($locale);
+
+        return $user;
     }
 }

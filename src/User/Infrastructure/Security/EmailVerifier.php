@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security;
 
+use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ final readonly class EmailVerifier
         private VerifyEmailHelperInterface $verifyEmailHelper,
         private TransactionalMailer $transactionalMailer,
         private UrlGeneratorInterface $urlGenerator,
+        private LocaleResolver $localeResolver,
     ) {
     }
 
@@ -40,6 +42,7 @@ final readonly class EmailVerifier
             $signatureComponents->getExpirationMessageKey(),
             $signatureComponents->getExpirationMessageData(),
             $this->urlGenerator->generate('app_default', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            $this->localeResolver->resolveForUser($user),
         );
     }
 

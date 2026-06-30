@@ -20,17 +20,24 @@ final readonly class NotificationRecipientResolver implements NotificationRecipi
     }
 
     /**
+     * @return list<User>
+     */
+    #[\Override]
+    public function resolveRecipientUsers(): array
+    {
+        return $this->userRepository->findEnabledVerifiedUsersWithRoles([
+            UserRole::ADMIN,
+            UserRole::RECEIVES_NOTIFICATION,
+        ]);
+    }
+
+    /**
      * @return list<string>
      */
     #[\Override]
     public function resolveRecipientEmails(): array
     {
-        $candidates = $this->userRepository->findEnabledVerifiedUsersWithRoles([
-            UserRole::ADMIN,
-            UserRole::RECEIVES_NOTIFICATION,
-        ]);
-
-        return $this->extractUniqueEmails($candidates);
+        return $this->extractUniqueEmails($this->resolveRecipientUsers());
     }
 
     /**

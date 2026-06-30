@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Mail;
 
+use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Application\Notification\AdminNotification;
 use App\Shared\Application\Notification\AdminNotificationSenderInterface;
 use App\Shared\Application\Notification\AdminNotificationType;
@@ -25,6 +26,7 @@ final readonly class AdminNotificationSender implements AdminNotificationSenderI
         private MailConfig $mailConfig,
         private NotificationRecipientEmailResolver $notificationRecipientResolver,
         private TranslatorInterface $translator,
+        private LocaleResolver $localeResolver,
         private LoggerInterface $logger,
     ) {
     }
@@ -32,8 +34,10 @@ final readonly class AdminNotificationSender implements AdminNotificationSenderI
     #[\Override]
     public function send(AdminNotification $notification): void
     {
-        $recipients = $this->notificationRecipientResolver->resolveRecipientEmails();
-        if ([] === $recipients) {
+        $recipientsByLocale = $this->localeResolver->groupEmailsByLocale(
+            $this->notificationRecipientResolver->resolveRecipientUsers(),
+        );
+        if ([] === $recipientsByLocale) {
             $this->logger->info('admin_notification.skipped', [
                 'reason' => 'no_notification_recipients',
                 'type' => $notification->type->value,
@@ -43,18 +47,20 @@ final readonly class AdminNotificationSender implements AdminNotificationSenderI
             return;
         }
 
-        $email = $this->createTemplatedEmail()
-            ->to(...$recipients)
-            ->subject($this->buildSubject($notification->type))
-            ->htmlTemplate($this->resolveTemplate($notification->type))
-            ->context($notification->templateContext);
+        foreach ($recipientsByLocale as $locale => $recipients) {
+            $email = $this->createTemplatedEmail($locale)
+                ->to(...$recipients)
+                ->subject($this->buildSubject($notification->type, $locale))
+                ->htmlTemplate($this->resolveTemplate($notification->type))
+                ->context($notification->templateContext);
 
-        $this->mailer->send($email);
+            $this->mailer->send($email);
+        }
     }
 
-    private function buildSubject(AdminNotificationType $type): string
+    private function buildSubject(AdminNotificationType $type, string $locale): string
     {
-        $label = $this->translator->trans($type->subjectTranslationKey());
+        $label = $this->translator->trans($type->subjectTranslationKey(), [], null, $locale);
 
         return sprintf('[%s] %s', $this->mailConfig->appName, $label);
     }
@@ -67,10 +73,11 @@ final readonly class AdminNotificationSender implements AdminNotificationSenderI
         };
     }
 
-    private function createTemplatedEmail(): TemplatedEmail
+    private function createTemplatedEmail(string $locale): TemplatedEmail
     {
         $email = new TemplatedEmail()
-            ->from(new Address($this->mailConfig->fromEmail, $this->mailConfig->fromName));
+            ->from(new Address($this->mailConfig->fromEmail, $this->mailConfig->fromName))
+            ->locale($locale);
 
         $replyTo = $this->mailConfig->replyTo();
         if (null !== $replyTo) {

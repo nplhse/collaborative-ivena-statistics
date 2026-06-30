@@ -101,6 +101,43 @@ final class LocaleResolverTest extends TestCase
         self::assertSame('en', $this->resolver->resolveForUser(null));
     }
 
+    public function testGroupEmailsByLocaleGroupsUsersByExplicitLocale(): void
+    {
+        $deUser = $this->createUserWithLocale('de');
+        $deUser->setEmail('de-admin@example.test');
+        $enUser = $this->createUserWithLocale('en');
+        $enUser->setEmail('en-admin@example.test');
+        $defaultUser = $this->createUserWithLocale(null);
+        $defaultUser->setEmail('default-admin@example.test');
+
+        $grouped = $this->resolver->groupEmailsByLocale([$deUser, $enUser, $defaultUser]);
+
+        self::assertSame(['de-admin@example.test'], $grouped['de']);
+        self::assertSame(['en-admin@example.test', 'default-admin@example.test'], $grouped['en']);
+    }
+
+    public function testGroupEmailsByLocaleDeduplicatesEmailsWithinLocale(): void
+    {
+        $userA = $this->createUserWithLocale('de');
+        $userA->setEmail('DUPLICATE@example.test');
+        $userB = $this->createUserWithLocale('de');
+        $userB->setEmail('duplicate@example.test');
+
+        $grouped = $this->resolver->groupEmailsByLocale([$userA, $userB]);
+
+        self::assertSame(['duplicate@example.test'], $grouped['de']);
+    }
+
+    public function testGroupEmailsByLocaleSkipsUsersWithoutEmail(): void
+    {
+        $user = new User();
+        $user->setUsername('no-email-user');
+        $user->setPassword('hashed');
+        $user->setLocale('de');
+
+        self::assertSame([], $this->resolver->groupEmailsByLocale([$user]));
+    }
+
     private function createUserWithLocale(?string $locale): User
     {
         $user = new User();

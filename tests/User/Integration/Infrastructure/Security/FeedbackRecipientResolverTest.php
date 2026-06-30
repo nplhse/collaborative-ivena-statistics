@@ -42,6 +42,8 @@ final class FeedbackRecipientResolverTest extends KernelTestCase
         $resolver = self::getContainer()->get(FeedbackRecipientResolver::class);
 
         self::assertSame(['recipient@example.test'], $resolver->resolveRecipientEmails());
+        self::assertCount(1, $resolver->resolveRecipientUsers());
+        self::assertSame('recipient@example.test', $resolver->resolveRecipientUsers()[0]->getEmail());
     }
 
     public function testDeduplicatesEmails(): void

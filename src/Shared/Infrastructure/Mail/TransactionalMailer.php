@@ -19,11 +19,13 @@ interface TransactionalMailer
         string $expiresAtMessageKey,
         array $expiresAtMessageData,
         string $homepageUrl,
+        string $locale,
     ): void;
 
     public function sendPasswordResetEmail(
         string $recipientEmail,
         ResetPasswordToken $resetToken,
+        string $locale,
     ): void;
 
     public function sendAdminFeedbackEmail(
