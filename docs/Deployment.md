@@ -40,6 +40,7 @@ vendor/bin/dep content:analyze-page-images coishub.uber.space -o content_analyze
 
 Related docs:
 - Configuration details: [Configuration.md](Configuration.md)
+- Backups and restore: [Backup-restore.md](Backup-restore.md)
 - Runtime issues and diagnostics: [Troubleshooting.md](Troubleshooting.md)
 - Import-specific operations: [Import-workflow.md](Import-workflow.md), [Import-batch-requeue.md](Import-batch-requeue.md)
 
@@ -336,6 +337,28 @@ above) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the wor
 | Queue stats | `cd ~/html/current && php bin/console messenger:stats` |
 | Failed messages | `php bin/console messenger:failed:show` |
 | Retry failed | `php bin/console messenger:failed:retry` |
+
+### Backups
+
+Database and file backups are documented in [Backup-restore.md](Backup-restore.md).
+
+Quick reference on the server:
+
+```bash
+cd ~/www/current
+set -a && source ../shared/.env.local && set +a
+BACKUP_DIR=~/backups ./bin/ops/backup-database.sh
+BACKUP_DIR=~/backups IMPORTS_DIR=~/www/shared/var/imports MEDIA_DIR=~/www/shared/public/uploads/media ./bin/ops/backup-files.sh
+```
+
+Schedule cron jobs on Uberspace separately (see Backup-restore.md for examples).
+
+Local development with Docker:
+
+```bash
+docker compose up -d database
+make backup-db
+```
 
 Local development uses `make consume` (same transports, verbose). Mail is sent synchronously in `dev`; production 
 requires the worker for queued mail.
