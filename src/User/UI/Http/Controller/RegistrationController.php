@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
@@ -28,6 +29,7 @@ final class RegistrationController extends AbstractController
         private readonly EmailVerifier $emailVerifier,
         private readonly AuditContext $auditContext,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LocaleResolver $localeResolver,
     ) {
     }
 
@@ -53,7 +55,8 @@ final class RegistrationController extends AbstractController
             $user = new User()
                 ->setUsername($data['username'])
                 ->setEmail($data['email'])
-                ->setIsVerified(false);
+                ->setIsVerified(false)
+                ->setLocale($this->localeResolver->resolve($request, null));
 
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
 

@@ -13,6 +13,7 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Email;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
@@ -26,6 +27,55 @@ final class RegistrationControllerTest extends WebTestCase
     use Factories;
     use HasBrowser;
     use MailerAssertionsTrait;
+
+    public function testRegistrationStoresResolvedGermanLocaleFromCookie(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('register-locale-de-%s', $suffix);
+        $email = sprintf('register-locale-de-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/locale/switch/de?_target_path=/register')
+            ->visit('/register')
+            ->fillField('Username', $username)
+            ->fillField('Email', $email)
+            ->fillField('Plain password', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Registrieren')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'E-Mail prüfen')
+        ;
+
+        UserFactory::assert()->exists([
+            'username' => $username,
+            'locale' => 'de',
+        ]);
+    }
+
+    public function testRegistrationStoresEnglishLocaleWhenBrowserLanguageIsNotGerman(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('register-locale-en-%s', $suffix);
+        $email = sprintf('register-locale-en-%s@example.test', $suffix);
+
+        $client = self::createClient();
+        $client->setServerParameter('HTTP_Accept-Language', 'fr-FR,fr;q=0.9');
+        $client->request(Request::METHOD_GET, '/register');
+        self::assertResponseIsSuccessful();
+
+        $client->submitForm('Register', [
+            'registration_form[username]' => $username,
+            'registration_form[email]' => $email,
+            'registration_form[plainPassword]' => 'super-secret-password',
+            'registration_form[acceptTerms]' => true,
+        ]);
+        self::assertResponseRedirects('/register/check-email');
+
+        UserFactory::assert()->exists([
+            'username' => $username,
+            'locale' => 'en',
+        ]);
+    }
 
     public function testRegistrationSendsAdminNotificationToNotificationRecipients(): void
     {
