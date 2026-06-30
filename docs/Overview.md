@@ -14,6 +14,7 @@ Entry point for project documentation.
 | Fixtures | [Development-fixtures.md](Development-fixtures.md) | Reference YAML, fixture groups, synthetic allocations |
 | Testing | [Testing.md](Testing.md)                           | Local test runs and CI-relevant checks |
 | Deployment | [Deployment.md](Deployment.md)                     | Deployer, worker, ops commands |
+| Beta readiness | [Beta-readiness-checklist.md](Beta-readiness-checklist.md) | Pre-beta P0 checklist, `app:env:check` |
 | Backups | [Backup-restore.md](Backup-restore.md)             | Database/file backup and restore |
 | Troubleshooting | [Troubleshooting.md](Troubleshooting.md)           | Common problems and quick diagnosis |
 | Glossary | [Glossary.md](Glossary.md)                         | Project terms and abbreviations |

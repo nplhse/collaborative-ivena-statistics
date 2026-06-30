@@ -40,6 +40,7 @@ vendor/bin/dep content:analyze-page-images coishub.uber.space -o content_analyze
 
 Related docs:
 - Configuration details: [Configuration.md](Configuration.md)
+- Beta readiness checklist: [Beta-readiness-checklist.md](Beta-readiness-checklist.md)
 - Backups and restore: [Backup-restore.md](Backup-restore.md)
 - Runtime issues and diagnostics: [Troubleshooting.md](Troubleshooting.md)
 - Import-specific operations: [Import-workflow.md](Import-workflow.md), [Import-batch-requeue.md](Import-batch-requeue.md)
@@ -77,6 +78,30 @@ Optional but recommended:
 The application version label (`App\Kernel::APP_VERSION`, exposed as `app.version`) is stored with feedback submissions and used as the default Sentry release unless `SENTRY_RELEASE` is set.
 
 Run database migrations so the `messenger_messages` table exists (included in the default deploy workflow).
+
+## Pre-beta gate
+
+Before opening a closed beta, validate server configuration:
+
+```bash
+cd ~/www/current
+set -a && source ../shared/.env.local && set +a
+php bin/console app:env:check --check-profile=beta
+```
+
+Use `--skip-database` only for a quick env-format check without a DB ping.
+
+Manual checks that `app:env:check` cannot perform:
+
+```bash
+systemctl --user status messenger
+php bin/console messenger:stats
+php bin/console messenger:failed:show
+```
+
+Full checklist: [Beta-readiness-checklist.md](Beta-readiness-checklist.md).
+
+On a **new server**, run `app:env:check` before `app:install` (both Install commands). `app:install` only creates the initial admin user; `app:env:check` validates secrets and URLs.
 
 ## Transactional mail
 
