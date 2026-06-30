@@ -48,9 +48,13 @@ final readonly class MonthlyReminderContentBuilder
     ) {
     }
 
-    public function build(Hospital $hospital, ?\DateTimeImmutable $referenceDate = null): MonthlyReminderContent
+    public function build(Hospital $hospital, ?\DateTimeImmutable $referenceDate, string $locale): MonthlyReminderContent
     {
         $period = $this->periodResolver->resolve($referenceDate);
+        $chartLabels = array_map(
+            fn (string $monthKey): string => $this->formatChartMonthLabel($monthKey, $locale),
+            $period['chartMonthKeys'],
+        );
         $hospitalId = (int) $hospital->getId();
         $hospitalIds = [$hospitalId];
 
@@ -105,7 +109,7 @@ final readonly class MonthlyReminderContentBuilder
 
         $chartBars = $this->chartBuilder->build(
             $period['chartMonthKeys'],
-            $period['chartLabels'],
+            $chartLabels,
             $chartAllocationRows,
             $reportingKey,
         );
@@ -155,8 +159,8 @@ final readonly class MonthlyReminderContentBuilder
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $baselinePeriodLabel = $this->translator->trans('monthly_reminder.baseline.period_label');
-        $reportingPeriodLabel = $this->formatMonthYear($period['reportingYear'], $period['reportingMonth']);
+        $baselinePeriodLabel = $this->trans('monthly_reminder.baseline.period_label', [], $locale);
+        $reportingPeriodLabel = $this->formatMonthYear($period['reportingYear'], $period['reportingMonth'], $locale);
 
         $allocationMom = $this->chartBuilder->percentChange($reportingAllocations, $previousAllocations);
         $allocationYoy = $this->chartBuilder->percentChange($reportingAllocations, $yearAgoAllocations);
@@ -171,8 +175,9 @@ final readonly class MonthlyReminderContentBuilder
                 $selfBenchmarkUrl,
                 $baselinePeriodLabel,
                 $reportingPeriodLabel,
+                $locale,
             )
-            : $this->fallbackInsights($benchmarkingUrl);
+            : $this->fallbackInsights($benchmarkingUrl, $locale);
 
         $platformData = $isPersonalized ? [] : $this->platformFallbackData(
             $period,
@@ -180,14 +185,14 @@ final readonly class MonthlyReminderContentBuilder
             $previousReportingKey,
         );
 
-        $uploadMonthLabel = $this->formatMonthYear($period['uploadYear'], $period['uploadMonth']);
+        $uploadMonthLabel = $this->formatMonthYear($period['uploadYear'], $period['uploadMonth'], $locale);
 
-        $preheader = $this->translator->trans('monthly_reminder.preheader', [
+        $preheader = $this->trans('monthly_reminder.preheader', [
             'period' => $reportingPeriodLabel,
             'count' => $reportingAllocations,
             'delta' => null !== $allocationMom ? $this->formatSignedPercent($allocationMom) : '—',
             'upload_month' => $uploadMonthLabel,
-        ]);
+        ], $locale);
 
         return new MonthlyReminderContent(
             hospitalName: (string) $hospital->getName(),
@@ -197,32 +202,34 @@ final readonly class MonthlyReminderContentBuilder
             isPersonalized: $isPersonalized,
             allocationCount: $reportingAllocations,
             allocationMomPercent: $allocationMom,
-            lastImportLabel: $this->formatLastImportLabel($latestImport),
+            lastImportLabel: $this->formatLastImportLabel($latestImport, $locale),
             lastImportStale: $isStaleImport,
             withPhysicianPercent: $withPhysicianPercent,
             withPhysicianBaselineDeltaPp: $physicianMetric?->absoluteDelta,
             baselinePeriodLabel: $baselinePeriodLabel,
             medianTransportMinutes: $transportMetric instanceof \App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric ? $transportMetric->primaryValue : 0.0,
             medianTransportBaselineDeltaMinutes: $transportMetric?->absoluteDelta,
-            trendSummary: '' !== $trendKey ? $this->translator->trans($trendKey, [
+            trendSummary: '' !== $trendKey ? $this->trans($trendKey, [
                 'percent' => number_format(abs($this->averageMonthlyChange($allocationSeries)), 1, '.', ''),
-            ]) : '',
+            ], $locale) : '',
             chartBars: $chartBars,
             urgencySegments: $this->distributionSegments->urgencySegments(
                 $overviewMetrics->urgencyCounts,
                 $overviewMetrics->scopedTotal,
+                $locale,
             ),
-            urgencyBenchmarkNote: $this->urgencyBenchmarkNote($selfReport, $baselinePeriodLabel),
+            urgencyBenchmarkNote: $this->urgencyBenchmarkNote($selfReport, $baselinePeriodLabel, $locale),
             genderSegments: $this->distributionSegments->genderSegments(
                 $overviewMetrics->genderCounts,
                 $overviewMetrics->scopedTotal,
+                $locale,
             ),
             insights: $insights,
             submissionMonthsCompleted: $completedMonths,
             submissionMonthsTotal: $totalMonths,
             submissionProgressPercent: $totalMonths > 0 ? (int) round(100 * $completedMonths / $totalMonths) : 0,
             submissionMonths: $submissionMonths,
-            longestSubmissionGapLabel: $this->longestGapLabel($submissionMonths, $period['chartMonthKeys']),
+            longestSubmissionGapLabel: $this->longestGapLabel($submissionMonths, $period['chartMonthKeys'], $locale),
             importCreateUrl: $importCreateUrl,
             statisticsDashboardUrl: $statisticsUrl,
             benchmarkingUrl: $benchmarkingUrl,
@@ -258,26 +265,41 @@ final readonly class MonthlyReminderContentBuilder
         return (int) $createdAt->diff($referenceDate)->days;
     }
 
-    private function formatLastImportLabel(?Import $import): string
+    private function formatLastImportLabel(?Import $import, string $locale): string
     {
         $createdAt = $import?->getCreatedAt();
         if (!$createdAt instanceof \DateTimeImmutable) {
-            return $this->translator->trans('monthly_reminder.kpi.last_import.none');
+            return $this->trans('monthly_reminder.kpi.last_import.none', [], $locale);
         }
 
-        return $this->translator->trans('monthly_reminder.kpi.last_import.date', [
-            'date' => $this->formatMonthYear((int) $createdAt->format('Y'), (int) $createdAt->format('n')),
-        ]);
+        return $this->trans('monthly_reminder.kpi.last_import.date', [
+            'date' => $this->formatMonthYear((int) $createdAt->format('Y'), (int) $createdAt->format('n'), $locale),
+        ], $locale);
     }
 
-    private function formatMonthYear(int $year, int $month): string
+    private function formatMonthYear(int $year, int $month, string $locale): string
     {
         $date = new \DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month));
+        $formatted = \IntlDateFormatter::formatObject($date, 'LLLL yyyy', $locale);
 
-        return $this->translator->trans('monthly_reminder.month_year', [
-            'month' => $date->format('F'),
-            'year' => $year,
-        ]);
+        return false !== $formatted ? $formatted : sprintf('%04d-%02d', $year, $month);
+    }
+
+    private function formatChartMonthLabel(string $monthKey, string $locale): string
+    {
+        [$year, $month] = explode('-', $monthKey);
+        $date = new \DateTimeImmutable(sprintf('%04d-%02d-01', (int) $year, (int) $month));
+        $formatted = \IntlDateFormatter::formatObject($date, 'MMM', $locale);
+
+        return false !== $formatted ? $formatted : $monthKey;
+    }
+
+    /**
+     * @param array<string, string|int|float> $parameters
+     */
+    private function trans(string $id, array $parameters, string $locale): string
+    {
+        return $this->translator->trans($id, $parameters, null, $locale);
     }
 
     private function formatSignedPercent(float $value): string
@@ -307,6 +329,7 @@ final readonly class MonthlyReminderContentBuilder
     private function urgencyBenchmarkNote(
         \App\Statistics\Benchmarking\Application\DTO\BenchmarkReport $report,
         string $baselinePeriodLabel,
+        string $locale,
     ): ?string {
         foreach ($report->urgency->buckets as $bucket) {
             if ('1' !== $bucket->key && 'urgency_1' !== $bucket->key) {
@@ -316,12 +339,12 @@ final readonly class MonthlyReminderContentBuilder
                 return null;
             }
 
-            return $this->translator->trans('monthly_reminder.urgency.benchmark', [
-                'urgency' => $this->translator->trans(AllocationUrgency::EMERGENCY->label()),
+            return $this->trans('monthly_reminder.urgency.benchmark', [
+                'urgency' => $this->trans(AllocationUrgency::EMERGENCY->label(), [], $locale),
                 'percent' => number_format($bucket->primaryShare, 1, '.', ''),
                 'delta' => $this->formatSignedPercent($bucket->primaryShare - $bucket->comparisonShare),
                 'baseline' => $baselinePeriodLabel,
-            ]);
+            ], $locale);
         }
 
         return null;
@@ -331,7 +354,7 @@ final readonly class MonthlyReminderContentBuilder
      * @param array<string, string> $submissionMonths
      * @param list<string>          $monthKeys
      */
-    private function longestGapLabel(array $submissionMonths, array $monthKeys): ?string
+    private function longestGapLabel(array $submissionMonths, array $monthKeys, string $locale): ?string
     {
         $longest = 0;
         $gapStart = null;
@@ -368,34 +391,34 @@ final readonly class MonthlyReminderContentBuilder
             return null;
         }
 
-        return $this->translator->trans('monthly_reminder.submission.gap', [
+        return $this->trans('monthly_reminder.submission.gap', [
             'months' => $longest,
-            'from' => $this->formatMonthKey($gapStart),
-            'to' => $this->formatMonthKey($gapEnd),
-        ]);
+            'from' => $this->formatMonthKey($gapStart, $locale),
+            'to' => $this->formatMonthKey($gapEnd, $locale),
+        ], $locale);
     }
 
-    private function formatMonthKey(string $key): string
+    private function formatMonthKey(string $key, string $locale): string
     {
         [$year, $month] = explode('-', $key);
 
-        return $this->formatMonthYear((int) $year, (int) $month);
+        return $this->formatMonthYear((int) $year, (int) $month, $locale);
     }
 
     /**
      * @return list<HospitalInsight>
      */
-    private function fallbackInsights(string $benchmarkingUrl): array
+    private function fallbackInsights(string $benchmarkingUrl, string $locale): array
     {
         return [
             new HospitalInsight(
-                $this->translator->trans('monthly_reminder.fallback.insight.upload.title'),
-                $this->translator->trans('monthly_reminder.fallback.insight.upload.body'),
+                $this->trans('monthly_reminder.fallback.insight.upload.title', [], $locale),
+                $this->trans('monthly_reminder.fallback.insight.upload.body', [], $locale),
                 HospitalInsightTrend::Neutral,
             ),
             new HospitalInsight(
-                $this->translator->trans('monthly_reminder.fallback.insight.platform.title'),
-                $this->translator->trans('monthly_reminder.fallback.insight.platform.body'),
+                $this->trans('monthly_reminder.fallback.insight.platform.title', [], $locale),
+                $this->trans('monthly_reminder.fallback.insight.platform.body', [], $locale),
                 HospitalInsightTrend::Neutral,
                 $benchmarkingUrl,
             ),

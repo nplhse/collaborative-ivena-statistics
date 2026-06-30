@@ -17,12 +17,12 @@ final class MonthlyReminderDistributionSegmentsTest extends TestCase
         $genderSegments = $segments->genderSegments([
             'M' => 30,
             'F' => 70,
-        ], 100);
+        ], 100, 'de');
         $urgencySegments = $segments->urgencySegments([
             1 => 10,
             2 => 20,
             3 => 70,
-        ], 100);
+        ], 100, 'de');
 
         self::assertCount(3, $genderSegments);
         self::assertSame(30.0, $genderSegments[0]->percent);

@@ -191,6 +191,38 @@ final class HospitalInsightSelectorTest extends TestCase
         self::assertStringContainsString('Chest pain', $insights[0]->body);
     }
 
+    public function testSelectPassesExplicitLocaleToTranslator(): void
+    {
+        $capturedLocale = null;
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static function (
+                string $id,
+                array $parameters = [],
+                ?string $domain = null,
+                ?string $locale = null,
+            ) use (&$capturedLocale): string {
+                $capturedLocale = $locale;
+
+                return $id;
+            },
+        );
+
+        new HospitalInsightSelector($translator)->select(
+            10.0,
+            null,
+            [],
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, []),
+            null,
+            'https://example.test/stats',
+            'your last 12 months',
+            'May 2026',
+            'de',
+        );
+
+        self::assertSame('de', $capturedLocale);
+    }
+
     private function translator(): TranslatorInterface
     {
         $translator = $this->createMock(TranslatorInterface::class);

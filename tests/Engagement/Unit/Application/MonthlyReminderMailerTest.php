@@ -15,15 +15,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MonthlyReminderMailerTest extends TestCase
 {
-    public function testSendUsesConfiguredSenderSubjectAndTemplate(): void
+    public function testSendUsesConfiguredSenderSubjectTemplateAndLocale(): void
     {
         $content = $this->content();
+        $capturedLocale = null;
 
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
-            static fn (string $id, array $parameters = []): string => match ($id) {
-                'monthly_reminder.subject' => sprintf('Reminder for %s (%s)', $parameters['hospital'], $parameters['period']),
-                default => $id,
+            static function (string $id, array $parameters = [], ?string $domain = null, ?string $locale = null) use (&$capturedLocale): string {
+                if ('monthly_reminder.subject' === $id) {
+                    $capturedLocale = $locale;
+
+                    return sprintf('Reminder for %s (%s)', $parameters['hospital'], $parameters['period']);
+                }
+
+                return $id;
             },
         );
 
@@ -39,6 +45,7 @@ final class MonthlyReminderMailerTest extends TestCase
                 ));
                 self::assertSame('Reminder for Test Hospital (May 2026)', $email->getSubject());
                 self::assertSame('@Engagement/email/monthly_submission_reminder.html.twig', $email->getHtmlTemplate());
+                self::assertSame('de', $email->getLocale());
                 self::assertSame('IVENA Stats', $email->getContext()['app_title'] ?? null);
 
                 return true;
@@ -57,7 +64,9 @@ final class MonthlyReminderMailerTest extends TestCase
             ),
             $translator,
             $logger,
-        )->send('owner@example.test', $content);
+        )->send('owner@example.test', $content, 'de');
+
+        self::assertSame('de', $capturedLocale);
     }
 
     public function testReplyToIsAppliedWhenConfigured(): void
@@ -87,7 +96,7 @@ final class MonthlyReminderMailerTest extends TestCase
             ),
             $translator,
             $this->createMock(LoggerInterface::class),
-        )->send('owner@example.test', $this->content());
+        )->send('owner@example.test', $this->content(), 'en');
     }
 
     private function content(): MonthlyReminderContent
