@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
@@ -31,6 +32,7 @@ final class ResetPasswordController extends AbstractController
         private readonly TransactionalMailer $transactionalMailer,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
+        private readonly LocaleResolver $localeResolver,
     ) {
     }
 
@@ -143,7 +145,11 @@ final class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_check_email');
         }
 
-        $this->transactionalMailer->sendPasswordResetEmail((string) $user->getEmail(), $resetToken);
+        $this->transactionalMailer->sendPasswordResetEmail(
+            (string) $user->getEmail(),
+            $resetToken,
+            $this->localeResolver->resolveForUser($user),
+        );
 
         $this->setTokenObjectInSession($resetToken);
 
