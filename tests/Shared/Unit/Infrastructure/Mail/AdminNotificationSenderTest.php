@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Unit\Infrastructure\Mail;
 
+use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Application\Notification\AdminNotification;
 use App\Shared\Application\Notification\AdminNotificationType;
+use App\Shared\Infrastructure\Locale\LocaleCookieManager;
 use App\Shared\Infrastructure\Mail\AdminNotificationSender;
 use App\Shared\Infrastructure\Mail\MailConfig;
+use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\NotificationRecipientEmailResolver;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -17,16 +20,16 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AdminNotificationSenderTest extends TestCase
 {
-    public function testSendUsesResolvedRecipientsAndTemplate(): void
+    public function testSendUsesResolvedRecipientsTemplateAndLocale(): void
     {
+        $adminA = $this->createAdminUser('admin-a@example.test', 'de');
+        $adminB = $this->createAdminUser('admin-b@example.test', 'de');
+
         $recipientResolver = $this->createMock(NotificationRecipientEmailResolver::class);
-        $recipientResolver->method('resolveRecipientEmails')->willReturn([
-            'admin-a@example.test',
-            'admin-b@example.test',
-        ]);
+        $recipientResolver->method('resolveRecipientUsers')->willReturn([$adminA, $adminB]);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturn('New user registration');
+        $translator->method('trans')->willReturn('Neue Benutzerregistrierung');
 
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
@@ -36,7 +39,8 @@ final class AdminNotificationSenderTest extends TestCase
                     ['admin-a@example.test', 'admin-b@example.test'],
                     array_map(static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(), $email->getTo()),
                 );
-                self::assertSame('[Test App] New user registration', $email->getSubject());
+                self::assertSame('[Test App] Neue Benutzerregistrierung', $email->getSubject());
+                self::assertSame('de', $email->getLocale());
                 self::assertSame('@Shared/email/admin_notification/user_registered.html.twig', $email->getHtmlTemplate());
                 self::assertSame('new-user', $email->getContext()['username'] ?? null);
 
@@ -52,7 +56,9 @@ final class AdminNotificationSenderTest extends TestCase
     public function testSendUsesImportFailedTemplate(): void
     {
         $recipientResolver = $this->createMock(NotificationRecipientEmailResolver::class);
-        $recipientResolver->method('resolveRecipientEmails')->willReturn(['admin@example.test']);
+        $recipientResolver->method('resolveRecipientUsers')->willReturn([
+            $this->createAdminUser('admin@example.test', 'en'),
+        ]);
 
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Import failed');
@@ -66,6 +72,7 @@ final class AdminNotificationSenderTest extends TestCase
                     $email->getTo(),
                 ));
                 self::assertSame('[Test App] Import failed', $email->getSubject());
+                self::assertSame('en', $email->getLocale());
                 self::assertSame('@Shared/email/admin_notification/import_failed.html.twig', $email->getHtmlTemplate());
                 self::assertSame('Broken import', $email->getContext()['importName'] ?? null);
                 self::assertSame('Missing header row', $email->getContext()['reason'] ?? null);
@@ -86,7 +93,7 @@ final class AdminNotificationSenderTest extends TestCase
     public function testSendSkipsWhenNoRecipients(): void
     {
         $recipientResolver = $this->createMock(NotificationRecipientEmailResolver::class);
-        $recipientResolver->method('resolveRecipientEmails')->willReturn([]);
+        $recipientResolver->method('resolveRecipientUsers')->willReturn([]);
 
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::never())->method('send');
@@ -122,7 +129,19 @@ final class AdminNotificationSenderTest extends TestCase
             ),
             $recipientResolver,
             $translator ?? $this->createMock(TranslatorInterface::class),
+            new LocaleResolver(new LocaleCookieManager()),
             $logger ?? $this->createMock(LoggerInterface::class),
         );
+    }
+
+    private function createAdminUser(string $email, string $locale): User
+    {
+        $user = new User();
+        $user->setUsername(str_replace('@', '-', $email));
+        $user->setEmail($email);
+        $user->setPassword('hashed');
+        $user->setLocale($locale);
+
+        return $user;
     }
 }
