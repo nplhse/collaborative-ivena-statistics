@@ -209,7 +209,7 @@ Cron is configured on Uberspace outside this repository.
    systemctl --user start messenger
    ```
 
-4. Smoke test: login, import list, statistics dashboard. When available, `GET /health`.
+4. Smoke test: `curl -sS https://<host>/health | jq` (expect HTTP 200, `checks.database: ok`), then login, import list, statistics dashboard.
 
 `pg_restore --clean --if-exists` drops and recreates objects from the dump. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
 

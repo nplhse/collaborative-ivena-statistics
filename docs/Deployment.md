@@ -363,6 +363,24 @@ above) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the wor
 | Failed messages | `php bin/console messenger:failed:show` |
 | Retry failed | `php bin/console messenger:failed:retry` |
 
+### Health check
+
+`GET /health` is public (no login) and returns JSON with runtime status:
+
+| `status` | HTTP | Meaning |
+|--------|------|---------|
+| `healthy` | 200 | Database reachable, no failed Messenger messages |
+| `degraded` | 200 | Database OK, failed queue has messages — check `messenger:failed:show` |
+| `unhealthy` | 503 | Database unreachable |
+
+Example after deploy:
+
+```bash
+curl -sS https://<host>/health | jq
+```
+
+For external uptime monitoring (Sentry Uptime or similar), point the monitor at the same URL and expect HTTP **200**. A `degraded` response still returns 200 by design so failed messages do not page on-call; investigate via the checklist and `messenger:failed:show`. Details: [Observability-sentry.md](Observability-sentry.md#uptime-monitoring).
+
 ### Backups
 
 Database and file backups are documented in [Backup-restore.md](Backup-restore.md).

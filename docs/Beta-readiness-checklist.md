@@ -10,9 +10,9 @@ Related: [Configuration.md](Configuration.md), [Deployment.md](Deployment.md), [
 
 | ID | Item | How to verify | Status |
 |----|------|---------------|--------|
-| P0-1 | Backup & restore strategy | Follow [Backup-restore.md](Backup-restore.md); restore drill with `make verify-restore` | |
-| P0-2 | Production secrets & env | `php bin/console app:env:check --check-profile=beta` on server (see below) | |
-| P0-3 | HTTP health endpoint | `GET /health` returns JSON with database OK | planned |
+| P0-1 | Backup & restore strategy | Follow [Backup-restore.md](Backup-restore.md); restore drill with `make verify-restore` | done |
+| P0-2 | Production secrets & env | `php bin/console app:env:check --check-profile=beta` on server (see below) | done |
+| P0-3 | HTTP health endpoint | `curl -sS https://<host>/health` returns JSON with `checks.database: ok` | done |
 | P0-4 | SQL month aggregation | `countByMonthLast12Months()` uses SQL `GROUP BY` | planned |
 
 ### P0-2 on the server (Uberspace)
@@ -41,6 +41,7 @@ These are required in addition to `app:env:check`:
 - [ ] Transactional mail works (registration or password reset test)
 - [ ] Sentry receives a test event (if `SENTRY_DSN` is set)
 - [ ] Backups scheduled on Uberspace (cron — see [Backup-restore.md](Backup-restore.md))
+- [ ] Sentry Uptime Monitor on `GET /health` (see [Observability-sentry.md](Observability-sentry.md#uptime-monitoring))
 
 ## Environment variables reference
 
@@ -91,6 +92,5 @@ Higher-priority follow-ups from the beta-readiness audit:
 - CSP report-only
 - Functional tests for auth/onboarding
 - Sentry alerts and failed-message monitoring
-- HTTP `/health` endpoint (P0-3)
 
 See the project beta-readiness audit plan for the full roadmap.
