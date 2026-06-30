@@ -317,6 +317,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                     'post' => $post,
                     'content' => 'Thanks for the update — great to see steady progress on the platform.',
                     'author' => $foo,
+                    'createdBy' => $admin,
                 ]);
             }
         }
