@@ -57,3 +57,26 @@ In `dev` or `staging`, with a DSN configured, `GET /_debug/sentry/test` triggers
 2. **Logs:** Explore -> Logs with filters such as `message:import.summary` or `level:error`.
 3. **Performance:** HTTP requests, Messenger jobs, and Doctrine queries appear as automatic transactions and spans.
 4. **Privacy:** event and log details should not include request bodies or unnecessary personal data.
+
+## Uptime monitoring
+
+The Symfony SDK (`sentry/sentry-symfony`) sends errors, logs, and traces **from the app to Sentry**. It does **not** poll URLs. For reachability checks, configure **Sentry Uptime Monitoring** (or another external HTTP monitor) in the Sentry UI — no application code required.
+
+### Setup (Sentry UI)
+
+1. Open **Alerts** → **Uptime Monitors** → create monitor.
+2. URL: `https://<APP_URL>/health` (same value as `APP_URL` in `shared/.env.local`).
+3. Interval: e.g. every 5 minutes.
+4. Expected HTTP status: **200**.
+
+### What triggers an alert
+
+| Condition | Uptime alert |
+|-----------|--------------|
+| Timeout or connection failure | yes |
+| HTTP **503** (`unhealthy`, database down) | yes |
+| HTTP **200** with `"status": "degraded"` (failed Messenger messages) | no (by design) |
+
+`degraded` means the app is up but the failed queue has messages. Use `php bin/console messenger:failed:show` and the [beta readiness checklist](Beta-readiness-checklist.md) — Sentry Uptime does not parse JSON response bodies.
+
+Related: [Deployment.md](Deployment.md#health-check) (`GET /health` response format).
