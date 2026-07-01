@@ -133,11 +133,23 @@ env-check: ## Validate environment variables (dev profile; use --check-profile=b
 fixtures: ## Load dev demo fixtures (replaces existing fixture data)
 	@$(SYMFONY) composer load-fixtures
 
-trans: ## Extract translations from symfony
-	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc en
+TRANS_DOMAINS := messages statistics allocation import user content onboarding feedback engagement admin shared errors validators
+
+trans: ## Extract EN translations (messages domain only)
+	@$(CONSOLE) translation:extract messages --dump-messages --force --sort=asc en
 
 trans-de: ## Extract missing DE translation skeletons (messages domain)
-	@$(CONSOLE) translation:extract --dump-messages --force --sort=asc de
+	@$(CONSOLE) translation:extract messages --dump-messages --force --sort=asc de
+
+trans-all: ## Extract EN translations for all application domains
+	@for domain in $(TRANS_DOMAINS); do \
+		$(CONSOLE) translation:extract $$domain --dump-messages --force --sort=asc en || exit 1; \
+	done
+
+trans-de-all: ## Extract missing DE translation skeletons for all application domains
+	@for domain in $(TRANS_DOMAINS); do \
+		$(CONSOLE) translation:extract $$domain --dump-messages --force --sort=asc de || exit 1; \
+	done
 
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
 lint: lint-container lint-php lint-twig lint-trans lint-js static-analysis ## Run continuous integration pipeline

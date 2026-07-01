@@ -22,6 +22,7 @@ Typical layering per context:
 | `Shared` | Cross-cutting concerns (audit, monitoring, infrastructure) |
 | `Content` | Content pages and blog |
 | `Onboarding` | Participant dashboard onboarding steps and progress |
+| `Engagement` | Monthly submission reminders and related mail content |
 | `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |
 
 ## Core components
@@ -65,3 +66,7 @@ Fixture loading uses `doctrine:fixtures:load` with groups (see [Development-fixt
 ## Clinic-specific access grants
 
 Hospital owners can grant other `ROLE_PARTICIPANT` users clinic-scoped permissions via `HospitalAccessGrant` (entity) and `HospitalPermissionAccess` (resolver). Permissions are stored as a bitmask (`VIEW`, `STATISTICS`, `BENCHMARKING`, `IMPORT`, `EXPORT`). Owners retain full control; admins retain global access. Benchmarking requires statistics permissions.
+
+## Translations (i18n)
+
+UI strings are split into Symfony translation **domains** aligned with bounded contexts (`statistics`, `allocation`, `import`, `user`, `content`, `engagement`, …). Generic actions and cross-cutting entity labels remain in `messages`. See [Translations.md](Translations.md) for the domain list, usage rules (`TranslatableMessage` for flashes/DTOs), and Makefile targets (`make trans-all`, `make lint-trans`).

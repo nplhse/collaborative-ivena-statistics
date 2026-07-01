@@ -39,6 +39,18 @@ make static-analysis
 make cs
 ```
 
+### Translations
+
+Domain-specific catalogues live under `translations/`. After adding or moving keys:
+
+```bash
+make trans-all      # extract EN for all app domains
+make trans-de-all   # scaffold missing DE units
+make lint-trans     # lint EN + DE catalogues
+```
+
+See [Translations.md](Translations.md) and [Glossary-i18n-de.md](Glossary-i18n-de.md).
+
 ### Aggregate admin KPIs
 
 Daily metrics for the EasyAdmin dashboard are written to `kpi_daily` by a console command (not computed on each page load):
