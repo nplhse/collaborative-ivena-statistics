@@ -8,11 +8,8 @@ use Symfony\Component\Console\Attribute\Option;
 
 final class AnalyzePageImagesInput
 {
-    #[Option(description: 'Only report findings without writing changes (default)', name: 'dry-run')]
+    #[Option(description: 'Only report findings without writing changes', name: 'dry-run')]
     public bool $dryRun = false;
-
-    #[Option(description: 'Apply selected write operations')]
-    public bool $apply = false;
 
     #[Option(description: 'Backfill missing media width/height from local files', name: 'backfill-dimensions')]
     public bool $backfillDimensions = false;

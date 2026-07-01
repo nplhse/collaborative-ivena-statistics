@@ -21,7 +21,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
 
         self::assertSame(Command::INVALID, $tester->execute([]));
-        self::assertStringContainsString('Option --hospital is required', $tester->getDisplay());
+        self::assertStringContainsString('Option --hospital-id is required', $tester->getDisplay());
     }
 
     public function testFailsWhenHospitalIsNotFound(): void
@@ -29,7 +29,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         self::bootKernel();
         $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
 
-        self::assertSame(Command::FAILURE, $tester->execute(['--hospital' => '999999']));
+        self::assertSame(Command::FAILURE, $tester->execute(['--hospital-id' => '999999']));
         self::assertStringContainsString('not found', $tester->getDisplay());
     }
 
@@ -40,7 +40,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
 
         self::assertSame(Command::SUCCESS, $tester->execute([
-            '--hospital' => (string) $hospital->getId(),
+            '--hospital-id' => (string) $hospital->getId(),
             '--date' => '2026-06-17',
         ]));
         self::assertStringContainsString('<!DOCTYPE html>', $tester->getDisplay());
@@ -66,7 +66,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
 
         self::assertSame(Command::SUCCESS, $tester->execute([
-            '--hospital' => (string) $hospital->getId(),
+            '--hospital-id' => (string) $hospital->getId(),
             '--date' => '2026-06-17',
         ]));
 
@@ -82,7 +82,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
 
         self::assertSame(Command::FAILURE, $tester->execute([
-            '--hospital' => (string) $hospital->getId(),
+            '--hospital-id' => (string) $hospital->getId(),
             '--send' => true,
             '--date' => '2026-06-17',
         ]));
@@ -96,7 +96,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
 
         self::assertSame(Command::SUCCESS, $tester->execute([
-            '--hospital' => (string) $hospital->getId(),
+            '--hospital-id' => (string) $hospital->getId(),
             '--send' => true,
             '--ignore-opt-out' => true,
             '--date' => '2026-06-17',
@@ -113,7 +113,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
 
         try {
             self::assertSame(Command::SUCCESS, $tester->execute([
-                '--hospital' => (string) $hospital->getId(),
+                '--hospital-id' => (string) $hospital->getId(),
                 '--output' => $outputPath,
                 '--date' => '2026-06-17',
             ]));

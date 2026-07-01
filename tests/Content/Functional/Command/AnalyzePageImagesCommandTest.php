@@ -34,7 +34,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
         $display = $tester->getDisplay();
         self::assertStringContainsString('Analyze page images', $display);
-        self::assertStringContainsString('Dry run: no database or content changes will be written.', $display);
         self::assertStringContainsString('Found 1 image reference(s)', $display);
         self::assertStringContainsString('No change', $display);
         self::assertStringContainsString('Analysis finished.', $display);
@@ -67,7 +66,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
         $tester = $this->createCommandTester();
         $exitCode = $tester->execute([
-            '--apply' => true,
             '--backfill-dimensions' => true,
         ]);
 
@@ -122,6 +120,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
         $tester = $this->createCommandTester();
         $exitCode = $tester->execute([
+            '--dry-run' => true,
             '--fix-richtext-snippets' => true,
             '--page-id' => (string) $page->getId(),
         ]);
@@ -131,7 +130,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
         $display = $tester->getDisplay();
         self::assertStringContainsString('Richtext snippet migration', $display);
         self::assertStringContainsString('Updated HTML blocks: 1', $display);
-        self::assertStringContainsString('Dry run finished. Re-run with --apply to persist changes.', $display);
+        self::assertStringContainsString('Dry run finished. Re-run without --dry-run to persist changes.', $display);
         self::assertStringContainsString(
             'page-content-image--size-lg',
             $page->getContent()[0]['data']['html'],
@@ -156,7 +155,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
         $pageId = (int) $page->getId();
         $tester = $this->createCommandTester();
         $exitCode = $tester->execute([
-            '--apply' => true,
             '--fix-richtext-snippets' => true,
             '--page-id' => (string) $pageId,
         ]);
@@ -210,6 +208,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
         $tester = $this->createCommandTester();
         $exitCode = $tester->execute([
+            '--dry-run' => true,
             '--migrate-size' => true,
             '--page-id' => (string) $page->getId(),
         ]);
@@ -219,7 +218,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
         $display = $tester->getDisplay();
         self::assertStringContainsString('Image block size migration', $display);
         self::assertStringContainsString('Updated image blocks: 1', $display);
-        self::assertStringContainsString('Dry run finished. Re-run with --apply to persist changes.', $display);
+        self::assertStringContainsString('Dry run finished. Re-run without --dry-run to persist changes.', $display);
         self::assertSame('lg', $page->getContent()[0]['data']['size']);
     }
 
