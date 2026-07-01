@@ -2,7 +2,7 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
     <header>
-      <tool tool-id="symfony" tool-name="Symfony"/>
+      <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
       <trans-unit id="errors.title.error" resname="title.error">
@@ -56,6 +56,18 @@
       <trans-unit id="errors.cta.back" resname="cta.back">
         <source>cta.back</source>
         <target>Go back</target>
+      </trans-unit>
+      <trans-unit id="page0027" resname="error.page.auth_required">
+        <source>error.page.auth_required</source>
+        <target>This page is only available to signed-in users.</target>
+      </trans-unit>
+      <trans-unit id="ExpErrEn01" resname="error.export.too_many_rows">
+        <source>error.export.too_many_rows</source>
+        <target>Export blocked: {count, number} records exceed the limit. Narrow your filters.</target>
+      </trans-unit>
+      <trans-unit id="ExpErrEn02" resname="error.export.invalid_filter">
+        <source>error.export.invalid_filter</source>
+        <target>Please check the export filters.</target>
       </trans-unit>
     </body>
   </file>
