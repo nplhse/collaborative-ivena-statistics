@@ -38,6 +38,8 @@ For alpha deployments, set a DSN, `SENTRY_ENVIRONMENT=alpha`, and `SENTRY_TRACES
 | `import.abort.flush_failed` | yes |
 | `import.rejects.cleared` | yes |
 | `import.reject_file.deleted` | yes |
+| `import.source_file.deleted` | yes |
+| `import.file.delete_failed` | yes |
 | `reject.row_rejected` | no (local only) |
 | `reject.row_type_unknown` | no (local only) |
 

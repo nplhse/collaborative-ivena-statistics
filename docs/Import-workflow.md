@@ -38,6 +38,20 @@ Source: CSV files uploaded through the import UI.
 - Row-level business errors become rejects
 - Critical errors are logged as import failures
 
+## Deletion cleanup
+
+When an import is deleted (UI or admin), `ImportDeletionService` removes:
+
+- The import database record
+- Related allocations, assessments, MCI cases, and projection rows
+- Batch-run history entries for that import
+- The uploaded source file under `var/imports/...`
+- The reject CSV file, if one was written during processing
+
+Reimports intentionally keep the source file; only result data from the previous run is cleared. See [Import-batch-requeue.md](Import-batch-requeue.md).
+
+File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesystem::remove()`). Failed deletions are logged as `import.file.delete_failed`.
+
 ## Test locally
 
 ```bash

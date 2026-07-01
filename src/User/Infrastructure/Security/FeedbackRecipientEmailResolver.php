@@ -15,6 +15,8 @@ interface FeedbackRecipientEmailResolver
 
     /**
      * @return list<string>
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function resolveRecipientEmails(): array;
 }

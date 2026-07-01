@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Service;
 
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Filesystem\Path;
-
 /** @psalm-suppress ClassMustBeFinal */
 final readonly class FileChecksumCalculator
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        #[Autowire('%kernel.project_dir%')]
-        private string $projectDir,
+        private ImportFileStorage $fileStorage,
         private string $algorithm = 'sha256',
     ) {
     }
@@ -21,7 +17,7 @@ final readonly class FileChecksumCalculator
     /** @return non-empty-string */
     public function forPath(string $path): string
     {
-        $abs = $this->resolvePath($path);
+        $abs = $this->fileStorage->resolve($path);
 
         $hash = @\hash_file($this->algorithm, $abs);
 
@@ -30,29 +26,5 @@ final readonly class FileChecksumCalculator
         }
 
         return $hash;
-    }
-
-    private function resolvePath(string $stored): string
-    {
-        if ($this->isAbsolutePath($stored)) {
-            return $stored;
-        }
-
-        return Path::join($this->projectDir, $stored);
-    }
-
-    private function isAbsolutePath(string $path): bool
-    {
-        if ('' === $path) {
-            return false;
-        }
-
-        // Unix: starts with /
-        if (DIRECTORY_SEPARATOR === $path[0]) {
-            return true;
-        }
-
-        // Windows: drive letter + colon
-        return (bool) \preg_match('#^[A-Za-z]:[\\\\/]#', $path);
     }
 }

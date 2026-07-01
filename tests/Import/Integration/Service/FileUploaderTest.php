@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Import\Integration\Service;
 
 use App\Import\Application\Service\FileUploader;
+use App\Import\Application\Service\ImportFileStorage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -67,7 +68,7 @@ final class FileUploaderTest extends TestCase
 
         $uploader = new FileUploader(
             $this->baseDir,
-            $this->projectDir,
+            $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
         );
@@ -105,7 +106,7 @@ final class FileUploaderTest extends TestCase
 
         $uploader = new FileUploader(
             $this->baseDir,
-            $this->projectDir,
+            $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
         );
@@ -127,7 +128,7 @@ final class FileUploaderTest extends TestCase
 
         $uploader = new FileUploader(
             $this->baseDir,
-            $this->projectDir,
+            $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
         );
@@ -160,7 +161,7 @@ final class FileUploaderTest extends TestCase
 
         $uploader = new FileUploader(
             $this->baseDir,
-            $this->projectDir,
+            $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
         );
@@ -180,7 +181,7 @@ final class FileUploaderTest extends TestCase
 
         $uploader = new FileUploader(
             $this->baseDir,
-            $this->projectDir,
+            $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
         );
@@ -213,8 +214,8 @@ final class FileUploaderTest extends TestCase
             ->method('error');
 
         $uploader = new FileUploader(
-            $this->projectDir,
             $this->baseDir,
+            $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
         );
@@ -222,6 +223,11 @@ final class FileUploaderTest extends TestCase
         // Act + Assert
         $this->expectException(FileException::class);
         $uploader->upload($file);
+    }
+
+    private function createFileStorage(): ImportFileStorage
+    {
+        return new ImportFileStorage($this->projectDir, $this->filesystem, $this->logger);
     }
 
     /**

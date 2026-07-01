@@ -20,7 +20,7 @@ final readonly class FileUploader
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         #[Autowire(param: 'app.imports_base_dir')] private string $baseDir,
-        #[Autowire('%kernel.project_dir%')] private string $projectDir,
+        private ImportFileStorage $fileStorage,
         private LoggerInterface $logger,
         private Filesystem $filesystem,
     ) {
@@ -42,8 +42,7 @@ final readonly class FileUploader
 
             $file->move($absDir, $fileName);
 
-            $relative = Path::makeRelative($targetAbs, $this->projectDir);
-            $relative = str_replace('\\', '/', $relative);
+            $relative = $this->fileStorage->toRelative($targetAbs);
 
             $this->logger->info('upload.success', [
                 'target_rel' => $relative,
@@ -55,7 +54,7 @@ final readonly class FileUploader
             return $relative;
         } catch (FileException $e) {
             $this->logger->error('upload.failed', [
-                'target_rel' => Path::makeRelative($targetAbs, $this->projectDir),
+                'target_rel' => $this->fileStorage->toRelative($targetAbs),
                 'error' => $e->getMessage(),
                 'orig' => $file->getClientOriginalName(),
             ]);
