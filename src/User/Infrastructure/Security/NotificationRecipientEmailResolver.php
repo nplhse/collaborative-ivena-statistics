@@ -15,6 +15,8 @@ interface NotificationRecipientEmailResolver
 
     /**
      * @return list<string>
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function resolveRecipientEmails(): array;
 }
