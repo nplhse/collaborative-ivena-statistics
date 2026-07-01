@@ -95,7 +95,7 @@ final readonly class MonthlyReminderPreviewCommand
             $errors = $this->reminderSender->sendForHospital($hospital, $trigger, $referenceDate);
             if ([] !== $errors) {
                 foreach ($errors as $errorKey) {
-                    $io->error($this->translator->trans($errorKey));
+                    $io->error($this->translator->trans($errorKey, [], 'engagement'));
                 }
                 if ('monthly_reminder.error.opted_out' === ($errors[0] ?? null)) {
                     $io->note('Use --ignore-opt-out to send anyway for manual testing.');

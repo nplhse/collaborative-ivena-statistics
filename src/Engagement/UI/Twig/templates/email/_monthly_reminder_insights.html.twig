@@ -17,7 +17,7 @@
                             <div style="font-weight:600;color:#232b42;margin-bottom:4px;">{{ insight.title }}</div>
                             <p style="margin:0 0 8px;color:#3A4859;">{{ insight.body }}</p>
                             {% if insight.linkUrl %}
-                                <a href="{{ insight.linkUrl }}" style="color:#206bc4;text-decoration:none;font-size:13px;">{{ 'monthly_reminder.insight.link'|trans }}</a>
+                                <a href="{{ insight.linkUrl }}" style="color:#206bc4;text-decoration:none;font-size:13px;">{{ 'monthly_reminder.insight.link'|trans({}, 'engagement') }}</a>
                             {% endif %}
                         </td>
                     </tr>

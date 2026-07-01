@@ -30,7 +30,7 @@ final readonly class MonthlyReminderMailer
             ->subject($this->translator->trans('monthly_reminder.subject', [
                 'hospital' => $content->hospitalName,
                 'period' => $content->reportingPeriodLabel,
-            ], null, $locale))
+            ], 'engagement', $locale))
             ->locale($locale)
             ->htmlTemplate('@Engagement/email/monthly_submission_reminder.html.twig')
             ->context([

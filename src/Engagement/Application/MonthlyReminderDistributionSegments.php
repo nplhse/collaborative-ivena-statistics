@@ -33,7 +33,7 @@ final readonly class MonthlyReminderDistributionSegments
         foreach (AllocationGender::cases() as $case) {
             $count = $genderCounts[$case->value] ?? 0;
             $segments[] = new MonthlyReminderSegment(
-                $this->translator->trans($case->label(), [], null, $locale),
+                $this->translator->trans($case->label(), [], 'messages', $locale),
                 $total > 0 ? round(100 * $count / $total, 1) : 0.0,
                 $colors[$case->value] ?? '#667382',
             );
@@ -59,7 +59,7 @@ final readonly class MonthlyReminderDistributionSegments
         foreach (AllocationUrgency::cases() as $case) {
             $count = $urgencyCounts[$case->value] ?? 0;
             $segments[] = new MonthlyReminderSegment(
-                $this->translator->trans($case->label(), [], null, $locale),
+                $this->translator->trans($case->label(), [], 'messages', $locale),
                 $total > 0 ? round(100 * $count / $total, 1) : 0.0,
                 $colors[$case->value] ?? '#667382',
             );
