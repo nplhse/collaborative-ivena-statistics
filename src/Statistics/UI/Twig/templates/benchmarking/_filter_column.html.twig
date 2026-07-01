@@ -1,7 +1,7 @@
 {% set periodTestIdPrefix = periodTestIdPrefix|default(testIdPrefix ~ '-period') %}
 
 <div class="d-flex flex-column gap-2">
-    <div class="fw-semibold">{{ columnTitleKey|trans }}</div>
+    <div class="fw-semibold">{{ columnTitleKey|trans({}, 'statistics') }}</div>
 
     <div class="btn-list flex-wrap">
         {{ include('@Statistics/_scope_controls.html.twig', {

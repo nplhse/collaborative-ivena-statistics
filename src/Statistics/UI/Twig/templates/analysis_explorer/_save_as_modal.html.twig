@@ -9,18 +9,18 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="analysisExplorerSaveAsModalLabel">
-                    {{ 'stats.analysis_explorer.save_as.title'|trans }}
+                    {{ 'stats.analysis_explorer.save_as.title'|trans({}, 'statistics') }}
                 </h5>
                 <button type="button"
                         class="btn-close"
                         data-bs-dismiss="modal"
-                        aria-label="{{ 'action.close'|trans }}"
+                        aria-label="{{ 'action.close'|trans({}, 'messages') }}"
                         data-action="live#action"
                         data-live-action-param="closeSaveAs"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label" for="analysisExplorerSaveAsTitle">{{ 'stats.analysis_explorer.save_as.title_label'|trans }}</label>
+                    <label class="form-label" for="analysisExplorerSaveAsTitle">{{ 'stats.analysis_explorer.save_as.title_label'|trans({}, 'statistics') }}</label>
                     <input type="text"
                            id="analysisExplorerSaveAsTitle"
                            class="form-control"
@@ -29,7 +29,7 @@
                            data-testid="stats-analysis-explorer-save-as-title">
                 </div>
                 <div class="mb-0">
-                    <label class="form-label" for="analysisExplorerSaveAsDescription">{{ 'stats.analysis_explorer.save_as.description_label'|trans }}</label>
+                    <label class="form-label" for="analysisExplorerSaveAsDescription">{{ 'stats.analysis_explorer.save_as.description_label'|trans({}, 'statistics') }}</label>
                     <textarea id="analysisExplorerSaveAsDescription"
                               class="form-control"
                               rows="3"
@@ -43,14 +43,14 @@
                         data-bs-dismiss="modal"
                         data-action="live#action"
                         data-live-action-param="closeSaveAs">
-                    {{ 'action.cancel'|trans }}
+                    {{ 'action.cancel'|trans({}, 'messages') }}
                 </button>
                 <button type="button"
                         class="btn btn-primary"
                         data-action="live#action"
                         data-live-action-param="submitSaveAs"
                         data-testid="stats-analysis-explorer-save-as-submit">
-                    {{ 'stats.analysis_explorer.save_as.submit'|trans }}
+                    {{ 'stats.analysis_explorer.save_as.submit'|trans({}, 'statistics') }}
                 </button>
             </div>
         </div>

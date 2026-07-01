@@ -3,10 +3,10 @@
 <div data-testid="stats-indication-group-members"
      {% if memberRows|length > initialCount %}
          data-controller="benchmark-indication-mix-expand"
-         data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.indication.group.members_show_more'|trans|e('html_attr') }}"
-         data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.indication.group.members_show_less'|trans|e('html_attr') }}"
+         data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.indication.group.members_show_more'|trans({}, 'statistics')|e('html_attr') }}"
+         data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.indication.group.members_show_less'|trans({}, 'statistics')|e('html_attr') }}"
      {% endif %}>
-    <h3 class="h4 mb-2">{{ 'stats.indication.group.members_title'|trans }}</h3>
+    <h3 class="h4 mb-2">{{ 'stats.indication.group.members_title'|trans({}, 'statistics') }}</h3>
     <ul class="list-unstyled mb-0">
         {% for row in memberRows %}
             <li class="d-flex align-items-baseline justify-content-between gap-3 py-1{{ loop.index > initialCount ? ' d-none' : '' }}"
@@ -27,7 +27,7 @@
                 data-action="benchmark-indication-mix-expand#toggle"
                 data-testid="stats-indication-group-members-show-more">
             <span data-benchmark-indication-mix-expand-target="expandLabel">
-                {{ 'stats.indication.group.members_show_more'|trans }}
+                {{ 'stats.indication.group.members_show_more'|trans({}, 'statistics') }}
             </span>
         </button>
     {% endif %}

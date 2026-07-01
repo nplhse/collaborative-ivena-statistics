@@ -26,7 +26,33 @@ final class StatisticsNavigationExtension extends AbstractExtension
         return [
             new TwigFunction('statistics_nav_url', $this->statisticsNavUrl(...)),
             new TwigFunction('statistics_widget_template', $this->statisticsWidgetTemplate(...)),
+            new TwigFunction('statistics_label_domain', $this->statisticsLabelDomain(...)),
         ];
+    }
+
+    public function statisticsLabelDomain(string $key): string
+    {
+        if (str_starts_with($key, 'label.') || str_starts_with($key, 'field.')) {
+            return 'messages';
+        }
+
+        if (str_starts_with($key, 'link.')) {
+            return 'shared';
+        }
+
+        if (str_starts_with($key, 'hospital.size.')) {
+            return 'allocation';
+        }
+
+        if (str_starts_with($key, 'monthly_reminder.')) {
+            return 'engagement';
+        }
+
+        if (str_starts_with($key, 'stats.') || str_starts_with($key, 'statistics.')) {
+            return 'statistics';
+        }
+
+        return 'messages';
     }
 
     public function statisticsNavUrl(StatisticWidgetNavigationTarget $target): string

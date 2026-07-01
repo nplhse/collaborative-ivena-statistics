@@ -70,7 +70,7 @@ final readonly class StatisticsDrawerFilterBadgePresenter
             }
 
             $badges[] = [
-                'label' => $this->translator->trans($labelKey),
+                'label' => $this->translator->trans($labelKey, [], 'messages'),
                 'value' => $this->valueLabel($key, $raw, $choices),
             ];
         }
@@ -87,8 +87,8 @@ final readonly class StatisticsDrawerFilterBadgePresenter
     {
         if (\in_array($key, self::BOOLEAN_KEYS, true)) {
             return filter_var($raw, FILTER_VALIDATE_BOOLEAN)
-                ? $this->translator->trans('label.yes')
-                : $this->translator->trans('label.no');
+                ? $this->translator->trans('label.yes', [], 'messages')
+                : $this->translator->trans('label.no', [], 'messages');
         }
 
         if (\in_array($key, self::CHOICE_KEYS, true)) {
@@ -102,7 +102,7 @@ final readonly class StatisticsDrawerFilterBadgePresenter
         }
 
         if ('urgency' === $key && ctype_digit($raw)) {
-            return $this->translator->trans('allocation.urgency.'.$raw);
+            return $this->translator->trans('allocation.urgency.'.$raw, [], 'allocation');
         }
 
         return $raw;

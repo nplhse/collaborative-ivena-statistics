@@ -3,12 +3,12 @@
     {% if link is defined and link is not null %}
         <a href="{{ statistics_nav_url(link) }}"
            class="text-reset d-inline-flex align-items-center gap-1"
-           aria-label="{{ link.labelTranslationKey|trans }}"
+           aria-label="{{ link.labelTranslationKey|trans({}, 'statistics') }}"
            {% if test_id is defined %}data-testid="{{ test_id }}"{% endif %}>
-            <span>{{ title|trans }}</span>
+            <span>{{ title|trans({}, 'statistics') }}</span>
             <twig:ux:icon name="tabler:external-link" style="height: 0.9em; width: 0.9em;" aria-hidden="true" />
         </a>
     {% else %}
-        {{ title|trans }}
+        {{ title|trans({}, 'statistics') }}
     {% endif %}
 </h3>

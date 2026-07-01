@@ -56,7 +56,7 @@ final readonly class OverviewHospitalInsightsProvider
             $benchmarkReport->indicationMix,
             null,
             $benchmarkingUrl,
-            $this->translator->trans('monthly_reminder.baseline.period_label'),
+            $this->translator->trans('monthly_reminder.baseline.period_label', [], 'engagement'),
             $reportingPeriodLabel,
         );
     }

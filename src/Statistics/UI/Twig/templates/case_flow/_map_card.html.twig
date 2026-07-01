@@ -4,19 +4,19 @@
      data-case-flow-map-geo-url-value="{{ asset('geo/hessen-landkreise.geojson') }}"
      data-testid="stats-case-flow-map">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-        <h3 class="card-title mb-0">{{ 'stats.case_flow.section.map'|trans }}</h3>
-        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.case_flow.map.mode.label'|trans }}">
+        <h3 class="card-title mb-0">{{ 'stats.case_flow.section.map'|trans({}, 'statistics') }}</h3>
+        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.case_flow.map.mode.label'|trans({}, 'statistics') }}">
             <button type="button"
                     class="btn active"
                     data-case-flow-map-target="modeAbsolute"
                     data-action="case-flow-map#setAbsoluteMode">
-                {{ 'stats.case_flow.map.mode.absolute'|trans }}
+                {{ 'stats.case_flow.map.mode.absolute'|trans({}, 'statistics') }}
             </button>
             <button type="button"
                     class="btn"
                     data-case-flow-map-target="modeRelative"
                     data-action="case-flow-map#setRelativeMode">
-                {{ 'stats.case_flow.map.mode.relative'|trans }}
+                {{ 'stats.case_flow.map.mode.relative'|trans({}, 'statistics') }}
             </button>
         </div>
     </div>
@@ -25,6 +25,6 @@
             <div class="case-flow-map-container"
                  data-case-flow-map-target="mapContainer"></div>
         </div>
-        <div class="text-muted small mt-2">{{ 'stats.case_flow.map.legend_hint'|trans }}</div>
+        <div class="text-muted small mt-2">{{ 'stats.case_flow.map.legend_hint'|trans({}, 'statistics') }}</div>
     </div>
 </div>

@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final class DashboardController extends AbstractController
 {
@@ -55,7 +56,7 @@ final class DashboardController extends AbstractController
         $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
         if (null !== $publicRedirect) {
             if (null !== $publicRedirect['notice']) {
-                $this->addFlash('error', $publicRedirect['notice']->value);
+                $this->addFlash('error', new TranslatableMessage($publicRedirect['notice']->value, domain: 'statistics'));
             }
 
             return $this->redirectToRoute('app_stats_dashboard', $publicRedirect['query']);
@@ -85,7 +86,7 @@ final class DashboardController extends AbstractController
         $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create($request, 'app_stats_dashboard', $filter);
 
         if ($pageViewModel->showUnscopedHint) {
-            $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
+            $this->addFlash('info', new TranslatableMessage('stats.overview.hospital_summary.unscoped_hint', domain: 'statistics'));
         }
         $executiveDashboard = $this->executiveDashboardAssembler->build(
             $request,

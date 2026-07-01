@@ -63,7 +63,7 @@ final readonly class BenchmarkHeatmapBuilder
     ): BenchmarkHeatmapData {
         $cells = $this->cellsByWeekdayAndBucket($result, $dimension);
         $columnLabels = array_map(
-            fn (int $code): string => $this->translator->trans($labelTranslationKey($code)),
+            fn (int $code): string => $this->translator->trans($labelTranslationKey($code), [], 'statistics'),
             $bucketCodes,
         );
 
@@ -74,7 +74,7 @@ final readonly class BenchmarkHeatmapBuilder
         $maxAbsDelta = 0.0;
 
         foreach (self::ISO_WEEKDAYS as $weekday) {
-            $rowLabels[] = $this->translator->trans('stats.benchmark.weekday.'.$this->weekdayKey($weekday));
+            $rowLabels[] = $this->translator->trans('stats.benchmark.weekday.'.$this->weekdayKey($weekday), [], 'statistics');
             $deltaRow = [];
             $primaryRow = [];
             $comparisonRow = [];

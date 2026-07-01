@@ -294,10 +294,10 @@ trait AnalysisExplorerTestSupport
     protected function stubExplorerTranslator(array $messages = []): TranslatorInterface
     {
         $defaults = [
-            ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
-            ['stats.analysis_explorer.table.footer_average', [], null, null, 'Ø'],
-            ['stats.analysis_explorer.table.footer_minimum', [], null, null, 'Min.'],
-            ['stats.analysis_explorer.table.footer_maximum', [], null, null, 'Max.'],
+            ['stats.analysis_explorer.table.footer_total', [], 'statistics', null, 'Total'],
+            ['stats.analysis_explorer.table.footer_average', [], 'statistics', null, 'Ø'],
+            ['stats.analysis_explorer.table.footer_minimum', [], 'statistics', null, 'Min.'],
+            ['stats.analysis_explorer.table.footer_maximum', [], 'statistics', null, 'Max.'],
         ];
 
         $translator = $this->createMock(TranslatorInterface::class);

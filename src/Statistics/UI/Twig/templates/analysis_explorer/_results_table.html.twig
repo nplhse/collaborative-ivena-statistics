@@ -3,7 +3,7 @@
      data-live-id="analysis-explorer-table-{{ analysisRevision }}">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
         <div>
-            <h3 class="card-title mb-0">{{ 'stats.analysis_explorer.table.title'|trans }}</h3>
+            <h3 class="card-title mb-0">{{ 'stats.analysis_explorer.table.title'|trans({}, 'statistics') }}</h3>
         </div>
         {% if exportCsvUrl %}
             <form method="post"
@@ -17,7 +17,7 @@
                         {% if not table or not table.hasData %}disabled{% endif %}
                         data-testid="stats-analysis-explorer-export-csv">
                     <twig:ux:icon name="tabler:download" style="height: 1.1em;" />
-                    {{ 'stats.analysis_explorer.export.csv_table'|trans }}
+                    {{ 'stats.analysis_explorer.export.csv_table'|trans({}, 'statistics') }}
                 </button>
             </form>
         {% endif %}
@@ -59,7 +59,7 @@
                                             data-sort-index="{{ table.seriesLabels|length + 1 }}"
                                             data-sort-type="number"
                                             data-action="analysis-explorer-table-sort#sort">
-                                        {{ 'stats.analysis_explorer.table.footer_total'|trans }}
+                                        {{ 'stats.analysis_explorer.table.footer_total'|trans({}, 'statistics') }}
                                     </button>
                                 </th>
                             {% else %}
@@ -80,7 +80,7 @@
                         {% else %}
                             <th>{{ table ? table.rowAxisLabel|default(table.primaryDimensionLabel) : '' }}</th>
                             {% if table and table.hasMetricSubRows %}
-                                <th class="text-nowrap">{{ 'stats.analysis_explorer.table.metric'|trans }}</th>
+                                <th class="text-nowrap">{{ 'stats.analysis_explorer.table.metric'|trans({}, 'statistics') }}</th>
                                 {% for seriesLabel in table.seriesLabels %}
                                     <th class="text-end text-nowrap">{{ seriesLabel }}</th>
                                 {% endfor %}
@@ -88,7 +88,7 @@
                                 {% for seriesLabel in table.seriesLabels %}
                                     <th class="text-end text-nowrap">{{ seriesLabel }}</th>
                                 {% endfor %}
-                                <th class="text-end text-nowrap border-start">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                                <th class="text-end text-nowrap border-start">{{ 'stats.analysis_explorer.table.footer_total'|trans({}, 'statistics') }}</th>
                             {% elseif table %}
                                 {% for column in table.metricColumns %}
                                     <th class="text-end text-nowrap">{{ column.label }}</th>
@@ -149,9 +149,9 @@
                             <tr>
                                 <td colspan="{{ table.columnCount() }}" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
                                     {% if emptyReason %}
-                                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans }}
+                                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans({}, 'statistics') }}
                                     {% else %}
-                                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans }}
+                                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans({}, 'statistics') }}
                                     {% endif %}
                                 </td>
                             </tr>
@@ -160,9 +160,9 @@
                         <tr>
                             <td colspan="2" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
                                 {% if emptyReason %}
-                                    {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans }}
+                                    {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans({}, 'statistics') }}
                                 {% else %}
-                                    {{ 'stats.analysis_explorer.empty_state.no_data'|trans }}
+                                    {{ 'stats.analysis_explorer.empty_state.no_data'|trans({}, 'statistics') }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -171,7 +171,7 @@
                 {% if table and table.hasData and table.hasSeries and not table.hasMetricSubRows %}
                     <tfoot class="table-light">
                         <tr data-testid="stats-analysis-explorer-table-footer">
-                            <th scope="row">{{ 'stats.analysis_explorer.table.footer_total'|trans }}</th>
+                            <th scope="row">{{ 'stats.analysis_explorer.table.footer_total'|trans({}, 'statistics') }}</th>
                             {% for seriesLabel in table.seriesLabels %}
                                 <td class="text-end text-nowrap fw-semibold">
                                     <div>{{ table.formattedSeriesTotals[seriesLabel] ?? '—' }}</div>

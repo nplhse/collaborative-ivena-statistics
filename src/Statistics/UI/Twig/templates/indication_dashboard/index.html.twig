@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ dashboard.header.indicationName }} – {{ 'stats.indication.dashboard.title'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ dashboard.header.indicationName }} – {{ 'stats.indication.dashboard.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -28,7 +28,7 @@
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
                     <div class="page-pretitle" data-testid="stats-indication-heading-subtitle">
-                        {{ 'stats.indication.dashboard.title'|trans }}
+                        {{ 'stats.indication.dashboard.title'|trans({}, 'statistics') }}
                     </div>
                     <h2 class="page-title mb-0" data-testid="stats-indication-heading-title">
                         {{ dashboard.header.indicationName }}{% if dashboard.header.indicationCode is not null %}

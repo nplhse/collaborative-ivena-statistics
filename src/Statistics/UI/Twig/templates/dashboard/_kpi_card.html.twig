@@ -12,14 +12,14 @@
                 <div class="col">
                     <div class="font-weight-medium">
                         {% if p.formatThousands|default(false) %}
-                            {{ p.value|number_format(0, ',', '.') }} {{ p.labelTranslationKey|trans }}
+                            {{ p.value|number_format(0, ',', '.') }} {{ p.labelTranslationKey|trans({}, 'statistics') }}
                         {% else %}
-                            {{ p.value }} {{ p.labelTranslationKey|trans }}
+                            {{ p.value }} {{ p.labelTranslationKey|trans({}, 'statistics') }}
                         {% endif %}
                     </div>
                     {% if p.secondaryLabelTranslationKey is defined and p.secondaryValue is defined %}
                         <div class="text-muted">
-                            {{ p.secondaryLabelTranslationKey|trans }}:
+                            {{ p.secondaryLabelTranslationKey|trans({}, 'statistics') }}:
                             <strong>{{ p.secondaryValue }}</strong>
                         </div>
                     {% endif %}

@@ -21,31 +21,31 @@ final readonly class ExplorerTitleFactory
     {
         if (!$columnAxis instanceof AnalysisAxisRef) {
             if ($rowAxis->dimensionKey->isTemporalPrimary()) {
-                return $this->translator->trans('stats.analysis_explorer.allocations_over_time');
+                return $this->translator->trans('stats.analysis_explorer.allocations_over_time', [], 'statistics');
             }
 
             return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension', [
                 'dimension' => $this->dimensionLabel($rowAxis->dimensionKey),
-            ]);
+            ], 'statistics');
         }
 
         if ($rowAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension_over_time', [
                 'dimension' => $this->dimensionLabel($columnAxis->dimensionKey),
-            ]);
+            ], 'statistics');
         }
 
         if ($columnAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension_by_temporal', [
                 'dimension' => $this->dimensionLabel($rowAxis->dimensionKey),
                 'temporal' => $this->temporalLabel($columnAxis->resolvedGrain()),
-            ]);
+            ], 'statistics');
         }
 
         return $this->translator->trans('stats.analysis_explorer.allocations_cross_tab', [
             'rows' => $this->dimensionLabel($rowAxis->dimensionKey),
             'columns' => $this->dimensionLabel($columnAxis->dimensionKey),
-        ]);
+        ], 'statistics');
     }
 
     public function titleForConfig(AnalysisViewConfig $config): string
@@ -55,16 +55,16 @@ final readonly class ExplorerTitleFactory
 
     private function dimensionLabel(AnalysisDimensionKey $dimensionKey): string
     {
-        return $this->translator->trans('stats.analysis_explorer.dimension.'.$dimensionKey->value);
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$dimensionKey->value, [], 'statistics');
     }
 
     private function temporalLabel(AnalysisDimensionGrain $grain): string
     {
         return match ($grain) {
-            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
-            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
-            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
-            default => $this->translator->trans('stats.analysis_explorer.dimension.month'),
+            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            default => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
         };
     }
 }

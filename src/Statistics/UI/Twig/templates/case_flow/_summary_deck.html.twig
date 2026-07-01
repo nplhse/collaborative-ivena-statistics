@@ -2,7 +2,7 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.case_flow.kpi.total_cases'|trans }}</div>
+                <div class="subheader">{{ 'stats.case_flow.kpi.total_cases'|trans({}, 'statistics') }}</div>
                 <div class="h1 mt-2 mb-0">{{ dashboard.kpis.totalCases|number_format(0, ',', '.') }}</div>
             </div>
         </div>
@@ -11,7 +11,7 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.case_flow.kpi.regional_share'|trans }}</div>
+                <div class="subheader">{{ 'stats.case_flow.kpi.regional_share'|trans({}, 'statistics') }}</div>
                 <div class="h1 mt-2 mb-0">
                     {% if dashboard.kpis.regionalSharePercent is not null %}
                         {{ dashboard.kpis.regionalSharePercent }}%
@@ -26,10 +26,10 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.case_flow.kpi.mean_transport'|trans }}</div>
+                <div class="subheader">{{ 'stats.case_flow.kpi.mean_transport'|trans({}, 'statistics') }}</div>
                 <div class="h1 mt-2 mb-0">
                     {% if dashboard.kpis.meanTransportMinutes is not null %}
-                        {{ dashboard.kpis.meanTransportMinutes|round(0) }} {{ 'stats.case_flow.kpi.minutes'|trans }}
+                        {{ dashboard.kpis.meanTransportMinutes|round(0) }} {{ 'stats.case_flow.kpi.minutes'|trans({}, 'statistics') }}
                     {% else %}
                         —
                     {% endif %}

@@ -25,12 +25,12 @@ use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
+use App\Statistics\UI\Form\PreTranslatedChoiceType;
 use App\Statistics\UI\Form\StatisticsScopePeriodType;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -71,36 +71,36 @@ final class ExplorerEditFormType extends AbstractType
                 'locale' => $locale,
                 'scope_choice_policy' => StatisticsFilterScopeChoicePolicy::AllocationStatistics,
             ])
-            ->add('rowDimension', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.rows', 'choices' => []])
-            ->add('rowGrain', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.row_grain', 'choices' => []])
-            ->add('columnDimension', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.columns', 'choices' => []])
-            ->add('columnGrain', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.column_grain', 'choices' => []])
-            ->add('metric', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.metric', 'choices' => []])
+            ->add('rowDimension', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.rows', 'choices' => []])
+            ->add('rowGrain', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.row_grain', 'choices' => []])
+            ->add('columnDimension', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.columns', 'choices' => []])
+            ->add('columnGrain', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.column_grain', 'choices' => []])
+            ->add('metric', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.metric', 'choices' => []])
             ->add('showPercentOfTotal', CheckboxType::class, [
                 'label' => 'stats.analysis_explorer.edit.show_percent_of_total',
                 'required' => false,
             ])
-            ->add('chartType', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.chart_type', 'choices' => []])
-            ->add('tableLayout', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.table_layout', 'choices' => []])
-            ->add('chartRowLimit', ChoiceType::class, ['label' => 'stats.generic_analysis.table.row_limit_label', 'choices' => []])
-            ->add('hospitalPopulation', ChoiceType::class, ['label' => 'stats.analysis_explorer.edit.hospital_population', 'choices' => []])
-            ->add('additionalTableMetrics', ChoiceType::class, [
+            ->add('chartType', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.chart_type', 'choices' => []])
+            ->add('tableLayout', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.table_layout', 'choices' => []])
+            ->add('chartRowLimit', PreTranslatedChoiceType::class, ['label' => 'stats.generic_analysis.table.row_limit_label', 'choices' => []])
+            ->add('hospitalPopulation', PreTranslatedChoiceType::class, ['label' => 'stats.analysis_explorer.edit.hospital_population', 'choices' => []])
+            ->add('additionalTableMetrics', PreTranslatedChoiceType::class, [
                 'label' => 'stats.analysis_explorer.edit.additional_table_metrics',
                 'choices' => [],
                 'multiple' => true,
                 'expanded' => true,
                 'required' => false,
             ])
-            ->add('filterDepartmentIds', ChoiceType::class, ['label' => 'label.department', 'choices' => [], 'multiple' => true, 'required' => false])
-            ->add('filterSpecialityIds', ChoiceType::class, ['label' => 'label.speciality', 'choices' => [], 'multiple' => true, 'required' => false])
-            ->add('filterUrgency', ChoiceType::class, ['label' => 'label.urgency', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
-            ->add('filterTransportType', ChoiceType::class, ['label' => 'label.transport_type', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
-            ->add('filterGender', ChoiceType::class, ['label' => 'label.gender', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
-            ->add('filterAgeGroup', ChoiceType::class, ['label' => 'label.age_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
-            ->add('filterResus', ChoiceType::class, ['label' => 'label.requires_resus', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
-            ->add('filterCpr', ChoiceType::class, ['label' => 'label.is_cpr', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
-            ->add('filterVentilation', ChoiceType::class, ['label' => 'label.is_ventilated', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
-            ->add('filterAssignmentId', ChoiceType::class, ['label' => 'label.assignment', 'choices' => [], 'required' => false, 'placeholder' => 'label.all'])
+            ->add('filterDepartmentIds', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.department', 'choices' => [], 'multiple' => true, 'required' => false]))
+            ->add('filterSpecialityIds', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.speciality', 'choices' => [], 'multiple' => true, 'required' => false]))
+            ->add('filterUrgency', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.urgency', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterTransportType', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.transport_type', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterGender', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.gender', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterAgeGroup', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.age_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterResus', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.requires_resus', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterCpr', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.is_cpr', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterVentilation', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.is_ventilated', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterAssignmentId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.assignment', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
         ;
 
         $scopePeriodField = $builder->get('scopePeriod');
@@ -150,6 +150,7 @@ final class ExplorerEditFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            'translation_domain' => 'statistics',
             'data_class' => ExplorerEditFormData::class,
             'locale' => 'en',
             'csrf_protection' => false,
@@ -310,7 +311,7 @@ final class ExplorerEditFormType extends AbstractType
                 static fn (AnalysisMetricKey $key): bool => $key !== $metric,
             ));
 
-        $form->add('rowDimension', ChoiceType::class, [
+        $form->add('rowDimension', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.row_dimension',
             'help' => 'stats.analysis_explorer.edit.row_dimension_help',
             'choices' => $this->editChoicePresenter->groupedDimensionChoices(
@@ -320,7 +321,7 @@ final class ExplorerEditFormType extends AbstractType
             ),
         ]);
 
-        $form->add('rowGrain', ChoiceType::class, [
+        $form->add('rowGrain', PreTranslatedChoiceType::class, [
             'label' => $rowAxis->dimensionKey->isTemporalPrimary()
                 ? 'stats.analysis_explorer.edit.time_grain'
                 : 'stats.analysis_explorer.edit.group_by',
@@ -330,7 +331,7 @@ final class ExplorerEditFormType extends AbstractType
             'choices' => $this->grainChoices($rowAxis->dimensionKey, $capabilities),
         ]);
 
-        $form->add('columnDimension', ChoiceType::class, [
+        $form->add('columnDimension', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.column_dimension',
             'help' => 'stats.analysis_explorer.edit.column_dimension_help',
             'choices' => $this->columnDimensionChoices($rowAxis, $capabilities, $dataSourceKey, $locale),
@@ -343,7 +344,7 @@ final class ExplorerEditFormType extends AbstractType
             $columnGrainChoices = $this->grainChoices($columnAxis->dimensionKey, $capabilities);
         }
 
-        $form->add('columnGrain', ChoiceType::class, [
+        $form->add('columnGrain', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.column_grain',
             'help' => 'stats.analysis_explorer.edit.column_grain_help',
             'choices' => $columnGrainChoices,
@@ -356,7 +357,7 @@ final class ExplorerEditFormType extends AbstractType
             $locale,
         );
 
-        $form->add('metric', ChoiceType::class, [
+        $form->add('metric', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.chart_metric',
             'help' => 'stats.analysis_explorer.edit.chart_metric_help',
             'choices' => $groupedMetricChoices,
@@ -401,26 +402,26 @@ final class ExplorerEditFormType extends AbstractType
             ]);
         }
 
-        $form->add('chartType', ChoiceType::class, [
+        $form->add('chartType', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.chart_type',
             'choices' => $this->chartTypeChoices($allowedChartTypes),
             'disabled' => $isDistributionProfile,
         ]);
 
-        $form->add('tableLayout', ChoiceType::class, [
+        $form->add('tableLayout', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.table_layout',
             'help' => 'stats.analysis_explorer.edit.table_layout_help',
             'choices' => $this->tableLayoutChoices(),
             'disabled' => !$columnAxis instanceof AnalysisAxisRef,
         ]);
 
-        $form->add('chartRowLimit', ChoiceType::class, [
+        $form->add('chartRowLimit', PreTranslatedChoiceType::class, [
             'label' => 'stats.generic_analysis.table.row_limit_label',
             'choices' => $this->chartRowLimitChoices(),
             'disabled' => $rowAxis->dimensionKey->isTemporalPrimary(),
         ]);
 
-        $form->add('hospitalPopulation', ChoiceType::class, [
+        $form->add('hospitalPopulation', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.hospital_population',
             'help' => 'stats.analysis_explorer.edit.hospital_population_help',
             'choices' => $this->hospitalPopulationChoices(),
@@ -448,80 +449,108 @@ final class ExplorerEditFormType extends AbstractType
         ]);
         $isAxis = static fn (string $key): bool => \in_array($key, $axisKeys, true);
         $booleanChoices = [
-            $this->translator->trans('label.yes') => 1,
-            $this->translator->trans('label.no') => 0,
+            $this->translator->trans('label.yes', [], 'messages') => 1,
+            $this->translator->trans('label.no', [], 'messages') => 0,
         ];
 
-        $form->add('filterDepartmentIds', ChoiceType::class, [
+        $form->add('filterDepartmentIds', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.department',
-            'choices' => $this->filterChoiceProvider->departmentChoices(),
+            'choices' => $this->flipChoices($this->filterChoiceProvider->departmentChoices()),
             'multiple' => true,
             'required' => false,
             'disabled' => $disabled || $isAxis('department'),
-        ]);
-        $form->add('filterSpecialityIds', ChoiceType::class, [
+        ]));
+        $form->add('filterSpecialityIds', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.speciality',
-            'choices' => $this->filterChoiceProvider->specialityChoices(),
+            'choices' => $this->flipChoices($this->filterChoiceProvider->specialityChoices()),
             'multiple' => true,
             'required' => false,
             'disabled' => $disabled || $isAxis('speciality'),
-        ]);
-        $form->add('filterUrgency', ChoiceType::class, [
+        ]));
+        $form->add('filterUrgency', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.urgency',
-            'choices' => $this->filterChoiceProvider->urgencyChoices(),
+            'choices' => $this->flipChoices($this->filterChoiceProvider->urgencyChoices()),
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('urgency'),
-        ]);
-        $form->add('filterTransportType', ChoiceType::class, [
+        ]));
+        $form->add('filterTransportType', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.transport_type',
-            'choices' => $this->filterChoiceProvider->transportTypeChoices(),
+            'choices' => $this->flipChoices($this->filterChoiceProvider->transportTypeChoices()),
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('transport_type'),
-        ]);
-        $form->add('filterGender', ChoiceType::class, [
+        ]));
+        $form->add('filterGender', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.gender',
-            'choices' => $this->filterChoiceProvider->genderChoices(),
+            'choices' => $this->flipChoices($this->filterChoiceProvider->genderChoices()),
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('gender'),
-        ]);
-        $form->add('filterAgeGroup', ChoiceType::class, [
+        ]));
+        $form->add('filterAgeGroup', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.age_group',
-            'choices' => $this->filterChoiceProvider->ageGroupChoices(),
+            'choices' => $this->flipChoices($this->filterChoiceProvider->ageGroupChoices()),
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('age_group'),
-        ]);
-        $form->add('filterResus', ChoiceType::class, [
+        ]));
+        $form->add('filterResus', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.requires_resus',
             'choices' => $booleanChoices,
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('resus'),
-        ]);
-        $form->add('filterCpr', ChoiceType::class, [
+        ]));
+        $form->add('filterCpr', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.is_cpr',
             'choices' => $booleanChoices,
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('cpr'),
-        ]);
-        $form->add('filterVentilation', ChoiceType::class, [
+        ]));
+        $form->add('filterVentilation', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.is_ventilated',
             'choices' => $booleanChoices,
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('ventilation'),
-        ]);
-        $form->add('filterAssignmentId', ChoiceType::class, [
+        ]));
+        $form->add('filterAssignmentId', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.assignment',
-            'choices' => $this->filterChoiceProvider->assignmentChoices(),
+            'choices' => $this->flipChoices($this->filterChoiceProvider->assignmentChoices()),
             'required' => false,
             'placeholder' => 'label.all',
             'disabled' => $disabled || $isAxis('assignment'),
+        ]));
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function messagesField(array $options): array
+    {
+        return array_merge($options, [
+            'translation_domain' => 'messages',
+            'choice_translation_domain' => false,
         ]);
+    }
+
+    /**
+     * @param array<int|string, string> $valueToLabel
+     *
+     * @return array<string, int|string>
+     */
+    private function flipChoices(array $valueToLabel): array
+    {
+        $choices = [];
+        foreach ($valueToLabel as $value => $label) {
+            $choices[$label] = $value;
+        }
+
+        return $choices;
     }
 
     /**
@@ -531,7 +560,7 @@ final class ExplorerEditFormType extends AbstractType
     {
         $choices = [];
         foreach (ExplorerHospitalPopulationMode::cases() as $mode) {
-            $choices[$this->translator->trans($mode->labelTranslationKey())] = $mode->value;
+            $choices[$this->translator->trans($mode->labelTranslationKey(), [], 'statistics')] = $mode->value;
         }
 
         return $choices;
@@ -601,7 +630,7 @@ final class ExplorerEditFormType extends AbstractType
     ): array {
         return array_merge(
             [
-                $this->translator->trans('stats.analysis_explorer.edit.columns_none') => self::NONE_COLUMN,
+                $this->translator->trans('stats.analysis_explorer.edit.columns_none', [], 'statistics') => self::NONE_COLUMN,
             ],
             $this->editChoicePresenter->groupedDimensionChoices(
                 $capabilities->columnDimensionsFor($rowAxis),
@@ -637,7 +666,7 @@ final class ExplorerEditFormType extends AbstractType
     {
         $choices = [];
         foreach ($chartTypes as $chartType) {
-            $choices[$this->translator->trans('stats.analysis_explorer.chart.'.$chartType->value)] = $chartType->value;
+            $choices[$this->translator->trans('stats.analysis_explorer.chart.'.$chartType->value, [], 'statistics')] = $chartType->value;
         }
 
         return $choices;
@@ -659,7 +688,7 @@ final class ExplorerEditFormType extends AbstractType
                 AnalysisDimensionGrain::Week => 'stats.analysis_explorer.dimension.week',
                 default => 'stats.analysis_explorer.dimension.month',
             };
-            $choices[$this->translator->trans($labelKey)] = $grain->value;
+            $choices[$this->translator->trans($labelKey, [], 'statistics')] = $grain->value;
         }
 
         return $choices;
@@ -671,9 +700,9 @@ final class ExplorerEditFormType extends AbstractType
     private function tableLayoutChoices(): array
     {
         return [
-            $this->translator->trans('stats.analysis_explorer.table_layout.flat') => TableLayout::Flat->value,
-            $this->translator->trans('stats.analysis_explorer.table_layout.matrix') => TableLayout::Matrix->value,
-            $this->translator->trans('stats.analysis_explorer.table_layout.matrix_metrics_as_rows') => TableLayout::MatrixMetricsAsRows->value,
+            $this->translator->trans('stats.analysis_explorer.table_layout.flat', [], 'statistics') => TableLayout::Flat->value,
+            $this->translator->trans('stats.analysis_explorer.table_layout.matrix', [], 'statistics') => TableLayout::Matrix->value,
+            $this->translator->trans('stats.analysis_explorer.table_layout.matrix_metrics_as_rows', [], 'statistics') => TableLayout::MatrixMetricsAsRows->value,
         ];
     }
 
@@ -683,9 +712,9 @@ final class ExplorerEditFormType extends AbstractType
     private function chartRowLimitChoices(): array
     {
         return [
-            $this->translator->trans('stats.generic_analysis.table.row_limit_all') => ExplorerChartRowLimit::All->value,
-            $this->translator->trans('stats.generic_analysis.table.row_limit_top_5') => ExplorerChartRowLimit::Top5->value,
-            $this->translator->trans('stats.generic_analysis.table.row_limit_top_10') => ExplorerChartRowLimit::Top10->value,
+            $this->translator->trans('stats.generic_analysis.table.row_limit_all', [], 'statistics') => ExplorerChartRowLimit::All->value,
+            $this->translator->trans('stats.generic_analysis.table.row_limit_top_5', [], 'statistics') => ExplorerChartRowLimit::Top5->value,
+            $this->translator->trans('stats.generic_analysis.table.row_limit_top_10', [], 'statistics') => ExplorerChartRowLimit::Top10->value,
         ];
     }
 

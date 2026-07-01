@@ -21,17 +21,17 @@ final readonly class HospitalCohortLabelResolver
                 'location' => $this->translator->trans(
                     'hospital.location.'.$key->location->value,
                     [],
-                    null,
+                    'messages',
                     $locale,
                 ),
                 'tier' => $this->translator->trans(
                     'hospital.tier.'.$key->tier->value,
                     [],
-                    null,
+                    'messages',
                     $locale,
                 ),
             ],
-            null,
+            'statistics',
             $locale,
         );
     }

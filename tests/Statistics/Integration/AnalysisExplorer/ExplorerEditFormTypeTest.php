@@ -7,6 +7,7 @@ namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
+use App\Statistics\UI\Form\PreTranslatedChoiceType;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormFactoryInterface;
 
@@ -32,6 +33,14 @@ final class ExplorerEditFormTypeTest extends KernelTestCase
         self::assertFalse($form->get('filterUrgency')->getConfig()->getOption('disabled'));
         self::assertNotEmpty($form->get('filterUrgency')->getConfig()->getOption('choices'));
         self::assertNotEmpty($form->get('filterAgeGroup')->getConfig()->getOption('choices'));
+        self::assertSame('messages', $form->get('filterUrgency')->getConfig()->getOption('translation_domain'));
+        self::assertFalse($form->get('filterUrgency')->getConfig()->getOption('choice_translation_domain'));
+        self::assertSame('statistics', $form->getConfig()->getOption('translation_domain'));
+        self::assertFalse($form->get('metric')->getConfig()->getOption('choice_translation_domain'));
+        self::assertInstanceOf(
+            PreTranslatedChoiceType::class,
+            $form->get('metric')->getConfig()->getType()->getInnerType(),
+        );
     }
 
     public function testPreSetDataDisablesFiltersForHospitalDataSource(): void

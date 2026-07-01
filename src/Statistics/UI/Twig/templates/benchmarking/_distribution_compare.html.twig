@@ -1,6 +1,11 @@
 <div class="d-flex flex-column gap-3">
     {% for bucket in distribution.buckets %}
-        {% set label = labelPrefix is defined ? (labelPrefix ~ bucket.key)|trans : bucket.label|trans %}
+        {% if labelPrefix is defined %}
+            {% set labelKey = labelPrefix ~ bucket.key %}
+            {% set label = labelKey|trans({}, statistics_label_domain(labelKey)) %}
+        {% else %}
+            {% set label = bucket.label|trans({}, statistics_label_domain(bucket.label)) %}
+        {% endif %}
         {% set segmentClass = barClassMap is defined ? (barClassMap[bucket.key]|default(null)) : null %}
         <div>
             <div class="d-flex justify-content-between small mb-1">
@@ -8,13 +13,13 @@
                 <span class="text-secondary">{{ bucket.primaryShare|number_format(1, ',', '.') }}% / {{ bucket.comparisonShare|number_format(1, ',', '.') }}%</span>
             </div>
             <div class="progress progress-sm">
-                <div class="progress-bar {{ segmentClass ?? 'bg-primary' }}" style="width: {{ bucket.primaryShare }}%" title="{{ 'stats.benchmark.kpi.primary'|trans }}"></div>
+                <div class="progress-bar {{ segmentClass ?? 'bg-primary' }}" style="width: {{ bucket.primaryShare }}%" title="{{ 'stats.benchmark.kpi.primary'|trans({}, 'statistics') }}"></div>
             </div>
             <div class="progress progress-sm mt-1">
-                <div class="progress-bar bg-secondary" style="width: {{ bucket.comparisonShare }}%" title="{{ 'stats.benchmark.kpi.comparison'|trans }}"></div>
+                <div class="progress-bar bg-secondary" style="width: {{ bucket.comparisonShare }}%" title="{{ 'stats.benchmark.kpi.comparison'|trans({}, 'statistics') }}"></div>
             </div>
         </div>
     {% else %}
-        <span class="text-secondary small">{{ 'stats.benchmark.summary.empty'|trans }}</span>
+        <span class="text-secondary small">{{ 'stats.benchmark.summary.empty'|trans({}, 'statistics') }}</span>
     {% endfor %}
 </div>

@@ -1,18 +1,18 @@
 <div {{ attributes }}>
     <div class="modal-body">
         {{ form_start(form) }}
-            <p class="text-muted small mb-3">{{ 'stats.benchmark.selection.summary_hint'|trans }}</p>
+            <p class="text-muted small mb-3">{{ 'stats.benchmark.selection.summary_hint'|trans({}, 'statistics') }}</p>
 
             <div class="row g-4 align-items-start">
                 <div class="col-md-6">
-                    <div class="fw-semibold mb-2">{{ 'stats.benchmark.primary.label'|trans }}</div>
+                    <div class="fw-semibold mb-2">{{ 'stats.benchmark.primary.label'|trans({}, 'statistics') }}</div>
                     {{ include('@Statistics/benchmarking/_selection_side_fields.html.twig', {
                         sideForm: form.primary,
                         testId: 'stats-benchmark-primary-form',
                     }) }}
                 </div>
                 <div class="col-md-6">
-                    <div class="fw-semibold mb-2">{{ 'stats.benchmark.comparison.label'|trans }}</div>
+                    <div class="fw-semibold mb-2">{{ 'stats.benchmark.comparison.label'|trans({}, 'statistics') }}</div>
                     {{ include('@Statistics/benchmarking/_selection_side_fields.html.twig', {
                         sideForm: form.comparison,
                         testId: 'stats-benchmark-comparison-form',
@@ -26,14 +26,14 @@
         <button type="button"
                 class="btn btn-link link-secondary"
                 data-bs-dismiss="modal">
-            {{ 'stats.benchmark.selection.modal.cancel'|trans }}
+            {{ 'action.cancel'|trans({}, 'messages') }}
         </button>
         <button type="button"
                 class="btn btn-primary"
                 data-action="live#action"
                 data-live-action-param="apply"
                 data-testid="stats-benchmark-selection-apply">
-            {{ 'stats.benchmark.selection.modal.apply'|trans }}
+            {{ 'stats.benchmark.selection.modal.apply'|trans({}, 'statistics') }}
         </button>
     </div>
 </div>

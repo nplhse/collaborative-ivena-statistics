@@ -3,7 +3,7 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.hospital_population.kpi.total_hospitals'|trans }}</div>
+                <div class="subheader">{{ 'stats.hospital_population.kpi.total_hospitals'|trans({}, 'statistics') }}</div>
                 <div class="h1 mb-0">{{ overview.totalHospitals|number_format(0, ',', '.') }}</div>
             </div>
         </div>
@@ -11,7 +11,7 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.hospital_population.kpi.participants'|trans }}</div>
+                <div class="subheader">{{ 'stats.hospital_population.kpi.participants'|trans({}, 'statistics') }}</div>
                 <div class="h1 mb-0">{{ overview.participants|number_format(0, ',', '.') }}</div>
             </div>
         </div>
@@ -19,7 +19,7 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.hospital_population.kpi.coverage'|trans }}</div>
+                <div class="subheader">{{ 'stats.hospital_population.kpi.coverage'|trans({}, 'statistics') }}</div>
                 <div class="h1 mb-0">{{ (overview.coverage * 100)|number_format(1, ',', '.') }}%</div>
             </div>
         </div>

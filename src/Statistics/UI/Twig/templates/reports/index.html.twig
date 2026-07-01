@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}Reports: {{ reportsPage.headerTitleKey|trans }} – {{ parent() }}{% endblock %}
+{% block title %}Reports: {{ reportsPage.headerTitleKey|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -27,10 +27,10 @@
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <div class="page-pretitle" data-testid="stats-heading-subtitle">
-                        {{ reportsPage.headerSubtitleKey|trans }}
+                        {{ reportsPage.headerSubtitleKey|trans({}, 'statistics') }}
                     </div>
                     <h2 class="page-title" data-testid="stats-heading-title">
-                        {{ reportsPage.headerTitleKey|trans }}
+                        {{ reportsPage.headerTitleKey|trans({}, 'statistics') }}
                     </h2>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig', {statsShowFilterDrawer: true}) }}

@@ -6,7 +6,7 @@
                 {label: 'link.stats.analysis_explorer_library', path: libraryUrl},
             ] %}
             {% if savedViewTitle %}
-                {% set breadcrumbItems = breadcrumbItems|merge([{label: savedViewTitle}]) %}
+                {% set breadcrumbItems = breadcrumbItems|merge([{label: savedViewTitle, translatable: false}]) %}
             {% else %}
                 {% set breadcrumbItems = breadcrumbItems|merge([{label: 'stats.analysis_explorer.title'}]) %}
             {% endif %}
@@ -20,9 +20,9 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
-                    <div class="page-pretitle">{{ 'stats.analysis_explorer.pretitle'|trans }}</div>
+                    <div class="page-pretitle">{{ 'stats.analysis_explorer.pretitle'|trans({}, 'statistics') }}</div>
                     <h2 class="page-title mb-0" data-testid="stats-analysis-explorer-title">
-                        {{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans) }}
+                        {{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans({}, 'statistics')) }}
                     </h2>
                     {% if savedViewDescription %}
                         <p class="text-secondary mt-2 mb-0" data-testid="stats-analysis-explorer-description">
@@ -45,17 +45,17 @@
                                class="btn d-inline-flex align-items-center gap-1"
                                data-testid="stats-analysis-explorer-library-link">
                                 <twig:ux:icon name="tabler:books" style="height: 1.2em;" />
-                                {{ 'stats.analysis_explorer.open_library'|trans }}
+                                {{ 'stats.analysis_explorer.open_library'|trans({}, 'statistics') }}
                             </a>
                         {% endif %}
 
-                        <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.view'|trans }}">
+                        <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.view'|trans({}, 'statistics') }}">
                             {% if canFavorite and favoriteUrl %}
                                 <button type="submit"
                                         form="analysis-explorer-favorite-form"
                                         class="btn btn-icon{% if isFavorite %} text-yellow{% endif %}"
-                                        title="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans : 'stats.analysis_explorer.favorite.add'|trans }}"
-                                        aria-label="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans : 'stats.analysis_explorer.favorite.add'|trans }}"
+                                        title="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans({}, 'statistics') : 'stats.analysis_explorer.favorite.add'|trans({}, 'statistics') }}"
+                                        aria-label="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans({}, 'statistics') : 'stats.analysis_explorer.favorite.add'|trans({}, 'statistics') }}"
                                         {% if hasUnsavedChanges %}disabled{% endif %}
                                         data-testid="stats-analysis-explorer-favorite-toggle">
                                     <twig:ux:icon name="{{ isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
@@ -70,12 +70,12 @@
                                     data-live-action-param="openEdit"
                                     data-testid="stats-analysis-explorer-edit-open">
                                 <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
-                                {{ 'stats.analysis_explorer.edit.button'|trans }}
+                                {{ 'stats.analysis_explorer.edit.button'|trans({}, 'statistics') }}
                             </button>
                         </div>
 
                         {% if canSave or showSaveAs %}
-                            <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.save'|trans }}">
+                            <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.save'|trans({}, 'statistics') }}">
                                 {% if canSave %}
                                     <button type="button"
                                             class="btn d-inline-flex align-items-center gap-1"
@@ -84,7 +84,7 @@
                                             {% if not hasUnsavedChanges %}disabled{% endif %}
                                             data-testid="stats-analysis-explorer-save">
                                         <twig:ux:icon name="tabler:device-floppy" style="height: 1.2em;" />
-                                        {{ 'stats.analysis_explorer.save'|trans }}
+                                        {{ 'stats.analysis_explorer.save'|trans({}, 'statistics') }}
                                     </button>
                                 {% endif %}
 
@@ -97,7 +97,7 @@
                                             data-live-action-param="openSaveAs"
                                             data-testid="stats-analysis-explorer-save-as-open">
                                         <twig:ux:icon name="tabler:copy" style="height: 1.2em;" />
-                                        {{ 'stats.analysis_explorer.save_as'|trans }}
+                                        {{ 'stats.analysis_explorer.save_as'|trans({}, 'statistics') }}
                                     </button>
                                 {% endif %}
                             </div>

@@ -273,7 +273,7 @@ final readonly class StatisticsPageViewModelFactory
         $menu = [];
         $menu[] = [
             'key' => 'public',
-            'label' => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
+            'label' => $this->translator->trans('stats.filter.scope.public', [], 'statistics', $locale),
             'url' => $scopeUrls['public'],
             'active' => StatisticsFilterScope::Public === $filter->scope,
         ];
@@ -282,7 +282,7 @@ final readonly class StatisticsPageViewModelFactory
             $first = $eligibleStateRows[0];
             $menu[] = [
                 'key' => 'state_group',
-                'label' => $this->translator->trans('stats.filter.scope.state', [], null, $locale),
+                'label' => $this->translator->trans('stats.filter.scope.state', [], 'statistics', $locale),
                 'url' => $this->buildStateScopeUrl($request, $routeName, $first['id']),
                 'active' => StatisticsFilterScope::State === $filter->scope,
             ];
@@ -292,7 +292,7 @@ final readonly class StatisticsPageViewModelFactory
             $first = $eligibleDispatchRows[0];
             $menu[] = [
                 'key' => 'dispatch_area_group',
-                'label' => $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale),
+                'label' => $this->translator->trans('stats.filter.scope.dispatch_area', [], 'statistics', $locale),
                 'url' => $this->buildDispatchAreaScopeUrl($request, $routeName, $first['id']),
                 'active' => StatisticsFilterScope::DispatchArea === $filter->scope,
             ];
@@ -302,7 +302,7 @@ final readonly class StatisticsPageViewModelFactory
             $first = $cohortScopeChoices[0];
             $menu[] = [
                 'key' => 'cohort_group',
-                'label' => $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
+                'label' => $this->translator->trans('stats.filter.scope.hospital_cohort', [], 'statistics', $locale),
                 'url' => $first['url'],
                 'active' => StatisticsFilterScope::HospitalCohort === $filter->scope,
             ];
@@ -388,7 +388,7 @@ final readonly class StatisticsPageViewModelFactory
             && (StatisticsFilterScope::MyHospitals === $filter->scope || StatisticsFilterScope::Hospital === $filter->scope)
         ) {
             $menu = [[
-                'label' => $this->translator->trans('stats.filter.hospital.all_hospitals'),
+                'label' => $this->translator->trans('stats.filter.hospital.all_hospitals', [], 'statistics'),
                 'url' => $scopeUrls['my_hospitals'],
                 'active' => StatisticsFilterScope::MyHospitals === $filter->scope,
             ]];
@@ -439,25 +439,25 @@ final readonly class StatisticsPageViewModelFactory
         $hospitalGroupLabel = $this->hospitalScopeLabelResolver->groupLabel($user, $locale);
 
         $primary = match ($filter->scope) {
-            StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
-            StatisticsFilterScope::State => $this->translator->trans('stats.filter.scope.state', [], null, $locale),
-            StatisticsFilterScope::DispatchArea => $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale),
-            StatisticsFilterScope::HospitalCohort => $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
+            StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], 'statistics', $locale),
+            StatisticsFilterScope::State => $this->translator->trans('stats.filter.scope.state', [], 'statistics', $locale),
+            StatisticsFilterScope::DispatchArea => $this->translator->trans('stats.filter.scope.dispatch_area', [], 'statistics', $locale),
+            StatisticsFilterScope::HospitalCohort => $this->translator->trans('stats.filter.scope.hospital_cohort', [], 'statistics', $locale),
             StatisticsFilterScope::MyHospitals,
             StatisticsFilterScope::Hospital => $hospitalGroupLabel,
         };
 
         $secondary = match ($filter->scope) {
             StatisticsFilterScope::State => $this->stateNameForFilter($filter)
-                ?? $this->translator->trans('stats.filter.scope.choose_region', [], null, $locale),
+                ?? $this->translator->trans('stats.filter.scope.choose_region', [], 'statistics', $locale),
             StatisticsFilterScope::DispatchArea => $this->dispatchNameForFilter($filter)
-                ?? $this->translator->trans('stats.filter.scope.choose_dispatch_area', [], null, $locale),
+                ?? $this->translator->trans('stats.filter.scope.choose_dispatch_area', [], 'statistics', $locale),
             StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortKey
                 ? $this->hospitalCohortLabelResolver->label($filter->cohortType, $locale)
-                : $this->translator->trans('stats.filter.scope.choose_cohort', [], null, $locale),
-            StatisticsFilterScope::MyHospitals => $this->translator->trans('stats.filter.hospital.all_hospitals', [], null, $locale),
+                : $this->translator->trans('stats.filter.scope.choose_cohort', [], 'statistics', $locale),
+            StatisticsFilterScope::MyHospitals => $this->translator->trans('stats.filter.hospital.all_hospitals', [], 'statistics', $locale),
             StatisticsFilterScope::Hospital => $hospitalDropdownSelectedName
-                ?? $this->translator->trans('stats.filter.hospital.choose', [], null, $locale),
+                ?? $this->translator->trans('stats.filter.hospital.choose', [], 'statistics', $locale),
             default => null,
         };
 
@@ -519,7 +519,7 @@ final readonly class StatisticsPageViewModelFactory
         $hospitalGroupLabel = $this->hospitalScopeLabelResolver->groupLabel($user, $locale);
 
         if (StatisticsFilterScope::MyHospitals === $filter->scope && $loggedInUserHasNoAccessibleHospitals) {
-            return $this->translator->trans('stats.filter.scope.public', [], null, $locale);
+            return $this->translator->trans('stats.filter.scope.public', [], 'statistics', $locale);
         }
 
         if (1 === $accessibleHospitalCount && StatisticsFilterScope::Hospital === $filter->scope) {
@@ -527,20 +527,20 @@ final readonly class StatisticsPageViewModelFactory
         }
 
         return match ($filter->scope) {
-            StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
+            StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], 'statistics', $locale),
             StatisticsFilterScope::MyHospitals => $hospitalGroupLabel,
             StatisticsFilterScope::Hospital => (null !== $hospitalDisplayName && '' !== $hospitalDisplayName)
-                ? $this->translator->trans('stats.filter.hospital.named_line', ['name' => $hospitalDisplayName], null, $locale)
-                : $this->translator->trans('stats.filter.hospital.choose', [], null, $locale),
+                ? $this->translator->trans('stats.filter.hospital.named_line', ['name' => $hospitalDisplayName], 'statistics', $locale)
+                : $this->translator->trans('stats.filter.hospital.choose', [], 'statistics', $locale),
             StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortKey
                 ? $this->hospitalCohortLabelResolver->label($filter->cohortType, $locale)
-                : $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale),
+                : $this->translator->trans('stats.filter.scope.hospital_cohort', [], 'statistics', $locale),
             StatisticsFilterScope::State => (null !== $stateDisplayName && '' !== $stateDisplayName)
                 ? $stateDisplayName
-                : $this->translator->trans('stats.filter.scope.state', [], null, $locale),
+                : $this->translator->trans('stats.filter.scope.state', [], 'statistics', $locale),
             StatisticsFilterScope::DispatchArea => (null !== $dispatchDisplayName && '' !== $dispatchDisplayName)
                 ? $dispatchDisplayName
-                : $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale),
+                : $this->translator->trans('stats.filter.scope.dispatch_area', [], 'statistics', $locale),
         };
     }
 
@@ -549,8 +549,8 @@ final readonly class StatisticsPageViewModelFactory
         $now = new \DateTimeImmutable();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], null, $locale),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], null, $locale),
+            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(
                 'stats.dashboard.heading.quarter',
@@ -558,7 +558,7 @@ final readonly class StatisticsPageViewModelFactory
                     'quarter' => (string) ($filter->referenceQuarter ?? (int) ceil((int) $now->format('n') / 3)),
                     'year' => (string) ($filter->referenceYear ?? $now->format('Y')),
                 ],
-                null,
+                'statistics',
                 $locale,
             ),
             StatisticsFilterPeriod::Month => $this->statisticsHeadingMonthPeriod($filter, $locale),

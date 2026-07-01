@@ -65,8 +65,8 @@ final readonly class StatisticsExplorerViewModelFactory
         usort(
             $entries,
             fn (array $left, array $right): int => strcmp(
-                mb_strtolower($this->translator->trans($left['labelKey'], [], null, $locale)),
-                mb_strtolower($this->translator->trans($right['labelKey'], [], null, $locale)),
+                mb_strtolower($this->translator->trans($left['labelKey'], [], 'statistics', $locale)),
+                mb_strtolower($this->translator->trans($right['labelKey'], [], 'statistics', $locale)),
             ),
         );
     }

@@ -4,7 +4,7 @@
     <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header py-2">
-                <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.regional_coverage'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.regional_coverage'|trans({}, 'statistics') }}</h3>
             </div>
             <div
                 id="hospital-population-regional-coverage"
@@ -14,11 +14,11 @@
                 <table class="table table-vcenter card-table">
                     <thead>
                         <tr>
-                            <th><button class="table-sort" data-sort="sort-state">{{ 'stats.hospital_population.table.state'|trans }}</button></th>
-                            <th><button class="table-sort" data-sort="sort-dispatch-area">{{ 'stats.hospital_population.table.dispatch_area'|trans }}</button></th>
-                            <th class="text-end"><button class="table-sort" data-sort="sort-population">{{ 'stats.hospital_population.table.population'|trans }}</button></th>
-                            <th class="text-end"><button class="table-sort" data-sort="sort-participants">{{ 'stats.hospital_population.table.participants'|trans }}</button></th>
-                            <th class="text-end"><button class="table-sort" data-sort="sort-coverage">{{ 'stats.hospital_population.table.coverage'|trans }}</button></th>
+                            <th><button class="table-sort" data-sort="sort-state">{{ 'stats.hospital_population.table.state'|trans({}, 'statistics') }}</button></th>
+                            <th><button class="table-sort" data-sort="sort-dispatch-area">{{ 'stats.hospital_population.table.dispatch_area'|trans({}, 'statistics') }}</button></th>
+                            <th class="text-end"><button class="table-sort" data-sort="sort-population">{{ 'stats.hospital_population.table.population'|trans({}, 'statistics') }}</button></th>
+                            <th class="text-end"><button class="table-sort" data-sort="sort-participants">{{ 'stats.hospital_population.table.participants'|trans({}, 'statistics') }}</button></th>
+                            <th class="text-end"><button class="table-sort" data-sort="sort-coverage">{{ 'stats.hospital_population.table.coverage'|trans({}, 'statistics') }}</button></th>
                         </tr>
                     </thead>
                     <tbody class="table-tbody">
@@ -32,7 +32,7 @@
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="5" class="text-secondary">{{ 'stats.hospital_population.table.empty'|trans }}</td>
+                                <td colspan="5" class="text-secondary">{{ 'stats.hospital_population.table.empty'|trans({}, 'statistics') }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -44,15 +44,15 @@
     <div class="col-lg-6">
         {{ include('@Statistics/hospital_population/_map_card.html.twig') }}
         {{ crossTable.coverage_cross_table(
-            'stats.hospital_population.section.location_by_tier'|trans,
-            'stats.hospital_population.table.tier'|trans,
-            'stats.hospital_population.table.location'|trans,
+            'stats.hospital_population.section.location_by_tier'|trans({}, 'statistics'),
+            'stats.hospital_population.table.tier'|trans({}, 'statistics'),
+            'stats.hospital_population.table.location'|trans({}, 'statistics'),
             result.overview.urbanityByTierCrossTable,
         ) }}
         {{ crossTable.coverage_cross_table(
-            'stats.hospital_population.section.size_by_tier'|trans,
-            'stats.hospital_population.table.tier'|trans,
-            'stats.hospital_population.table.size'|trans,
+            'stats.hospital_population.section.size_by_tier'|trans({}, 'statistics'),
+            'stats.hospital_population.table.tier'|trans({}, 'statistics'),
+            'stats.hospital_population.table.size'|trans({}, 'statistics'),
             result.overview.sizeByTierCrossTable,
         ) }}
     </div>

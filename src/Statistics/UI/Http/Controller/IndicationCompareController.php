@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class IndicationCompareController extends AbstractController
@@ -49,7 +50,7 @@ final class IndicationCompareController extends AbstractController
         $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
         if (null !== $publicRedirect) {
             if (null !== $publicRedirect['notice']) {
-                $this->addFlash('error', $publicRedirect['notice']->value);
+                $this->addFlash('error', new TranslatableMessage($publicRedirect['notice']->value, domain: 'statistics'));
             }
 
             return $this->redirectToRoute('app_stats_indication_compare', $publicRedirect['query']);
@@ -58,13 +59,13 @@ final class IndicationCompareController extends AbstractController
         $subjectPair = $this->subjectRequestParser->parse($request);
 
         if (!$subjectPair instanceof \App\Statistics\Application\IndicationCompare\DTO\IndicationCompareSubjectPair) {
-            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.missing_selection'));
+            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.missing_selection', [], 'statistics'));
 
             return $this->redirectToRoute('app_stats_indication_insights', $request->query->all());
         }
 
         if ($subjectPair->isSameSubject()) {
-            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.same_indication'));
+            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.same_indication', [], 'statistics'));
 
             return $this->redirectToRoute('app_stats_indication_insights', $request->query->all());
         }
@@ -77,7 +78,7 @@ final class IndicationCompareController extends AbstractController
         }
 
         if ([] === $subjectA->indicationIds || [] === $subjectB->indicationIds) {
-            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.empty_group'));
+            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.empty_group', [], 'statistics'));
 
             return $this->redirectToRoute('app_stats_indication_insights', $request->query->all());
         }

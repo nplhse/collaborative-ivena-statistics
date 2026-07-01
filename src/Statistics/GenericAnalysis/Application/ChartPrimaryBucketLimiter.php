@@ -105,6 +105,6 @@ final readonly class ChartPrimaryBucketLimiter
 
     private function remainderBucketLabel(): string
     {
-        return $this->translator->trans('stats.generic_analysis.chart.remainder_bucket');
+        return $this->translator->trans('stats.generic_analysis.chart.remainder_bucket', [], 'statistics');
     }
 }

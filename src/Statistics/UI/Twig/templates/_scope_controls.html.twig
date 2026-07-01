@@ -3,7 +3,7 @@
 {% set usePicker = pickerMode|default(false) %}
 
 {% if vm.showScopeSecondaryPicker %}
-    <div class="btn-group" role="group" aria-label="{{ 'stats.filter.scope_label'|trans }}">
+    <div class="btn-group" role="group" aria-label="{{ 'stats.filter.scope_label'|trans({}, 'statistics') }}">
         <div class="btn-group" role="group">
             <button type="button"
                     class="btn dropdown-toggle"

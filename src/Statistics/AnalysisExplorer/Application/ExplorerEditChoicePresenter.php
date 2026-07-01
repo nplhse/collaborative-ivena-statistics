@@ -38,6 +38,8 @@ final readonly class ExplorerEditChoicePresenter
                 ->labelTranslationKey(),
             fn (AnalysisDimensionKey $dimension): string => $this->translator->trans(
                 'stats.analysis_explorer.dimension.'.$dimension->value,
+                [],
+                'statistics',
             ),
             static fn (AnalysisDimensionKey $dimension): string => $dimension->value,
             $locale,
@@ -68,9 +70,9 @@ final readonly class ExplorerEditChoicePresenter
     {
         $profile = $this->profileRegistry->profileFor($metric);
         if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
-            return $this->translator->trans($profile->labelTranslationKey);
+            return $this->translator->trans($profile->labelTranslationKey, [], 'statistics');
         }
 
-        return $this->translator->trans('stats.analysis_explorer.metric.'.$metric->value);
+        return $this->translator->trans('stats.analysis_explorer.metric.'.$metric->value, [], 'statistics');
     }
 }

@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'link.stats.indication_insights'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ 'link.stats.indication_insights'|trans({}, 'shared') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -27,10 +27,10 @@
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
                     <div class="page-pretitle" data-testid="stats-indication-insights-subtitle">
-                        {{ 'stats.indication.insights.index.pretitle'|trans }}
+                        {{ 'stats.indication.insights.index.pretitle'|trans({}, 'statistics') }}
                     </div>
                     <h2 class="page-title mb-0" data-testid="stats-indication-insights-title">
-                        {{ 'link.stats.indication_insights'|trans }}
+                        {{ 'link.stats.indication_insights'|trans({}, 'shared') }}
                     </h2>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}
@@ -46,20 +46,20 @@
         <div class="col-lg-7">
             <div class="card" data-testid="stats-indication-insights-top-table">
                 <div class="card-header">
-                    <h3 class="card-title mb-0">{{ 'stats.indication.insights.index.top_title'|trans }}</h3>
+                    <h3 class="card-title mb-0">{{ 'stats.indication.insights.index.top_title'|trans({}, 'statistics') }}</h3>
                 </div>
                 <div class="card-body">
                     {% if topRows is empty %}
-                        <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+                        <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
                     {% else %}
                         <div class="table-responsive">
                             <table class="table table-vcenter card-table table-striped mb-0">
                                 <thead>
                                     <tr>
-                                        <th>{{ 'stats.reports.table.rank'|trans }}</th>
-                                        <th>{{ 'stats.reports.table.diagnosis'|trans }}</th>
-                                        <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
-                                        <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
+                                        <th>{{ 'stats.reports.table.rank'|trans({}, 'statistics') }}</th>
+                                        <th>{{ 'stats.reports.table.diagnosis'|trans({}, 'statistics') }}</th>
+                                        <th class="text-end">{{ 'stats.reports.table.count'|trans({}, 'statistics') }}</th>
+                                        <th class="text-end">{{ 'stats.reports.table.share'|trans({}, 'statistics') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -88,8 +88,8 @@
         <div class="col-lg-5">
             <div class="card" data-testid="stats-indication-insights-picker-card">
                 <div class="card-body">
-                    <h3 class="card-title mb-2">{{ 'stats.indication.insights.index.picker_title'|trans }}</h3>
-                    <p class="text-muted small mb-3">{{ 'stats.indication.insights.index.picker_help'|trans }}</p>
+                    <h3 class="card-title mb-2">{{ 'stats.indication.insights.index.picker_title'|trans({}, 'statistics') }}</h3>
+                    <p class="text-muted small mb-3">{{ 'stats.indication.insights.index.picker_help'|trans({}, 'statistics') }}</p>
                     {{ include('@Statistics/indication_dashboard/_indication_picker.html.twig') }}
                 </div>
             </div>

@@ -2,32 +2,32 @@
     <div class="col-lg-8 d-flex flex-column gap-3">
         <div class="card" data-testid="stats-indication-time-series">
             <div class="card-header py-2">
-                <h3 class="card-title mb-0">{{ 'stats.indication.section.time_series'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.indication.section.time_series'|trans({}, 'statistics') }}</h3>
             </div>
             <div class="card-body">
                 <div class="chart-lg"
                      data-indication-dashboard-charts-target="timeSeriesChart"
-                     data-moving-average-label="{{ 'stats.indication.chart.moving_average'|trans }}"></div>
+                     data-moving-average-label="{{ 'stats.indication.chart.moving_average'|trans({}, 'statistics') }}"></div>
             </div>
         </div>
 
         <div class="card" data-testid="stats-indication-heatmap">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-                <h3 class="card-title mb-0">{{ 'stats.indication.section.occurrence'|trans }}</h3>
-                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans }}">
+                <h3 class="card-title mb-0">{{ 'stats.indication.section.occurrence'|trans({}, 'statistics') }}</h3>
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans({}, 'statistics') }}">
                     <button type="button"
                             class="btn active"
                             data-indication-dashboard-charts-target="heatmapModeDayTime"
                             data-action="indication-dashboard-charts#setHeatmapMode"
                             data-indication-dashboard-charts-mode-param="dayTime">
-                        {{ 'stats.indication.heatmap.mode.day_time'|trans }}
+                        {{ 'stats.indication.heatmap.mode.day_time'|trans({}, 'statistics') }}
                     </button>
                     <button type="button"
                             class="btn"
                             data-indication-dashboard-charts-target="heatmapModeShift"
                             data-action="indication-dashboard-charts#setHeatmapMode"
                             data-indication-dashboard-charts-mode-param="shift">
-                        {{ 'stats.indication.heatmap.mode.shift'|trans }}
+                        {{ 'stats.indication.heatmap.mode.shift'|trans({}, 'statistics') }}
                     </button>
                 </div>
             </div>
@@ -40,13 +40,13 @@
             {% set ageGroupLabels = [] %}
             {% set ageGroupValues = [] %}
             {% for row in dashboard.ageGroupDistribution %}
-                {% set ageGroupLabels = ageGroupLabels|merge([row.labelTranslationKey|trans]) %}
+                {% set ageGroupLabels = ageGroupLabels|merge([row.labelTranslationKey|trans({}, 'statistics')]) %}
                 {% set ageGroupValues = ageGroupValues|merge([row.count]) %}
             {% endfor %}
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-                <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans({}, 'statistics') }}</h3>
                 {% if dashboard.medianAge is not null %}
-                    <span class="text-muted small">{{ 'stats.indication.median_age'|trans({age: dashboard.medianAge|round(0)}) }}</span>
+                    <span class="text-muted small">{{ 'stats.indication.median_age'|trans(({age: dashboard.medianAge|round(0)}), 'statistics') }}</span>
                 {% endif %}
             </div>
             <div class="card-body">
@@ -85,13 +85,13 @@
             {% set transportTimeLabels = [] %}
             {% set transportTimeValues = [] %}
             {% for row in dashboard.transportTimeDistribution %}
-                {% set transportTimeLabels = transportTimeLabels|merge([row.labelTranslationKey|trans]) %}
+                {% set transportTimeLabels = transportTimeLabels|merge([row.labelTranslationKey|trans({}, 'statistics')]) %}
                 {% set transportTimeValues = transportTimeValues|merge([row.count]) %}
             {% endfor %}
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-                <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans({}, 'statistics') }}</h3>
                 {% if dashboard.metrics.medianTransportMinutesIndication is not null %}
-                    <span class="text-muted small">{{ 'stats.indication.median_transport'|trans({minutes: dashboard.metrics.medianTransportMinutesIndication|number_format(1, ',', '.')}) }}</span>
+                    <span class="text-muted small">{{ 'stats.indication.median_transport'|trans(({minutes: dashboard.metrics.medianTransportMinutesIndication|number_format(1, ',', '.')}), 'statistics') }}</span>
                 {% endif %}
             </div>
             <div class="card-body">

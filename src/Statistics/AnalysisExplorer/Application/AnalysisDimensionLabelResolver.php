@@ -94,10 +94,18 @@ final class AnalysisDimensionLabelResolver
 
         $lookupKey = is_numeric($bucketKey) ? (int) $bucketKey : $bucketKey;
         if (isset($dimension->valueLabelTranslationKeys[$lookupKey])) {
-            return $this->translator->trans($dimension->valueLabelTranslationKeys[$lookupKey]);
+            return $this->translator->trans(
+                $dimension->valueLabelTranslationKeys[$lookupKey],
+                [],
+                $this->domainForKey($dimension->valueLabelTranslationKeys[$lookupKey]),
+            );
         }
         if (isset($dimension->valueLabelTranslationKeys[$bucketKey])) {
-            return $this->translator->trans($dimension->valueLabelTranslationKeys[$bucketKey]);
+            return $this->translator->trans(
+                $dimension->valueLabelTranslationKeys[$bucketKey],
+                [],
+                $this->domainForKey($dimension->valueLabelTranslationKeys[$bucketKey]),
+            );
         }
         if (isset($dimension->valueLabels[$lookupKey])) {
             return $dimension->valueLabels[$lookupKey];
@@ -108,8 +116,8 @@ final class AnalysisDimensionLabelResolver
 
         if (AnalysisDimensionType::Boolean === $dimension->type) {
             return match ($bucketKey) {
-                '1', 'true' => $this->translator->trans('action.yes'),
-                '0', 'false' => $this->translator->trans('action.no'),
+                '1', 'true' => $this->translator->trans('action.yes', [], 'messages'),
+                '0', 'false' => $this->translator->trans('action.no', [], 'messages'),
                 default => $bucketKey,
             };
         }
@@ -154,5 +162,23 @@ final class AnalysisDimensionLabelResolver
         }
 
         return (string) $bucket;
+    }
+
+    private function domainForKey(string $key): string
+    {
+        if (str_starts_with($key, 'stats.') || str_starts_with($key, 'statistics.')) {
+            return 'statistics';
+        }
+
+        if (
+            str_starts_with($key, 'hospital.size.')
+            || str_starts_with($key, 'allocation.')
+            || str_starts_with($key, 'allocations.')
+            || str_starts_with($key, 'indication.')
+        ) {
+            return 'allocation';
+        }
+
+        return 'messages';
     }
 }

@@ -8,7 +8,7 @@
                    {% if loop.first and primary_test_id is defined %}data-testid="{{ primary_test_id }}"{% endif %}
                    {% if loop.index == 2 and secondary_test_id is defined %}data-testid="{{ secondary_test_id }}"{% endif %}
                    {% if loop.index == 3 and tertiary_test_id is defined %}data-testid="{{ tertiary_test_id }}"{% endif %}>
-                    {{ t.labelTranslationKey|trans }}
+                    {{ t.labelTranslationKey|trans({}, 'statistics') }}
                 </a>
             {% endif %}
         {% endfor %}

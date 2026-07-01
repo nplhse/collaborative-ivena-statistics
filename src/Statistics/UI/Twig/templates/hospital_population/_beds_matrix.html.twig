@@ -43,7 +43,7 @@
 
 <div class="card h-100" data-testid="stats-hospital-population-beds-matrix">
     <div class="card-header py-2">
-        <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.beds_descriptive'|trans }}</h3>
+        <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.beds_descriptive'|trans({}, 'statistics') }}</h3>
     </div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table table-sm mb-0 stats-hp-beds-matrix">
@@ -51,83 +51,83 @@
                 <tr>
                     <th scope="col"></th>
                     <th scope="col" class="text-end">
-                        {{ 'stats.hospital_population.beds_matrix.column_population'|trans({count: population.count}) }}
+                        {{ 'stats.hospital_population.beds_matrix.column_population'|trans(({count: population.count}), 'statistics') }}
                     </th>
                     <th scope="col" class="text-end">
-                        {{ 'stats.hospital_population.beds_matrix.column_participants'|trans({count: participants.count}) }}
+                        {{ 'stats.hospital_population.beds_matrix.column_participants'|trans(({count: participants.count}), 'statistics') }}
                     </th>
                 </tr>
             </thead>
             <tbody>
-                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.sample'|trans) }}
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.sample'|trans({}, 'statistics')) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.count'|trans,
+                    'stats.hospital_population.stats.count'|trans({}, 'statistics'),
                     hp.format_int(population.count),
                     hp.format_int(participants.count),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.sum'|trans,
+                    'stats.hospital_population.stats.sum'|trans({}, 'statistics'),
                     hp.format_int(population.sum),
                     hp.format_int(participants.sum),
                 ) }}
 
-                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.range'|trans) }}
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.range'|trans({}, 'statistics')) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.minimum'|trans,
+                    'stats.hospital_population.stats.minimum'|trans({}, 'statistics'),
                     hp.format_int(population.minimum),
                     hp.format_int(participants.minimum),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.maximum'|trans,
+                    'stats.hospital_population.stats.maximum'|trans({}, 'statistics'),
                     hp.format_int(population.maximum),
                     hp.format_int(participants.maximum),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.range'|trans,
+                    'stats.hospital_population.stats.range'|trans({}, 'statistics'),
                     hp.format_range(population.minimum, population.maximum),
                     hp.format_range(participants.minimum, participants.maximum),
                 ) }}
 
-                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.central_tendency'|trans) }}
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.central_tendency'|trans({}, 'statistics')) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.mean'|trans,
+                    'stats.hospital_population.stats.mean'|trans({}, 'statistics'),
                     hp.format_decimal(population.mean, 1),
                     hp.format_decimal(participants.mean, 1),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.median'|trans,
+                    'stats.hospital_population.stats.median'|trans({}, 'statistics'),
                     hp.format_decimal(population.median, 1),
                     hp.format_decimal(participants.median, 1),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.stddev'|trans,
+                    'stats.hospital_population.stats.stddev'|trans({}, 'statistics'),
                     hp.format_decimal(population.standardDeviation, 1),
                     hp.format_decimal(participants.standardDeviation, 1),
                 ) }}
 
-                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.percentiles'|trans) }}
+                {{ hp.matrix_section('stats.hospital_population.beds_matrix.section.percentiles'|trans({}, 'statistics')) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.p10'|trans,
+                    'stats.hospital_population.stats.p10'|trans({}, 'statistics'),
                     hp.format_decimal(population.p10, 1),
                     hp.format_decimal(participants.p10, 1),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.p25'|trans,
+                    'stats.hospital_population.stats.p25'|trans({}, 'statistics'),
                     hp.format_decimal(population.p25, 1),
                     hp.format_decimal(participants.p25, 1),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.p75'|trans,
+                    'stats.hospital_population.stats.p75'|trans({}, 'statistics'),
                     hp.format_decimal(population.p75, 1),
                     hp.format_decimal(participants.p75, 1),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.p95'|trans,
+                    'stats.hospital_population.stats.p95'|trans({}, 'statistics'),
                     hp.format_decimal(population.p95, 1),
                     hp.format_decimal(participants.p95, 1),
                 ) }}
                 {{ hp.matrix_row(
-                    'stats.hospital_population.stats.iqr'|trans,
+                    'stats.hospital_population.stats.iqr'|trans({}, 'statistics'),
                     hp.format_iqr(population.p25, population.p75),
                     hp.format_iqr(participants.p25, participants.p75),
                 ) }}

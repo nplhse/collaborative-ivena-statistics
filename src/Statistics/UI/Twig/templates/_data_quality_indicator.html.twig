@@ -8,7 +8,7 @@
                 aria-controls="statsDataQualityDrawer"
                 data-testid="stats-data-quality-indicator">
             <span class="text-nowrap">
-                {{ 'stats.data_quality.indicator.label'|trans }}
+                {{ 'stats.data_quality.indicator.label'|trans({}, 'statistics') }}
                 <span class="badge d-none"
                       data-data-quality-indicator-target="badge"
                       data-testid="stats-data-quality-indicator-badge"></span>
@@ -23,8 +23,8 @@
             aria-controls="statsDataQualityDrawer"
             data-testid="stats-data-quality-indicator">
         <span class="text-nowrap">
-            {{ 'stats.data_quality.indicator.label'|trans }}:
-            <span class="badge {{ dataQualityReport.overallLevel.badgeClass }}">{{ dataQualityReport.overallLevel.labelKey|trans }}</span>
+            {{ 'stats.data_quality.indicator.label'|trans({}, 'statistics') }}:
+            <span class="badge {{ dataQualityReport.overallLevel.badgeClass }}">{{ dataQualityReport.overallLevel.labelKey|trans({}, 'statistics') }}</span>
         </span>
     </button>
 {% endif %}

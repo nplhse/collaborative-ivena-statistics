@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Form;
 
+use App\Statistics\UI\Form\PreTranslatedChoiceType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -37,6 +37,6 @@ final class ExplorerAdditionalTableMetricsType extends AbstractType
     #[\Override]
     public function getParent(): string
     {
-        return ChoiceType::class;
+        return PreTranslatedChoiceType::class;
     }
 }

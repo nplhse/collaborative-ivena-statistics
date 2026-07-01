@@ -8,9 +8,9 @@ use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
+use App\Statistics\UI\Form\PreTranslatedChoiceType;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -39,11 +39,11 @@ final class BenchmarkSelectionSideType extends AbstractType
         $user = $this->currentUser();
 
         $builder
-            ->add('scopeGroup', ChoiceType::class, [
+            ->add('scopeGroup', PreTranslatedChoiceType::class, [
                 'label' => 'stats.filter.scope_label',
                 'choices' => array_flip($this->choiceProvider->scopePrimaryChoices($user, $locale, $scopeChoicePolicy)),
             ])
-            ->add('period', ChoiceType::class, [
+            ->add('period', PreTranslatedChoiceType::class, [
                 'label' => 'stats.filter.period_label',
                 'choices' => array_flip($this->choiceProvider->periodPrimaryChoices($locale)),
             ])
@@ -136,6 +136,7 @@ final class BenchmarkSelectionSideType extends AbstractType
             'data_class' => BenchmarkSelectionSideFormData::class,
             'side' => StatisticsFilterSide::Primary,
             'locale' => 'en',
+            'translation_domain' => 'statistics',
             'scope_choice_policy' => StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
         ]);
 

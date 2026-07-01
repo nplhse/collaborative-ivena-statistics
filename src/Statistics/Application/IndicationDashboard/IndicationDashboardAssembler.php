@@ -310,7 +310,7 @@ final readonly class IndicationDashboardAssembler
         \Closure $labelTranslationKey,
     ): IndicationHeatmapData {
         $columnLabels = array_map(
-            fn (int $code): string => $this->translator->trans($labelTranslationKey($code)),
+            fn (int $code): string => $this->translator->trans($labelTranslationKey($code), [], 'statistics'),
             $bucketCodes,
         );
 
@@ -321,7 +321,7 @@ final readonly class IndicationDashboardAssembler
 
         foreach (self::ISO_WEEKDAYS as $weekday) {
             $rowKeys[] = (string) $weekday;
-            $rowLabels[] = $this->translator->trans('stats.indication.weekday.'.$weekday);
+            $rowLabels[] = $this->translator->trans('stats.indication.weekday.'.$weekday, [], 'statistics');
             $row = [];
             foreach ($bucketCodes as $bucketCode) {
                 $count = 0;

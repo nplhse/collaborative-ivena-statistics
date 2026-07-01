@@ -16,7 +16,7 @@
     <div class="col-md-4">
         <div class="card h-100">
             <div class="card-body">
-                <p class="mb-2">{{ 'stats.overview.executive.population.age'|trans }}</p>
+                <p class="mb-2">{{ 'stats.overview.executive.population.age'|trans({}, 'statistics') }}</p>
                 {{ include('@Statistics/indication_dashboard/_distribution_progress.html.twig', {
                     rows: executiveDashboard.population.age,
                 }) }}

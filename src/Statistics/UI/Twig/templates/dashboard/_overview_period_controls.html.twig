@@ -2,7 +2,7 @@
 {% set periodTestIdPrefix = periodTestIdPrefix|default('stats-period') %}
 {% set usePicker = pickerMode|default(false) %}
 
-<div class="btn-group" role="group" aria-label="{{ 'stats.filter.period_label'|trans }}">
+<div class="btn-group" role="group" aria-label="{{ 'stats.filter.period_label'|trans({}, 'statistics') }}">
     {% if periodVm.showSecondaryPicker %}
         <div class="btn-group" role="group">
             <button type="button"

@@ -52,8 +52,8 @@ final readonly class BenchmarkCriteriaFactory
         $now = new \DateTimeImmutable();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all'),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time'),
+            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics'),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics'),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? (int) $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(
                 'stats.dashboard.heading.quarter',
@@ -61,6 +61,7 @@ final readonly class BenchmarkCriteriaFactory
                     'quarter' => (string) ($filter->referenceQuarter ?? (int) ceil((int) $now->format('n') / 3)),
                     'year' => (string) ($filter->referenceYear ?? $now->format('Y')),
                 ],
+                'statistics',
             ),
             StatisticsFilterPeriod::Month => sprintf(
                 '%04d-%02d',
@@ -73,14 +74,14 @@ final readonly class BenchmarkCriteriaFactory
     private function scopeLabel(StatisticsFilter $filter, ?User $user): string
     {
         return match ($filter->scope) {
-            StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public'),
+            StatisticsFilterScope::Public => $this->translator->trans('stats.filter.scope.public', [], 'statistics'),
             StatisticsFilterScope::MyHospitals => $this->hospitalScopeLabelResolver->groupLabel($user),
             StatisticsFilterScope::Hospital => null !== $filter->hospitalId
                 ? sprintf('Hospital %d', $filter->hospitalId)
-                : $this->translator->trans('stats.filter.hospital.choose'),
+                : $this->translator->trans('stats.filter.hospital.choose', [], 'statistics'),
             StatisticsFilterScope::HospitalCohort => $filter->cohortType instanceof HospitalCohortKey
                 ? $this->hospitalCohortLabelResolver->label($filter->cohortType)
-                : $this->translator->trans('stats.filter.scope.hospital_cohort'),
+                : $this->translator->trans('stats.filter.scope.hospital_cohort', [], 'statistics'),
             StatisticsFilterScope::State => $this->stateLabel($filter->stateId),
             StatisticsFilterScope::DispatchArea => $this->dispatchAreaLabel($filter->dispatchAreaId),
         };
@@ -89,7 +90,7 @@ final readonly class BenchmarkCriteriaFactory
     private function stateLabel(?int $stateId): string
     {
         if (null === $stateId) {
-            return $this->translator->trans('stats.filter.scope.state');
+            return $this->translator->trans('stats.filter.scope.state', [], 'statistics');
         }
         $state = $this->stateRepository->findById($stateId);
 
@@ -99,7 +100,7 @@ final readonly class BenchmarkCriteriaFactory
     private function dispatchAreaLabel(?int $dispatchAreaId): string
     {
         if (null === $dispatchAreaId) {
-            return $this->translator->trans('stats.filter.scope.dispatch_area');
+            return $this->translator->trans('stats.filter.scope.dispatch_area', [], 'statistics');
         }
         $area = $this->dispatchAreaRepository->findById($dispatchAreaId);
 

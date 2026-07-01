@@ -438,7 +438,7 @@ final class AnalysisExplorerShell
         try {
             $this->configValidator->validate($normalizedConfig);
         } catch (InvalidExplorerConfigException $exception) {
-            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters);
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
 
             return;
         }
@@ -490,7 +490,7 @@ final class AnalysisExplorerShell
 
         $title = trim($this->saveAsTitle);
         if ('' === $title) {
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required');
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required', [], 'statistics');
 
             return null;
         }
@@ -504,7 +504,7 @@ final class AnalysisExplorerShell
                 $description,
             );
         } catch (InvalidExplorerConfigException $exception) {
-            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters);
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
 
             return null;
         }
@@ -548,11 +548,11 @@ final class AnalysisExplorerShell
                 $description,
             );
         } catch (SavedExplorerViewForbiddenException) {
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden');
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden', [], 'statistics');
 
             return;
         } catch (InvalidExplorerConfigException $exception) {
-            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters);
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
 
             return;
         }
@@ -564,7 +564,7 @@ final class AnalysisExplorerShell
         $this->baselineViewDescription = $this->savedViewDescription;
         $this->metadataManuallyEdited = false;
         $this->syncUnsavedChangeState();
-        $this->configWarning = $this->translator->trans('stats.analysis_explorer.saved');
+        $this->configWarning = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
     }
 
     private function syncUnsavedChangeState(): void
@@ -624,7 +624,7 @@ final class AnalysisExplorerShell
         if ($this->metadataManuallyEdited) {
             $title = trim($this->editViewTitle);
             if ('' === $title) {
-                $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required');
+                $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required', [], 'statistics');
 
                 return false;
             }
@@ -701,14 +701,14 @@ final class AnalysisExplorerShell
             $query = $this->queryFactory->create($currentConfig, $this->resolveUser());
             $this->result = $this->runnerRegistry->run($currentConfig, $query);
         } catch (UnsupportedAnalysisException) {
-            $this->configWarning ??= $this->translator->trans('stats.analysis_explorer.unsupported_config');
+            $this->configWarning ??= $this->translator->trans('stats.analysis_explorer.unsupported_config', [], 'statistics');
             $this->emptyReason = 'unsupported';
             $this->result = $this->emptyResult($currentConfig);
         } catch (\Throwable $exception) {
             $this->logger->error('Analysis Explorer query failed.', [
                 'exception' => $exception,
             ]);
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.query_failed');
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.query_failed', [], 'statistics');
             $this->emptyReason = 'query_error';
             $this->result = $this->emptyResult($currentConfig);
         }
@@ -778,7 +778,7 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $this->configWarning = $this->translator->trans('stats.analysis_explorer.config_normalized');
+        $this->configWarning = $this->translator->trans('stats.analysis_explorer.config_normalized', [], 'statistics');
     }
 
     private function syncFormDataFromForm(): ExplorerEditFormData

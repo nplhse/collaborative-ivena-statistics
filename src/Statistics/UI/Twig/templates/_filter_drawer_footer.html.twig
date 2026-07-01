@@ -2,7 +2,7 @@
     <div>
         {% if showReset|default(false) and resetUrl is defined and resetUrl %}
             <a href="{{ resetUrl }}" class="btn btn-outline-secondary" data-testid="{{ resetTestId|default('filter-drawer-reset') }}">
-                {{ 'label.filters.reset'|trans }}
+                {{ 'label.filters.reset'|trans({}, 'messages') }}
             </a>
         {% endif %}
     </div>
@@ -11,13 +11,13 @@
                 class="btn btn-link link-secondary"
                 data-bs-dismiss="offcanvas"
                 data-testid="{{ cancelTestId|default('filter-drawer-cancel') }}">
-            {{ 'action.cancel'|trans }}
+            {{ 'action.cancel'|trans({}, 'messages') }}
         </button>
         <button type="submit"
                 class="btn btn-primary"
                 form="{{ formId }}"
                 data-testid="{{ applyTestId|default('filter-drawer-apply') }}">
-            {{ 'label.filters.apply'|trans }}
+            {{ 'label.filters.apply'|trans({}, 'messages') }}
         </button>
     </div>
 </div>

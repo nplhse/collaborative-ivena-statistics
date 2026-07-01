@@ -177,10 +177,10 @@ final readonly class HospitalInsightSelector
     private function trans(string $id, array $parameters = [], ?string $locale = null): string
     {
         if (null !== $locale) {
-            return $this->translator->trans($id, $parameters, null, $locale);
+            return $this->translator->trans($id, $parameters, 'engagement', $locale);
         }
 
-        return $this->translator->trans($id, $parameters);
+        return $this->translator->trans($id, $parameters, 'engagement');
     }
 
     private function formatSignedPercent(float $value): string

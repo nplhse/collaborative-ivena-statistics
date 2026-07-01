@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.case_flow.title'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ 'stats.case_flow.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -15,7 +15,7 @@
         <div class="d-flex align-items-start justify-content-between gap-3">
             <twig:Breadcrumbs :items="[
                 { label: 'link.statistics', path: path('app_stats_dashboard') },
-                { label: 'stats.case_flow.title'|trans }
+                { label: 'stats.case_flow.title' }
             ]" />
 
             <div class="flex-shrink-0 d-print-none mt-2">
@@ -27,10 +27,10 @@
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
                     <div class="page-pretitle" data-testid="stats-case-flow-heading-subtitle">
-                        {{ 'stats.case_flow.pretitle'|trans }}
+                        {{ 'stats.case_flow.pretitle'|trans({}, 'statistics') }}
                     </div>
                     <h2 class="page-title mb-0" data-testid="stats-case-flow-heading-title">
-                        {{ 'stats.case_flow.title'|trans }}
+                        {{ 'stats.case_flow.title'|trans({}, 'statistics') }}
                     </h2>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}
@@ -54,7 +54,7 @@
                 {% if dashboard.mode.value == 'system_flow' %}
                     <div class="card" data-testid="stats-case-flow-stacked-bar">
                         <div class="card-header py-2">
-                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.flow_matrix'|trans }}</h3>
+                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.flow_matrix'|trans({}, 'statistics') }}</h3>
                         </div>
                         <div class="card-body">
                             <div class="chart-lg" data-case-flow-charts-target="flowStackedBarChart"></div>
@@ -63,7 +63,7 @@
                 {% else %}
                     <div class="card" data-testid="stats-case-flow-origin-bar">
                         <div class="card-header py-2">
-                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.origin_distribution'|trans }}</h3>
+                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.origin_distribution'|trans({}, 'statistics') }}</h3>
                         </div>
                         <div class="card-body">
                             <div class="chart-lg" data-case-flow-charts-target="originBarChart"></div>

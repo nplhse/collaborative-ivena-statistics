@@ -117,7 +117,7 @@ final readonly class ExplorerResultsTablePresenter
         foreach ($tableColumns as $column) {
             $metricColumns[] = new ExplorerResultsTableMetricColumn(
                 key: $column->value,
-                label: $this->translator->trans($column->labelTranslationKey()),
+                label: $this->translator->trans($column->labelTranslationKey(), [], 'statistics'),
             );
         }
 
@@ -160,7 +160,7 @@ final readonly class ExplorerResultsTablePresenter
             return $this->axisLabel($result->columnAxis);
         }
 
-        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population');
+        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population', [], 'statistics');
     }
 
     /**
@@ -485,17 +485,17 @@ final readonly class ExplorerResultsTablePresenter
             return $this->temporalDimensionLabel($axis->resolvedGrain());
         }
 
-        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value);
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value, [], 'statistics');
     }
 
     private function temporalDimensionLabel(AnalysisDimensionGrain $grain): string
     {
         return match ($grain) {
-            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
-            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
-            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
-            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total'),
-            default => $this->translator->trans('stats.analysis_explorer.dimension.month'),
+            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
+            default => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
         };
     }
 
@@ -503,10 +503,10 @@ final readonly class ExplorerResultsTablePresenter
     {
         $profile = $this->profileRegistry->profileFor($metricKey);
         if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
-            return $this->translator->trans($profile->labelTranslationKey);
+            return $this->translator->trans($profile->labelTranslationKey, [], 'statistics');
         }
 
-        return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value);
+        return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value, [], 'statistics');
     }
 
     private function countMetricForPercent(AnalysisRunResult $result): ?AnalysisMetricKey
@@ -555,12 +555,12 @@ final readonly class ExplorerResultsTablePresenter
     {
         return match ($metricKey) {
             AnalysisMetricKey::AvgBeds,
-            AnalysisMetricKey::AvgAllocationsPerHospital => $this->translator->trans('stats.analysis_explorer.table.footer_average'),
+            AnalysisMetricKey::AvgAllocationsPerHospital => $this->translator->trans('stats.analysis_explorer.table.footer_average', [], 'statistics'),
             AnalysisMetricKey::MinBeds,
-            AnalysisMetricKey::MinAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_minimum'),
+            AnalysisMetricKey::MinAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_minimum', [], 'statistics'),
             AnalysisMetricKey::MaxBeds,
-            AnalysisMetricKey::MaxAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_maximum'),
-            default => $this->translator->trans('stats.analysis_explorer.table.footer_total'),
+            AnalysisMetricKey::MaxAllocations => $this->translator->trans('stats.analysis_explorer.table.footer_maximum', [], 'statistics'),
+            default => $this->translator->trans('stats.analysis_explorer.table.footer_total', [], 'statistics'),
         };
     }
 }

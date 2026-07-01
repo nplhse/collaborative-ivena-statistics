@@ -2,12 +2,12 @@
     <div class="card-body">
         {% for section in statsExplorerSections %}
             {% if section.entries is not empty %}
-                <div class="subheader mb-2">{{ section.labelKey|trans }}</div>
+                <div class="subheader mb-2">{{ section.labelKey|trans({}, 'statistics') }}</div>
                 <div class="list-group list-group-transparent mb-4">
                     {% for entry in section.entries %}
                         <a href="{{ entry.url }}"
                            class="list-group-item list-group-item-action d-flex align-items-center{% if entry.active %} active{% endif %}">
-                            {{ entry.labelKey|trans }}
+                            {{ entry.labelKey|trans({}, 'statistics') }}
                         </a>
                     {% endfor %}
                 </div>
