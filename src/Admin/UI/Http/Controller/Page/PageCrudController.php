@@ -137,23 +137,23 @@ final class PageCrudController extends AbstractCrudController
             ->hideOnForm()
             ->hideOnIndex();
         yield CollectionField::new('content', 'label.content_blocks')
-            ->setHelp($this->buildMediaLibraryHelp().' '.$this->translator->trans('help.page.content_blocks_reorder'))
+            ->setHelp($this->buildMediaLibraryHelp().' '.$this->translator->trans('help.page.content_blocks_reorder', [], 'content'))
             ->setFormTypeOption('help_html', true)
             ->setEntryType(PageContentBlockType::class)
             ->setEntryIsComplex()
             ->setFormTypeOption('row_attr', [
                 'data-controller' => 'collection-reorder',
-                'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up'),
-                'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down'),
+                'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
+                'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down', [], 'messages'),
             ])
             ->setEntryToStringMethod(function (mixed $value): string {
                 if (!is_array($value)) {
-                    return $this->translator->trans('label.block');
+                    return $this->translator->trans('label.block', [], 'messages');
                 }
 
                 $type = (string) ($value['type'] ?? 'block');
                 $enabled = (bool) ($value['enabled'] ?? true);
-                $state = $this->translator->trans($enabled ? 'label.enabled' : 'label.disabled');
+                $state = $this->translator->trans($enabled ? 'label.enabled' : 'label.disabled', [], 'messages');
 
                 return sprintf('%s (%s)', $this->formatBlockTypeLabel($type), $state);
             })
@@ -265,10 +265,10 @@ final class PageCrudController extends AbstractCrudController
         $blockType = \App\Content\Domain\Enum\PageContentBlockType::tryFromString($type);
 
         if ($blockType instanceof \App\Content\Domain\Enum\PageContentBlockType) {
-            return $this->translator->trans($blockType->translationKey());
+            return $this->translator->trans($blockType->translationKey(), [], 'content');
         }
 
-        return $this->translator->trans('label.block_type.richtext');
+        return $this->translator->trans('label.block_type.richtext', [], 'content');
     }
 
     private function buildMediaLibraryHelp(): string
@@ -278,7 +278,7 @@ final class PageCrudController extends AbstractCrudController
             ENT_QUOTES | ENT_HTML5,
         );
 
-        return $this->translator->trans('help.page.media_library')
-            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library'));
+        return $this->translator->trans('help.page.media_library', [], 'content')
+            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library', [], 'content'));
     }
 }

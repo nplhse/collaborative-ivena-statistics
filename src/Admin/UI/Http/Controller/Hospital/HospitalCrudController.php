@@ -26,6 +26,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -106,9 +107,9 @@ final class HospitalCrudController extends AbstractCrudController
         $hospital = $context->getEntity()->getInstance();
         $errors = $monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
         if ([] === $errors) {
-            $this->addFlash('success', 'flash.admin.hospital.reminder.sent');
+            $this->addFlash('success', new TranslatableMessage('flash.admin.hospital.reminder.sent', domain: 'admin'));
         } else {
-            $this->addFlash('error', $this->translator->trans($errors[0]));
+            $this->addFlash('error', $this->translator->trans($errors[0], [], 'engagement'));
         }
 
         return $this->redirect(

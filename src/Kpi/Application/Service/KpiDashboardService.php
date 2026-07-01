@@ -17,6 +17,7 @@ use App\Kpi\Application\DTO\KpiCardsDto;
 use App\Kpi\Application\DTO\KpiChartSeriesDto;
 use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final readonly class KpiDashboardService
 {
@@ -41,25 +42,25 @@ final readonly class KpiDashboardService
 
         return new KpiCardsDto([
             new KpiCardDto(
-                labelKey: 'kpi.card.active_hospitals',
+                label: new TranslatableMessage('kpi.card.active_hospitals', domain: 'admin'),
                 value: (string) $activeHospitals,
                 detailUrl: $this->generateCrudUrl(HospitalCrudController::class),
                 icon: 'fas fa-hospital',
             ),
             new KpiCardDto(
-                labelKey: 'kpi.card.imports',
+                label: new TranslatableMessage('kpi.card.imports', domain: 'admin'),
                 value: (string) $sums['importsCount'],
                 detailUrl: $this->generateCrudUrl(ImportCrudController::class),
                 icon: 'fa fa-database',
             ),
             new KpiCardDto(
-                labelKey: 'kpi.card.records_processed',
+                label: new TranslatableMessage('kpi.card.records_processed', domain: 'admin'),
                 value: number_format($sums['recordsProcessed'], 0, ',', '.'),
                 detailUrl: $this->generateCrudUrl(AllocationCrudController::class),
                 icon: 'fas fa-list-ol',
             ),
             new KpiCardDto(
-                labelKey: 'kpi.card.rejection_rate',
+                label: new TranslatableMessage('kpi.card.rejection_rate', domain: 'admin'),
                 value: sprintf('%.2f%%', $rejectionRate),
                 detailUrl: $this->generateCrudUrl(ImportRejectCrudController::class),
                 icon: 'fas fa-chart-line',

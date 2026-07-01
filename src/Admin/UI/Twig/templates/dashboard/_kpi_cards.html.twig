@@ -13,7 +13,7 @@
                                 {% if card.icon %}
                                     <i class="{{ card.icon }} fa-lg text-secondary" aria-hidden="true"></i>
                                 {% endif %}
-                                <span class="text-muted small mb-0">{{ card.labelKey|trans({}, 'admin') }}</span>
+                                <span class="text-muted small mb-0">{{ card.label|trans }}</span>
                             </div>
                         </div>
                         <p class="ea-kpi-value mb-0">{{ card.value }}</p>

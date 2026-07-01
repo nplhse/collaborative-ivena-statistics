@@ -195,7 +195,7 @@ final class PostCrudController extends AbstractCrudController
     private function buildContentHelp(): string
     {
         return $this->buildMediaLibraryHelp()
-            .' '.$this->translator->trans('help.blog.image_layout');
+            .' '.$this->translator->trans('help.blog.image_layout', [], 'content');
     }
 
     private function buildMediaLibraryHelp(): string
@@ -205,7 +205,7 @@ final class PostCrudController extends AbstractCrudController
             ENT_QUOTES | ENT_HTML5,
         );
 
-        return $this->translator->trans('help.blog.media_library')
-            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library'));
+        return $this->translator->trans('help.blog.media_library', [], 'content')
+            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library', [], 'content'));
     }
 }

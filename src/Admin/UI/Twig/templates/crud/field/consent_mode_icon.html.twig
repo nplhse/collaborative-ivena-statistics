@@ -3,25 +3,25 @@
 {% if mode == 'monitoring_enabled' %}
     <span
         class="badge bg-green-lt text-green-fg"
-        title="{{ 'label.admin.cookies.monitoring_enabled'|trans }}"
+        title="{{ 'label.admin.cookies.monitoring_enabled'|trans({}, 'messages') }}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
-        aria-label="{{ 'label.admin.cookies.monitoring_enabled'|trans }}"
+        aria-label="{{ 'label.admin.cookies.monitoring_enabled'|trans({}, 'messages') }}"
     >
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-line me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M4 19l16 0" />
             <path d="M4 15l4 -6l4 2l4 -5l4 4" />
         </svg>
-        {{ 'label.admin.cookies.monitoring_enabled'|trans }}
+        {{ 'label.admin.cookies.monitoring_enabled'|trans({}, 'messages') }}
     </span>
 {% else %}
     <span
         class="badge bg-secondary-lt text-secondary-fg"
-        title="{{ 'label.admin.cookies.essential_only'|trans }}"
+        title="{{ 'label.admin.cookies.essential_only'|trans({}, 'messages') }}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
-        aria-label="{{ 'label.admin.cookies.essential_only'|trans }}"
+        aria-label="{{ 'label.admin.cookies.essential_only'|trans({}, 'messages') }}"
     >
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shield-lock me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -29,6 +29,6 @@
             <path d="M10 12m0 1a2 2 0 0 0 4 0a2 2 0 0 0 -4 0" />
             <path d="M12 14l0 2" />
         </svg>
-        {{ 'label.admin.cookies.essential_only'|trans }}
+        {{ 'label.admin.cookies.essential_only'|trans({}, 'messages') }}
     </span>
 {% endif %}

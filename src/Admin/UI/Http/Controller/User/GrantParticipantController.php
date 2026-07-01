@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('ROLE_ADMIN')]
 final class GrantParticipantController extends AbstractController
@@ -61,9 +62,9 @@ final class GrantParticipantController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->addFlash('success', 'flash.admin.user.grant_participant.success');
+            $this->addFlash('success', new TranslatableMessage('flash.admin.user.grant_participant.success', domain: 'admin'));
         } else {
-            $this->addFlash('info', 'flash.admin.user.grant_participant.already');
+            $this->addFlash('info', new TranslatableMessage('flash.admin.user.grant_participant.already', domain: 'admin'));
         }
 
         return $this->redirect(
