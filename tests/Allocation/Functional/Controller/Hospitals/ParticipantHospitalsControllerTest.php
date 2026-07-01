@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ParticipantHospitalsControllerTest extends WebTestCase
 {
+    use AssertsNoMissingTranslations;
     use Factories;
 
     public function testHospitalsIndexRedirectsWhenNotAuthenticated(): void
@@ -76,6 +78,38 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         self::assertSelectorTextContains('h2.page-title', 'My Hospitals');
         self::assertSelectorTextContains('table', 'Owned Hospital');
         self::assertSelectorTextNotContains('table', 'Foreign Hospital');
+    }
+
+    public function testEditGeneralPageRendersGermanChoiceLabels(): void
+    {
+        $client = self::createClient();
+        $client->enableProfiler();
+
+        $owner = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'locale' => 'de',
+        ]);
+        $createdBy = UserFactory::createOne();
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne();
+
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Krankenhaus Choices',
+            'owner' => $owner,
+            'createdBy' => $createdBy,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Städtischer Standort');
+        self::assertSelectorTextContains('body', 'Basisversorgung');
+        self::assertSelectorTextContains('body', 'Klein');
+
+        $this->assertNoMissingTranslations($client->getProfile());
     }
 
     public function testEditIsForbiddenForNonOwnerParticipant(): void
@@ -173,6 +207,38 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
         self::assertNotNull($updatedHospital);
         self::assertSame('Hospital After Edit', $updatedHospital->getName());
         self::assertSame(123, $updatedHospital->getBeds());
+    }
+
+    public function testAddressEditPageRendersGermanFormLabels(): void
+    {
+        $client = self::createClient();
+        $client->enableProfiler();
+
+        $owner = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'locale' => 'de',
+        ]);
+        $createdBy = UserFactory::createOne();
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne();
+
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Krankenhaus Adresse',
+            'owner' => $owner,
+            'createdBy' => $createdBy,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/hospitals/'.$hospital->getId().'/edit/address');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('label[for*="street"]', 'Straße');
+        self::assertSelectorTextContains('label[for*="postalCode"]', 'Postleitzahl');
+        self::assertSelectorTextContains('label[for*="city"]', 'Stadt');
+
+        $this->assertNoMissingTranslations($client->getProfile());
     }
 
     public function testOwnerParticipantCanEditHospitalAddressData(): void

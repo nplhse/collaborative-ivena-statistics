@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="FbkCatBugDe" resname="feedback.category.bug">
+        <source>feedback.category.bug</source>
+        <target>Fehler</target>
+      </trans-unit>
+      <trans-unit id="FbkCatImpDe" resname="feedback.category.improvement">
+        <source>feedback.category.improvement</source>
+        <target>Verbesserungsvorschlag</target>
+      </trans-unit>
+      <trans-unit id="FbkCatOthDe" resname="feedback.category.other">
+        <source>feedback.category.other</source>
+        <target>Sonstiges</target>
+      </trans-unit>
+      <trans-unit id="FbkCatQstDe" resname="feedback.category.question">
+        <source>feedback.category.question</source>
+        <target>Anfrage</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlActDe" resname="feedback.email.actor.user">
+        <source>feedback.email.actor.user</source>
+        <target>Benutzer {username}</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlHdgDe" resname="feedback.email.heading">
+        <source>feedback.email.heading</source>
+        <target>Neues Feedback</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlAvDe" resname="feedback.email.label.app_version">
+        <source>feedback.email.label.app_version</source>
+        <target>App-Version</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlCatDe" resname="feedback.email.label.category">
+        <source>feedback.email.label.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlFrmDe" resname="feedback.email.label.from">
+        <source>feedback.email.label.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlMsgDe" resname="feedback.email.label.message">
+        <source>feedback.email.label.message</source>
+        <target>Nachricht</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlPgDe" resname="feedback.email.label.page">
+        <source>feedback.email.label.page</source>
+        <target>Seite</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlRteDe" resname="feedback.email.label.route">
+        <source>feedback.email.label.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlTimDe" resname="feedback.email.label.time">
+        <source>feedback.email.label.time</source>
+        <target>Eingereicht am</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlUrlDe" resname="feedback.email.label.url">
+        <source>feedback.email.label.url</source>
+        <target>Seiten-URL</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlTitDe" resname="feedback.email.title">
+        <source>feedback.email.title</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="FbkFlsRlDe" resname="feedback.flash.rate_limited">
+        <source>feedback.flash.rate_limited</source>
+        <target>Sie haben in kurzer Zeit zu viel Feedback gesendet, bitte versuchen Sie es später erneut.</target>
+      </trans-unit>
+      <trans-unit id="FbkFlsOkDe" resname="feedback.flash.success">
+        <source>feedback.flash.success</source>
+        <target>Vielen Dank! Ihr Feedback wurde gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="FbkFlsValDe" resname="feedback.flash.validation_error">
+        <source>feedback.flash.validation_error</source>
+        <target>Bitte korrigieren Sie das Feedback-Formular und versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="FbkFrmCatDe" resname="feedback.form.category">
+        <source>feedback.form.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="FbkFrmEmlDe" resname="feedback.form.guest_email">
+        <source>feedback.form.guest_email</source>
+        <target>Ihre E-Mail-Adresse</target>
+      </trans-unit>
+      <trans-unit id="FbkFrmMsgDe" resname="feedback.form.message">
+        <source>feedback.form.message</source>
+        <target>Nachricht</target>
+      </trans-unit>
+      <trans-unit id="FbkValCtxDe" resname="feedback.validation.extra_context_json">
+        <source>feedback.validation.extra_context_json</source>
+        <target>Der Kontext muss gültiges JSON sein.</target>
+      </trans-unit>
+      <trans-unit id="FbkWgtOpnDe" resname="feedback.widget.open">
+        <source>feedback.widget.open</source>
+        <target>Feedback senden</target>
+      </trans-unit>
+      <trans-unit id="FbkWgtSubDe" resname="feedback.widget.submit">
+        <source>feedback.widget.submit</source>
+        <target>Absenden</target>
+      </trans-unit>
+      <trans-unit id="FbkWgtTitDe" resname="feedback.widget.title">
+        <source>feedback.widget.title</source>
+        <target>Feedback</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

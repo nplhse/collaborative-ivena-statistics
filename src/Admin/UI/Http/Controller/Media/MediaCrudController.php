@@ -23,6 +23,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 
 /**
@@ -34,6 +36,7 @@ final class MediaCrudController extends AbstractCrudController
     public function __construct(
         private readonly MediaTypeResolver $mediaTypeResolver,
         private readonly MediaSnippetGenerator $mediaSnippetGenerator,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -47,8 +50,8 @@ final class MediaCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('label.media')
-            ->setEntityLabelInPlural('label.media_library')
+            ->setEntityLabelInSingular(new TranslatableMessage('label.media', domain: 'content'))
+            ->setEntityLabelInPlural(new TranslatableMessage('label.media_library', domain: 'content'))
             ->setDefaultSort(['createdAt' => 'DESC'])
             ->setSearchFields(['originalFilename', 'title', 'altText', 'filename'])
             ->overrideTemplate('crud/detail', '@Admin/media/detail.html.twig');
@@ -66,7 +69,7 @@ final class MediaCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->onlyOnDetail();
-        yield TextField::new('file', 'label.media_file')
+        yield TextField::new('file', new TranslatableMessage('label.media_file', domain: 'content'))
             ->setFormType(VichFileType::class)
             ->setFormTypeOptions([
                 'required' => Crud::PAGE_NEW === $pageName,
@@ -83,17 +86,13 @@ final class MediaCrudController extends AbstractCrudController
         yield TextField::new('filename', 'label.filename')->onlyOnDetail();
         yield TextField::new('mimeType', 'label.mime_type')->onlyOnDetail();
         yield IntegerField::new('size', 'label.file_size')->onlyOnDetail();
-        yield ChoiceField::new('type', 'label.media_type')
-            ->setChoices([
-                'label.media_type.image' => MediaType::IMAGE,
-                'label.media_type.pdf' => MediaType::PDF,
-                'label.media_type.document' => MediaType::DOCUMENT,
-            ])
+        yield ChoiceField::new('type', new TranslatableMessage('label.media_type', domain: 'content'))
+            ->setChoices($this->mediaTypeChoices())
             ->renderAsBadges()
             ->hideOnForm();
         yield TextField::new('title', 'label.title');
-        yield TextField::new('altText', 'label.image_alt')
-            ->setHelp('help.media.alt_text')
+        yield TextField::new('altText', new TranslatableMessage('label.image_alt', domain: 'content'))
+            ->setHelp(new TranslatableMessage('help.media.alt_text', domain: 'content'))
             ->hideOnIndex();
         yield AssociationField::new('createdBy', 'label.uploaded_by')->hideOnForm();
         yield DateTimeField::new('createdAt', 'label.created')->hideOnForm();
@@ -138,5 +137,17 @@ final class MediaCrudController extends AbstractCrudController
         $this->mediaTypeResolver->applyTo($entityInstance);
 
         parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    /**
+     * @return array<string, MediaType>
+     */
+    private function mediaTypeChoices(): array
+    {
+        return [
+            $this->translator->trans('label.media_type.image', [], 'content') => MediaType::IMAGE,
+            $this->translator->trans('label.media_type.pdf', [], 'content') => MediaType::PDF,
+            $this->translator->trans('label.media_type.document', [], 'content') => MediaType::DOCUMENT,
+        ];
     }
 }

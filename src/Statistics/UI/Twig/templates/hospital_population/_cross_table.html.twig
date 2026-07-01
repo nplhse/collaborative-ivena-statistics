@@ -69,7 +69,7 @@
                     {% else %}
                         <tr>
                             <td colspan="{{ crossTable.columns|length + 1 }}" class="text-secondary">
-                                {{ 'stats.hospital_population.table.empty'|trans }}
+                                {{ 'stats.hospital_population.table.empty'|trans({}, 'statistics') }}
                             </td>
                         </tr>
                     {% endfor %}

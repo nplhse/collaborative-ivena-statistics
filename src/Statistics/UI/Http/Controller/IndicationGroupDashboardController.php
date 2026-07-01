@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final class IndicationGroupDashboardController extends AbstractController
 {
@@ -50,7 +51,7 @@ final class IndicationGroupDashboardController extends AbstractController
         $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
         if (null !== $publicRedirect) {
             if (null !== $publicRedirect['notice']) {
-                $this->addFlash('error', $publicRedirect['notice']->value);
+                $this->addFlash('error', new TranslatableMessage($publicRedirect['notice']->value, domain: 'statistics'));
             }
 
             $redirectParams = array_merge($publicRedirect['query'], ['groupId' => $groupId]);

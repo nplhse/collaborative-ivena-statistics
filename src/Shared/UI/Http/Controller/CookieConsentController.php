@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final class CookieConsentController extends AbstractController
 {
@@ -62,7 +63,7 @@ final class CookieConsentController extends AbstractController
         $consent = $this->cookieConsentService->resolveForRequest($request, $this->currentUser());
         $monitoring = $request->request->has('monitoring');
         $this->cookieConsentService->applyPreference($consent, $monitoring, $this->currentUser());
-        $this->addFlash('success', 'flash.cookies.updated');
+        $this->addFlash('success', new TranslatableMessage('flash.cookies.updated', domain: 'shared'));
 
         return $this->redirectToRoute('app_cookie_preferences');
     }

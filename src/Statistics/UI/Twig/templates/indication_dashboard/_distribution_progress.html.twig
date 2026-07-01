@@ -1,11 +1,11 @@
 {# Progress rows aligned with stats overview distribution cards #}
 {% if rows is empty %}
-    <p class="text-muted small mb-0">{{ 'stats.indication.distribution.empty'|trans }}</p>
+    <p class="text-muted small mb-0">{{ 'stats.indication.distribution.empty'|trans({}, 'statistics') }}</p>
 {% else %}
     {% for row in rows %}
         <div class="{% if not loop.last %}mb-2{% else %}mb-0{% endif %}">
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="{{ labelClass|default('small') }}">{{ row.labelTranslationKey|trans }}</span>
+                <span class="{{ labelClass|default('small') }}">{{ row.labelTranslationKey|trans({}, statistics_label_domain(row.labelTranslationKey)) }}</span>
                 <span class="text-muted {{ labelClass|default('small') }} text-nowrap ms-2">
                     {{ row.count|number_format(0, ',', '.') }}&nbsp;·&nbsp;{{ row.percent|number_format(1, '.', '') }}%
                 </span>

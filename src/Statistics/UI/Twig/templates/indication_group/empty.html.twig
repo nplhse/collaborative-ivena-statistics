@@ -5,10 +5,10 @@
 {% block page_content %}
     <div class="container-xl py-4">
         <div class="alert alert-info" data-testid="stats-indication-group-empty">
-            {{ 'stats.indication.group.empty'|trans }}
+            {{ 'stats.indication.group.empty'|trans({}, 'statistics') }}
         </div>
         <a href="{{ path('app_stats_indication_insights') }}" class="btn btn-outline-primary">
-            {{ 'link.stats.indication_insights'|trans }}
+            {{ 'link.stats.indication_insights'|trans({}, 'shared') }}
         </a>
     </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% if dashboard.insights is not empty %}
     <div class="card" data-testid="stats-indication-insights">
         <div class="card-header py-2">
-            <h3 class="card-title mb-0">{{ 'stats.indication.newsbit.title'|trans }}</h3>
+            <h3 class="card-title mb-0">{{ 'stats.indication.newsbit.title'|trans({}, 'statistics') }}</h3>
         </div>
         <div class="card-body d-flex flex-column gap-3 py-3">
             {% for insight in dashboard.insights %}
@@ -18,7 +18,7 @@
                                 ratio: insight.ratio,
                                 indicationPercent: insight.indicationPercent,
                                 baselinePercent: insight.baselinePercent,
-                            }) }}
+                            }, 'statistics') }}
                         </p>
                     </div>
                 </div>

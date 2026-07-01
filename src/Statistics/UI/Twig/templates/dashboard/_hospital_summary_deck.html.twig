@@ -5,20 +5,20 @@
 {% set urgency = p.urgency %}
 
 {% if p.showUnscopedHint|default(false) %}
-    <p class="text-muted small mb-3">{{ 'stats.overview.hospital_summary.unscoped_hint'|trans }}</p>
+    <p class="text-muted small mb-3">{{ 'stats.overview.hospital_summary.unscoped_hint'|trans({}, 'statistics') }}</p>
 {% endif %}
 
 <div class="row row-deck row-cards mb-3">
     <div class="col-sm-6 col-lg-4">
         <div class="card">
             <div class="card-body">
-                <div class="subheader">{{ kpi.subheaderTranslationKey|trans }}</div>
+                <div class="subheader">{{ kpi.subheaderTranslationKey|trans({}, 'statistics') }}</div>
                 <div class="h1 mt-2 mb-0">{{ kpi.value|number_format(0, ',', '.') }}</div>
                 <div class="text-muted">
                     {{ kpi.mutedTranslationKey|trans({
                         percent: kpi.percent,
                         total: kpi.totalCount,
-                    }) }}
+                    }, 'statistics') }}
                 </div>
             </div>
         </div>
@@ -29,25 +29,25 @@
         {% if genderLink %}
             <a href="{{ statistics_nav_url(genderLink) }}"
                class="card card-link h-100 text-reset text-decoration-none"
-               aria-label="{{ genderLink.labelTranslationKey|trans }}"
+               aria-label="{{ genderLink.labelTranslationKey|trans({}, 'statistics') }}"
                data-testid="stats-cross-nav-overview-gender">
         {% else %}
             <div class="card">
         {% endif %}
             <div class="card-body">
-                <p class="mb-2">{{ gender.titleTranslationKey|trans }}</p>
+                <p class="mb-2">{{ gender.titleTranslationKey|trans({}, 'statistics') }}</p>
                 <div class="progress progress-separated mb-3">
                     {% for seg in gender.segments %}
                         <div class="progress-bar {{ seg.barClass }}"
                              style="width: {{ seg.percent }}%"
-                             aria-label="{{ seg.labelTranslationKey|trans }}"></div>
+                             aria-label="{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}"></div>
                     {% endfor %}
                 </div>
                 <div class="row">
                     {% for seg in gender.segments %}
                         <div class="col-auto d-flex align-items-center {% if not loop.first %}px-2{% else %}pe-2{% endif %}">
                             <span class="legend me-2 {{ seg.barClass }}"></span>
-                            <span>{{ seg.labelTranslationKey|trans }}</span>
+                            <span>{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}</span>
                             <span class="text-muted ms-2">{{ seg.count|number_format(0, ',', '.') }} ({{ seg.percent }}%)</span>
                         </div>
                     {% endfor %}
@@ -65,25 +65,25 @@
         {% if urgencyLink %}
             <a href="{{ statistics_nav_url(urgencyLink) }}"
                class="card card-link h-100 text-reset text-decoration-none"
-               aria-label="{{ urgencyLink.labelTranslationKey|trans }}"
+               aria-label="{{ urgencyLink.labelTranslationKey|trans({}, 'statistics') }}"
                data-testid="stats-cross-nav-overview-urgency">
         {% else %}
             <div class="card">
         {% endif %}
             <div class="card-body">
-                <p class="mb-2">{{ urgency.titleTranslationKey|trans }}</p>
+                <p class="mb-2">{{ urgency.titleTranslationKey|trans({}, 'statistics') }}</p>
                 <div class="progress progress-separated mb-3">
                     {% for seg in urgency.segments %}
                         <div class="progress-bar {{ seg.barClass }}"
                              style="width: {{ seg.percent }}%"
-                             aria-label="{{ seg.labelTranslationKey|trans }}"></div>
+                             aria-label="{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}"></div>
                     {% endfor %}
                 </div>
                 <div class="row">
                     {% for seg in urgency.segments %}
                         <div class="col-auto d-flex align-items-center {% if not loop.first %}px-2{% else %}pe-2{% endif %}">
                             <span class="legend me-2 {{ seg.barClass }}"></span>
-                            <span>{{ seg.labelTranslationKey|trans }}</span>
+                            <span>{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}</span>
                             <span class="text-muted ms-2">{{ seg.count|number_format(0, ',', '.') }} ({{ seg.percent }}%)</span>
                         </div>
                     {% endfor %}

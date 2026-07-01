@@ -202,7 +202,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             $count = $this->tabCount($key, $user);
             $tabs[] = [
                 'key' => $key,
-                'label' => $this->translator->trans($labelKey),
+                'label' => $this->translator->trans($labelKey, [], 'statistics'),
                 'active' => $key === $activeTab,
                 'url' => $this->router->generate('app_stats_analysis_library', $this->tabQuery($request, $key)),
                 ...null !== $count ? ['count' => $count] : [],
@@ -232,7 +232,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     {
         $filters = [[
             'key' => '',
-            'label' => $this->translator->trans('stats.analysis_explorer.library.category.all'),
+            'label' => $this->translator->trans('stats.analysis_explorer.library.category.all', [], 'statistics'),
             'active' => null === $activeCategory,
             'url' => $this->router->generate('app_stats_analysis_library', $this->allTabQuery($request)),
         ]];
@@ -315,8 +315,8 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             'chartType' => $this->chartTypeLabel((string) ($presentation['chartType'] ?? '')),
             'isSystem' => $view->isSystem(),
             'viewTypeLabel' => $view->isSystem()
-                ? $this->translator->trans('stats.analysis_explorer.view_type.system')
-                : $this->translator->trans('stats.analysis_explorer.view_type.user'),
+                ? $this->translator->trans('stats.analysis_explorer.view_type.system', [], 'statistics')
+                : $this->translator->trans('stats.analysis_explorer.view_type.user', [], 'statistics'),
             'categoryKey' => $categoryKey,
             'categoryLabel' => $categoryLabel,
             'categoryUrl' => $view->isSystem()
@@ -378,7 +378,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     {
         $key = $this->categoryKey($category);
 
-        return $this->translator->trans('stats.analysis_explorer.library.category.'.$key);
+        return $this->translator->trans('stats.analysis_explorer.library.category.'.$key, [], 'statistics');
     }
 
     private function dimensionLabel(string $dimension): string
@@ -389,7 +389,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
 
         $key = 'stats.analysis_explorer.dimension.'.$dimension;
 
-        return $this->translator->trans($key);
+        return $this->translator->trans($key, [], 'statistics');
     }
 
     private function grainLabel(string $grain): string
@@ -399,9 +399,9 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         }
 
         return match ($grain) {
-            'month' => $this->translator->trans('stats.analysis_explorer.dimension.month'),
-            'year' => $this->translator->trans('stats.analysis_explorer.dimension.year'),
-            'total' => $this->translator->trans('stats.analysis_explorer.grain.total'),
+            'month' => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
+            'year' => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
+            'total' => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
             default => $grain,
         };
     }
@@ -414,6 +414,6 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
 
         $key = 'stats.analysis_explorer.chart.'.$chartType;
 
-        return $this->translator->trans($key);
+        return $this->translator->trans($key, [], 'statistics');
     }
 }

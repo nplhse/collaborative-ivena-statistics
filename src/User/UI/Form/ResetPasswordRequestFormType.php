@@ -20,6 +20,7 @@ final class ResetPasswordRequestFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('email', EmailType::class, [
+            'label' => 'label.email_address',
             'constraints' => [
                 new NotBlank(),
                 new Email(),
@@ -31,6 +32,7 @@ final class ResetPasswordRequestFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            'translation_domain' => 'user',
             'data_class' => null,
         ]);
     }

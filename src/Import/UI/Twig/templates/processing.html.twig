@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.import.processing'|trans }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.import.processing'|trans({}, 'import') }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
@@ -23,7 +23,7 @@
                     data-import-status-initial-interval-value="1000"
                     data-import-status-max-interval-value="15000"
                     data-import-status-start-polling-value="{{ startPolling ? 'true' : 'false' }}"
-                    data-import-status-processing-hint-value="{{ 'import.processing.hint'|trans }}"
+                    data-import-status-processing-hint-value="{{ 'import.processing.hint'|trans({}, 'import') }}"
                     data-import-status-status-payload-value="{{ statusView|json_encode|e('html_attr') }}"
                 >
                     <div class="row g-3 g-md-4 align-items-start">
@@ -66,7 +66,7 @@
                                         {% endif %}
                                     </div>
                                     <p data-import-status-target="hint" class="text-muted mb-3">
-                                        {{ import.isFinalStatus ? statusView.message : 'import.processing.hint'|trans }}
+                                        {{ import.isFinalStatus ? statusView.message : 'import.processing.hint'|trans({}, 'import') }}
                                     </p>
                                     <div
                                         data-import-status-target="activityBlock"
@@ -96,7 +96,7 @@
                                     </div>
 
                                     <div data-import-status-target="error" class="alert alert-warning d-none mb-3" role="alert">
-                                        {{ 'import.processing.error'|trans }}
+                                        {{ 'import.processing.error'|trans({}, 'import') }}
                                     </div>
 
                                     <a
@@ -105,7 +105,7 @@
                                         class="btn btn-primary {{ startPolling ? 'd-none' : '' }}"
                                     >
                                         <twig:ux:icon name="tabler:eye" class="w-3 h-3" />&nbsp;
-                                        {{ 'import.processing.view_detail'|trans }}
+                                        {{ 'import.processing.view_detail'|trans({}, 'import') }}
                                     </a>
                                 </div>
                             </div>

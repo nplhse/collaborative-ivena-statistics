@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('ROLE_PARTICIPANT')]
 final class DeleteHospitalAccessGrantController extends AbstractController
@@ -50,7 +51,7 @@ final class DeleteHospitalAccessGrantController extends AbstractController
             $this->auditContext->endIntent();
         }
 
-        $this->addFlash('success', 'flash.hospital_access_grant.deleted');
+        $this->addFlash('success', new TranslatableMessage('flash.hospital_access_grant.deleted', domain: 'allocation'));
 
         return $this->redirectToRoute('app_hospitals_edit_access', ['id' => $hospital->getId()]);
     }

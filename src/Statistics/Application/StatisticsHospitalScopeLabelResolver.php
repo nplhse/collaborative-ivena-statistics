@@ -19,9 +19,9 @@ final readonly class StatisticsHospitalScopeLabelResolver
     public function groupLabel(?User $user, ?string $locale = null): string
     {
         if ($user instanceof User && $this->hospitalAccess->isAdminHospitalScopeUser($user)) {
-            return $this->translator->trans('stats.filter.scope.hospitals', [], null, $locale);
+            return $this->translator->trans('stats.filter.scope.hospitals', [], 'statistics', $locale);
         }
 
-        return $this->translator->trans('stats.filter.scope.my_hospitals', [], null, $locale);
+        return $this->translator->trans('stats.filter.scope.my_hospitals', [], 'statistics', $locale);
     }
 }

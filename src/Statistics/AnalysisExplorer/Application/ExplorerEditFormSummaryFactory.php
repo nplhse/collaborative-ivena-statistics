@@ -25,6 +25,7 @@ final readonly class ExplorerEditFormSummaryFactory
         private StatisticsFilterFactory $statisticsFilterFactory,
         private AnalysisAxisResolver $axisResolver,
         private ExplorerColumnGrainResolver $columnGrainResolver,
+        private ExplorerMetricProfileRegistry $metricProfileRegistry,
     ) {
     }
 
@@ -46,7 +47,7 @@ final readonly class ExplorerEditFormSummaryFactory
             $capabilities,
         );
 
-        $columnLabel = $this->translator->trans('stats.analysis_explorer.edit.structure_no_columns');
+        $columnLabel = $this->translator->trans('stats.analysis_explorer.edit.structure_no_columns', [], 'statistics');
         if (null !== $formData->columnDimension && self::NONE_COLUMN !== $formData->columnDimension) {
             $columnDimension = AnalysisDimensionKey::tryFrom($formData->columnDimension);
             if ($columnDimension instanceof AnalysisDimensionKey) {
@@ -75,15 +76,25 @@ final readonly class ExplorerEditFormSummaryFactory
         return [
             'row' => $this->axisLabel($rowAxis),
             'column' => $columnLabel,
-            'metric' => $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value),
+            'metric' => $this->metricLabel($metricKey),
         ];
+    }
+
+    private function metricLabel(AnalysisMetricKey $metricKey): string
+    {
+        $profile = $this->metricProfileRegistry->profileFor($metricKey);
+        if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
+            return $this->translator->trans($profile->labelTranslationKey, [], 'statistics');
+        }
+
+        return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value, [], 'statistics');
     }
 
     private function axisLabel(AnalysisAxisRef $axis): string
     {
         $dimensionLabel = $axis->dimensionKey->isTemporalPrimary()
-            ? $this->translator->trans('stats.analysis_explorer.dimension.time')
-            : $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value);
+            ? $this->translator->trans('stats.analysis_explorer.dimension.time', [], 'statistics')
+            : $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value, [], 'statistics');
 
         $grain = $axis->resolvedGrain();
         if (AnalysisDimensionKey::Time !== $axis->dimensionKey && AnalysisDimensionGrain::Total === $grain) {
@@ -93,17 +104,17 @@ final readonly class ExplorerEditFormSummaryFactory
         return $this->translator->trans('stats.analysis_explorer.edit.structure_axis_with_grain', [
             'dimension' => $dimensionLabel,
             'grain' => $this->grainLabel($grain),
-        ]);
+        ], 'statistics');
     }
 
     private function grainLabel(AnalysisDimensionGrain $grain): string
     {
         return match ($grain) {
-            AnalysisDimensionGrain::Month => $this->translator->trans('stats.analysis_explorer.dimension.month'),
-            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
-            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
-            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
-            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total'),
+            AnalysisDimensionGrain::Month => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
+            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
         };
     }
 }

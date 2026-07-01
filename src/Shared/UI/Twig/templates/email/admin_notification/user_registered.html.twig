@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="color-scheme" content="light dark"/>
     <meta name="supported-color-schemes" content="light dark"/>
-    <title>{{ 'admin_notification.email.user_registered.title'|trans }}</title>
+    <title>{{ 'admin_notification.email.user_registered.title'|trans({}, 'admin') }}</title>
 </head>
 <body style="margin:0;padding:0;background-color:{{ pageBg }};font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:1.6;color:{{ fg }};-webkit-font-smoothing:antialiased;">
 <center role="presentation" style="width:100%;background-color:{{ pageBg }};">
@@ -24,33 +24,33 @@
                         <tr>
                             <td align="center" style="padding:40px 32px 0;">
                                 <h1 style="margin:0;text-align:center;font-size:26px;line-height:1.26;color:{{ fgHeading }};font-weight:600;">
-                                    {{ 'admin_notification.email.user_registered.heading'|trans }}
+                                    {{ 'admin_notification.email.user_registered.heading'|trans({}, 'admin') }}
                                 </h1>
                             </td>
                         </tr>
                         <tr>
                             <td style="padding:32px;">
-                                <p style="margin:0 0 16px;">{{ 'admin_notification.email.user_registered.intro'|trans }}</p>
+                                <p style="margin:0 0 16px;">{{ 'admin_notification.email.user_registered.intro'|trans({}, 'admin') }}</p>
                                 <div style="font-size:13px;line-height:1.5;color:{{ fg }};margin-bottom:24px;">
-                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.username'|trans }}:</strong>
+                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.username'|trans({}, 'admin') }}:</strong>
                                     {{ username }}<br/>
-                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.email'|trans }}:</strong>
+                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.email'|trans({}, 'admin') }}:</strong>
                                     {{ userEmail }}<br/>
-                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.registered_at'|trans }}:</strong>
+                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.registered_at'|trans({}, 'admin') }}:</strong>
                                     {{ registeredAt|date('d.m.Y H:i', 'Europe/Berlin') }}
                                 </div>
                                 <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
                                     <tr>
                                         <td style="padding-bottom:12px;">
                                             <a href="{{ userManagementUrl }}" style="display:inline-block;background-color:{{ link }};color:#ffffff;text-decoration:none;font-weight:500;font-size:15px;border-radius:4px;padding:12px 24px;">
-                                                {{ 'admin_notification.email.user_registered.action.manage'|trans }}
+                                                {{ 'admin_notification.email.user_registered.action.manage'|trans({}, 'admin') }}
                                             </a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <a href="{{ grantParticipantUrl }}" style="display:inline-block;background-color:#16a34a;color:#ffffff;text-decoration:none;font-weight:500;font-size:15px;border-radius:4px;padding:12px 24px;">
-                                                {{ 'admin_notification.email.user_registered.action.grant_participant'|trans }}
+                                                {{ 'admin_notification.email.user_registered.action.grant_participant'|trans({}, 'admin') }}
                                             </a>
                                         </td>
                                     </tr>
@@ -60,7 +60,7 @@
                     </table>
                 </div>
                 <div style="text-align:center;margin-top:20px;font-size:12px;color:#8491a1;">
-                    {{ 'email.footer.transactional'|trans({app: app_title}) }}
+                    {{ 'email.footer.transactional'|trans(({app: app_title}), 'user') }}
                 </div>
             </td>
         </tr>

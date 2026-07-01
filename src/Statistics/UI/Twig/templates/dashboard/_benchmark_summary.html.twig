@@ -2,23 +2,23 @@
     <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header py-2 d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0">{{ 'stats.overview.executive.section.benchmark'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.overview.executive.section.benchmark'|trans({}, 'statistics') }}</h3>
                 <a href="{{ executiveDashboard.benchmarkingUrl }}" class="small">
-                    {{ 'stats.overview.executive.benchmark.link'|trans }}
+                    {{ 'stats.overview.executive.benchmark.link'|trans({}, 'statistics') }}
                 </a>
             </div>
             <div class="card-body">
                 {% if executiveDashboard.benchmarkInsufficientData %}
-                    <p class="text-muted mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans }}</p>
+                    <p class="text-muted mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans({}, 'statistics') }}</p>
                 {% else %}
                     <div class="row g-2">
                         {% for item in executiveDashboard.benchmarkScorecard %}
                             {% set statusClass = item.status == 'above' ? 'bg-orange-lt' : (item.status == 'below' ? 'bg-red-lt' : 'bg-green-lt') %}
                             <div class="col-sm-6">
                                 <div class="border rounded p-3 h-100" data-testid="stats-executive-benchmark-{{ item.key }}">
-                                    <div class="subheader small">{{ item.labelTranslationKey|trans }}</div>
+                                    <div class="subheader small">{{ item.labelTranslationKey|trans({}, 'statistics') }}</div>
                                     <div class="h3 mb-2">{{ item.displayValue }}</div>
-                                    <span class="badge {{ statusClass }}">{{ item.statusLabelTranslationKey|trans }}</span>
+                                    <span class="badge {{ statusClass }}">{{ item.statusLabelTranslationKey|trans({}, 'statistics') }}</span>
                                 </div>
                             </div>
                         {% endfor %}
@@ -30,13 +30,13 @@
     <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header py-2">
-                <h3 class="card-title mb-0">{{ 'stats.overview.executive.section.deviations'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.overview.executive.section.deviations'|trans({}, 'statistics') }}</h3>
             </div>
             <div class="card-body">
                 {% if executiveDashboard.benchmarkInsufficientData or executiveDashboard.benchmarkSuppressRatios %}
-                    <p class="text-muted mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans }}</p>
+                    <p class="text-muted mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans({}, 'statistics') }}</p>
                 {% else %}
-                    <p class="text-muted small mb-2">{{ 'stats.overview.executive.benchmark.positive'|trans }}</p>
+                    <p class="text-muted small mb-2">{{ 'stats.overview.executive.benchmark.positive'|trans({}, 'statistics') }}</p>
                     <ul class="list-unstyled mb-3">
                         {% for deviation in executiveDashboard.benchmarkDeviations.positive %}
                             <li class="d-flex justify-content-between gap-2 mb-1">
@@ -53,7 +53,7 @@
                             <li class="text-muted">—</li>
                         {% endfor %}
                     </ul>
-                    <p class="text-muted small mb-2">{{ 'stats.overview.executive.benchmark.negative'|trans }}</p>
+                    <p class="text-muted small mb-2">{{ 'stats.overview.executive.benchmark.negative'|trans({}, 'statistics') }}</p>
                     <ul class="list-unstyled mb-0">
                         {% for deviation in executiveDashboard.benchmarkDeviations.negative %}
                             <li class="d-flex justify-content-between gap-2 mb-1">

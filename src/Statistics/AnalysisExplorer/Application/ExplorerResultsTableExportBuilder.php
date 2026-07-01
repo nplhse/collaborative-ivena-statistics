@@ -59,7 +59,7 @@ final readonly class ExplorerResultsTableExportBuilder
             if ($showPercent && $this->summabilityPolicy->supportsPercentShare($metricKey)) {
                 $headers[] = new TabularExportColumn(
                     $this->flatPercentColumnKey($metricKey, $countMetric),
-                    $this->translator->trans('stats.analysis_explorer.export.percent_of_total'),
+                    $this->translator->trans('stats.analysis_explorer.export.percent_of_total', [], 'statistics'),
                 );
             }
         }
@@ -115,7 +115,7 @@ final readonly class ExplorerResultsTableExportBuilder
         foreach ($tableColumns as $column) {
             $headers[] = new TabularExportColumn(
                 $column->value,
-                $this->translator->trans($column->labelTranslationKey()),
+                $this->translator->trans($column->labelTranslationKey(), [], 'statistics'),
             );
         }
 
@@ -144,7 +144,7 @@ final readonly class ExplorerResultsTableExportBuilder
             return $this->axisLabel($result->columnAxis);
         }
 
-        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population');
+        return $this->translator->trans('stats.analysis_explorer.edit.hospital_population', [], 'statistics');
     }
 
     private function rawBoxPlotColumnValue(BoxPlotTableColumn $column, ?\App\Statistics\AnalysisExplorer\Domain\DTO\BoxPlotStats $boxPlot): int|float|null
@@ -177,7 +177,7 @@ final readonly class ExplorerResultsTableExportBuilder
             if ($showPercent) {
                 $headers[] = new TabularExportColumn(
                     $colKey.'_percent',
-                    $matrix->columnLabels[$colKey].' '.$this->translator->trans('stats.analysis_explorer.export.percent_of_row'),
+                    $matrix->columnLabels[$colKey].' '.$this->translator->trans('stats.analysis_explorer.export.percent_of_row', [], 'statistics'),
                 );
             }
         }
@@ -185,7 +185,7 @@ final readonly class ExplorerResultsTableExportBuilder
         if ($showPercent) {
             $headers[] = new TabularExportColumn(
                 'total_percent',
-                $this->totalLabel().' '.$this->translator->trans('stats.analysis_explorer.export.percent_of_total'),
+                $this->totalLabel().' '.$this->translator->trans('stats.analysis_explorer.export.percent_of_total', [], 'statistics'),
             );
         }
 
@@ -251,14 +251,14 @@ final readonly class ExplorerResultsTableExportBuilder
         ));
         $headers = [
             new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
-            new TabularExportColumn('metric', $this->translator->trans('stats.analysis_explorer.table.metric')),
+            new TabularExportColumn('metric', $this->translator->trans('stats.analysis_explorer.table.metric', [], 'statistics')),
         ];
         foreach ($matrix->orderedColumnKeys as $colKey) {
             $headers[] = new TabularExportColumn($colKey, $matrix->columnLabels[$colKey]);
             if ($showPercent) {
                 $headers[] = new TabularExportColumn(
                     $colKey.'_percent',
-                    $matrix->columnLabels[$colKey].' '.$this->translator->trans('stats.analysis_explorer.export.percent_of_row'),
+                    $matrix->columnLabels[$colKey].' '.$this->translator->trans('stats.analysis_explorer.export.percent_of_row', [], 'statistics'),
                 );
             }
         }
@@ -308,17 +308,17 @@ final readonly class ExplorerResultsTableExportBuilder
             return $this->temporalDimensionLabel($axis->resolvedGrain());
         }
 
-        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value);
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value, [], 'statistics');
     }
 
     private function temporalDimensionLabel(AnalysisDimensionGrain $grain): string
     {
         return match ($grain) {
-            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
-            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
-            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
-            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total'),
-            default => $this->translator->trans('stats.analysis_explorer.dimension.month'),
+            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
+            default => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
         };
     }
 
@@ -326,15 +326,15 @@ final readonly class ExplorerResultsTableExportBuilder
     {
         $profile = $this->profileRegistry->profileFor($metricKey);
         if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
-            return $this->translator->trans($profile->labelTranslationKey);
+            return $this->translator->trans($profile->labelTranslationKey, [], 'statistics');
         }
 
-        return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value);
+        return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value, [], 'statistics');
     }
 
     private function totalLabel(): string
     {
-        return $this->translator->trans('stats.analysis_explorer.table.footer_total');
+        return $this->translator->trans('stats.analysis_explorer.table.footer_total', [], 'statistics');
     }
 
     private function countMetricForPercent(AnalysisRunResult $result): ?AnalysisMetricKey

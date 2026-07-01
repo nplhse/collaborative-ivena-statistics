@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('ROLE_PARTICIPANT')]
 final class EditOwnedHospitalController extends AbstractController
@@ -68,7 +69,7 @@ final class EditOwnedHospitalController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->addFlash('success', 'flash.hospital.updated');
+            $this->addFlash('success', new TranslatableMessage('flash.hospital.updated', domain: 'allocation'));
 
             return $this->redirectToRoute('app_explore_hospital_show', ['id' => $hospital->getId()]);
         }

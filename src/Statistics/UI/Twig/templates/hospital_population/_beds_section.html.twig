@@ -5,21 +5,21 @@
     <div class="col-lg-8 d-flex flex-column gap-3">
         <div class="card">
             <div class="card-header py-2">
-                <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.beds_boxplot_tier'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.beds_boxplot_tier'|trans({}, 'statistics') }}</h3>
             </div>
             <div class="card-body pt-2">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="d-flex align-items-center gap-2 small text-secondary mb-2">
                             <span class="d-inline-block rounded-circle stats-hp-beds-legend-population"></span>
-                            {{ 'stats.hospital_population.table.population'|trans }}
+                            {{ 'stats.hospital_population.table.population'|trans({}, 'statistics') }}
                         </div>
                         <div class="chart-lg" data-hospital-population-charts-target="bedsCareLevelPopulationBoxPlot"></div>
                     </div>
                     <div class="col-md-6">
                         <div class="d-flex align-items-center gap-2 small text-secondary mb-2">
                             <span class="d-inline-block rounded-circle stats-hp-beds-legend-participants"></span>
-                            {{ 'stats.hospital_population.table.participants'|trans }}
+                            {{ 'stats.hospital_population.table.participants'|trans({}, 'statistics') }}
                         </div>
                         <div class="chart-lg" data-hospital-population-charts-target="bedsCareLevelParticipantsBoxPlot"></div>
                     </div>
@@ -28,21 +28,21 @@
         </div>
         <div class="card">
             <div class="card-header py-2">
-                <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.beds_boxplot_location'|trans }}</h3>
+                <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.beds_boxplot_location'|trans({}, 'statistics') }}</h3>
             </div>
             <div class="card-body pt-2">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="d-flex align-items-center gap-2 small text-secondary mb-2">
                             <span class="d-inline-block rounded-circle stats-hp-beds-legend-population"></span>
-                            {{ 'stats.hospital_population.table.population'|trans }}
+                            {{ 'stats.hospital_population.table.population'|trans({}, 'statistics') }}
                         </div>
                         <div class="chart-lg" data-hospital-population-charts-target="bedsLocationPopulationBoxPlot"></div>
                     </div>
                     <div class="col-md-6">
                         <div class="d-flex align-items-center gap-2 small text-secondary mb-2">
                             <span class="d-inline-block rounded-circle stats-hp-beds-legend-participants"></span>
-                            {{ 'stats.hospital_population.table.participants'|trans }}
+                            {{ 'stats.hospital_population.table.participants'|trans({}, 'statistics') }}
                         </div>
                         <div class="chart-lg" data-hospital-population-charts-target="bedsLocationParticipantsBoxPlot"></div>
                     </div>

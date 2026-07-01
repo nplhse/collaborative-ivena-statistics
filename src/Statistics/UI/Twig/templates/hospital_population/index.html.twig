@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.hospital_population.title'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ 'stats.hospital_population.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -20,8 +20,8 @@
         <div class="page-header d-print-none mb-0">
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
-                    <div class="page-pretitle">{{ 'stats.hospital_population.pretitle'|trans }}</div>
-                    <h2 class="page-title mb-0" data-testid="stats-hospital-population-heading">{{ 'stats.hospital_population.title'|trans }}</h2>
+                    <div class="page-pretitle">{{ 'stats.hospital_population.pretitle'|trans({}, 'statistics') }}</div>
+                    <h2 class="page-title mb-0" data-testid="stats-hospital-population-heading">{{ 'stats.hospital_population.title'|trans({}, 'statistics') }}</h2>
                 </div>
             </div>
         </div>

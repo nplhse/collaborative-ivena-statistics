@@ -27,10 +27,10 @@
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <div class="page-pretitle" data-testid="stats-heading-subtitle">
-                        {{ 'stats.overview.pretitle'|trans }}
+                        {{ 'stats.overview.pretitle'|trans({}, 'statistics') }}
                     </div>
                     <h2 class="page-title" data-testid="stats-heading-title">
-                        {{ 'link.stats.dashboard'|trans }}
+                        {{ 'link.stats.dashboard'|trans({}, 'shared') }}
                     </h2>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}

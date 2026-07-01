@@ -35,7 +35,7 @@ final readonly class ExplorerDescriptionFactory
         if (!$columnAxis instanceof AnalysisAxisRef && $rowAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.description.temporal_primary', [
                 'grain' => $this->grainLabel($rowAxis->resolvedGrain()),
-            ]);
+            ], 'statistics');
         }
 
         if ($columnAxis instanceof AnalysisAxisRef && $rowAxis->dimensionKey->isTemporalPrimary()) {
@@ -46,34 +46,34 @@ final readonly class ExplorerDescriptionFactory
                 ),
                 'grain' => $this->grainLabel($rowAxis->resolvedGrain()),
                 'chart' => $this->chartLabel($chartType),
-            ]);
+            ], 'statistics');
         }
 
         if ($columnAxis instanceof AnalysisAxisRef && $columnAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.description.breakdown_by_temporal', [
                 'dimension' => $this->titleFactory->titleForAxes($rowAxis, null),
                 'temporal' => $this->grainLabel($columnAxis->resolvedGrain()),
-            ]);
+            ], 'statistics');
         }
 
         return $this->translator->trans('stats.analysis_explorer.description.breakdown_total', [
             'dimension' => $this->titleFactory->titleForAxes($rowAxis, null),
-        ]);
+        ], 'statistics');
     }
 
     private function grainLabel(AnalysisDimensionGrain $grain): string
     {
         return match ($grain) {
-            AnalysisDimensionGrain::Month => $this->translator->trans('stats.analysis_explorer.description.grain.month'),
-            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.description.grain.year'),
-            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
-            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
-            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total'),
+            AnalysisDimensionGrain::Month => $this->translator->trans('stats.analysis_explorer.description.grain.month', [], 'statistics'),
+            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.description.grain.year', [], 'statistics'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
         };
     }
 
     private function chartLabel(ChartPresentationType $chartType): string
     {
-        return $this->translator->trans('stats.analysis_explorer.chart.'.$chartType->value);
+        return $this->translator->trans('stats.analysis_explorer.chart.'.$chartType->value, [], 'statistics');
     }
 }

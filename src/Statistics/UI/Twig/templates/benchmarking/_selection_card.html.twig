@@ -6,7 +6,7 @@
     sideATestId: 'stats-benchmark-primary-scope',
     sideASubheadingTestId: 'stats-benchmark-primary-period',
     sideACount: report.header.primaryTotal,
-    sideACountLabel: 'stats.benchmark.cases'|trans({count: report.header.primaryTotal}),
+    sideACountLabel: 'stats.benchmark.cases'|trans(({count: report.header.primaryTotal}), 'statistics'),
     sideACountTestId: 'stats-benchmark-primary-cases',
     sideBTitleKey: 'stats.benchmark.comparison.label',
     sideBHeading: report.header.comparisonScopeLabel,
@@ -14,6 +14,6 @@
     sideBTestId: 'stats-benchmark-comparison-scope',
     sideBSubheadingTestId: 'stats-benchmark-comparison-period',
     sideBCount: report.header.comparisonTotal,
-    sideBCountLabel: 'stats.benchmark.cases'|trans({count: report.header.comparisonTotal}),
+    sideBCountLabel: 'stats.benchmark.cases'|trans(({count: report.header.comparisonTotal}), 'statistics'),
     sideBCountTestId: 'stats-benchmark-comparison-cases',
 }) }}

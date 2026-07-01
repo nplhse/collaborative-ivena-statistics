@@ -3,18 +3,18 @@
         {{ include('@Statistics/indication_group/_group_picker.html.twig') }}
 
         <div class="mt-3 pt-3 border-top" data-testid="stats-indication-insights-top-groups-table">
-            <h3 class="h5 mb-2">{{ 'stats.indication.insights.index.top_groups_title'|trans }}</h3>
+            <h3 class="h5 mb-2">{{ 'stats.indication.insights.index.top_groups_title'|trans({}, 'statistics') }}</h3>
             {% if topGroupRows is empty %}
-                <p class="text-muted small mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+                <p class="text-muted small mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
             {% else %}
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>{{ 'stats.reports.table.rank'|trans }}</th>
-                                <th>{{ 'stats.indication.group.picker_label'|trans }}</th>
-                                <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
-                                <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
+                                <th>{{ 'stats.reports.table.rank'|trans({}, 'statistics') }}</th>
+                                <th>{{ 'stats.indication.group.picker_label'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.reports.table.count'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.reports.table.share'|trans({}, 'statistics') }}</th>
                             </tr>
                         </thead>
                         <tbody>

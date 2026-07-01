@@ -18,19 +18,19 @@
                     <div class="form-fieldset-header">
                         <div class="form-fieldset-title">
                             <span class="not-collapsible form-fieldset-title-content">
-                                {{ 'label.media_usage'|trans }}
+                                {{ 'label.media_usage'|trans({}, 'content') }}
                             </span>
                         </div>
                     </div>
                     <div class="form-fieldset-body show">
                         <div class="media-detail-usage__snippet">
                             <div class="media-detail-usage__toolbar">
-                                <label for="media-snippet">{{ 'label.html_snippet'|trans }}</label>
+                                <label for="media-snippet">{{ 'label.html_snippet'|trans({}, 'messages') }}</label>
                                 <button type="button"
                                         class="btn btn-sm btn-outline-secondary media-detail-usage__copy"
                                         id="media-snippet-copy"
-                                        title="{{ 'action.copy_snippet'|trans }}"
-                                        aria-label="{{ 'action.copy_snippet'|trans }}">
+                                        title="{{ 'action.copy_snippet'|trans({}, 'messages') }}"
+                                        aria-label="{{ 'action.copy_snippet'|trans({}, 'messages') }}">
                                     <twig:ux:icon name="tabler:clipboard" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--default w-4 h-4" />
                                     <twig:ux:icon name="tabler:check" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--success w-4 h-4 d-none" />
                                 </button>
@@ -43,11 +43,11 @@
 
                         {% if media.type.value == 'image' %}
                             <div class="alert alert-secondary media-detail-usage__hint mt-3 mb-0">
-                                <p class="media-detail-usage__hint-title mb-2">{{ 'help.media.image_layout.title'|trans }}</p>
+                                <p class="media-detail-usage__hint-title mb-2">{{ 'help.media.image_layout.title'|trans({}, 'content') }}</p>
                                 <ul>
-                                    <li>{{ 'help.media.image_layout.size'|trans }}</li>
-                                    <li>{{ 'help.media.image_layout.float'|trans }}</li>
-                                    <li>{{ 'help.media.image_layout.mobile'|trans }}</li>
+                                    <li>{{ 'help.media.image_layout.size'|trans({}, 'content') }}</li>
+                                    <li>{{ 'help.media.image_layout.float'|trans({}, 'content') }}</li>
+                                    <li>{{ 'help.media.image_layout.mobile'|trans({}, 'content') }}</li>
                                 </ul>
                             </div>
                         {% endif %}

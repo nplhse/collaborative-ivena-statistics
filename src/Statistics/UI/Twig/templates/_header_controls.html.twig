@@ -13,7 +13,7 @@
                     data-bs-target="#{{ statsCompareLaunchModalId|default('stats-indication-compare-launch-modal') }}"
                     data-testid="stats-indication-compare-launch-button">
                 <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
-                {{ 'stats.indication.compare.with'|trans }}
+                {{ 'stats.indication.compare.with'|trans({}, 'statistics') }}
             </button>
         {% endif %}
 
@@ -24,7 +24,7 @@
                     data-bs-target="#stats-indication-compare-edit-modal"
                     data-testid="stats-indication-compare-edit-button">
                 <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
-                {{ 'stats.indication.compare.edit'|trans }}
+                {{ 'stats.indication.compare.edit'|trans({}, 'statistics') }}
             </button>
         {% endif %}
 
@@ -46,11 +46,11 @@
                     {{ activePeriodLabel }}
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item{% if statisticsFilter.period.value == 'all' %} active{% endif %}" href="{{ statsPeriodUrls.all }}">{{ 'stats.filter.period.all'|trans }}</a>
-                    <a class="dropdown-item{% if statisticsFilter.period.value == 'all_time' %} active{% endif %}" href="{{ statsPeriodUrls.all_time }}">{{ 'stats.filter.period.all_time'|trans }}</a>
-                    <a class="dropdown-item{% if statisticsFilter.period.value == 'year' %} active{% endif %}" href="{{ statsPeriodUrls.year }}">{{ 'stats.filter.period.year'|trans }}</a>
-                    <a class="dropdown-item{% if statisticsFilter.period.value == 'quarter' %} active{% endif %}" href="{{ statsPeriodUrls.quarter|default('#') }}">{{ 'stats.filter.period.quarter'|trans }}</a>
-                    <a class="dropdown-item{% if statisticsFilter.period.value == 'month' %} active{% endif %}" href="{{ statsPeriodUrls.month }}">{{ 'stats.filter.period.month'|trans }}</a>
+                    <a class="dropdown-item{% if statisticsFilter.period.value == 'all' %} active{% endif %}" href="{{ statsPeriodUrls.all }}">{{ 'stats.filter.period.all'|trans({}, 'statistics') }}</a>
+                    <a class="dropdown-item{% if statisticsFilter.period.value == 'all_time' %} active{% endif %}" href="{{ statsPeriodUrls.all_time }}">{{ 'stats.filter.period.all_time'|trans({}, 'statistics') }}</a>
+                    <a class="dropdown-item{% if statisticsFilter.period.value == 'year' %} active{% endif %}" href="{{ statsPeriodUrls.year }}">{{ 'stats.filter.period.year'|trans({}, 'statistics') }}</a>
+                    <a class="dropdown-item{% if statisticsFilter.period.value == 'quarter' %} active{% endif %}" href="{{ statsPeriodUrls.quarter|default('#') }}">{{ 'stats.filter.period.quarter'|trans({}, 'statistics') }}</a>
+                    <a class="dropdown-item{% if statisticsFilter.period.value == 'month' %} active{% endif %}" href="{{ statsPeriodUrls.month }}">{{ 'stats.filter.period.month'|trans({}, 'statistics') }}</a>
                 </div>
             </div>
         {% endif %}

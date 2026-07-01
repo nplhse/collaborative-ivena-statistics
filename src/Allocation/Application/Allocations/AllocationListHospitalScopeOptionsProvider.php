@@ -38,7 +38,7 @@ final readonly class AllocationListHospitalScopeOptionsProvider
         return [
             'scopeLabel' => $this->hospitalScopeLabelResolver->groupLabel($user, $locale),
             'hospitals' => $hospitals,
-            'allClinicsLabel' => $this->translator->trans('label.import.filter.all_hospitals', [], null, $locale),
+            'allClinicsLabel' => $this->translator->trans('label.import.filter.all_hospitals', [], 'import', $locale),
         ];
     }
 }

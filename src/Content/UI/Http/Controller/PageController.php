@@ -34,7 +34,7 @@ final class PageController extends AbstractController
         }
 
         if (!$this->pageAccessChecker->canView($page)) {
-            throw $this->createAccessDeniedException($this->translator->trans('error.page.auth_required'));
+            throw $this->createAccessDeniedException($this->translator->trans('error.page.auth_required', [], 'errors'));
         }
 
         return $this->render('@Content/page/show.html.twig', [
@@ -46,7 +46,7 @@ final class PageController extends AbstractController
     }
 
     /**
-     * @return list<array{label: string, path?: string}>
+     * @return list<array{label: string, path?: string, translatable: false}>
      */
     private function buildBreadcrumbItems(Page $page): array
     {
@@ -64,17 +64,17 @@ final class PageController extends AbstractController
         foreach ($trail as $index => $trailPage) {
             $title = (string) $trailPage->getTitle();
             if ('' === $title) {
-                $title = $this->translator->trans('page.breadcrumb.untitled');
+                $title = $this->translator->trans('page.breadcrumb.untitled', [], 'content');
             }
 
             if ($index === $lastIndex) {
-                $items[] = ['label' => $title];
+                $items[] = ['label' => $title, 'translatable' => false];
 
                 continue;
             }
 
             $pathSegment = trim((string) $trailPage->getPath(), '/');
-            $item = ['label' => $title];
+            $item = ['label' => $title, 'translatable' => false];
             if ('' !== $pathSegment) {
                 $item['path'] = $this->generateUrl('app_page_show', ['path' => $pathSegment]);
             }

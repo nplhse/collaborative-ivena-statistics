@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
     <channel>
-        <title>{{ app_blog_title }}</title>
+        <title>{{ 'title.blog'|trans({}, 'content') }}</title>
         <link>{{ absolute_url(path('app_blog_index')) }}</link>
-        <description>{{ app_blog_description }}</description>
+        <description>{{ 'blog.description'|trans({}, 'content') }}</description>
         <lastBuildDate>{{ buildDate|date('r') }}</lastBuildDate>
         {% for post in posts %}
             <item>

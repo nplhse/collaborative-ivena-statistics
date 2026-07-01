@@ -1,6 +1,6 @@
 # Fachglossar i18n (DE)
 
-Verbindliche EN↔DE-Tabelle für UI-Übersetzungen in `translations/messages+intl-icu.{en,de}.xlf`.
+Verbindliche EN↔DE-Tabelle für UI-Übersetzungen. Fachliche Keys liegen in kontextspezifischen Domains (`statistics`, `allocation`, `import`, …); generische UI-Begriffe und übergreifende Entity-Labels in `messages+intl-icu.{en,de}.xlf`. Domain-Übersicht: [Translations.md](Translations.md).
 Dient als Referenz für manuelles Review und MT-Entwürfe (Phase 0 der Übersetzungsstrategie).
 
 **Ergänzend:** technische Projektbegriffe in [Glossary.md](Glossary.md) · klinische Referenzdaten in `fixtures/reference/*.yaml`
@@ -14,6 +14,7 @@ Dient als Referenz für manuelles Review und MT-Entwürfe (Phase 0 der Übersetz
 3. Glossar ist bindend für Bulk-MT und modulweises Review.
 4. Neue Features: EN- und DE-Key im selben PR (siehe [analysis-explorer-v2.md](analysis-explorer-v2.md)).
 5. Fortschritt prüfen: `make lint-trans-de` (siehe [Testing.md](Testing.md)).
+6. **Domain-Wahl und Form-Konventionen:** [Translations.md](Translations.md) (Abschnitte *Recommended conventions* und *Domain decision matrix*).
 
 ---
 

@@ -1,18 +1,18 @@
 <div class="col-12 col-md-3 border-end">
     <div class="card-body">
-        <h4 class="subheader">{{ 'label.settings.my_account'|trans }}</h4>
+        <h4 class="subheader">{{ 'label.settings.my_account'|trans({}, 'user') }}</h4>
         <div class="list-group list-group-transparent">
             <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'account' ? ' active' : '' }}" href="{{ path('app_settings_index') }}">
-                {{ 'label.settings.my_account'|trans }}
+                {{ 'label.settings.my_account'|trans({}, 'user') }}
             </a>
             <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'email' ? ' active' : '' }}" href="{{ path('app_settings_email') }}">
-                {{ 'label.settings.change_email'|trans }}
+                {{ 'label.settings.change_email'|trans({}, 'user') }}
             </a>
             <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'password' ? ' active' : '' }}" href="{{ path('app_settings_password') }}">
-                {{ 'label.settings.set_new_password'|trans }}
+                {{ 'label.settings.set_new_password'|trans({}, 'user') }}
             </a>
             <a class="list-group-item list-group-item-action d-flex align-items-center{{ active == 'notifications' ? ' active' : '' }}" href="{{ path('app_settings_notifications') }}">
-                {{ 'label.settings.notifications'|trans }}
+                {{ 'label.settings.notifications'|trans({}, 'user') }}
             </a>
         </div>
     </div>

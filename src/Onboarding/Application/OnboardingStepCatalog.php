@@ -13,6 +13,7 @@ use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final readonly class OnboardingStepCatalog
 {
@@ -57,15 +58,15 @@ final readonly class OnboardingStepCatalog
             $steps[] = new OnboardingStepView(
                 key: $stepKey,
                 position: $stepKey->position(),
-                titleKey: $this->titleKey($stepKey),
-                descriptionKey: $this->descriptionKey($stepKey),
+                title: new TranslatableMessage($this->titleKey($stepKey), domain: 'onboarding'),
+                description: new TranslatableMessage($this->descriptionKey($stepKey), domain: 'onboarding'),
                 isCompleted: $isCompleted,
                 isAutoCompleted: $isAutoCompleted,
                 isActionable: $isActionable,
                 actionUrl: $isActionable ? $this->resolveActionUrl($stepKey, $ownsHospitals) : null,
                 actionType: $this->resolveActionType($stepKey),
-                feedbackMessageKey: OnboardingStepKey::RequestClinicAccess === $stepKey
-                    ? 'onboarding.steps.request_clinic_access.feedback_message'
+                feedbackMessage: OnboardingStepKey::RequestClinicAccess === $stepKey
+                    ? new TranslatableMessage('onboarding.steps.request_clinic_access.feedback_message', domain: 'onboarding')
                     : null,
             );
         }

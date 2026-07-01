@@ -44,12 +44,14 @@ make psalm
 
 ## Translations (i18n)
 
-Extract and lint (see [Glossary-i18n-de.md](Glossary-i18n-de.md)):
+Extract and lint (see [Translations.md](Translations.md) and [Glossary-i18n-de.md](Glossary-i18n-de.md)):
 
 ```bash
-make trans-de       # scaffold missing DE units from EN
-make lint-trans-de  # lint DE catalogue only
+make trans-all      # extract EN for all app domains
+make trans-de-all   # scaffold missing DE units
+make trans-de       # scaffold missing DE units (messages only)
 make lint-trans     # lint EN + DE catalogues
+make lint-trans-de  # lint DE catalogue only
 ```
 
 ## Relevant configuration

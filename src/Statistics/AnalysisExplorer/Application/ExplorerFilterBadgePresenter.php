@@ -101,7 +101,7 @@ final readonly class ExplorerFilterBadgePresenter
         $normalized = \is_bool($value) ? ($value ? 1 : 0) : (int) $value;
 
         return 1 === $normalized
-            ? $this->translator->trans('label.yes')
-            : $this->translator->trans('label.no');
+            ? $this->translator->trans('label.yes', [], 'messages')
+            : $this->translator->trans('label.no', [], 'messages');
     }
 }

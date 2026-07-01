@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final class ReportsController extends AbstractController
 {
@@ -45,7 +46,7 @@ final class ReportsController extends AbstractController
         $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
         if (null !== $publicRedirect) {
             if (null !== $publicRedirect['notice']) {
-                $this->addFlash('error', $publicRedirect['notice']->value);
+                $this->addFlash('error', new TranslatableMessage($publicRedirect['notice']->value, domain: 'statistics'));
             }
 
             return $this->redirectToRoute('app_stats_reports', $publicRedirect['query']);
@@ -61,7 +62,7 @@ final class ReportsController extends AbstractController
         );
 
         if ($pageViewModel->showUnscopedHint) {
-            $this->addFlash('info', 'stats.overview.hospital_summary.unscoped_hint');
+            $this->addFlash('info', new TranslatableMessage('stats.overview.hospital_summary.unscoped_hint', domain: 'statistics'));
         }
 
         $reportsRequest = $this->reportsRequestModelFactory->fromQuery($request->query->all());

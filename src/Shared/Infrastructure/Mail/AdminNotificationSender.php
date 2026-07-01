@@ -60,7 +60,7 @@ final readonly class AdminNotificationSender implements AdminNotificationSenderI
 
     private function buildSubject(AdminNotificationType $type, string $locale): string
     {
-        $label = $this->translator->trans($type->subjectTranslationKey(), [], null, $locale);
+        $label = $this->translator->trans($type->subjectTranslationKey(), [], 'admin', $locale);
 
         return sprintf('[%s] %s', $this->mailConfig->appName, $label);
     }

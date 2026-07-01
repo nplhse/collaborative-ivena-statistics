@@ -32,6 +32,7 @@ final class ConfirmPasswordType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ConfirmPasswordTypeDTO::class,
+            'translation_domain' => 'user',
         ]);
     }
 }

@@ -22,7 +22,7 @@
                                     <a class="nav-link" href="{{ path('app_explore_index') }}">
                                         <span class="nav-link-title">
                                             <twig:ux:icon name="tabler:compass" style="height: 1.5em;" />
-                                            {{ 'link.explore'|trans }}
+                                            {{ 'link.explore'|trans({}, 'shared') }}
                                         </span>
                                     </a>
                                 </li>
@@ -32,7 +32,7 @@
                                     <a class="nav-link" href="{{ path('app_stats_dashboard') }}">
                                         <span class="nav-link-title">
                                             <twig:ux:icon name="tabler:graph" style="height: 1.5em;" />
-                                            {{ 'link.statistics'|trans }}
+                                            {{ 'link.statistics'|trans({}, 'shared') }}
                                         </span>
                                     </a>
                                 </li>
@@ -42,7 +42,7 @@
                                     <a class="nav-link" href="{{ path('app_import_index') }}">
                                         <span class="nav-link-title">
                                             <twig:ux:icon name="tabler:database-import" style="height: 1.5em;" />
-                                            {{ 'link.import'|trans }}
+                                            {{ 'link.import'|trans({}, 'shared') }}
                                         </span>
                                     </a>
                                 </li>
@@ -52,7 +52,7 @@
                                     <a class="nav-link" href="{{ path('app_hospitals_export_allocations') }}">
                                         <span class="nav-link-title">
                                             <twig:ux:icon name="tabler:database-export" style="height: 1.5em;" />
-                                            {{ 'link.export'|trans }}
+                                            {{ 'link.export'|trans({}, 'shared') }}
                                         </span>
                                     </a>
                                 </li>
@@ -61,7 +61,7 @@
                                 <a class="nav-link" href="{{ path('app_blog_index') }}">
                                     <span class="nav-link-title">
                                         <twig:ux:icon name="tabler:notes" style="height: 1.5em;" />
-                                        {{ 'link.blog'|trans }}
+                                        {{ 'link.blog'|trans({}, 'shared') }}
                                     </span>
                                 </a>
                             </li>

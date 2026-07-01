@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="mr001" resname="monthly_reminder.subject">
+        <source>monthly_reminder.subject</source>
+        <target>Monthly overview: {hospital} ({period})</target>
+      </trans-unit>
+      <trans-unit id="mr002" resname="monthly_reminder.heading">
+        <source>monthly_reminder.heading</source>
+        <target>Monthly overview: {hospital}</target>
+      </trans-unit>
+      <trans-unit id="mr003" resname="monthly_reminder.preheader">
+        <source>monthly_reminder.preheader</source>
+        <target>{period}: {count} allocations ({delta} vs. previous month) — upload data for {upload_month}</target>
+      </trans-unit>
+      <trans-unit id="mr004" resname="monthly_reminder.month_year">
+        <source>monthly_reminder.month_year</source>
+        <target>{month} {year}</target>
+      </trans-unit>
+      <trans-unit id="mr005" resname="monthly_reminder.cta.upload">
+        <source>monthly_reminder.cta.upload</source>
+        <target>Upload data for {month}</target>
+      </trans-unit>
+      <trans-unit id="mr006" resname="monthly_reminder.section.trend">
+        <source>monthly_reminder.section.trend</source>
+        <target>Allocation trend — last 12 months</target>
+      </trans-unit>
+      <trans-unit id="mr007" resname="monthly_reminder.section.profile">
+        <source>monthly_reminder.section.profile</source>
+        <target>Clinical profile</target>
+      </trans-unit>
+      <trans-unit id="mr008" resname="monthly_reminder.section.platform">
+        <source>monthly_reminder.section.platform</source>
+        <target>Platform trends</target>
+      </trans-unit>
+      <trans-unit id="mr009" resname="monthly_reminder.section.insights">
+        <source>monthly_reminder.section.insights</source>
+        <target>Your insights</target>
+      </trans-unit>
+      <trans-unit id="mr010" resname="monthly_reminder.section.submission">
+        <source>monthly_reminder.section.submission</source>
+        <target>Data submission — last 12 months</target>
+      </trans-unit>
+      <trans-unit id="mr011" resname="monthly_reminder.kpi.allocations">
+        <source>monthly_reminder.kpi.allocations</source>
+        <target>Allocations (reporting month)</target>
+      </trans-unit>
+      <trans-unit id="mr012" resname="monthly_reminder.kpi.last_import.label">
+        <source>monthly_reminder.kpi.last_import.label</source>
+        <target>Last import</target>
+      </trans-unit>
+      <trans-unit id="mr013" resname="monthly_reminder.kpi.last_import.none">
+        <source>monthly_reminder.kpi.last_import.none</source>
+        <target>No import yet</target>
+      </trans-unit>
+      <trans-unit id="mr014" resname="monthly_reminder.kpi.last_import.date">
+        <source>monthly_reminder.kpi.last_import.date</source>
+        <target>Data through {date}</target>
+      </trans-unit>
+      <trans-unit id="mr015" resname="monthly_reminder.kpi.physician">
+        <source>monthly_reminder.kpi.physician</source>
+        <target>Physician escort rate</target>
+      </trans-unit>
+      <trans-unit id="mr016" resname="monthly_reminder.kpi.transport">
+        <source>monthly_reminder.kpi.transport</source>
+        <target>Median transport time</target>
+      </trans-unit>
+      <trans-unit id="mr063" resname="monthly_reminder.kpi.physician_baseline_delta">
+        <source>monthly_reminder.kpi.physician_baseline_delta</source>
+        <target>{delta} vs. {baseline}</target>
+      </trans-unit>
+      <trans-unit id="mr064" resname="monthly_reminder.kpi.transport_baseline_delta">
+        <source>monthly_reminder.kpi.transport_baseline_delta</source>
+        <target>{delta} min vs. {baseline}</target>
+      </trans-unit>
+      <trans-unit id="mr017" resname="monthly_reminder.chart.allocations">
+        <source>monthly_reminder.chart.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="mr018" resname="monthly_reminder.chart.imports">
+        <source>monthly_reminder.chart.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="mr019" resname="monthly_reminder.profile.urgency">
+        <source>monthly_reminder.profile.urgency</source>
+        <target>Urgency mix</target>
+      </trans-unit>
+      <trans-unit id="mr020" resname="monthly_reminder.profile.gender">
+        <source>monthly_reminder.profile.gender</source>
+        <target>Gender mix</target>
+      </trans-unit>
+      <trans-unit id="mr021" resname="monthly_reminder.platform.allocations">
+        <source>monthly_reminder.platform.allocations</source>
+        <target>Platform allocations</target>
+      </trans-unit>
+      <trans-unit id="mr022" resname="monthly_reminder.platform.hospitals">
+        <source>monthly_reminder.platform.hospitals</source>
+        <target>Active hospitals</target>
+      </trans-unit>
+      <trans-unit id="mr023" resname="monthly_reminder.platform.imports">
+        <source>monthly_reminder.platform.imports</source>
+        <target>Imports last month</target>
+      </trans-unit>
+      <trans-unit id="mr024" resname="monthly_reminder.submission.progress">
+        <source>monthly_reminder.submission.progress</source>
+        <target>{completed} of {total} months with a successful import</target>
+      </trans-unit>
+      <trans-unit id="mr025" resname="monthly_reminder.submission.gap">
+        <source>monthly_reminder.submission.gap</source>
+        <target>Longest gap: {months} months ({from} – {to})</target>
+      </trans-unit>
+      <trans-unit id="mr026" resname="monthly_reminder.link.dashboard">
+        <source>monthly_reminder.link.dashboard</source>
+        <target>Open statistics dashboard</target>
+      </trans-unit>
+      <trans-unit id="mr027" resname="monthly_reminder.link.benchmarking">
+        <source>monthly_reminder.link.benchmarking</source>
+        <target>Open benchmarking</target>
+      </trans-unit>
+      <trans-unit id="mr028" resname="monthly_reminder.insight.link">
+        <source>monthly_reminder.insight.link</source>
+        <target>View in benchmarking</target>
+      </trans-unit>
+      <trans-unit id="mr065" resname="monthly_reminder.baseline.period_label">
+        <source>monthly_reminder.baseline.period_label</source>
+        <target>your last 12 months</target>
+      </trans-unit>
+      <trans-unit id="mr029" resname="monthly_reminder.trend.growing">
+        <source>monthly_reminder.trend.growing</source>
+        <target>Over the last six months, volume grew by an average of {percent}% per month.</target>
+      </trans-unit>
+      <trans-unit id="mr030" resname="monthly_reminder.trend.declining">
+        <source>monthly_reminder.trend.declining</source>
+        <target>Over the last six months, volume declined by an average of {percent}% per month.</target>
+      </trans-unit>
+      <trans-unit id="mr031" resname="monthly_reminder.trend.stable">
+        <source>monthly_reminder.trend.stable</source>
+        <target>Volume has remained relatively stable over the last six months.</target>
+      </trans-unit>
+      <trans-unit id="mr032" resname="monthly_reminder.trend.growing_from_zero">
+        <source>monthly_reminder.trend.growing_from_zero</source>
+        <target>Recent months show increasing activity after a quiet period.</target>
+      </trans-unit>
+      <trans-unit id="mr033" resname="monthly_reminder.urgency.benchmark">
+        <source>monthly_reminder.urgency.benchmark</source>
+        <target>{urgency} share: {percent}% ({delta} vs. {baseline})</target>
+      </trans-unit>
+      <trans-unit id="mr034" resname="monthly_reminder.insight.volume_yoy.title">
+        <source>monthly_reminder.insight.volume_yoy.title</source>
+        <target>Year-over-year volume</target>
+      </trans-unit>
+      <trans-unit id="mr035" resname="monthly_reminder.insight.volume_yoy.body">
+        <source>monthly_reminder.insight.volume_yoy.body</source>
+        <target>{percent} allocations compared with the same month last year.</target>
+      </trans-unit>
+      <trans-unit id="mr036" resname="monthly_reminder.insight.volume_mom.title">
+        <source>monthly_reminder.insight.volume_mom.title</source>
+        <target>Month-over-month volume</target>
+      </trans-unit>
+      <trans-unit id="mr037" resname="monthly_reminder.insight.volume_mom.body">
+        <source>monthly_reminder.insight.volume_mom.body</source>
+        <target>{percent} allocations compared with the previous month.</target>
+      </trans-unit>
+      <trans-unit id="mr038" resname="monthly_reminder.insight.resus.title">
+        <source>monthly_reminder.insight.resus.title</source>
+        <target>Resuscitation rate</target>
+      </trans-unit>
+      <trans-unit id="mr039" resname="monthly_reminder.insight.resus.body">
+        <source>monthly_reminder.insight.resus.body</source>
+        <target>Resuscitation rate in {period}: {primary_percent}% vs. {baseline_percent}% over {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="mr040" resname="monthly_reminder.insight.cpr.title">
+        <source>monthly_reminder.insight.cpr.title</source>
+        <target>CPR rate</target>
+      </trans-unit>
+      <trans-unit id="mr041" resname="monthly_reminder.insight.cpr.body">
+        <source>monthly_reminder.insight.cpr.body</source>
+        <target>CPR rate in {period}: {primary_percent}% vs. {baseline_percent}% over {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="mr042" resname="monthly_reminder.insight.physician.title">
+        <source>monthly_reminder.insight.physician.title</source>
+        <target>Physician escort rate</target>
+      </trans-unit>
+      <trans-unit id="mr043" resname="monthly_reminder.insight.physician.body">
+        <source>monthly_reminder.insight.physician.body</source>
+        <target>Physician escort rate in {period}: {primary_percent}% vs. {baseline_percent}% over {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="mr044" resname="monthly_reminder.insight.benchmark.title">
+        <source>monthly_reminder.insight.benchmark.title</source>
+        <target>Benchmark note</target>
+      </trans-unit>
+      <trans-unit id="mr045" resname="monthly_reminder.insight.benchmark.body">
+        <source>monthly_reminder.insight.benchmark.body</source>
+        <target>In {period}: {primary_percent}% vs. {baseline_percent}% over {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="mr046" resname="monthly_reminder.insight.direction.above">
+        <source>monthly_reminder.insight.direction.above</source>
+        <target>above</target>
+      </trans-unit>
+      <trans-unit id="mr047" resname="monthly_reminder.insight.direction.below">
+        <source>monthly_reminder.insight.direction.below</source>
+        <target>below</target>
+      </trans-unit>
+      <trans-unit id="mr048" resname="monthly_reminder.insight.indication.title">
+        <source>monthly_reminder.insight.indication.title</source>
+        <target>Indication mix</target>
+      </trans-unit>
+      <trans-unit id="mr049" resname="monthly_reminder.insight.indication.body">
+        <source>monthly_reminder.insight.indication.body</source>
+        <target>{indication} in {period}: {primary_percent}% vs. {baseline_percent}% over {baseline} ({delta_pp}).</target>
+      </trans-unit>
+      <trans-unit id="mr050" resname="monthly_reminder.insight.quality.title">
+        <source>monthly_reminder.insight.quality.title</source>
+        <target>Import quality</target>
+      </trans-unit>
+      <trans-unit id="mr051" resname="monthly_reminder.insight.quality.body">
+        <source>monthly_reminder.insight.quality.body</source>
+        <target>Rejection rate improved by {delta} percentage points.</target>
+      </trans-unit>
+      <trans-unit id="mr052" resname="monthly_reminder.fallback.insight.upload.title">
+        <source>monthly_reminder.fallback.insight.upload.title</source>
+        <target>Keep your data current</target>
+      </trans-unit>
+      <trans-unit id="mr053" resname="monthly_reminder.fallback.insight.upload.body">
+        <source>monthly_reminder.fallback.insight.upload.body</source>
+        <target>Upload your latest data to unlock personalized insights and benchmarking for your hospital.</target>
+      </trans-unit>
+      <trans-unit id="mr054" resname="monthly_reminder.fallback.insight.platform.title">
+        <source>monthly_reminder.fallback.insight.platform.title</source>
+        <target>Platform activity</target>
+      </trans-unit>
+      <trans-unit id="mr055" resname="monthly_reminder.fallback.insight.platform.body">
+        <source>monthly_reminder.fallback.insight.platform.body</source>
+        <target>See how your hospital compares once your recent data is available on the platform.</target>
+      </trans-unit>
+      <trans-unit id="mr056" resname="monthly_reminder.error.not_participating">
+        <source>monthly_reminder.error.not_participating</source>
+        <target>This hospital is not marked as participating.</target>
+      </trans-unit>
+      <trans-unit id="mr057" resname="monthly_reminder.error.no_owner">
+        <source>monthly_reminder.error.no_owner</source>
+        <target>This hospital has no owner assigned.</target>
+      </trans-unit>
+      <trans-unit id="mr058" resname="monthly_reminder.error.no_email">
+        <source>monthly_reminder.error.no_email</source>
+        <target>The hospital owner has no email address.</target>
+      </trans-unit>
+      <trans-unit id="mr059" resname="monthly_reminder.error.email_not_verified">
+        <source>monthly_reminder.error.email_not_verified</source>
+        <target>The hospital owner's email address is not verified.</target>
+      </trans-unit>
+      <trans-unit id="mr060" resname="monthly_reminder.error.already_sent_recently">
+        <source>monthly_reminder.error.already_sent_recently</source>
+        <target>A reminder was sent recently. Please wait a few minutes before sending again.</target>
+      </trans-unit>
+      <trans-unit id="mr061" resname="monthly_reminder.error.opted_out">
+        <source>monthly_reminder.error.opted_out</source>
+        <target>User has opted out of monthly reminders.</target>
+      </trans-unit>
+      <trans-unit id="mr062" resname="monthly_reminder.email.manage_notifications">
+        <source>monthly_reminder.email.manage_notifications</source>
+        <target>Manage notification preferences</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

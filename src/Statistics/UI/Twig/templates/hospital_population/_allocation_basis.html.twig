@@ -18,38 +18,38 @@
                 <tbody>
                     {% if rows %}
                         <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.hospitals_with_data'|trans }}</th>
+                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.hospitals_with_data'|trans({}, 'statistics') }}</th>
                             {% for row in rows %}
                                 <td class="text-end">{{ row.hospitalCount|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.allocations_total'|trans }}</th>
+                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.allocations_total'|trans({}, 'statistics') }}</th>
                             {% for row in rows %}
                                 <td class="text-end">{{ row.totalAllocations|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.mean_per_hospital'|trans }}</th>
+                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.mean_per_hospital'|trans({}, 'statistics') }}</th>
                             {% for row in rows %}
                                 <td class="text-end">{{ row.meanPerHospital is not null ? row.meanPerHospital|number_format(1, ',', '.') : '–' }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.stats.median'|trans }}</th>
+                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.stats.median'|trans({}, 'statistics') }}</th>
                             {% for row in rows %}
                                 <td class="text-end">{{ row.medianPerHospital is not null ? row.medianPerHospital|number_format(1, ',', '.') : '–' }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.allocations_share'|trans }}</th>
+                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.allocations_share'|trans({}, 'statistics') }}</th>
                             {% for row in rows %}
                                 <td class="text-end">{{ crossTable.share_badge(row.sharePercent) }}</td>
                             {% endfor %}
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="2" class="text-secondary">{{ 'stats.hospital_population.table.empty'|trans }}</td>
+                            <td colspan="2" class="text-secondary">{{ 'stats.hospital_population.table.empty'|trans({}, 'statistics') }}</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -64,16 +64,16 @@
 
 <div class="card mb-3" data-testid="stats-hospital-population-allocation-basis">
     <div class="card-header py-2">
-        <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.allocation_basis'|trans }}</h3>
+        <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.allocation_basis'|trans({}, 'statistics') }}</h3>
     </div>
     <div class="card-body">
-        <p class="text-secondary">{{ 'stats.hospital_population.allocation_basis.intro'|trans }}</p>
+        <p class="text-secondary">{{ 'stats.hospital_population.allocation_basis.intro'|trans({}, 'statistics') }}</p>
 
         <div class="row g-3 mb-3">
             <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header py-2">
-                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_tier'|trans }}</h4>
+                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_tier'|trans({}, 'statistics') }}</h4>
                     </div>
                     <div class="card-body pt-2">
                         <div class="chart-md" data-hospital-population-charts-target="allocationByTierChart"></div>
@@ -83,7 +83,7 @@
             <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header py-2">
-                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_size'|trans }}</h4>
+                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_size'|trans({}, 'statistics') }}</h4>
                     </div>
                     <div class="card-body pt-2">
                         <div class="chart-md" data-hospital-population-charts-target="allocationBySizeChart"></div>
@@ -93,7 +93,7 @@
             <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header py-2">
-                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_location'|trans }}</h4>
+                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_location'|trans({}, 'statistics') }}</h4>
                     </div>
                     <div class="card-body pt-2">
                         <div class="chart-md" data-hospital-population-charts-target="allocationByLocationChart"></div>
@@ -104,34 +104,34 @@
 
         <div class="row g-3 mb-3">
             <div class="col-lg-4">
-                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_tier'|trans, basis.byTier) }}
+                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_tier'|trans({}, 'statistics'), basis.byTier) }}
             </div>
             <div class="col-lg-4">
-                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_size'|trans, basis.bySize) }}
+                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_size'|trans({}, 'statistics'), basis.bySize) }}
             </div>
             <div class="col-lg-4">
-                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_location'|trans, basis.byLocation) }}
+                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_location'|trans({}, 'statistics'), basis.byLocation) }}
             </div>
         </div>
 
         <div class="row g-3">
             <div class="col-lg-6">
                 {{ crossTable.allocation_cross_table(
-                    'stats.hospital_population.allocation.cross_table_location_by_tier'|trans,
-                    'stats.hospital_population.table.location'|trans,
-                    'stats.hospital_population.table.tier'|trans,
+                    'stats.hospital_population.allocation.cross_table_location_by_tier'|trans({}, 'statistics'),
+                    'stats.hospital_population.table.location'|trans({}, 'statistics'),
+                    'stats.hospital_population.table.tier'|trans({}, 'statistics'),
                     basis.locationByTierCrossTable,
                 ) }}
             </div>
             <div class="col-lg-6">
                 {{ crossTable.allocation_cross_table(
-                    'stats.hospital_population.allocation.cross_table_size_by_tier'|trans,
-                    'stats.hospital_population.table.size'|trans,
-                    'stats.hospital_population.table.tier'|trans,
+                    'stats.hospital_population.allocation.cross_table_size_by_tier'|trans({}, 'statistics'),
+                    'stats.hospital_population.table.size'|trans({}, 'statistics'),
+                    'stats.hospital_population.table.tier'|trans({}, 'statistics'),
                     basis.sizeByTierCrossTable,
                 ) }}
             </div>
         </div>
-        <p class="text-secondary small mb-0 mt-2">{{ 'stats.hospital_population.allocation.cross_table_share_hint'|trans }}</p>
+        <p class="text-secondary small mb-0 mt-2">{{ 'stats.hospital_population.allocation.cross_table_share_hint'|trans({}, 'statistics') }}</p>
     </div>
 </div>

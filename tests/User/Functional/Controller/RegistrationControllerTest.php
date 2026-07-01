@@ -8,6 +8,7 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
+use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
@@ -23,10 +24,24 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class RegistrationControllerTest extends WebTestCase
 {
+    use AssertsNoMissingTranslations;
     use CookieConsentTestHelper;
     use Factories;
     use HasBrowser;
     use MailerAssertionsTrait;
+
+    public function testRegistrationPageHasNoMissingTranslationsInGerman(): void
+    {
+        $client = self::createClient();
+        $client->enableProfiler();
+        $client->request(Request::METHOD_GET, '/register', server: [
+            'HTTP_Accept-Language' => 'de-DE,de;q=0.9',
+        ]);
+
+        self::assertResponseIsSuccessful();
+
+        $this->assertNoMissingTranslations($client->getProfile());
+    }
 
     public function testRegistrationStoresResolvedGermanLocaleFromCookie(): void
     {
@@ -37,9 +52,9 @@ final class RegistrationControllerTest extends WebTestCase
         $this->browser()
             ->visit('/locale/switch/de?_target_path=/register')
             ->visit('/register')
-            ->fillField('Username', $username)
-            ->fillField('Email', $email)
-            ->fillField('Plain password', 'super-secret-password')
+            ->fillField('registration_form[username]', $username)
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
             ->checkField('registration_form[acceptTerms]')
             ->click('Registrieren')
             ->assertSuccessful()
@@ -98,9 +113,9 @@ final class RegistrationControllerTest extends WebTestCase
             $this->browser()
                 ->disableReboot()
                 ->visit('/register')
-                ->fillField('Username', $username)
-                ->fillField('Email', $email)
-                ->fillField('Plain password', 'super-secret-password')
+                ->fillField('registration_form[username]', $username)
+                ->fillField('registration_form[email]', $email)
+                ->fillField('registration_form[plainPassword]', 'super-secret-password')
                 ->checkField('registration_form[acceptTerms]')
                 ->click('Register')
                 ->assertStatus(302)
@@ -142,9 +157,9 @@ final class RegistrationControllerTest extends WebTestCase
 
         $this->browser()
             ->visit('/register')
-            ->fillField('Username', $username)
-            ->fillField('Email', $email)
-            ->fillField('Plain password', 'super-secret-password')
+            ->fillField('registration_form[username]', $username)
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
             ->checkField('registration_form[acceptTerms]')
             ->click('Register')
             ->assertSuccessful()
@@ -162,9 +177,9 @@ final class RegistrationControllerTest extends WebTestCase
 
         $this->browser()
             ->visit('/register')
-            ->fillField('Username', $username)
-            ->fillField('Email', $email)
-            ->fillField('Plain password', 'super-secret-password')
+            ->fillField('registration_form[username]', $username)
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
             ->click('Register')
             ->assertStatus(422)
             ->assertSeeIn('h2', 'Register')
@@ -206,9 +221,9 @@ final class RegistrationControllerTest extends WebTestCase
             ->visit('/register')
             ->assertSuccessful()
             ->assertNotSee('href="/legal/terms-of-service"')
-            ->fillField('Username', $username)
-            ->fillField('Email', $email)
-            ->fillField('Plain password', 'super-secret-password')
+            ->fillField('registration_form[username]', $username)
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
             ->checkField('registration_form[acceptTerms]')
             ->click('Register')
             ->assertSuccessful()
@@ -224,9 +239,9 @@ final class RegistrationControllerTest extends WebTestCase
 
         $this->acceptEssentialCookies($this->browser())
             ->visit('/register')
-            ->fillField('Username', $username)
-            ->fillField('Email', $email)
-            ->fillField('Plain password', 'super-secret-password')
+            ->fillField('registration_form[username]', $username)
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
             ->checkField('registration_form[acceptTerms]')
             ->click('Register')
             ->assertSuccessful()

@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta content="telephone=no" name="format-detection" />
-    <title>{{ 'email.reset_password.title'|trans }}</title>
+    <title>{{ 'email.reset_password.title'|trans({}, 'user') }}</title>
 
     <style data-premailer="ignore">
         @media screen and (max-width: 600px) {
@@ -472,7 +472,7 @@
                   <tr>
                     <td align="center" valign="top" width="640">
               <![endif]-->
-                    <span class="preheader" style="font-size: 0; display: none; max-height: 0; mso-hide: all; line-height: 0; color: transparent; height: 0; max-width: 0; opacity: 0; overflow: hidden; visibility: hidden; width: 0; padding: 0;">{{ 'email.reset_password.preheader'|trans }}</span>
+                    <span class="preheader" style="font-size: 0; display: none; max-height: 0; mso-hide: all; line-height: 0; color: transparent; height: 0; max-width: 0; opacity: 0; overflow: hidden; visibility: hidden; width: 0; padding: 0;">{{ 'email.reset_password.preheader'|trans({}, 'user') }}</span>
                     <table class="wrap" cellspacing="0" cellpadding="0" style="font-family: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; border-collapse: collapse; width: 100%; max-width: 640px; text-align: left;">
                         <tr>
                             <td class="p-sm" style="font-family: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; padding: 8px;">
@@ -490,15 +490,15 @@
                                                                     </td>
                                                                 </tr>
                                                             </table>
-                                                            <h1 class="text-center m-0 mt-md" style="font-weight: 600; color: #232b42; font-size: 28px; line-height: 130%; margin: 16px 0 0;" align="center">{{ 'email.reset_password.heading'|trans }}</h1>
+                                                            <h1 class="text-center m-0 mt-md" style="font-weight: 600; color: #232b42; font-size: 28px; line-height: 130%; margin: 16px 0 0;" align="center">{{ 'email.reset_password.heading'|trans({}, 'user') }}</h1>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td class="content text-center" style="font-family: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; padding: 40px 48px;" align="center">
-                                                            <p style="margin: 0 0 1em;">{{ 'email.reset_password.intro'|trans({app: app_title}) }}</p>
-                                                            <p style="margin: 0 0 1em;">{{ 'email.reset_password.expiry'|trans({
+                                                            <p style="margin: 0 0 1em;">{{ 'email.reset_password.intro'|trans(({app: app_title}), 'user') }}</p>
+                                                            <p style="margin: 0 0 1em;">{{ 'email.reset_password.expiry'|trans(({
                                                                 expires: resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle'),
-                                                            }) }}</p>
+                                                            }), 'user') }}</p>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -510,7 +510,7 @@
                                                                             <tr>
                                                                                 <td align="center" valign="top" class="lh-1" style="font-family: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; line-height: 100%;">
                                                                                     <a href="{{ resetUrl }}" class="btn bg-blue border-blue" style="color: #ffffff; text-decoration: none; white-space: nowrap; font-weight: 500; font-size: 16px; border-radius: 4px; line-height: 100%; display: block; -webkit-transition: 0.3s background-color; -o-transition: 0.3s background-color; transition: 0.3s background-color; background-color: #206bc4; padding: 12px 32px; border: 1px solid #206bc4;">
-                                                                                        <span class="btn-span" style="color: #ffffff; font-size: 16px; text-decoration: none; white-space: nowrap; font-weight: 500; line-height: 100%;">{{ 'email.reset_password.cta'|trans }}</span>
+                                                                                        <span class="btn-span" style="color: #ffffff; font-size: 16px; text-decoration: none; white-space: nowrap; font-weight: 500; line-height: 100%;">{{ 'email.reset_password.cta'|trans({}, 'user') }}</span>
                                                                                     </a>
                                                                                 </td>
                                                                             </tr>
@@ -522,9 +522,9 @@
                                                     </tr>
                                                     <tr>
                                                         <td class="content text-muted pt-0 text-center" style="font-family: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; color: #667382; padding: 0 48px 40px;" align="center">
-                                                            {{ 'email.reset_password.fallback_before_link'|trans }}
+                                                            {{ 'email.reset_password.fallback_before_link'|trans({}, 'user') }}
                                                             <a href="{{ resetUrl }}" style="color: #206bc4; text-decoration: none;">{{ resetUrl }}</a>
-                                                            {{ 'email.reset_password.fallback_after_link'|trans }}
+                                                            {{ 'email.reset_password.fallback_after_link'|trans({}, 'user') }}
                                                         </td>
                                                     </tr>
                                                 </table>

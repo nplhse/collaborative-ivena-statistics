@@ -17,7 +17,7 @@
         {% set transportTimeLabels = [] %}
         {% set transportTimeValues = [] %}
         {% for row in executiveDashboard.charts.transportTimeDistribution %}
-            {% set transportTimeLabels = transportTimeLabels|merge([row.labelTranslationKey|trans]) %}
+            {% set transportTimeLabels = transportTimeLabels|merge([row.labelTranslationKey|trans({}, 'statistics')]) %}
             {% set transportTimeValues = transportTimeValues|merge([row.count]) %}
         {% endfor %}
         <div class="card-header py-2">

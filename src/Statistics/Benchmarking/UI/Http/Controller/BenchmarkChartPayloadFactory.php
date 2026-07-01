@@ -76,7 +76,11 @@ final readonly class BenchmarkChartPayloadFactory
     private function translateDistributionLabel(string $label): string
     {
         if (str_starts_with($label, 'stats.') || str_starts_with($label, 'statistics.')) {
-            return $this->translator->trans($label);
+            return $this->translator->trans($label, [], 'statistics');
+        }
+
+        if (str_starts_with($label, 'field.') || str_starts_with($label, 'label.')) {
+            return $this->translator->trans($label, [], 'messages');
         }
 
         return $label;

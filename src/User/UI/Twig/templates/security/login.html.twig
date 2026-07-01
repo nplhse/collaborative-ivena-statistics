@@ -1,21 +1,21 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.login'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.login'|trans({}, 'messages') }} - {{ parent() }}{% endblock %}
 
 {% block page_body %}
     <div class="container container-tight py-4">
         <twig:Card
             size="md"
         >
-            <h2 class="text-center mb-4">{{ 'title.login'|trans }}</h2>
+            <h2 class="text-center mb-4">{{ 'title.login'|trans({}, 'messages') }}</h2>
 
             <form method="post">
                 {% set consentRequiredKey = 'flash.security.cookie_consent_required' %}
                 {% set isConsentError = error and error.messageKey == consentRequiredKey %}
                 {% if isConsentError or (not hasConsentDecision and showConsentHint) %}
                     <div class="alert {{ isConsentError ? 'alert-danger' : 'alert-warning' }}" role="alert">
-                        {{ consentRequiredKey|trans }}
-                        <a class="alert-link" href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.settings'|trans }}</a>
+                        {{ consentRequiredKey|trans({}, 'security') }}
+                        <a class="alert-link" href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.settings'|trans({}, 'shared') }}</a>
                     </div>
                 {% elseif error %}
                     <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -30,13 +30,13 @@
                 <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}" />
 
                 <div class="form-footer">
-                    <button type="submit" class="btn btn-primary w-100">{{ 'label.signin'|trans }}</button>
+                    <button type="submit" class="btn btn-primary w-100">{{ 'label.signin'|trans({}, 'messages') }}</button>
                 </div>
             </form>
             <div class="text-center text-secondary mt-3">
-                <a href="{{ path('app_forgot_password_request') }}">{{ 'label.forgot_password'|trans }}</a>
+                <a href="{{ path('app_forgot_password_request') }}">{{ 'label.forgot_password'|trans({}, 'user') }}</a>
                 &middot;
-                <a href="{{ path('app_register') }}">{{ 'label.register'|trans }}</a>
+                <a href="{{ path('app_register') }}">{{ 'label.register'|trans({}, 'messages') }}</a>
             </div>
         </twig:Card>
     </div>

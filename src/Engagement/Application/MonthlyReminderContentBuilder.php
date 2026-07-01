@@ -299,7 +299,7 @@ final readonly class MonthlyReminderContentBuilder
      */
     private function trans(string $id, array $parameters, string $locale): string
     {
-        return $this->translator->trans($id, $parameters, null, $locale);
+        return $this->translator->trans($id, $parameters, 'engagement', $locale);
     }
 
     private function formatSignedPercent(float $value): string

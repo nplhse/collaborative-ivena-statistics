@@ -79,7 +79,7 @@ final readonly class StatisticsFilterDrawerViewModelFactory
     {
         $choices = [];
         foreach (AllocationUrgency::cases() as $urgency) {
-            $choices[(string) $urgency->value] = $this->translator->trans('allocation.urgency.'.$urgency->value);
+            $choices[(string) $urgency->value] = $this->translator->trans('allocation.urgency.'.$urgency->value, [], 'allocation');
         }
 
         return $choices;

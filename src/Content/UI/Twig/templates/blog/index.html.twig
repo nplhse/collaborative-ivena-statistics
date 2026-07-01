@@ -1,25 +1,25 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
-{% block title %}{{ app_blog_title }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.blog'|trans({}, 'content') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs
             :items="[
                 { label: 'link.blog', path: path('app_blog_index') },
-                { label: list_title, label_params: list_title_params|default({}) }
+                { label: list_title, label_params: list_title_params|default({}), label_domain: 'content' }
             ]"
         />
 
         <div class="page-header d-print-none">
             <div class="row align-items-center">
                 <div class="col">
-                    <h2 class="page-title">{{ list_title|trans(list_title_params|default({})) }}</h2>
+                    <h2 class="page-title">{{ list_title|trans(list_title_params|default({}), 'content') }}</h2>
                     <div class="text-body-secondary mt-1">
-                        {{ 'blog.list.range_of_total'|trans({
+                        {{ 'blog.list.range_of_total'|trans(({
                             first: paginator.firstResultNumber,
                             last: paginator.lastResultNumber,
                             total: paginator.numResults,
-                        }) }}
+                        }), 'content') }}
                     </div>
                 </div>
             </div>
@@ -48,8 +48,8 @@
                                             {{ post.publishedAt|date('d.m.Y H:i') }} |
                                             <twig:ux:icon name="tabler:folder" class="w-3 h-3" />
                                             <a class="badge bg-blue-lt text-blue-emphasis" href="{{ path('app_blog_category', {slug: post.category.slug}) }}">{{ post.category.name }}</a>
-                                            <span>| <twig:ux:icon name="tabler:user" class="w-3 h-3" /> {{ post.createdBy ?: 'blog.meta.unknown_author'|trans }}</span>
-                                            <span>| {{ 'blog.comments.count'|trans({count: post.comments|length}) }}</span>
+                                            <span>| <twig:ux:icon name="tabler:user" class="w-3 h-3" /> {{ post.createdBy ?: 'blog.meta.unknown_author'|trans({}, 'content') }}</span>
+                                            <span>| {{ 'blog.comments.count'|trans(({count: post.comments|length}), 'content') }}</span>
                                         </div>
                                         <div>
                                             {% if '</p>' in post.content %}
@@ -61,7 +61,7 @@
                                         </div>
                                         <div class="mt-3 d-flex align-items-center justify-content-between gap-2 flex-wrap">
                                             <a class="btn btn-outline-primary btn-sm" href="{{ path('app_blog_show', {slug: post.slug}) }}">
-                                                {{ 'blog.action.read_more'|trans }}
+                                                {{ 'blog.action.read_more'|trans({}, 'content') }}
                                                 <twig:ux:icon name="tabler:arrow-right" width="1em" height="1em" class="ms-1" />
                                             </a>
                                             {% if post.tags|length > 0 %}
@@ -78,7 +78,7 @@
                             </div>
                         {% else %}
                             <div class="col-12">
-                                <div class="alert alert-secondary mb-0">{{ 'blog.empty.posts'|trans }}</div>
+                                <div class="alert alert-secondary mb-0">{{ 'blog.empty.posts'|trans({}, 'content') }}</div>
                             </div>
                         {% endfor %}
                     </div>
@@ -90,12 +90,12 @@
                                     {% if paginator.hasPreviousPage %}
                                         <li class="page-item">
                                             <a class="page-link page-text" href="{{ path(pagination_route, routeParams|merge({page: paginator.previousPage})) }}">
-                                                {{ 'blog.pagination.previous'|trans }}
+                                                {{ 'blog.pagination.previous'|trans({}, 'content') }}
                                             </a>
                                         </li>
                                     {% else %}
                                         <li class="page-item disabled">
-                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.previous'|trans }}</a>
+                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.previous'|trans({}, 'content') }}</a>
                                         </li>
                                     {% endif %}
                                     {% for i in 1..paginator.lastPage %}
@@ -108,12 +108,12 @@
                                     {% if paginator.hasNextPage %}
                                         <li class="page-item">
                                             <a class="page-link page-text" href="{{ path(pagination_route, routeParams|merge({page: paginator.nextPage})) }}">
-                                                {{ 'blog.pagination.next'|trans }}
+                                                {{ 'blog.pagination.next'|trans({}, 'content') }}
                                             </a>
                                         </li>
                                     {% else %}
                                         <li class="page-item disabled">
-                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.next'|trans }}</a>
+                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.next'|trans({}, 'content') }}</a>
                                         </li>
                                     {% endif %}
                                 </ul>

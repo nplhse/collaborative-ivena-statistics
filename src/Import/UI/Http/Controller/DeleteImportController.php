@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('ROLE_PARTICIPANT')]
 final class DeleteImportController extends AbstractController
@@ -33,14 +34,14 @@ final class DeleteImportController extends AbstractController
         }
 
         if (ImportStatus::RUNNING === $import->getStatus()) {
-            $this->addFlash('error', 'flash.import.delete_running_blocked');
+            $this->addFlash('error', new TranslatableMessage('flash.import.delete_running_blocked', domain: 'import'));
 
             return $this->redirectToRoute('app_import_show', ['id' => $importId]);
         }
 
         $this->importDeletionService->delete($import);
 
-        $this->addFlash('success', 'flash.import.deleted');
+        $this->addFlash('success', new TranslatableMessage('flash.import.deleted', domain: 'import'));
 
         return $this->redirectToRoute('app_import_index');
     }

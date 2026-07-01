@@ -28,6 +28,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AnalysisExplorerController extends AbstractController
@@ -95,7 +96,7 @@ final class AnalysisExplorerController extends AbstractController
 
         $initialConfigWarning = null;
         if ([] !== $loadResult->warnings) {
-            $initialConfigWarning = $this->translator->trans($loadResult->warnings[0]);
+            $initialConfigWarning = $this->translator->trans($loadResult->warnings[0], [], 'statistics');
         }
 
         return $this->renderExplorer($pageContext, array_merge(
@@ -156,7 +157,7 @@ final class AnalysisExplorerController extends AbstractController
         }
 
         if (null !== $publicRedirect['notice']) {
-            $this->addFlash('error', $publicRedirect['notice']->value);
+            $this->addFlash('error', new TranslatableMessage($publicRedirect['notice']->value, domain: 'statistics'));
         }
 
         return $this->redirectToRoute($routeName, array_merge($routeParams, $publicRedirect['query']));

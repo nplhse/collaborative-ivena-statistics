@@ -1,6 +1,6 @@
 <div class="card" data-testid="stats-executive-age-distribution">
     <div class="card-header py-2">
-        <h3 class="card-title mb-0">{{ 'stats.overview.executive.population.age'|trans }}</h3>
+        <h3 class="card-title mb-0">{{ 'stats.overview.executive.population.age'|trans({}, 'statistics') }}</h3>
     </div>
     <div class="card-body">
         {{ include('@Statistics/indication_dashboard/_distribution_progress.html.twig', {

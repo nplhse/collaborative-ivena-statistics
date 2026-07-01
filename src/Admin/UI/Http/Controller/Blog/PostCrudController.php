@@ -29,6 +29,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -61,8 +62,8 @@ final class PostCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('label.blog.post')
-            ->setEntityLabelInPlural('label.blog.posts')
+            ->setEntityLabelInSingular(new TranslatableMessage('label.blog.post', domain: 'content'))
+            ->setEntityLabelInPlural(new TranslatableMessage('label.blog.posts', domain: 'content'))
             ->setSearchFields(['id', 'title', 'slug', 'category.name', 'tags.name'])
             ->setDefaultSort(['publishedAt' => 'DESC']);
     }
@@ -82,7 +83,7 @@ final class PostCrudController extends AbstractCrudController
         yield TextField::new('title', 'label.title');
         yield TextField::new('slug', 'label.slug')
             ->setRequired(false)
-            ->setHelp('help.blog.slug')
+            ->setHelp(new TranslatableMessage('help.blog.slug', domain: 'content'))
             ->hideOnIndex();
         yield AssociationField::new('category', 'label.category');
         yield AssociationField::new('tags', 'label.tags')->autocomplete()->hideOnIndex();
@@ -93,7 +94,7 @@ final class PostCrudController extends AbstractCrudController
             ])
             ->renderAsBadges();
         yield DateTimeField::new('publishedAt', 'label.published_at')
-            ->setHelp('help.blog.published_at');
+            ->setHelp(new TranslatableMessage('help.blog.published_at', domain: 'content'));
         yield TextEditorField::new('content', 'label.content')
             ->setNumOfRows(20)
             ->setTrixEditorConfig([
@@ -195,7 +196,7 @@ final class PostCrudController extends AbstractCrudController
     private function buildContentHelp(): string
     {
         return $this->buildMediaLibraryHelp()
-            .' '.$this->translator->trans('help.blog.image_layout');
+            .' '.$this->translator->trans('help.blog.image_layout', [], 'content');
     }
 
     private function buildMediaLibraryHelp(): string
@@ -205,7 +206,7 @@ final class PostCrudController extends AbstractCrudController
             ENT_QUOTES | ENT_HTML5,
         );
 
-        return $this->translator->trans('help.blog.media_library')
-            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library'));
+        return $this->translator->trans('help.blog.media_library', [], 'content')
+            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library', [], 'content'));
     }
 }

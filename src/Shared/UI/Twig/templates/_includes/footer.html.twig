@@ -12,7 +12,7 @@
                         </li>
                     {% endfor %}
                     <li class="list-inline-item">
-                        <a href="{{ path('app_cookie_preferences') }}" class="link-secondary">{{ 'link.cookie_preferences'|trans }}</a>
+                        <a href="{{ path('app_cookie_preferences') }}" class="link-secondary">{{ 'link.cookie_preferences'|trans({}, 'shared') }}</a>
                     </li>
                     <li class="list-inline-item">
                         {{ app_version }}

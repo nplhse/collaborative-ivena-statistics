@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.hospital.edit'|trans }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.hospital.edit'|trans({}, 'allocation') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     {{ include('@Allocation/hospitals/_hospital_edit_page_header.html.twig') }}
@@ -11,11 +11,11 @@
         {% block edit_main %}
             {{ form_start(form) }}
             <div class="card-header">
-                <h3 class="card-title">{{ 'title.hospital.edit'|trans }}</h3>
+                <h3 class="card-title">{{ 'title.hospital.edit'|trans({}, 'allocation') }}</h3>
             </div>
             <div class="card-body">
                 {% if activeSection == 'address' %}
-                    <h4 id="address-information" class="subheader mb-3">{{ 'label.hospital.address_information'|trans }}</h4>
+                    <h4 id="address-information" class="subheader mb-3">{{ 'label.hospital.address_information'|trans({}, 'messages') }}</h4>
                     <div class="row g-3">
                         <div class="col-md-8">{{ form_row(form.address.street) }}</div>
                         <div class="col-md-4">{{ form_row(form.address.postalCode) }}</div>
@@ -24,7 +24,7 @@
                         <div class="col-md-3">{{ form_row(form.address.country) }}</div>
                     </div>
                 {% else %}
-                    <h4 id="general-information" class="subheader mb-3">{{ 'label.hospital.general_information'|trans }}</h4>
+                    <h4 id="general-information" class="subheader mb-3">{{ 'label.hospital.general_information'|trans({}, 'messages') }}</h4>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">{{ form_row(form.name) }}</div>
                         <div class="col-md-3">{{ form_row(form.location) }}</div>
@@ -38,8 +38,8 @@
                 {% endif %}
             </div>
             <div class="card-footer d-flex justify-content-end gap-2">
-                <a class="btn btn-link" href="{{ path('app_explore_hospital_show', {id: hospital.id}) }}">{{ 'label.hospital.back_to_profile'|trans }}</a>
-                <button type="submit" class="btn btn-primary">{{ 'btn.save.changes'|trans }}</button>
+                <a class="btn btn-link" href="{{ path('app_explore_hospital_show', {id: hospital.id}) }}">{{ 'label.hospital.back_to_profile'|trans({}, 'messages') }}</a>
+                <button type="submit" class="btn btn-primary">{{ 'action.save_changes'|trans({}, 'messages') }}</button>
             </div>
             {{ form_end(form) }}
         {% endblock %}

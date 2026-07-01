@@ -3,17 +3,17 @@
 {% if periodVm.showNavigation %}
     <div class="card mt-4 d-print-none" data-testid="stats-period-navigation">
         <div class="card-body">
-            <ul class="pagination mb-0" role="navigation" aria-label="{{ 'stats.period.navigation.label'|trans }}">
+            <ul class="pagination mb-0" role="navigation" aria-label="{{ 'stats.period.navigation.label'|trans({}, 'statistics') }}">
                 <li class="page-item page-prev{% if not periodVm.previousEnabled %} disabled{% endif %}"
                     data-testid="stats-period-nav-previous">
                     {% if periodVm.previousEnabled and periodVm.previousUrl %}
                         <a class="page-link" href="{{ periodVm.previousUrl }}">
-                            <div class="page-item-subtitle">{{ 'stats.period.navigation.back'|trans }}</div>
+                            <div class="page-item-subtitle">{{ 'stats.period.navigation.back'|trans({}, 'statistics') }}</div>
                             <div class="page-item-title">{{ periodVm.previousLabel }}</div>
                         </a>
                     {% else %}
                         <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                            <div class="page-item-subtitle">{{ 'stats.period.navigation.back'|trans }}</div>
+                            <div class="page-item-subtitle">{{ 'stats.period.navigation.back'|trans({}, 'statistics') }}</div>
                             {% if periodVm.previousLabel %}
                                 <div class="page-item-title">{{ periodVm.previousLabel }}</div>
                             {% endif %}
@@ -24,12 +24,12 @@
                     data-testid="stats-period-nav-next">
                     {% if periodVm.nextEnabled and periodVm.nextUrl %}
                         <a class="page-link" href="{{ periodVm.nextUrl }}">
-                            <div class="page-item-subtitle">{{ 'stats.period.navigation.forward'|trans }}</div>
+                            <div class="page-item-subtitle">{{ 'stats.period.navigation.forward'|trans({}, 'statistics') }}</div>
                             <div class="page-item-title">{{ periodVm.nextLabel }}</div>
                         </a>
                     {% else %}
                         <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                            <div class="page-item-subtitle">{{ 'stats.period.navigation.forward'|trans }}</div>
+                            <div class="page-item-subtitle">{{ 'stats.period.navigation.forward'|trans({}, 'statistics') }}</div>
                             {% if periodVm.nextLabel %}
                                 <div class="page-item-title">{{ periodVm.nextLabel }}</div>
                             {% endif %}

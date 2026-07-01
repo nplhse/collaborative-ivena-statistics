@@ -21,7 +21,7 @@
                             <path d="M13.45 11.55l2.05 -2.05" />
                             <path d="M6.4 20a9 9 0 1 1 11.2 0z" />
                         </svg>
-                        &nbsp;{{ 'label.backend'|trans }}
+                        &nbsp;{{ 'label.backend'|trans({}, 'messages') }}
                     </a>
                     <div class="dropdown-divider mt-1 mb-1"></div>
                 {% endif %}
@@ -40,7 +40,7 @@
                             <path d="M13 15l0 .01" />
                             <path d="M13 18l0 .01" />
                         </svg>
-                        {{ 'label.my_hospitals'|trans }}
+                        {{ 'label.my_hospitals'|trans({}, 'messages') }}
                     </a>
                 {% endif %}
                 <a href="{{ path('app_settings_index') }}" class="dropdown-item">
@@ -49,7 +49,7 @@
                         <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.591 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.592c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.591c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.592 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.591-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.592c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.591c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.591-1.066z" />
                         <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
                     </svg>
-                    {{ 'label.settings'|trans }}
+                    {{ 'label.settings'|trans({}, 'user') }}
                 </a>
                 {{ include('@Shared/_includes/navbar_impersonation_menu_exit.html.twig', {exit_route: 'app_default'}) }}
                 <a href="{{ path('app_logout') }}" class="dropdown-item">
@@ -59,7 +59,7 @@
                         <path d="M9 12h12l-3 -3" />
                         <path d="M18 15l3 -3" />
                     </svg>
-                    {{ 'label.logout'|trans }}
+                    {{ 'label.logout'|trans({}, 'messages') }}
                 </a>
             </div>
         </div>
@@ -70,10 +70,10 @@
         <div class="nav-item d-none d-md-flex me-3">
             <div class="btn-group">
                 <a href="{{ path('app_register') }}" class="btn">
-                    {{ 'label.register'|trans }}
+                    {{ 'label.register'|trans({}, 'messages') }}
                 </a>
                 <a href="{{ path('app_login') }}" class="btn">
-                    {{ 'label.login'|trans }}
+                    {{ 'label.login'|trans({}, 'messages') }}
                 </a>
             </div>
         </div>

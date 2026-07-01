@@ -14,7 +14,7 @@
                 {% if showChartRowLimitControl %}
                     <div class="btn-group btn-group-sm"
                          role="group"
-                         aria-label="{{ 'stats.generic_analysis.table.row_limit_label'|trans }}"
+                         aria-label="{{ 'stats.generic_analysis.table.row_limit_label'|trans({}, 'statistics') }}"
                          data-testid="stats-analysis-explorer-chart-row-limit">
                         <button type="button"
                                 class="btn btn-outline-secondary{% if chartRowLimit == 'all' %} active{% endif %}"
@@ -22,7 +22,7 @@
                                 data-live-action-param="setChartRowLimit"
                                 data-live-limit-param="all"
                                 data-testid="stats-analysis-explorer-row-limit-all">
-                            {{ 'stats.generic_analysis.table.row_limit_all'|trans }}
+                            {{ 'stats.generic_analysis.table.row_limit_all'|trans({}, 'statistics') }}
                         </button>
                         <button type="button"
                                 class="btn btn-outline-secondary{% if chartRowLimit == '5' %} active{% endif %}"
@@ -30,7 +30,7 @@
                                 data-live-action-param="setChartRowLimit"
                                 data-live-limit-param="5"
                                 data-testid="stats-analysis-explorer-row-limit-5">
-                            {{ 'stats.generic_analysis.table.row_limit_top_5'|trans }}
+                            {{ 'stats.generic_analysis.table.row_limit_top_5'|trans({}, 'statistics') }}
                         </button>
                         <button type="button"
                                 class="btn btn-outline-secondary{% if chartRowLimit == '10' %} active{% endif %}"
@@ -38,7 +38,7 @@
                                 data-live-action-param="setChartRowLimit"
                                 data-live-limit-param="10"
                                 data-testid="stats-analysis-explorer-row-limit-10">
-                            {{ 'stats.generic_analysis.table.row_limit_top_10'|trans }}
+                            {{ 'stats.generic_analysis.table.row_limit_top_10'|trans({}, 'statistics') }}
                         </button>
                     </div>
                 {% endif %}
@@ -47,7 +47,7 @@
                         data-action="generic-analysis-chart#exportPng"
                         data-testid="stats-analysis-explorer-export-png">
                     <twig:ux:icon name="tabler:photo-down" style="height: 1.1em;" />
-                    {{ 'stats.analysis_explorer.export.png_chart'|trans }}
+                    {{ 'stats.analysis_explorer.export.png_chart'|trans({}, 'statistics') }}
                 </button>
             </div>
         {% endif %}
@@ -61,9 +61,9 @@
             <div class="text-center text-secondary py-5" data-testid="stats-analysis-explorer-chart-empty">
                 <p class="mb-0">
                     {% if emptyReason %}
-                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans }}
+                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans({}, 'statistics') }}
                     {% else %}
-                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans }}
+                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans({}, 'statistics') }}
                     {% endif %}
                 </p>
             </div>

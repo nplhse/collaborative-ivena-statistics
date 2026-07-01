@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.infection.list'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.infection.list'|trans({}, 'messages') }} - {{ parent() }}{% endblock %}
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
@@ -26,12 +26,12 @@
                 <div class="col">
                     {% block page_intro %}
                         <h2 class="page-title">
-                            {% block page_title %}{{ 'title.infection.list'|trans }}{% endblock %}
+                            {% block page_title %}{{ 'title.infection.list'|trans({}, 'messages') }}{% endblock %}
                         </h2>
                         {% block page_subtitle %}
                             {% block result_count %}
                                 <div id="result-count" class="text-body-secondary mt-1">
-                                    {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}) }}
+                                    {{ 'label.pagination_numbers'|trans(({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}), 'messages') }}
                                 </div>
                             {% endblock %}
                         {% endblock %}
@@ -51,8 +51,8 @@
                                     type="search"
                                     name="search"
                                     value="{{ app.request.query.get('search') }}"
-                                    aria-label="{{ 'label.search'|trans }}"
-                                    placeholder="{{ 'label.search'|trans }}"
+                                    aria-label="{{ 'label.search'|trans({}, 'messages') }}"
+                                    placeholder="{{ 'label.search'|trans({}, 'messages') }}"
                                     class="form-control d-inline-block w-9 me-3"
                                     data-action="autosubmit#debouncedSubmit"
                                     autofocus
@@ -83,7 +83,7 @@
 {% block page_content %}
     <turbo-frame id="infection-list" data-turbo-action="advance">
         {% if search is not empty %}
-            <twig:Alert type="info" :message="'label.searching_for'|trans({term: search})" />
+            <twig:Alert type="info" :message="'label.searching_for'|trans(({term: search}), 'messages')" />
         {% endif %}
 
         <twig:DataTable
@@ -101,7 +101,7 @@
                                 sortBy: 'name',
                                 orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
                             }) }}">
-                                {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
+                                {{ 'label.name'|trans({}, 'messages') }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
                             </a>
                         </th>
                         <th class="col-2">
@@ -110,11 +110,11 @@
                                 sortBy: 'lastChange',
                                 orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
                             }) }}">
-                                {{ 'label.last_changed_at'|trans }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
+                                {{ 'label.last_changed_at'|trans({}, 'messages') }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
                             </a>
                         </th>
                         <th class="col-2">
-                            {{ 'label.last_changed_by'|trans }}
+                            {{ 'label.last_changed_by'|trans({}, 'messages') }}
                         </th>
                     </tr>
                 </thead>
@@ -144,9 +144,9 @@
                                         <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
                                     </svg>
                                 </div>
-                                <p class="empty-title">{{ 'label.search_no_results'|trans }}</p>
+                                <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'messages') }}</p>
                                 <p class="empty-subtitle text-secondary">
-                                    {{ 'help.search_no_results'|trans }}
+                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
                                 </p>
                             </div>
                         </td>

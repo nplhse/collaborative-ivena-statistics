@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="De2f2ac638" resname="B+">
+        <source>B+</source>
+        <target>B+</target>
+      </trans-unit>
+      <trans-unit id="Ded5c52eb2" resname="H+">
+        <source>H+</source>
+        <target>H+</target>
+      </trans-unit>
+      <trans-unit id="De839f8934" resname="N+">
+        <source>N+</source>
+        <target>N+</target>
+      </trans-unit>
+      <trans-unit id="De65e8d469" resname="R+">
+        <source>R+</source>
+        <target>R+</target>
+      </trans-unit>
+      <trans-unit id="De7cf3e528" resname="S+">
+        <source>S+</source>
+        <target>S+</target>
+      </trans-unit>
+      <trans-unit id="abbrDeptClosedDe" resname="abbr.department_was_closed">
+        <source>abbr.department_was_closed</source>
+        <target>Abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="allocUrg1De" resname="allocation.urgency.1">
+        <source>allocation.urgency.1</source>
+        <target>Notfallversorgung</target>
+      </trans-unit>
+      <trans-unit id="allocUrg2De" resname="allocation.urgency.2">
+        <source>allocation.urgency.2</source>
+        <target>Stationäre Versorgung</target>
+      </trans-unit>
+      <trans-unit id="allocUrg3De" resname="allocation.urgency.3">
+        <source>allocation.urgency.3</source>
+        <target>Ambulante Versorgung</target>
+      </trans-unit>
+      <trans-unit id="De92626d38" resname="allocations.field.isPregnant">
+        <source>allocations.field.isPregnant</source>
+        <target>Schwangerschaft</target>
+      </trans-unit>
+      <trans-unit id="De05c35104" resname="allocations.field.isShock">
+        <source>allocations.field.isShock</source>
+        <target>Schock</target>
+      </trans-unit>
+      <trans-unit id="De44053a85" resname="allocations.field.isVentilated">
+        <source>allocations.field.isVentilated</source>
+        <target>Beatmung</target>
+      </trans-unit>
+      <trans-unit id="Deeacb1e07" resname="allocations.field.isWorkAccident">
+        <source>allocations.field.isWorkAccident</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="BtnIndAcpDe" resname="btn.indication.accept_match">
+        <source>btn.indication.accept_match</source>
+        <target>Annehmen</target>
+      </trans-unit>
+      <trans-unit id="Def19f6e97" resname="btn.indication.approve_match">
+        <source>btn.indication.approve_match</source>
+        <target>Match freigeben</target>
+      </trans-unit>
+      <trans-unit id="BtnIndIgnDe" resname="btn.indication.ignore">
+        <source>btn.indication.ignore</source>
+        <target>Ignorieren</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMnmDe" resname="btn.indication.mark_not_matchable">
+        <source>btn.indication.mark_not_matchable</source>
+        <target>Als nicht zuordenbar markieren</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMaaDe" resname="btn.indication.match_and_approve">
+        <source>btn.indication.match_and_approve</source>
+        <target>Matchen und freigeben</target>
+      </trans-unit>
+      <trans-unit id="BtnIndNMtDe" resname="btn.indication.not_matchable">
+        <source>btn.indication.not_matchable</source>
+        <target>Nicht zuordenbar</target>
+      </trans-unit>
+      <trans-unit id="BtnIndPrpDe" resname="btn.indication.propose_match">
+        <source>btn.indication.propose_match</source>
+        <target>Match vorschlagen</target>
+      </trans-unit>
+      <trans-unit id="De64b684f5" resname="btn.indication.reject_match">
+        <source>btn.indication.reject_match</source>
+        <target>Match ablehnen</target>
+      </trans-unit>
+      <trans-unit id="De35f7ecf5" resname="btn.indication.reopen">
+        <source>btn.indication.reopen</source>
+        <target>Zur Prüfung wieder öffnen</target>
+      </trans-unit>
+      <trans-unit id="De6f7ac4df" resname="btn.indication.review">
+        <source>btn.indication.review</source>
+        <target>Prüfen</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRWLDe" resname="btn.indication.review_worklist">
+        <source>btn.indication.review_worklist</source>
+        <target>Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="De770ca5ca" resname="btn.indication.skip">
+        <source>btn.indication.skip</source>
+        <target>Überspringen</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfnDe" resname="btn.indication.skip_for_now">
+        <source>btn.indication.skip_for_now</source>
+        <target>Vorläufig überspringen</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStMDe" resname="btn.indication.start_matching">
+        <source>btn.indication.start_matching</source>
+        <target>Matching starten</target>
+      </trans-unit>
+      <trans-unit id="De92cefad5" resname="btn.indication.start_review">
+        <source>btn.indication.start_review</source>
+        <target>Prüfung starten</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStRDe" resname="btn.indication.start_reviewing">
+        <source>btn.indication.start_reviewing</source>
+        <target>Review starten</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfaDe" resname="btn.indication.submit_for_approval">
+        <source>btn.indication.submit_for_approval</source>
+        <target>Zur Freigabe vorschlagen</target>
+      </trans-unit>
+      <trans-unit id="btnSaveCmtDe" resname="btn.save.comment">
+        <source>btn.save.comment</source>
+        <target>Kommentar speichern</target>
+      </trans-unit>
+      <trans-unit id="De0fffc3d3" resname="confirm.hospital_access_grant.delete">
+        <source>confirm.hospital_access_grant.delete</source>
+        <target>Diese Zugriffsberechtigung entfernen?</target>
+      </trans-unit>
+      <trans-unit id="FlsHospUpDe" resname="flash.hospital.updated">
+        <source>flash.hospital.updated</source>
+        <target>Krankenhaus aktualisiert.</target>
+      </trans-unit>
+      <trans-unit id="FlsHagCrDe" resname="flash.hospital_access_grant.created">
+        <source>flash.hospital_access_grant.created</source>
+        <target>Zugriffsberechtigung erstellt.</target>
+      </trans-unit>
+      <trans-unit id="FlsHagDelDe" resname="flash.hospital_access_grant.deleted">
+        <source>flash.hospital_access_grant.deleted</source>
+        <target>Zugriffsberechtigung entfernt.</target>
+      </trans-unit>
+      <trans-unit id="FlsHagDupDe" resname="flash.hospital_access_grant.duplicate">
+        <source>flash.hospital_access_grant.duplicate</source>
+        <target>Dieser Benutzer hat bereits eine Zugriffsberechtigung für dieses Krankenhaus.</target>
+      </trans-unit>
+      <trans-unit id="FlsHagUpDe" resname="flash.hospital_access_grant.updated">
+        <source>flash.hospital_access_grant.updated</source>
+        <target>Zugriffsberechtigung aktualisiert.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndAsgDe" resname="flash.indication.assigned">
+        <source>flash.indication.assigned</source>
+        <target>Normalisierte Indikation wurde zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndAppDe" resname="flash.indication.review.approved">
+        <source>flash.indication.review.approved</source>
+        <target>Match freigegeben. Zuweisungen werden im Hintergrund aktualisiert.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndCmtDe" resname="flash.indication.review.comment_saved">
+        <source>flash.indication.review.comment_saved</source>
+        <target>Kommentar gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndIgnDe" resname="flash.indication.review.ignored">
+        <source>flash.indication.review.ignored</source>
+        <target>Indikation ignoriert.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndMaaDe" resname="flash.indication.review.matched_and_approved">
+        <source>flash.indication.review.matched_and_approved</source>
+        <target>Match gesetzt und freigegeben. Zuweisungen werden im Hintergrund aktualisiert.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndNoOpDe" resname="flash.indication.review.no_more_open">
+        <source>flash.indication.review.no_more_open</source>
+        <target>Keine offenen Indikationen mehr in dieser Arbeitsliste.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndNmtDe" resname="flash.indication.review.not_matchable">
+        <source>flash.indication.review.not_matchable</source>
+        <target>Indikation wurde als nicht zuordenbar markiert.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndPropDe" resname="flash.indication.review.proposed">
+        <source>flash.indication.review.proposed</source>
+        <target>Match für Indikation vorgeschlagen und wartet auf Freigabe.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndRejDe" resname="flash.indication.review.rejected">
+        <source>flash.indication.review.rejected</source>
+        <target>Vorgeschlagenes Match für Indikation wurde abgelehnt.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndReoDe" resname="flash.indication.review.reopened">
+        <source>flash.indication.review.reopened</source>
+        <target>Indikation zur Prüfung wieder geöffnet.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndTgtDe" resname="flash.indication.review.target_required">
+        <source>flash.indication.review.target_required</source>
+        <target>Bitte wählen Sie eine normalisierte Indikation.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe01" resname="help.export.allocations">
+        <source>help.export.allocations</source>
+        <target>Exportieren Sie Einsatzdaten Ihrer Krankenhäuser als CSV. Der Zeitraum wird als zusammenhängendes Intervall gefiltert.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe05" resname="help.export.department_was_closed_filter">
+        <source>help.export.department_was_closed_filter</source>
+        <target>Nur Zuweisungen exportieren, bei denen der Fachbereich abgemeldet war.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe03" resname="help.export.hospitals">
+        <source>help.export.hospitals</source>
+        <target>Alle zugänglichen Krankenhäuser sind standardmäßig ausgewählt. Deaktivieren Sie ein Krankenhaus, um es vom Export auszuschließen.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe04" resname="help.export.include_indication_raw">
+        <source>help.export.include_indication_raw</source>
+        <target>Fügt eine zusätzliche Spalte mit dem ursprünglichen Indikationstext aus dem Import hinzu.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpDe02" resname="help.export.period">
+        <source>help.export.period</source>
+        <target>Ohne Uhrzeit gilt Tagesbeginn (00:00:00) bzw. Tagesende (23:59:59). Datum und Uhrzeit bilden ein durchgängiges Intervall.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAdmDe" resname="help.indication.review.admin_fast_path">
+        <source>help.indication.review.admin_fast_path</source>
+        <target>Admin: Match setzen und direkt freigeben (ohne Vier-Augen-Prüfung).</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAprDe" resname="help.indication.review.approval_actions">
+        <source>help.indication.review.approval_actions</source>
+        <target>Vorgeschlagenes Match bestätigen oder ablehnen.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAwtDe" resname="help.indication.review.awaiting_other_reviewer">
+        <source>help.indication.review.awaiting_other_reviewer</source>
+        <target>Die Freigabe muss durch einen anderen Reviewer erfolgen (Vier-Augen-Prinzip).</target>
+      </trans-unit>
+      <trans-unit id="HlpIndCwmDe" resname="help.indication.review.close_without_match">
+        <source>help.indication.review.close_without_match</source>
+        <target>Ohne Zuordnung zu einer normalisierten Indikation abschließen.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndSfaDe" resname="help.indication.review.submit_for_approval">
+        <source>help.indication.review.submit_for_approval</source>
+        <target>Ausgewähltes Match zur Freigabe durch eine andere Person vorschlagen.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndTopDe" resname="help.indication.review.top_open">
+        <source>help.indication.review.top_open</source>
+        <target>Top 50 nach Häufigkeit — {total} offene Einträge insgesamt</target>
+      </trans-unit>
+      <trans-unit id="HlpNoHospDe" resname="help.no_hospitals_assigned">
+        <source>help.no_hospitals_assigned</source>
+        <target>Ihrem Konto sind leider keine Krankenhäuser zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="Dec60f9ece" resname="hospital.size.Large">
+        <source>hospital.size.Large</source>
+        <target>Groß</target>
+      </trans-unit>
+      <trans-unit id="De96e9503c" resname="hospital.size.Medium">
+        <source>hospital.size.Medium</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="Deea215d63" resname="hospital.size.Small">
+        <source>hospital.size.Small</source>
+        <target>Klein</target>
+      </trans-unit>
+      <trans-unit id="De0234ec16" resname="hospital.location.Urban">
+        <source>hospital.location.Urban</source>
+        <target>Städtischer Standort</target>
+      </trans-unit>
+      <trans-unit id="De40b4ea77" resname="hospital.location.Mixed">
+        <source>hospital.location.Mixed</source>
+        <target>Gemischter Standort</target>
+      </trans-unit>
+      <trans-unit id="Dedfebcae3" resname="hospital.location.Rural">
+        <source>hospital.location.Rural</source>
+        <target>Ländlicher Standort</target>
+      </trans-unit>
+      <trans-unit id="Deea23589d" resname="hospital.tier.Basic">
+        <source>hospital.tier.Basic</source>
+        <target>Basisversorgung</target>
+      </trans-unit>
+      <trans-unit id="De1518d84a" resname="hospital.tier.Extended">
+        <source>hospital.tier.Extended</source>
+        <target>Erweiterte Versorgung</target>
+      </trans-unit>
+      <trans-unit id="Ded008b22b" resname="hospital.tier.Full">
+        <source>hospital.tier.Full</source>
+        <target>Umfassende Versorgung</target>
+      </trans-unit>
+      <trans-unit id="De122a5d6b" resname="indication.review.segment.ignored">
+        <source>indication.review.segment.ignored</source>
+        <target>Ignoriert</target>
+      </trans-unit>
+      <trans-unit id="De410b8c58" resname="indication.review.segment.matched">
+        <source>indication.review.segment.matched</source>
+        <target>Zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="De91957714" resname="indication.review.segment.needs_review">
+        <source>indication.review.segment.needs_review</source>
+        <target>Wartet auf Freigabe</target>
+      </trans-unit>
+      <trans-unit id="De48443f51" resname="indication.review.segment.new">
+        <source>indication.review.segment.new</source>
+        <target>Neu (30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="De171c636d" resname="indication.review.segment.not_matchable">
+        <source>indication.review.segment.not_matchable</source>
+        <target>Nicht zuordenbar</target>
+      </trans-unit>
+      <trans-unit id="Debe89f0a2" resname="indication.review.segment.open">
+        <source>indication.review.segment.open</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="De4f535f37" resname="indication.review.segment.top_open">
+        <source>indication.review.segment.top_open</source>
+        <target>Häufigste offene</target>
+      </trans-unit>
+      <trans-unit id="IndSegUnrDe" resname="indication.review.segment.unreviewed">
+        <source>indication.review.segment.unreviewed</source>
+        <target>Ungeprüft</target>
+      </trans-unit>
+      <trans-unit id="De177e0b9a" resname="indication.review.status.ignored">
+        <source>indication.review.status.ignored</source>
+        <target>Ignoriert</target>
+      </trans-unit>
+      <trans-unit id="De445fdaa9" resname="indication.review.status.matched">
+        <source>indication.review.status.matched</source>
+        <target>Zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="De1c652cae" resname="indication.review.status.needs_review">
+        <source>indication.review.status.needs_review</source>
+        <target>Wartet auf Freigabe</target>
+      </trans-unit>
+      <trans-unit id="De3c25c9a4" resname="indication.review.status.not_matchable">
+        <source>indication.review.status.not_matchable</source>
+        <target>Nicht zuordenbar</target>
+      </trans-unit>
+      <trans-unit id="Dea0ef41c0" resname="indication.review.status.unreviewed">
+        <source>indication.review.status.unreviewed</source>
+        <target>Ungeprüft</target>
+      </trans-unit>
+      <trans-unit id="De8525108b" resname="indication.tab.normalized">
+        <source>indication.tab.normalized</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="De79f13bf4" resname="indication.tab.raw">
+        <source>indication.tab.raw</source>
+        <target>Indikation (original)</target>
+      </trans-unit>
+      <trans-unit id="IndTabRevDe" resname="indication.tab.review">
+        <source>indication.tab.review</source>
+        <target>Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="De5b82c99d" resname="label.hospital_permission.Benchmarking">
+        <source>label.hospital_permission.Benchmarking</source>
+        <target>Benchmarking-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="De31f5fe93" resname="label.hospital_permission.Export">
+        <source>label.hospital_permission.Export</source>
+        <target>Export-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="Deee37261a" resname="label.hospital_permission.Import">
+        <source>label.hospital_permission.Import</source>
+        <target>Import-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="Deef04d0ba" resname="label.hospital_permission.Statistics">
+        <source>label.hospital_permission.Statistics</source>
+        <target>Statistik-Zugriff</target>
+      </trans-unit>
+      <trans-unit id="De0acc47a9" resname="label.hospital_permission.View">
+        <source>label.hospital_permission.View</source>
+        <target>Details ansehen</target>
+      </trans-unit>
+      <trans-unit id="Dee9d17c33" resname="label.work_accident">
+        <source>label.work_accident</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="De240dcf6c" resname="title.allocation.list">
+        <source>title.allocation.list</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="De52cbee75" resname="title.allocation.show">
+        <source>title.allocation.show</source>
+        <target>Zuweisungsdetails</target>
+      </trans-unit>
+      <trans-unit id="De6a6d312d" resname="title.explore">
+        <source>title.explore</source>
+        <target>Erkunden</target>
+      </trans-unit>
+      <trans-unit id="De614ab30f" resname="title.explore.index">
+        <source>title.explore.index</source>
+        <target>Daten erkunden</target>
+      </trans-unit>
+      <trans-unit id="De61ed2f63" resname="title.hospital.edit">
+        <source>title.hospital.edit</source>
+        <target>Krankenhaus bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="Dea4100961" resname="title.hospital.list">
+        <source>title.hospital.list</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De00ef372d" resname="title.hospital_access_grants">
+        <source>title.hospital_access_grants</source>
+        <target>Zugriffsberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="Deeeb1db4e" resname="title.hospital_access_grants.edit">
+        <source>title.hospital_access_grants.edit</source>
+        <target>Zugriffsberechtigung bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="De2b4cfd4c" resname="title.hospital_access_grants.list">
+        <source>title.hospital_access_grants.list</source>
+        <target>Benutzerberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="De5f91f193" resname="title.hospital_access_grants.new">
+        <source>title.hospital_access_grants.new</source>
+        <target>Zugriff gewähren</target>
+      </trans-unit>
+      <trans-unit id="De1664e107" resname="title.hospital_show">
+        <source>title.hospital_show</source>
+        <target>Krankenhausdetails</target>
+      </trans-unit>
+      <trans-unit id="De0067deff" resname="title.hospitals.my">
+        <source>title.hospitals.my</source>
+        <target>Meine Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="Ded7373d55" resname="title.indication.assign">
+        <source>title.indication.assign</source>
+        <target>Indikationen zuweisen</target>
+      </trans-unit>
+      <trans-unit id="De0f08acbf" resname="title.indication.assign_raw">
+        <source>title.indication.assign_raw</source>
+        <target>Original-Indikation zuweisen</target>
+      </trans-unit>
+      <trans-unit id="Debfd4b1cb" resname="title.indication.list">
+        <source>title.indication.list</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="IndRevAprDe" resname="title.indication.review_approval">
+        <source>title.indication.review_approval</source>
+        <target>Freigabe</target>
+      </trans-unit>
+      <trans-unit id="IndRevAsgDe" resname="title.indication.review_assignment">
+        <source>title.indication.review_assignment</source>
+        <target>Zuordnung</target>
+      </trans-unit>
+      <trans-unit id="Def2c9fad8" resname="title.indication.review_context">
+        <source>title.indication.review_context</source>
+        <target>Kontext</target>
+      </trans-unit>
+      <trans-unit id="IndRevDecDe" resname="title.indication.review_decision">
+        <source>title.indication.review_decision</source>
+        <target>Entscheidung</target>
+      </trans-unit>
+      <trans-unit id="IndRevRwDe" resname="title.indication.review_raw">
+        <source>title.indication.review_raw</source>
+        <target>Indikation (original) prüfen</target>
+      </trans-unit>
+      <trans-unit id="IndRevRwNDe" resname="title.indication.review_raw_named">
+        <source>title.indication.review_raw_named</source>
+        <target>Indikation: {name} ({code})</target>
+      </trans-unit>
+      <trans-unit id="IndRevWLDe" resname="title.indication.review_worklist">
+        <source>title.indication.review_worklist</source>
+        <target>Indikations-Review-Arbeitsliste</target>
+      </trans-unit>
+      <trans-unit id="De976594cc" resname="title.indication.sample_allocations">
+        <source>title.indication.sample_allocations</source>
+        <target>Beispiel-Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="Ded7bd2f4d" resname="title.indication.suggestions">
+        <source>title.indication.suggestions</source>
+        <target>Match-Vorschläge</target>
+      </trans-unit>
+      <trans-unit id="De38015a1f" resname="title.mci_case.list">
+        <source>title.mci_case.list</source>
+        <target>MANV-Fälle</target>
+      </trans-unit>
+      <trans-unit id="De4ec77b06" resname="title.mci_case.show">
+        <source>title.mci_case.show</source>
+        <target>MANV-Falldetails</target>
+      </trans-unit>
+      <trans-unit id="Def0bf1778" resname="title.secondary_transport.list">
+        <source>title.secondary_transport.list</source>
+        <target>Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="De86793661" resname="title.secondary_transport.show">
+        <source>title.secondary_transport.show</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

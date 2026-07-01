@@ -28,11 +28,11 @@
      aria-labelledby="statistics-filters-drawer-label"
      data-testid="statistics-filters-drawer">
     <div class="offcanvas-header">
-        <h2 class="offcanvas-title" id="statistics-filters-drawer-label">{{ 'label.filter.results'|trans }}</h2>
+        <h2 class="offcanvas-title" id="statistics-filters-drawer-label">{{ 'label.filter.results'|trans({}, 'messages') }}</h2>
         <button type="button"
                 class="btn-close"
                 data-bs-dismiss="offcanvas"
-                aria-label="{{ 'action.close'|trans }}"></button>
+                aria-label="{{ 'action.close'|trans({}, 'messages') }}"></button>
     </div>
 
     <div class="offcanvas-body">
@@ -50,7 +50,7 @@
                     {{ editAccordion.header(
                         'statistics-filter-demographics-heading',
                         'statistics-filter-demographics-panel',
-                        'stats.indication.section.demographics'|trans,
+                        'stats.indication.section.demographics'|trans({}, 'statistics'),
                         'statistics-filter-section-demographics',
                         demographicsActive,
                     ) }}
@@ -58,18 +58,18 @@
                         <div class="accordion-body">
                             <div class="row g-2">
                                 <div class="col-12">
-                                    <label class="form-label" for="statistics-filter-gender">{{ 'label.gender'|trans }}</label>
+                                    <label class="form-label" for="statistics-filter-gender">{{ 'label.gender'|trans({}, 'messages') }}</label>
                                     <select id="statistics-filter-gender" name="gender" class="form-select" data-testid="statistics-filter-gender">
-                                        <option value="">{{ 'label.all'|trans }}</option>
+                                        <option value="">{{ 'label.all'|trans({}, 'messages') }}</option>
                                         {% for value, label in drawerChoices.gender|default([]) %}
                                             <option value="{{ value }}" {{ drawerValues.gender == value ? 'selected' }}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label" for="statistics-filter-age-group">{{ 'label.age_group'|trans }}</label>
+                                    <label class="form-label" for="statistics-filter-age-group">{{ 'label.age_group'|trans({}, 'messages') }}</label>
                                     <select id="statistics-filter-age-group" name="age_group" class="form-select" data-testid="statistics-filter-age-group">
-                                        <option value="">{{ 'label.all'|trans }}</option>
+                                        <option value="">{{ 'label.all'|trans({}, 'messages') }}</option>
                                         {% for value, label in drawerChoices.age_group|default([]) %}
                                             <option value="{{ value }}" {{ drawerValues.age_group == value ? 'selected' }}>{{ label }}</option>
                                         {% endfor %}
@@ -84,7 +84,7 @@
                     {{ editAccordion.header(
                         'statistics-filter-allocation-heading',
                         'statistics-filter-allocation-panel',
-                        'label.allocation'|trans,
+                        'label.allocation'|trans({}, 'messages'),
                         'statistics-filter-section-allocation',
                         allocationActive,
                     ) }}
@@ -92,27 +92,27 @@
                         <div class="accordion-body">
                             <div class="row g-2">
                                 <div class="col-12">
-                                    <label class="form-label" for="statistics-filter-urgency">{{ 'label.urgency'|trans }}</label>
+                                    <label class="form-label" for="statistics-filter-urgency">{{ 'label.urgency'|trans({}, 'messages') }}</label>
                                     <select id="statistics-filter-urgency" name="urgency" class="form-select" data-testid="statistics-filter-urgency">
-                                        <option value="">{{ 'label.all_urgencies'|trans }}</option>
+                                        <option value="">{{ 'label.all_urgencies'|trans({}, 'messages') }}</option>
                                         {% for value, label in drawerChoices.urgency|default([]) %}
                                             <option value="{{ value }}" {{ drawerValues.urgency == value ? 'selected' }}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label" for="statistics-filter-department">{{ 'label.department'|trans }}</label>
+                                    <label class="form-label" for="statistics-filter-department">{{ 'label.department'|trans({}, 'messages') }}</label>
                                     <select id="statistics-filter-department" name="department" class="form-select" data-testid="statistics-filter-department">
-                                        <option value="">{{ 'label.all_departments'|trans }}</option>
+                                        <option value="">{{ 'label.all_departments'|trans({}, 'messages') }}</option>
                                         {% for value, label in drawerChoices.department|default([]) %}
                                             <option value="{{ value }}" {{ drawerValues.department == value ? 'selected' }}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label" for="statistics-filter-speciality">{{ 'label.speciality'|trans }}</label>
+                                    <label class="form-label" for="statistics-filter-speciality">{{ 'label.speciality'|trans({}, 'messages') }}</label>
                                     <select id="statistics-filter-speciality" name="speciality" class="form-select" data-testid="statistics-filter-speciality">
-                                        <option value="">{{ 'label.all_specialities'|trans }}</option>
+                                        <option value="">{{ 'label.all_specialities'|trans({}, 'messages') }}</option>
                                         {% for value, label in drawerChoices.speciality|default([]) %}
                                             <option value="{{ value }}" {{ drawerValues.speciality == value ? 'selected' }}>{{ label }}</option>
                                         {% endfor %}
@@ -127,7 +127,7 @@
                     {{ editAccordion.header(
                         'statistics-filter-clinical-heading',
                         'statistics-filter-clinical-panel',
-                        'stats.analysis_explorer.dimension_group.clinical_care'|trans,
+                        'stats.analysis_explorer.dimension_group.clinical_care'|trans({}, 'statistics'),
                         'statistics-filter-section-clinical',
                         clinicalActive,
                     ) }}

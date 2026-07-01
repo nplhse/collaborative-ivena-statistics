@@ -51,19 +51,19 @@ final readonly class StatisticsFilterFormChoiceProvider
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): array {
         $choices = [
-            'public' => $this->translator->trans('stats.filter.scope.public', [], null, $locale),
+            'public' => $this->translator->trans('stats.filter.scope.public', [], 'statistics', $locale),
         ];
 
         if ([] !== $this->eligibleStateRows($policy)) {
-            $choices['state'] = $this->translator->trans('stats.filter.scope.state', [], null, $locale);
+            $choices['state'] = $this->translator->trans('stats.filter.scope.state', [], 'statistics', $locale);
         }
 
         if ([] !== $this->eligibleDispatchAreaRows($policy)) {
-            $choices['dispatch_area'] = $this->translator->trans('stats.filter.scope.dispatch_area', [], null, $locale);
+            $choices['dispatch_area'] = $this->translator->trans('stats.filter.scope.dispatch_area', [], 'statistics', $locale);
         }
 
         if ([] !== $this->eligibleCohortChoices($locale)) {
-            $choices['hospital_cohort'] = $this->translator->trans('stats.filter.scope.hospital_cohort', [], null, $locale);
+            $choices['hospital_cohort'] = $this->translator->trans('stats.filter.scope.hospital_cohort', [], 'statistics', $locale);
         }
 
         if ($user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)) {
@@ -156,11 +156,11 @@ final readonly class StatisticsFilterFormChoiceProvider
     public function periodPrimaryChoices(string $locale): array
     {
         return [
-            StatisticsFilterPeriod::AllTime->value => $this->translator->trans('stats.filter.period.all_time', [], null, $locale),
-            StatisticsFilterPeriod::All->value => $this->translator->trans('stats.filter.period.all', [], null, $locale),
-            StatisticsFilterPeriod::Year->value => $this->translator->trans('stats.filter.period.year', [], null, $locale),
-            StatisticsFilterPeriod::Quarter->value => $this->translator->trans('stats.filter.period.quarter', [], null, $locale),
-            StatisticsFilterPeriod::Month->value => $this->translator->trans('stats.filter.period.month', [], null, $locale),
+            StatisticsFilterPeriod::AllTime->value => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
+            StatisticsFilterPeriod::All->value => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Year->value => $this->translator->trans('stats.filter.period.year', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Quarter->value => $this->translator->trans('stats.filter.period.quarter', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Month->value => $this->translator->trans('stats.filter.period.month', [], 'statistics', $locale),
         ];
     }
 
@@ -189,7 +189,7 @@ final readonly class StatisticsFilterFormChoiceProvider
             fn (string $key): string => $this->translator->trans('stats.dashboard.heading.quarter', [
                 'quarter' => $key,
                 'year' => (string) $year,
-            ], null, $locale),
+            ], 'statistics', $locale),
         );
     }
 
@@ -335,7 +335,7 @@ final readonly class StatisticsFilterFormChoiceProvider
         }
 
         $choices = [
-            '' => $this->translator->trans('stats.filter.hospital.all_hospitals', [], null, $locale),
+            '' => $this->translator->trans('stats.filter.hospital.all_hospitals', [], 'statistics', $locale),
         ];
         foreach ($hospitals as $row) {
             $choices[(string) $row['id']] = $row['name'];

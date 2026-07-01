@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('ROLE_PARTICIPANT')]
 #[Route('/import/new', name: 'app_import_new', methods: ['GET', 'POST'])]
@@ -78,7 +79,7 @@ final class NewImportController extends AbstractController
         $file = $form->get('file')->getData();
 
         if (!$file instanceof UploadedFile) {
-            $this->addFlash('error', 'flash.import.no_file_uploaded');
+            $this->addFlash('error', new TranslatableMessage('flash.import.no_file_uploaded', domain: 'import'));
 
             return $this->render('@Import/new.html.twig', [
                 'form' => $form->createView(),
@@ -122,7 +123,7 @@ final class NewImportController extends AbstractController
 
         $this->bus->dispatch(new ImportAllocationsMessage($importId));
 
-        $this->addFlash('success', 'flash.import.created');
+        $this->addFlash('success', new TranslatableMessage('flash.import.created', domain: 'import'));
 
         return $this->redirectToRoute('app_import_processing', ['id' => $importId]);
     }

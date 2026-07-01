@@ -2,16 +2,16 @@
 
 {% if compact %}
     <span class="d-inline-flex align-items-center text-red"
-          title="{{ 'field.departmentWasClosed'|trans }}"
-          aria-label="{{ 'field.departmentWasClosed'|trans }}"
+          title="{{ 'field.departmentWasClosed'|trans({}, 'messages') }}"
+          aria-label="{{ 'field.departmentWasClosed'|trans({}, 'messages') }}"
           data-testid="department-was-closed-indicator">
         <twig:ux:icon name="tabler:door-off" class="w-3 h-3" />
     </span>
 {% else %}
     <span class="badge bg-red-lt text-red ms-2 d-inline-flex align-items-center"
-          title="{{ 'field.departmentWasClosed'|trans }}"
+          title="{{ 'field.departmentWasClosed'|trans({}, 'messages') }}"
           data-testid="department-was-closed-indicator">
         <twig:ux:icon name="tabler:alert-square-rounded" class="w-3 h-3 me-1" />
-        {{ 'abbr.department_was_closed'|trans }}
+        {{ 'abbr.department_was_closed'|trans({}, 'allocation') }}
     </span>
 {% endif %}

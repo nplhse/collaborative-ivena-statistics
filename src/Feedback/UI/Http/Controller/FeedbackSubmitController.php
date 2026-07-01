@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Translation\TranslatableMessage;
 
 final class FeedbackSubmitController extends AbstractController
 {
@@ -53,7 +54,7 @@ final class FeedbackSubmitController extends AbstractController
         $target = $this->redirectTargetResolver->resolve(\is_scalar($redirectRaw) ? (string) $redirectRaw : '/');
 
         if (!$form->isSubmitted() || !$form->isValid()) {
-            $this->addFlash('danger', 'feedback.flash.validation_error');
+            $this->addFlash('danger', new TranslatableMessage('feedback.flash.validation_error', domain: 'feedback'));
 
             return $this->redirect($target);
         }
@@ -78,7 +79,7 @@ final class FeedbackSubmitController extends AbstractController
                 return $this->successRedirect($target);
             }
 
-            $this->addFlash('warning', 'feedback.flash.rate_limited');
+            $this->addFlash('warning', new TranslatableMessage('feedback.flash.rate_limited', domain: 'feedback'));
 
             return $this->redirect($target);
         }
@@ -87,7 +88,7 @@ final class FeedbackSubmitController extends AbstractController
         $data = $form->getData();
         $category = $data['category'] ?? null;
         if (!$category instanceof FeedbackCategory) {
-            $this->addFlash('danger', 'feedback.flash.validation_error');
+            $this->addFlash('danger', new TranslatableMessage('feedback.flash.validation_error', domain: 'feedback'));
 
             return $this->redirect($target);
         }
@@ -214,7 +215,7 @@ final class FeedbackSubmitController extends AbstractController
 
     private function successRedirect(string $target): RedirectResponse
     {
-        $this->addFlash('success', 'feedback.flash.success');
+        $this->addFlash('success', new TranslatableMessage('feedback.flash.success', domain: 'feedback'));
 
         return $this->redirect($target);
     }

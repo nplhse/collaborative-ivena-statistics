@@ -14,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<PostComment>
@@ -31,8 +32,8 @@ final class PostCommentCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('label.blog.comment')
-            ->setEntityLabelInPlural('label.blog.comments')
+            ->setEntityLabelInSingular(new TranslatableMessage('label.blog.comment', domain: 'content'))
+            ->setEntityLabelInPlural(new TranslatableMessage('label.blog.comments', domain: 'content'))
             ->setSearchFields(['id', 'content', 'author.username', 'post.title'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }

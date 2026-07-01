@@ -3,24 +3,24 @@
         <h3 class="card-title mb-0">
             <a href="{{ executiveDashboard.indication.insightsUrl }}"
                class="text-reset d-inline-flex align-items-center gap-1"
-               aria-label="{{ 'stats.overview.indication.link'|trans }}">
-                <span>{{ 'stats.reports.top_diagnoses.label'|trans }}</span>
+               aria-label="{{ 'stats.overview.indication.link'|trans({}, 'statistics') }}">
+                <span>{{ 'stats.reports.top_diagnoses.label'|trans({}, 'statistics') }}</span>
                 <twig:ux:icon name="tabler:external-link" style="height: 0.9em; width: 0.9em;" aria-hidden="true" />
             </a>
         </h3>
     </div>
     <div class="card-body{% if executiveDashboard.indication.rows is not empty %} p-0{% endif %}">
         {% if executiveDashboard.indication.rows is empty %}
-            <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+            <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
         {% else %}
             <div class="table-responsive">
                 <table class="table table-vcenter card-table mb-0">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>{{ 'stats.reports.table.diagnosis'|trans }}</th>
-                            <th class="text-end">{{ 'stats.reports.table.count'|trans }}</th>
-                            <th class="text-end">{{ 'stats.reports.table.share'|trans }}</th>
+                            <th>{{ 'stats.reports.table.diagnosis'|trans({}, 'statistics') }}</th>
+                            <th class="text-end">{{ 'stats.reports.table.count'|trans({}, 'statistics') }}</th>
+                            <th class="text-end">{{ 'stats.reports.table.share'|trans({}, 'statistics') }}</th>
                         </tr>
                     </thead>
                     <tbody>

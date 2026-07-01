@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.dashboard'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.dashboard'|trans({}, 'messages') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
@@ -69,8 +69,8 @@
                                     {{ ux_icon(step.icon, {style: 'height: 1.75em;'}) }}
                                 </span>
                                 <div>
-                                    <h3 class="h4 mb-1">{{ step.title|trans }}</h3>
-                                    <p class="text-secondary mb-0">{{ step.description|trans }}</p>
+                                    <h3 class="h4 mb-1">{{ step.title|trans({}, 'content') }}</h3>
+                                    <p class="text-secondary mb-0">{{ step.description|trans({}, 'content') }}</p>
                                 </div>
                             </div>
                         </a>
@@ -80,10 +80,10 @@
 
             <div class="card">
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
-                    <h3 class="card-title mb-0">{{ 'dashboard.blog.recent_title'|trans }}</h3>
+                    <h3 class="card-title mb-0">{{ 'dashboard.blog.recent_title'|trans({}, 'content') }}</h3>
                     <a href="{{ path('app_blog_index') }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
                         <twig:ux:icon name="tabler:notes" style="height: 1.25em;" />
-                        {{ 'dashboard.blog.visit'|trans }}
+                        {{ 'dashboard.blog.visit'|trans({}, 'content') }}
                     </a>
                 </div>
                 <div class="list-group list-group-flush">
@@ -99,15 +99,15 @@
                                     <a class="badge bg-blue-lt text-blue-emphasis" href="{{ path('app_blog_category', {slug: post.category.slug}) }}">{{ post.category.name }}</a>
                                     <span class="text-secondary">|</span>
                                     <twig:ux:icon name="tabler:user" class="w-3 h-3 flex-shrink-0" />
-                                    {{ post.createdBy ?: 'blog.meta.unknown_author'|trans }}
+                                    {{ post.createdBy ?: 'blog.meta.unknown_author'|trans({}, 'content') }}
                                     <span class="text-secondary">|</span>
-                                    {{ 'blog.comments.count'|trans({count: post.comments|length}) }}
+                                    {{ 'blog.comments.count'|trans(({count: post.comments|length}), 'content') }}
                                 </div>
                             </div>
                         </div>
                     {% else %}
                         <div class="list-group-item text-secondary">
-                            {{ 'dashboard.blog.recent_empty'|trans }}
+                            {{ 'dashboard.blog.recent_empty'|trans({}, 'content') }}
                         </div>
                     {% endfor %}
                 </div>
@@ -123,11 +123,11 @@
             {% endif %}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title mb-0">{{ 'dashboard.pages.card_title'|trans }}</h3>
+                    <h3 class="card-title mb-0">{{ 'dashboard.pages.card_title'|trans({}, 'content') }}</h3>
                 </div>
                 <div class="card-body">
                     {% if pageTree is empty %}
-                        <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans }}</p>
+                        <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans({}, 'content') }}</p>
                     {% else %}
                         <ul class="list-unstyled mb-0">
                             {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree}, false) }}

@@ -45,7 +45,7 @@ final class IndicationRawReviewWorklistController extends AbstractController
             $segmentTabs[] = [
                 'name' => sprintf(
                     '%s (%d)',
-                    $this->translator->trans('indication.review.segment.'.$segment->value),
+                    $this->translator->trans('indication.review.segment.'.$segment->value, [], 'allocation'),
                     $this->occurrenceQuery->countBySegment($segment->value),
                 ),
                 'path' => $this->generateUrl('app_explore_indication_raw_review_worklist', [

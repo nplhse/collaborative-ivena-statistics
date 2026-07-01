@@ -1,0 +1,1002 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="dshNxtHospOwnTit" resname="dashboard.next_steps.hospitals.owned.title">
+        <source>dashboard.next_steps.hospitals.owned.title</source>
+        <target>View your Hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshNxtHospOwnDesc" resname="dashboard.next_steps.hospitals.owned.description">
+        <source>dashboard.next_steps.hospitals.owned.description</source>
+        <target>Review participating hospitals and jump into their latest allocation details.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtHospAllTit" resname="dashboard.next_steps.hospitals.all.title">
+        <source>dashboard.next_steps.hospitals.all.title</source>
+        <target>View all Hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshNxtHospAllDesc" resname="dashboard.next_steps.hospitals.all.description">
+        <source>dashboard.next_steps.hospitals.all.description</source>
+        <target>Browse the full hospital directory and discover participating facilities.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtExplTit" resname="dashboard.next_steps.explore.title">
+        <source>dashboard.next_steps.explore.title</source>
+        <target>Explore our Data</target>
+      </trans-unit>
+      <trans-unit id="dshNxtExplDesc" resname="dashboard.next_steps.explore.description">
+        <source>dashboard.next_steps.explore.description</source>
+        <target>Browse allocations, indications, transports, and other source data in one place.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtAnlyTit" resname="dashboard.next_steps.analysis.title">
+        <source>dashboard.next_steps.analysis.title</source>
+        <target>Analyze your Data</target>
+      </trans-unit>
+      <trans-unit id="dshNxtAnlyDesc" resname="dashboard.next_steps.analysis.description">
+        <source>dashboard.next_steps.analysis.description</source>
+        <target>Start with the statistics overview before diving into detailed analyses.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtAnlyPubTit" resname="dashboard.next_steps.analysis.public.title">
+        <source>dashboard.next_steps.analysis.public.title</source>
+        <target>Analyze our Data</target>
+      </trans-unit>
+      <trans-unit id="dshNxtAnlyPubDesc" resname="dashboard.next_steps.analysis.public.description">
+        <source>dashboard.next_steps.analysis.public.description</source>
+        <target>Explore aggregated statistics across participating hospitals.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtImptTit" resname="dashboard.next_steps.import.title">
+        <source>dashboard.next_steps.import.title</source>
+        <target>Import new Allocations</target>
+      </trans-unit>
+      <trans-unit id="dshNxtImptDesc" resname="dashboard.next_steps.import.description">
+        <source>dashboard.next_steps.import.description</source>
+        <target>Upload a new allocation import and keep your dataset up to date.</target>
+      </trans-unit>
+      <trans-unit id="dshNxtBlogTit" resname="dashboard.next_steps.blog.title">
+        <source>dashboard.next_steps.blog.title</source>
+        <target>Read the Blog</target>
+      </trans-unit>
+      <trans-unit id="dshNxtBlogDesc" resname="dashboard.next_steps.blog.description">
+        <source>dashboard.next_steps.blog.description</source>
+        <target>Follow updates, guidance, and background stories from the project team.</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccTit" resname="dashboard.participant_access.title">
+        <source>dashboard.participant_access.title</source>
+        <target>Your current access</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIntro" resname="dashboard.participant_access.intro">
+        <source>dashboard.participant_access.intro</source>
+        <target>As a registered user you can explore aggregated statistics across the network. Full platform features require participant access assigned by an administrator.</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncTit" resname="dashboard.participant_access.includes_title">
+        <source>dashboard.participant_access.includes_title</source>
+        <target>With participant access you can also:</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncExpl" resname="dashboard.participant_access.includes.explore">
+        <source>dashboard.participant_access.includes.explore</source>
+        <target>Browse and explore allocation data</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncImpt" resname="dashboard.participant_access.includes.import">
+        <source>dashboard.participant_access.includes.import</source>
+        <target>Import allocation data for linked hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncHosp" resname="dashboard.participant_access.includes.hospitals">
+        <source>dashboard.participant_access.includes.hospitals</source>
+        <target>View and manage your linked hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncScope" resname="dashboard.participant_access.includes.stats_scope">
+        <source>dashboard.participant_access.includes.stats_scope</source>
+        <target>Analyze hospital-specific statistics (My hospitals scope)</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccIncAnly" resname="dashboard.participant_access.includes.analytics">
+        <source>dashboard.participant_access.includes.analytics</source>
+        <target>Build and save custom analytics</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccCntTit" resname="dashboard.participant_access.contact_title">
+        <source>dashboard.participant_access.contact_title</source>
+        <target>Request participant access</target>
+      </trans-unit>
+      <trans-unit id="dshPartAccCntFb" resname="dashboard.participant_access.contact_feedback">
+        <source>dashboard.participant_access.contact_feedback</source>
+        <target>Send a message via feedback</target>
+      </trans-unit>
+      <trans-unit id="dshPgTit" resname="dashboard.pages.card_title">
+        <source>dashboard.pages.card_title</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="dshPgEmp" resname="dashboard.pages.empty">
+        <source>dashboard.pages.empty</source>
+        <target>No pages available.</target>
+      </trans-unit>
+      <trans-unit id="dshBlgTit" resname="dashboard.blog.recent_title">
+        <source>dashboard.blog.recent_title</source>
+        <target>Latest blog posts</target>
+      </trans-unit>
+      <trans-unit id="dshBlgEmp" resname="dashboard.blog.recent_empty">
+        <source>dashboard.blog.recent_empty</source>
+        <target>No published posts yet.</target>
+      </trans-unit>
+      <trans-unit id="dshBlgVis" resname="dashboard.blog.visit">
+        <source>dashboard.blog.visit</source>
+        <target>Visit Blog</target>
+      </trans-unit>
+      <trans-unit id="ZKHDIRf" resname="public.cta.learn_more">
+        <source>public.cta.learn_more</source>
+        <target>Learn more</target>
+      </trans-unit>
+      <trans-unit id="88M4YBe" resname="public.cta.register">
+        <source>public.cta.register</source>
+        <target>Register</target>
+      </trans-unit>
+      <trans-unit id="MC1jwCz" resname="public.cta.sign_in">
+        <source>public.cta.sign_in</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="6_P.fwQ" resname="public.home.about.p1">
+        <source>public.home.about.p1</source>
+        <target>Although emergency medical services are among the largest referrers to emergency departments, there are still only few large-scale systematic analyses of EMS patient characteristics. Since 2017, the web-based IVENA system has been used across Germany to digitally register EMS patients at acute care hospitals.</target>
+      </trans-unit>
+      <trans-unit id="aJrjagd" resname="public.home.about.p2">
+        <source>public.home.about.p2</source>
+        <target>For every allocation, an anonymized dataset is created and stored, including variables such as age, sex, coded suspected diagnosis, urgency, assignment pathway, physician accompaniment, CPR, ventilation, infection status, pregnancy, and requested resources like resuscitation room or cath lab.</target>
+      </trans-unit>
+      <trans-unit id="DF5.wOi" resname="public.home.about.p3">
+        <source>public.home.about.p3</source>
+        <target>In early 2021, members of the DGINA working group in Hesse initiated this collaborative platform to merge IVENA allocation data from many hospitals and enable shared statistics and dedicated analyses for specific emergency care research questions.</target>
+      </trans-unit>
+      <trans-unit id="LYDzZRg" resname="public.home.about.title">
+        <source>public.home.about.title</source>
+        <target>About us</target>
+      </trans-unit>
+      <trans-unit id="WuHj_y1" resname="public.home.features.card.analytics.text">
+        <source>public.home.features.card.analytics.text</source>
+        <target>Generate distributions and trend views to support evidence-based emergency care decisions.</target>
+      </trans-unit>
+      <trans-unit id="tjJAU5R" resname="public.home.features.card.analytics.title">
+        <source>public.home.features.card.analytics.title</source>
+        <target>Statistics and benchmarking</target>
+      </trans-unit>
+      <trans-unit id="0PVf_q7" resname="public.home.features.card.explore.text">
+        <source>public.home.features.card.explore.text</source>
+        <target>Inspect records with filters for urgency, transport context, assignment patterns, and clinical characteristics.</target>
+      </trans-unit>
+      <trans-unit id="FTHRlFT" resname="public.home.features.card.explore.title">
+        <source>public.home.features.card.explore.title</source>
+        <target>Explore data</target>
+      </trans-unit>
+      <trans-unit id="dANFfmE" resname="public.home.features.card.hospital_centered.text">
+        <source>public.home.features.card.hospital_centered.text</source>
+        <target>Participating sites can manage institutions, maintain metadata, and work with their own allocation exports.</target>
+      </trans-unit>
+      <trans-unit id="u_l6K6x" resname="public.home.features.card.hospital_centered.title">
+        <source>public.home.features.card.hospital_centered.title</source>
+        <target>Hospital-centered workflows</target>
+      </trans-unit>
+      <trans-unit id="EWBcXbq" resname="public.home.features.card.independent.text">
+        <source>public.home.features.card.independent.text</source>
+        <target>The initiative is run by an independent clinical research network with a clear public-health focus.</target>
+      </trans-unit>
+      <trans-unit id="dxR6rAB" resname="public.home.features.card.independent.title">
+        <source>public.home.features.card.independent.title</source>
+        <target>Independent and non-commercial</target>
+      </trans-unit>
+      <trans-unit id="mr0cgLL" resname="public.home.features.detail.data_exploration.text">
+        <source>public.home.features.detail.data_exploration.text</source>
+        <target>Analyze age, sex, coded suspected diagnosis, priority, assignment pathway, and other operational characteristics across large cohorts.</target>
+      </trans-unit>
+      <trans-unit id="H9s9kYv" resname="public.home.features.detail.data_exploration.title">
+        <source>public.home.features.detail.data_exploration.title</source>
+        <target>Detailed data exploration</target>
+      </trans-unit>
+      <trans-unit id="zeUoGVL" resname="public.home.features.detail.hospital_management.text">
+        <source>public.home.features.detail.hospital_management.text</source>
+        <target>Each hospital can be represented with structured profile data, participation status, and ownership assignments for local administration.</target>
+      </trans-unit>
+      <trans-unit id="MOb1ADP" resname="public.home.features.detail.hospital_management.title">
+        <source>public.home.features.detail.hospital_management.title</source>
+        <target>Hospital management and participation</target>
+      </trans-unit>
+      <trans-unit id="wm3cSki" resname="public.home.features.detail.import_export.text">
+        <source>public.home.features.detail.import_export.text</source>
+        <target>Hospitals can continuously import new IVENA exports and use structured exports for downstream scientific workflows.</target>
+      </trans-unit>
+      <trans-unit id="xN5TuWQ" resname="public.home.features.detail.import_export.title">
+        <source>public.home.features.detail.import_export.title</source>
+        <target>Import and export pipeline</target>
+      </trans-unit>
+      <trans-unit id=".YOlX__" resname="public.home.features.detail.statistics.text">
+        <source>public.home.features.detail.statistics.text</source>
+        <target>Create focused analyses for specific research questions and compare institutional patterns with anonymized clusters.</target>
+      </trans-unit>
+      <trans-unit id="VF9iPLp" resname="public.home.features.detail.statistics.title">
+        <source>public.home.features.detail.statistics.title</source>
+        <target>Shared statistics for targeted questions</target>
+      </trans-unit>
+      <trans-unit id="7xCs85r" resname="public.home.features.overview.subtitle">
+        <source>public.home.features.overview.subtitle</source>
+        <target>Built for hospitals, research teams, and quality improvement initiatives.</target>
+      </trans-unit>
+      <trans-unit id="Jf37X.O" resname="public.home.features.overview.title">
+        <source>public.home.features.overview.title</source>
+        <target>Core platform strengths</target>
+      </trans-unit>
+      <trans-unit id="Axt3js1" resname="public.home.hero.preview_alt">
+        <source>public.home.hero.preview_alt</source>
+        <target>Upcoming homepage preview screenshot placeholder</target>
+      </trans-unit>
+      <trans-unit id="inGjAQS" resname="public.home.hero.preview_note">
+        <source>public.home.hero.preview_note</source>
+        <target>Placeholder image: final visual screenshot will be added next.</target>
+      </trans-unit>
+      <trans-unit id="o35EWat" resname="public.home.hero.preview_text">
+        <source>public.home.hero.preview_text</source>
+        <target>Participating hospitals can combine IVENA allocation data, run shared analyses, and compare anonymized benchmarks in one place.</target>
+      </trans-unit>
+      <trans-unit id="EFn3O.C" resname="public.home.hero.preview_title">
+        <source>public.home.hero.preview_title</source>
+        <target>One collaborative platform</target>
+      </trans-unit>
+      <trans-unit id="abSseey" resname="public.home.hero.subtitle">
+        <source>public.home.hero.subtitle</source>
+        <target>We collaboratively build emergency care research statistics in Germany based on IVENA allocation data.</target>
+      </trans-unit>
+      <trans-unit id="7nDvcYo" resname="public.home.hero.title">
+        <source>public.home.hero.title</source>
+        <target>Research Together.</target>
+      </trans-unit>
+      <trans-unit id="s19o8l1" resname="public.home.meta_title">
+        <source>public.home.meta_title</source>
+        <target>Collaborative Emergency Care Research</target>
+      </trans-unit>
+      <trans-unit id="M6R_RDR" resname="public.home.participation.free_note">
+        <source>public.home.participation.free_note</source>
+        <target>The platform is free of charge.</target>
+      </trans-unit>
+      <trans-unit id="a.wot55" resname="public.home.participation.text">
+        <source>public.home.participation.text</source>
+        <target>Participation is open to interested institutions and users. Register to learn more and access the collaborative workspace.</target>
+      </trans-unit>
+      <trans-unit id="zFXKMOx" resname="public.home.participation.title">
+        <source>public.home.participation.title</source>
+        <target>Join the project</target>
+      </trans-unit>
+      <trans-unit id="VgJqB_Q" resname="public.home.stats.subtitle">
+        <source>public.home.stats.subtitle</source>
+        <target>A quick snapshot of the current collaborative data network.</target>
+      </trans-unit>
+      <trans-unit id="SuNofpS" resname="public.home.stats.title">
+        <source>public.home.stats.title</source>
+        <target>Project overview</target>
+      </trans-unit>
+      <trans-unit id="HpScrn01" resname="public.home.screenshots.analytics.alt">
+        <source>public.home.screenshots.analytics.alt</source>
+        <target>Custom analytics view showing gender distribution by urgency with analysis options</target>
+      </trans-unit>
+      <trans-unit id="HpScrn01c" resname="public.home.screenshots.analytics.caption">
+        <source>public.home.screenshots.analytics.caption</source>
+        <target>Customize analyses by urgency, gender and other clinical dimensions.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn02" resname="public.home.screenshots.benchmarking.alt">
+        <source>public.home.screenshots.benchmarking.alt</source>
+        <target>Benchmarking view comparing primary and comparison cohorts across key metrics</target>
+      </trans-unit>
+      <trans-unit id="HpScrn02c" resname="public.home.screenshots.benchmarking.caption">
+        <source>public.home.screenshots.benchmarking.caption</source>
+        <target>Benchmark hospitals and regions on key emergency care indicators.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn03" resname="public.home.screenshots.carousel_label">
+        <source>public.home.screenshots.carousel_label</source>
+        <target>Platform screenshots</target>
+      </trans-unit>
+      <trans-unit id="HpScrn04" resname="public.home.screenshots.dashboard.alt">
+        <source>public.home.screenshots.dashboard.alt</source>
+        <target>Statistics overview dashboard with allocation trends and clinical distributions</target>
+      </trans-unit>
+      <trans-unit id="HpScrn04c" resname="public.home.screenshots.dashboard.caption">
+        <source>public.home.screenshots.dashboard.caption</source>
+        <target>Shared overview of allocations, trends and clinical distributions across the network.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn05" resname="public.home.screenshots.indication_insights.alt">
+        <source>public.home.screenshots.indication_insights.alt</source>
+        <target>Indication profile with cases over time, distribution heatmap and clinical features</target>
+      </trans-unit>
+      <trans-unit id="HpScrn05c" resname="public.home.screenshots.indication_insights.caption">
+        <source>public.home.screenshots.indication_insights.caption</source>
+        <target>Explore indication profiles with time trends and case distributions.</target>
+      </trans-unit>
+      <trans-unit id="HpScrn06" resname="public.home.screenshots.next">
+        <source>public.home.screenshots.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="HpScrn07" resname="public.home.screenshots.previous">
+        <source>public.home.screenshots.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="rJakKKg" resname="public.stats.allocations">
+        <source>public.stats.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="n4D_l_N" resname="public.stats.hospitals">
+        <source>public.stats.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="_oAVFM1" resname="public.stats.imports">
+        <source>public.stats.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="wmaFOpu" resname="public.stats.users">
+        <source>public.stats.users</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="blog0002" resname="blog.meta.category">
+        <source>blog.meta.category</source>
+        <target>Category:</target>
+      </trans-unit>
+      <trans-unit id="blog0003" resname="blog.meta.tag">
+        <source>blog.meta.tag</source>
+        <target>Tag:</target>
+      </trans-unit>
+      <trans-unit id="blog0064" resname="blog.meta.author">
+        <source>blog.meta.author</source>
+        <target>Author:</target>
+      </trans-unit>
+      <trans-unit id="blog0065" resname="blog.meta.unknown_author">
+        <source>blog.meta.unknown_author</source>
+        <target>Unknown author</target>
+      </trans-unit>
+      <trans-unit id="blog0066" resname="blog.meta.tags">
+        <source>blog.meta.tags</source>
+        <target>Tags:</target>
+      </trans-unit>
+      <trans-unit id="blog0004" resname="blog.action.read_more">
+        <source>blog.action.read_more</source>
+        <target>Read more</target>
+      </trans-unit>
+      <trans-unit id="blog0005" resname="blog.empty.posts">
+        <source>blog.empty.posts</source>
+        <target>No published posts available yet.</target>
+      </trans-unit>
+      <trans-unit id="blog0006" resname="blog.comments.title">
+        <source>blog.comments.title</source>
+        <target>Comments</target>
+      </trans-unit>
+      <trans-unit id="blog0007" resname="blog.comments.placeholder">
+        <source>blog.comments.placeholder</source>
+        <target>Write a comment...</target>
+      </trans-unit>
+      <trans-unit id="blog0008" resname="blog.comments.submit">
+        <source>blog.comments.submit</source>
+        <target>Post comment</target>
+      </trans-unit>
+      <trans-unit id="blog0009" resname="blog.comments.login_required">
+        <source>blog.comments.login_required</source>
+        <target>Please sign in to leave a comment.</target>
+      </trans-unit>
+      <trans-unit id="blog0010" resname="blog.comments.empty">
+        <source>blog.comments.empty</source>
+        <target>No comments yet.</target>
+      </trans-unit>
+      <trans-unit id="blog0011" resname="blog.comments.reply.toggle">
+        <source>blog.comments.reply.toggle</source>
+        <target>Reply</target>
+      </trans-unit>
+      <trans-unit id="blog0012" resname="blog.comments.reply.placeholder">
+        <source>blog.comments.reply.placeholder</source>
+        <target>Write a reply...</target>
+      </trans-unit>
+      <trans-unit id="blog0013" resname="blog.comments.reply.submit">
+        <source>blog.comments.reply.submit</source>
+        <target>Send reply</target>
+      </trans-unit>
+      <trans-unit id="blog0014" resname="blog.sidebar.latest_posts">
+        <source>blog.sidebar.latest_posts</source>
+        <target>Latest posts</target>
+      </trans-unit>
+      <trans-unit id="blog0015" resname="blog.sidebar.no_latest_posts">
+        <source>blog.sidebar.no_latest_posts</source>
+        <target>No recent posts.</target>
+      </trans-unit>
+      <trans-unit id="blog0016" resname="blog.sidebar.categories">
+        <source>blog.sidebar.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="blog0017" resname="blog.sidebar.no_categories">
+        <source>blog.sidebar.no_categories</source>
+        <target>No categories available.</target>
+      </trans-unit>
+      <trans-unit id="blog0018" resname="blog.sidebar.tags">
+        <source>blog.sidebar.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="blog0019" resname="blog.sidebar.no_tags">
+        <source>blog.sidebar.no_tags</source>
+        <target>No tags available.</target>
+      </trans-unit>
+      <trans-unit id="blog0020" resname="blog.sidebar.links">
+        <source>blog.sidebar.links</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="blog0021" resname="blog.sidebar.rss_feed">
+        <source>blog.sidebar.rss_feed</source>
+        <target>RSS feed</target>
+      </trans-unit>
+      <trans-unit id="blog0022" resname="blog.sidebar.about_title">
+        <source>blog.sidebar.about_title</source>
+        <target>About this blog</target>
+      </trans-unit>
+      <trans-unit id="blog0023" resname="blog.sidebar.about_text">
+        <source>blog.sidebar.about_text</source>
+        <target>This blog shares product updates, release notes and project insights from the Collaborative IVENA Statistics team.</target>
+      </trans-unit>
+      <trans-unit id="blog0024" resname="flash.blog.comment.empty">
+        <source>flash.blog.comment.empty</source>
+        <target>Comment must not be empty.</target>
+      </trans-unit>
+      <trans-unit id="blog0025" resname="flash.blog.comment.created">
+        <source>flash.blog.comment.created</source>
+        <target>Comment saved.</target>
+      </trans-unit>
+      <trans-unit id="blog0026" resname="error.blog.category_not_found">
+        <source>error.blog.category_not_found</source>
+        <target>Category not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0027" resname="error.blog.tag_not_found">
+        <source>error.blog.tag_not_found</source>
+        <target>Tag not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0028" resname="error.blog.post_not_found">
+        <source>error.blog.post_not_found</source>
+        <target>Post not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0029" resname="error.blog.invalid_csrf">
+        <source>error.blog.invalid_csrf</source>
+        <target>Invalid CSRF token.</target>
+      </trans-unit>
+      <trans-unit id="blog0030" resname="error.blog.user_not_found">
+        <source>error.blog.user_not_found</source>
+        <target>User not found.</target>
+      </trans-unit>
+      <trans-unit id="blog0031" resname="label.blog.posts">
+        <source>label.blog.posts</source>
+        <target>Blog posts</target>
+      </trans-unit>
+      <trans-unit id="blog0032" resname="label.blog.categories">
+        <source>label.blog.categories</source>
+        <target>Blog categories</target>
+      </trans-unit>
+      <trans-unit id="blog0033" resname="label.blog.tags">
+        <source>label.blog.tags</source>
+        <target>Blog tags</target>
+      </trans-unit>
+      <trans-unit id="blog0034" resname="label.blog.comments">
+        <source>label.blog.comments</source>
+        <target>Blog comments</target>
+      </trans-unit>
+      <trans-unit id="blog0035" resname="label.blog.post">
+        <source>label.blog.post</source>
+        <target>Blog post</target>
+      </trans-unit>
+      <trans-unit id="blog0036" resname="label.blog.category">
+        <source>label.blog.category</source>
+        <target>Blog category</target>
+      </trans-unit>
+      <trans-unit id="blog0037" resname="label.blog.tag">
+        <source>label.blog.tag</source>
+        <target>Blog tag</target>
+      </trans-unit>
+      <trans-unit id="blog0038" resname="label.blog.comment">
+        <source>label.blog.comment</source>
+        <target>Blog comment</target>
+      </trans-unit>
+      <trans-unit id="blog0052" resname="help.blog.published_at">
+        <source>help.blog.published_at</source>
+        <target>Only published posts with a timestamp in the past become publicly visible.</target>
+      </trans-unit>
+      <trans-unit id="blog0052b" resname="help.blog.slug">
+        <source>help.blog.slug</source>
+        <target>Leave empty to generate automatically from the title.</target>
+      </trans-unit>
+      <trans-unit id="blog0053" resname="blog.list.all_posts">
+        <source>blog.list.all_posts</source>
+        <target>All posts</target>
+      </trans-unit>
+      <trans-unit id="titleBlog01" resname="title.blog">
+        <source>title.blog</source>
+        <target>Our Blog</target>
+      </trans-unit>
+      <trans-unit id="blogDesc01" resname="blog.description">
+        <source>blog.description</source>
+        <target>Updates, Backgrounds and News about Collaborative IVENA Statistics.</target>
+      </trans-unit>
+      <trans-unit id="blog0054" resname="blog.list.category">
+        <source>blog.list.category</source>
+        <target>Category: {name}</target>
+      </trans-unit>
+      <trans-unit id="blog0055" resname="blog.list.tag">
+        <source>blog.list.tag</source>
+        <target>Tag: {name}</target>
+      </trans-unit>
+      <trans-unit id="blog0056" resname="blog.list.range_of_total">
+        <source>blog.list.range_of_total</source>
+        <target>{first}-{last} of {total} posts</target>
+      </trans-unit>
+      <trans-unit id="blog0057" resname="blog.comments.count">
+        <source>blog.comments.count</source>
+        <target>{count, plural, =0 {no comments} one {# comment} other {# comments}}</target>
+      </trans-unit>
+      <trans-unit id="blog0058" resname="blog.comments.first_cta">
+        <source>blog.comments.first_cta</source>
+        <target>Be the first to post a comment.</target>
+      </trans-unit>
+      <trans-unit id="blog0059" resname="blog.pagination.previous">
+        <source>blog.pagination.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="blog0060" resname="blog.pagination.next">
+        <source>blog.pagination.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="blog0061" resname="blog.pagination.previous_lower">
+        <source>blog.pagination.previous_lower</source>
+        <target>previous</target>
+      </trans-unit>
+      <trans-unit id="blog0062" resname="blog.pagination.next_lower">
+        <source>blog.pagination.next_lower</source>
+        <target>next</target>
+      </trans-unit>
+      <trans-unit id="blog0063" resname="blog.pagination.none">
+        <source>blog.pagination.none</source>
+        <target>Not available</target>
+      </trans-unit>
+      <trans-unit id="page0001" resname="label.page">
+        <source>label.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="page0002" resname="label.pages">
+        <source>label.pages</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="page00ab3" resname="label.block_type">
+        <source>label.block_type</source>
+        <target>Block type</target>
+      </trans-unit>
+      <trans-unit id="page00ab4" resname="flash.page.content_block_appended">
+        <source>flash.page.content_block_appended</source>
+        <target>Content block added.</target>
+      </trans-unit>
+      <trans-unit id="page00ab5" resname="flash.page.append_block_failed">
+        <source>flash.page.append_block_failed</source>
+        <target>Could not add the content block.</target>
+      </trans-unit>
+      <trans-unit id="page00ab6" resname="flash.page.append_block_type_required">
+        <source>flash.page.append_block_type_required</source>
+        <target>Please choose a block type before adding.</target>
+      </trans-unit>
+      <trans-unit id="page00k10" resname="label.page_key">
+        <source>label.page_key</source>
+        <target>Page key</target>
+      </trans-unit>
+      <trans-unit id="page00k11" resname="page.key.imprint">
+        <source>page.key.imprint</source>
+        <target>Imprint</target>
+      </trans-unit>
+      <trans-unit id="page00k12" resname="page.key.privacy">
+        <source>page.key.privacy</source>
+        <target>Privacy policy</target>
+      </trans-unit>
+      <trans-unit id="page00k13" resname="page.key.terms">
+        <source>page.key.terms</source>
+        <target>Terms and conditions</target>
+      </trans-unit>
+      <trans-unit id="page00k14" resname="page.key.about">
+        <source>page.key.about</source>
+        <target>About us</target>
+      </trans-unit>
+      <trans-unit id="page00k15" resname="page.key.features">
+        <source>page.key.features</source>
+        <target>Features</target>
+      </trans-unit>
+      <trans-unit id="page00k16" resname="page.key.faq">
+        <source>page.key.faq</source>
+        <target>FAQ</target>
+      </trans-unit>
+      <trans-unit id="page0014" resname="label.block_type.richtext">
+        <source>label.block_type.richtext</source>
+        <target>Rich text</target>
+      </trans-unit>
+      <trans-unit id="page0015" resname="label.block_type.image">
+        <source>label.block_type.image</source>
+        <target>Image</target>
+      </trans-unit>
+      <trans-unit id="page0016" resname="label.block_type.cta">
+        <source>label.block_type.cta</source>
+        <target>Call to action</target>
+      </trans-unit>
+      <trans-unit id="page0017" resname="label.block_type.quote">
+        <source>label.block_type.quote</source>
+        <target>Quote</target>
+      </trans-unit>
+      <trans-unit id="page0017a" resname="label.block_type.headline">
+        <source>label.block_type.headline</source>
+        <target>Headline</target>
+      </trans-unit>
+      <trans-unit id="page0017b" resname="label.block_type.highlight">
+        <source>label.block_type.highlight</source>
+        <target>Highlight</target>
+      </trans-unit>
+      <trans-unit id="page0017c" resname="label.block_type.accordion">
+        <source>label.block_type.accordion</source>
+        <target>Accordion</target>
+      </trans-unit>
+      <trans-unit id="page0019" resname="help.page.richtext_allowed_tags">
+        <source>help.page.richtext_allowed_tags</source>
+        <target>Allowed tags: p, br, h2-h4, strong, em, ul, ol, li, a, blockquote, img, figure, figcaption</target>
+      </trans-unit>
+      <trans-unit id="page0020" resname="label.image_url">
+        <source>label.image_url</source>
+        <target>Image URL</target>
+      </trans-unit>
+      <trans-unit id="page0021" resname="label.image_alt">
+        <source>label.image_alt</source>
+        <target>Image alt text</target>
+      </trans-unit>
+      <trans-unit id="page0022" resname="label.image_caption">
+        <source>label.image_caption</source>
+        <target>Image caption</target>
+      </trans-unit>
+      <trans-unit id="page0023" resname="label.headline">
+        <source>label.headline</source>
+        <target>Headline</target>
+      </trans-unit>
+      <trans-unit id="page0026a" resname="label.headline_text">
+        <source>label.headline_text</source>
+        <target>Headline text</target>
+      </trans-unit>
+      <trans-unit id="page0026b" resname="label.headline_level">
+        <source>label.headline_level</source>
+        <target>Heading level</target>
+      </trans-unit>
+      <trans-unit id="page0026c" resname="label.headline_level.h1">
+        <source>label.headline_level.h1</source>
+        <target>H1</target>
+      </trans-unit>
+      <trans-unit id="page0026d" resname="label.headline_level.h2">
+        <source>label.headline_level.h2</source>
+        <target>H2</target>
+      </trans-unit>
+      <trans-unit id="page0026e" resname="label.headline_level.h3">
+        <source>label.headline_level.h3</source>
+        <target>H3</target>
+      </trans-unit>
+      <trans-unit id="page0026f" resname="label.headline_level.h4">
+        <source>label.headline_level.h4</source>
+        <target>H4</target>
+      </trans-unit>
+      <trans-unit id="page0026g" resname="help.page.headline_level">
+        <source>help.page.headline_level</source>
+        <target>The page title is already rendered as H1. Use H1 here only when you intentionally need a second top-level heading.</target>
+      </trans-unit>
+      <trans-unit id="page0026h" resname="label.headline_align">
+        <source>label.headline_align</source>
+        <target>Alignment</target>
+      </trans-unit>
+      <trans-unit id="page0026i" resname="label.headline_align.left">
+        <source>label.headline_align.left</source>
+        <target>Left</target>
+      </trans-unit>
+      <trans-unit id="page0026j" resname="label.headline_align.center">
+        <source>label.headline_align.center</source>
+        <target>Center</target>
+      </trans-unit>
+      <trans-unit id="page0026k" resname="label.headline_align.right">
+        <source>label.headline_align.right</source>
+        <target>Right</target>
+      </trans-unit>
+      <trans-unit id="page0026l" resname="label.headline_spacing_before">
+        <source>label.headline_spacing_before</source>
+        <target>Spacing before</target>
+      </trans-unit>
+      <trans-unit id="page0026m" resname="label.headline_spacing_after">
+        <source>label.headline_spacing_after</source>
+        <target>Spacing after</target>
+      </trans-unit>
+      <trans-unit id="page0026n" resname="label.spacing.none">
+        <source>label.spacing.none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="page0026o" resname="label.spacing.sm">
+        <source>label.spacing.sm</source>
+        <target>Small</target>
+      </trans-unit>
+      <trans-unit id="page0026p" resname="label.spacing.md">
+        <source>label.spacing.md</source>
+        <target>Medium</target>
+      </trans-unit>
+      <trans-unit id="page0026q" resname="label.spacing.lg">
+        <source>label.spacing.lg</source>
+        <target>Large</target>
+      </trans-unit>
+      <trans-unit id="page0026r" resname="label.highlight_variant">
+        <source>label.highlight_variant</source>
+        <target>Variant</target>
+      </trans-unit>
+      <trans-unit id="page0026s" resname="label.highlight_variant.info">
+        <source>label.highlight_variant.info</source>
+        <target>Info</target>
+      </trans-unit>
+      <trans-unit id="page0026t" resname="label.highlight_variant.success">
+        <source>label.highlight_variant.success</source>
+        <target>Success</target>
+      </trans-unit>
+      <trans-unit id="page0026u" resname="label.highlight_variant.warning">
+        <source>label.highlight_variant.warning</source>
+        <target>Warning</target>
+      </trans-unit>
+      <trans-unit id="page0026v" resname="label.highlight_variant.danger">
+        <source>label.highlight_variant.danger</source>
+        <target>Danger</target>
+      </trans-unit>
+      <trans-unit id="page0026w" resname="label.highlight_variant.note">
+        <source>label.highlight_variant.note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="page0026x" resname="label.highlight_title">
+        <source>label.highlight_title</source>
+        <target>Title (optional)</target>
+      </trans-unit>
+      <trans-unit id="page0026y" resname="label.highlight_icon_mode">
+        <source>label.highlight_icon_mode</source>
+        <target>Icon mode</target>
+      </trans-unit>
+      <trans-unit id="page0026z" resname="label.highlight_icon_mode.auto">
+        <source>label.highlight_icon_mode.auto</source>
+        <target>Automatic by variant</target>
+      </trans-unit>
+      <trans-unit id="page0026aa" resname="label.highlight_icon_mode.custom">
+        <source>label.highlight_icon_mode.custom</source>
+        <target>Custom icon</target>
+      </trans-unit>
+      <trans-unit id="page0026ab" resname="label.highlight_icon_mode.none">
+        <source>label.highlight_icon_mode.none</source>
+        <target>No icon</target>
+      </trans-unit>
+      <trans-unit id="page0026ac" resname="label.highlight_icon">
+        <source>label.highlight_icon</source>
+        <target>Custom icon</target>
+      </trans-unit>
+      <trans-unit id="page0026ad" resname="help.page.highlight_icon">
+        <source>help.page.highlight_icon</source>
+        <target>Tabler icon name, e.g. tabler:info-circle</target>
+      </trans-unit>
+      <trans-unit id="page0026ah" resname="label.image_width_mode">
+        <source>label.image_width_mode</source>
+        <target>Width mode</target>
+      </trans-unit>
+      <trans-unit id="page0026ai" resname="label.image_width_mode.preset">
+        <source>label.image_width_mode.preset</source>
+        <target>Preset</target>
+      </trans-unit>
+      <trans-unit id="page0026aj" resname="label.image_width_mode.px">
+        <source>label.image_width_mode.px</source>
+        <target>Fixed pixels</target>
+      </trans-unit>
+      <trans-unit id="page0026ak" resname="label.image_width_mode.percent">
+        <source>label.image_width_mode.percent</source>
+        <target>Percent</target>
+      </trans-unit>
+      <trans-unit id="page0026al" resname="label.image_width_preset">
+        <source>label.image_width_preset</source>
+        <target>Width preset</target>
+      </trans-unit>
+      <trans-unit id="page0026am" resname="label.image_width_preset.sm">
+        <source>label.image_width_preset.sm</source>
+        <target>Small (25%)</target>
+      </trans-unit>
+      <trans-unit id="page0026an" resname="label.image_width_preset.md">
+        <source>label.image_width_preset.md</source>
+        <target>Medium (50%)</target>
+      </trans-unit>
+      <trans-unit id="page0026ao" resname="label.image_width_preset.lg">
+        <source>label.image_width_preset.lg</source>
+        <target>Large (75%)</target>
+      </trans-unit>
+      <trans-unit id="page0026ap" resname="label.image_width_preset.full">
+        <source>label.image_width_preset.full</source>
+        <target>Full width</target>
+      </trans-unit>
+      <trans-unit id="page0026aq" resname="label.image_width_px">
+        <source>label.image_width_px</source>
+        <target>Width in pixels</target>
+      </trans-unit>
+      <trans-unit id="page0026ar" resname="help.page.image_width_px">
+        <source>help.page.image_width_px</source>
+        <target>Used when width mode is fixed pixels.</target>
+      </trans-unit>
+      <trans-unit id="page0026as" resname="label.image_width_percent">
+        <source>label.image_width_percent</source>
+        <target>Width in percent</target>
+      </trans-unit>
+      <trans-unit id="page0026at" resname="help.page.image_width_percent">
+        <source>help.page.image_width_percent</source>
+        <target>Used when width mode is percent (1–100).</target>
+      </trans-unit>
+      <trans-unit id="page0026au" resname="label.image_alignment">
+        <source>label.image_alignment</source>
+        <target>Alignment</target>
+      </trans-unit>
+      <trans-unit id="page0026av" resname="label.image_alignment.left">
+        <source>label.image_alignment.left</source>
+        <target>Left</target>
+      </trans-unit>
+      <trans-unit id="page0026aw" resname="label.image_alignment.center">
+        <source>label.image_alignment.center</source>
+        <target>Center</target>
+      </trans-unit>
+      <trans-unit id="page0026ax" resname="label.image_alignment.right">
+        <source>label.image_alignment.right</source>
+        <target>Right</target>
+      </trans-unit>
+      <trans-unit id="page0026ay" resname="label.image_alignment.full">
+        <source>label.image_alignment.full</source>
+        <target>Full width</target>
+      </trans-unit>
+      <trans-unit id="page0026az" resname="label.image_float">
+        <source>label.image_float</source>
+        <target>Text wrap</target>
+      </trans-unit>
+      <trans-unit id="page0026ba" resname="label.image_float.none">
+        <source>label.image_float.none</source>
+        <target>No wrap</target>
+      </trans-unit>
+      <trans-unit id="page0026bb" resname="label.image_float.left">
+        <source>label.image_float.left</source>
+        <target>Image left, text wraps right</target>
+      </trans-unit>
+      <trans-unit id="page0026bc" resname="label.image_float.right">
+        <source>label.image_float.right</source>
+        <target>Image right, text wraps left</target>
+      </trans-unit>
+      <trans-unit id="page0026bd" resname="help.page.image_float">
+        <source>help.page.image_float</source>
+        <target>Following rich text blocks will wrap around the image. On small screens the image becomes full width.</target>
+      </trans-unit>
+      <trans-unit id="page0026be" resname="label.image_size">
+        <source>label.image_size</source>
+        <target>Image size</target>
+      </trans-unit>
+      <trans-unit id="page0026bf0" resname="label.image_size.auto">
+        <source>label.image_size.auto</source>
+        <target>Natural size</target>
+      </trans-unit>
+      <trans-unit id="page0026bf" resname="label.image_size.sm">
+        <source>label.image_size.sm</source>
+        <target>Small</target>
+      </trans-unit>
+      <trans-unit id="page0026bg" resname="label.image_size.md">
+        <source>label.image_size.md</source>
+        <target>Medium</target>
+      </trans-unit>
+      <trans-unit id="page0026bh" resname="label.image_size.lg">
+        <source>label.image_size.lg</source>
+        <target>Large (full width)</target>
+      </trans-unit>
+      <trans-unit id="page0026bi" resname="help.page.image_size">
+        <source>help.page.image_size</source>
+        <target>Natural size keeps the original image width (up to the content column). Small, medium, and large force a relative width inside the content card.</target>
+      </trans-unit>
+      <trans-unit id="page0026bl" resname="help.page.content_blocks_reorder">
+        <source>help.page.content_blocks_reorder</source>
+        <target>Use the up and down arrows on each block to change the order.</target>
+      </trans-unit>
+      <trans-unit id="page0026bm" resname="help.page.slug">
+        <source>help.page.slug</source>
+        <target>Leave empty to generate automatically from the title.</target>
+      </trans-unit>
+      <trans-unit id="page0028" resname="page.breadcrumb.untitled">
+        <source>page.breadcrumb.untitled</source>
+        <target>Untitled page</target>
+      </trans-unit>
+      <trans-unit id="media001" resname="label.media">
+        <source>label.media</source>
+        <target>Media file</target>
+      </trans-unit>
+      <trans-unit id="media002" resname="label.media_library">
+        <source>label.media_library</source>
+        <target>Media library</target>
+      </trans-unit>
+      <trans-unit id="media003" resname="label.media_file">
+        <source>label.media_file</source>
+        <target>Upload file</target>
+      </trans-unit>
+      <trans-unit id="media008" resname="label.media_type">
+        <source>label.media_type</source>
+        <target>Media type</target>
+      </trans-unit>
+      <trans-unit id="media028" resname="label.media_type.image">
+        <source>label.media_type.image</source>
+        <target>Image</target>
+      </trans-unit>
+      <trans-unit id="media029" resname="label.media_type.pdf">
+        <source>label.media_type.pdf</source>
+        <target>PDF</target>
+      </trans-unit>
+      <trans-unit id="media030" resname="label.media_type.document">
+        <source>label.media_type.document</source>
+        <target>Document</target>
+      </trans-unit>
+      <trans-unit id="media013" resname="label.media_usage">
+        <source>label.media_usage</source>
+        <target>Usage in content</target>
+      </trans-unit>
+      <trans-unit id="media015" resname="help.media.alt_text">
+        <source>help.media.alt_text</source>
+        <target>Used as alt text when inserting images into pages or blog posts.</target>
+      </trans-unit>
+      <trans-unit id="media016" resname="help.blog.media_library">
+        <source>help.blog.media_library</source>
+        <target>Upload images or PDFs in the media library, then copy the HTML snippet into the editor.</target>
+      </trans-unit>
+      <trans-unit id="media016b" resname="help.blog.image_layout">
+        <source>help.blog.image_layout</source>
+        <target>After inserting the snippet, adjust the figure classes for size (page-content-image--size-sm, --size-md, --size-lg) and text wrap (page-content-image--float-left float-start or --float-right float-end).</target>
+      </trans-unit>
+      <trans-unit id="media016c" resname="help.media.image_layout.title">
+        <source>help.media.image_layout.title</source>
+        <target>Adjust layout via figure classes</target>
+      </trans-unit>
+      <trans-unit id="media016c1" resname="help.media.image_layout.size">
+        <source>help.media.image_layout.size</source>
+        <target>Size: default is --size-auto (natural width). Use --size-sm (33%), --size-md (66%), or --size-lg (full width).</target>
+      </trans-unit>
+      <trans-unit id="media016c2" resname="help.media.image_layout.float">
+        <source>help.media.image_layout.float</source>
+        <target>Text wrap: add page-content-image--float-left float-start me-3 mb-3 or --float-right float-end ms-3 mb-3 (only with sm or md).</target>
+      </trans-unit>
+      <trans-unit id="media016c3" resname="help.media.image_layout.mobile">
+        <source>help.media.image_layout.mobile</source>
+        <target>On small screens, floated images automatically span the full width.</target>
+      </trans-unit>
+      <trans-unit id="media017" resname="help.page.media_library">
+        <source>help.page.media_library</source>
+        <target>Image and CTA blocks can reference the media library. For rich text, copy snippets from media details.</target>
+      </trans-unit>
+      <trans-unit id="media018" resname="label.media_image">
+        <source>label.media_image</source>
+        <target>Image from library</target>
+      </trans-unit>
+      <trans-unit id="media019" resname="label.media_pdf">
+        <source>label.media_pdf</source>
+        <target>PDF from library</target>
+      </trans-unit>
+      <trans-unit id="media020" resname="help.page.image_media">
+        <source>help.page.image_media</source>
+        <target>Select an uploaded image or use a legacy URL below.</target>
+      </trans-unit>
+      <trans-unit id="media021" resname="help.page.image_url_legacy">
+        <source>help.page.image_url_legacy</source>
+        <target>Optional if a library image is selected. Relative paths such as /uploads/media/… are supported.</target>
+      </trans-unit>
+      <trans-unit id="media022" resname="label.cta_link_type">
+        <source>label.cta_link_type</source>
+        <target>Button link type</target>
+      </trans-unit>
+      <trans-unit id="media023" resname="label.cta_link_type.url">
+        <source>label.cta_link_type.url</source>
+        <target>URL</target>
+      </trans-unit>
+      <trans-unit id="media024" resname="label.cta_link_type.media">
+        <source>label.cta_link_type.media</source>
+        <target>PDF from media library</target>
+      </trans-unit>
+      <trans-unit id="media025" resname="help.page.cta_button_url">
+        <source>help.page.cta_button_url</source>
+        <target>Used when link type is URL. Internal paths or absolute URLs.</target>
+      </trans-unit>
+      <trans-unit id="media026" resname="help.page.cta_media_pdf">
+        <source>help.page.cta_media_pdf</source>
+        <target>Select a PDF uploaded in the media library.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

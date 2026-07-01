@@ -43,7 +43,7 @@
                 <twig:ux:icon name="tabler:eye-off" class="icon icon-sm" />
             </span>
             <span data-benchmark-indication-mix-expand-target="expandLabel">
-                {{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans }}
+                {{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans({}, 'statistics') }}
             </span>
         </button>
     </div>
@@ -53,26 +53,26 @@
 
 <div data-testid="stats-benchmark-indication-mix-table">
     {% if indicationMixViewModel.isEmpty %}
-        <span class="text-secondary small">{{ 'stats.benchmark.summary.empty'|trans }}</span>
+        <span class="text-secondary small">{{ 'stats.benchmark.summary.empty'|trans({}, 'statistics') }}</span>
     {% else %}
         {% import _self as indicationMixTable %}
 
         {% if indicationMixViewModel.overRepresented is not empty %}
             <div class="fw-semibold mb-2" data-testid="stats-benchmark-indication-mix-over-heading">
-                {{ 'stats.benchmark.indication_mix.over_represented'|trans }}
+                {{ 'stats.benchmark.indication_mix.over_represented'|trans({}, 'statistics') }}
             </div>
             <div data-controller="benchmark-indication-mix-expand"
-                 data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans|e('html_attr') }}"
-                 data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.benchmark.indication_mix.reduce_to_top_5'|trans|e('html_attr') }}">
+                 data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans({}, 'statistics')|e('html_attr') }}"
+                 data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.benchmark.indication_mix.reduce_to_top_5'|trans({}, 'statistics')|e('html_attr') }}">
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table mb-0" data-testid="stats-benchmark-indication-mix-over-table">
                         <thead>
                             <tr>
-                                <th>{{ 'stats.benchmark.indication_mix.indication'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.primary'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.comparison'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.delta'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.ratio'|trans }}</th>
+                                <th>{{ 'stats.benchmark.indication_mix.indication'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.primary'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.comparison'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.delta'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.ratio'|trans({}, 'statistics') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,20 +89,20 @@
         {% if indicationMixViewModel.underRepresented is not empty %}
             <div class="fw-semibold mb-2{% if indicationMixViewModel.overRepresented is not empty %} mt-4{% endif %}"
                  data-testid="stats-benchmark-indication-mix-under-heading">
-                {{ 'stats.benchmark.indication_mix.under_represented'|trans }}
+                {{ 'stats.benchmark.indication_mix.under_represented'|trans({}, 'statistics') }}
             </div>
             <div data-controller="benchmark-indication-mix-expand"
-                 data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans|e('html_attr') }}"
-                 data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.benchmark.indication_mix.reduce_to_top_5'|trans|e('html_attr') }}">
+                 data-benchmark-indication-mix-expand-show-more-label-value="{{ 'stats.benchmark.indication_mix.expand_to_top_10'|trans({}, 'statistics')|e('html_attr') }}"
+                 data-benchmark-indication-mix-expand-show-less-label-value="{{ 'stats.benchmark.indication_mix.reduce_to_top_5'|trans({}, 'statistics')|e('html_attr') }}">
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table mb-0" data-testid="stats-benchmark-indication-mix-under-table">
                         <thead>
                             <tr>
-                                <th>{{ 'stats.benchmark.indication_mix.indication'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.primary'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.comparison'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.delta'|trans }}</th>
-                                <th class="text-end">{{ 'stats.benchmark.kpi.ratio'|trans }}</th>
+                                <th>{{ 'stats.benchmark.indication_mix.indication'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.primary'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.comparison'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.delta'|trans({}, 'statistics') }}</th>
+                                <th class="text-end">{{ 'stats.benchmark.kpi.ratio'|trans({}, 'statistics') }}</th>
                             </tr>
                         </thead>
                         <tbody>

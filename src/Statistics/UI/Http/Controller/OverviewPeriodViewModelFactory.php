@@ -97,7 +97,7 @@ final readonly class OverviewPeriodViewModelFactory
 
             $items[] = [
                 'key' => $period->value,
-                'label' => $this->translator->trans($translationKey, [], null, $locale),
+                'label' => $this->translator->trans($translationKey, [], 'statistics', $locale),
                 'url' => $this->urlForFilter($request, $routeName, $target),
                 'active' => $filter->period === $period,
             ];
@@ -158,7 +158,7 @@ final readonly class OverviewPeriodViewModelFactory
                 'label' => $this->translator->trans('stats.dashboard.heading.quarter', [
                     'quarter' => (string) $quarter,
                     'year' => (string) $referenceYear,
-                ], null, $locale),
+                ], 'statistics', $locale),
                 'url' => $this->urlForFilter($request, $routeName, $target),
                 'active' => $referenceQuarter === $quarter,
             ];
@@ -263,8 +263,8 @@ final readonly class OverviewPeriodViewModelFactory
         $now = new \DateTimeImmutable();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], null, $locale),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], null, $locale),
+            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(
                 'stats.dashboard.heading.quarter',
@@ -272,7 +272,7 @@ final readonly class OverviewPeriodViewModelFactory
                     'quarter' => (string) ($filter->referenceQuarter ?? (int) ceil((int) $now->format('n') / 3)),
                     'year' => (string) ($filter->referenceYear ?? $now->format('Y')),
                 ],
-                null,
+                'statistics',
                 $locale,
             ),
             StatisticsFilterPeriod::Month => $this->monthLabel(
@@ -286,11 +286,11 @@ final readonly class OverviewPeriodViewModelFactory
     private function primaryDropdownLabel(StatisticsFilter $filter, string $locale): string
     {
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], null, $locale),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], null, $locale),
-            StatisticsFilterPeriod::Year => $this->translator->trans('stats.filter.period.year', [], null, $locale),
-            StatisticsFilterPeriod::Quarter => $this->translator->trans('stats.filter.period.quarter', [], null, $locale),
-            StatisticsFilterPeriod::Month => $this->translator->trans('stats.filter.period.month', [], null, $locale),
+            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Year => $this->translator->trans('stats.filter.period.year', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Quarter => $this->translator->trans('stats.filter.period.quarter', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Month => $this->translator->trans('stats.filter.period.month', [], 'statistics', $locale),
         };
     }
 

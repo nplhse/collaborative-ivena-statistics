@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.indication.compare.title'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ 'stats.indication.compare.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -28,10 +28,10 @@
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
                     <div class="page-pretitle" data-testid="stats-indication-compare-subtitle">
-                        {{ 'stats.indication.compare.subtitle'|trans }}
+                        {{ 'stats.indication.compare.subtitle'|trans({}, 'statistics') }}
                     </div>
                     <h2 class="page-title mb-0" data-testid="stats-indication-compare-title">
-                        {{ 'stats.indication.compare.title'|trans }}
+                        {{ 'stats.indication.compare.title'|trans({}, 'statistics') }}
                     </h2>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}
@@ -52,13 +52,13 @@
 
         {% if hasOverlappingIndications|default(false) %}
             <div class="alert alert-info" data-testid="stats-indication-compare-overlap-notice">
-                {{ 'stats.indication.compare.overlap_notice'|trans }}
+                {{ 'stats.indication.compare.overlap_notice'|trans({}, 'statistics') }}
             </div>
         {% endif %}
 
         {% if report.hasInsufficientData %}
             <div class="alert alert-warning" data-testid="stats-indication-compare-insufficient-data">
-                {{ 'stats.indication.compare.insufficient_data'|trans }}
+                {{ 'stats.indication.compare.insufficient_data'|trans({}, 'statistics') }}
             </div>
         {% endif %}
 
@@ -68,21 +68,21 @@
 
                 <div class="card" data-testid="stats-indication-compare-case-distribution">
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans({}, 'statistics') }}</h3>
                         <div class="btn-group btn-group-sm" role="group">
                             <button type="button"
                                     class="btn active"
                                     data-benchmarking-charts-target="heatmapModeDayTime"
                                     data-action="benchmarking-charts#setHeatmapMode"
                                     data-benchmarking-charts-mode-param="dayTime">
-                                {{ 'stats.benchmark.heatmap.mode.day_time'|trans }}
+                                {{ 'stats.benchmark.heatmap.mode.day_time'|trans({}, 'statistics') }}
                             </button>
                             <button type="button"
                                     class="btn"
                                     data-benchmarking-charts-target="heatmapModeShift"
                                     data-action="benchmarking-charts#setHeatmapMode"
                                     data-benchmarking-charts-mode-param="shift">
-                                {{ 'stats.benchmark.heatmap.mode.shift'|trans }}
+                                {{ 'stats.benchmark.heatmap.mode.shift'|trans({}, 'statistics') }}
                             </button>
                         </div>
                     </div>
@@ -95,7 +95,7 @@
 
                 <div class="card" data-testid="stats-indication-compare-age-groups">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart-lg" data-benchmarking-charts-target="ageGroupsChart"></div>
@@ -104,7 +104,7 @@
 
                 <div class="card" data-testid="stats-indication-compare-transport-time">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart-lg" data-benchmarking-charts-target="transportTimesChart"></div>
@@ -117,7 +117,7 @@
 
                 <div class="card" data-testid="stats-indication-compare-gender">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.gender_title'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.gender_title'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.genderDistribution}) }}
@@ -126,7 +126,7 @@
 
                 <div class="card" data-testid="stats-indication-compare-urgency">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.urgency_title'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.urgency_title'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.urgencyDistribution}) }}
@@ -135,7 +135,7 @@
 
                 <div class="card" data-testid="stats-indication-compare-resources">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.resources'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.resources'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.resourcesDistribution}) }}
@@ -144,7 +144,7 @@
 
                 <div class="card" data-testid="stats-indication-compare-clinical">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.clinical'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.clinical'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.clinicalFeaturesDistribution}) }}
@@ -153,7 +153,7 @@
 
                 <div class="card" data-testid="stats-indication-compare-transport">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.transportTypeDistribution}) }}

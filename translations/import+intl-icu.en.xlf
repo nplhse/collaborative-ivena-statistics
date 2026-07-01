@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="oB3P1Zq" resname="flash.import.created">
+        <source>flash.import.created</source>
+        <target>New Import has been created successfully!</target>
+      </trans-unit>
+      <trans-unit id="impFlDelOk" resname="flash.import.deleted">
+        <source>flash.import.deleted</source>
+        <target>Import has been deleted successfully.</target>
+      </trans-unit>
+      <trans-unit id="impFlDelRun" resname="flash.import.delete_running_blocked">
+        <source>flash.import.delete_running_blocked</source>
+        <target>This import is currently running and cannot be deleted.</target>
+      </trans-unit>
+      <trans-unit id="B5etO2s" resname="import.action.preview_mci_cases">
+        <source>import.action.preview_mci_cases</source>
+        <target>Preview MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="2_8EtuE" resname="import.action.preview_rows">
+        <source>import.action.preview_rows</source>
+        <target>Preview Rows</target>
+      </trans-unit>
+      <trans-unit id="impActDel" resname="import.action.delete">
+        <source>import.action.delete</source>
+        <target>Delete import</target>
+      </trans-unit>
+      <trans-unit id="impDelTit" resname="import.delete.modal.title">
+        <source>import.delete.modal.title</source>
+        <target>Delete import?</target>
+      </trans-unit>
+      <trans-unit id="impDelBody" resname="import.delete.modal.body">
+        <source>import.delete.modal.body</source>
+        <target>Are you sure you want to permanently delete "{name}"? All allocations, projections, and related data will be removed. This action cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="impDelConf" resname="import.delete.modal.confirm">
+        <source>import.delete.modal.confirm</source>
+        <target>Delete permanently</target>
+      </trans-unit>
+      <trans-unit id="impDelCanc" resname="import.delete.modal.cancel">
+        <source>import.delete.modal.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="impDelRunH" resname="import.delete.running_blocked_hint">
+        <source>import.delete.running_blocked_hint</source>
+        <target>This import is currently running and cannot be deleted.</target>
+      </trans-unit>
+      <trans-unit id="T_sGody" resname="import.field.fileExtension">
+        <source>import.field.fileExtension</source>
+        <target>Extension</target>
+      </trans-unit>
+      <trans-unit id="XWUPA8u" resname="import.field.fileMimeType">
+        <source>import.field.fileMimeType</source>
+        <target>Mime Type</target>
+      </trans-unit>
+      <trans-unit id="WKEj59F" resname="import.field.fileSize">
+        <source>import.field.fileSize</source>
+        <target>File size</target>
+      </trans-unit>
+      <trans-unit id="_AQ_ZqM" resname="import.field.rejectionRate">
+        <source>import.field.rejectionRate</source>
+        <target>Rejection Rate</target>
+      </trans-unit>
+      <trans-unit id="YIl4XxP" resname="import.field.rowCount">
+        <source>import.field.rowCount</source>
+        <target>Row count</target>
+      </trans-unit>
+      <trans-unit id="Au8OS5f" resname="import.field.rowsPassed">
+        <source>import.field.rowsPassed</source>
+        <target>Successful rows</target>
+      </trans-unit>
+      <trans-unit id="OGahhM8" resname="import.field.rowsRejected">
+        <source>import.field.rowsRejected</source>
+        <target>Rejected rows</target>
+      </trans-unit>
+      <trans-unit id="DdupTotal01" resname="import.field.rowsDeduplicated">
+        <source>import.field.rowsDeduplicated</source>
+        <target>Deduplicated rows (total)</target>
+      </trans-unit>
+      <trans-unit id="DdupDisc01" resname="import.field.rowsDeduplicatedDiscarded">
+        <source>import.field.rowsDeduplicatedDiscarded</source>
+        <target>Deduplicated rows (Discarded)</target>
+      </trans-unit>
+      <trans-unit id="DdupRepl01" resname="import.field.rowsDeduplicatedReplaced">
+        <source>import.field.rowsDeduplicatedReplaced</source>
+        <target>Deduplicated rows (Replaced)</target>
+      </trans-unit>
+      <trans-unit id="DdupRate01" resname="import.field.duplicationRate">
+        <source>import.field.duplicationRate</source>
+        <target>Duplication rate</target>
+      </trans-unit>
+      <trans-unit id="oiSvDD9" resname="import.field.runCount">
+        <source>import.field.runCount</source>
+        <target>Run count</target>
+      </trans-unit>
+      <trans-unit id="1qEVxEZ" resname="import.field.runTime">
+        <source>import.field.runTime</source>
+        <target>Run time</target>
+      </trans-unit>
+      <trans-unit id="twzu6Ol" resname="import.field.status">
+        <source>import.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="v6YYkzw" resname="import.field.type">
+        <source>import.field.type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="ndwEyiW" resname="imports.field.filePath">
+        <source>imports.field.filePath</source>
+        <target>File path</target>
+      </trans-unit>
+      <trans-unit id="2suWc6O" resname="label.import.new">
+        <source>label.import.new</source>
+        <target>Create new Import</target>
+      </trans-unit>
+      <trans-unit id="UcQSwTu" resname="label.import.section.quick_actions">
+        <source>label.import.section.quick_actions</source>
+        <target>Quick actions</target>
+      </trans-unit>
+      <trans-unit id="ssEMXJ8" resname="label.import.section.run">
+        <source>label.import.section.run</source>
+        <target>Run results</target>
+      </trans-unit>
+      <trans-unit id="_i2.tz3" resname="label.import.section.source_file">
+        <source>label.import.section.source_file</source>
+        <target>Source file</target>
+      </trans-unit>
+      <trans-unit id="impFltAllHosp" resname="label.import.filter.all_hospitals">
+        <source>label.import.filter.all_hospitals</source>
+        <target>All hospitals</target>
+      </trans-unit>
+      <trans-unit id="impFltAllOwn" resname="label.import.filter.all_owners">
+        <source>label.import.filter.all_owners</source>
+        <target>All owners</target>
+      </trans-unit>
+      <trans-unit id="impFltAllStat" resname="label.import.filter.all_statuses">
+        <source>label.import.filter.all_statuses</source>
+        <target>All statuses</target>
+      </trans-unit>
+      <trans-unit id="impFltCrtFrm" resname="label.import.filter.created_from">
+        <source>label.import.filter.created_from</source>
+        <target>Created from</target>
+      </trans-unit>
+      <trans-unit id="impFltCrtTil" resname="label.import.filter.created_until">
+        <source>label.import.filter.created_until</source>
+        <target>Created until</target>
+      </trans-unit>
+      <trans-unit id="impFltOwner" resname="label.import.filter.owner">
+        <source>label.import.filter.owner</source>
+        <target>Hospital owner</target>
+      </trans-unit>
+      <trans-unit id="J7c0M1U" resname="title.import.index">
+        <source>title.import.index</source>
+        <target>Listing Imports</target>
+      </trans-unit>
+      <trans-unit id="u4I7D4_" resname="title.import.new">
+        <source>title.import.new</source>
+        <target>Create new Import</target>
+      </trans-unit>
+      <trans-unit id="tBRiow3" resname="title.import.show">
+        <source>title.import.show</source>
+        <target>Showing Import detail</target>
+      </trans-unit>
+      <trans-unit id="impProcTitle" resname="title.import.processing">
+        <source>title.import.processing</source>
+        <target>Processing import</target>
+      </trans-unit>
+      <trans-unit id="impProcHint" resname="import.processing.hint">
+        <source>import.processing.hint</source>
+        <target>Your file is being processed in the background. This page updates automatically.</target>
+      </trans-unit>
+      <trans-unit id="impProcDetail" resname="import.processing.view_detail">
+        <source>import.processing.view_detail</source>
+        <target>View import details</target>
+      </trans-unit>
+      <trans-unit id="impProcErr" resname="import.processing.error">
+        <source>import.processing.error</source>
+        <target>Could not refresh status. Retrying…</target>
+      </trans-unit>
+      <trans-unit id="impStLblPend" resname="import.status.label.pending">
+        <source>import.status.label.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="impStLblRun" resname="import.status.label.running">
+        <source>import.status.label.running</source>
+        <target>Running</target>
+      </trans-unit>
+      <trans-unit id="impStLblComp" resname="import.status.label.completed">
+        <source>import.status.label.completed</source>
+        <target>Completed</target>
+      </trans-unit>
+      <trans-unit id="impStLblFail" resname="import.status.label.failed">
+        <source>import.status.label.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="impStLblCanc" resname="import.status.label.cancelled">
+        <source>import.status.label.cancelled</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="impStLblPart" resname="import.status.label.partial">
+        <source>import.status.label.partial</source>
+        <target>Partial</target>
+      </trans-unit>
+      <trans-unit id="impStMsgPend" resname="import.status.message.pending">
+        <source>import.status.message.pending</source>
+        <target>The import is queued and will start shortly.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgRun" resname="import.status.message.running">
+        <source>import.status.message.running</source>
+        <target>Rows are being processed.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgComp" resname="import.status.message.completed">
+        <source>import.status.message.completed</source>
+        <target>The import finished successfully.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgFail" resname="import.status.message.failed">
+        <source>import.status.message.failed</source>
+        <target>The import failed.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgCanc" resname="import.status.message.cancelled">
+        <source>import.status.message.cancelled</source>
+        <target>The import was cancelled.</target>
+      </trans-unit>
+      <trans-unit id="impStMsgPart" resname="import.status.message.partial">
+        <source>import.status.message.partial</source>
+        <target>The import finished with some rejected rows.</target>
+      </trans-unit>
+      <trans-unit id="impStpUp" resname="import.processing.step.uploaded">
+        <source>import.processing.step.uploaded</source>
+        <target>File uploaded</target>
+      </trans-unit>
+      <trans-unit id="impStpUpD" resname="import.processing.step.uploaded_desc">
+        <source>import.processing.step.uploaded_desc</source>
+        <target>Your CSV file has been received and queued.</target>
+      </trans-unit>
+      <trans-unit id="impStpPr" resname="import.processing.step.processing">
+        <source>import.processing.step.processing</source>
+        <target>Processing data</target>
+      </trans-unit>
+      <trans-unit id="impStpPrD" resname="import.processing.step.processing_desc">
+        <source>import.processing.step.processing_desc</source>
+        <target>Rows are being validated and imported.</target>
+      </trans-unit>
+      <trans-unit id="impStpRs" resname="import.processing.step.result">
+        <source>import.processing.step.result</source>
+        <target>Result</target>
+      </trans-unit>
+      <trans-unit id="impStpRsC" resname="import.processing.step.result.completed">
+        <source>import.processing.step.result.completed</source>
+        <target>Finished</target>
+      </trans-unit>
+      <trans-unit id="impStpRsP" resname="import.processing.step.result.partial">
+        <source>import.processing.step.result.partial</source>
+        <target>Import completed with rejections</target>
+      </trans-unit>
+      <trans-unit id="impStpRsF" resname="import.processing.step.result.failed">
+        <source>import.processing.step.result.failed</source>
+        <target>Import failed</target>
+      </trans-unit>
+      <trans-unit id="impStpRsX" resname="import.processing.step.result.cancelled">
+        <source>import.processing.step.result.cancelled</source>
+        <target>Import cancelled</target>
+      </trans-unit>
+      <trans-unit id="ExpLblEn01" resname="label.export.period">
+        <source>label.export.period</source>
+        <target>Period</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

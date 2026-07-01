@@ -37,10 +37,10 @@
                 <div class="card h-100" data-testid="{{ testIdPrefix }}-{{ metric.key.value }}">
                     <div class="card-body d-flex flex-column">
                         <div class="subheader mb-2">
-                            {{ labelKey|trans }}
+                            {{ labelKey|trans({}, 'statistics') }}
                         </div>
                         {% if hintKey and not hintBelowValue %}
-                            <p class="text-muted small mb-2">{{ hintKey|trans }}</p>
+                            <p class="text-muted small mb-2">{{ hintKey|trans({}, 'statistics') }}</p>
                         {% endif %}
 
                         {% if not suppressRatios %}
@@ -59,16 +59,16 @@
                             </div>
                         {% endif %}
                         {% if hintKey and hintBelowValue %}
-                            <p class="text-muted small mb-2">{{ hintKey|trans }}</p>
+                            <p class="text-muted small mb-2">{{ hintKey|trans({}, 'statistics') }}</p>
                         {% endif %}
 
                         <div class="mt-auto d-flex justify-content-between small">
                             <span>
-                                <span class="badge bg-primary-lt me-1">{{ sideAShortKey|trans }}</span>
+                                <span class="badge bg-primary-lt me-1">{{ sideAShortKey|trans({}, 'statistics') }}</span>
                                 <span class="text-muted">{{ primaryLabel }}</span>
                             </span>
                             <span class="text-end">
-                                <span class="badge bg-secondary-lt me-1">{{ sideBShortKey|trans }}</span>
+                                <span class="badge bg-secondary-lt me-1">{{ sideBShortKey|trans({}, 'statistics') }}</span>
                                 <span class="text-muted">{{ comparisonLabel }}</span>
                             </span>
                         </div>

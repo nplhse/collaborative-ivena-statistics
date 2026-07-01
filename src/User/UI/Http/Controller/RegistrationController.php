@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
@@ -123,7 +124,7 @@ final class RegistrationController extends AbstractController
             $this->auditContext->endIntent();
         }
 
-        $this->addFlash('success', 'flash.registration.verify.success');
+        $this->addFlash('success', new TranslatableMessage('flash.registration.verify.success', domain: 'user'));
 
         return $this->redirectToRoute('app_login');
     }

@@ -29,7 +29,7 @@
         {{ editAccordion.header(
             'export-filter-period-heading',
             'export-filter-period-panel',
-            'label.export.period'|trans,
+            'label.export.period'|trans({}, 'import'),
             'export-filter-section-period',
             true,
         ) }}
@@ -57,7 +57,7 @@
         {{ editAccordion.header(
             'export-filter-allocation-heading',
             'export-filter-allocation-panel',
-            'label.allocation'|trans,
+            'label.allocation'|trans({}, 'messages'),
             'export-filter-section-allocation',
             true,
         ) }}
@@ -89,7 +89,7 @@
         {{ editAccordion.header(
             'export-filter-clinical-heading',
             'export-filter-clinical-panel',
-            'stats.analysis_explorer.dimension_group.clinical_care'|trans,
+            'stats.analysis_explorer.dimension_group.clinical_care'|trans({}, 'statistics'),
             'export-filter-section-clinical',
             true,
         ) }}

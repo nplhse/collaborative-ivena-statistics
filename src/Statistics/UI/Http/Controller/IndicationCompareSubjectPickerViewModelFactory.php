@@ -23,7 +23,7 @@ final readonly class IndicationCompareSubjectPickerViewModelFactory
      */
     public function buildMenuItems(): array
     {
-        $groupSuffix = $this->translator->trans('stats.indication.compare.picker_group_suffix');
+        $groupSuffix = $this->translator->trans('stats.indication.compare.picker_group_suffix', [], 'statistics');
         $items = [];
 
         foreach ($this->groupRepository->getDatalist() as $group) {

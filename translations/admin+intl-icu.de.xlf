@@ -2,7 +2,7 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
     <header>
-      <tool tool-id="symfony" tool-name="Symfony"/>
+      <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
       <trans-unit id="frI4G1g" resname="help.import_reject.filter_import_id">
@@ -332,6 +332,106 @@
       <trans-unit id="admMr03" resname="flash.admin.hospital.reminder.sent">
         <source>flash.admin.hospital.reminder.sent</source>
         <target>Monatliche Erinnerung zur Zustellung an den Krankenhausbesitzer eingeplant.</target>
+      </trans-unit>
+      <trans-unit id="Ded32eab5d" resname="admin.indication_group.action.view_statistics">
+        <source>admin.indication_group.action.view_statistics</source>
+        <target>In Statistik öffnen</target>
+      </trans-unit>
+      <trans-unit id="De8b431225" resname="admin.page.action.back_to_index">
+        <source>admin.page.action.back_to_index</source>
+        <target>Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="De9c4dbc85" resname="admin.page.action.view_public">
+        <source>admin.page.action.view_public</source>
+        <target>Seite ansehen</target>
+      </trans-unit>
+      <trans-unit id="Dec3ad4a07" resname="admin_notification.email.import_failed.action.view">
+        <source>admin_notification.email.import_failed.action.view</source>
+        <target>Importdetails ansehen</target>
+      </trans-unit>
+      <trans-unit id="De7362f7cf" resname="admin_notification.email.import_failed.heading">
+        <source>admin_notification.email.import_failed.heading</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="De8ac84dbb" resname="admin_notification.email.import_failed.intro">
+        <source>admin_notification.email.import_failed.intro</source>
+        <target>Ein Import ist fehlgeschlagen und sollte überprüft werden.</target>
+      </trans-unit>
+      <trans-unit id="Debbfbf0f0" resname="admin_notification.email.import_failed.title">
+        <source>admin_notification.email.import_failed.title</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Def3412f3d" resname="admin_notification.email.label.email">
+        <source>admin_notification.email.label.email</source>
+        <target>E-Mail</target>
+      </trans-unit>
+      <trans-unit id="De490eef38" resname="admin_notification.email.label.error">
+        <source>admin_notification.email.label.error</source>
+        <target>Fehlerdetails</target>
+      </trans-unit>
+      <trans-unit id="Deb385f3f9" resname="admin_notification.email.label.hospital">
+        <source>admin_notification.email.label.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="Decb2563e2" resname="admin_notification.email.label.import_name">
+        <source>admin_notification.email.label.import_name</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="Dec3bdfcae" resname="admin_notification.email.label.registered_at">
+        <source>admin_notification.email.label.registered_at</source>
+        <target>Registriert am</target>
+      </trans-unit>
+      <trans-unit id="Ded884f2bd" resname="admin_notification.email.label.rows">
+        <source>admin_notification.email.label.rows</source>
+        <target>Verarbeitete Zeilen</target>
+      </trans-unit>
+      <trans-unit id="De067fecaa" resname="admin_notification.email.label.runtime">
+        <source>admin_notification.email.label.runtime</source>
+        <target>Laufzeit</target>
+      </trans-unit>
+      <trans-unit id="De74144f7b" resname="admin_notification.email.label.status">
+        <source>admin_notification.email.label.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="De09593dd5" resname="admin_notification.email.label.username">
+        <source>admin_notification.email.label.username</source>
+        <target>Benutzername</target>
+      </trans-unit>
+      <trans-unit id="De9b961fce" resname="admin_notification.email.subject.import_failed">
+        <source>admin_notification.email.subject.import_failed</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Deb2e6763d" resname="admin_notification.email.subject.user_registered">
+        <source>admin_notification.email.subject.user_registered</source>
+        <target>Neue Benutzerregistrierung</target>
+      </trans-unit>
+      <trans-unit id="De26398721" resname="admin_notification.email.user_registered.action.grant_participant">
+        <source>admin_notification.email.user_registered.action.grant_participant</source>
+        <target>Teilnehmerrolle vergeben</target>
+      </trans-unit>
+      <trans-unit id="De982b8189" resname="admin_notification.email.user_registered.action.manage">
+        <source>admin_notification.email.user_registered.action.manage</source>
+        <target>Benutzer verwalten</target>
+      </trans-unit>
+      <trans-unit id="De63683a87" resname="admin_notification.email.user_registered.heading">
+        <source>admin_notification.email.user_registered.heading</source>
+        <target>Neuer Benutzer registriert</target>
+      </trans-unit>
+      <trans-unit id="De5dcc205e" resname="admin_notification.email.user_registered.intro">
+        <source>admin_notification.email.user_registered.intro</source>
+        <target>Ein neuer Benutzer hat sich registriert und benötigt möglicherweise Teilnehmerberechtigungen, bevor er die Plattform vollständig nutzen kann.</target>
+      </trans-unit>
+      <trans-unit id="De6cff9d15" resname="admin_notification.email.user_registered.title">
+        <source>admin_notification.email.user_registered.title</source>
+        <target>Neue Benutzerregistrierung</target>
+      </trans-unit>
+      <trans-unit id="FlsAdmPtAlDe" resname="flash.admin.user.grant_participant.already">
+        <source>flash.admin.user.grant_participant.already</source>
+        <target>Dieser Benutzer hat bereits die Teilnehmer-Rolle.</target>
+      </trans-unit>
+      <trans-unit id="FlsAdmPtOkDe" resname="flash.admin.user.grant_participant.success">
+        <source>flash.admin.user.grant_participant.success</source>
+        <target>Teilnehmer-Rolle wurde zugewiesen.</target>
       </trans-unit>
     </body>
   </file>

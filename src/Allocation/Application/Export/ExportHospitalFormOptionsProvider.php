@@ -58,7 +58,7 @@ final readonly class ExportHospitalFormOptionsProvider
             'default_hospital_ids' => $hospitalIds,
             'hospitals_section_label' => $this->hospitalScopeLabelResolver->groupLabel($user, $locale),
             'hospitals_help' => \count($hospitals) > 1
-                ? $this->translator->trans('help.export.hospitals', [], null, $locale)
+                ? $this->translator->trans('help.export.hospitals', [], 'allocation', $locale)
                 : '',
         ];
     }

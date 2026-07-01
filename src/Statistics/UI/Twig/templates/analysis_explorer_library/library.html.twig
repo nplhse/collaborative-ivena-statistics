@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.analysis_explorer.library.title'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ 'stats.analysis_explorer.library.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -26,9 +26,9 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <div class="page-pretitle">{{ 'stats.analysis_explorer.library.pretitle'|trans }}</div>
+                    <div class="page-pretitle">{{ 'stats.analysis_explorer.library.pretitle'|trans({}, 'statistics') }}</div>
                     <h2 class="page-title" data-testid="stats-analysis-explorer-library-title">
-                        {{ 'stats.analysis_explorer.library.title'|trans }}
+                        {{ 'stats.analysis_explorer.library.title'|trans({}, 'statistics') }}
                     </h2>
                 </div>
             </div>
@@ -67,7 +67,7 @@
                 <div class="btn-group flex-wrap"
                      role="group"
                      data-testid="stats-analysis-explorer-library-category-filters"
-                     aria-label="{{ 'stats.analysis_explorer.library.tab.overview'|trans }}">
+                     aria-label="{{ 'stats.analysis_explorer.library.tab.overview'|trans({}, 'statistics') }}">
                     {% for filter in page.categoryFilters %}
                         <a href="{{ filter.url }}"
                            class="btn{% if filter.active %} btn-primary{% endif %}"
@@ -93,8 +93,8 @@
                     <input type="search"
                            name="search"
                            value="{{ page.searchQuery }}"
-                           aria-label="{{ 'label.search'|trans }}"
-                           placeholder="{{ 'label.search'|trans }}"
+                           aria-label="{{ 'label.search'|trans({}, 'messages') }}"
+                           placeholder="{{ 'label.search'|trans({}, 'messages') }}"
                            class="form-control d-inline-block w-9"
                            data-action="autosubmit#debouncedSubmit"
                            data-testid="stats-analysis-explorer-library-search-input">
@@ -127,16 +127,16 @@
             {% else %}
                 <div class="col-12">
                     <div class="empty" data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
-                        <p class="empty-title">{{ 'stats.analysis_explorer.library.empty_title'|trans }}</p>
+                        <p class="empty-title">{{ 'stats.analysis_explorer.library.empty_title'|trans({}, 'statistics') }}</p>
                         <p class="empty-subtitle text-secondary">
                             {% if page.searchQuery %}
-                                {{ 'stats.analysis_explorer.library.empty.search'|trans }}
+                                {{ 'stats.analysis_explorer.library.empty.search'|trans({}, 'statistics') }}
                             {% elseif page.activeTab == 'favorites' %}
-                                {{ 'stats.analysis_explorer.library.empty.favorites'|trans }}
+                                {{ 'stats.analysis_explorer.library.empty.favorites'|trans({}, 'statistics') }}
                             {% elseif page.activeTab == 'my_views' %}
-                                {{ 'stats.analysis_explorer.library.empty.my_views'|trans }}
+                                {{ 'stats.analysis_explorer.library.empty.my_views'|trans({}, 'statistics') }}
                             {% else %}
-                                {{ 'stats.analysis_explorer.library.empty'|trans }}
+                                {{ 'stats.analysis_explorer.library.empty'|trans({}, 'statistics') }}
                             {% endif %}
                         </p>
                     </div>

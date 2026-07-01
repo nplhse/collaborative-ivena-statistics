@@ -5,7 +5,7 @@
 
 <div data-testid="stats-indication-group-picker">
     <label class="form-label" for="stats-indication-group-picker-input">
-        {{ 'stats.indication.group.picker_label'|trans }}
+        {{ 'stats.indication.group.picker_label'|trans({}, 'statistics') }}
     </label>
 
     {% if groupPicker.menuItems is not empty %}
@@ -16,7 +16,7 @@
                        id="stats-indication-group-picker-input"
                        class="form-control"
                        list="stats-indication-group-picker-list"
-                       placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+                       placeholder="{{ 'stats.indication.picker.placeholder'|trans({}, 'statistics') }}"
                        autocomplete="off"
                        value="{{ groupPicker.selectedLabel }}"
                        data-indication-picker-target="input"
@@ -25,7 +25,7 @@
                         class="btn"
                         data-action="indication-picker#submit"
                         data-testid="stats-indication-group-picker-submit"
-                        aria-label="{{ 'stats.indication.picker.submit'|trans }}">
+                        aria-label="{{ 'stats.indication.picker.submit'|trans({}, 'statistics') }}">
                     <twig:ux:icon name="tabler:search" class="icon" />
                 </button>
             </div>
@@ -37,7 +37,7 @@
         </div>
     {% else %}
         <p class="text-muted small mb-0" data-testid="stats-indication-group-picker-empty">
-            {{ 'stats.indication.group.picker_empty'|trans }}
+            {{ 'stats.indication.group.picker_empty'|trans({}, 'statistics') }}
         </p>
     {% endif %}
 </div>

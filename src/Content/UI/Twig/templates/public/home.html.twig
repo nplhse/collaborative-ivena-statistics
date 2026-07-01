@@ -4,22 +4,22 @@
     <link rel="stylesheet" href="{{ asset('styles/pages/home.css') }}">
 {% endblock %}
 
-{% block title %}{{ 'public.home.meta_title'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'public.home.meta_title'|trans({}, 'content') }} - {{ parent() }}{% endblock %}
 
 {% block page_body %}
     <header class="hero pb-0">
         <div class="container-xl">
-            <h1 class="hero-title">{{ 'public.home.hero.title'|trans }}</h1>
+            <h1 class="hero-title">{{ 'public.home.hero.title'|trans({}, 'content') }}</h1>
             <p class="hero-description mt-4">
-                {{ 'public.home.hero.subtitle'|trans }}
+                {{ 'public.home.hero.subtitle'|trans({}, 'content') }}
             </p>
             <div class="my-5">
                 <div class="row g-3 justify-content-center">
                     <div class="col-auto">
-                        <a href="{{ path('app_register') }}" class="btn btn-lg">{{ 'public.cta.register'|trans }}</a>
+                        <a href="{{ path('app_register') }}" class="btn btn-lg">{{ 'public.cta.register'|trans({}, 'content') }}</a>
                     </div>
                     <div class="col-auto">
-                        <a href="{{ path('app_login') }}" class="btn btn-lg btn-primary">{{ 'public.cta.sign_in'|trans }}</a>
+                        <a href="{{ path('app_login') }}" class="btn btn-lg btn-primary">{{ 'public.cta.sign_in'|trans({}, 'content') }}</a>
                     </div>
                 </div>
             </div>
@@ -32,25 +32,25 @@
                 <div class="col-sm-6 col-lg-3">
                     <div class="text-center">
                         <h2 class="display-5 m-0 fw-bold">{{ userCount|number_format(0, ',', '.') }}</h2>
-                        <p class="text-secondary m-0">{{ 'public.stats.users'|trans }}</p>
+                        <p class="text-secondary m-0">{{ 'public.stats.users'|trans({}, 'content') }}</p>
                     </div>
                 </div>
                 <div class="col-sm-6 col-lg-3">
                     <div class="text-center">
                         <h2 class="display-5 m-0 fw-bold">{{ hospitalCount|number_format(0, ',', '.') }}</h2>
-                        <p class="text-secondary m-0">{{ 'public.stats.hospitals'|trans }}</p>
+                        <p class="text-secondary m-0">{{ 'public.stats.hospitals'|trans({}, 'content') }}</p>
                     </div>
                 </div>
                 <div class="col-sm-6 col-lg-3">
                     <div class="text-center">
                         <h2 class="display-5 m-0 fw-bold">{{ allocationCount|number_format(0, ',', '.') }}</h2>
-                        <p class="text-secondary m-0">{{ 'public.stats.allocations'|trans }}</p>
+                        <p class="text-secondary m-0">{{ 'public.stats.allocations'|trans({}, 'content') }}</p>
                     </div>
                 </div>
                 <div class="col-sm-6 col-lg-3">
                     <div class="text-center">
                         <h2 class="display-5 m-0 fw-bold">{{ importCount|number_format(0, ',', '.') }}</h2>
-                        <p class="text-secondary m-0">{{ 'public.stats.imports'|trans }}</p>
+                        <p class="text-secondary m-0">{{ 'public.stats.imports'|trans({}, 'content') }}</p>
                     </div>
                 </div>
             </div>
@@ -72,8 +72,8 @@
                             <path d="M16.5 16.5l1.5 1.5" />
                         </svg>
                     </div>
-                    <h2 class="h2">{{ 'public.home.features.card.independent.title'|trans }}</h2>
-                    <p class="text-secondary">{{ 'public.home.features.card.independent.text'|trans }}</p>
+                    <h2 class="h2">{{ 'public.home.features.card.independent.title'|trans({}, 'content') }}</h2>
+                    <p class="text-secondary">{{ 'public.home.features.card.independent.text'|trans({}, 'content') }}</p>
                 </div>
                 <div class="col-6 mb-3">
                     <div class="shape shape-md mb-3">
@@ -86,9 +86,9 @@
                             <path d="M12 7l0 4" />
                         </svg>
                     </div>
-                    <h2 class="h2">{{ 'public.home.features.card.hospital_centered.title'|trans }}</h2>
+                    <h2 class="h2">{{ 'public.home.features.card.hospital_centered.title'|trans({}, 'content') }}</h2>
                     <p class="text-secondary">
-                        {{ 'public.home.features.card.hospital_centered.text'|trans }}
+                        {{ 'public.home.features.card.hospital_centered.text'|trans({}, 'content') }}
                     </p>
                 </div>
                 <div class="col-6">
@@ -103,8 +103,8 @@
                             <path d="M19 12l2 0" />
                         </svg>
                     </div>
-                    <h2 class="h2">{{ 'public.home.features.card.explore.title'|trans }}</h2>
-                    <p class="text-secondary">{{ 'public.home.features.card.explore.text'|trans }}</p>
+                    <h2 class="h2">{{ 'public.home.features.card.explore.title'|trans({}, 'content') }}</h2>
+                    <p class="text-secondary">{{ 'public.home.features.card.explore.text'|trans({}, 'content') }}</p>
                 </div>
                 <div class="col-6">
                     <div class="shape shape-md mb-3">
@@ -114,8 +114,8 @@
                             <path d="M4 12l3 -4l4 2l5 -6l4 4" />
                         </svg>
                     </div>
-                    <h2 class="h2">{{ 'public.home.features.card.analytics.title'|trans }}</h2>
-                    <p class="text-secondary">{{ 'public.home.features.card.analytics.text'|trans }}</p>
+                    <h2 class="h2">{{ 'public.home.features.card.analytics.title'|trans({}, 'content') }}</h2>
+                    <p class="text-secondary">{{ 'public.home.features.card.analytics.text'|trans({}, 'content') }}</p>
                 </div>
             </div>
         </div>
@@ -123,19 +123,19 @@
 
     <section class="section">
         <div class="container-narrow text-center">
-            <h3 class="h1">{{ 'public.home.about.title'|trans }}</h3>
-            <p class="text-secondary">{{ 'public.home.about.p1'|trans }}</p>
-            <p class="text-secondary">{{ 'public.home.about.p2'|trans }}</p>
-            <p class="text-secondary mb-0">{{ 'public.home.about.p3'|trans }}</p>
+            <h3 class="h1">{{ 'public.home.about.title'|trans({}, 'content') }}</h3>
+            <p class="text-secondary">{{ 'public.home.about.p1'|trans({}, 'content') }}</p>
+            <p class="text-secondary">{{ 'public.home.about.p2'|trans({}, 'content') }}</p>
+            <p class="text-secondary mb-0">{{ 'public.home.about.p3'|trans({}, 'content') }}</p>
         </div>
     </section>
 
     <section class="section section-light">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">{{ 'public.home.features.overview.title'|trans }}</h2>
+                <h2 class="section-title">{{ 'public.home.features.overview.title'|trans({}, 'content') }}</h2>
                 <div class="section-description">
-                    {{ 'public.home.features.overview.subtitle'|trans }}
+                    {{ 'public.home.features.overview.subtitle'|trans({}, 'content') }}
                 </div>
             </div>
             <div class="row g-lg-10">
@@ -152,9 +152,9 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.hospital_management.title'|trans }}</h3>
+                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.hospital_management.title'|trans({}, 'content') }}</h3>
                                     <p class="text-secondary m-0">
-                                        {{ 'public.home.features.detail.hospital_management.text'|trans }}
+                                        {{ 'public.home.features.detail.hospital_management.text'|trans({}, 'content') }}
                                     </p>
                                 </div>
                             </div>
@@ -175,9 +175,9 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.data_exploration.title'|trans }}</h3>
+                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.data_exploration.title'|trans({}, 'content') }}</h3>
                                     <p class="text-secondary m-0">
-                                        {{ 'public.home.features.detail.data_exploration.text'|trans }}
+                                        {{ 'public.home.features.detail.data_exploration.text'|trans({}, 'content') }}
                                     </p>
                                 </div>
                             </div>
@@ -197,9 +197,9 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.statistics.title'|trans }}</h3>
+                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.statistics.title'|trans({}, 'content') }}</h3>
                                     <p class="text-secondary m-0">
-                                        {{ 'public.home.features.detail.statistics.text'|trans }}
+                                        {{ 'public.home.features.detail.statistics.text'|trans({}, 'content') }}
                                     </p>
                                 </div>
                             </div>
@@ -219,9 +219,9 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.import_export.title'|trans }}</h3>
+                                    <h3 class="h2 mb-2">{{ 'public.home.features.detail.import_export.title'|trans({}, 'content') }}</h3>
                                     <p class="text-secondary m-0">
-                                        {{ 'public.home.features.detail.import_export.text'|trans }}
+                                        {{ 'public.home.features.detail.import_export.text'|trans({}, 'content') }}
                                     </p>
                                 </div>
                             </div>

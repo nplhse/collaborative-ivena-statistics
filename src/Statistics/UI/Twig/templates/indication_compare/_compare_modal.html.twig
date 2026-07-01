@@ -20,19 +20,19 @@
              data-indication-compare-picker-base-url-value="{{ comparePicker.compareBaseUrl|e('html_attr') }}">
             <div class="modal-header">
                 <h5 class="modal-title" id="{{ modalId }}-label">
-                    {{ modalTitleKey|trans }}
+                    {{ modalTitleKey|trans({}, 'statistics') }}
                 </h5>
                 <button type="button"
                         class="btn-close"
                         data-bs-dismiss="modal"
-                        aria-label="{{ 'stats.indication.compare.edit_modal.cancel'|trans }}"></button>
+                        aria-label="{{ 'action.cancel'|trans({}, 'messages') }}"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small mb-3">{{ 'stats.indication.compare.picker_help'|trans }}</p>
+                <p class="text-muted small mb-3">{{ 'stats.indication.compare.picker_help'|trans({}, 'statistics') }}</p>
 
                 {% if comparePresets is defined and comparePresets is not empty %}
                     <div class="mb-3" data-testid="{{ testIdPrefix }}-presets">
-                        <p class="form-label mb-2">{{ 'stats.indication.group.compare_presets_label'|trans }}</p>
+                        <p class="form-label mb-2">{{ 'stats.indication.group.compare_presets_label'|trans({}, 'statistics') }}</p>
                         <div class="d-flex flex-wrap gap-2">
                             {% for preset in comparePresets %}
                                 <button type="button"
@@ -40,7 +40,7 @@
                                         data-action="indication-compare-picker#applyPreset"
                                         data-indication-compare-picker-label-a-param="{{ preset.labelA }}"
                                         data-indication-compare-picker-label-b-param="{{ preset.labelB }}">
-                                    {{ preset.label|trans }}
+                                    {{ preset.label|trans({}, 'statistics') }}
                                 </button>
                             {% endfor %}
                         </div>
@@ -49,14 +49,14 @@
 
                 <div class="mb-3">
                     <label class="form-label" for="{{ inputIdPrefix }}-a">
-                        {{ 'stats.indication.compare.side_a'|trans }}
+                        {{ 'stats.indication.compare.side_a'|trans({}, 'statistics') }}
                     </label>
                     <input type="text"
                            id="{{ inputIdPrefix }}-a"
                            class="form-control"
                            list="{{ inputIdPrefix }}-list-a"
                            value="{{ comparePicker.selectedLabelA }}"
-                           placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+                           placeholder="{{ 'stats.indication.picker.placeholder'|trans({}, 'statistics') }}"
                            autocomplete="off"
                            data-indication-compare-picker-target="inputA">
                     <datalist id="{{ inputIdPrefix }}-list-a">
@@ -67,14 +67,14 @@
                 </div>
                 <div class="mb-0">
                     <label class="form-label" for="{{ inputIdPrefix }}-b">
-                        {{ 'stats.indication.compare.side_b'|trans }}
+                        {{ 'stats.indication.compare.side_b'|trans({}, 'statistics') }}
                     </label>
                     <input type="text"
                            id="{{ inputIdPrefix }}-b"
                            class="form-control"
                            list="{{ inputIdPrefix }}-list-b"
                            value="{{ comparePicker.selectedLabelB }}"
-                           placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+                           placeholder="{{ 'stats.indication.picker.placeholder'|trans({}, 'statistics') }}"
                            autocomplete="off"
                            data-indication-compare-picker-target="inputB">
                     <datalist id="{{ inputIdPrefix }}-list-b">
@@ -88,13 +88,13 @@
                 <button type="button"
                         class="btn btn-link link-secondary"
                         data-bs-dismiss="modal">
-                    {{ 'stats.indication.compare.edit_modal.cancel'|trans }}
+                    {{ 'action.cancel'|trans({}, 'messages') }}
                 </button>
                 <button type="button"
                         class="btn btn-primary"
                         data-action="indication-compare-picker#compare"
                         data-testid="{{ testIdPrefix }}-submit">
-                    {{ 'stats.indication.compare.submit'|trans }}
+                    {{ 'stats.indication.compare.submit'|trans({}, 'statistics') }}
                 </button>
             </div>
         </div>

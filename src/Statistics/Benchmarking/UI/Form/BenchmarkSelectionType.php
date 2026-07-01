@@ -41,6 +41,7 @@ final class BenchmarkSelectionType extends AbstractType
         $resolver->setDefaults([
             'data_class' => BenchmarkSelectionFormData::class,
             'locale' => 'en',
+            'translation_domain' => 'statistics',
             // Navigation-only form: builds GET query params for a redirect, no server-side mutation.
             // CSRF is disabled because Live Component POST actions (apply) do not trigger the
             // csrf-protection Stimulus controller, which breaks SameOriginCsrfTokenManager after login.

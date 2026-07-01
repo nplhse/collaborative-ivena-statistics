@@ -113,11 +113,11 @@ final readonly class PageContentBlockDataFieldsConfigurator
                     ->andWhere('m.type = :type')
                     ->setParameter('type', MediaType::IMAGE)
                     ->orderBy('m.createdAt', 'DESC'),
-                'help' => $this->translator->trans('help.page.image_media')
+                'help' => $this->translator->trans('help.page.image_media', [], 'content')
                     .sprintf(
                         ' <a href="%s" target="_blank" rel="noopener">%s</a>.',
                         htmlspecialchars($mediaLibraryUrl, ENT_QUOTES | ENT_HTML5),
-                        $this->translator->trans('label.media_library'),
+                        $this->translator->trans('label.media_library', [], 'content'),
                     ),
                 'help_html' => true,
             ])

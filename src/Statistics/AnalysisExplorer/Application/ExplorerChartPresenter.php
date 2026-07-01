@@ -387,17 +387,17 @@ final readonly class ExplorerChartPresenter
             return $this->temporalDimensionLabel($axis->resolvedGrain());
         }
 
-        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value);
+        return $this->translator->trans('stats.analysis_explorer.dimension.'.$axis->dimensionKey->value, [], 'statistics');
     }
 
     private function temporalDimensionLabel(AnalysisDimensionGrain $grain): string
     {
         return match ($grain) {
-            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year'),
-            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter'),
-            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week'),
-            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total'),
-            default => $this->translator->trans('stats.analysis_explorer.dimension.month'),
+            AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
+            AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
+            AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
+            default => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
         };
     }
 
@@ -405,7 +405,7 @@ final readonly class ExplorerChartPresenter
     {
         $profile = $this->profileRegistry->profileFor($metricKey);
         if ($profile instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\ExplorerMetricProfileDefinition) {
-            return $this->translator->trans($profile->labelTranslationKey);
+            return $this->translator->trans($profile->labelTranslationKey, [], 'statistics');
         }
 
         return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->label;

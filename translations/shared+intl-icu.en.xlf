@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="qLSIn.8" resname="cookie.banner.accept_all">
+        <source>cookie.banner.accept_all</source>
+        <target>Allow All Cookies</target>
+      </trans-unit>
+      <trans-unit id="aDNOOux" resname="cookie.banner.essential_only">
+        <source>cookie.banner.essential_only</source>
+        <target>Essential Cookies Only</target>
+      </trans-unit>
+      <trans-unit id="C6FAVZx" resname="cookie.banner.learn_more">
+        <source>cookie.banner.learn_more</source>
+        <target>Learn more</target>
+      </trans-unit>
+      <trans-unit id="Bgkm67w" resname="cookie.banner.settings">
+        <source>cookie.banner.settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="w0UG6MC" resname="cookie.banner.text">
+        <source>cookie.banner.text</source>
+        <target>We use essential cookies to run this app and optional monitoring cookies to improve reliability.</target>
+      </trans-unit>
+      <trans-unit id="1r7OhrC" resname="cookie.banner.title">
+        <source>cookie.banner.title</source>
+        <target>Do you like cookies?</target>
+      </trans-unit>
+      <trans-unit id="D2QXA0x" resname="cookie.preferences.categories">
+        <source>cookie.preferences.categories</source>
+        <target>Cookie categories</target>
+      </trans-unit>
+      <trans-unit id="c8IhNc0" resname="cookie.preferences.essential.text">
+        <source>cookie.preferences.essential.text</source>
+        <target>Required for authentication, security and core functionality. This category is always active.</target>
+      </trans-unit>
+      <trans-unit id="5a0.6q5" resname="cookie.preferences.essential.title">
+        <source>cookie.preferences.essential.title</source>
+        <target>Essential cookies</target>
+      </trans-unit>
+      <trans-unit id="tFESRQ5" resname="cookie.preferences.intro">
+        <source>cookie.preferences.intro</source>
+        <target>Choose which optional cookie categories may be used.</target>
+      </trans-unit>
+      <trans-unit id="qP7Ku6G" resname="cookie.preferences.monitoring.provider_hint">
+        <source>cookie.preferences.monitoring.provider_hint</source>
+        <target>Currently this category uses Sentry for application and error monitoring.</target>
+      </trans-unit>
+      <trans-unit id="k2tpZJh" resname="cookie.preferences.monitoring.text">
+        <source>cookie.preferences.monitoring.text</source>
+        <target>Helps us monitor application stability and error rates.</target>
+      </trans-unit>
+      <trans-unit id="qJ7ToIK" resname="cookie.preferences.monitoring.title">
+        <source>cookie.preferences.monitoring.title</source>
+        <target>Monitoring cookies</target>
+      </trans-unit>
+      <trans-unit id="I21gDqr" resname="cookie.preferences.save">
+        <source>cookie.preferences.save</source>
+        <target>Save cookie preferences</target>
+      </trans-unit>
+      <trans-unit id="e4KvqAC" resname="cookie.preferences.title">
+        <source>cookie.preferences.title</source>
+        <target>Cookie preferences</target>
+      </trans-unit>
+      <trans-unit id="S0Cv.FB" resname="flash.cookies.updated">
+        <source>flash.cookies.updated</source>
+        <target>Cookie preferences updated.</target>
+      </trans-unit>
+      <trans-unit id="IlEDRed" resname="help.search_no_results">
+        <source>help.search_no_results</source>
+        <target>Try adjusting your search or filter to find what you're looking for.</target>
+      </trans-unit>
+      <trans-unit id="z3o4rg_" resname="link.about">
+        <source>link.about</source>
+        <target>About</target>
+      </trans-unit>
+      <trans-unit id="ZdrXMaQ" resname="link.allocations">
+        <source>link.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="DPbhibY" resname="link.assignments">
+        <source>link.assignments</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="emRWlOT" resname="link.cookie_preferences">
+        <source>link.cookie_preferences</source>
+        <target>Cookie settings</target>
+      </trans-unit>
+      <trans-unit id="AWjlM2g" resname="link.departments">
+        <source>link.departments</source>
+        <target>Departments</target>
+      </trans-unit>
+      <trans-unit id="V.DoFiU" resname="link.dispatch_areas">
+        <source>link.dispatch_areas</source>
+        <target>Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="ojUc4Dn" resname="link.explore">
+        <source>link.explore</source>
+        <target>Explore</target>
+      </trans-unit>
+      <trans-unit id="DPqI5NZ" resname="link.features">
+        <source>link.features</source>
+        <target>Features</target>
+      </trans-unit>
+      <trans-unit id="9XmczE8" resname="link.home">
+        <source>link.home</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="xnwGILx" resname="link.hospitals">
+        <source>link.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="000N_Am" resname="link.import">
+        <source>link.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="ExpLnkEn01" resname="link.export">
+        <source>link.export</source>
+        <target>Export</target>
+      </trans-unit>
+      <trans-unit id="4wLkxRO" resname="link.imports">
+        <source>link.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="fEFqowr" resname="link.indications">
+        <source>link.indications</source>
+        <target>Indications</target>
+      </trans-unit>
+      <trans-unit id="hmthOUc" resname="link.infections">
+        <source>link.infections</source>
+        <target>Infections</target>
+      </trans-unit>
+      <trans-unit id="aR9T_pC" resname="link.mci_cases">
+        <source>link.mci_cases</source>
+        <target>MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="C4XIIu3" resname="link.occasions">
+        <source>link.occasions</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="d34Xfof" resname="link.secondary_transports">
+        <source>link.secondary_transports</source>
+        <target>Secondary Transports</target>
+      </trans-unit>
+      <trans-unit id="y8kuDU3" resname="link.specialities">
+        <source>link.specialities</source>
+        <target>Specialities</target>
+      </trans-unit>
+      <trans-unit id="qo4nUz4" resname="link.statistics">
+        <source>link.statistics</source>
+        <target>Statistics</target>
+      </trans-unit>
+      <trans-unit id="xTIpefW" resname="link.stats.dashboard">
+        <source>link.stats.dashboard</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAn01" resname="link.stats.analysis">
+        <source>link.stats.analysis</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAe01" resname="link.stats.analysis_explorer">
+        <source>link.stats.analysis_explorer</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAl01" resname="link.stats.analytics_library">
+        <source>link.stats.analytics_library</source>
+        <target>Analysis</target>
+      </trans-unit>
+      <trans-unit id="statsLnkIi01" resname="link.stats.indication_insights">
+        <source>link.stats.indication_insights</source>
+        <target>Indication Insights</target>
+      </trans-unit>
+      <trans-unit id="statsLnkBm01" resname="link.stats.benchmarking">
+        <source>link.stats.benchmarking</source>
+        <target>Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="statsLnkRp01" resname="link.stats.reports">
+        <source>link.stats.reports</source>
+        <target>Reports</target>
+      </trans-unit>
+      <trans-unit id="CXSATlj" resname="link.stats.distribution">
+        <source>link.stats.distribution</source>
+        <target>Distribution</target>
+      </trans-unit>
+      <trans-unit id="cIyk7DA" resname="link.stats.hospitals">
+        <source>link.stats.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="RRCYtAu" resname="link.stats.time_grid">
+        <source>link.stats.time_grid</source>
+        <target>Time Grid</target>
+      </trans-unit>
+      <trans-unit id="BXqZdqI" resname="link.stats.transport_time">
+        <source>link.stats.transport_time</source>
+        <target>Transport Time</target>
+      </trans-unit>
+      <trans-unit id="wQKGxus" resname="link.users">
+        <source>link.users</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="blog0001" resname="link.blog">
+        <source>link.blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="regterms03" resname="link.terms">
+        <source>link.terms</source>
+        <target>terms and conditions</target>
+      </trans-unit>
+      <trans-unit id="menuBlgCt" resname="menu.blog.categories">
+        <source>menu.blog.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="menuBlgCm" resname="menu.blog.comments">
+        <source>menu.blog.comments</source>
+        <target>Comments</target>
+      </trans-unit>
+      <trans-unit id="menuBlgPt" resname="menu.blog.posts">
+        <source>menu.blog.posts</source>
+        <target>Posts</target>
+      </trans-unit>
+      <trans-unit id="menuBlgTg" resname="menu.blog.tags">
+        <source>menu.blog.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="statsPf01" resname="link.stats.case_flow">
+        <source>link.stats.case_flow</source>
+        <target>Case flow</target>
+      </trans-unit>
+      <trans-unit id="statsHp01" resname="link.stats.hospital_population">
+        <source>link.stats.hospital_population</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAel01" resname="link.stats.analysis_explorer_library">
+        <source>link.stats.analysis_explorer_library</source>
+        <target>Analysis library</target>
+      </trans-unit>
+      <trans-unit id="LocEn01" resname="locale.switch">
+        <source>locale.switch</source>
+        <target>Switch language</target>
+      </trans-unit>
+      <trans-unit id="LocEn02" resname="locale.english">
+        <source>locale.english</source>
+        <target>English</target>
+      </trans-unit>
+      <trans-unit id="LocEn03" resname="locale.german">
+        <source>locale.german</source>
+        <target>Deutsch</target>
+      </trans-unit>
+      <trans-unit id="LocEn04" resname="locale.english_short">
+        <source>locale.english_short</source>
+        <target>EN</target>
+      </trans-unit>
+      <trans-unit id="LocEn05" resname="locale.german_short">
+        <source>locale.german_short</source>
+        <target>DE</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

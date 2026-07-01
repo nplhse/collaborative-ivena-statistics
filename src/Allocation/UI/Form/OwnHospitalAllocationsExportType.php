@@ -23,6 +23,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -49,22 +50,26 @@ final class OwnHospitalAllocationsExportType extends AbstractType
     {
         $builder
             ->add('dateFrom', DateType::class, [
+                'label' => 'field.dateFrom',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('dateTo', DateType::class, [
+                'label' => 'field.dateTo',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('timeFrom', TimeType::class, [
+                'label' => 'field.timeFrom',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'required' => false,
                 'with_seconds' => true,
             ])
             ->add('timeTo', TimeType::class, [
+                'label' => 'field.timeTo',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'required' => false,
@@ -78,73 +83,98 @@ final class OwnHospitalAllocationsExportType extends AbstractType
                 'expanded' => true,
                 'required' => false,
                 'label' => false,
+                'choice_translation_domain' => false,
             ]);
         }
 
         $builder
-            ->add('urgency', ChoiceType::class, [
+            ->add('urgency', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'field.urgency',
                 'choices' => $this->urgencyChoices(),
-                'required' => false,
                 'placeholder' => 'label.all_urgencies',
-            ])
-            ->add('assignment', ChoiceType::class, [
+            ]))
+            ->add('assignment', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'label.assignment',
                 'choices' => $this->entityIdChoices($this->assignmentRepository->findBy([], ['name' => 'ASC'])),
-                'required' => false,
                 'placeholder' => 'label.all_assignments',
-            ])
-            ->add('occasion', ChoiceType::class, [
+            ]))
+            ->add('occasion', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'label.occasion',
                 'choices' => $this->entityIdChoices($this->occasionRepository->findBy([], ['name' => 'ASC'])),
-                'required' => false,
                 'placeholder' => 'label.all_occasions',
-            ])
-            ->add('transportType', ChoiceType::class, [
+            ]))
+            ->add('transportType', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'field.transportType',
                 'choices' => $this->transportTypeChoices(),
-                'required' => false,
                 'placeholder' => 'label.all_transport_types',
-            ])
-            ->add('indication', ChoiceType::class, [
+            ]))
+            ->add('indication', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'label.indication',
                 'choices' => $this->indicationChoices(),
-                'required' => false,
                 'placeholder' => 'label.all_indications',
-            ])
+            ]))
             ->add('includeIndicationRaw', CheckboxType::class, [
                 'required' => false,
-                'label' => 'field.includeIndicationRaw',
-                'help' => 'help.export.include_indication_raw',
+                'label' => new TranslatableMessage('field.includeIndicationRaw', domain: 'messages'),
+                'help' => new TranslatableMessage('help.export.include_indication_raw', domain: 'allocation'),
             ])
-            ->add('secondaryTransport', ChoiceType::class, [
+            ->add('secondaryTransport', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'label.secondary_transport',
                 'choices' => $this->entityIdChoices($this->secondaryTransportRepository->findBy([], ['name' => 'ASC'])),
-                'required' => false,
                 'placeholder' => 'label.all_secondary_transports',
-            ])
-            ->add('department', ChoiceType::class, [
+            ]))
+            ->add('department', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'label.department',
                 'choices' => $this->entityIdChoices($this->departmentRepository->findBy([], ['name' => 'ASC'])),
-                'required' => false,
                 'placeholder' => 'label.all_departments',
-            ])
-            ->add('speciality', ChoiceType::class, [
+            ]))
+            ->add('speciality', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'label.speciality',
                 'choices' => $this->entityIdChoices($this->specialityRepository->findBy([], ['name' => 'ASC'])),
-                'required' => false,
                 'placeholder' => 'label.all_specialities',
-            ])
+            ]))
             ->add('departmentWasClosed', CheckboxType::class, [
                 'required' => false,
-                'label' => 'field.departmentWasClosed',
-                'help' => 'help.export.department_was_closed_filter',
+                'label' => new TranslatableMessage('field.departmentWasClosed', domain: 'messages'),
+                'help' => new TranslatableMessage('help.export.department_was_closed_filter', domain: 'allocation'),
             ])
-            ->add('requiresResus', CheckboxType::class, ['required' => false])
-            ->add('requiresCathlab', CheckboxType::class, ['required' => false])
-            ->add('isVentilated', CheckboxType::class, ['required' => false])
-            ->add('isShock', CheckboxType::class, ['required' => false])
-            ->add('isCPR', CheckboxType::class, ['required' => false])
-            ->add('isPregnant', CheckboxType::class, ['required' => false])
-            ->add('isWorkAccident', CheckboxType::class, ['required' => false])
-            ->add('isInfectious', CheckboxType::class, ['required' => false])
-            ->add('infection', ChoiceType::class, [
-                'choices' => $this->entityIdChoices($this->infectionRepository->findBy([], ['name' => 'ASC'])),
+            ->add('requiresResus', CheckboxType::class, [
+                'label' => 'field.requiresResus',
                 'required' => false,
+            ])
+            ->add('requiresCathlab', CheckboxType::class, [
+                'label' => 'field.requiresCathlab',
+                'required' => false,
+            ])
+            ->add('isVentilated', CheckboxType::class, [
+                'label' => new TranslatableMessage('allocations.field.isVentilated', domain: 'allocation'),
+                'required' => false,
+            ])
+            ->add('isShock', CheckboxType::class, [
+                'label' => new TranslatableMessage('allocations.field.isShock', domain: 'allocation'),
+                'required' => false,
+            ])
+            ->add('isCPR', CheckboxType::class, [
+                'label' => 'field.isCPR',
+                'required' => false,
+            ])
+            ->add('isPregnant', CheckboxType::class, [
+                'label' => new TranslatableMessage('allocations.field.isPregnant', domain: 'allocation'),
+                'required' => false,
+            ])
+            ->add('isWorkAccident', CheckboxType::class, [
+                'label' => new TranslatableMessage('allocations.field.isWorkAccident', domain: 'allocation'),
+                'required' => false,
+            ])
+            ->add('isInfectious', CheckboxType::class, [
+                'label' => 'label.is_infectious',
+                'required' => false,
+            ])
+            ->add('infection', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'field.infection',
+                'choices' => $this->entityIdChoices($this->infectionRepository->findBy([], ['name' => 'ASC'])),
                 'placeholder' => 'label.all_infections',
-            ]);
+            ]));
     }
 
     #[\Override]
@@ -171,6 +201,21 @@ final class OwnHospitalAllocationsExportType extends AbstractType
     }
 
     /**
+     * Entity names and SK labels are domain terms and must not be passed through the translator.
+     *
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function choiceFieldOptions(array $options): array
+    {
+        return array_merge([
+            'choice_translation_domain' => false,
+            'required' => false,
+        ], $options);
+    }
+
+    /**
      * @return array<string, string>
      */
     private function urgencyChoices(): array
@@ -190,7 +235,7 @@ final class OwnHospitalAllocationsExportType extends AbstractType
     {
         $choices = [];
         foreach (AllocationTransportType::cases() as $case) {
-            $choices[$this->translator->trans($case->label())] = $case->value;
+            $choices[$this->translator->trans($case->label(), [], 'messages')] = $case->value;
         }
 
         return $choices;

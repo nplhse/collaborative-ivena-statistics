@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'cookie.preferences.title'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'cookie.preferences.title'|trans({}, 'shared') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
@@ -11,8 +11,8 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <h2 class="page-title">{{ 'cookie.preferences.title'|trans }}</h2>
-                    <div class="text-secondary mt-1">{{ 'cookie.preferences.intro'|trans }}</div>
+                    <h2 class="page-title">{{ 'cookie.preferences.title'|trans({}, 'shared') }}</h2>
+                    <div class="text-secondary mt-1">{{ 'cookie.preferences.intro'|trans({}, 'shared') }}</div>
                 </div>
             </div>
         </div>
@@ -26,7 +26,7 @@
                 <div class="col-12 col-lg-8">
                     <form method="post" action="{{ path('app_cookie_preferences_save') }}" class="card">
                         <div class="card-header">
-                            <h3 class="card-title">{{ 'cookie.preferences.categories'|trans }}</h3>
+                            <h3 class="card-title">{{ 'cookie.preferences.categories'|trans({}, 'shared') }}</h3>
                         </div>
                         <div class="card-body">
                             <input type="hidden" name="_token" value="{{ csrf_token('cookie_consent') }}">
@@ -34,8 +34,8 @@
                                 <label class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" checked disabled>
                                     <span class="form-check-label">
-                                        <strong>{{ 'cookie.preferences.essential.title'|trans }}</strong>
-                                        <span class="d-block text-secondary">{{ 'cookie.preferences.essential.text'|trans }}</span>
+                                        <strong>{{ 'cookie.preferences.essential.title'|trans({}, 'shared') }}</strong>
+                                        <span class="d-block text-secondary">{{ 'cookie.preferences.essential.text'|trans({}, 'shared') }}</span>
                                     </span>
                                 </label>
                             </div>
@@ -49,15 +49,15 @@
                                         {% if consent.preferences.monitoring %}checked{% endif %}
                                     >
                                     <span class="form-check-label">
-                                        <strong>{{ 'cookie.preferences.monitoring.title'|trans }}</strong>
-                                        <span class="d-block text-secondary">{{ 'cookie.preferences.monitoring.text'|trans }}</span>
+                                        <strong>{{ 'cookie.preferences.monitoring.title'|trans({}, 'shared') }}</strong>
+                                        <span class="d-block text-secondary">{{ 'cookie.preferences.monitoring.text'|trans({}, 'shared') }}</span>
                                     </span>
                                 </label>
                             </div>
                         </div>
                         <div class="card-footer d-flex justify-content-between">
-                            <a class="btn btn-outline-secondary" href="{{ path('app_default') }}">{{ 'label.back'|trans }}</a>
-                            <button type="submit" class="btn btn-primary">{{ 'cookie.preferences.save'|trans }}</button>
+                            <a class="btn btn-outline-secondary" href="{{ path('app_default') }}">{{ 'label.back'|trans({}, 'messages') }}</a>
+                            <button type="submit" class="btn btn-primary">{{ 'cookie.preferences.save'|trans({}, 'shared') }}</button>
                         </div>
                     </form>
                 </div>

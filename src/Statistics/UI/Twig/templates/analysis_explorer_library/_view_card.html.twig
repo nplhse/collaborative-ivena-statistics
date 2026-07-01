@@ -19,7 +19,7 @@
                     <input type="hidden" name="_token" value="{{ csrf_token(card.favoriteToken) }}">
                     <button type="submit"
                             class="btn btn-ghost-secondary btn-icon btn-sm{% if card.isFavorite %} text-yellow{% endif %}"
-                            aria-label="{{ card.isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans : 'stats.analysis_explorer.favorite.add'|trans }}"
+                            aria-label="{{ card.isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans({}, 'statistics') : 'stats.analysis_explorer.favorite.add'|trans({}, 'statistics') }}"
                             data-testid="stats-analysis-explorer-favorite-{{ card.id }}">
                         <twig:ux:icon name="{{ card.isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
                     </button>
@@ -32,17 +32,17 @@
         {% endif %}
         <div class="d-flex flex-wrap gap-1 mb-3">
             {% if card.dimension %}
-                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.dimension'|trans }}: {{ card.dimension }}</span>
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.dimension'|trans({}, 'statistics') }}: {{ card.dimension }}</span>
             {% endif %}
             {% if card.grain %}
-                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.grain'|trans }}: {{ card.grain }}</span>
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.grain'|trans({}, 'statistics') }}: {{ card.grain }}</span>
             {% endif %}
             {% if card.chartType %}
-                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.chart'|trans }}: {{ card.chartType }}</span>
+                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.chart'|trans({}, 'statistics') }}: {{ card.chartType }}</span>
             {% endif %}
         </div>
         <a href="{{ card.openUrl }}" class="btn btn-primary w-100" data-testid="stats-analysis-explorer-open-{{ card.id }}">
-            {{ 'stats.analysis_explorer.library.open'|trans }}
+            {{ 'stats.analysis_explorer.library.open'|trans({}, 'statistics') }}
         </a>
     </div>
 </div>

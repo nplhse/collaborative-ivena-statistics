@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.benchmark.title'|trans }} – {{ parent() }}{% endblock %}
+{% block title %}{{ 'stats.benchmark.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -26,8 +26,8 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
-                    <div class="page-pretitle">{{ 'stats.benchmark.subtitle'|trans }}</div>
-                    <h2 class="page-title mb-0" data-testid="stats-benchmark-heading">{{ 'stats.benchmark.title'|trans }}</h2>
+                    <div class="page-pretitle">{{ 'stats.benchmark.subtitle'|trans({}, 'statistics') }}</div>
+                    <h2 class="page-title mb-0" data-testid="stats-benchmark-heading">{{ 'stats.benchmark.title'|trans({}, 'statistics') }}</h2>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <button type="button"
@@ -36,7 +36,7 @@
                             data-bs-target="#stats-benchmark-selection-modal"
                             data-testid="stats-benchmark-selection-edit-button">
                         <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
-                        {{ 'stats.benchmark.selection.edit'|trans }}
+                        {{ 'stats.benchmark.selection.edit'|trans({}, 'statistics') }}
                     </button>
                 </div>
             </div>
@@ -56,7 +56,7 @@
 
         {% if report.hasInsufficientData %}
             <div class="alert alert-warning" data-testid="stats-benchmark-insufficient-data">
-                {{ 'stats.benchmark.insufficient_data'|trans }}
+                {{ 'stats.benchmark.insufficient_data'|trans({}, 'statistics') }}
             </div>
         {% endif %}
 
@@ -72,7 +72,7 @@
 
                 <div class="card" data-testid="stats-benchmark-indication-mix">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.indication_mix'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.indication_mix'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_indication_mix_table.html.twig') }}
@@ -81,35 +81,35 @@
 
                 <div class="card" data-testid="stats-benchmark-case-distribution">
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans }}</h3>
-                        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.benchmark.heatmap.mode.label'|trans }}">
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans({}, 'statistics') }}</h3>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.benchmark.heatmap.mode.label'|trans({}, 'statistics') }}">
                             <button type="button"
                                     class="btn active"
                                     data-benchmarking-charts-target="heatmapModeDayTime"
                                     data-action="benchmarking-charts#setHeatmapMode"
                                     data-benchmarking-charts-mode-param="dayTime">
-                                {{ 'stats.benchmark.heatmap.mode.day_time'|trans }}
+                                {{ 'stats.benchmark.heatmap.mode.day_time'|trans({}, 'statistics') }}
                             </button>
                             <button type="button"
                                     class="btn"
                                     data-benchmarking-charts-target="heatmapModeShift"
                                     data-action="benchmarking-charts#setHeatmapMode"
                                     data-benchmarking-charts-mode-param="shift">
-                                {{ 'stats.benchmark.heatmap.mode.shift'|trans }}
+                                {{ 'stats.benchmark.heatmap.mode.shift'|trans({}, 'statistics') }}
                             </button>
                         </div>
                     </div>
                     <div class="card-body pt-2">
                         <div class="chart-lg" data-benchmarking-charts-target="caseDistributionHeatmap"></div>
                         <p class="text-muted small mb-0 mt-2" data-testid="stats-benchmark-case-distribution-help">
-                            {{ 'stats.benchmark.case_distribution.help'|trans }}
+                            {{ 'stats.benchmark.case_distribution.help'|trans({}, 'statistics') }}
                         </p>
                     </div>
                 </div>
 
                 <div class="card" data-testid="stats-benchmark-demographics-age">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.age_groups'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.age_groups'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart-md" data-benchmarking-charts-target="ageGroupsChart"></div>
@@ -122,7 +122,7 @@
 
                 <div class="card" data-testid="stats-benchmark-demographics-gender">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.gender'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.gender'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {
@@ -138,7 +138,7 @@
 
                 <div class="card" data-testid="stats-benchmark-urgency">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.urgency'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.urgency'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {
@@ -154,7 +154,7 @@
 
                 <div class="card" data-testid="stats-benchmark-resources">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.resources'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.resources'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.resourceProfile, labelPrefix: 'stats.benchmark.resource.'}) }}
@@ -163,7 +163,7 @@
 
                 <div class="card" data-testid="stats-benchmark-clinical-features">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.clinical_features'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.clinical_features'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.clinicalFeatures}) }}
@@ -172,7 +172,7 @@
 
                 <div class="card" data-testid="stats-benchmark-transport-type">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.transport_type'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.transport_type'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {
@@ -187,7 +187,7 @@
 
                 <div class="card" data-testid="stats-benchmark-transport-times">
                     <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.transport_times'|trans }}</h3>
+                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.transport_times'|trans({}, 'statistics') }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart-sm" data-benchmarking-charts-target="transportTimesChart"></div>

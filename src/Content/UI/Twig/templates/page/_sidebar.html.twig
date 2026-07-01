@@ -4,12 +4,12 @@
             <div class="card-header bg-light">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:sitemap" class="w-4 h-4" />
-                    {{ 'dashboard.pages.card_title'|trans }}
+                    {{ 'dashboard.pages.card_title'|trans({}, 'content') }}
                 </h3>
             </div>
             <div class="card-body">
                 {% if pageTree is empty %}
-                    <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans }}</p>
+                    <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans({}, 'content') }}</p>
                 {% else %}
                     <ul class="list-unstyled mb-0">
                         {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree, currentPage: currentPage|default(null)}, false) }}
@@ -24,7 +24,7 @@
             <div class="card-header bg-light">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
-                    {{ 'blog.sidebar.latest_posts'|trans }}
+                    {{ 'blog.sidebar.latest_posts'|trans({}, 'content') }}
                 </h3>
             </div>
             <div class="list-group list-group-flush">
@@ -33,7 +33,7 @@
                         {{ latest.title }}
                     </a>
                 {% else %}
-                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans }}</div>
+                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans({}, 'content') }}</div>
                 {% endfor %}
             </div>
         </div>

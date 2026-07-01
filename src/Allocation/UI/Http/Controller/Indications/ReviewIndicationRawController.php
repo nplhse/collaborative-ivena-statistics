@@ -101,7 +101,7 @@ final class ReviewIndicationRawController extends AbstractController
         $next = $this->navigator->findNext($context, $raw->getId());
 
         if (!$next instanceof IndicationRaw || null === $next->getId()) {
-            $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open'));
+            $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open', [], 'allocation'));
 
             return $this->redirectToRoute('app_explore_indication_raw_review_worklist', $this->contextQueryParams($context));
         }
@@ -132,7 +132,7 @@ final class ReviewIndicationRawController extends AbstractController
         $first = $this->navigator->findNext($context, null);
 
         if (!$first instanceof IndicationRaw || null === $first->getId()) {
-            $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open'));
+            $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open', [], 'allocation'));
 
             return $this->redirectToRoute('app_explore_indication_raw_review_worklist', [
                 'segment' => $segment->value,
@@ -159,10 +159,10 @@ final class ReviewIndicationRawController extends AbstractController
         if ($this->isButtonClicked($form, 'propose')) {
             $target = $raw->getTarget();
             if (!$target instanceof IndicationNormalized) {
-                throw new \InvalidArgumentException($this->translator->trans('flash.indication.review.target_required'));
+                throw new \InvalidArgumentException($this->translator->trans('flash.indication.review.target_required', [], 'allocation'));
             }
             $this->reviewService->proposeMatch($raw, $target, $user);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.proposed'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.proposed', [], 'allocation'));
 
             return $this->redirectToNext($raw, $context);
         }
@@ -170,45 +170,45 @@ final class ReviewIndicationRawController extends AbstractController
         if ($this->isButtonClicked($form, 'matchAndApprove')) {
             $target = $raw->getTarget();
             if (!$target instanceof IndicationNormalized) {
-                throw new \InvalidArgumentException($this->translator->trans('flash.indication.review.target_required'));
+                throw new \InvalidArgumentException($this->translator->trans('flash.indication.review.target_required', [], 'allocation'));
             }
             $this->reviewService->matchAndApprove($raw, $target, $user, $comment);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.matched_and_approved'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.matched_and_approved', [], 'allocation'));
 
             return $this->redirectToNext($raw, $context);
         }
 
         if ($this->isButtonClicked($form, 'approve')) {
             $this->reviewService->approveMatch($raw, $user, $comment);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.approved'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.approved', [], 'allocation'));
 
             return $this->redirectToNext($raw, $context);
         }
 
         if ($this->isButtonClicked($form, 'reject')) {
             $this->reviewService->rejectMatch($raw, $user, $comment);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.rejected'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.rejected', [], 'allocation'));
 
             return $this->redirectToNext($raw, $context);
         }
 
         if ($this->isButtonClicked($form, 'notMatchable')) {
             $this->reviewService->reviewNotMatchable($raw, $user, $comment);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.not_matchable'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.not_matchable', [], 'allocation'));
 
             return $this->redirectToNext($raw, $context);
         }
 
         if ($this->isButtonClicked($form, 'ignore')) {
             $this->reviewService->reviewIgnore($raw, $user, $comment);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.ignored'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.ignored', [], 'allocation'));
 
             return $this->redirectToNext($raw, $context);
         }
 
         if ($this->isButtonClicked($form, 'reopen')) {
             $this->reviewService->reopenForReview($raw, $user, $comment);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.reopened'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.reopened', [], 'allocation'));
 
             return $this->redirectToRoute('app_explore_indication_raw_review', [
                 'id' => $raw->getId(),
@@ -218,7 +218,7 @@ final class ReviewIndicationRawController extends AbstractController
 
         if ($this->isButtonClicked($form, 'saveComment')) {
             $this->reviewService->saveComment($raw, $comment);
-            $this->addFlash('success', $this->translator->trans('flash.indication.review.comment_saved'));
+            $this->addFlash('success', $this->translator->trans('flash.indication.review.comment_saved', [], 'allocation'));
 
             return $this->redirectToRoute('app_explore_indication_raw_review', [
                 'id' => $raw->getId(),
@@ -236,7 +236,7 @@ final class ReviewIndicationRawController extends AbstractController
     {
         $next = $this->navigator->findNext($context, $raw->getId());
         if (!$next instanceof IndicationRaw || null === $next->getId()) {
-            $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open'));
+            $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open', [], 'allocation'));
 
             return $this->redirectToRoute('app_explore_indication_raw_review_worklist', $this->contextQueryParams($context));
         }

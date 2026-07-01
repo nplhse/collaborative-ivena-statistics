@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans) }} – {{ parent() }}{% endblock %}
+{% block title %}{{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans({}, 'statistics')) }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}

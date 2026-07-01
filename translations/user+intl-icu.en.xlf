@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="81QuWtI" resname="flash.registration.verify.missing_id">
+        <source>flash.registration.verify.missing_id</source>
+        <target>Missing verification id.</target>
+      </trans-unit>
+      <trans-unit id="UQ4qXjW" resname="flash.registration.verify.success">
+        <source>flash.registration.verify.success</source>
+        <target>Your email address has been confirmed. You can sign in now.</target>
+      </trans-unit>
+      <trans-unit id="f..ne_w" resname="flash.registration.verify.user_not_found">
+        <source>flash.registration.verify.user_not_found</source>
+        <target>User not found.</target>
+      </trans-unit>
+      <trans-unit id="b90.2eT" resname="flash.reset_password.changed">
+        <source>flash.reset_password.changed</source>
+        <target>Your password has been changed.</target>
+      </trans-unit>
+      <trans-unit id="V6d.mPt" resname="flash.reset_password.validation_failed">
+        <source>flash.reset_password.validation_failed</source>
+        <target>There was a problem validating your reset request.</target>
+      </trans-unit>
+      <trans-unit id="LkFXLzD" resname="flash.security.cookie_consent_required">
+        <source>flash.security.cookie_consent_required</source>
+        <target>Please confirm your cookie settings before signing in.</target>
+      </trans-unit>
+      <trans-unit id="RS3d7CX" resname="flash.security.invalid_csrf">
+        <source>flash.security.invalid_csrf</source>
+        <target>Invalid CSRF token.</target>
+      </trans-unit>
+      <trans-unit id="yPy4.0U" resname="flash.settings.email.already_verified">
+        <source>flash.settings.email.already_verified</source>
+        <target>Your email is already verified.</target>
+      </trans-unit>
+      <trans-unit id=".AaD_bM" resname="flash.settings.email.resend_rate_limited">
+        <source>flash.settings.email.resend_rate_limited</source>
+        <target>Please wait before requesting another verification email.</target>
+      </trans-unit>
+      <trans-unit id="FHE32nf" resname="flash.settings.email.updated_verify_required">
+        <source>flash.settings.email.updated_verify_required</source>
+        <target>Email address updated. Please verify your new email.</target>
+      </trans-unit>
+      <trans-unit id="E8Dfb_w" resname="flash.settings.email.verification_resent">
+        <source>flash.settings.email.verification_resent</source>
+        <target>Verification email sent.</target>
+      </trans-unit>
+      <trans-unit id="sGiJY6J" resname="flash.settings.password.current_invalid">
+        <source>flash.settings.password.current_invalid</source>
+        <target>Current password is invalid.</target>
+      </trans-unit>
+      <trans-unit id="ezYjnyc" resname="flash.settings.password.updated">
+        <source>flash.settings.password.updated</source>
+        <target>Password updated.</target>
+      </trans-unit>
+      <trans-unit id="notif01" resname="flash.settings.notifications.updated">
+        <source>flash.settings.notifications.updated</source>
+        <target>Notification preferences saved.</target>
+      </trans-unit>
+      <trans-unit id="LocSet01" resname="flash.settings.locale.updated">
+        <source>flash.settings.locale.updated</source>
+        <target>Language preference saved.</target>
+      </trans-unit>
+      <trans-unit id="9xtc9Dc" resname="help.settings.username_fixed">
+        <source>help.settings.username_fixed</source>
+        <target>Username is fixed and cannot be changed.</target>
+      </trans-unit>
+      <trans-unit id="notif02" resname="help.settings.notifications.monthly_reminder">
+        <source>help.settings.notifications.monthly_reminder</source>
+        <target>Receive a monthly email with hospital insights and a reminder to upload your latest data.</target>
+      </trans-unit>
+      <trans-unit id="LocSet03" resname="help.settings.language">
+        <source>help.settings.language</source>
+        <target>Choose the language used for the application interface.</target>
+      </trans-unit>
+      <trans-unit id="ykW6lkh" resname="label.email">
+        <source>label.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="2xiRrwC" resname="label.email_address">
+        <source>label.email_address</source>
+        <target>Email address</target>
+      </trans-unit>
+      <trans-unit id="9kwOG_r" resname="label.forgot_password">
+        <source>label.forgot_password</source>
+        <target>Forgot password?</target>
+      </trans-unit>
+      <trans-unit id="yaiKGee" resname="label.password">
+        <source>label.password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="pwdShow01" resname="label.password.show">
+        <source>label.password.show</source>
+        <target>Show password</target>
+      </trans-unit>
+      <trans-unit id="pwdHide01" resname="label.password.hide">
+        <source>label.password.hide</source>
+        <target>Hide password</target>
+      </trans-unit>
+      <trans-unit id="sKwVoqy" resname="label.settings">
+        <source>label.settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="xhpYzN3" resname="label.settings.change_email">
+        <source>label.settings.change_email</source>
+        <target>Change email</target>
+      </trans-unit>
+      <trans-unit id="FYr3SWn" resname="label.settings.my_account">
+        <source>label.settings.my_account</source>
+        <target>My Account</target>
+      </trans-unit>
+      <trans-unit id="notif03" resname="label.settings.notifications">
+        <source>label.settings.notifications</source>
+        <target>Notifications</target>
+      </trans-unit>
+      <trans-unit id="notif04" resname="label.settings.notifications.monthly_reminder">
+        <source>label.settings.notifications.monthly_reminder</source>
+        <target>Monthly data submission reminder</target>
+      </trans-unit>
+      <trans-unit id="Tha5z5U" resname="label.settings.profile_details">
+        <source>label.settings.profile_details</source>
+        <target>Profile Details</target>
+      </trans-unit>
+      <trans-unit id="F4TkS0D" resname="label.settings.resend_verification">
+        <source>label.settings.resend_verification</source>
+        <target>Resend verification email</target>
+      </trans-unit>
+      <trans-unit id="w20JsCq" resname="label.settings.save_email">
+        <source>label.settings.save_email</source>
+        <target>Save email</target>
+      </trans-unit>
+      <trans-unit id="qkYaoMb" resname="label.settings.save_password">
+        <source>label.settings.save_password</source>
+        <target>Save password</target>
+      </trans-unit>
+      <trans-unit id="VrOQPjb" resname="label.settings.set_new_password">
+        <source>label.settings.set_new_password</source>
+        <target>Set new password</target>
+      </trans-unit>
+      <trans-unit id="pwdSet01" resname="label.settings.current_password">
+        <source>label.settings.current_password</source>
+        <target>Current password</target>
+      </trans-unit>
+      <trans-unit id="pwdSet02" resname="label.settings.new_password">
+        <source>label.settings.new_password</source>
+        <target>New password</target>
+      </trans-unit>
+      <trans-unit id="pwdSet03" resname="label.settings.repeat_new_password">
+        <source>label.settings.repeat_new_password</source>
+        <target>Repeat new password</target>
+      </trans-unit>
+      <trans-unit id="pwdSet04" resname="validation.password.mismatch">
+        <source>validation.password.mismatch</source>
+        <target>The password fields must match.</target>
+      </trans-unit>
+      <trans-unit id="pwdSet05" resname="label.login.remember_me">
+        <source>label.login.remember_me</source>
+        <target>Remember me</target>
+      </trans-unit>
+      <trans-unit id="LocSet02" resname="label.settings.language">
+        <source>label.settings.language</source>
+        <target>Language</target>
+      </trans-unit>
+      <trans-unit id="LocSet04" resname="label.settings.language.automatic_default">
+        <source>label.settings.language.automatic_default</source>
+        <target>{language} (automatic default)</target>
+      </trans-unit>
+      <trans-unit id="VOPv4L_" resname="label.settings.verification_status">
+        <source>label.settings.verification_status</source>
+        <target>Verification status:</target>
+      </trans-unit>
+      <trans-unit id="cPw1Lbl" resname="label.confirm_password">
+        <source>label.confirm_password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="cPw1Sub" resname="label.confirm_password.submit">
+        <source>label.confirm_password.submit</source>
+        <target>Continue</target>
+      </trans-unit>
+      <trans-unit id="titleRegisterCheckEmail" resname="title.register_check_email">
+        <source>title.register_check_email</source>
+        <target>Check your email</target>
+      </trans-unit>
+      <trans-unit id="C0SBwTU" resname="title.register">
+        <source>title.register</source>
+        <target>Register</target>
+      </trans-unit>
+      <trans-unit id="G6BcHiU" resname="title.settings">
+        <source>title.settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="wHfaeqZ" resname="title.settings.account">
+        <source>title.settings.account</source>
+        <target>Account Settings</target>
+      </trans-unit>
+      <trans-unit id="qvDfVyy" resname="title.settings.change_email">
+        <source>title.settings.change_email</source>
+        <target>Change email</target>
+      </trans-unit>
+      <trans-unit id="zBC_qAO" resname="title.settings.change_email_breadcrumb">
+        <source>title.settings.change_email_breadcrumb</source>
+        <target>Settings / Change email</target>
+      </trans-unit>
+      <trans-unit id="5Zw5X9R" resname="title.settings.change_password">
+        <source>title.settings.change_password</source>
+        <target>Change password</target>
+      </trans-unit>
+      <trans-unit id="CpWB5qC" resname="title.settings.change_password_breadcrumb">
+        <source>title.settings.change_password_breadcrumb</source>
+        <target>Settings / Change password</target>
+      </trans-unit>
+      <trans-unit id="notif06" resname="title.settings.notifications">
+        <source>title.settings.notifications</source>
+        <target>Notifications</target>
+      </trans-unit>
+      <trans-unit id="page0006" resname="label.authenticated">
+        <source>label.authenticated</source>
+        <target>Authenticated</target>
+      </trans-unit>
+      <trans-unit id="em.viewOnline" resname="email.view_online">
+        <source>email.view_online</source>
+        <target>View online</target>
+      </trans-unit>
+      <trans-unit id="em.footerTransactional" resname="email.footer.transactional">
+        <source>email.footer.transactional</source>
+        <target>This is an automated message from {app}.</target>
+      </trans-unit>
+      <trans-unit id="em.footerContactPrefix" resname="email.footer.contact_prefix">
+        <source>email.footer.contact_prefix</source>
+        <target>If you have questions, reply to this email or write to </target>
+      </trans-unit>
+      <trans-unit id="em.resetTitle" resname="email.reset_password.title">
+        <source>email.reset_password.title</source>
+        <target>Reset your password</target>
+      </trans-unit>
+      <trans-unit id="em.resetPreheader" resname="email.reset_password.preheader">
+        <source>email.reset_password.preheader</source>
+        <target>Use the link we sent to choose a new password.</target>
+      </trans-unit>
+      <trans-unit id="em.resetHeading" resname="email.reset_password.heading">
+        <source>email.reset_password.heading</source>
+        <target>Reset your password</target>
+      </trans-unit>
+      <trans-unit id="em.resetIntro" resname="email.reset_password.intro">
+        <source>email.reset_password.intro</source>
+        <target>We received a request to reset the password for your account at {app}. Use the button below to set a new password.</target>
+      </trans-unit>
+      <trans-unit id="em.resetExpiry" resname="email.reset_password.expiry">
+        <source>email.reset_password.expiry</source>
+        <target>This link expires {expires}.</target>
+      </trans-unit>
+      <trans-unit id="em.resetCta" resname="email.reset_password.cta">
+        <source>email.reset_password.cta</source>
+        <target>Reset password</target>
+      </trans-unit>
+      <trans-unit id="em.resetFbBefore" resname="email.reset_password.fallback_before_link">
+        <source>email.reset_password.fallback_before_link</source>
+        <target>Having trouble with the button? Copy this URL and paste it into your browser: </target>
+      </trans-unit>
+      <trans-unit id="em.resetFbAfter" resname="email.reset_password.fallback_after_link">
+        <source>email.reset_password.fallback_after_link</source>
+        <target> If you did not request a password reset, you can ignore this email.</target>
+      </trans-unit>
+      <trans-unit id="em.verifyTitle" resname="email.verify.title">
+        <source>email.verify.title</source>
+        <target>Confirm your email address</target>
+      </trans-unit>
+      <trans-unit id="em.verifyPreheader" resname="email.verify.preheader">
+        <source>email.verify.preheader</source>
+        <target>Confirm your email to finish setting up your account.</target>
+      </trans-unit>
+      <trans-unit id="em.verifyHeading" resname="email.verify.heading">
+        <source>email.verify.heading</source>
+        <target>Confirm your email for {app}</target>
+      </trans-unit>
+      <trans-unit id="em.verifyIntro" resname="email.verify.intro">
+        <source>email.verify.intro</source>
+        <target>Please confirm your email address for {app} using the button below.</target>
+      </trans-unit>
+      <trans-unit id="em.verifyCta" resname="email.verify.cta">
+        <source>email.verify.cta</source>
+        <target>Confirm email address</target>
+      </trans-unit>
+      <trans-unit id="em.verifyExpiry" resname="email.verify.expiry">
+        <source>email.verify.expiry</source>
+        <target>This confirmation link expires {expires}.</target>
+      </trans-unit>
+      <trans-unit id="em.verifyFbBefore" resname="email.verify.fallback_before_link">
+        <source>email.verify.fallback_before_link</source>
+        <target>If the button does not work, open this link in your browser: </target>
+      </trans-unit>
+      <trans-unit id="em.verifyFbAfter" resname="email.verify.fallback_after_link">
+        <source>email.verify.fallback_after_link</source>
+        <target> If you did not request this email, you can ignore it.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

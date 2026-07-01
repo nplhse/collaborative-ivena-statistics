@@ -54,7 +54,7 @@ final class FeedbackSubmitFormType extends AbstractType
                     FeedbackCategory::QUESTION => 'feedback.category.question',
                     FeedbackCategory::OTHER => 'feedback.category.other',
                 },
-                'choice_translation_domain' => 'messages',
+                'choice_translation_domain' => 'feedback',
                 'label' => 'feedback.form.category',
                 'constraints' => [new Assert\NotNull()],
                 'required' => true,
@@ -100,6 +100,7 @@ final class FeedbackSubmitFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            'translation_domain' => 'feedback',
             'data_class' => null,
             'guest_email_required' => true,
             'csrf_token_id' => 'feedback_submit',

@@ -10,7 +10,7 @@
                    value="1"
                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-requires-resus"{% endif %}
                    {{ values.requiresResus ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.requires_resus'|trans }}</span>
+            <span class="form-check-label">{{ 'label.requires_resus'|trans({}, 'messages') }}</span>
         </label>
         <label class="form-check form-switch">
             <input class="form-check-input"
@@ -19,7 +19,7 @@
                    value="1"
                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-requires-cathlab"{% endif %}
                    {{ values.requiresCathlab ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.requires_cathlab'|trans }}</span>
+            <span class="form-check-label">{{ 'label.requires_cathlab'|trans({}, 'messages') }}</span>
         </label>
     </div>
 
@@ -31,7 +31,7 @@
                    value="1"
                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-is-ventilated"{% endif %}
                    {{ values.isVentilated ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.is_ventilated'|trans }}</span>
+            <span class="form-check-label">{{ 'label.is_ventilated'|trans({}, 'messages') }}</span>
         </label>
         <label class="form-check form-switch">
             <input class="form-check-input"
@@ -40,7 +40,7 @@
                    value="1"
                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-is-shock"{% endif %}
                    {{ values.isShock ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.is_shock'|trans }}</span>
+            <span class="form-check-label">{{ 'label.is_shock'|trans({}, 'messages') }}</span>
         </label>
         <label class="form-check form-switch">
             <input class="form-check-input"
@@ -49,7 +49,7 @@
                    value="1"
                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-is-cpr"{% endif %}
                    {{ values.isCPR ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.is_cpr'|trans }}</span>
+            <span class="form-check-label">{{ 'label.is_cpr'|trans({}, 'messages') }}</span>
         </label>
         <label class="form-check form-switch">
             <input class="form-check-input"
@@ -58,7 +58,7 @@
                    value="1"
                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-is-pregnant"{% endif %}
                    {{ values.isPregnant ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.is_pregnant'|trans }}</span>
+            <span class="form-check-label">{{ 'label.is_pregnant'|trans({}, 'messages') }}</span>
         </label>
         <label class="form-check form-switch">
             <input class="form-check-input"
@@ -67,7 +67,7 @@
                    value="1"
                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-is-work-accident"{% endif %}
                    {{ values.isWorkAccident ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.is_work_accident'|trans }}</span>
+            <span class="form-check-label">{{ 'label.is_work_accident'|trans({}, 'messages') }}</span>
         </label>
     </div>
 
@@ -81,17 +81,17 @@
                    data-infection-filter-target="toggle"
                    data-action="change->infection-filter#sync"
                    {{ values.isInfectious ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.is_infectious'|trans }}</span>
+            <span class="form-check-label">{{ 'label.is_infectious'|trans({}, 'messages') }}</span>
         </label>
         <div class="{{ values.isInfectious ? '' : 'd-none' }}" data-infection-filter-target="panel">
-            <label class="form-label" for="{{ infectionSelectId }}">{{ 'label.infection'|trans }}</label>
+            <label class="form-label" for="{{ infectionSelectId }}">{{ 'label.infection'|trans({}, 'messages') }}</label>
             <select id="{{ infectionSelectId }}"
                     name="infection"
                     class="form-select"
                     {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-infection"{% endif %}
                     data-infection-filter-target="select"
                     {{ values.isInfectious ? '' : 'disabled' }}>
-                <option value="">{{ 'label.all_infections'|trans }}</option>
+                <option value="">{{ 'label.all_infections'|trans({}, 'messages') }}</option>
                 {% if infectionChoices is defined %}
                     {% for choiceKey, choiceLabel in infectionChoices %}
                         <option value="{{ choiceKey }}" {{ values.infection == choiceKey ? 'selected' }}>{{ choiceLabel }}</option>

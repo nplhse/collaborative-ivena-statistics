@@ -10,8 +10,8 @@ use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
+use App\Statistics\UI\Form\PreTranslatedChoiceType;
 use App\User\Domain\Entity\User;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -61,7 +61,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         if ($this->choiceProvider->scopeDetailRequired($scopeGroup, $user, $side, $scopeChoicePolicy)) {
             $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale, $scopeChoicePolicy);
             if ([] !== $detailChoices) {
-                $form->add('scopeDetail', ChoiceType::class, [
+                $form->add('scopeDetail', PreTranslatedChoiceType::class, [
                     'label' => $this->scopeDetailLabel($scopeGroup),
                     'choices' => $this->flippedStringValueChoices($detailChoices),
                     'choice_value' => static fn (?string $choice): string => $choice ?? '',
@@ -73,7 +73,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         }
 
         if (\in_array($period, [StatisticsFilterPeriod::Year, StatisticsFilterPeriod::Quarter, StatisticsFilterPeriod::Month], true)) {
-            $form->add('periodYear', ChoiceType::class, [
+            $form->add('periodYear', PreTranslatedChoiceType::class, [
                 'label' => 'stats.filter.period.year',
                 'choices' => array_flip($this->choiceProvider->periodYearChoices()),
                 'required' => false,
@@ -82,7 +82,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         }
 
         if (StatisticsFilterPeriod::Quarter === $period) {
-            $form->add('periodQuarter', ChoiceType::class, [
+            $form->add('periodQuarter', PreTranslatedChoiceType::class, [
                 'label' => 'stats.filter.period.quarter',
                 'choices' => array_flip($this->choiceProvider->periodQuarterChoices($periodYear, $locale)),
                 'required' => false,
@@ -91,7 +91,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         }
 
         if (StatisticsFilterPeriod::Month === $period) {
-            $form->add('periodMonth', ChoiceType::class, [
+            $form->add('periodMonth', PreTranslatedChoiceType::class, [
                 'label' => 'stats.filter.period.month',
                 'choices' => array_flip($this->choiceProvider->periodMonthChoices($periodYear, $locale)),
                 'required' => false,

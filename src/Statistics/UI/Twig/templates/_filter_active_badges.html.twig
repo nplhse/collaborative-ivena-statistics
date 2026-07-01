@@ -1,6 +1,6 @@
 {% if statsFilterDrawer.activeCount|default(0) > 0 and statsFilterDrawer.badges|default([]) is not empty %}
     <div class="alert alert-info" role="alert" data-testid="statistics-filters-active">
-        <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
+        <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
         <div class="d-flex flex-wrap gap-1 mt-1">
             {% for badge in statsFilterDrawer.badges %}
                 <span class="badge bg-blue-lt">

@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.import.index'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.import.index'|trans({}, 'import') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
@@ -13,20 +13,20 @@
                 <div class="col">
                     {% block page_intro %}
                         <h2 class="page-title">
-                            {% block page_title %}{{ 'title.import.index'|trans }}{% endblock %}
+                            {% block page_title %}{{ 'title.import.index'|trans({}, 'import') }}{% endblock %}
                         </h2>
                     {% endblock %}
                     {% block page_subtitle %}
                         {% block result_count %}
                             <div id="result-count" class="text-body-secondary mt-1">
-                                {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}) }}
+                                {{ 'label.pagination_numbers'|trans(({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}), 'messages') }}
                             </div>
                         {% endblock %}
                     {% endblock %}
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
-                        <a class="btn btn-primary" href="{{ path('app_import_new') }}">{{ 'label.import.new'|trans }}</a>
+                        <a class="btn btn-primary" href="{{ path('app_import_new') }}">{{ 'label.import.new'|trans({}, 'import') }}</a>
                         <div class="btn-group">
                             <button
                                 class="btn"
@@ -52,7 +52,7 @@
                                         <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
                                     </svg>
                                 {% endif %}
-                                <span class="ms-2">{{ 'label.filters'|trans }}</span>
+                                <span class="ms-2">{{ 'label.filters'|trans({}, 'messages') }}</span>
                                 {% if activeFilterCount > 0 %}
                                     <span class="badge text-primary ms-2">{{ activeFilterCount }}</span>
                                 {% endif %}
@@ -61,8 +61,8 @@
                                 <a
                                     href="{{ path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) }}"
                                     class="btn btn-icon btn-outline"
-                                    title="{{ 'label.filters.reset'|trans }}"
-                                    aria-label="{{ 'label.filters.reset'|trans }}"
+                                    title="{{ 'label.filters.reset'|trans({}, 'messages') }}"
+                                    aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -96,8 +96,8 @@
                                     type="search"
                                     name="search"
                                     value="{{ app.request.query.get('search') }}"
-                                    aria-label="{{ 'label.search'|trans }}"
-                                    placeholder="{{ 'label.search'|trans }}"
+                                    aria-label="{{ 'label.search'|trans({}, 'messages') }}"
+                                    placeholder="{{ 'label.search'|trans({}, 'messages') }}"
                                     class="form-control d-inline-block w-9 me-3"
                                     data-action="autosubmit#debouncedSubmit"
                                     autofocus
@@ -131,13 +131,13 @@
 
         {% if activeFilterCount > 0 %}
             <div class="alert alert-info" role="alert">
-                <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
+                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
                 {{ activeFilters.import_filter_badges(filters, hospitals, owners) }}
             </div>
         {% endif %}
 
         {% if search is not empty %}
-            <twig:Alert type="info" :message="'label.search_for'|trans({term: search})" />
+            <twig:Alert type="info" :message="'label.search_for'|trans(({term: search}), 'messages')" />
         {% endif %}
 
         <twig:DataTable
@@ -155,7 +155,7 @@
                             sortBy: 'type',
                             orderBy: sortBy == 'type' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.type'|trans }} {{ pagination.sortArrow('type', sortBy, orderBy) }}
+                            {{ 'label.type'|trans({}, 'messages') }} {{ pagination.sortArrow('type', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-3">
@@ -164,7 +164,7 @@
                             sortBy: 'name',
                             orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.name'|trans }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
+                            {{ 'label.name'|trans({}, 'messages') }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-1">
@@ -173,7 +173,7 @@
                             sortBy: 'status',
                             orderBy: sortBy == 'status' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.status'|trans }} {{ pagination.sortArrow('status', sortBy, orderBy) }}
+                            {{ 'label.status'|trans({}, 'messages') }} {{ pagination.sortArrow('status', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-2">
@@ -182,7 +182,7 @@
                             sortBy: 'hospital',
                             orderBy: sortBy == 'hospital' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.hospital'|trans }} {{ pagination.sortArrow('hospital', sortBy, orderBy) }}
+                            {{ 'label.hospital'|trans({}, 'messages') }} {{ pagination.sortArrow('hospital', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-2">
@@ -191,7 +191,7 @@
                             sortBy: 'createdAt',
                             orderBy: sortBy == 'createdAt' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.created_at'|trans }} {{ pagination.sortArrow('createdAt', sortBy, orderBy) }}
+                            {{ 'label.created_at'|trans({}, 'messages') }} {{ pagination.sortArrow('createdAt', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-2">
@@ -200,11 +200,11 @@
                             sortBy: 'lastChange',
                             orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.last_changed_at'|trans }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
+                            {{ 'label.last_changed_at'|trans({}, 'messages') }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-2">
-                        {{ 'label.last_changed_by'|trans }}
+                        {{ 'label.last_changed_by'|trans({}, 'messages') }}
                     </th>
                 </tr>
                 </thead>
@@ -245,9 +245,9 @@
                                         <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
                                     </svg>
                                 </div>
-                                <p class="empty-title">{{ 'label.search_no_results'|trans }}</p>
+                                <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'messages') }}</p>
                                 <p class="empty-subtitle text-secondary">
-                                    {{ 'help.search_no_results'|trans }}
+                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
                                 </p>
                             </div>
                         </td>
@@ -272,7 +272,7 @@
     >
         <div class="offcanvas-header">
             <h2 class="offcanvas-title" id="import-filters-label">
-                {{ 'label.filter.results'|trans }}
+                {{ 'label.filter.results'|trans({}, 'messages') }}
             </h2>
             <button
                 type="button"
@@ -290,9 +290,9 @@
                 {% endfor %}
 
                 <div class="mb-3">
-                    <label class="form-label" for="import-filter-hospital">{{ 'label.hospital'|trans }}</label>
+                    <label class="form-label" for="import-filter-hospital">{{ 'label.hospital'|trans({}, 'messages') }}</label>
                     <select name="hospitalId" id="import-filter-hospital" class="form-select">
-                        <option value="">{{ 'label.import.filter.all_hospitals'|trans }}</option>
+                        <option value="">{{ 'label.import.filter.all_hospitals'|trans({}, 'import') }}</option>
                         {% for hospital in hospitals %}
                             <option
                                 value="{{ hospital.id }}"
@@ -305,9 +305,9 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="import-filter-owner">{{ 'label.import.filter.owner'|trans }}</label>
+                    <label class="form-label" for="import-filter-owner">{{ 'label.import.filter.owner'|trans({}, 'import') }}</label>
                     <select name="ownerId" id="import-filter-owner" class="form-select">
-                        <option value="">{{ 'label.import.filter.all_owners'|trans }}</option>
+                        <option value="">{{ 'label.import.filter.all_owners'|trans({}, 'import') }}</option>
                         {% for owner in owners %}
                             <option
                                 value="{{ owner.id }}"
@@ -320,9 +320,9 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="import-filter-status">{{ 'label.status'|trans }}</label>
+                    <label class="form-label" for="import-filter-status">{{ 'label.status'|trans({}, 'messages') }}</label>
                     <select name="status" id="import-filter-status" class="form-select">
-                        <option value="">{{ 'label.import.filter.all_statuses'|trans }}</option>
+                        <option value="">{{ 'label.import.filter.all_statuses'|trans({}, 'import') }}</option>
                         {% for status in statuses %}
                             <option
                                 value="{{ status.value }}"
@@ -335,7 +335,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="import-filter-created-from">{{ 'label.import.filter.created_from'|trans }}</label>
+                    <label class="form-label" for="import-filter-created-from">{{ 'label.import.filter.created_from'|trans({}, 'import') }}</label>
                     <input
                         type="date"
                         name="createdFrom"
@@ -346,7 +346,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="import-filter-created-until">{{ 'label.import.filter.created_until'|trans }}</label>
+                    <label class="form-label" for="import-filter-created-until">{{ 'label.import.filter.created_until'|trans({}, 'import') }}</label>
                     <input
                         type="date"
                         name="createdUntil"
@@ -358,14 +358,14 @@
 
                 <div class="d-flex gap-2 mt-4">
                     <button type="submit" class="btn btn-primary w-100">
-                        {{ 'label.filters.apply'|trans }}
+                        {{ 'label.filters.apply'|trans({}, 'messages') }}
                     </button>
                     {% if activeFilterCount > 0 %}
                         <a
                             href="{{ path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) }}"
                             class="btn btn-link w-100"
                         >
-                            {{ 'label.filters.reset'|trans }}
+                            {{ 'label.filters.reset'|trans({}, 'messages') }}
                         </a>
                     {% endif %}
                 </div>

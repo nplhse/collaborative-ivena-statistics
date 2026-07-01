@@ -7,12 +7,12 @@
 
     {% if is_granted('ROLE_USER') %}
         <details class="mb-2">
-            <summary>{{ 'blog.comments.reply.toggle'|trans }}</summary>
+            <summary>{{ 'blog.comments.reply.toggle'|trans({}, 'content') }}</summary>
             <form method="post" action="{{ path('app_blog_comment_create', {slug: post.slug}) }}" class="mt-2">
                 <input type="hidden" name="_token" value="{{ csrf_token('comment_' ~ post.id) }}">
                 <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                <textarea name="content" class="form-control mb-2" rows="3" required placeholder="{{ 'blog.comments.reply.placeholder'|trans }}"></textarea>
-                <button type="submit" class="btn btn-sm btn-primary">{{ 'blog.comments.reply.submit'|trans }}</button>
+                <textarea name="content" class="form-control mb-2" rows="3" required placeholder="{{ 'blog.comments.reply.placeholder'|trans({}, 'content') }}"></textarea>
+                <button type="submit" class="btn btn-sm btn-primary">{{ 'blog.comments.reply.submit'|trans({}, 'content') }}</button>
             </form>
         </details>
     {% endif %}

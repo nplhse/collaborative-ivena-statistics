@@ -5,10 +5,10 @@
 {% if p.rows is defined and p.rows is not empty %}
     {% if p.summaryStats is defined %}
         <p class="text-secondary small mb-3" data-testid="{{ summaryTestId }}">
-            <span class="text-body">{{ 'stats.analysis.table.summary_mean_label'|trans }}</span>
+            <span class="text-body">{{ 'stats.analysis.table.summary_mean_label'|trans({}, 'statistics') }}</span>
             {{ p.summaryStats.meanDisplay }}
             <span class="mx-1">·</span>
-            <span class="text-body">{{ 'stats.analysis.table.summary_std_label'|trans }}</span>
+            <span class="text-body">{{ 'stats.analysis.table.summary_std_label'|trans({}, 'statistics') }}</span>
             {{ p.summaryStats.stdDevDisplay }}
         </p>
     {% endif %}
@@ -17,7 +17,7 @@
             <thead>
                 <tr>
                     {% for hk in p.headerTranslationKeys %}
-                        <th class="{{ loop.index < numericStart ? '' : 'text-end' }}">{{ hk|trans }}</th>
+                        <th class="{{ loop.index < numericStart ? '' : 'text-end' }}">{{ hk|trans({}, statistics_label_domain(hk)) }}</th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -50,14 +50,14 @@
                 <tfoot class="table-light">
                     {% if p.footerRow.counts is defined %}
                         <tr>
-                            <th>{{ p.footerRow.labelTranslationKey|trans }}</th>
+                            <th>{{ p.footerRow.labelTranslationKey|trans({}, 'statistics') }}</th>
                             {% for c in p.footerRow.counts %}
                                 <th class="text-end">{{ c }}</th>
                             {% endfor %}
                         </tr>
                     {% else %}
                         <tr>
-                            <th>{{ p.footerRow.labelTranslationKey|trans }}</th>
+                            <th>{{ p.footerRow.labelTranslationKey|trans({}, 'statistics') }}</th>
                             <th class="text-end">{{ p.footerRow.count }}</th>
                             <th class="text-end">{{ p.footerRow.percentDisplay }}</th>
                         </tr>
@@ -67,5 +67,5 @@
         </table>
     </div>
 {% else %}
-    <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans }}</p>
+    <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
 {% endif %}

@@ -12,7 +12,7 @@
         <div class="card-body">
             <div class="chart-lg"
                  data-indication-dashboard-charts-target="timeSeriesChart"
-                 data-moving-average-label="{{ 'stats.indication.chart.moving_average'|trans }}"></div>
+                 data-moving-average-label="{{ 'stats.indication.chart.moving_average'|trans({}, 'statistics') }}"></div>
         </div>
     </div>
 
@@ -20,21 +20,21 @@
         {% set heatmapHourLink = overviewPortalLinks.heatmapHour[0] ?? null %}
         {% set heatmapWeekdayLink = overviewPortalLinks.heatmapWeekday[0] ?? null %}
         <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-            <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans }}</h3>
-            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans }}">
+            <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans({}, 'statistics') }}</h3>
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="{{ 'stats.indication.heatmap.mode.label'|trans({}, 'statistics') }}">
                 <button type="button"
                         class="btn active"
                         data-indication-dashboard-charts-target="heatmapModeDayTime"
                         data-action="indication-dashboard-charts#setHeatmapMode"
                         data-indication-dashboard-charts-mode-param="dayTime">
-                    {{ 'stats.indication.heatmap.mode.day_time'|trans }}
+                    {{ 'stats.indication.heatmap.mode.day_time'|trans({}, 'statistics') }}
                 </button>
                 <button type="button"
                         class="btn"
                         data-indication-dashboard-charts-target="heatmapModeShift"
                         data-action="indication-dashboard-charts#setHeatmapMode"
                         data-indication-dashboard-charts-mode-param="shift">
-                    {{ 'stats.indication.heatmap.mode.shift'|trans }}
+                    {{ 'stats.indication.heatmap.mode.shift'|trans({}, 'statistics') }}
                 </button>
             </div>
         </div>
@@ -44,9 +44,9 @@
                 <div class="text-end small pt-2">
                     <a href="{{ statistics_nav_url(heatmapHourLink) }}"
                        class="link-primary"
-                       data-testid="stats-cross-nav-overview-heatmap-hour">{{ heatmapHourLink.labelTranslationKey|trans }}</a><span class="text-muted"> / </span><a href="{{ statistics_nav_url(heatmapWeekdayLink) }}"
+                       data-testid="stats-cross-nav-overview-heatmap-hour">{{ heatmapHourLink.labelTranslationKey|trans({}, 'statistics') }}</a><span class="text-muted"> / </span><a href="{{ statistics_nav_url(heatmapWeekdayLink) }}"
                        class="link-primary"
-                       data-testid="stats-cross-nav-overview-heatmap-weekday">{{ heatmapWeekdayLink.labelTranslationKey|trans }}</a>
+                       data-testid="stats-cross-nav-overview-heatmap-weekday">{{ heatmapWeekdayLink.labelTranslationKey|trans({}, 'statistics') }}</a>
                 </div>
             {% endif %}
         </div>
@@ -56,7 +56,7 @@
         {% set ageGroupLabels = [] %}
         {% set ageGroupValues = [] %}
         {% for row in executiveDashboard.charts.ageGroupDistribution %}
-            {% set ageGroupLabels = ageGroupLabels|merge([row.labelTranslationKey|trans]) %}
+            {% set ageGroupLabels = ageGroupLabels|merge([row.labelTranslationKey|trans({}, 'statistics')]) %}
             {% set ageGroupValues = ageGroupValues|merge([row.count]) %}
         {% endfor %}
         <div class="card-header py-2">

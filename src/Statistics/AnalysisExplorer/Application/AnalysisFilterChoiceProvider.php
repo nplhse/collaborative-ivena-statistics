@@ -56,7 +56,7 @@ final readonly class AnalysisFilterChoiceProvider
     {
         $choices = [];
         foreach (AllocationStatsUrgencyProjectionCode::cases() as $case) {
-            $choices[$case->value] = $this->translator->trans($case->labelTranslationKey());
+            $choices[$case->value] = $this->translator->trans($case->labelTranslationKey(), [], 'statistics');
         }
 
         return $choices;
@@ -69,7 +69,7 @@ final readonly class AnalysisFilterChoiceProvider
     {
         $choices = [];
         foreach (AllocationStatsTransportTypeProjectionCode::cases() as $case) {
-            $choices[$case->value] = $this->translator->trans($case->labelTranslationKey());
+            $choices[$case->value] = $this->translator->trans($case->labelTranslationKey(), [], 'messages');
         }
 
         return $choices;
@@ -82,7 +82,7 @@ final readonly class AnalysisFilterChoiceProvider
     {
         $choices = [];
         foreach (AllocationStatsGenderProjectionCode::cases() as $case) {
-            $choices[$case->value] = $this->translator->trans($case->labelTranslationKey());
+            $choices[$case->value] = $this->translator->trans($case->labelTranslationKey(), [], 'messages');
         }
 
         return $choices;
@@ -95,7 +95,7 @@ final readonly class AnalysisFilterChoiceProvider
     {
         $choices = [];
         foreach (StatisticsAgeGroupFilter::AGGREGATE_TRANSLATION_KEYS as $key => $translationKey) {
-            $choices[$key] = $this->translator->trans($translationKey);
+            $choices[$key] = $this->translator->trans($translationKey, [], 'statistics');
         }
 
         $dimension = $this->dimensionRegistry->get('age_group');
@@ -107,6 +107,8 @@ final readonly class AnalysisFilterChoiceProvider
 
             $choices[$bucketKey] = $this->translator->trans(
                 StatisticsAgeGroupFilter::bucketTranslationKey($bucketKey),
+                [],
+                'messages',
             );
         }
 
@@ -120,9 +122,9 @@ final readonly class AnalysisFilterChoiceProvider
     {
         /** @var array<string, string> $choices */
         $choices = [
-            '' => $this->translator->trans('label.all'),
-            '1' => $this->translator->trans('label.yes'),
-            '0' => $this->translator->trans('label.no'),
+            '' => $this->translator->trans('label.all', [], 'messages'),
+            '1' => $this->translator->trans('label.yes', [], 'messages'),
+            '0' => $this->translator->trans('label.no', [], 'messages'),
         ];
 
         return $choices;

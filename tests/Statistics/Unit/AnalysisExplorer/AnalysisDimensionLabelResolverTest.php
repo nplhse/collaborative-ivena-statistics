@@ -20,7 +20,7 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
-            static fn (string $id): string => match ($id) {
+            static fn (string $id, array $parameters = [], ?string $domain = null): string => match ($id) {
                 AllocationStatsGenderProjectionCode::Male->labelTranslationKey() => 'Male',
                 default => $id,
             },
@@ -36,7 +36,7 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
-            static fn (string $id): string => match ($id) {
+            static fn (string $id, array $parameters = [], ?string $domain = null): string => match ($id) {
                 'action.yes' => 'Yes',
                 'action.no' => 'No',
                 default => $id,

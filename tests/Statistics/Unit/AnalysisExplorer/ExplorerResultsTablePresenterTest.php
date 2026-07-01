@@ -29,8 +29,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateBuildsRowsAndTotalFromResult(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
-            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+            ['stats.analysis_explorer.dimension.month', [], 'statistics', null, 'Month'],
+            ['stats.analysis_explorer.metric.allocation_count', [], 'statistics', null, 'Allocations'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -90,8 +90,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateShowsInlinePercentWithoutSeparateColumn(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
-            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+            ['stats.analysis_explorer.dimension.gender', [], 'statistics', null, 'Gender'],
+            ['stats.analysis_explorer.metric.allocation_count', [], 'statistics', null, 'Allocations'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -146,13 +146,13 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateShowsHospitalCountPercentInFlatTable(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.hospital_master_cohort', [], null, null, 'Master cohort'],
-            ['stats.analysis_explorer.metric.hospital_count', [], null, null, 'Hospitals'],
-            ['stats.analysis_explorer.metric.sum_beds', [], null, null, 'Total beds'],
-            ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
-            ['stats.analysis_explorer.table.footer_average', [], null, null, 'Ø'],
-            ['stats.analysis_explorer.table.footer_minimum', [], null, null, 'Min.'],
-            ['stats.analysis_explorer.table.footer_maximum', [], null, null, 'Max.'],
+            ['stats.analysis_explorer.dimension.hospital_master_cohort', [], 'statistics', null, 'Master cohort'],
+            ['stats.analysis_explorer.metric.hospital_count', [], 'statistics', null, 'Hospitals'],
+            ['stats.analysis_explorer.metric.sum_beds', [], 'statistics', null, 'Total beds'],
+            ['stats.analysis_explorer.table.footer_total', [], 'statistics', null, 'Total'],
+            ['stats.analysis_explorer.table.footer_average', [], 'statistics', null, 'Ø'],
+            ['stats.analysis_explorer.table.footer_minimum', [], 'statistics', null, 'Min.'],
+            ['stats.analysis_explorer.table.footer_maximum', [], 'statistics', null, 'Max.'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -205,12 +205,12 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateShowsPercentForAllSummableMetricsInFlatTable(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
-            ['stats.analysis_explorer.metric.hospital_count', [], null, null, 'Hospitals'],
-            ['stats.analysis_explorer.metric.sum_beds', [], null, null, 'Total beds'],
-            ['stats.analysis_explorer.metric.avg_beds', [], null, null, 'Average beds'],
-            ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
-            ['stats.analysis_explorer.table.footer_average', [], null, null, 'Ø'],
+            ['stats.analysis_explorer.dimension.hospital_tier', [], 'statistics', null, 'Hospital tier'],
+            ['stats.analysis_explorer.metric.hospital_count', [], 'statistics', null, 'Hospitals'],
+            ['stats.analysis_explorer.metric.sum_beds', [], 'statistics', null, 'Total beds'],
+            ['stats.analysis_explorer.metric.avg_beds', [], 'statistics', null, 'Average beds'],
+            ['stats.analysis_explorer.table.footer_total', [], 'statistics', null, 'Total'],
+            ['stats.analysis_explorer.table.footer_average', [], 'statistics', null, 'Ø'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -285,11 +285,11 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateShowsRowPercentForSummableMetricsInMatrixMetricsAsRowsTable(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
-            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
-            ['stats.analysis_explorer.metric.hospital_count', [], null, null, 'Hospitals'],
-            ['stats.analysis_explorer.metric.sum_beds', [], null, null, 'Total beds'],
-            ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
+            ['stats.analysis_explorer.dimension.hospital_tier', [], 'statistics', null, 'Hospital tier'],
+            ['stats.analysis_explorer.dimension.gender', [], 'statistics', null, 'Gender'],
+            ['stats.analysis_explorer.metric.hospital_count', [], 'statistics', null, 'Hospitals'],
+            ['stats.analysis_explorer.metric.sum_beds', [], 'statistics', null, 'Total beds'],
+            ['stats.analysis_explorer.table.footer_total', [], 'statistics', null, 'Total'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -357,16 +357,16 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateUsesMetricSpecificFooterLabelsForHospitalMetrics(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
-            ['stats.analysis_explorer.metric.hospital_count', [], null, null, 'Hospitals'],
-            ['stats.analysis_explorer.metric.sum_beds', [], null, null, 'Total beds'],
-            ['stats.analysis_explorer.metric.avg_beds', [], null, null, 'Average beds'],
-            ['stats.analysis_explorer.metric.min_beds', [], null, null, 'Minimum beds'],
-            ['stats.analysis_explorer.metric.max_beds', [], null, null, 'Maximum beds'],
-            ['stats.analysis_explorer.table.footer_total', [], null, null, 'Total'],
-            ['stats.analysis_explorer.table.footer_average', [], null, null, 'Ø'],
-            ['stats.analysis_explorer.table.footer_minimum', [], null, null, 'Min.'],
-            ['stats.analysis_explorer.table.footer_maximum', [], null, null, 'Max.'],
+            ['stats.analysis_explorer.dimension.hospital_tier', [], 'statistics', null, 'Hospital tier'],
+            ['stats.analysis_explorer.metric.hospital_count', [], 'statistics', null, 'Hospitals'],
+            ['stats.analysis_explorer.metric.sum_beds', [], 'statistics', null, 'Total beds'],
+            ['stats.analysis_explorer.metric.avg_beds', [], 'statistics', null, 'Average beds'],
+            ['stats.analysis_explorer.metric.min_beds', [], 'statistics', null, 'Minimum beds'],
+            ['stats.analysis_explorer.metric.max_beds', [], 'statistics', null, 'Maximum beds'],
+            ['stats.analysis_explorer.table.footer_total', [], 'statistics', null, 'Total'],
+            ['stats.analysis_explorer.table.footer_average', [], 'statistics', null, 'Ø'],
+            ['stats.analysis_explorer.table.footer_minimum', [], 'statistics', null, 'Min.'],
+            ['stats.analysis_explorer.table.footer_maximum', [], 'statistics', null, 'Max.'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -442,9 +442,9 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateShowsRowPercentInMatrixTable(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
-            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
-            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+            ['stats.analysis_explorer.dimension.month', [], 'statistics', null, 'Month'],
+            ['stats.analysis_explorer.dimension.gender', [], 'statistics', null, 'Gender'],
+            ['stats.analysis_explorer.metric.allocation_count', [], 'statistics', null, 'Allocations'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -506,9 +506,9 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateBuildsPivotTableForSeriesResult(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
-            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
-            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+            ['stats.analysis_explorer.dimension.month', [], 'statistics', null, 'Month'],
+            ['stats.analysis_explorer.dimension.gender', [], 'statistics', null, 'Gender'],
+            ['stats.analysis_explorer.metric.allocation_count', [], 'statistics', null, 'Allocations'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -572,8 +572,8 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateBuildsEmptyTableFromResultWithoutRows(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.year', [], null, null, 'Year'],
-            ['stats.analysis_explorer.metric.allocation_count', [], null, null, 'Allocations'],
+            ['stats.analysis_explorer.dimension.year', [], 'statistics', null, 'Year'],
+            ['stats.analysis_explorer.metric.allocation_count', [], 'statistics', null, 'Allocations'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -614,9 +614,9 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testMatrixTableOmitsSummedTotalsForRateMetrics(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.month', [], null, null, 'Month'],
-            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
-            ['stats.analysis_explorer.metric.resus_rate', [], null, null, 'Resuscitation rate'],
+            ['stats.analysis_explorer.dimension.month', [], 'statistics', null, 'Month'],
+            ['stats.analysis_explorer.dimension.gender', [], 'statistics', null, 'Gender'],
+            ['stats.analysis_explorer.metric.resus_rate', [], 'statistics', null, 'Resuscitation rate'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -681,13 +681,13 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateBuildsBoxPlotDistributionTable(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
-            ['stats.analysis_explorer.box_plot.column.distribution_count', [], null, null, 'Count'],
-            ['stats.analysis_explorer.box_plot.column.distribution_min', [], null, null, 'Min'],
-            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], null, null, 'P25'],
-            ['stats.analysis_explorer.box_plot.column.distribution_median', [], null, null, 'Median'],
-            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], null, null, 'P75'],
-            ['stats.analysis_explorer.box_plot.column.distribution_max', [], null, null, 'Max'],
+            ['stats.analysis_explorer.dimension.hospital_tier', [], 'statistics', null, 'Hospital tier'],
+            ['stats.analysis_explorer.box_plot.column.distribution_count', [], 'statistics', null, 'Count'],
+            ['stats.analysis_explorer.box_plot.column.distribution_min', [], 'statistics', null, 'Min'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], 'statistics', null, 'P25'],
+            ['stats.analysis_explorer.box_plot.column.distribution_median', [], 'statistics', null, 'Median'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], 'statistics', null, 'P75'],
+            ['stats.analysis_explorer.box_plot.column.distribution_max', [], 'statistics', null, 'Max'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -739,14 +739,14 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateBuildsTwoDimensionalBoxPlotDistributionTableWithSeriesColumn(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.urgency', [], null, null, 'Urgency'],
-            ['stats.analysis_explorer.dimension.gender', [], null, null, 'Gender'],
-            ['stats.analysis_explorer.box_plot.column.distribution_count', [], null, null, 'Count'],
-            ['stats.analysis_explorer.box_plot.column.distribution_min', [], null, null, 'Min'],
-            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], null, null, 'P25'],
-            ['stats.analysis_explorer.box_plot.column.distribution_median', [], null, null, 'Median'],
-            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], null, null, 'P75'],
-            ['stats.analysis_explorer.box_plot.column.distribution_max', [], null, null, 'Max'],
+            ['stats.analysis_explorer.dimension.urgency', [], 'statistics', null, 'Urgency'],
+            ['stats.analysis_explorer.dimension.gender', [], 'statistics', null, 'Gender'],
+            ['stats.analysis_explorer.box_plot.column.distribution_count', [], 'statistics', null, 'Count'],
+            ['stats.analysis_explorer.box_plot.column.distribution_min', [], 'statistics', null, 'Min'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], 'statistics', null, 'P25'],
+            ['stats.analysis_explorer.box_plot.column.distribution_median', [], 'statistics', null, 'Median'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], 'statistics', null, 'P75'],
+            ['stats.analysis_explorer.box_plot.column.distribution_max', [], 'statistics', null, 'Max'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -812,9 +812,9 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateShowsMultipleHospitalMetricsInFlatTable(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.hospital_tier', [], null, null, 'Hospital tier'],
-            ['stats.analysis_explorer.metric.hospital_count', [], null, null, 'Hospitals'],
-            ['stats.analysis_explorer.metric.avg_beds', [], null, null, 'Average beds'],
+            ['stats.analysis_explorer.dimension.hospital_tier', [], 'statistics', null, 'Hospital tier'],
+            ['stats.analysis_explorer.metric.hospital_count', [], 'statistics', null, 'Hospitals'],
+            ['stats.analysis_explorer.metric.avg_beds', [], 'statistics', null, 'Average beds'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);
@@ -871,13 +871,13 @@ final class ExplorerResultsTablePresenterTest extends TestCase
     public function testCreateFormatsTransportTimeDistributionInMinutes(): void
     {
         $translator = $this->stubExplorerTranslator([
-            ['stats.analysis_explorer.dimension.urgency', [], null, null, 'Urgency'],
-            ['stats.analysis_explorer.box_plot.column.distribution_count', [], null, null, 'n'],
-            ['stats.analysis_explorer.box_plot.column.distribution_min', [], null, null, 'Min'],
-            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], null, null, 'P25'],
-            ['stats.analysis_explorer.box_plot.column.distribution_median', [], null, null, 'Median'],
-            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], null, null, 'P75'],
-            ['stats.analysis_explorer.box_plot.column.distribution_max', [], null, null, 'Max'],
+            ['stats.analysis_explorer.dimension.urgency', [], 'statistics', null, 'Urgency'],
+            ['stats.analysis_explorer.box_plot.column.distribution_count', [], 'statistics', null, 'n'],
+            ['stats.analysis_explorer.box_plot.column.distribution_min', [], 'statistics', null, 'Min'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p25', [], 'statistics', null, 'P25'],
+            ['stats.analysis_explorer.box_plot.column.distribution_median', [], 'statistics', null, 'Median'],
+            ['stats.analysis_explorer.box_plot.column.distribution_p75', [], 'statistics', null, 'P75'],
+            ['stats.analysis_explorer.box_plot.column.distribution_max', [], 'statistics', null, 'Max'],
         ]);
 
         $presenter = $this->createExplorerResultsTablePresenter($translator);

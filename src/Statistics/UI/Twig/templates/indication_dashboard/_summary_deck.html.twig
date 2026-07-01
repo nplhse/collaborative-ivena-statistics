@@ -2,16 +2,16 @@
     <div class="col-sm-6 col-lg-4">
         <div class="card" data-testid="stats-indication-kpi">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.indication.kpi.cases'|trans }}</div>
+                <div class="subheader">{{ 'stats.indication.kpi.cases'|trans({}, 'statistics') }}</div>
                 <div class="h1 mt-2 mb-0" data-testid="stats-indication-case-count">
                     {{ dashboard.summaryDeck.caseCount|number_format(0, ',', '.') }}
                 </div>
                 {% set scopeTotal = dashboard.metrics.totalIndication + dashboard.metrics.totalBaseline %}
                 <div class="text-muted">
-                    {{ 'stats.overview.hospital_summary.kpi_subline'|trans({
+                    {{ 'stats.overview.hospital_summary.kpi_subline'|trans(({
                         percent: scopeTotal > 0 ? (100 * dashboard.summaryDeck.caseCount / scopeTotal)|round(1) : 0,
                         total: scopeTotal,
-                    }) }}
+                    }), 'statistics') }}
                 </div>
             </div>
         </div>
@@ -20,19 +20,19 @@
     <div class="col-sm-6 col-lg-4">
         <div class="card" data-testid="stats-indication-gender">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.indication.summary.gender_title'|trans }}</div>
+                <div class="subheader">{{ 'stats.indication.summary.gender_title'|trans({}, 'statistics') }}</div>
                 <div class="progress progress-separated mt-2 mb-3">
                     {% for seg in dashboard.summaryDeck.genderSegments %}
                         <div class="progress-bar {{ seg.barClass }}"
                              style="width: {{ seg.percent }}%"
-                             aria-label="{{ seg.labelTranslationKey|trans }}"></div>
+                             aria-label="{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}"></div>
                     {% endfor %}
                 </div>
                 <div class="row">
                     {% for seg in dashboard.summaryDeck.genderSegments %}
                         <div class="col-auto d-flex align-items-center {% if not loop.first %}px-2{% else %}pe-2{% endif %}">
                             <span class="legend me-2 {{ seg.barClass }}"></span>
-                            <span>{{ seg.labelTranslationKey|trans }}</span>
+                            <span>{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}</span>
                             <span class="text-muted ms-2">{{ seg.count|number_format(0, ',', '.') }} ({{ seg.percent }}%)</span>
                         </div>
                     {% endfor %}
@@ -44,19 +44,19 @@
     <div class="col-sm-6 col-lg-4">
         <div class="card" data-testid="stats-indication-urgency">
             <div class="card-body">
-                <div class="subheader">{{ 'stats.indication.summary.urgency_title'|trans }}</div>
+                <div class="subheader">{{ 'stats.indication.summary.urgency_title'|trans({}, 'statistics') }}</div>
                 <div class="progress progress-separated mt-2 mb-3">
                     {% for seg in dashboard.summaryDeck.urgencySegments %}
                         <div class="progress-bar {{ seg.barClass }}"
                              style="width: {{ seg.percent }}%"
-                             aria-label="{{ seg.labelTranslationKey|trans }}"></div>
+                             aria-label="{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}"></div>
                     {% endfor %}
                 </div>
                 <div class="row">
                     {% for seg in dashboard.summaryDeck.urgencySegments %}
                         <div class="col-auto d-flex align-items-center {% if not loop.first %}px-2{% else %}pe-2{% endif %}">
                             <span class="legend me-2 {{ seg.barClass }}"></span>
-                            <span>{{ seg.labelTranslationKey|trans }}</span>
+                            <span>{{ seg.labelTranslationKey|trans({}, statistics_label_domain(seg.labelTranslationKey)) }}</span>
                             <span class="text-muted ms-2">{{ seg.count|number_format(0, ',', '.') }} ({{ seg.percent }}%)</span>
                         </div>
                     {% endfor %}

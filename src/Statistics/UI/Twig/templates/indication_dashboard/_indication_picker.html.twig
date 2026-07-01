@@ -7,14 +7,14 @@
      data-indication-picker-items-value="{{ pickerItems|json_encode|e('html_attr') }}"
      data-testid="stats-indication-picker">
     <label class="form-label" for="stats-indication-picker-input">
-        {{ 'stats.indication.picker.label'|trans }}
+        {{ 'stats.indication.picker.label'|trans({}, 'statistics') }}
     </label>
     <div class="input-group">
         <input type="text"
                id="stats-indication-picker-input"
                class="form-control"
                list="stats-indication-picker-list"
-               placeholder="{{ 'stats.indication.picker.placeholder'|trans }}"
+               placeholder="{{ 'stats.indication.picker.placeholder'|trans({}, 'statistics') }}"
                autocomplete="off"
                value="{{ indicationPicker.selectedLabel }}"
                data-indication-picker-target="input">
@@ -22,7 +22,7 @@
                 class="btn"
                 data-action="indication-picker#submit"
                 data-testid="stats-indication-picker-submit"
-                aria-label="{{ 'stats.indication.picker.submit'|trans }}">
+                aria-label="{{ 'stats.indication.picker.submit'|trans({}, 'statistics') }}">
             <twig:ux:icon name="tabler:search" class="icon" />
         </button>
     </div>

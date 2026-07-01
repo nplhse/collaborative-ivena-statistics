@@ -8,7 +8,7 @@
     {{ label }} <twig:ux:icon name="{{ icon }}" class="w-3 h-3 ms-1" />
 {% endmacro %}
 
-{% block title %}{{ 'title.indication.review_raw'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.indication.review_raw'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -32,21 +32,21 @@
         <div class="page-header d-print-none">
             <div class="row align-items-center">
                 <div class="col">
-                    <h2 class="page-title">{{ 'title.indication.review_raw_named'|trans({'%name%': raw.name, '%code%': raw.code}) }}</h2>
+                    <h2 class="page-title">{{ 'title.indication.review_raw_named'|trans(({'%name%': raw.name, '%code%': raw.code}), 'allocation') }}</h2>
                     <p class="text-secondary mt-1">
-                        <span class="badge bg-secondary-lt">{{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans }}</span>
+                        <span class="badge bg-secondary-lt">{{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans({}, 'allocation') }}</span>
                     </p>
                 </div>
                 <div class="col-auto d-flex align-items-center gap-2">
                     {% if can_edit_match and raw.reviewStatus.value in ['ignored', 'not_matchable'] %}
                         {{ form_widget(form.reopen, {
-                            label: review.button_label('tabler:refresh', 'btn.indication.reopen'|trans),
+                            label: review.button_label('tabler:refresh', 'btn.indication.reopen'|trans({}, 'allocation')),
                             label_html: true,
                             attr: {class: 'btn btn-outline-secondary', form: 'indication-raw-review-form'},
                         }) }}
                     {% endif %}
                     <a href="{{ path('app_explore_indication_raw_review_skip', {id: raw.id, segment: context.segment.value, search: context.search}) }}" class="btn">
-                        {{ 'btn.indication.skip'|trans }}
+                        {{ 'btn.indication.skip'|trans({}, 'allocation') }}
                         <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 ms-1" />
                     </a>
                 </div>
@@ -77,26 +77,26 @@
         <div class="col-lg-5">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">{{ 'title.indication.review_context'|trans }}</h3>
+                    <h3 class="card-title">{{ 'title.indication.review_context'|trans({}, 'allocation') }}</h3>
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-5">{{ 'label.created_at'|trans }}</dt>
+                        <dt class="col-5">{{ 'label.created_at'|trans({}, 'messages') }}</dt>
                         <dd class="col-7">{{ raw.createdAt|date('d.m.Y H:i') }}</dd>
-                        <dt class="col-5">{{ 'label.indication.occurrences'|trans }}</dt>
+                        <dt class="col-5">{{ 'label.indication.occurrences'|trans({}, 'messages') }}</dt>
                         <dd class="col-7">{{ occurrence_count }}</dd>
                         {% for activity in other_user_activities %}
                             <dt class="col-5">{{ activity.label|trans }}</dt>
                             <dd class="col-7">{{ activity.user }}, {{ activity.at|date('d.m.Y H:i') }}</dd>
                         {% endfor %}
                         {% if raw.target %}
-                            <dt class="col-5">{{ 'label.indication.proposed_target'|trans }}</dt>
+                            <dt class="col-5">{{ 'label.indication.proposed_target'|trans({}, 'messages') }}</dt>
                             <dd class="col-7">{{ raw.target.name }} ({{ raw.target.code }})</dd>
                         {% endif %}
                     </dl>
 
                     {% if suggestions is not empty %}
-                        <h4 class="subheader">{{ 'title.indication.suggestions'|trans }}</h4>
+                        <h4 class="subheader">{{ 'title.indication.suggestions'|trans({}, 'allocation') }}</h4>
                         <ul class="list-unstyled">
                             {% for suggestion in suggestions %}
                                 <li class="mb-1">
@@ -109,7 +109,7 @@
                     {% endif %}
 
                     {% if sample_allocations is not empty %}
-                        <h4 class="subheader mt-3">{{ 'title.indication.sample_allocations'|trans }}</h4>
+                        <h4 class="subheader mt-3">{{ 'title.indication.sample_allocations'|trans({}, 'allocation') }}</h4>
                         <ul class="list-unstyled">
                             {% for allocation in sample_allocations %}
                                 <li>
@@ -128,11 +128,11 @@
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">{{ 'title.indication.review_decision'|trans }}</h3>
+                    <h3 class="card-title">{{ 'title.indication.review_decision'|trans({}, 'allocation') }}</h3>
                 </div>
                 <div class="card-body">
                     {% if show_approval and not can_review %}
-                        <twig:Alert type="warning" :message="'help.indication.review.awaiting_other_reviewer'|trans" />
+                        <twig:Alert type="warning" :message="'help.indication.review.awaiting_other_reviewer'|trans({}, 'allocation')" />
                     {% endif %}
 
                     {{ form_row(form.code) }}
@@ -172,7 +172,7 @@
                     {% if show_save_comment %}
                         <div class="mt-2">
                             {{ form_widget(form.saveComment, {
-                                label: review.button_label('tabler:device-floppy', 'btn.save.comment'|trans, 'w-3 h-3 me-1'),
+                                label: review.button_label('tabler:device-floppy', 'btn.save.comment'|trans({}, 'allocation'), 'w-3 h-3 me-1'),
                                 label_html: true,
                                 attr: {class: 'btn'},
                             }) }}
@@ -187,21 +187,21 @@
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center w-100">
                 <a href="{{ path('app_explore_indication_raw_review_worklist', {segment: context.segment.value}) }}" class="btn btn-link px-0">
-                    {{ 'btn.cancel'|trans }}
+                    {{ 'action.cancel'|trans({}, 'messages') }}
                 </a>
 
                 <div class="d-flex flex-wrap align-items-center justify-content-end flex-grow-1 gap-2">
                     {% if show_close_without_match or show_reject or show_match_and_approve or show_propose or show_accept %}
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             {% if show_close_without_match %}
-                                <div class="btn-group{% if show_reject %} me-2{% endif %}" role="group" aria-label="{{ 'help.indication.review.close_without_match'|trans }}">
+                                <div class="btn-group{% if show_reject %} me-2{% endif %}" role="group" aria-label="{{ 'help.indication.review.close_without_match'|trans({}, 'allocation') }}">
                                     {{ form_widget(form.notMatchable, {
-                                        label: review.button_label('tabler:link-off', 'btn.indication.not_matchable'|trans, 'w-3 h-3 me-1'),
+                                        label: review.button_label('tabler:link-off', 'btn.indication.not_matchable'|trans({}, 'allocation'), 'w-3 h-3 me-1'),
                                         label_html: true,
                                         attr: {class: 'btn btn-outline-warning'},
                                     }) }}
                                     {{ form_widget(form.ignore, {
-                                        label: review.button_label('tabler:eye-off', 'btn.indication.ignore'|trans, 'w-3 h-3 me-1'),
+                                        label: review.button_label('tabler:eye-off', 'btn.indication.ignore'|trans({}, 'allocation'), 'w-3 h-3 me-1'),
                                         label_html: true,
                                         attr: {class: 'btn btn-outline-secondary'},
                                     }) }}
@@ -210,7 +210,7 @@
 
                             {% if show_reject %}
                                 {{ form_widget(form.reject, {
-                                    label: review.button_label('tabler:ban', 'btn.indication.reject_match'|trans, 'w-3 h-3 me-1'),
+                                    label: review.button_label('tabler:ban', 'btn.indication.reject_match'|trans({}, 'allocation'), 'w-3 h-3 me-1'),
                                     label_html: true,
                                     attr: {class: 'btn btn-danger'},
                                 }) }}
@@ -222,25 +222,25 @@
                         <div class="{% if show_close_without_match or show_reject %}ms-3{% endif %}">
                             {% if show_match_and_approve %}
                                 {{ form_widget(form.matchAndApprove, {
-                                    label: review.button_label_after('btn.indication.match_and_approve'|trans, 'tabler:bolt'),
+                                    label: review.button_label_after('btn.indication.match_and_approve'|trans({}, 'allocation'), 'tabler:bolt'),
                                     label_html: true,
                                     attr: {class: 'btn btn-success'},
                                 }) }}
                             {% elseif show_propose %}
                                 {{ form_widget(form.propose, {
-                                    label: review.button_label_after('btn.indication.propose_match'|trans, 'tabler:send'),
+                                    label: review.button_label_after('btn.indication.propose_match'|trans({}, 'allocation'), 'tabler:send'),
                                     label_html: true,
                                     attr: {class: 'btn btn-primary'},
                                 }) }}
                             {% elseif show_admin_approve %}
                                 {{ form_widget(form.approve, {
-                                    label: review.button_label_after('btn.indication.approve_match'|trans, 'tabler:circle-check'),
+                                    label: review.button_label_after('btn.indication.approve_match'|trans({}, 'allocation'), 'tabler:circle-check'),
                                     label_html: true,
                                     attr: {class: 'btn btn-success'},
                                 }) }}
                             {% elseif show_accept %}
                                 {{ form_widget(form.approve, {
-                                    label: review.button_label_after('btn.indication.accept_match'|trans, 'tabler:circle-check'),
+                                    label: review.button_label_after('btn.indication.accept_match'|trans({}, 'allocation'), 'tabler:circle-check'),
                                     label_html: true,
                                     attr: {class: 'btn btn-success'},
                                 }) }}

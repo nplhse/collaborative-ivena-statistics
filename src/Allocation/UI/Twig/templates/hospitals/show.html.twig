@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.hospital_show'|trans }}: {{ hospital.name }} - {{ 'title.data'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.hospital_show'|trans({}, 'allocation') }}: {{ hospital.name }} - {{ 'title.data'|trans({}, 'messages') }} - {{ parent() }}{% endblock %}
 
 {% import '@Shared/_macros/badges.html.twig' as badges %}
 
@@ -37,7 +37,7 @@
                     </div>
                     <div id="hospital-owned-by" class="list-inline-item">
                         <twig:ux:icon name="tabler:user-square" width="1em" height="1em" />
-                        {{ hospital.owner.userIdentifier ?? 'label.without_owner'|trans }}
+                        {{ hospital.owner.userIdentifier ?? 'label.without_owner'|trans({}, 'messages') }}
                     </div>
                 </div>
             </div>
@@ -47,14 +47,14 @@
                         <span class="d-none d-sm-inline">
                             <a class="btn btn-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
                                 <twig:ux:icon name="tabler:edit" width="1em" height="1em" />&nbsp;
-                                {{ 'label.edit'|trans }}
+                                {{ 'label.edit'|trans({}, 'messages') }}
                             </a>
                         </span>
                     {% endif %}
                     <span class="d-none d-sm-inline">
                         <a class="btn btn-outline-secondary" href="{{ path('app_explore_hospital_list') }}">
                             <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
-                            {{ 'label.back_to_list'|trans }}
+                            {{ 'label.back_to_list'|trans({}, 'messages') }}
                         </a>
                     </span>
                 </div>
@@ -73,24 +73,24 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title">
-                                {{ 'label.basic_info'|trans }}
+                                {{ 'label.basic_info'|trans({}, 'messages') }}
                             </div>
                             <div id="hospital-created-at" class="mb-2">
                                 <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
-                                {{ 'label.created_at'|trans }} <strong>{{ hospital.createdAt|date('d.m.Y H:i') }}</strong>
+                                {{ 'label.created_at'|trans({}, 'messages') }} <strong>{{ hospital.createdAt|date('d.m.Y H:i') }}</strong>
                             </div>
                             <div id="hospital-created-by" class="mb-2">
                                 <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                                {{ 'label.created_by'|trans }} <strong>{{ hospital.createdBy }}</strong>
+                                {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ hospital.createdBy }}</strong>
                             </div>
                             {% if hospital.updatedBy and hospital.updatedAt %}
                                 <div class="mt-1 mb-2">
                                     <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em"  />
-                                    {{ 'label.updated_at'|trans }} <strong>{{ hospital.updatedAt|date('d.m.Y H:i') }}</strong>
+                                    {{ 'label.updated_at'|trans({}, 'messages') }} <strong>{{ hospital.updatedAt|date('d.m.Y H:i') }}</strong>
                                 </div>
                                 <div class="mb-2">
                                     <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em"  />
-                                    {{ 'label.updated_by'|trans }} <strong>{{ hospital.updatedBy }}</strong>
+                                    {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ hospital.updatedBy }}</strong>
                                 </div>
                             {% endif %}
                             {% if hospital.isParticipating %}
@@ -98,12 +98,12 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24">
                                         <path fill="currentColor" d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005.195v12.666c0 1.96-1.537 3.56-3.472 3.662l-.195.005H5.667a3.667 3.667 0 0 1-3.662-3.472L2 18.333V5.667c0-1.96 1.537-3.56 3.472-3.662L5.667 2zm-2.626 7.293a1 1 0 0 0-1.414 0L11 12.585l-1.293-1.292l-.094-.083a1 1 0 0 0-1.32 1.497l2 2l.094.083a1 1 0 0 0 1.32-.083l4-4l.083-.094a1 1 0 0 0-.083-1.32"/>
                                     </svg>
-                                    {{ 'label.is_participating'|trans }} <strong>{{ 'label.is_participating.yes'|trans }}</strong>
+                                    {{ 'label.is_participating'|trans({}, 'messages') }} <strong>{{ 'label.is_participating.yes'|trans({}, 'messages') }}</strong>
                                 </div>
                             {% else %}
                                 <div class="text-muted mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="currentColor" d="M19 2H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3M9.613 8.21l.094.083L12 10.585l2.293-2.292a1 1 0 0 1 1.497 1.32l-.083.094L13.415 12l2.292 2.293a1 1 0 0 1-1.32 1.497l-.094-.083L12 13.415l-2.293 2.292a1 1 0 0 1-1.497-1.32l.083-.094L10.585 12L8.293 9.707a1 1 0 0 1 1.32-1.497"/></svg>
-                                    {{ 'label.is_participating'|trans }} <strong>{{ 'label.is_participating.not'|trans }}</strong>
+                                    {{ 'label.is_participating'|trans({}, 'messages') }} <strong>{{ 'label.is_participating.not'|trans({}, 'messages') }}</strong>
                                 </div>
                             {% endif %}
                         </div>
@@ -113,7 +113,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title">
-                                {{ 'label.address'|trans }}
+                                {{ 'label.address'|trans({}, 'messages') }}
                             </div>
                             <div id="hospital-address" class="mb-2">
                                 <em>
@@ -129,11 +129,11 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title">
-                                {{ 'label.properties'|trans }}
+                                {{ 'label.properties'|trans({}, 'messages') }}
                             </div>
                             <div id="hospital-size" class="mb-2">
                                 <twig:ux:icon name="tabler:aspect-ratio" width="1.5em" height="1.5em"  />
-                                {{ 'label.hospital_size'|trans }}
+                                {{ 'label.hospital_size'|trans({}, 'messages') }}
                                 {% if hospital.size %}
                                     {{ badges.render('hospital_size', hospital.size.value) }}
                                 {% else %}
@@ -142,11 +142,11 @@
                             </div>
                             <div id="hospital-beds" class="mb-2">
                                 <twig:ux:icon name="tabler:bed" width="1.5em" height="1.5em"  />
-                                {{ 'label.hospital_beds'|trans }} <strong>{{ hospital.beds }}</strong>
+                                {{ 'label.hospital_beds'|trans({}, 'messages') }} <strong>{{ hospital.beds }}</strong>
                             </div>
                             <div id="hospital-location" class="mb-2">
                                 <twig:ux:icon name="tabler:map-pin" width="1.5em" height="1.5em"  />
-                                {{ 'label.hospital_location'|trans }}
+                                {{ 'label.hospital_location'|trans({}, 'messages') }}
                                 {% if hospital.location %}
                                     {{ badges.render('hospital_location', hospital.location.value) }}
                                 {% else %}
@@ -155,7 +155,7 @@
                             </div>
                             <div id="hospital-tier" class="mb-2">
                                 <twig:ux:icon name="tabler:hierarchy-2" width="1.5em" height="1.5em"  />
-                                {{ 'label.hospital_tier'|trans }}
+                                {{ 'label.hospital_tier'|trans({}, 'messages') }}
                                 {% if hospital.tier %}
                                     {{ badges.render('hospital_tier', hospital.tier.value) }}
                                 {% else %}

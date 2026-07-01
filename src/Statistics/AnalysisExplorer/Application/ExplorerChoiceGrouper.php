@@ -51,7 +51,7 @@ final readonly class ExplorerChoiceGrouper
                 continue;
             }
 
-            $grouped[$this->translator->trans($groupKey)] = $this->sortedChoices(
+            $grouped[$this->translator->trans($groupKey, [], 'statistics')] = $this->sortedChoices(
                 $buckets[$groupKey],
                 $collator,
             );
@@ -59,7 +59,7 @@ final readonly class ExplorerChoiceGrouper
         }
 
         foreach ($buckets as $groupKey => $choices) {
-            $grouped[$this->translator->trans($groupKey)] = $this->sortedChoices(
+            $grouped[$this->translator->trans($groupKey, [], 'statistics')] = $this->sortedChoices(
                 $choices,
                 $collator,
             );
