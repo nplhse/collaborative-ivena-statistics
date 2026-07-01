@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="FlsImpCrDe" resname="flash.import.created">
+        <source>flash.import.created</source>
+        <target>Neuer Import wurde erfolgreich erstellt!</target>
+      </trans-unit>
+      <trans-unit id="FlsImpRunDe" resname="flash.import.delete_running_blocked">
+        <source>flash.import.delete_running_blocked</source>
+        <target>Dieser Import wird gerade ausgeführt und kann deshalb nicht gelöscht werden.</target>
+      </trans-unit>
+      <trans-unit id="FlsImpDelDe" resname="flash.import.deleted">
+        <source>flash.import.deleted</source>
+        <target>Import wurde erfolgreich gelöscht.</target>
+      </trans-unit>
+      <trans-unit id="De9795a8e8" resname="import.action.delete">
+        <source>import.action.delete</source>
+        <target>Import löschen</target>
+      </trans-unit>
+      <trans-unit id="De5c35af0b" resname="import.action.preview_mci_cases">
+        <source>import.action.preview_mci_cases</source>
+        <target>MANV-Fälle ansehen</target>
+      </trans-unit>
+      <trans-unit id="Def8de6b69" resname="import.action.preview_rows">
+        <source>import.action.preview_rows</source>
+        <target>Zuweisungen ansehen</target>
+      </trans-unit>
+      <trans-unit id="Ded71f9ba3" resname="import.delete.modal.body">
+        <source>import.delete.modal.body</source>
+        <target>Möchten Sie „{name}“ dauerhaft löschen? Alle Zuweisungen, Projektionen und zugehörigen Daten werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</target>
+      </trans-unit>
+      <trans-unit id="Def5c07991" resname="import.delete.modal.cancel">
+        <source>import.delete.modal.cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="Deb673c63a" resname="import.delete.modal.confirm">
+        <source>import.delete.modal.confirm</source>
+        <target>Dauerhaft löschen</target>
+      </trans-unit>
+      <trans-unit id="De418aef09" resname="import.delete.modal.title">
+        <source>import.delete.modal.title</source>
+        <target>Import löschen?</target>
+      </trans-unit>
+      <trans-unit id="De2a9e0a41" resname="import.delete.running_blocked_hint">
+        <source>import.delete.running_blocked_hint</source>
+        <target>Dieser Import wird gerade ausgeführt und kann deshalb nicht gelöscht werden.</target>
+      </trans-unit>
+      <trans-unit id="De30692471" resname="import.field.duplicationRate">
+        <source>import.field.duplicationRate</source>
+        <target>Duplikatsrate</target>
+      </trans-unit>
+      <trans-unit id="Deb64e06c5" resname="import.field.fileExtension">
+        <source>import.field.fileExtension</source>
+        <target>Erweiterung</target>
+      </trans-unit>
+      <trans-unit id="Def8008afe" resname="import.field.fileMimeType">
+        <source>import.field.fileMimeType</source>
+        <target>MIME-Typ</target>
+      </trans-unit>
+      <trans-unit id="De63c2ae9e" resname="import.field.fileSize">
+        <source>import.field.fileSize</source>
+        <target>Dateigröße</target>
+      </trans-unit>
+      <trans-unit id="De06e0f6b4" resname="import.field.rejectionRate">
+        <source>import.field.rejectionRate</source>
+        <target>Zurückweisungsrate</target>
+      </trans-unit>
+      <trans-unit id="De34ac6623" resname="import.field.rowCount">
+        <source>import.field.rowCount</source>
+        <target>Zeilenanzahl</target>
+      </trans-unit>
+      <trans-unit id="De93af500f" resname="import.field.rowsDeduplicated">
+        <source>import.field.rowsDeduplicated</source>
+        <target>Deduplizierte Zeilen (gesamt)</target>
+      </trans-unit>
+      <trans-unit id="De2152debf" resname="import.field.rowsDeduplicatedDiscarded">
+        <source>import.field.rowsDeduplicatedDiscarded</source>
+        <target>Deduplizierte Zeilen (verworfen)</target>
+      </trans-unit>
+      <trans-unit id="Dee3080541" resname="import.field.rowsDeduplicatedReplaced">
+        <source>import.field.rowsDeduplicatedReplaced</source>
+        <target>Deduplizierte Zeilen (ersetzt)</target>
+      </trans-unit>
+      <trans-unit id="De66e71753" resname="import.field.rowsPassed">
+        <source>import.field.rowsPassed</source>
+        <target>Erfolgreiche Zeilen</target>
+      </trans-unit>
+      <trans-unit id="De45972b58" resname="import.field.rowsRejected">
+        <source>import.field.rowsRejected</source>
+        <target>Zurückgewiesene Zeilen</target>
+      </trans-unit>
+      <trans-unit id="Ded3dbf6f0" resname="import.field.runCount">
+        <source>import.field.runCount</source>
+        <target>Anzahl Läufe</target>
+      </trans-unit>
+      <trans-unit id="Dedee22970" resname="import.field.runTime">
+        <source>import.field.runTime</source>
+        <target>Laufzeit</target>
+      </trans-unit>
+      <trans-unit id="Dedcb70933" resname="import.field.status">
+        <source>import.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Dea68644cc" resname="import.field.type">
+        <source>import.field.type</source>
+        <target>Typ</target>
+      </trans-unit>
+      <trans-unit id="De8b5fb0eb" resname="import.processing.error">
+        <source>import.processing.error</source>
+        <target>Status konnte nicht aktualisiert werden. Erneuter Versuch …</target>
+      </trans-unit>
+      <trans-unit id="De606971f3" resname="import.processing.hint">
+        <source>import.processing.hint</source>
+        <target>Ihre Datei wird im Hintergrund verarbeitet. Diese Seite aktualisiert sich automatisch.</target>
+      </trans-unit>
+      <trans-unit id="De521b5fb5" resname="import.processing.step.processing">
+        <source>import.processing.step.processing</source>
+        <target>Daten werden verarbeitet</target>
+      </trans-unit>
+      <trans-unit id="De85273798" resname="import.processing.step.processing_desc">
+        <source>import.processing.step.processing_desc</source>
+        <target>Zuweisungen werden validiert und importiert.</target>
+      </trans-unit>
+      <trans-unit id="Dec33238e0" resname="import.processing.step.result">
+        <source>import.processing.step.result</source>
+        <target>Ergebnis</target>
+      </trans-unit>
+      <trans-unit id="De35f40ad1" resname="import.processing.step.result.cancelled">
+        <source>import.processing.step.result.cancelled</source>
+        <target>Import abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="Def6f9ad78" resname="import.processing.step.result.completed">
+        <source>import.processing.step.result.completed</source>
+        <target>Abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="De793716b2" resname="import.processing.step.result.failed">
+        <source>import.processing.step.result.failed</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="De41ee5a7e" resname="import.processing.step.result.partial">
+        <source>import.processing.step.result.partial</source>
+        <target>Import mit Zurückweisungen abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="De6c4f5eac" resname="import.processing.step.uploaded">
+        <source>import.processing.step.uploaded</source>
+        <target>Datei hochgeladen</target>
+      </trans-unit>
+      <trans-unit id="De7a1b381f" resname="import.processing.step.uploaded_desc">
+        <source>import.processing.step.uploaded_desc</source>
+        <target>Ihre CSV-Datei wurde empfangen und zur Verarbeitung eingeplant.</target>
+      </trans-unit>
+      <trans-unit id="De1d83f2fc" resname="import.processing.view_detail">
+        <source>import.processing.view_detail</source>
+        <target>Importdetails ansehen</target>
+      </trans-unit>
+      <trans-unit id="De91c4a91a" resname="import.status.label.cancelled">
+        <source>import.status.label.cancelled</source>
+        <target>Abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="De52c90eb3" resname="import.status.label.completed">
+        <source>import.status.label.completed</source>
+        <target>Abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="De418ba321" resname="import.status.label.failed">
+        <source>import.status.label.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="De28d02435" resname="import.status.label.partial">
+        <source>import.status.label.partial</source>
+        <target>Teilweise</target>
+      </trans-unit>
+      <trans-unit id="De56028e78" resname="import.status.label.pending">
+        <source>import.status.label.pending</source>
+        <target>Ausstehend</target>
+      </trans-unit>
+      <trans-unit id="Deadf67dae" resname="import.status.label.running">
+        <source>import.status.label.running</source>
+        <target>Läuft</target>
+      </trans-unit>
+      <trans-unit id="De6f07ed81" resname="import.status.message.cancelled">
+        <source>import.status.message.cancelled</source>
+        <target>Der Import wurde abgebrochen.</target>
+      </trans-unit>
+      <trans-unit id="Deac0a4a28" resname="import.status.message.completed">
+        <source>import.status.message.completed</source>
+        <target>Der Import wurde erfolgreich abgeschlossen.</target>
+      </trans-unit>
+      <trans-unit id="Deaa840e66" resname="import.status.message.failed">
+        <source>import.status.message.failed</source>
+        <target>Der Import ist fehlgeschlagen.</target>
+      </trans-unit>
+      <trans-unit id="Dec083ffab" resname="import.status.message.partial">
+        <source>import.status.message.partial</source>
+        <target>Der Import wurde mit einigen zurückgewiesenen Zeilen abgeschlossen.</target>
+      </trans-unit>
+      <trans-unit id="Debe5155e6" resname="import.status.message.pending">
+        <source>import.status.message.pending</source>
+        <target>Der Import ist eingeplant und startet in Kürze.</target>
+      </trans-unit>
+      <trans-unit id="De45a5a630" resname="import.status.message.running">
+        <source>import.status.message.running</source>
+        <target>Zeilen werden verarbeitet.</target>
+      </trans-unit>
+      <trans-unit id="De09b75e2d" resname="imports.field.filePath">
+        <source>imports.field.filePath</source>
+        <target>Dateipfad</target>
+      </trans-unit>
+      <trans-unit id="ExpLblDe01" resname="label.export.period">
+        <source>label.export.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="De6979449a" resname="label.import.filter.all_hospitals">
+        <source>label.import.filter.all_hospitals</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="De942183c5" resname="label.import.filter.all_owners">
+        <source>label.import.filter.all_owners</source>
+        <target>Alle Eigentümer</target>
+      </trans-unit>
+      <trans-unit id="De799ec28c" resname="label.import.filter.all_statuses">
+        <source>label.import.filter.all_statuses</source>
+        <target>Jeder Status</target>
+      </trans-unit>
+      <trans-unit id="De1dfdd53e" resname="label.import.filter.created_from">
+        <source>label.import.filter.created_from</source>
+        <target>Erstellt ab</target>
+      </trans-unit>
+      <trans-unit id="De1eeaae60" resname="label.import.filter.created_until">
+        <source>label.import.filter.created_until</source>
+        <target>Erstellt bis</target>
+      </trans-unit>
+      <trans-unit id="Dee3d9a439" resname="label.import.filter.owner">
+        <source>label.import.filter.owner</source>
+        <target>Krankenhaus-Eigentümer</target>
+      </trans-unit>
+      <trans-unit id="Dec14767ca" resname="label.import.new">
+        <source>label.import.new</source>
+        <target>Neuer Import</target>
+      </trans-unit>
+      <trans-unit id="De0b4cddd7" resname="label.import.section.quick_actions">
+        <source>label.import.section.quick_actions</source>
+        <target>Schnellaktionen</target>
+      </trans-unit>
+      <trans-unit id="De947dd0d3" resname="label.import.section.run">
+        <source>label.import.section.run</source>
+        <target>Ausführungsergebnisse</target>
+      </trans-unit>
+      <trans-unit id="De1154cf3b" resname="label.import.section.source_file">
+        <source>label.import.section.source_file</source>
+        <target>Quelldatei</target>
+      </trans-unit>
+      <trans-unit id="De2c7f3a8c" resname="title.import.index">
+        <source>title.import.index</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="De1fb64d3f" resname="title.import.new">
+        <source>title.import.new</source>
+        <target>Neuer Import</target>
+      </trans-unit>
+      <trans-unit id="Def3d502f6" resname="title.import.processing">
+        <source>title.import.processing</source>
+        <target>Import wird verarbeitet</target>
+      </trans-unit>
+      <trans-unit id="De82aa142a" resname="title.import.show">
+        <source>title.import.show</source>
+        <target>Importdetails</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

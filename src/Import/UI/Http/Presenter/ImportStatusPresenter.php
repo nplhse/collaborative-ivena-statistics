@@ -57,8 +57,8 @@ final readonly class ImportStatusPresenter
         return [
             'id' => $id,
             'status' => $statusKey,
-            'label' => $this->translator->trans('import.status.label.'.$statusKey),
-            'message' => $this->translator->trans('import.status.message.'.$statusKey),
+            'label' => $this->translator->trans('import.status.label.'.$statusKey, [], 'import'),
+            'message' => $this->translator->trans('import.status.message.'.$statusKey, [], 'import'),
             'progress' => $this->resolveProgress($import, $status),
             'isFinal' => $import->isFinalStatus(),
             'detailUrl' => $this->urlGenerator->generate('app_import_show', ['id' => $id]),
@@ -76,8 +76,8 @@ final readonly class ImportStatusPresenter
     {
         $uploaded = [
             'key' => 'uploaded',
-            'label' => $this->translator->trans('import.processing.step.uploaded'),
-            'description' => $this->translator->trans('import.processing.step.uploaded_desc'),
+            'label' => $this->translator->trans('import.processing.step.uploaded', [], 'import'),
+            'description' => $this->translator->trans('import.processing.step.uploaded_desc', [], 'import'),
             'state' => 'done',
         ];
 
@@ -88,8 +88,8 @@ final readonly class ImportStatusPresenter
 
         $processing = [
             'key' => 'processing',
-            'label' => $this->translator->trans('import.processing.step.processing'),
-            'description' => $this->translator->trans('import.processing.step.processing_desc'),
+            'label' => $this->translator->trans('import.processing.step.processing', [], 'import'),
+            'description' => $this->translator->trans('import.processing.step.processing_desc', [], 'import'),
             'state' => $processingState,
         ];
 
@@ -98,7 +98,7 @@ final readonly class ImportStatusPresenter
         $result = [
             'key' => 'result',
             'label' => $this->resolveResultLabel($status),
-            'description' => $this->translator->trans('import.status.message.'.strtolower($status->name)),
+            'description' => $this->translator->trans('import.status.message.'.strtolower($status->name), [], 'import'),
             'state' => $resultState,
         ];
 
@@ -108,11 +108,11 @@ final readonly class ImportStatusPresenter
     private function resolveResultLabel(ImportStatus $status): string
     {
         return match ($status) {
-            ImportStatus::COMPLETED => $this->translator->trans('import.processing.step.result.completed'),
-            ImportStatus::PARTIAL => $this->translator->trans('import.processing.step.result.partial'),
-            ImportStatus::FAILED => $this->translator->trans('import.processing.step.result.failed'),
-            ImportStatus::CANCELLED => $this->translator->trans('import.processing.step.result.cancelled'),
-            default => $this->translator->trans('import.processing.step.result'),
+            ImportStatus::COMPLETED => $this->translator->trans('import.processing.step.result.completed', [], 'import'),
+            ImportStatus::PARTIAL => $this->translator->trans('import.processing.step.result.partial', [], 'import'),
+            ImportStatus::FAILED => $this->translator->trans('import.processing.step.result.failed', [], 'import'),
+            ImportStatus::CANCELLED => $this->translator->trans('import.processing.step.result.cancelled', [], 'import'),
+            default => $this->translator->trans('import.processing.step.result', [], 'import'),
         };
     }
 

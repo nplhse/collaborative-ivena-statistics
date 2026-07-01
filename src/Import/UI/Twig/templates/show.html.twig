@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.import.show'|trans }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.import.show'|trans({}, 'import') }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
 
 {% import '@Shared/_macros/badges.html.twig' as badges %}
 
@@ -51,7 +51,7 @@
                         <span class="d-none d-sm-inline">
                             <a class="btn btn-outline-secondary" href="{{ path('app_import_index') }}">
                                 <twig:ux:icon name="tabler:chevron-left" class="w-3 h-3" />
-                                {{ 'label.back_to_list'|trans }}
+                                {{ 'label.back_to_list'|trans({}, 'messages') }}
                             </a>
                         </span>
                     </div>
@@ -66,7 +66,7 @@
             <div class="row g-3">
                 <div class="col">
                     <div class="col-12 mb-3">
-                        <twig:Card title="{{ 'label.hospital'|trans }}">
+                        <twig:Card title="{{ 'label.hospital'|trans({}, 'messages') }}">
                             <h3 class="card-title mb-1 fs-3">
                                 <a href="{{ path('app_explore_hospital_show', {id: import.hospital.id}) }}">{{ import.hospital.name }}</a>
                             </h3>
@@ -81,7 +81,7 @@
                     </div>
 
                     <div class="col-12 mb-3">
-                        <twig:Card title="{{ 'label.import.section.source_file'|trans }}">
+                        <twig:Card title="{{ 'label.import.section.source_file'|trans({}, 'import') }}">
                             {% set readableSize = (import.fileSize >= 1048576)
                                 ? ((import.fileSize / 1048576.0)|number_format(2, ',', '.')) ~ ' MB'
                                 : ((import.fileSize / 1024.0)|number_format(0, ',', '.')) ~ ' KB'
@@ -90,39 +90,39 @@
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">
                                         <twig:ux:icon name="tabler:file" class="w-3 h-3 me-1" />
-                                        {{ 'imports.field.filePath'|trans }}
+                                        {{ 'imports.field.filePath'|trans({}, 'import') }}
                                     </div>
                                     <div class="datagrid-content">
                                         <code class="text-break">{{ import.filePath|split('/')|last }}</code>
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.fileExtension'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.fileExtension'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.fileExtension|upper }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.fileMimeType'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.fileMimeType'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.fileMimeType }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.fileSize'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.fileSize'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ readableSize }}
                                         <span class="text-muted">({{ import.fileSize|number_format(0, ',', '.') }} B)</span>
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rowCount'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.rowCount'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.rowCount|number_format(0, ',', '.') }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.type'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.type'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         <span class="status status-blue">{{ import.type.value }}</span>
                                     </div>
@@ -133,7 +133,7 @@
 
                     <div class="col-12">
                         <twig:Card
-                            title="{{ 'label.import.section.run'|trans }}"
+                            title="{{ 'label.import.section.run'|trans({}, 'import') }}"
                         >
                             {% import '@Shared/_macros/status.html.twig' as macros %}
                             {% set isMs = import.runTime is not null and import.runTime > 1000 %}
@@ -143,37 +143,37 @@
                             %}
                             <div class="datagrid">
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.status'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.status'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ macros.import_status(import.status.value) }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.runCount'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.runCount'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.runCount }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.runTime'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.runTime'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ runTimeHuman }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rowsPassed'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.rowsPassed'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.rowsPassed ?? 0 }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rowsRejected'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.rowsRejected'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.rowsRejected ?? 0 }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rejectionRate'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.rejectionRate'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {% if import.rowCount > 0 %}
                                             {% set rejectionRate = (import.rowsRejected ?? 0) / import.rowCount * 100 %}
@@ -182,26 +182,26 @@
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicated'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicated'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.rowsDeduplicated ?? 0 }}
                                     </div>
                                 </div>
                                 {% if (import.rowsDeduplicated ?? 0) > 0 %}
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicatedDiscarded'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicatedDiscarded'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.rowsDeduplicatedDiscarded ?? 0 }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicatedReplaced'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.rowsDeduplicatedReplaced'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {{ import.rowsDeduplicatedReplaced ?? 0 }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.duplicationRate'|trans }}</div>
+                                    <div class="datagrid-title">{{ 'import.field.duplicationRate'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
                                         {% if import.rowCount > 0 %}
                                             {% set duplicationRate = (import.rowsDeduplicated ?? 0) / import.rowCount * 100 %}
@@ -218,15 +218,15 @@
                 <div class="col-lg-4">
                     <div class="row row-cards">
                         <div class="col-12">
-                            <twig:Card title="{{ 'label.basic_info'|trans }}">
+                            <twig:Card title="{{ 'label.basic_info'|trans({}, 'messages') }}">
                                 <div id="import-created-at" class="mb-2">
                                     <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
-                                    {{ 'label.created_at'|trans }} <strong>{{ import.createdAt|date('d.m.Y H:i') }}</strong>
+                                    {{ 'label.created_at'|trans({}, 'messages') }} <strong>{{ import.createdAt|date('d.m.Y H:i') }}</strong>
                                 </div>
                                 {% if import.updatedAt is not null %}
                                     <div id="import-updated-at" class="mb-2">
                                         <twig:ux:icon name="tabler:clock-edit" class="w-3 h-3" />
-                                        {{ 'label.updated_at'|trans }}
+                                        {{ 'label.updated_at'|trans({}, 'messages') }}
                                         <strong>
                                             {{ import.updatedAt ? import.updatedAt|date('d.m.Y H:i') : '—' }}
                                         </strong>
@@ -234,13 +234,13 @@
                                 {% endif %}
                                 <div id="import-created-by" class="mb-2">
                                     <twig:ux:icon name="tabler:user-plus" class="w-3 h-3" />
-                                    {{ 'label.created_by'|trans }}
+                                    {{ 'label.created_by'|trans({}, 'messages') }}
                                     <strong>{{ import.createdBy ?? '—' }}</strong>
                                 </div>
                                 {% if import.updatedAt is not null %}
                                     <div id="import-updated-by">
                                         <twig:ux:icon name="tabler:user-edit" class="w-3 h-3" />
-                                        {{ 'label.updated_by'|trans }}
+                                        {{ 'label.updated_by'|trans({}, 'messages') }}
                                         <strong>{{ import.updatedBy ?? '—' }}</strong>
                                     </div>
                                 {% endif %}
@@ -248,22 +248,22 @@
                         </div>
 
                         <div class="col-12">
-                            <twig:Card title="{{ 'label.import.section.quick_actions'|trans }}">
+                            <twig:Card title="{{ 'label.import.section.quick_actions'|trans({}, 'import') }}">
                                 <div class="btn-list">
                                     <a class="btn btn-outline-primary" href="{{ path('app_explore_allocation_list', {importId: import.id}) }}">
-                                        <twig:ux:icon name="tabler:table" class="w-3 h-3" /> {{ 'import.action.preview_rows'|trans }}
+                                        <twig:ux:icon name="tabler:table" class="w-3 h-3" /> {{ 'import.action.preview_rows'|trans({}, 'import') }}
                                     </a>
                                 <a class="btn btn-outline-secondary" href="{{ path('app_explore_mci_case_list', {importId: import.id}) }}">
-                                    <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" /> {{ 'import.action.preview_mci_cases'|trans }}
+                                    <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" /> {{ 'import.action.preview_mci_cases'|trans({}, 'import') }}
                                 </a>
                                 {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) %}
                                     {% if import.status.value == 'Running' %}
-                                        <button type="button" class="btn btn-outline-danger" disabled title="{{ 'import.delete.running_blocked_hint'|trans }}">
-                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans }}
+                                        <button type="button" class="btn btn-outline-danger" disabled title="{{ 'import.delete.running_blocked_hint'|trans({}, 'import') }}">
+                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans({}, 'import') }}
                                         </button>
                                     {% else %}
                                         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#import-delete-modal">
-                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans }}
+                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans({}, 'import') }}
                                         </button>
                                     {% endif %}
                                 {% endif %}
@@ -283,15 +283,15 @@
                     <form method="post" action="{{ path('app_import_delete', {id: import.id}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('import_delete_' ~ import.id) }}">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="import-delete-modal-label">{{ 'import.delete.modal.title'|trans }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'import.delete.modal.cancel'|trans }}"></button>
+                            <h5 class="modal-title" id="import-delete-modal-label">{{ 'import.delete.modal.title'|trans({}, 'import') }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'action.cancel'|trans({}, 'messages') }}"></button>
                         </div>
                         <div class="modal-body">
-                            <p class="mb-0">{{ 'import.delete.modal.body'|trans({'%name%': import.name ?? ('#' ~ import.id)}) }}</p>
+                            <p class="mb-0">{{ 'import.delete.modal.body'|trans(({'%name%': import.name ?? ('#' ~ import.id)}), 'import') }}</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'import.delete.modal.cancel'|trans }}</button>
-                            <button type="submit" class="btn btn-danger">{{ 'import.delete.modal.confirm'|trans }}</button>
+                            <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                            <button type="submit" class="btn btn-danger">{{ 'import.delete.modal.confirm'|trans({}, 'import') }}</button>
                         </div>
                     </form>
                 </div>
