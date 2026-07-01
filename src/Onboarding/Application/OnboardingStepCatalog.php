@@ -106,7 +106,7 @@ final readonly class OnboardingStepCatalog
         return $this->isStepAvailable(
             $stepKey,
             $this->hasClinicAccess($user),
-            [] !== $this->importListAccess->resolveAccessibleHospitalIds($user),
+            $this->hasImportPermission($user),
             $this->hasStatisticsPermission($user),
             $persistedCompleted,
         );
