@@ -9,9 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class MonthlyReminderPreviewInput
 {
-    #[Option(description: 'Hospital ID')]
+    #[Option(description: 'Hospital ID', name: 'hospital-id')]
     #[Assert\Positive]
-    public ?int $hospital = null;
+    public ?int $hospitalId = null;
 
     #[Option(description: 'Send the email to the hospital owner')]
     public bool $send = false;

@@ -39,7 +39,7 @@ journalctl --user -u messenger -f
 - Analyse reject patterns:
 
 ```bash
-php bin/console app:analyze-import-rejects --format=md
+php bin/console app:import:analyze-rejects --format=md
 ```
 
 ## Symfony-specific pitfalls

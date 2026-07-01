@@ -146,7 +146,7 @@ task('media:migrate-to-shared', function () {
     run('chmod -R ug+rwX '.escapeshellarg($sharedMedia));
 });
 
-set('content_analyze_page_images_options', '--apply --backfill-dimensions --migrate-size');
+set('content_analyze_page_images_options', '--backfill-dimensions --migrate-size');
 
 desc('Analyze page images, backfill media dimensions, and migrate layout sizes on the server');
 task('content:analyze-page-images', function () {

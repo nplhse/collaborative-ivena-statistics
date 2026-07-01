@@ -118,6 +118,6 @@ final readonly class EnvCheckCommand
 
         $value = getenv($name);
 
-        return false === $value ? '' : (string) $value;
+        return false === $value ? '' : $value;
     }
 }

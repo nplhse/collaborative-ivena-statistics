@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'statistics:explorer-views:sync',
+    name: 'app:statistics:explorer-views:sync',
     description: 'Insert or update system demo views for Analysis Explorer V2.',
 )]
 final readonly class ExplorerSystemViewSyncCommand

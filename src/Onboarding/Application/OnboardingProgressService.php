@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Onboarding\Application;
 
-use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Onboarding\Application\Dto\OnboardingCardView;
 use App\Onboarding\Domain\Entity\UserOnboardingStep;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
@@ -15,13 +14,10 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final readonly class OnboardingProgressService
 {
-    private const int IMPORT_INIT_LOOKBACK_MONTHS = 6;
-
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private OnboardingStepCatalog $stepCatalog,
         private UserOnboardingStepRepository $stepRepository,
-        private ImportRepository $importRepository,
     ) {
     }
 
@@ -82,52 +78,6 @@ final readonly class OnboardingProgressService
         }
 
         $this->stepRepository->save(new UserOnboardingStep($user, $stepKey));
-    }
-
-    /**
-     * @return array{created: int, skipped: int, already: int}
-     */
-    public function syncContextCompletedSteps(User $user, bool $dryRun = false): array
-    {
-        $stats = ['created' => 0, 'skipped' => 0, 'already' => 0];
-
-        if (!\in_array(UserRole::PARTICIPANT, $user->getRoles(), true)) {
-            return $stats;
-        }
-
-        $candidates = [];
-
-        if ($this->stepCatalog->hasClinicAccess($user)) {
-            $candidates[] = OnboardingStepKey::RequestClinicAccess;
-        }
-
-        $since = new \DateTimeImmutable(sprintf('-%d months', self::IMPORT_INIT_LOOKBACK_MONTHS));
-        if (
-            $this->stepCatalog->hasImportPermission($user)
-            && $this->importRepository->hasImportsCreatedByUserSince($user, $since)
-        ) {
-            $candidates[] = OnboardingStepKey::StartFirstImport;
-        }
-
-        foreach ($candidates as $stepKey) {
-            $existing = $this->stepRepository->findForUserAndStep($user, $stepKey);
-            if ($existing instanceof UserOnboardingStep) {
-                ++$stats['already'];
-
-                continue;
-            }
-
-            if ($dryRun) {
-                ++$stats['created'];
-
-                continue;
-            }
-
-            $this->stepRepository->save(new UserOnboardingStep($user, $stepKey));
-            ++$stats['created'];
-        }
-
-        return $stats;
     }
 
     /**

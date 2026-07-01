@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 #[AsCommand(
-    name: 'app:generate-csv-fixtures',
+    name: 'app:fixtures:generate-csv',
     description: 'Generate CSV encoding fixtures (dev/test only).',
 )]
 final readonly class GenerateCsvFixturesCommand

@@ -52,7 +52,7 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
         self::assertStringContainsString('Dry run: no rows will be deleted.', $display);
         self::assertStringContainsString('Analyzing ENR duplicates', $display);
         self::assertStringContainsString('enr', $display);
-        self::assertStringContainsString('Dry run finished. Re-run with --execute to apply changes.', $display);
+        self::assertStringContainsString('Dry run finished. Re-run without --dry-run to apply changes.', $display);
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
@@ -65,7 +65,7 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
         $fixture = $this->seedEnrDuplicateFixture();
 
         $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--execute' => true]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         $display = $tester->getDisplay();
@@ -117,7 +117,7 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
         ));
 
         $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--execute' => true]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertSame(0, (int) $connection->fetchOne(
@@ -132,7 +132,7 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
         $fixture = $this->seedFingerprintDuplicateFixture();
 
         $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--execute' => true]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Analyzing fingerprint duplicates', $tester->getDisplay());
@@ -155,26 +155,11 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
         self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE id = 888888'));
 
         $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--execute' => true]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Removing orphan projection rows', $tester->getDisplay());
         self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE id = 888888'));
-    }
-
-    public function testDefaultRunIsDryRun(): void
-    {
-        $this->seedEnrDuplicateFixture();
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute([]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('Dry run finished', $tester->getDisplay());
-
-        /** @var Connection $connection */
-        $connection = self::getContainer()->get(Connection::class);
-        self::assertSame(2, (int) $connection->fetchOne('SELECT COUNT(*) FROM allocation'));
     }
 
     public function testNoDuplicatesSucceedsWithZeroRemovals(): void
@@ -195,7 +180,7 @@ final class DeduplicateProjectionCommandTest extends KernelTestCase
         $this->rebuildProjectionForImport((int) $import->getId());
 
         $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--execute' => true]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         $display = preg_replace('/\s+/', ' ', $tester->getDisplay()) ?? '';

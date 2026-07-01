@@ -11,7 +11,7 @@ use App\Import\Application\ImportDispatchExitCode;
 use App\Import\Application\Service\ImportAllocationsDispatcher;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:import:allocations',
@@ -25,22 +25,19 @@ final readonly class ImportAllocationsCommand
     }
 
     public function __invoke(
-        OutputInterface $output,
+        SymfonyStyle $io,
         #[Argument(description: 'ID of the Import entity (required)', name: 'importId')]
         int $importId,
     ): int {
         try {
             $this->dispatcher->dispatch($importId);
         } catch (ImportNotFoundException|ImportCreatorMissingException|DispatchException $e) {
-            $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
+            $io->error($e->getMessage());
 
             return ImportDispatchExitCode::FAILURE;
         }
 
-        $output->writeln(sprintf(
-            '<info>Dispatched import job for Import #%d"</info>',
-            $importId,
-        ));
+        $io->success(sprintf('Dispatched import job for Import #%d', $importId));
 
         return ImportDispatchExitCode::SUCCESS;
     }

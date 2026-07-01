@@ -11,6 +11,7 @@ Entry point for project documentation.
 | Configuration | [Configuration.md](Configuration.md)               | ENV variables, databases, Messenger, mail, Sentry |
 | Import | [Import-workflow.md](Import-workflow.md)           | Upload, dispatch, worker processing, failure modes |
 | Development | [Development-Workflow.md](Development-Workflow.md) | Typical commands, daily workflows, debugging |
+| Console commands | [Console-commands.md](Console-commands.md) | Full CLI reference and naming conventions |
 | Fixtures | [Development-fixtures.md](Development-fixtures.md) | Reference YAML, fixture groups, synthetic allocations |
 | Testing | [Testing.md](Testing.md)                           | Local test runs and CI-relevant checks |
 | Deployment | [Deployment.md](Deployment.md)                     | Deployer, worker, ops commands |

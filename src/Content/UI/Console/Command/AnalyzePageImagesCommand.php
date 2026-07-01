@@ -30,13 +30,14 @@ final readonly class AnalyzePageImagesCommand
         SymfonyStyle $io,
         #[MapInput] AnalyzePageImagesInput $input,
     ): int {
-        $dryRun = !$input->apply || $input->dryRun;
+        $hasWriteOperations = $input->backfillDimensions || $input->migrateSize || $input->fixRichtextSnippets;
+        $dryRun = $hasWriteOperations && $input->dryRun;
         $pageId = $this->parsePageId($input->pageId);
 
         $io->title('Analyze page images');
 
         if ($dryRun) {
-            $io->note('Dry run: no database or content changes will be written. Use --apply to persist changes.');
+            $io->note('Dry run: no database or content changes will be written. Re-run without --dry-run to persist changes.');
         }
 
         $findings = $this->analyzer->analyze($pageId);
@@ -90,8 +91,8 @@ final readonly class AnalyzePageImagesCommand
             $io->writeln(sprintf('Affected pages: %d', $result->updatedPages));
         }
 
-        if ($dryRun && ($input->backfillDimensions || $input->migrateSize || $input->fixRichtextSnippets)) {
-            $io->success('Dry run finished. Re-run with --apply to persist changes.');
+        if ($dryRun) {
+            $io->success('Dry run finished. Re-run without --dry-run to persist changes.');
         } else {
             $io->success('Analysis finished.');
         }

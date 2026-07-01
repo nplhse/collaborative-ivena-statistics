@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(
-    name: 'app:analyze-import-rejects',
+    name: 'app:import:analyze-rejects',
     description: 'Analyze import rejects grouped by field, value, and reason for transformer planning.',
 )]
 final readonly class AnalyzeImportRejectsCommand

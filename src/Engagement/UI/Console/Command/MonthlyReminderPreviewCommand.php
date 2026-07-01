@@ -42,15 +42,15 @@ final readonly class MonthlyReminderPreviewCommand
         SymfonyStyle $io,
         #[MapInput] MonthlyReminderPreviewInput $input,
     ): int {
-        if (null === $input->hospital || $input->hospital <= 0) {
-            $io->error('Option --hospital is required.');
+        if (null === $input->hospitalId || $input->hospitalId <= 0) {
+            $io->error('Option --hospital-id is required.');
 
             return Command::INVALID;
         }
 
-        $hospital = $this->hospitalRepository->findById($input->hospital);
+        $hospital = $this->hospitalRepository->findById($input->hospitalId);
         if (!$hospital instanceof Hospital) {
-            $io->error(sprintf('Hospital %d not found.', $input->hospital));
+            $io->error(sprintf('Hospital %d not found.', $input->hospitalId));
 
             return Command::FAILURE;
         }

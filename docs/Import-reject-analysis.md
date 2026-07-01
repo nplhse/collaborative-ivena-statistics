@@ -1,14 +1,14 @@
 # Import reject analysis
 
-The `app:analyze-import-rejects` command reads all stored `ImportReject` entries from the database in a memory-efficient way, groups them by field, rejected value, and error reason, and exports a report to plan transformers and normalizers.
+The `app:import:analyze-rejects` command reads all stored `ImportReject` entries from the database in a memory-efficient way, groups them by field, rejected value, and error reason, and exports a report to plan transformers and normalizers.
 
 ## Usage
 
 ```bash
-php bin/console app:analyze-import-rejects
-php bin/console app:analyze-import-rejects --format=md --output=var/export/import-reject-analysis.md
-php bin/console app:analyze-import-rejects --min-count=10 --include-examples
-php bin/console app:analyze-import-rejects --format=json --limit=50
+php bin/console app:import:analyze-rejects
+php bin/console app:import:analyze-rejects --format=md --output=var/export/import-reject-analysis.md
+php bin/console app:import:analyze-rejects --min-count=10 --include-examples
+php bin/console app:import:analyze-rejects --format=json --limit=50
 ```
 
 ## Options

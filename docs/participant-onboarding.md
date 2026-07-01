@@ -14,19 +14,6 @@ Step availability is **strictly sequential**: a step becomes actionable only aft
 
 Step-specific permissions still apply (for example, import or statistics rights on at least one hospital). Completed steps are stored in `user_onboarding_step`.
 
-## Commands
-
-```bash
-# Idempotent backfill for existing participants (clinic access + imports in last 6 months)
-php bin/console app:onboarding:initialize
-
-# Dry run
-php bin/console app:onboarding:initialize --dry-run
-
-# Single user
-php bin/console app:onboarding:initialize --user-id=42
-```
-
 ## Code locations
 
 | Area | Path |
@@ -34,4 +21,3 @@ php bin/console app:onboarding:initialize --user-id=42
 | Domain / application | `src/Onboarding/` |
 | Dashboard card | `src/Content/UI/Twig/templates/dashboard/_onboarding_card.html.twig` |
 | Complete step endpoint | `POST /onboarding/steps/{stepKey}/complete` |
-| Init command | `src/Onboarding/UI/Console/Command/InitializeOnboardingCommand.php` |

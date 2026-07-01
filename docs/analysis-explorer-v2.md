@@ -27,7 +27,7 @@ Navigation label: `link.stats.analysis_explorer` in `translations/messages+intl-
 System demo views are stored in `saved_explorer_view` (`SavedExplorerView` entity). Seed or refresh them with:
 
 ```bash
-bin/console statistics:explorer-views:sync
+bin/console app:statistics:explorer-views:sync
 ```
 
 The seeder assigns `createdBy` to the admin user (`username: admin`).
@@ -200,7 +200,7 @@ v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpg
 | Distribution profiles | Selecting a profile sets `chartType` to `box_plot`, runs raw-value SQL (per hospital or per allocation depending on data source), and aggregates with `DescriptiveStatisticsCalculator` per `(row bucket, series)` cell. Transport-time profiles format values in minutes. Supports an optional column axis or hospital compare mode as the series dimension; not combinable with temporal row dimensions. Compare mode and a manual column axis remain mutually exclusive. |
 | Box plot chart type | `box_plot` — only available when `visualMetric` is a distribution profile |
 | Schema field | `query.hospitalPopulation` (`all`, `participating`, `compare`) |
-| System views category | `Hospitals` (seeded by `statistics:explorer-views:sync`) |
+| System views category | `Hospitals` (seeded by `app:statistics:explorer-views:sync`) |
 
 ```json
 {

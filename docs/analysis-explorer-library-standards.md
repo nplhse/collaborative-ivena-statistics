@@ -107,7 +107,7 @@ Legend: **Link** = replace chart with library deep-link; **Keep** = stay bespoke
 2. For Indication Dashboard / Group: pass `indicationId` (or group) as explorer filter overlay when opening library view.
 3. Remove duplicated chart payload from `OverviewChartsFactory` / `IndicationDashboardChartPayloadFactory` where a library slug exists.
 4. Keep `IndicationDashboardAssembler` for transport-time buckets and moving-average time series until Explorer gaps close.
-5. Run `bin/console statistics:explorer-views:sync` after seed changes in each environment.
+5. Run `bin/console app:statistics:explorer-views:sync` after seed changes in each environment.
 
 ## Known Explorer gaps (unchanged)
 

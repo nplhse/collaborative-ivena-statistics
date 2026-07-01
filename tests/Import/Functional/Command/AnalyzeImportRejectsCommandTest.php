@@ -166,7 +166,7 @@ final class AnalyzeImportRejectsCommandTest extends KernelTestCase
     private function commandTester(): CommandTester
     {
         $application = new Application(self::$kernel);
-        $command = $application->find('app:analyze-import-rejects');
+        $command = $application->find('app:import:analyze-rejects');
 
         return new CommandTester($command);
     }
