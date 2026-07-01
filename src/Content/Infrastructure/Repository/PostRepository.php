@@ -78,9 +78,8 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
     public function findPublishedForIndex(?int $limit = null): array
     {
         $qb = $this->createQueryBuilder('p')
-            ->addSelect('c', 't')
+            ->addSelect('c')
             ->leftJoin('p.category', 'c')
-            ->leftJoin('p.tags', 't')
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
