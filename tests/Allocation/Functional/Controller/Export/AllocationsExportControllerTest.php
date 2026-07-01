@@ -25,6 +25,7 @@ use App\Shared\Application\Export\ExportBlockedException;
 use App\Shared\Application\Export\ExportEstimate;
 use App\Shared\Application\Export\ExportLimits;
 use App\Shared\Application\Export\ExportOrchestrator;
+use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -37,6 +38,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class AllocationsExportControllerTest extends WebTestCase
 {
+    use AssertsNoMissingTranslations;
     use Factories;
 
     public function testNonParticipantCannotAccessExportPage(): void
@@ -74,6 +76,19 @@ final class AllocationsExportControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="export-allocations-prepare"]');
         self::assertSelectorExists('[data-testid="export-filter-section-hospital"]');
         self::assertSelectorExists('input[type="checkbox"][name*="[hospitals]"]:checked');
+    }
+
+    public function testExportPageHasNoMissingTranslationsInGerman(): void
+    {
+        [$client] = $this->createOwnerClient();
+        $client->enableProfiler();
+        $client->request(Request::METHOD_GET, '/hospitals/export/allocations', server: [
+            'HTTP_Accept-Language' => 'de-DE,de;q=0.9',
+        ]);
+
+        self::assertResponseIsSuccessful();
+
+        $this->assertNoMissingTranslations($client->getProfile());
     }
 
     public function testPrepareExportDoesNotDuplicateFilterFieldsInEstimateFrame(): void
