@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Translation\TranslatableMessage;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
@@ -86,7 +87,7 @@ final class ResetPasswordController extends AbstractController
         try {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface) {
-            $this->addFlash('danger', 'flash.reset_password.validation_failed');
+            $this->addFlash('danger', new TranslatableMessage('flash.reset_password.validation_failed', domain: 'user'));
 
             return $this->redirectToRoute('app_forgot_password_request');
         }
@@ -96,7 +97,7 @@ final class ResetPasswordController extends AbstractController
         }
 
         if (!$user->isEnabled()) {
-            $this->addFlash('danger', 'flash.reset_password.validation_failed');
+            $this->addFlash('danger', new TranslatableMessage('flash.reset_password.validation_failed', domain: 'user'));
 
             return $this->redirectToRoute('app_forgot_password_request');
         }
@@ -122,7 +123,7 @@ final class ResetPasswordController extends AbstractController
             }
 
             $this->cleanSessionAfterReset();
-            $this->addFlash('success', 'flash.reset_password.changed');
+            $this->addFlash('success', new TranslatableMessage('flash.reset_password.changed', domain: 'user'));
 
             return $this->redirectToRoute('app_login');
         }

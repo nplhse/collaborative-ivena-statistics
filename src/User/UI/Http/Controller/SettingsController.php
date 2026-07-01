@@ -25,6 +25,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 final class SettingsController extends AbstractController
@@ -68,7 +69,7 @@ final class SettingsController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->addFlash('success', 'flash.settings.locale.updated');
+            $this->addFlash('success', new TranslatableMessage('flash.settings.locale.updated', domain: 'user'));
 
             $response = $this->redirectToRoute('app_settings_index');
             $response->headers->setCookie($cookie);
@@ -93,7 +94,7 @@ final class SettingsController extends AbstractController
         }
 
         if ($user->isVerified()) {
-            $this->addFlash('info', 'flash.settings.email.already_verified');
+            $this->addFlash('info', new TranslatableMessage('flash.settings.email.already_verified', domain: 'user'));
 
             return $this->redirectToRoute('app_settings_index');
         }
@@ -107,13 +108,13 @@ final class SettingsController extends AbstractController
         $limit = $verifyEmailResendLimiter->create($limiterKey)->consume(1);
 
         if (!$limit->isAccepted()) {
-            $this->addFlash('warning', 'flash.settings.email.resend_rate_limited');
+            $this->addFlash('warning', new TranslatableMessage('flash.settings.email.resend_rate_limited', domain: 'user'));
 
             return $this->redirectToRoute('app_settings_index');
         }
 
         $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
-        $this->addFlash('success', 'flash.settings.email.verification_resent');
+        $this->addFlash('success', new TranslatableMessage('flash.settings.email.verification_resent', domain: 'user'));
 
         return $this->redirectToRoute('app_settings_index');
     }
@@ -146,7 +147,7 @@ final class SettingsController extends AbstractController
                 $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
             }
 
-            $this->addFlash('success', 'flash.settings.email.updated_verify_required');
+            $this->addFlash('success', new TranslatableMessage('flash.settings.email.updated_verify_required', domain: 'user'));
 
             return $this->redirectToRoute('app_settings_index');
         }
@@ -169,7 +170,7 @@ final class SettingsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $currentPassword = $form->get('currentPassword')->getData();
             if (!\is_string($currentPassword) || !$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
-                $this->addFlash('danger', 'flash.settings.password.current_invalid');
+                $this->addFlash('danger', new TranslatableMessage('flash.settings.password.current_invalid', domain: 'user'));
 
                 return $this->redirectToRoute('app_settings_password');
             }
@@ -188,7 +189,7 @@ final class SettingsController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->addFlash('success', 'flash.settings.password.updated');
+            $this->addFlash('success', new TranslatableMessage('flash.settings.password.updated', domain: 'user'));
 
             return $this->redirectToRoute('app_settings_index');
         }
@@ -220,7 +221,7 @@ final class SettingsController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->addFlash('success', 'flash.settings.notifications.updated');
+            $this->addFlash('success', new TranslatableMessage('flash.settings.notifications.updated', domain: 'user'));
 
             return $this->redirectToRoute('app_settings_notifications');
         }
@@ -255,7 +256,7 @@ final class SettingsController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->addFlash('success', 'flash.settings.password.updated');
+            $this->addFlash('success', new TranslatableMessage('flash.settings.password.updated', domain: 'user'));
 
             return $this->redirectToRoute('app_default');
         }

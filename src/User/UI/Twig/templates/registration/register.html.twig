@@ -1,11 +1,11 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.register'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.register'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
 
 {% block page_body %}
     <div class="container container-tight py-4">
         <twig:Card size="md">
-            <h2 class="text-center mb-4">{{ 'title.register'|trans }}</h2>
+            <h2 class="text-center mb-4">{{ 'title.register'|trans({}, 'user') }}</h2>
             {{ form_start(registrationForm) }}
                 {{ form_row(registrationForm.username) }}
                 {{ form_row(registrationForm.email) }}
@@ -24,11 +24,11 @@
                             {% if acceptTerms.vars.required %}required="required"{% endif %}
                         />
                         <span class="form-check-label required mb-0">
-                            {{- 'label.registration.accept_terms_prefix'|trans -}}
+                            {{- 'label.registration.accept_terms_prefix'|trans({}, 'messages') -}}
                             {%- if termsPageUrl -%}
-                                <a href="{{ termsPageUrl }}" class="link-primary">{{ 'link.terms'|trans }}</a>
+                                <a href="{{ termsPageUrl }}" class="link-primary">{{ 'link.terms'|trans({}, 'shared') }}</a>
                             {%- else -%}
-                                {{- 'link.terms'|trans -}}
+                                {{- 'link.terms'|trans({}, 'shared') -}}
                             {%- endif -%}
                         </span>
                     </label>
@@ -36,12 +36,12 @@
                 </div>
                 {% do acceptTerms.setRendered %}
                 <div class="form-footer">
-                    <button class="btn btn-primary w-100" type="submit">{{ 'label.register'|trans }}</button>
+                    <button class="btn btn-primary w-100" type="submit">{{ 'label.register'|trans({}, 'messages') }}</button>
                 </div>
             {{ form_end(registrationForm) }}
             <div class="text-center text-secondary mt-3">
-                {{ 'label.already_have_account'|trans }}
-                <a href="{{ path('app_login') }}">{{ 'label.login'|trans }}</a>
+                {{ 'label.already_have_account'|trans({}, 'messages') }}
+                <a href="{{ path('app_login') }}">{{ 'label.login'|trans({}, 'messages') }}</a>
             </div>
         </twig:Card>
     </div>

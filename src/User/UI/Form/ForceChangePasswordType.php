@@ -22,9 +22,9 @@ final class ForceChangePasswordType extends AbstractType
         $builder->add('plainPassword', RepeatedType::class, [
             'type' => PasswordType::class,
             'mapped' => false,
-            'invalid_message' => 'The password fields must match.',
-            'first_options' => ['label' => 'New password'],
-            'second_options' => ['label' => 'Repeat new password'],
+            'invalid_message' => 'validation.password.mismatch',
+            'first_options' => ['label' => 'label.settings.new_password'],
+            'second_options' => ['label' => 'label.settings.repeat_new_password'],
             'constraints' => UserPasswordConstraints::forPlainPassword(),
         ]);
     }
@@ -33,6 +33,7 @@ final class ForceChangePasswordType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            'translation_domain' => 'user',
             'data_class' => null,
         ]);
     }

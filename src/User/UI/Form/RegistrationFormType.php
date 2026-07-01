@@ -27,12 +27,16 @@ final class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('username', TextType::class, [
+                'label' => 'label.username',
+                'translation_domain' => 'messages',
                 'constraints' => [
                     new NotBlank(),
                     new Length(min: 3, max: 180),
                 ],
             ])
             ->add('email', EmailType::class, [
+                'label' => 'label.email_address',
+                'translation_domain' => 'user',
                 'constraints' => [
                     new NotBlank(),
                     new Email(),
@@ -40,6 +44,8 @@ final class RegistrationFormType extends AbstractType
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
+                'label' => 'label.password',
+                'translation_domain' => 'user',
                 'constraints' => UserPasswordConstraints::forPlainPassword(),
             ])
             ->add('acceptTerms', CheckboxType::class, [
@@ -55,6 +61,7 @@ final class RegistrationFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            'translation_domain' => 'user',
             'data_class' => null,
         ]);
     }

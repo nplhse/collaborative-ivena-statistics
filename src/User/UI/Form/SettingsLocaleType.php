@@ -35,6 +35,7 @@ final class SettingsLocaleType extends AbstractType
                 SupportedLocales::GERMAN => SupportedLocales::GERMAN,
             ],
             'choice_label' => fn (string $locale): string => $this->buildChoiceLabel($locale, $automaticDefaultLocale),
+            'choice_translation_domain' => false,
             'constraints' => [
                 new NotBlank(),
                 new Choice(choices: SupportedLocales::ALL),
@@ -48,6 +49,7 @@ final class SettingsLocaleType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
+            'translation_domain' => 'user',
             'automatic_default_locale' => SupportedLocales::DEFAULT,
         ]);
 
@@ -59,7 +61,7 @@ final class SettingsLocaleType extends AbstractType
         $label = $this->translator->trans(match ($locale) {
             SupportedLocales::GERMAN => 'locale.german',
             default => 'locale.english',
-        });
+        }, [], 'shared');
 
         if ($locale !== $automaticDefaultLocale) {
             return $label;
@@ -67,6 +69,6 @@ final class SettingsLocaleType extends AbstractType
 
         return $this->translator->trans('label.settings.language.automatic_default', [
             'language' => $label,
-        ]);
+        ], 'user');
     }
 }

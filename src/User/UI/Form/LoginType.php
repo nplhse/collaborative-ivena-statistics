@@ -21,10 +21,17 @@ final class LoginType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('username', TextType::class)
-            ->add('password', PasswordType::class)
-            ->add('_remember_me', CheckboxType::class,
-                ['required' => false])
+            ->add('username', TextType::class, [
+                'label' => 'label.username',
+                'translation_domain' => 'messages',
+            ])
+            ->add('password', PasswordType::class, [
+                'label' => 'label.password',
+            ])
+            ->add('_remember_me', CheckboxType::class, [
+                'label' => 'label.login.remember_me',
+                'required' => false,
+            ])
         ;
     }
 
@@ -33,6 +40,7 @@ final class LoginType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => LoginTypeDTO::class,
+            'translation_domain' => 'user',
         ]);
     }
 }

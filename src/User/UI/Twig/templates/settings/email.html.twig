@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.settings.change_email'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.settings.change_email'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
     <div class="container-xl">
@@ -13,7 +13,7 @@
         <div class="page-header d-print-none">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <h2 class="page-title">{{ 'title.settings.change_email'|trans }}</h2>
+                    <h2 class="page-title">{{ 'title.settings.change_email'|trans({}, 'user') }}</h2>
                 </div>
             </div>
         </div>
@@ -29,14 +29,14 @@
                     <div class="col-12 col-md-9">
                         {{ form_start(emailForm) }}
                         <div class="card-header">
-                            <h3 class="card-title">{{ 'title.settings.change_email'|trans }}</h3>
+                            <h3 class="card-title">{{ 'title.settings.change_email'|trans({}, 'user') }}</h3>
                         </div>
                         <div class="card-body">
                             {{ form_row(emailForm.email) }}
                         </div>
                         <div class="card-footer d-flex justify-content-end gap-2">
-                            <a class="btn btn-link" href="{{ path('app_settings_index') }}">{{ 'btn.cancel'|trans }}</a>
-                            <button class="btn btn-primary">{{ 'label.settings.save_email'|trans }}</button>
+                            <a class="btn btn-link" href="{{ path('app_settings_index') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+                            <button class="btn btn-primary">{{ 'label.settings.save_email'|trans({}, 'user') }}</button>
                         </div>
                         {{ form_end(emailForm) }}
                     </div>

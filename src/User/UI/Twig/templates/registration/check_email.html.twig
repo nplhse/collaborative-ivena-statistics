@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.register_check_email'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.register_check_email'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
 
 {% block page_body %}
     <div class="container container-tight py-4">
@@ -9,16 +9,16 @@
                 <span class="avatar avatar-xl bg-green-lt text-green mx-auto mb-3">
                     <twig:ux:icon name="tabler:mail-check" style="height: 2em;" />
                 </span>
-                <h2 class="mb-0">{{ 'title.register_check_email'|trans }}</h2>
+                <h2 class="mb-0">{{ 'title.register_check_email'|trans({}, 'user') }}</h2>
             </div>
             <p class="text-center text-secondary">
-                {{ 'text.registration.check_email_intro'|trans }}
+                {{ 'text.registration.check_email_intro'|trans({}, 'messages') }}
             </p>
             <p class="text-center text-secondary mb-0">
-                {{ 'text.registration.no_email'|trans }} <a href="{{ path('app_register') }}">{{ 'label.try_again'|trans }}</a>.
+                {{ 'text.registration.no_email'|trans({}, 'messages') }} <a href="{{ path('app_register') }}">{{ 'label.try_again'|trans({}, 'messages') }}</a>.
             </p>
             <div class="form-footer mt-4">
-                <a href="{{ path('app_login') }}" class="btn btn-primary w-100">{{ 'label.login'|trans }}</a>
+                <a href="{{ path('app_login') }}" class="btn btn-primary w-100">{{ 'label.login'|trans({}, 'messages') }}</a>
             </div>
         </twig:Card>
     </div>
