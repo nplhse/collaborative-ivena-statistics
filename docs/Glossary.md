@@ -22,15 +22,23 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[Glossary-i
 
 ## Important commands
 
+See [Console-commands.md](Console-commands.md) for the full list and conventions.
+
 | Command | Purpose |
 |---|---|
 | `app:import:allocations` | Dispatch a single import |
 | `app:import:requeue-all` | Re-queue many imports |
+| `app:import:analyze-rejects` | Aggregate and analyze rejects |
 | `app:statistics:refresh-mviews` | Refresh materialized views |
-| `app:allocation:backfill-indications` | Backfill normalized indication fields on allocations |
-| `app:statistics:rebuild-projection` | Rebuild allocation statistics projection from allocations |
-| `app:fixtures:validate-patterns` | Validate committed distribution pattern YAML files |
-| `app:fixtures:export-patterns` | Export distribution patterns from allocation statistics |
-| `doctrine:fixtures:load --group=dev` | Load full local demo dataset (reference + allocations + content) |
-| `app:onboarding:initialize` | Backfill completed onboarding steps for existing participants |
-| `app:analyze-import-rejects` | Aggregate and analyze rejects |
+| `app:statistics:rebuild-projection` | Rebuild allocation statistics projection |
+| `app:statistics:deduplicate-projection` | Remove duplicate projection/allocation rows |
+| `app:allocation:backfill-indications` | Repair normalized indication fields on allocations |
+| `app:allocation:audit-indication-review` | Health check for indication review data |
+| `app:kpi:aggregate` | Aggregate daily KPI metrics |
+| `app:reminder:preview` | Preview monthly submission reminder email |
+| `app:content:analyze-page-images` | Analyze and migrate CMS page images |
+| `app:env:check` | Validate deployment environment |
+| `app:install` | Bootstrap initial admin user |
+| `app:fixtures:validate-patterns` | Validate distribution pattern YAML files |
+| `app:fixtures:export-patterns` | Export distribution patterns from statistics |
+| `doctrine:fixtures:load --group=dev` | Load full local demo dataset |

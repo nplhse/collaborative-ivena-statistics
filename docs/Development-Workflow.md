@@ -91,7 +91,7 @@ php bin/console debug:scheduler
 **Local preview:**
 
 ```bash
-php bin/console app:reminder:preview --hospital=ID --send
+php bin/console app:reminder:preview --hospital-id=ID --send
 ```
 
 Add `--ignore-opt-out` if the owner disabled reminders in settings.

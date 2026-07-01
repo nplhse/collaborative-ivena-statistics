@@ -51,6 +51,10 @@ For flow details: [Import-workflow.md](Import-workflow.md) and [Statistics-proje
 
 ## Relevant commands
 
+See [Console-commands.md](Console-commands.md) for the full reference and naming conventions.
+
+Core operational commands:
+
 - `app:import:allocations`
 - `app:import:requeue-all`
 - `app:statistics:refresh-mviews`
@@ -59,6 +63,7 @@ For flow details: [Import-workflow.md](Import-workflow.md) and [Statistics-proje
 - `app:fixtures:validate-patterns`
 - `app:fixtures:export-patterns`
 - `app:install`
+- `app:env:check`
 
 Fixture loading uses `doctrine:fixtures:load` with groups (see [Development-fixtures.md](Development-fixtures.md)).
 
