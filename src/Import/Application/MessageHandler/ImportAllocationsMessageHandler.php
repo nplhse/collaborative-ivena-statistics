@@ -15,6 +15,7 @@ use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportAllocationDeduplicationService;
+use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
@@ -24,8 +25,6 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -45,8 +44,7 @@ final readonly class ImportAllocationsMessageHandler
         private ImportAllocationDeduplicationService $deduplicationService,
         private AuditContext $auditContext,
         private ManagerRegistry $managerRegistry,
-        #[Autowire('%kernel.project_dir%')]
-        private string $projectDir,
+        private ImportFileStorage $fileStorage,
     ) {
     }
 
@@ -67,7 +65,7 @@ final readonly class ImportAllocationsMessageHandler
             return;
         }
 
-        $filePath = $this->resolvePath($filePath);
+        $filePath = $this->fileStorage->resolve($filePath);
         if (!\is_file($filePath)) {
             $reason = 'CSV not found: '.$filePath;
             $this->markFailed($import, $reason);
@@ -126,8 +124,7 @@ final readonly class ImportAllocationsMessageHandler
 
             $absRejectPath = $writer->getPath();
             if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
-                $rel = Path::makeRelative($absRejectPath, $this->projectDir);
-                $fresh->setRejectFilePath(\str_replace('\\', '/', $rel));
+                $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
             }
 
             $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);
@@ -254,27 +251,5 @@ final readonly class ImportAllocationsMessageHandler
     private function cleanupPreviousRun(Import $import): void
     {
         $this->previousRunCleanupService->cleanup($import);
-    }
-
-    private function resolvePath(string $stored): string
-    {
-        if ($this->isAbsolutePath($stored)) {
-            return $stored;
-        }
-
-        return Path::join($this->projectDir, $stored);
-    }
-
-    private function isAbsolutePath(string $path): bool
-    {
-        if ('' === $path) {
-            return false;
-        }
-
-        if (DIRECTORY_SEPARATOR === $path[0]) {
-            return true;
-        }
-
-        return (bool) \preg_match('#^[A-Za-z]:[\\\\/]#', $path);
     }
 }

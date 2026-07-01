@@ -15,8 +15,6 @@ use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGro
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Filesystem\Path;
 
 final readonly class ImportRelatedDataCleanupService
 {
@@ -30,8 +28,7 @@ final readonly class ImportRelatedDataCleanupService
         private ProjectionOverviewChangeDetectorInterface $projectionOverviewChangeDetector,
         private MaterializedViewRefresherInterface $materializedViewRefresher,
         private LoggerInterface $importLogger,
-        #[Autowire('%kernel.project_dir%')]
-        private string $projectDir,
+        private ImportFileStorage $fileStorage,
     ) {
     }
 
@@ -72,12 +69,20 @@ final readonly class ImportRelatedDataCleanupService
 
     public function deleteRejectFile(Import $import): void
     {
-        $this->deleteStoredFile($import->getRejectFilePath(), 'import.reject_file.deleted', $import);
+        $this->fileStorage->delete(
+            $import->getRejectFilePath(),
+            'import.reject_file.deleted',
+            (int) $import->getId(),
+        );
     }
 
     public function deleteSourceFile(Import $import): void
     {
-        $this->deleteStoredFile($import->getFilePath(), 'import.source_file.deleted', $import);
+        $this->fileStorage->delete(
+            $import->getFilePath(),
+            'import.source_file.deleted',
+            (int) $import->getId(),
+        );
     }
 
     /** @return list<int> */
@@ -109,46 +114,6 @@ SQL,
             'DELETE FROM assessment WHERE id IN ('.$placeholders.')',
             $assessmentIds,
         );
-    }
-
-    private function deleteStoredFile(?string $storedPath, string $logEvent, Import $import): void
-    {
-        if (null === $storedPath || '' === $storedPath) {
-            return;
-        }
-
-        $absPath = $this->resolvePath($storedPath);
-        if (!\is_file($absPath)) {
-            return;
-        }
-
-        @\unlink($absPath);
-        $this->importLogger->info($logEvent, [
-            'import_id' => $import->getId(),
-            'path' => $absPath,
-        ]);
-    }
-
-    private function resolvePath(string $stored): string
-    {
-        if ($this->isAbsolutePath($stored)) {
-            return $stored;
-        }
-
-        return Path::join($this->projectDir, $stored);
-    }
-
-    private function isAbsolutePath(string $path): bool
-    {
-        if ('' === $path) {
-            return false;
-        }
-
-        if (DIRECTORY_SEPARATOR === $path[0]) {
-            return true;
-        }
-
-        return (bool) \preg_match('#^[A-Za-z]:[\\\\/]#', $path);
     }
 
     private function logCleanup(
