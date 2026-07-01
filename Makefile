@@ -1,5 +1,5 @@
 .DEFAULT_GOAL = help
-.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules backup backup-db backup-files restore-db verify-restore-baseline verify-restore env-check
+.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules backup backup-db backup-files restore-db verify-restore-baseline verify-restore env-check update-security-advisories
 
 # Executables
 COMPOSER      = composer
@@ -77,6 +77,9 @@ warmup: ## Warm cache and compiled assets only (does not touch the database)
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 vendor: composer.lock ## Install vendors according to the current composer.lock file
 	@$(COMPOSER) install --prefer-dist --no-dev --no-progress --no-interaction
+
+update-security-advisories: ## Refresh roave/security-advisories (ignored by Dependabot)
+	@$(COMPOSER) update roave/security-advisories --no-interaction
 
 ## —— Node / npm 📦 ———————————————————————————————————————————————————————————
 node_modules: package-lock.json ## Install npm dev dependencies according to package-lock.json
