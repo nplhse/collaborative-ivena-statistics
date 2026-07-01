@@ -329,6 +329,35 @@ final class DashboardControllerTest extends WebTestCase
         $this->assertStringContainsString('scope=public', $location);
     }
 
+    public function testOverviewHeatmapToggleMarkupAndPayload(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+
+        $shiftButton = $crawler->filter('[data-testid="stats-overview-heatmap"] [data-indication-dashboard-charts-target="heatmapModeShift"]');
+        $this->assertCount(1, $shiftButton);
+        self::assertSame(
+            'indication-dashboard-charts#setHeatmapMode',
+            $shiftButton->attr('data-action'),
+        );
+        self::assertSame('shift', $shiftButton->attr('data-indication-dashboard-charts-mode-param'));
+
+        $payloadRaw = (string) $crawler->filter('[data-testid="stats-charts"]')->attr('data-indication-dashboard-charts-payload-value');
+        /** @var array<string, mixed> $payload */
+        $payload = json_decode(html_entity_decode($payloadRaw, ENT_QUOTES), true, flags: JSON_THROW_ON_ERROR);
+        self::assertArrayHasKey('heatmapDayTime', $payload);
+        self::assertArrayHasKey('heatmapShift', $payload);
+        self::assertNotSame(
+            $payload['heatmapDayTime']['columnLabels'] ?? [],
+            $payload['heatmapShift']['columnLabels'] ?? [],
+        );
+    }
+
     public function testScopeSidebarShowsHospitalCohortGroup(): void
     {
         $client = $this->createClientAsRoleUser();

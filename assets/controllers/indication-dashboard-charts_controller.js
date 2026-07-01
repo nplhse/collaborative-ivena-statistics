@@ -85,7 +85,14 @@ export default class extends Controller {
     }
 
     setHeatmapMode(event) {
-        this.heatmapModeValue = event.params.mode;
+        const mode = event.params.mode;
+        if (!mode || mode === this.heatmapModeValue) {
+            return;
+        }
+
+        this.heatmapModeValue = mode;
+        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
+        void this.renderHeatmapOnly(this._renderGeneration);
     }
 
     async renderHeatmapOnly(generation) {
@@ -97,15 +104,6 @@ export default class extends Controller {
         const payload = this.payloadValue ?? {};
         this.renderHeatmap(ApexCharts, this.currentHeatmapPayload(payload), generation);
         this.syncHeatmapModeButtons();
-    }
-
-    heatmapModeValueChanged() {
-        if (!this.isConnected) {
-            return;
-        }
-
-        this._renderGeneration = (this._renderGeneration ?? 0) + 1;
-        void this.renderHeatmapOnly(this._renderGeneration);
     }
 
     currentHeatmapPayload(payload) {

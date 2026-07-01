@@ -121,14 +121,12 @@ export default class extends Controller {
     }
 
     setHeatmapMode(event) {
-        this.heatmapModeValue = event.params.mode;
-    }
-
-    heatmapModeValueChanged() {
-        if (!this.isConnected) {
+        const mode = event.params.mode;
+        if (!mode || mode === this.heatmapModeValue) {
             return;
         }
 
+        this.heatmapModeValue = mode;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         void this.renderHeatmapOnly(this._renderGeneration);
     }
