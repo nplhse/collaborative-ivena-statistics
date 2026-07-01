@@ -14,7 +14,7 @@
                 {% set isConsentError = error and error.messageKey == consentRequiredKey %}
                 {% if isConsentError or (not hasConsentDecision and showConsentHint) %}
                     <div class="alert {{ isConsentError ? 'alert-danger' : 'alert-warning' }}" role="alert">
-                        {{ consentRequiredKey|trans }}
+                        {{ consentRequiredKey|trans({}, 'security') }}
                         <a class="alert-link" href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.settings'|trans({}, 'shared') }}</a>
                     </div>
                 {% elseif error %}
