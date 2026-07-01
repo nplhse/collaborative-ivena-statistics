@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\CaseFlow\UI\Command;
+namespace App\Statistics\CaseFlow\UI\Console\Command;
 
 use App\Statistics\CaseFlow\Infrastructure\GeoJson\HessenDispatchAreaGeoJsonBuilder;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Yaml\Yaml;
 
 #[AsCommand(
-    name: 'app:case-flow:build-geojson',
+    name: 'app:statistics:case-flow:build-geojson',
     description: 'Build merged Hessen dispatch-area GeoJSON for Case flow map overlays',
 )]
 final readonly class BuildCaseFlowGeoJsonCommand

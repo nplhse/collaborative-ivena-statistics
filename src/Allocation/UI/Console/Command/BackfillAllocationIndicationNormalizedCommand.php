@@ -17,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:allocation:backfill-indications',
-    description: 'Sync indication_raw.normalized from target and copy normalized IDs onto allocations (optional projection rebuild).',
+    description: 'Repair/sync indication_raw.normalized from target and copy normalized IDs onto allocations (optional projection rebuild). Not for routine use.',
 )]
 final readonly class BackfillAllocationIndicationNormalizedCommand
 {

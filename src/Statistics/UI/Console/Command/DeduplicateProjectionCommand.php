@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:projection:deduplicate',
+    name: 'app:statistics:deduplicate-projection',
     description: 'Detect and remove duplicate allocation_stats_projection rows caused by duplicate allocations.',
 )]
 final readonly class DeduplicateProjectionCommand
@@ -39,7 +39,7 @@ final readonly class DeduplicateProjectionCommand
         OutputInterface $output,
         #[MapInput] DeduplicateProjectionInput $input,
     ): int {
-        $dryRun = !$input->execute || $input->dryRun;
+        $dryRun = $input->dryRun;
 
         $io->title('Deduplicate allocation_stats_projection');
 
@@ -54,7 +54,7 @@ final readonly class DeduplicateProjectionCommand
             if ($dryRun) {
                 $report = $this->deduplicator->analyze($progress);
                 $this->renderReport($io, $report);
-                $io->success('Dry run finished. Re-run with --execute to apply changes.');
+                $io->success('Dry run finished. Re-run without --dry-run to apply changes.');
 
                 return Command::SUCCESS;
             }
