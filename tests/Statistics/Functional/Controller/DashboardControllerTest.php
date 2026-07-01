@@ -340,7 +340,7 @@ final class DashboardControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
 
         $shiftButton = $crawler->filter('[data-testid="stats-overview-heatmap"] [data-indication-dashboard-charts-target="heatmapModeShift"]');
-        self::assertSame(1, $shiftButton->count());
+        $this->assertCount(1, $shiftButton);
         self::assertSame(
             'indication-dashboard-charts#setHeatmapMode',
             $shiftButton->attr('data-action'),
