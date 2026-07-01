@@ -155,7 +155,7 @@ Namespace: `App\Statistics\DataQuality\`
 | Overview prefetch (JS) | `assets/controllers/data-quality-indicator_controller.js`, `assets/lib/data-quality-prefetch.js` |
 | Drawer lazy load (JS) | `assets/controllers/data-quality-drawer_controller.js` |
 | Styles | `assets/styles/app.css` (`.data-quality-*`) |
-| Translations | `stats.data_quality.*` in `translations/messages+intl-icu.en.xlf` |
+| Translations | `stats.data_quality.*` in `translations/statistics+intl-icu.{en,de}.xlf` |
 
 `DataQualityCriteria.indicationId` is `null` for scope-wide evaluation; set on the indication dashboard.
 

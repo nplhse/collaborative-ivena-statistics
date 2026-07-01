@@ -12,7 +12,7 @@ Interactive statistics explorer for ad-hoc allocation analyses. It replaces the 
 
 Legacy `/statistics/analytics/*` URLs redirect to the library or mapped explorer views.
 
-Navigation label: `link.stats.analysis_explorer` in `translations/messages+intl-icu.{en,de}.xlf`.
+Navigation label: `link.stats.analysis_explorer` in `translations/shared+intl-icu.{en,de}.xlf`.
 
 ## Purpose
 
@@ -74,7 +74,7 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 - Legacy `/statistics/analytics/*` URLs redirect here; old saved Generic Analysis views are not migrated.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.
 - Chart axis titles (`xAxisLabel` / `yAxisLabel`) render inside ApexCharts; the analysis title stays in the card header and is added to PNG exports only.
-- Default locale remains `en`; German catalog exists for explorer keys only (`messages+intl-icu.de.xlf`).
+- Default locale remains `en`; German catalog exists for explorer keys in `statistics+intl-icu.de.xlf`.
 
 ## Architecture
 
@@ -305,7 +305,7 @@ Grain resolution is centralized in `AnalysisAxisResolver` (per-axis defaults and
 | Presenters | `ExplorerChartPresenter.php`, `ExplorerResultsTablePresenter.php` |
 | Templates | `src/Statistics/UI/Twig/templates/analysis_explorer/`, `analysis_explorer_library/` |
 | Scope/period form | `src/Statistics/UI/Form/StatisticsScopePeriodType.php` |
-| Translations | `stats.analysis_explorer.*` in `translations/messages+intl-icu.en.xlf` and `.de.xlf` |
+| Translations | `stats.analysis_explorer.*` in `translations/statistics+intl-icu.{en,de}.xlf` |
 
 ## Tests
 
