@@ -10,12 +10,24 @@ updates:
       directory: "/"
       schedule:
           interval: "weekly"
+          day: "sunday"
+      open-pull-requests-limit: 10
+      groups:
+          symfony:
+              patterns:
+                  - "symfony/*"
+          doctrine:
+              patterns:
+                  - "doctrine/*"
+      ignore:
+          - dependency-name: "roave/security-advisories"
 
     # Enable version updates for npm (JS dev tooling)
     - package-ecosystem: "npm"
       directory: "/"
       schedule:
           interval: "weekly"
+          day: "sunday"
       groups:
           eslint:
               patterns:
@@ -25,15 +37,9 @@ updates:
                   - "globals"
                   - "prettier"
 
-    # Enable version updates for Docker
-    - package-ecosystem: "docker"
-      directory: "/"
-      schedule:
-          interval: "weekly"
-
     # Enable version updates for GitHub Actions
     - package-ecosystem: "github-actions"
       directory: "/"
       schedule:
-          # Check for updates to GitHub Actions every week
           interval: "weekly"
+          day: "sunday"
