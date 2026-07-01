@@ -32,12 +32,12 @@
      data-testid="allocation-filters-drawer">
     <div class="offcanvas-header">
         <h2 class="offcanvas-title" id="allocation-filters-label">
-            {{ 'label.filter.results'|trans }}
+            {{ 'label.filter.results'|trans({}, 'messages') }}
         </h2>
         <button type="button"
                 class="btn-close"
                 data-bs-dismiss="offcanvas"
-                aria-label="{{ 'action.close'|trans }}"></button>
+                aria-label="{{ 'action.close'|trans({}, 'messages') }}"></button>
     </div>
 
     <div class="offcanvas-body">
@@ -47,7 +47,7 @@
                     {{ editAccordion.header(
                         'allocation-filter-hospital-heading',
                         'allocation-filter-hospital-panel',
-                        'label.hospital'|trans,
+                        'label.hospital'|trans({}, 'messages'),
                         'allocation-filter-section-hospital',
                         hospitalActive,
                     ) }}
@@ -57,7 +57,7 @@
                                 {% if hospitalScopeOptions is defined and hospitalScopeOptions is not null %}
                                     {% set selectedHospitalFilter = filters.resolvedHospitalFilter %}
                                     <div class="col-12">
-                                        <label class="form-label" for="allocation-filter-hospital">{{ 'label.hospital'|trans }}</label>
+                                        <label class="form-label" for="allocation-filter-hospital">{{ 'label.hospital'|trans({}, 'messages') }}</label>
                                         <select name="hospitalFilter" id="allocation-filter-hospital" class="form-select" data-testid="allocation-filter-hospital">
                                             <option value="" {{ selectedHospitalFilter == '' ? 'selected' }}>
                                                 {{ hospitalScopeOptions.allClinicsLabel }}
@@ -77,9 +77,9 @@
                                     </div>
                                 {% endif %}
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.tier'|trans }}</label>
+                                    <label class="form-label">{{ 'label.tier'|trans({}, 'messages') }}</label>
                                     <select name="tier" class="form-select">
-                                        <option value="">{{ 'label.all_tiers'|trans }}</option>
+                                        <option value="">{{ 'label.all_tiers'|trans({}, 'messages') }}</option>
                                         {% for tier in tiers %}
                                             <option value="{{ tier.value }}" {{ filters.tier == tier.value ? 'selected' }}>
                                                 {{ ('hospital.tier.' ~ tier.value)|trans }}
@@ -88,9 +88,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.location'|trans }}</label>
+                                    <label class="form-label">{{ 'label.location'|trans({}, 'messages') }}</label>
                                     <select name="location" class="form-select">
-                                        <option value="">{{ 'label.all_locations'|trans }}</option>
+                                        <option value="">{{ 'label.all_locations'|trans({}, 'messages') }}</option>
                                         {% for location in locations %}
                                             <option value="{{ location.value }}" {{ filters.location == location.value ? 'selected' }}>
                                                 {{ ('hospital.location.' ~ location.value)|trans }}
@@ -99,9 +99,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.size'|trans }}</label>
+                                    <label class="form-label">{{ 'label.size'|trans({}, 'messages') }}</label>
                                     <select name="size" class="form-select">
-                                        <option value="">{{ 'label.all_sizes'|trans }}</option>
+                                        <option value="">{{ 'label.all_sizes'|trans({}, 'messages') }}</option>
                                         {% for size in sizes %}
                                             <option value="{{ size.value }}" {{ filters.size == size.value ? 'selected' }}>
                                                 {{ ('hospital.size.' ~ size.value)|trans }}
@@ -118,7 +118,7 @@
                     {{ editAccordion.header(
                         'allocation-filter-geography-heading',
                         'allocation-filter-geography-panel',
-                        'stats.analysis_explorer.dimension_group.geography'|trans,
+                        'stats.analysis_explorer.dimension_group.geography'|trans({}, 'statistics'),
                         'allocation-filter-section-geography',
                         geographyActive,
                     ) }}
@@ -126,9 +126,9 @@
                         <div class="accordion-body">
                             <div class="row g-2">
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.state'|trans }}</label>
+                                    <label class="form-label">{{ 'label.state'|trans({}, 'messages') }}</label>
                                     <select name="state" class="form-select">
-                                        <option value="">{{ 'label.all_states'|trans }}</option>
+                                        <option value="">{{ 'label.all_states'|trans({}, 'messages') }}</option>
                                         {% for state in states %}
                                             <option value="{{ state.id }}" {{ filters.state == state.id ? 'selected' }}>
                                                 {{ state.name }}
@@ -137,9 +137,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.dispatch_area'|trans }}</label>
+                                    <label class="form-label">{{ 'label.dispatch_area'|trans({}, 'messages') }}</label>
                                     <select name="dispatchArea" class="form-select">
-                                        <option value="">{{ 'label.all_dispatch_areas'|trans }}</option>
+                                        <option value="">{{ 'label.all_dispatch_areas'|trans({}, 'messages') }}</option>
                                         {% for area in dispatchAreas %}
                                             <option value="{{ area.id }}" {{ filters.dispatchArea == area.id ? 'selected' }}>
                                                 {{ area.name }}
@@ -156,7 +156,7 @@
                     {{ editAccordion.header(
                         'allocation-filter-allocation-heading',
                         'allocation-filter-allocation-panel',
-                        'label.allocation'|trans,
+                        'label.allocation'|trans({}, 'messages'),
                         'allocation-filter-section-allocation',
                         allocationActive,
                     ) }}
@@ -164,20 +164,20 @@
                         <div class="accordion-body">
                             <div class="row g-2">
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.urgency'|trans }}</label>
+                                    <label class="form-label">{{ 'label.urgency'|trans({}, 'messages') }}</label>
                                     <select name="urgency" class="form-select">
-                                        <option value="">{{ 'label.all_urgencies'|trans }}</option>
+                                        <option value="">{{ 'label.all_urgencies'|trans({}, 'messages') }}</option>
                                         {% for urgency in urgencies %}
                                             <option value="{{ urgency.value }}" {{ filters.urgency == urgency.value ? 'selected' }}>
-                                                {{ ('allocation.urgency.' ~ urgency.value)|trans }}
+                                                {{ ('allocation.urgency.' ~ urgency.value)|trans({}, 'allocation') }}
                                             </option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.assignment'|trans }}</label>
+                                    <label class="form-label">{{ 'label.assignment'|trans({}, 'messages') }}</label>
                                     <select name="assignment" class="form-select">
-                                        <option value="">{{ 'label.all_assignments'|trans }}</option>
+                                        <option value="">{{ 'label.all_assignments'|trans({}, 'messages') }}</option>
                                         {% for assignment in assignments %}
                                             <option value="{{ assignment.id }}" {{ filters.assignment == assignment.id ? 'selected' }}>
                                                 {{ assignment.name }}
@@ -186,9 +186,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.occasion'|trans }}</label>
+                                    <label class="form-label">{{ 'label.occasion'|trans({}, 'messages') }}</label>
                                     <select name="occasion" class="form-select">
-                                        <option value="">{{ 'label.all_occasions'|trans }}</option>
+                                        <option value="">{{ 'label.all_occasions'|trans({}, 'messages') }}</option>
                                         {% for occasion in occasions %}
                                             <option value="{{ occasion.id }}" {{ filters.occasion == occasion.id ? 'selected' }}>
                                                 {{ occasion.name }}
@@ -197,9 +197,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'stats.analysis_explorer.dimension.transport_type'|trans }}</label>
+                                    <label class="form-label">{{ 'stats.analysis_explorer.dimension.transport_type'|trans({}, 'statistics') }}</label>
                                     <select name="transportType" class="form-select">
-                                        <option value="">{{ 'label.all_transport_types'|trans }}</option>
+                                        <option value="">{{ 'label.all_transport_types'|trans({}, 'messages') }}</option>
                                         {% for transportType in transportTypes %}
                                             <option value="{{ transportType.value }}" {{ filters.transportType == transportType.value ? 'selected' }}>
                                                 {{ transportType.label()|trans }}
@@ -208,9 +208,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.indication.normalized'|trans }}</label>
+                                    <label class="form-label">{{ 'label.indication.normalized'|trans({}, 'messages') }}</label>
                                     <select name="indication" class="form-select">
-                                        <option value="">{{ 'label.all_indications'|trans }}</option>
+                                        <option value="">{{ 'label.all_indications'|trans({}, 'messages') }}</option>
                                         {% for indication in indications %}
                                             {% if indication.code > 0 %}
                                                 <option value="{{ indication.code }}" {{ filters.indication == indication.code ? 'selected' }}>
@@ -221,9 +221,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.secondary_transport'|trans }}</label>
+                                    <label class="form-label">{{ 'label.secondary_transport'|trans({}, 'messages') }}</label>
                                     <select name="secondaryTransport" class="form-select">
-                                        <option value="">{{ 'label.all_secondary_transports'|trans }}</option>
+                                        <option value="">{{ 'label.all_secondary_transports'|trans({}, 'messages') }}</option>
                                         {% for st in secondaryTransports %}
                                             <option value="{{ st.id }}" {{ filters.secondaryTransport == st.id ? 'selected' }}>
                                                 {{ st.name }}
@@ -232,9 +232,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.department'|trans }}</label>
+                                    <label class="form-label">{{ 'label.department'|trans({}, 'messages') }}</label>
                                     <select name="department" class="form-select">
-                                        <option value="">{{ 'label.all_departments'|trans }}</option>
+                                        <option value="">{{ 'label.all_departments'|trans({}, 'messages') }}</option>
                                         {% for department in departments %}
                                             <option value="{{ department.id }}" {{ filters.department == department.id ? 'selected' }}>
                                                 {{ department.name }}
@@ -243,9 +243,9 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">{{ 'label.speciality'|trans }}</label>
+                                    <label class="form-label">{{ 'label.speciality'|trans({}, 'messages') }}</label>
                                     <select name="speciality" class="form-select">
-                                        <option value="">{{ 'label.all_specialities'|trans }}</option>
+                                        <option value="">{{ 'label.all_specialities'|trans({}, 'messages') }}</option>
                                         {% for speciality in specialities %}
                                             <option value="{{ speciality.id }}" {{ filters.speciality == speciality.id ? 'selected' }}>
                                                 {{ speciality.name }}
@@ -261,9 +261,9 @@
                                                value="1"
                                                data-testid="allocation-filter-department-was-closed"
                                                {{ filters.departmentWasClosed ? 'checked' }}>
-                                        <span class="form-check-label">{{ 'field.departmentWasClosed'|trans }}</span>
+                                        <span class="form-check-label">{{ 'field.departmentWasClosed'|trans({}, 'messages') }}</span>
                                     </label>
-                                    <div class="form-text">{{ 'help.export.department_was_closed_filter'|trans }}</div>
+                                    <div class="form-text">{{ 'help.export.department_was_closed_filter'|trans({}, 'allocation') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -274,7 +274,7 @@
                     {{ editAccordion.header(
                         'allocation-filter-clinical-heading',
                         'allocation-filter-clinical-panel',
-                        'stats.analysis_explorer.dimension_group.clinical_care'|trans,
+                        'stats.analysis_explorer.dimension_group.clinical_care'|trans({}, 'statistics'),
                         'allocation-filter-section-clinical',
                         clinicalActive,
                     ) }}

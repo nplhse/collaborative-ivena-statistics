@@ -2,7 +2,7 @@
     <twig:Breadcrumbs
         :items="[
             { label: 'title.hospitals.my', path: path('app_hospitals_index') },
-            { label: hospital.name, path: path('app_explore_hospital_show', {id: hospital.id}) },
+            { label: hospital.name, path: path('app_explore_hospital_show', {id: hospital.id}), translatable: false },
             { label: 'title.hospital.edit' }
         ]"
     />
@@ -10,7 +10,7 @@
     <div class="page-header d-print-none">
         <div class="row g-2 align-items-center">
             <div class="col">
-                <h2 class="page-title">{{ 'title.hospital.edit'|trans }}</h2>
+                <h2 class="page-title">{{ 'title.hospital.edit'|trans({}, 'allocation') }}</h2>
                 <div class="text-secondary mt-1">{{ hospital.name }}</div>
             </div>
         </div>

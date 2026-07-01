@@ -34,12 +34,12 @@ final class ListIndicationController extends AbstractController
 
         $tabs = [
             0 => [
-                'name' => $this->translator->trans('indication.tab.normalized'),
+                'name' => $this->translator->trans('indication.tab.normalized', [], 'allocation'),
                 'path' => $this->generateUrl('app_explore_indication_list', ['type' => 'normalized']),
                 'active' => 'normalized' === $query->type,
             ],
             1 => [
-                'name' => $this->translator->trans('indication.tab.raw'),
+                'name' => $this->translator->trans('indication.tab.raw', [], 'allocation'),
                 'path' => $this->generateUrl('app_explore_indication_list', ['type' => 'raw']),
                 'active' => 'raw' === $query->type,
             ],

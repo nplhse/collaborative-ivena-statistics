@@ -41,6 +41,7 @@ final class HospitalParticipantEditType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'label.dispatch_area',
                 'placeholder' => false,
+                'choice_translation_domain' => false,
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('state', EntityType::class, [
@@ -48,6 +49,7 @@ final class HospitalParticipantEditType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'label.state',
                 'placeholder' => false,
+                'choice_translation_domain' => false,
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('location', ChoiceType::class, [
@@ -55,6 +57,7 @@ final class HospitalParticipantEditType extends AbstractType
                 'choices' => HospitalLocation::cases(),
                 'choice_label' => static fn (HospitalLocation $location): string => 'hospital.location.'.$location->value,
                 'choice_value' => static fn (?HospitalLocation $location): ?string => $location?->value,
+                'choice_translation_domain' => 'allocation',
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('tier', ChoiceType::class, [
@@ -64,12 +67,14 @@ final class HospitalParticipantEditType extends AbstractType
                 'choices' => HospitalTier::cases(),
                 'choice_label' => static fn (HospitalTier $tier): string => 'hospital.tier.'.$tier->value,
                 'choice_value' => static fn (?HospitalTier $tier): ?string => $tier?->value,
+                'choice_translation_domain' => 'allocation',
             ])
             ->add('size', ChoiceType::class, [
                 'label' => 'label.hospital_size',
                 'choices' => HospitalSize::cases(),
                 'choice_label' => static fn (HospitalSize $size): string => 'hospital.size.'.$size->value,
                 'choice_value' => static fn (?HospitalSize $size): ?string => $size?->value,
+                'choice_translation_domain' => 'allocation',
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('beds', IntegerType::class, [

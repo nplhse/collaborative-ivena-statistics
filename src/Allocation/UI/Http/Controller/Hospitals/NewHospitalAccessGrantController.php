@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('ROLE_PARTICIPANT')]
 final class NewHospitalAccessGrantController extends AbstractController
@@ -66,7 +67,7 @@ final class NewHospitalAccessGrantController extends AbstractController
             }
 
             if ($this->hospitalAccessGrantRepository->existsForUserAndHospital($selectedUser, $hospital)) {
-                $this->addFlash('error', 'flash.hospital_access_grant.duplicate');
+                $this->addFlash('error', new TranslatableMessage('flash.hospital_access_grant.duplicate', domain: 'allocation'));
 
                 return $this->redirectToRoute('app_hospitals_edit_access_new', ['id' => $hospital->getId()]);
             }
@@ -79,7 +80,7 @@ final class NewHospitalAccessGrantController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->addFlash('success', 'flash.hospital_access_grant.created');
+            $this->addFlash('success', new TranslatableMessage('flash.hospital_access_grant.created', domain: 'allocation'));
 
             return $this->redirectToRoute('app_hospitals_edit_access', ['id' => $hospital->getId()]);
         }

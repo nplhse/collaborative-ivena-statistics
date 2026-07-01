@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.mci_case.list'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.mci_case.list'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
@@ -17,7 +17,7 @@
         <twig:Breadcrumbs
             :items="[
                 { label: 'link.explore', path: path('app_explore_index') },
-                { label: 'title.mci_case.list'|trans }
+                { label: 'title.mci_case.list' }
             ]"
         />
 
@@ -26,12 +26,12 @@
                 <div class="col">
                     {% block page_intro %}
                         <h2 class="page-title">
-                            {% block page_title %}{{ 'title.mci_case.list'|trans }}{% endblock %}
+                            {% block page_title %}{{ 'title.mci_case.list'|trans({}, 'allocation') }}{% endblock %}
                         </h2>
                         {% block page_subtitle %}
                             {% block result_count %}
                                 <div id="result-count" class="text-body-secondary mt-1">
-                                    {{ 'label.pagination_numbers'|trans({first: paginator.firstResultNumber|number_format(0, ',', '.'), last: paginator.lastResultNumber|number_format(0, ',', '.'), total: paginator.numResults|number_format(0, ',', '.')}) }}
+                                    {{ 'label.pagination_numbers'|trans(({first: paginator.firstResultNumber|number_format(0, ',', '.'), last: paginator.lastResultNumber|number_format(0, ',', '.'), total: paginator.numResults|number_format(0, ',', '.')}), 'messages') }}
                                 </div>
                             {% endblock %}
                         {% endblock %}
@@ -42,7 +42,7 @@
                     <div class="btn-list">
                         {% if importId is not null %}
                             <a class="btn btn-outline-secondary" href="{{ path('app_explore_mci_case_list') }}">
-                                {{ 'label.filters.reset'|trans }}
+                                {{ 'label.filters.reset'|trans({}, 'messages') }}
                             </a>
                         {% endif %}
                     </div>
@@ -69,17 +69,17 @@
                             sortBy: 'createdAt',
                             orderBy: sortBy == 'createdAt' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.timestamps'|trans }} {{ pagination.sortArrow('createdAt', sortBy, orderBy) }}
+                            {{ 'label.timestamps'|trans({}, 'messages') }} {{ pagination.sortArrow('createdAt', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-3">
-                        {{ 'label.hospital'|trans }}
+                        {{ 'label.hospital'|trans({}, 'messages') }}
                     </th>
                     <th class="col-3">
                         MCI Title
                     </th>
                     <th class="col-2">
-                        {{ 'label.properties'|trans }}
+                        {{ 'label.properties'|trans({}, 'messages') }}
                     </th>
                     <th class="col-1"></th>
                 </tr>
@@ -101,13 +101,13 @@
                         </td>
                         <td>
                             <span class="text-danger fw-bold">
-                                {% if mciCase.requiresResus is same as true %}{{ 'S+'|trans }}{% endif %}
-                                {% if mciCase.requiresCathlab is same as true %} {{ 'H+'|trans }}{% endif %}
-                                {% if mciCase.isCPR is same as true %} {{ 'R+'|trans }}{% endif %}
-                                {% if mciCase.isVentilated is same as true %} {{ 'B+'|trans }}{% endif %}
+                                {% if mciCase.requiresResus is same as true %}{{ 'S+'|trans({}, 'allocation') }}{% endif %}
+                                {% if mciCase.requiresCathlab is same as true %} {{ 'H+'|trans({}, 'allocation') }}{% endif %}
+                                {% if mciCase.isCPR is same as true %} {{ 'R+'|trans({}, 'allocation') }}{% endif %}
+                                {% if mciCase.isVentilated is same as true %} {{ 'B+'|trans({}, 'allocation') }}{% endif %}
                                 {% if mciCase.isShock is same as true %} Shock{% endif %}
-                                {% if mciCase.isWithPhysician is same as true %} {{ 'N+'|trans }}{% endif %}
-                                {% if mciCase.isPregnant is same as true %} {{ 'label.pregnant'|trans }}{% endif %}
+                                {% if mciCase.isWithPhysician is same as true %} {{ 'N+'|trans({}, 'allocation') }}{% endif %}
+                                {% if mciCase.isPregnant is same as true %} {{ 'label.pregnant'|trans({}, 'messages') }}{% endif %}
 
                                 {% if mciCase.requiresResus is not same as true and mciCase.requiresCathlab is not same as true and mciCase.isCPR is not same as true and mciCase.isVentilated is not same as true and mciCase.isShock is not same as true and mciCase.isWithPhysician is not same as true and mciCase.isPregnant is not same as true %}
                                     —
@@ -140,9 +140,9 @@
                                         <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
                                     </svg>
                                 </div>
-                                <p class="empty-title">{{ 'label.search_no_results'|trans }}</p>
+                                <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'messages') }}</p>
                                 <p class="empty-subtitle text-secondary">
-                                    {{ 'help.search_no_results'|trans }}
+                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
                                 </p>
                             </div>
                         </td>

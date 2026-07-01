@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.allocation.list'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.allocation.list'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
@@ -26,7 +26,7 @@
                 <div class="col">
                     {% block page_intro %}
                         <h2 class="page-title">
-                            {% block page_title %}{{ 'title.allocation.list'|trans }}{% endblock %}
+                            {% block page_title %}{{ 'title.allocation.list'|trans({}, 'allocation') }}{% endblock %}
                         </h2>
                         {% block page_subtitle %}
                             {% block result_count %}
@@ -67,7 +67,7 @@
 
         {% if activeFilterCount > 0 %}
             <div class="alert alert-info" role="alert">
-                <strong class="text-info">{{ 'label.filters.active'|trans }}:</strong>
+                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
                 {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions) }}
             </div>
         {% endif %}
@@ -89,7 +89,7 @@
                             sortBy: 'arrivalAt',
                             orderBy: sortBy == 'arrivalAt' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.timestamps'|trans }} {{ pagination.sortArrow('arrivalAt', sortBy, orderBy) }}
+                            {{ 'label.timestamps'|trans({}, 'messages') }} {{ pagination.sortArrow('arrivalAt', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-1">
@@ -99,20 +99,20 @@
                             sortBy: 'age',
                             orderBy: sortBy == 'age' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.age'|trans }} {{ pagination.sortArrow('age', sortBy, orderBy) }}
+                            {{ 'label.age'|trans({}, 'messages') }} {{ pagination.sortArrow('age', sortBy, orderBy) }}
                         </a>
                     </th>
                     <th class="col-3">
-                        {{ 'label.hospital'|trans }}
+                        {{ 'label.hospital'|trans({}, 'messages') }}
                     </th>
                     <th class="col-3">
-                        {{ 'label.indication'|trans }}
+                        {{ 'label.indication'|trans({}, 'messages') }}
                     </th>
                     <th class="col-1">
-                        {{ 'label.urgency'|trans }}
+                        {{ 'label.urgency'|trans({}, 'messages') }}
                     </th>
                     <th class="col-1">
-                        {{ 'label.properties'|trans }}
+                        {{ 'label.properties'|trans({}, 'messages') }}
                     </th>
                     <th class="col-1">
                     </th>
@@ -173,22 +173,22 @@
                                     <span class="badge bg-orange text-orange-fg">{{ allocation.infection }}</span>
                                 {% endif %}
                                 {% if allocation.requiresResus %}
-                                    {{ 'S+'|trans }}
+                                    {{ 'S+'|trans({}, 'allocation') }}
                                 {% endif %}
                                 {% if allocation.requiresCathlab %}
-                                    {{ 'H+'|trans }}
+                                    {{ 'H+'|trans({}, 'allocation') }}
                                 {% endif %}
                                 {% if allocation.isCPR %}
-                                    {{ 'R+'|trans }}
+                                    {{ 'R+'|trans({}, 'allocation') }}
                                 {% endif %}
                                 {% if allocation.isVentilated %}
-                                    {{ 'B+'|trans }}
+                                    {{ 'B+'|trans({}, 'allocation') }}
                                 {% endif %}
                                 {% if allocation.isWithPhysician %}
-                                    {{ 'N+'|trans }}
+                                    {{ 'N+'|trans({}, 'allocation') }}
                                 {% endif %}
                                 {% if allocation.isPregnant %}
-                                    {{ 'label.pregnant'|trans }}
+                                    {{ 'label.pregnant'|trans({}, 'messages') }}
                                 {% endif %}
                                 {% if allocation.isWorkAccident %}
                                     {{ 'BG+'|trans }}
@@ -221,9 +221,9 @@
                                         <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
                                     </svg>
                                 </div>
-                                <p class="empty-title">{{ 'label.search_no_results'|trans }}</p>
+                                <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'messages') }}</p>
                                 <p class="empty-subtitle text-secondary">
-                                    {{ 'help.search_no_results'|trans }}
+                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
                                 </p>
                             </div>
                         </td>

@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.indication.review_worklist'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.indication.review_worklist'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
@@ -25,25 +25,25 @@
         <div class="page-header d-print-none">
             <div class="row align-items-center">
                 <div class="col">
-                    <h2 class="page-title">{{ 'title.indication.review_worklist'|trans }}</h2>
+                    <h2 class="page-title">{{ 'title.indication.review_worklist'|trans({}, 'allocation') }}</h2>
                     <p class="text-secondary mt-1">
-                        {{ 'label.pagination_numbers'|trans({
+                        {{ 'label.pagination_numbers'|trans(({
                             first: paginator.firstResultNumber,
                             last: paginator.lastResultNumber,
                             total: num_results,
-                        }) }}
+                        }), 'messages') }}
                     </p>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         {% if can_edit_match %}
                             <a href="{{ path('app_explore_indication_raw_review_start_matching') }}" class="btn" target="_top">
-                                {{ 'btn.indication.start_matching'|trans }}
+                                {{ 'btn.indication.start_matching'|trans({}, 'allocation') }}
                             </a>
                         {% endif %}
                         {% if can_review %}
                             <a href="{{ path('app_explore_indication_raw_review_start_reviewing') }}" class="btn" target="_top">
-                                {{ 'btn.indication.start_reviewing'|trans }}
+                                {{ 'btn.indication.start_reviewing'|trans({}, 'allocation') }}
                             </a>
                         {% endif %}
                         <form
@@ -57,8 +57,8 @@
                                     type="search"
                                     name="search"
                                     value="{{ query.search }}"
-                                    aria-label="{{ 'label.search'|trans }}"
-                                    placeholder="{{ 'label.search'|trans }}"
+                                    aria-label="{{ 'label.search'|trans({}, 'messages') }}"
+                                    placeholder="{{ 'label.search'|trans({}, 'messages') }}"
                                     class="form-control d-inline-block w-9"
                                     data-action="autosubmit#debouncedSubmit"
                                 >
@@ -95,7 +95,7 @@
 {% block page_content %}
     <turbo-frame id="indication-review-list" data-turbo-action="advance">
         {% if query.search is not empty %}
-            <twig:Alert type="info" :message="'label.searching_for'|trans({term: query.search})" />
+            <twig:Alert type="info" :message="'label.searching_for'|trans(({term: query.search}), 'messages')" />
         {% endif %}
 
         <twig:DataTable
@@ -108,9 +108,9 @@
             <table class="table table-vcenter card-table">
                 <thead>
                 <tr>
-                    <th>{{ 'label.indication.code'|trans }}</th>
-                    <th>{{ 'label.name'|trans }}</th>
-                    <th>{{ 'label.indication.review_status'|trans }}</th>
+                    <th>{{ 'label.indication.code'|trans({}, 'messages') }}</th>
+                    <th>{{ 'label.name'|trans({}, 'messages') }}</th>
+                    <th>{{ 'label.indication.review_status'|trans({}, 'messages') }}</th>
                     <th>
                         <a class="text-muted" href="{{ path('app_explore_indication_raw_review_worklist', {
                             segment: query.segment.value,
@@ -118,7 +118,7 @@
                             sortBy: 'occurrence',
                             orderBy: query.sortBy == 'occurrence' and query.orderBy == 'desc' ? 'asc' : 'desc',
                         }) }}">
-                            {{ 'label.indication.occurrences'|trans }}
+                            {{ 'label.indication.occurrences'|trans({}, 'messages') }}
                             {{ pagination.sortArrow('occurrence', query.sortBy, query.orderBy) }}
                         </a>
                     </th>
@@ -129,7 +129,7 @@
                             sortBy: 'createdAt',
                             orderBy: query.sortBy == 'createdAt' and query.orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
-                            {{ 'label.created_at'|trans }}
+                            {{ 'label.created_at'|trans({}, 'messages') }}
                             {{ pagination.sortArrow('createdAt', query.sortBy, query.orderBy) }}
                         </a>
                     </th>
@@ -144,20 +144,20 @@
                         <td>{{ raw.name }}</td>
                         <td>
                             <span class="badge bg-{{ raw.reviewStatus.value == 'needs_review' ? 'warning' : (raw.reviewStatus.value == 'matched' ? 'success' : 'secondary') }}-lt">
-                                {{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans }}
+                                {{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans({}, 'allocation') }}
                             </span>
                         </td>
                         <td>{{ counts.occurrence_count }}</td>
                         <td>{{ raw.createdAt|date('d.m.Y H:i') }}</td>
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-primary" href="{{ path('app_explore_indication_raw_review', {id: raw.id, segment: query.segment.value, search: query.search}) }}" target="_top">
-                                {{ 'btn.indication.review'|trans }}
+                                {{ 'btn.indication.review'|trans({}, 'allocation') }}
                             </a>
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="6" class="text-secondary text-center py-4">{{ 'label.search_no_results'|trans }}</td>
+                        <td colspan="6" class="text-secondary text-center py-4">{{ 'label.search_no_results'|trans({}, 'messages') }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

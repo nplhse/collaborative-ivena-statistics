@@ -1,16 +1,16 @@
 <turbo-frame id="export-estimate" class="flex-grow-1 d-flex align-items-center gap-2 min-w-0">
     {% if error %}
         <div class="alert alert-danger mb-0 flex-grow-1 py-2" role="alert" data-testid="export-estimate-error">
-            {{ 'error.export.invalid_filter'|trans }}
+            {{ 'error.export.invalid_filter'|trans({}, 'errors') }}
         </div>
     {% elseif estimate is not null %}
         {% if estimate.blocked %}
             <div class="alert alert-danger mb-0 flex-grow-1 py-2" role="alert" data-testid="export-estimate-blocked">
-                {{ 'error.export.too_many_rows'|trans({count: estimate.count}) }}
+                {{ 'error.export.too_many_rows'|trans(({count: estimate.count}), 'errors') }}
             </div>
         {% elseif estimate.warn %}
             <div class="alert alert-warning mb-0 flex-grow-1 py-2" role="alert" data-testid="export-estimate-warning">
-                {{ 'warning.export.large_export'|trans({count: estimate.count}) }}
+                {{ 'warning.export.large_export'|trans(({count: estimate.count}), 'messages') }}
             </div>
             <input type="hidden"
                    form="export-allocations-form"
@@ -23,11 +23,11 @@
                     data-turbo="false"
                     data-testid="export-allocations-download">
                 <twig:ux:icon name="tabler:download" style="height: 1.1em;" aria-hidden="true" />
-                {{ 'action.export.download_csv'|trans }}
+                {{ 'action.export.download_csv'|trans({}, 'messages') }}
             </button>
         {% else %}
             <div class="alert alert-info mb-0 flex-grow-1 py-2" role="alert" data-testid="export-estimate-ok">
-                {{ 'info.export.row_count'|trans({count: estimate.count}) }}
+                {{ 'info.export.row_count'|trans(({count: estimate.count}), 'messages') }}
             </div>
             <input type="hidden"
                    form="export-allocations-form"
@@ -40,7 +40,7 @@
                     data-turbo="false"
                     data-testid="export-allocations-download">
                 <twig:ux:icon name="tabler:download" style="height: 1.1em;" aria-hidden="true" />
-                {{ 'action.export.download_csv'|trans }}
+                {{ 'action.export.download_csv'|trans({}, 'messages') }}
             </button>
         {% endif %}
     {% endif %}

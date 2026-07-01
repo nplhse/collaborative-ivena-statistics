@@ -23,7 +23,7 @@ final readonly class AllocationExportValueFormatter
             return null;
         }
 
-        return $this->translator->trans($enum->label(), [], null, $locale);
+        return $this->translator->trans($enum->label(), [], 'messages', $locale);
     }
 
     public function urgency(mixed $value): ?string
@@ -40,7 +40,7 @@ final readonly class AllocationExportValueFormatter
             return null;
         }
 
-        return $this->translator->trans($enum->label(), [], null, $locale);
+        return $this->translator->trans($enum->label(), [], 'messages', $locale);
     }
 
     private function resolveGender(mixed $value): ?AllocationGender

@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="TwkKbdo" resname="B+">
+        <source>B+</source>
+        <target>B+</target>
+      </trans-unit>
+      <trans-unit id="4A29cgX" resname="H+">
+        <source>H+</source>
+        <target>H+</target>
+      </trans-unit>
+      <trans-unit id="rZqleUO" resname="N+">
+        <source>N+</source>
+        <target>N+</target>
+      </trans-unit>
+      <trans-unit id="OypyADq" resname="R+">
+        <source>R+</source>
+        <target>R+</target>
+      </trans-unit>
+      <trans-unit id="InZUSNI" resname="S+">
+        <source>S+</source>
+        <target>S+</target>
+      </trans-unit>
+      <trans-unit id="45h1fK3" resname="allocation.urgency.1">
+        <source>allocation.urgency.1</source>
+        <target>Emergency Care</target>
+      </trans-unit>
+      <trans-unit id="jbrRozU" resname="allocation.urgency.2">
+        <source>allocation.urgency.2</source>
+        <target>Inpatient Care</target>
+      </trans-unit>
+      <trans-unit id="ndIvw1v" resname="allocation.urgency.3">
+        <source>allocation.urgency.3</source>
+        <target>Outpatient Care</target>
+      </trans-unit>
+      <trans-unit id="H1OgFhe" resname="allocations.field.isPregnant">
+        <source>allocations.field.isPregnant</source>
+        <target>Is Pregnant</target>
+      </trans-unit>
+      <trans-unit id="allocIsWorkAcc" resname="allocations.field.isWorkAccident">
+        <source>allocations.field.isWorkAccident</source>
+        <target>Work Accident</target>
+      </trans-unit>
+      <trans-unit id="T4rWOlm" resname="allocations.field.isShock">
+        <source>allocations.field.isShock</source>
+        <target>Is in Shock</target>
+      </trans-unit>
+      <trans-unit id="sldZ8hU" resname="allocations.field.isVentilated">
+        <source>allocations.field.isVentilated</source>
+        <target>Is Ventilated</target>
+      </trans-unit>
+      <trans-unit id="yamfE2Q" resname="flash.hospital.updated">
+        <source>flash.hospital.updated</source>
+        <target>Hospital updated.</target>
+      </trans-unit>
+      <trans-unit id="qCQxM_A" resname="flash.indication.assigned">
+        <source>flash.indication.assigned</source>
+        <target>Normalized indication has been assigned.</target>
+      </trans-unit>
+      <trans-unit id="vHELHHc" resname="help.no_hospitals_assigned">
+        <source>help.no_hospitals_assigned</source>
+        <target>Sorry there are no hospitals assigned to your account.</target>
+      </trans-unit>
+      <trans-unit id="2GXLZcX" resname="hospital.size.Large">
+        <source>hospital.size.Large</source>
+        <target>Large Size</target>
+      </trans-unit>
+      <trans-unit id="b8NtI4L" resname="hospital.size.Medium">
+        <source>hospital.size.Medium</source>
+        <target>Medium Size</target>
+      </trans-unit>
+      <trans-unit id="7pO0v2a" resname="hospital.size.Small">
+        <source>hospital.size.Small</source>
+        <target>Small Size</target>
+      </trans-unit>
+      <trans-unit id="HrZvN0R" resname="hospital.location.Urban">
+        <source>hospital.location.Urban</source>
+        <target>Urban Location</target>
+      </trans-unit>
+      <trans-unit id="SZjOELg" resname="hospital.location.Mixed">
+        <source>hospital.location.Mixed</source>
+        <target>Mixed Location</target>
+      </trans-unit>
+      <trans-unit id="hCNpkSc" resname="hospital.location.Rural">
+        <source>hospital.location.Rural</source>
+        <target>Rural Location</target>
+      </trans-unit>
+      <trans-unit id="brJg_gq" resname="hospital.tier.Basic">
+        <source>hospital.tier.Basic</source>
+        <target>Basic Tier</target>
+      </trans-unit>
+      <trans-unit id="UhRsM6s" resname="hospital.tier.Extended">
+        <source>hospital.tier.Extended</source>
+        <target>Extended Tier</target>
+      </trans-unit>
+      <trans-unit id="6MDw2dh" resname="hospital.tier.Full">
+        <source>hospital.tier.Full</source>
+        <target>Full Tier</target>
+      </trans-unit>
+      <trans-unit id="vsKohzn" resname="indication.tab.normalized">
+        <source>indication.tab.normalized</source>
+        <target>Normalized Indication</target>
+      </trans-unit>
+      <trans-unit id="8p7II8w" resname="indication.tab.raw">
+        <source>indication.tab.raw</source>
+        <target>Raw Indication</target>
+      </trans-unit>
+      <trans-unit id="abbrDeptClosedEn" resname="abbr.department_was_closed">
+        <source>abbr.department_was_closed</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="lblWorkAccident" resname="label.work_accident">
+        <source>label.work_accident</source>
+        <target>Work Accident</target>
+      </trans-unit>
+      <trans-unit id="GhGeHI9" resname="title.allocation.list">
+        <source>title.allocation.list</source>
+        <target>Listing Allocations</target>
+      </trans-unit>
+      <trans-unit id="fykBocL" resname="title.allocation.show">
+        <source>title.allocation.show</source>
+        <target>Show Allocation Detail</target>
+      </trans-unit>
+      <trans-unit id="jD_Qpao" resname="title.explore">
+        <source>title.explore</source>
+        <target>Explore</target>
+      </trans-unit>
+      <trans-unit id="Jix8T_z" resname="title.explore.index">
+        <source>title.explore.index</source>
+        <target>Explore Data</target>
+      </trans-unit>
+      <trans-unit id="M9Dva9P" resname="title.hospital.edit">
+        <source>title.hospital.edit</source>
+        <target>Edit Hospital</target>
+      </trans-unit>
+      <trans-unit id="0bnImEj" resname="title.hospital.list">
+        <source>title.hospital.list</source>
+        <target>Listing Hospitals</target>
+      </trans-unit>
+      <trans-unit id="ipAfzN6" resname="title.hospital_show">
+        <source>title.hospital_show</source>
+        <target>Showing Hospital detail</target>
+      </trans-unit>
+      <trans-unit id="otxv8gh" resname="title.hospitals.my">
+        <source>title.hospitals.my</source>
+        <target>My Hospitals</target>
+      </trans-unit>
+      <trans-unit id="njXB7xf" resname="title.indication.assign">
+        <source>title.indication.assign</source>
+        <target>Assign Indications</target>
+      </trans-unit>
+      <trans-unit id="aHx7rGR" resname="title.indication.assign_raw">
+        <source>title.indication.assign_raw</source>
+        <target>Assign raw indication</target>
+      </trans-unit>
+      <trans-unit id="EDuCAXA" resname="title.indication.list">
+        <source>title.indication.list</source>
+        <target>Listing Indications</target>
+      </trans-unit>
+      <trans-unit id="IndRevWL" resname="title.indication.review_worklist">
+        <source>title.indication.review_worklist</source>
+        <target>Indication review worklist</target>
+      </trans-unit>
+      <trans-unit id="IndRevRw" resname="title.indication.review_raw">
+        <source>title.indication.review_raw</source>
+        <target>Review raw indication</target>
+      </trans-unit>
+      <trans-unit id="IndRevRwN" resname="title.indication.review_raw_named">
+        <source>title.indication.review_raw_named</source>
+        <target>Indication: {name} ({code})</target>
+      </trans-unit>
+      <trans-unit id="IndRevCtx" resname="title.indication.review_context">
+        <source>title.indication.review_context</source>
+        <target>Context</target>
+      </trans-unit>
+      <trans-unit id="IndRevApr" resname="title.indication.review_approval">
+        <source>title.indication.review_approval</source>
+        <target>Approval</target>
+      </trans-unit>
+      <trans-unit id="IndRevAsg" resname="title.indication.review_assignment">
+        <source>title.indication.review_assignment</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="IndRevDec" resname="title.indication.review_decision">
+        <source>title.indication.review_decision</source>
+        <target>Decision</target>
+      </trans-unit>
+      <trans-unit id="IndRevSug" resname="title.indication.suggestions">
+        <source>title.indication.suggestions</source>
+        <target>Match suggestions</target>
+      </trans-unit>
+      <trans-unit id="IndRevSmp" resname="title.indication.sample_allocations">
+        <source>title.indication.sample_allocations</source>
+        <target>Sample allocations</target>
+      </trans-unit>
+      <trans-unit id="IndTabRev" resname="indication.tab.review">
+        <source>indication.tab.review</source>
+        <target>Review worklist</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRWL" resname="btn.indication.review_worklist">
+        <source>btn.indication.review_worklist</source>
+        <target>Review worklist</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRev" resname="btn.indication.review">
+        <source>btn.indication.review</source>
+        <target>Review</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStr" resname="btn.indication.start_review">
+        <source>btn.indication.start_review</source>
+        <target>Start review</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStM" resname="btn.indication.start_matching">
+        <source>btn.indication.start_matching</source>
+        <target>Start matching</target>
+      </trans-unit>
+      <trans-unit id="BtnIndStR" resname="btn.indication.start_reviewing">
+        <source>btn.indication.start_reviewing</source>
+        <target>Start reviewing</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSkp" resname="btn.indication.skip">
+        <source>btn.indication.skip</source>
+        <target>Skip</target>
+      </trans-unit>
+      <trans-unit id="BtnIndPrp" resname="btn.indication.propose_match">
+        <source>btn.indication.propose_match</source>
+        <target>Propose match</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfa" resname="btn.indication.submit_for_approval">
+        <source>btn.indication.submit_for_approval</source>
+        <target>Submit for approval</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMaa" resname="btn.indication.match_and_approve">
+        <source>btn.indication.match_and_approve</source>
+        <target>Match and approve</target>
+      </trans-unit>
+      <trans-unit id="BtnIndApp" resname="btn.indication.approve_match">
+        <source>btn.indication.approve_match</source>
+        <target>Approve match</target>
+      </trans-unit>
+      <trans-unit id="BtnIndAcp" resname="btn.indication.accept_match">
+        <source>btn.indication.accept_match</source>
+        <target>Accept</target>
+      </trans-unit>
+      <trans-unit id="BtnIndRej" resname="btn.indication.reject_match">
+        <source>btn.indication.reject_match</source>
+        <target>Reject match</target>
+      </trans-unit>
+      <trans-unit id="BtnIndNMt" resname="btn.indication.not_matchable">
+        <source>btn.indication.not_matchable</source>
+        <target>Not matchable</target>
+      </trans-unit>
+      <trans-unit id="BtnIndMnm" resname="btn.indication.mark_not_matchable">
+        <source>btn.indication.mark_not_matchable</source>
+        <target>Mark as not matchable</target>
+      </trans-unit>
+      <trans-unit id="BtnIndIgn" resname="btn.indication.ignore">
+        <source>btn.indication.ignore</source>
+        <target>Ignore</target>
+      </trans-unit>
+      <trans-unit id="BtnIndSfn" resname="btn.indication.skip_for_now">
+        <source>btn.indication.skip_for_now</source>
+        <target>Skip for now</target>
+      </trans-unit>
+      <trans-unit id="BtnIndReo" resname="btn.indication.reopen">
+        <source>btn.indication.reopen</source>
+        <target>Reopen for review</target>
+      </trans-unit>
+      <trans-unit id="BtnSavCmt" resname="btn.save.comment">
+        <source>btn.save.comment</source>
+        <target>Save comment</target>
+      </trans-unit>
+      <trans-unit id="FlsIndPrp" resname="flash.indication.review.proposed">
+        <source>flash.indication.review.proposed</source>
+        <target>Match proposed and awaiting approval.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndApp" resname="flash.indication.review.approved">
+        <source>flash.indication.review.approved</source>
+        <target>Match approved. Allocations will be updated in the background.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndRej" resname="flash.indication.review.rejected">
+        <source>flash.indication.review.rejected</source>
+        <target>Proposed match rejected.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndNMt" resname="flash.indication.review.not_matchable">
+        <source>flash.indication.review.not_matchable</source>
+        <target>Marked as not matchable.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndIgn" resname="flash.indication.review.ignored">
+        <source>flash.indication.review.ignored</source>
+        <target>Indication ignored.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndReo" resname="flash.indication.review.reopened">
+        <source>flash.indication.review.reopened</source>
+        <target>Indication reopened for review.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndCmt" resname="flash.indication.review.comment_saved">
+        <source>flash.indication.review.comment_saved</source>
+        <target>Comment saved.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndNoM" resname="flash.indication.review.no_more_open">
+        <source>flash.indication.review.no_more_open</source>
+        <target>No more open indications in this queue.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndTrg" resname="flash.indication.review.target_required">
+        <source>flash.indication.review.target_required</source>
+        <target>Please select a normalized indication.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAwt" resname="help.indication.review.awaiting_other_reviewer">
+        <source>help.indication.review.awaiting_other_reviewer</source>
+        <target>Approval must be done by a different reviewer (four-eyes principle).</target>
+      </trans-unit>
+      <trans-unit id="HlpIndApr" resname="help.indication.review.approval_actions">
+        <source>help.indication.review.approval_actions</source>
+        <target>Confirm or reject the proposed match.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndAdm" resname="help.indication.review.admin_fast_path">
+        <source>help.indication.review.admin_fast_path</source>
+        <target>Admin: match and approve in one step (bypasses four-eyes review).</target>
+      </trans-unit>
+      <trans-unit id="HlpIndSfa" resname="help.indication.review.submit_for_approval">
+        <source>help.indication.review.submit_for_approval</source>
+        <target>Propose the selected match for review by another person.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndCwm" resname="help.indication.review.close_without_match">
+        <source>help.indication.review.close_without_match</source>
+        <target>Close without assigning a normalized indication.</target>
+      </trans-unit>
+      <trans-unit id="FlsIndMaa" resname="flash.indication.review.matched_and_approved">
+        <source>flash.indication.review.matched_and_approved</source>
+        <target>Match set and approved. Allocations will be updated in the background.</target>
+      </trans-unit>
+      <trans-unit id="HlpIndTop" resname="help.indication.review.top_open">
+        <source>help.indication.review.top_open</source>
+        <target>Top 50 by occurrence — {total} open entries in total</target>
+      </trans-unit>
+      <trans-unit id="IndSegOpn" resname="indication.review.segment.open">
+        <source>indication.review.segment.open</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="IndSegUnr" resname="indication.review.segment.unreviewed">
+        <source>indication.review.segment.unreviewed</source>
+        <target>Unreviewed</target>
+      </trans-unit>
+      <trans-unit id="IndSegNRv" resname="indication.review.segment.needs_review">
+        <source>indication.review.segment.needs_review</source>
+        <target>Awaiting approval</target>
+      </trans-unit>
+      <trans-unit id="IndSegNew" resname="indication.review.segment.new">
+        <source>indication.review.segment.new</source>
+        <target>New (30 days)</target>
+      </trans-unit>
+      <trans-unit id="IndSegTop" resname="indication.review.segment.top_open">
+        <source>indication.review.segment.top_open</source>
+        <target>Most frequent open</target>
+      </trans-unit>
+      <trans-unit id="IndSegMat" resname="indication.review.segment.matched">
+        <source>indication.review.segment.matched</source>
+        <target>Matched</target>
+      </trans-unit>
+      <trans-unit id="IndSegNMt" resname="indication.review.segment.not_matchable">
+        <source>indication.review.segment.not_matchable</source>
+        <target>Not matchable</target>
+      </trans-unit>
+      <trans-unit id="IndSegIgn" resname="indication.review.segment.ignored">
+        <source>indication.review.segment.ignored</source>
+        <target>Ignored</target>
+      </trans-unit>
+      <trans-unit id="IndStUnr" resname="indication.review.status.unreviewed">
+        <source>indication.review.status.unreviewed</source>
+        <target>Unreviewed</target>
+      </trans-unit>
+      <trans-unit id="IndStNrv" resname="indication.review.status.needs_review">
+        <source>indication.review.status.needs_review</source>
+        <target>Awaiting approval</target>
+      </trans-unit>
+      <trans-unit id="IndStMat" resname="indication.review.status.matched">
+        <source>indication.review.status.matched</source>
+        <target>Matched</target>
+      </trans-unit>
+      <trans-unit id="IndStNMt" resname="indication.review.status.not_matchable">
+        <source>indication.review.status.not_matchable</source>
+        <target>Not matchable</target>
+      </trans-unit>
+      <trans-unit id="IndStIgn" resname="indication.review.status.ignored">
+        <source>indication.review.status.ignored</source>
+        <target>Ignored</target>
+      </trans-unit>
+      <trans-unit id="vksTd9U" resname="title.mci_case.list">
+        <source>title.mci_case.list</source>
+        <target>Listing MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="DAuIJFm" resname="title.mci_case.show">
+        <source>title.mci_case.show</source>
+        <target>Show MCI Case Detail</target>
+      </trans-unit>
+      <trans-unit id="W5KBPlI" resname="title.secondary_transport.list">
+        <source>title.secondary_transport.list</source>
+        <target>Listing Secondary Transports</target>
+      </trans-unit>
+      <trans-unit id="cgz_0pl" resname="title.secondary_transport.show">
+        <source>title.secondary_transport.show</source>
+        <target>Secondary Transport</target>
+      </trans-unit>
+      <trans-unit id="hag01" resname="title.hospital_access_grants">
+        <source>title.hospital_access_grants</source>
+        <target>Access grants</target>
+      </trans-unit>
+      <trans-unit id="hag02" resname="title.hospital_access_grants.list">
+        <source>title.hospital_access_grants.list</source>
+        <target>User permissions</target>
+      </trans-unit>
+      <trans-unit id="hag03" resname="title.hospital_access_grants.new">
+        <source>title.hospital_access_grants.new</source>
+        <target>Grant access</target>
+      </trans-unit>
+      <trans-unit id="hag04" resname="title.hospital_access_grants.edit">
+        <source>title.hospital_access_grants.edit</source>
+        <target>Edit access grant</target>
+      </trans-unit>
+      <trans-unit id="hag08" resname="label.hospital_permission.View">
+        <source>label.hospital_permission.View</source>
+        <target>View Details</target>
+      </trans-unit>
+      <trans-unit id="hag09" resname="label.hospital_permission.Statistics">
+        <source>label.hospital_permission.Statistics</source>
+        <target>Access Statistics</target>
+      </trans-unit>
+      <trans-unit id="hag10" resname="label.hospital_permission.Benchmarking">
+        <source>label.hospital_permission.Benchmarking</source>
+        <target>Access Benchmarks</target>
+      </trans-unit>
+      <trans-unit id="hag11" resname="label.hospital_permission.Import">
+        <source>label.hospital_permission.Import</source>
+        <target>Access Imports</target>
+      </trans-unit>
+      <trans-unit id="hag12" resname="label.hospital_permission.Export">
+        <source>label.hospital_permission.Export</source>
+        <target>Access Exports</target>
+      </trans-unit>
+      <trans-unit id="hag14" resname="confirm.hospital_access_grant.delete">
+        <source>confirm.hospital_access_grant.delete</source>
+        <target>Remove this access grant?</target>
+      </trans-unit>
+      <trans-unit id="hag15" resname="flash.hospital_access_grant.created">
+        <source>flash.hospital_access_grant.created</source>
+        <target>Access grant created.</target>
+      </trans-unit>
+      <trans-unit id="hag16" resname="flash.hospital_access_grant.updated">
+        <source>flash.hospital_access_grant.updated</source>
+        <target>Access grant updated.</target>
+      </trans-unit>
+      <trans-unit id="hag17" resname="flash.hospital_access_grant.deleted">
+        <source>flash.hospital_access_grant.deleted</source>
+        <target>Access grant removed.</target>
+      </trans-unit>
+      <trans-unit id="hag18" resname="flash.hospital_access_grant.duplicate">
+        <source>flash.hospital_access_grant.duplicate</source>
+        <target>This user already has an access grant for this hospital.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn01" resname="help.export.allocations">
+        <source>help.export.allocations</source>
+        <target>Export allocation data from your hospitals as CSV. The period is filtered as one continuous interval.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn02" resname="help.export.period">
+        <source>help.export.period</source>
+        <target>Without a time, day start (00:00:00) or day end (23:59:59) applies. Date and time form one continuous interval.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn03" resname="help.export.hospitals">
+        <source>help.export.hospitals</source>
+        <target>All accessible hospitals are selected by default. Uncheck any to exclude them from the export.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn04" resname="help.export.include_indication_raw">
+        <source>help.export.include_indication_raw</source>
+        <target>Adds an extra column with the original indication text from the import.</target>
+      </trans-unit>
+      <trans-unit id="ExpHlpEn05" resname="help.export.department_was_closed_filter">
+        <source>help.export.department_was_closed_filter</source>
+        <target>Include only allocations where the department was closed.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

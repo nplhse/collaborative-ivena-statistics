@@ -5,21 +5,21 @@
     <div class="dropdown">
         <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="me-1">
-                {{ 'label.pagination_results'|trans({pageSize: paginator.pageSize}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: paginator.pageSize}), 'messages') }}
             </span>
         </a>
         <div class="dropdown-menu">
             <a class="dropdown-item{% if paginator.pageSize == 25 %} active{% endif %}"
                href="{{ path('app_explore_allocation_list', query|merge({limit: 25, cursor: null})) }}">
-                {{ 'label.pagination_results'|trans({pageSize: 25}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: 25}), 'messages') }}
             </a>
             <a class="dropdown-item{% if paginator.pageSize == 50 %} active{% endif %}"
                href="{{ path('app_explore_allocation_list', query|merge({limit: 50, cursor: null})) }}">
-                {{ 'label.pagination_results'|trans({pageSize: 50}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: 50}), 'messages') }}
             </a>
             <a class="dropdown-item{% if paginator.pageSize == 100 %} active{% endif %}"
                href="{{ path('app_explore_allocation_list', query|merge({limit: 100, cursor: null})) }}">
-                {{ 'label.pagination_results'|trans({pageSize: 100}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: 100}), 'messages') }}
             </a>
         </div>
     </div>
@@ -29,14 +29,14 @@
             <li class="page-item">
                 <a class="page-link" href="{{ path('app_explore_allocation_list', query|merge({cursor: null})) }}">
                     <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
-                    {{ 'label.previous'|trans }}
+                    {{ 'label.previous'|trans({}, 'messages') }}
                 </a>
             </li>
         {% else %}
             <li class="page-item disabled">
                 <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
                     <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
-                    {{ 'label.previous'|trans }}
+                    {{ 'label.previous'|trans({}, 'messages') }}
                 </a>
             </li>
         {% endif %}
@@ -44,14 +44,14 @@
         {% if paginator.hasNextPage %}
             <li class="page-item">
                 <a class="page-link" href="{{ path('app_explore_allocation_list', query|merge({cursor: paginator.nextCursor})) }}">
-                    {{ 'label.next'|trans }}
+                    {{ 'label.next'|trans({}, 'messages') }}
                     <twig:ux:icon name="tabler:chevron-right" width="1em" height="1em" />
                 </a>
             </li>
         {% else %}
             <li class="page-item disabled">
                 <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                    {{ 'label.next'|trans }}
+                    {{ 'label.next'|trans({}, 'messages') }}
                     <twig:ux:icon name="tabler:chevron-right" width="1em" height="1em" />
                 </a>
             </li>

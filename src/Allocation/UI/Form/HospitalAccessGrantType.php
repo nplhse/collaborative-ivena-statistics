@@ -19,6 +19,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @extends AbstractType<HospitalAccessGrant>
@@ -28,6 +29,7 @@ final class HospitalAccessGrantType extends AbstractType
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly UserRepository $userRepository,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -72,7 +74,12 @@ final class HospitalAccessGrantType extends AbstractType
                 'expanded' => true,
                 'mapped' => false,
                 'label' => 'label.hospital_access_grant.permissions',
-                'choice_label' => static fn (HospitalPermission $permission): string => 'label.hospital_permission.'.$permission->name,
+                'choice_label' => fn (HospitalPermission $permission): string => $this->translator->trans(
+                    'label.hospital_permission.'.$permission->name,
+                    [],
+                    'allocation',
+                ),
+                'choice_translation_domain' => false,
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'label.btn.save',
@@ -141,6 +148,7 @@ final class HospitalAccessGrantType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => HospitalAccessGrant::class,
+            'translation_domain' => 'messages',
             'is_create' => false,
             'eligible_user_choices' => [],
         ]);

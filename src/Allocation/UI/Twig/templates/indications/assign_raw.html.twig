@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.indication.assign_raw'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.indication.assign_raw'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -25,7 +25,7 @@
                 <div class="col">
                     {% block page_intro %}
                         <h2 class="page-title">
-                            {% block page_title %}{{ 'title.indication.assign_raw'|trans }}{% endblock %}
+                            {% block page_title %}{{ 'title.indication.assign_raw'|trans({}, 'allocation') }}{% endblock %}
                         </h2>
                     {% endblock %}
                 </div>
@@ -41,8 +41,8 @@
 
     <div class="card">
         <div class="card-body">
-            <h3 class="card-title">{{ 'title.indication.assign'|trans }}</h3>
-            <p class="card-subtitle">{{ 'subtitle.indication.assign'|trans }}</p>
+            <h3 class="card-title">{{ 'title.indication.assign'|trans({}, 'allocation') }}</h3>
+            <p class="card-subtitle">{{ 'subtitle.indication.assign'|trans({}, 'messages') }}</p>
 
             {{ form_row(form.code) }}
             {{ form_row(form.name) }}
@@ -68,10 +68,10 @@
         <div class="card-footer">
             <div class="row align-items-center">
                 <div class="col">
-                    <a href="{{ path('app_explore_indication_list', {type: 'raw'}) }}" class="btn btn-link">{{ 'btn.cancel'|trans }}</a>
+                    <a href="{{ path('app_explore_indication_list', {type: 'raw'}) }}" class="btn btn-link">{{ 'action.cancel'|trans({}, 'messages') }}</a>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-primary">{{ 'btn.save.changes'|trans }}</button>
+                    <button class="btn btn-primary">{{ 'action.save_changes'|trans({}, 'messages') }}</button>
                 </div>
             </div>
         </div>
