@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<PostTag>
@@ -32,8 +33,8 @@ final class PostTagCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('label.blog.tag')
-            ->setEntityLabelInPlural('label.blog.tags')
+            ->setEntityLabelInSingular(new TranslatableMessage('label.blog.tag', domain: 'content'))
+            ->setEntityLabelInPlural(new TranslatableMessage('label.blog.tags', domain: 'content'))
             ->setSearchFields(['id', 'name', 'slug'])
             ->setDefaultSort(['name' => 'ASC']);
     }

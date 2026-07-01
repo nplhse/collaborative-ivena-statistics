@@ -245,12 +245,12 @@ final class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Content');
         yield MenuItem::subMenu('Blog', 'fas fa-book')->setSubItems([
-            MenuItem::linkTo(PostCrudController::class, 'menu.blog.posts', 'fas fa-align-left'),
-            MenuItem::linkTo(PostCategoryCrudController::class, 'menu.blog.categories', 'fas fa-folder'),
-            MenuItem::linkTo(PostCommentCrudController::class, 'menu.blog.comments', 'fas fa-comments'),
-            MenuItem::linkTo(PostTagCrudController::class, 'menu.blog.tags', 'fas fa-tags'),
+            MenuItem::linkTo(PostCrudController::class, new TranslatableMessage('menu.blog.posts', domain: 'shared'), 'fas fa-align-left'),
+            MenuItem::linkTo(PostCategoryCrudController::class, new TranslatableMessage('menu.blog.categories', domain: 'shared'), 'fas fa-folder'),
+            MenuItem::linkTo(PostCommentCrudController::class, new TranslatableMessage('menu.blog.comments', domain: 'shared'), 'fas fa-comments'),
+            MenuItem::linkTo(PostTagCrudController::class, new TranslatableMessage('menu.blog.tags', domain: 'shared'), 'fas fa-tags'),
         ]);
-        yield MenuItem::linkTo(PageCrudController::class, 'Pages', 'fas fa-file');
+        yield MenuItem::linkTo(PageCrudController::class, new TranslatableMessage('label.pages', domain: 'content'), 'fas fa-file');
         yield MenuItem::linkTo(MediaCrudController::class, new TranslatableMessage('label.media_library', domain: 'content'), 'fas fa-photo-film');
 
         yield MenuItem::section('System');

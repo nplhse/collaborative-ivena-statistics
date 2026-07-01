@@ -34,6 +34,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -63,8 +64,8 @@ final class PageCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('label.page')
-            ->setEntityLabelInPlural('label.pages')
+            ->setEntityLabelInSingular(new TranslatableMessage('label.page', domain: 'content'))
+            ->setEntityLabelInPlural(new TranslatableMessage('label.pages', domain: 'content'))
             ->setSearchFields(['id', 'title', 'slug', 'path', 'key'])
             ->setDefaultSort(['path' => 'ASC']);
     }
@@ -75,16 +76,16 @@ final class PageCrudController extends AbstractCrudController
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $this->createViewPublicAction())
-            ->update(Crud::PAGE_DETAIL, Action::INDEX, static fn (Action $action): Action => $action->setLabel('admin.page.action.back_to_index'))
+            ->update(Crud::PAGE_DETAIL, Action::INDEX, fn (Action $action): Action => $action->setLabel(new TranslatableMessage('admin.page.action.back_to_index', domain: 'admin')))
             ->add(Crud::PAGE_DETAIL, $this->createViewPublicAction())
             ->add(Crud::PAGE_EDIT, Action::INDEX)
-            ->update(Crud::PAGE_EDIT, Action::INDEX, static fn (Action $action): Action => $action->setLabel('admin.page.action.back_to_index'))
+            ->update(Crud::PAGE_EDIT, Action::INDEX, fn (Action $action): Action => $action->setLabel(new TranslatableMessage('admin.page.action.back_to_index', domain: 'admin')))
             ->add(Crud::PAGE_EDIT, $this->createViewPublicAction());
     }
 
     private function createViewPublicAction(): Action
     {
-        return Action::new('viewPublic', 'admin.page.action.view_public', 'fas fa-external-link-alt')
+        return Action::new('viewPublic', new TranslatableMessage('admin.page.action.view_public', domain: 'admin'), 'fas fa-external-link-alt')
             ->linkToRoute('app_page_show', static fn (Page $page): array => ['path' => trim((string) $page->getPath(), '/')])
             ->setHtmlAttributes(['target' => '_blank', 'rel' => 'noopener noreferrer'])
             ->displayIf(static function (Page $page): bool {
@@ -113,9 +114,9 @@ final class PageCrudController extends AbstractCrudController
         yield TextField::new('title', 'label.title');
         yield TextField::new('slug', 'label.slug')
             ->setRequired(false)
-            ->setHelp('help.page.slug')
+            ->setHelp(new TranslatableMessage('help.page.slug', domain: 'content'))
             ->hideOnIndex();
-        yield ChoiceField::new('key', 'label.page_key')
+        yield ChoiceField::new('key', new TranslatableMessage('label.page_key', domain: 'content'))
             ->setChoices($this->buildPageKeyChoices())
             ->setRequired(false)
             ->allowMultipleChoices(false)
@@ -230,7 +231,7 @@ final class PageCrudController extends AbstractCrudController
     {
         $choices = [];
         foreach (PageKey::cases() as $pageKey) {
-            $choices[$pageKey->translationKey()] = $pageKey;
+            $choices[$this->translator->trans($pageKey->translationKey(), [], 'content')] = $pageKey;
         }
 
         return $choices;
