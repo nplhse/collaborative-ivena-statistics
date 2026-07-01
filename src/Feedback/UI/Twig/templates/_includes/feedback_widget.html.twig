@@ -13,7 +13,7 @@
             data-bs-toggle="offcanvas"
             data-bs-target="#feedbackOffcanvas"
             aria-controls="feedbackOffcanvas"
-            title="{{ 'feedback.widget.open'|trans }}"
+            title="{{ 'feedback.widget.open'|trans({}, 'feedback') }}"
         >
             <twig:ux:icon name="tabler:message-circle" width="1.25rem" height="1.25rem" class="flex-shrink-0"/>
         </button>
@@ -21,8 +21,8 @@
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="feedbackOffcanvas" aria-labelledby="feedbackOffcanvasLabel">
         <div class="offcanvas-header">
-            <h2 class="offcanvas-title" id="feedbackOffcanvasLabel">{{ 'feedback.widget.title'|trans }}</h2>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="{{ 'btn.cancel'|trans }}"></button>
+            <h2 class="offcanvas-title" id="feedbackOffcanvasLabel">{{ 'feedback.widget.title'|trans({}, 'feedback') }}</h2>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="{{ 'action.cancel'|trans({}, 'messages') }}"></button>
         </div>
         <div class="offcanvas-body">
             {{ form_start(form, {attr: {'data-turbo': 'false', novalidate: 'novalidate'}}) }}
@@ -36,7 +36,7 @@
             {{ form_row(form.message, {attr: {'data-feedback-context-target': 'message'}}) }}
             {{ form_widget(form.extraContext) }}
             <div class="d-grid gap-2 mt-3">
-                <button type="submit" class="btn btn-primary">{{ 'feedback.widget.submit'|trans }}</button>
+                <button type="submit" class="btn btn-primary">{{ 'feedback.widget.submit'|trans({}, 'feedback') }}</button>
             </div>
             {{ form_end(form) }}
         </div>
