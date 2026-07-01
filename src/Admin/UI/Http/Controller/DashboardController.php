@@ -41,6 +41,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'app_admin_dashboard')]
 #[IsGranted('ROLE_ADMIN')]
@@ -250,7 +251,7 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkTo(PostTagCrudController::class, 'menu.blog.tags', 'fas fa-tags'),
         ]);
         yield MenuItem::linkTo(PageCrudController::class, 'Pages', 'fas fa-file');
-        yield MenuItem::linkTo(MediaCrudController::class, 'label.media_library', 'fas fa-photo-film');
+        yield MenuItem::linkTo(MediaCrudController::class, new TranslatableMessage('label.media_library', domain: 'content'), 'fas fa-photo-film');
 
         yield MenuItem::section('System');
         yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');
