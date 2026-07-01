@@ -120,6 +120,7 @@
             <tr>
                 <td class="access-grants-matrix__user-td" title="{{ grant.user.username }}">{{ grant.user.username }}</td>
                 {% for permission in assignablePermissions %}
+                    {% set permissionLabel = ('label.hospital_permission.' ~ permission.name)|trans({}, 'allocation') %}
                     {% set granted = (grant.permissions b-and permission.value) != 0 %}
                     <td class="access-grants-matrix__permission-td">
                         {% if granted %}
