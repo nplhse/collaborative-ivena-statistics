@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="OnbCardEn01" resname="onboarding.card.title">
+        <source>onboarding.card.title</source>
+        <target>First steps</target>
+      </trans-unit>
+      <trans-unit id="OnbCardEn02" resname="onboarding.card.intro">
+        <source>onboarding.card.intro</source>
+        <target>Complete these steps to get started with your clinic data.</target>
+      </trans-unit>
+      <trans-unit id="OnbCardEn03" resname="onboarding.card.progress">
+        <source>onboarding.card.progress</source>
+        <target>{completed} of {total} completed</target>
+      </trans-unit>
+      <trans-unit id="OnbCardEn04" resname="onboarding.card.completed_popover_title">
+        <source>onboarding.card.completed_popover_title</source>
+        <target>Completed steps</target>
+      </trans-unit>
+      <trans-unit id="OnbActEn01" resname="onboarding.action.mark_complete">
+        <source>onboarding.action.mark_complete</source>
+        <target>Mark as done</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn01" resname="onboarding.steps.request_clinic_access.title">
+        <source>onboarding.steps.request_clinic_access.title</source>
+        <target>Request access to your clinic</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn02" resname="onboarding.steps.request_clinic_access.description">
+        <source>onboarding.steps.request_clinic_access.description</source>
+        <target>Ask the team to link your account to the right hospital.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn03" resname="onboarding.steps.request_clinic_access.action">
+        <source>onboarding.steps.request_clinic_access.action</source>
+        <target>Send request</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn04" resname="onboarding.steps.request_clinic_access.feedback_message">
+        <source>onboarding.steps.request_clinic_access.feedback_message</source>
+        <target>Hello, I would like to get access to my clinic. Clinic: [please enter name]. Thank you!</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn05" resname="onboarding.steps.verify_own_clinic.title">
+        <source>onboarding.steps.verify_own_clinic.title</source>
+        <target>Review your hospitals</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn06" resname="onboarding.steps.verify_own_clinic.description">
+        <source>onboarding.steps.verify_own_clinic.description</source>
+        <target>Check that your hospital profile and settings look correct.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn07" resname="onboarding.steps.verify_own_clinic.action">
+        <source>onboarding.steps.verify_own_clinic.action</source>
+        <target>Open my hospitals</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn08" resname="onboarding.steps.start_first_import.title">
+        <source>onboarding.steps.start_first_import.title</source>
+        <target>Start your first data import</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn09" resname="onboarding.steps.start_first_import.description">
+        <source>onboarding.steps.start_first_import.description</source>
+        <target>Upload allocation data for your clinic to begin analysis.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn10" resname="onboarding.steps.start_first_import.action">
+        <source>onboarding.steps.start_first_import.action</source>
+        <target>Start import</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn11" resname="onboarding.steps.view_explore_data.title">
+        <source>onboarding.steps.view_explore_data.title</source>
+        <target>View imported allocations</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn12" resname="onboarding.steps.view_explore_data.description">
+        <source>onboarding.steps.view_explore_data.description</source>
+        <target>Browse raw allocation records in the explorer.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn13" resname="onboarding.steps.view_explore_data.action">
+        <source>onboarding.steps.view_explore_data.action</source>
+        <target>Open explorer</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn14" resname="onboarding.steps.view_overview_statistics.title">
+        <source>onboarding.steps.view_overview_statistics.title</source>
+        <target>View overview statistics</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn15" resname="onboarding.steps.view_overview_statistics.description">
+        <source>onboarding.steps.view_overview_statistics.description</source>
+        <target>Open the statistics dashboard for trends and distributions.</target>
+      </trans-unit>
+      <trans-unit id="OnbStpEn16" resname="onboarding.steps.view_overview_statistics.action">
+        <source>onboarding.steps.view_overview_statistics.action</source>
+        <target>Open statistics</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
