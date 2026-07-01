@@ -5,14 +5,14 @@
                 <div class="card-header bg-light">
                     <h3 class="card-title d-flex align-items-center gap-2">
                         <twig:ux:icon name="tabler:info-circle" class="w-4 h-4" />
-                        {{ app_blog_title }}
+                        {{ 'title.blog'|trans({}, 'content') }}
                     </h3>
                 </div>
                 <div class="card-body text-secondary">
-                    <p class="mb-2">{{ app_blog_description }}</p>
+                    <p class="mb-2">{{ 'blog.description'|trans({}, 'content') }}</p>
                     <a class="btn btn-orange btn-sm" href="{{ path('app_blog_rss') }}">
                         <twig:ux:icon name="tabler:rss" width="1em" height="1em" />
-                        {{ 'blog.sidebar.rss_feed'|trans }}
+                        {{ 'blog.sidebar.rss_feed'|trans({}, 'content') }}
                     </a>
                 </div>
             </div>
@@ -24,7 +24,7 @@
             <div class="card-header bg-light">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
-                    {{ 'blog.sidebar.latest_posts'|trans }}
+                    {{ 'blog.sidebar.latest_posts'|trans({}, 'content') }}
                 </h3>
             </div>
             <div class="list-group list-group-flush">
@@ -33,7 +33,7 @@
                         {{ latest.title }}
                     </a>
                 {% else %}
-                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans }}</div>
+                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans({}, 'content') }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -44,7 +44,7 @@
             <div class="card-header bg-light">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:folder" class="w-4 h-4" />
-                    {{ 'blog.sidebar.categories'|trans }}
+                    {{ 'blog.sidebar.categories'|trans({}, 'content') }}
                 </h3>
             </div>
             <div class="list-group list-group-flush">
@@ -54,7 +54,7 @@
                         <span class="badge bg-secondary-lt">{{ item.postCount }}</span>
                     </a>
                 {% else %}
-                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_categories'|trans }}</div>
+                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_categories'|trans({}, 'content') }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -65,7 +65,7 @@
             <div class="card-header bg-light">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:tags" class="w-4 h-4" />
-                    {{ 'blog.sidebar.tags'|trans }}
+                    {{ 'blog.sidebar.tags'|trans({}, 'content') }}
                 </h3>
             </div>
             <div class="card-body">
@@ -74,7 +74,7 @@
                         {{ item.tag.name }} ({{ item.postCount }})
                     </a>
                 {% else %}
-                    <div class="text-secondary">{{ 'blog.sidebar.no_tags'|trans }}</div>
+                    <div class="text-secondary">{{ 'blog.sidebar.no_tags'|trans({}, 'content') }}</div>
                 {% endfor %}
             </div>
         </div>

@@ -2,20 +2,20 @@
     <div class="card-header bg-primary-lt">
         <h3 class="card-title mb-0 d-inline-flex align-items-center gap-2">
             <twig:ux:icon name="tabler:list-check" style="height: 1.25em;" />
-            {{ 'onboarding.card.title'|trans }}
+            {{ 'onboarding.card.title'|trans({}, 'onboarding') }}
         </h3>
     </div>
     <div class="card-body d-flex flex-column gap-3">
-        <p class="text-secondary mb-0">{{ 'onboarding.card.intro'|trans }}</p>
+        <p class="text-secondary mb-0">{{ 'onboarding.card.intro'|trans({}, 'onboarding') }}</p>
 
         {% if onboardingCard.completedCount > 0 %}
             <div data-testid="dashboard-onboarding-progress">
                 <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
                     <span class="small text-secondary">
-                        {{ 'onboarding.card.progress'|trans({
+                        {{ 'onboarding.card.progress'|trans(({
                             completed: onboardingCard.completedCount,
                             total: onboardingCard.totalCount,
-                        }) }}
+                        }), 'onboarding') }}
                     </span>
                     {% if onboardingCard.completedSteps is not empty %}
                         <button type="button"
@@ -25,11 +25,11 @@
                                 data-bs-placement="left"
                                 data-bs-trigger="hover focus"
                                 data-bs-html="true"
-                                data-bs-title="{{ 'onboarding.card.completed_popover_title'|trans|e('html_attr') }}"
+                                data-bs-title="{{ 'onboarding.card.completed_popover_title'|trans({}, 'onboarding')|e('html_attr') }}"
                                 data-bs-content="{{ include('@Content/dashboard/_onboarding_completed_steps_popover.html.twig', {
                                     completedSteps: onboardingCard.completedSteps,
                                 })|e('html_attr') }}"
-                                aria-label="{{ 'onboarding.card.completed_popover_title'|trans }}"
+                                aria-label="{{ 'onboarding.card.completed_popover_title'|trans({}, 'onboarding') }}"
                                 data-testid="dashboard-onboarding-completed-popover">
                             <twig:ux:icon name="tabler:info-circle" style="height: 1.1em;" />
                         </button>
@@ -42,10 +42,10 @@
                          aria-valuenow="{{ onboardingCard.progressPercent }}"
                          aria-valuemin="0"
                          aria-valuemax="100"
-                         aria-label="{{ 'onboarding.card.progress'|trans({
+                         aria-label="{{ 'onboarding.card.progress'|trans(({
                              completed: onboardingCard.completedCount,
                              total: onboardingCard.totalCount,
-                         }) }}"></div>
+                         }), 'onboarding') }}"></div>
                 </div>
             </div>
         {% endif %}
@@ -59,19 +59,19 @@
                         <div class="fw-medium mb-1 d-flex align-items-center gap-2{% if not step.isActionable %} text-secondary{% endif %}">
                             <span class="badge {% if step.isActionable %}bg-primary-lt text-primary{% else %}bg-secondary-lt text-secondary{% endif %} rounded-pill flex-shrink-0"
                                   aria-hidden="true">{{ step.position }}</span>
-                            <span>{{ step.titleKey|trans }}</span>
+                            <span>{{ step.title|trans }}</span>
                         </div>
                         {% if step.isActionable %}
-                            <p class="text-secondary small mb-2">{{ step.descriptionKey|trans }}</p>
+                            <p class="text-secondary small mb-2">{{ step.description|trans }}</p>
                             <div class="d-flex align-items-center justify-content-between gap-2">
                                 <div class="d-flex align-items-center">
                                     {% if step.actionType == 'feedback' %}
                                         <button type="button"
                                                 class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
                                                 data-controller="onboarding-step"
-                                                data-onboarding-step-message-value="{{ step.feedbackMessageKey|trans|e('html_attr') }}"
+                                                data-onboarding-step-message-value="{{ step.feedbackMessage is not null ? step.feedbackMessage|trans|e('html_attr') : '' }}"
                                                 data-action="onboarding-step#openClinicAccessFeedback">
-                                            {{ 'onboarding.steps.request_clinic_access.action'|trans }}
+                                            {{ 'onboarding.steps.request_clinic_access.action'|trans({}, 'onboarding') }}
                                             <twig:ux:icon name="tabler:message-circle" class="onboarding-step-action-icon" style="height: 1.1em;" />
                                         </button>
                                     {% elseif step.actionUrl %}
@@ -82,7 +82,7 @@
                                             view_overview_statistics: 'tabler:graph',
                                         }[step.key.value] ?? 'tabler:arrow-right' %}
                                         <a href="{{ step.actionUrl }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
-                                            {{ ('onboarding.steps.' ~ step.key.value ~ '.action')|trans }}
+                                            {{ ('onboarding.steps.' ~ step.key.value ~ '.action')|trans({}, 'onboarding') }}
                                             <twig:ux:icon name="{{ stepActionIcon }}" class="onboarding-step-action-icon" style="height: 1.1em;" />
                                         </a>
                                     {% endif %}
@@ -92,7 +92,7 @@
                                       class="mb-0 flex-shrink-0">
                                     <input type="hidden" name="_token" value="{{ csrf_token('onboarding_complete_' ~ step.key.value) }}">
                                     <button type="submit" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1">
-                                        {{ 'onboarding.action.mark_complete'|trans }}
+                                        {{ 'onboarding.action.mark_complete'|trans({}, 'onboarding') }}
                                         <twig:ux:icon name="tabler:check" class="onboarding-step-action-icon" style="height: 1.1em;" />
                                     </button>
                                 </form>

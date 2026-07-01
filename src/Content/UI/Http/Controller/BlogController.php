@@ -53,7 +53,7 @@ final class BlogController extends AbstractController
     {
         $category = $this->categoryRepository->findOneBySlug($slug);
         if (!$category instanceof \App\Content\Domain\Entity\PostCategory) {
-            throw $this->createNotFoundException($this->translator->trans('error.blog.category_not_found'));
+            throw $this->createNotFoundException($this->translator->trans('error.blog.category_not_found', [], 'content'));
         }
 
         return $this->render('@Content/blog/index.html.twig', [
@@ -72,7 +72,7 @@ final class BlogController extends AbstractController
     {
         $tag = $this->tagRepository->findOneBySlug($slug);
         if (!$tag instanceof \App\Content\Domain\Entity\PostTag) {
-            throw $this->createNotFoundException($this->translator->trans('error.blog.tag_not_found'));
+            throw $this->createNotFoundException($this->translator->trans('error.blog.tag_not_found', [], 'content'));
         }
 
         return $this->render('@Content/blog/index.html.twig', [
@@ -102,7 +102,7 @@ final class BlogController extends AbstractController
     {
         $post = $this->postRepository->findPublishedBySlug($slug);
         if (!$post instanceof \App\Content\Domain\Entity\Post) {
-            throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found'));
+            throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found', [], 'content'));
         }
 
         return $this->render('@Content/blog/show.html.twig', [
@@ -121,21 +121,21 @@ final class BlogController extends AbstractController
     {
         $post = $this->postRepository->findPublishedBySlug($slug);
         if (!$post instanceof \App\Content\Domain\Entity\Post) {
-            throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found'));
+            throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found', [], 'content'));
         }
 
         $postId = $post->getId();
         if (null === $postId) {
-            throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found'));
+            throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found', [], 'content'));
         }
 
         if (!$this->isCsrfTokenValid('comment_'.$postId, (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException($this->translator->trans('error.blog.invalid_csrf'));
+            throw $this->createAccessDeniedException($this->translator->trans('error.blog.invalid_csrf', [], 'content'));
         }
 
         $content = trim((string) $request->request->get('content'));
         if ('' === $content) {
-            $this->addFlash('error', $this->translator->trans('flash.blog.comment.empty'));
+            $this->addFlash('error', $this->translator->trans('flash.blog.comment.empty', [], 'content'));
 
             return $this->redirectToRoute('app_blog_show', ['slug' => $slug]);
         }
@@ -146,7 +146,7 @@ final class BlogController extends AbstractController
 
         $author = $this->getUser();
         if (!$author instanceof User) {
-            throw $this->createAccessDeniedException($this->translator->trans('error.blog.user_not_found'));
+            throw $this->createAccessDeniedException($this->translator->trans('error.blog.user_not_found', [], 'content'));
         }
         $comment->setAuthor($author);
 
@@ -161,7 +161,7 @@ final class BlogController extends AbstractController
         $this->entityManager->persist($comment);
         $this->entityManager->flush();
 
-        $this->addFlash('success', $this->translator->trans('flash.blog.comment.created'));
+        $this->addFlash('success', $this->translator->trans('flash.blog.comment.created', [], 'content'));
 
         return $this->redirectToRoute('app_blog_show', ['slug' => $slug], Response::HTTP_SEE_OTHER);
     }

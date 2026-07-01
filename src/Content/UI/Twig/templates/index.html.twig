@@ -34,7 +34,7 @@
                         </div>
                         <div class="col">
                             <div class="font-weight-medium">
-                                {{ allocationCount|number_format(0, ',', '.') }} {{ 'link.allocations'|trans }}
+                                {{ allocationCount|number_format(0, ',', '.') }} {{ 'link.allocations'|trans({}, 'shared') }}
                             </div>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                         </div>
                         <div class="col">
                             <div class="font-weight-medium">
-                                {{ importCount|number_format(0, ',', '.') }} {{ 'link.imports'|trans }}
+                                {{ importCount|number_format(0, ',', '.') }} {{ 'link.imports'|trans({}, 'shared') }}
                             </div>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                         </div>
                         <div class="col">
                             <div class="font-weight-medium">
-                                {{ userCount }} {{ 'link.users'|trans }}
+                                {{ userCount }} {{ 'link.users'|trans({}, 'shared') }}
                             </div>
                         </div>
                     </div>
@@ -91,10 +91,10 @@
                         </div>
                         <div class="col">
                             <div class="font-weight-medium">
-                                {{ hospitalCount }} {{ 'link.hospitals'|trans }}
+                                {{ hospitalCount }} {{ 'link.hospitals'|trans({}, 'shared') }}
                             </div>
                             <div class="text-muted">
-                                {{ 'label.hospitals.participating'|trans }}:
+                                {{ 'label.hospitals.participating'|trans({}, 'messages') }}:
                                 <strong>{{ participatingHospitalCount }}</strong>
                             </div>
                         </div>

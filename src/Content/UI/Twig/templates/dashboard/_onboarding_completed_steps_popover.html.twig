@@ -2,7 +2,7 @@
     {% for step in completedSteps %}
         <li class="d-flex align-items-start gap-2{% if not loop.last %} mb-1{% endif %}">
             <span class="badge bg-primary-lt text-primary rounded-pill flex-shrink-0" aria-hidden="true">{{ step.position }}</span>
-            <span>{{ step.titleKey|trans }}</span>
+            <span>{{ step.title|trans }}</span>
             <svg xmlns="http://www.w3.org/2000/svg"
                  width="1em"
                  height="1em"

@@ -1,23 +1,23 @@
 {% set homeScreenshots = [
     {
         src: 'images/home/dashboard.png',
-        alt: 'public.home.screenshots.dashboard.alt'|trans,
-        caption: 'public.home.screenshots.dashboard.caption'|trans,
+        alt: 'public.home.screenshots.dashboard.alt'|trans({}, 'content'),
+        caption: 'public.home.screenshots.dashboard.caption'|trans({}, 'content'),
     },
     {
         src: 'images/home/benchmarking.png',
-        alt: 'public.home.screenshots.benchmarking.alt'|trans,
-        caption: 'public.home.screenshots.benchmarking.caption'|trans,
+        alt: 'public.home.screenshots.benchmarking.alt'|trans({}, 'content'),
+        caption: 'public.home.screenshots.benchmarking.caption'|trans({}, 'content'),
     },
     {
         src: 'images/home/indication-insights.png',
-        alt: 'public.home.screenshots.indication_insights.alt'|trans,
-        caption: 'public.home.screenshots.indication_insights.caption'|trans,
+        alt: 'public.home.screenshots.indication_insights.alt'|trans({}, 'content'),
+        caption: 'public.home.screenshots.indication_insights.caption'|trans({}, 'content'),
     },
     {
         src: 'images/home/analytics.png',
-        alt: 'public.home.screenshots.analytics.alt'|trans,
-        caption: 'public.home.screenshots.analytics.caption'|trans,
+        alt: 'public.home.screenshots.analytics.alt'|trans({}, 'content'),
+        caption: 'public.home.screenshots.analytics.caption'|trans({}, 'content'),
     },
 ] %}
 
@@ -27,7 +27,7 @@
      data-testid="home-screenshot-carousel">
     <div id="home-screenshots-carousel"
          class="carousel slide"
-         aria-label="{{ 'public.home.screenshots.carousel_label'|trans }}">
+         aria-label="{{ 'public.home.screenshots.carousel_label'|trans({}, 'content') }}">
         <div class="carousel-indicators">
             {% for screenshot in homeScreenshots %}
                 <button type="button"
@@ -64,14 +64,14 @@
                 data-bs-target="#home-screenshots-carousel"
                 data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">{{ 'public.home.screenshots.previous'|trans }}</span>
+            <span class="visually-hidden">{{ 'public.home.screenshots.previous'|trans({}, 'content') }}</span>
         </button>
         <button class="carousel-control-next"
                 type="button"
                 data-bs-target="#home-screenshots-carousel"
                 data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">{{ 'public.home.screenshots.next'|trans }}</span>
+            <span class="visually-hidden">{{ 'public.home.screenshots.next'|trans({}, 'content') }}</span>
         </button>
     </div>
 </div>
