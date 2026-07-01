@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="CkyBanAllDe" resname="cookie.banner.accept_all">
+        <source>cookie.banner.accept_all</source>
+        <target>Alle Cookies erlauben</target>
+      </trans-unit>
+      <trans-unit id="CkyBanEssDe" resname="cookie.banner.essential_only">
+        <source>cookie.banner.essential_only</source>
+        <target>Nur notwendige Cookies</target>
+      </trans-unit>
+      <trans-unit id="CkyBanLrnDe" resname="cookie.banner.learn_more">
+        <source>cookie.banner.learn_more</source>
+        <target>Mehr erfahren</target>
+      </trans-unit>
+      <trans-unit id="CkyBanSetDe" resname="cookie.banner.settings">
+        <source>cookie.banner.settings</source>
+        <target>Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="CkyBanTxtDe" resname="cookie.banner.text">
+        <source>cookie.banner.text</source>
+        <target>Wir verwenden notwendige Cookies für den Betrieb dieser Anwendung und optionale Monitoring-Cookies zur Verbesserung der Zuverlässigkeit.</target>
+      </trans-unit>
+      <trans-unit id="CkyBanTitDe" resname="cookie.banner.title">
+        <source>cookie.banner.title</source>
+        <target>Cookie-Hinweis</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefCatDe" resname="cookie.preferences.categories">
+        <source>cookie.preferences.categories</source>
+        <target>Cookie-Kategorien</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefEsTxDe" resname="cookie.preferences.essential.text">
+        <source>cookie.preferences.essential.text</source>
+        <target>Erforderlich für Anmeldung, Sicherheit und Kernfunktionen. Diese Kategorie ist immer aktiv.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefEsTiDe" resname="cookie.preferences.essential.title">
+        <source>cookie.preferences.essential.title</source>
+        <target>Notwendige Cookies</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefIntroDe" resname="cookie.preferences.intro">
+        <source>cookie.preferences.intro</source>
+        <target>Wählen Sie, welche optionalen Cookie-Kategorien verwendet werden dürfen.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefMonHintDe" resname="cookie.preferences.monitoring.provider_hint">
+        <source>cookie.preferences.monitoring.provider_hint</source>
+        <target>Derzeit nutzt diese Kategorie Sentry für Anwendungs- und Fehlerüberwachung.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefMonTxDe" resname="cookie.preferences.monitoring.text">
+        <source>cookie.preferences.monitoring.text</source>
+        <target>Hilft uns, die Stabilität der Anwendung und Fehlerraten zu überwachen.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefMonTiDe" resname="cookie.preferences.monitoring.title">
+        <source>cookie.preferences.monitoring.title</source>
+        <target>Monitoring-Cookies</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefSaveDe" resname="cookie.preferences.save">
+        <source>cookie.preferences.save</source>
+        <target>Cookie-Einstellungen speichern</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefTitDe" resname="cookie.preferences.title">
+        <source>cookie.preferences.title</source>
+        <target>Cookie-Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="FlsCookieUpDe" resname="flash.cookies.updated">
+        <source>flash.cookies.updated</source>
+        <target>Cookie-Einstellungen aktualisiert.</target>
+      </trans-unit>
+      <trans-unit id="HlpSrchNrDe" resname="help.search_no_results">
+        <source>help.search_no_results</source>
+        <target>Passen Sie Suche oder Filter an, um das Gesuchte zu finden.</target>
+      </trans-unit>
+      <trans-unit id="lnkAboutDe" resname="link.about">
+        <source>link.about</source>
+        <target>Über uns</target>
+      </trans-unit>
+      <trans-unit id="lnkAllocDe" resname="link.allocations">
+        <source>link.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="lnkAssignDe" resname="link.assignments">
+        <source>link.assignments</source>
+        <target>Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="LocDe12" resname="link.blog">
+        <source>link.blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="lnkCookieDe" resname="link.cookie_preferences">
+        <source>link.cookie_preferences</source>
+        <target>Cookie-Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="lnkDeptDe" resname="link.departments">
+        <source>link.departments</source>
+        <target>Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="lnkDispatchDe" resname="link.dispatch_areas">
+        <source>link.dispatch_areas</source>
+        <target>Leitstellen</target>
+      </trans-unit>
+      <trans-unit id="LocDe10" resname="link.explore">
+        <source>link.explore</source>
+        <target>Erkunden</target>
+      </trans-unit>
+      <trans-unit id="ExpLnkDe01" resname="link.export">
+        <source>link.export</source>
+        <target>Export</target>
+      </trans-unit>
+      <trans-unit id="lnkFeaturesDe" resname="link.features">
+        <source>link.features</source>
+        <target>Funktionen</target>
+      </trans-unit>
+      <trans-unit id="lnkHomeDe" resname="link.home">
+        <source>link.home</source>
+        <target>Startseite</target>
+      </trans-unit>
+      <trans-unit id="lnkHospDe" resname="link.hospitals">
+        <source>link.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="lnkImportDe" resname="link.import">
+        <source>link.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="lnkImportsDe" resname="link.imports">
+        <source>link.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="lnkIndicDe" resname="link.indications">
+        <source>link.indications</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="lnkInfectDe" resname="link.infections">
+        <source>link.infections</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="lnkMciDe" resname="link.mci_cases">
+        <source>link.mci_cases</source>
+        <target>MANV-Fälle</target>
+      </trans-unit>
+      <trans-unit id="lnkOccasionDe" resname="link.occasions">
+        <source>link.occasions</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="lnkSecTransDe" resname="link.secondary_transports">
+        <source>link.secondary_transports</source>
+        <target>Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="lnkSpecDe" resname="link.specialities">
+        <source>link.specialities</source>
+        <target>Fachrichtungen</target>
+      </trans-unit>
+      <trans-unit id="LocDe11" resname="link.statistics">
+        <source>link.statistics</source>
+        <target>Statistiken</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsAnDe" resname="link.stats.analysis">
+        <source>link.stats.analysis</source>
+        <target>Analyse</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAe01" resname="link.stats.analysis_explorer">
+        <source>link.stats.analysis_explorer</source>
+        <target>Analyse-Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsLnkAel01" resname="link.stats.analysis_explorer_library">
+        <source>link.stats.analysis_explorer_library</source>
+        <target>Analyse-Bibliothek</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsAlDe" resname="link.stats.analytics_library">
+        <source>link.stats.analytics_library</source>
+        <target>Analyse-Bibliothek</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsBmDe" resname="link.stats.benchmarking">
+        <source>link.stats.benchmarking</source>
+        <target>Benchmarking</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsCfDe" resname="link.stats.case_flow">
+        <source>link.stats.case_flow</source>
+        <target>Fallverlauf</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsDashDe" resname="link.stats.dashboard">
+        <source>link.stats.dashboard</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsDistDe" resname="link.stats.distribution">
+        <source>link.stats.distribution</source>
+        <target>Verteilung</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsHpDe" resname="link.stats.hospital_population">
+        <source>link.stats.hospital_population</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsHospDe" resname="link.stats.hospitals">
+        <source>link.stats.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsIiDe" resname="link.stats.indication_insights">
+        <source>link.stats.indication_insights</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsRepDe" resname="link.stats.reports">
+        <source>link.stats.reports</source>
+        <target>Berichte</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsTgDe" resname="link.stats.time_grid">
+        <source>link.stats.time_grid</source>
+        <target>Zeitraster</target>
+      </trans-unit>
+      <trans-unit id="lnkStatsTtDe" resname="link.stats.transport_time">
+        <source>link.stats.transport_time</source>
+        <target>Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="lnkTermsDe" resname="link.terms">
+        <source>link.terms</source>
+        <target>Nutzungsbedingungen</target>
+      </trans-unit>
+      <trans-unit id="lnkUsersDe" resname="link.users">
+        <source>link.users</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="LocDe02" resname="locale.english">
+        <source>locale.english</source>
+        <target>English</target>
+      </trans-unit>
+      <trans-unit id="LocDe04" resname="locale.english_short">
+        <source>locale.english_short</source>
+        <target>EN</target>
+      </trans-unit>
+      <trans-unit id="LocDe03" resname="locale.german">
+        <source>locale.german</source>
+        <target>Deutsch</target>
+      </trans-unit>
+      <trans-unit id="LocDe05" resname="locale.german_short">
+        <source>locale.german_short</source>
+        <target>DE</target>
+      </trans-unit>
+      <trans-unit id="LocDe01" resname="locale.switch">
+        <source>locale.switch</source>
+        <target>Sprache wechseln</target>
+      </trans-unit>
+      <trans-unit id="Deae8de51e" resname="menu.blog.categories">
+        <source>menu.blog.categories</source>
+        <target>Kategorien</target>
+      </trans-unit>
+      <trans-unit id="De1db8623e" resname="menu.blog.comments">
+        <source>menu.blog.comments</source>
+        <target>Kommentare</target>
+      </trans-unit>
+      <trans-unit id="Dea6cd1eb7" resname="menu.blog.posts">
+        <source>menu.blog.posts</source>
+        <target>Beiträge</target>
+      </trans-unit>
+      <trans-unit id="De4b15585b" resname="menu.blog.tags">
+        <source>menu.blog.tags</source>
+        <target>Schlagwörter</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

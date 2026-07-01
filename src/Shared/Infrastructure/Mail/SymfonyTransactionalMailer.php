@@ -47,7 +47,7 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
     ): void {
         $email = $this->createTemplatedEmail($locale)
             ->to($recipientEmail)
-            ->subject($this->translator->trans('email.verify.title', [], null, $locale))
+            ->subject($this->translator->trans('email.verify.title', [], 'user', $locale))
             ->htmlTemplate('@User/registration/confirmation_email.html.twig')
             ->context([
                 'signedUrl' => $signedUrl,
@@ -67,7 +67,7 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
     ): void {
         $email = $this->createTemplatedEmail($locale)
             ->to($recipientEmail)
-            ->subject($this->translator->trans('email.reset_password.title', [], null, $locale))
+            ->subject($this->translator->trans('email.reset_password.title', [], 'user', $locale))
             ->htmlTemplate('@User/reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,
@@ -105,7 +105,7 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
                 ->subject(sprintf(
                     '[%s] %s (%s)',
                     $this->mailConfig->appName,
-                    $this->translator->trans('feedback.email.title', [], null, $locale),
+                    $this->translator->trans('feedback.email.title', [], 'feedback', $locale),
                     $category->value,
                 ))
                 ->htmlTemplate('@Feedback/email/admin_feedback_notification.html.twig')

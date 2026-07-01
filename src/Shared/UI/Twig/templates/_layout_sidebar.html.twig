@@ -45,7 +45,7 @@
                                 <ol class="breadcrumb" aria-label="breadcrumbs">
                                     {% block header_breadcrumb %}
                                         <li class="breadcrumb-item">
-                                            <a href="{{ path('app_admin_dashboard') }}">{{ 'label.backend'|trans }}</a>
+                                            <a href="{{ path('app_admin_dashboard') }}">{{ 'label.backend'|trans({}, 'messages') }}</a>
                                         </li>
                                     {% endblock %}
                                 </ol>

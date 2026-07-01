@@ -27,7 +27,7 @@
                 <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
             </svg>
         {% endif %}
-        <span class="ms-2">{{ 'label.filters'|trans }}</span>
+        <span class="ms-2">{{ 'label.filters'|trans({}, 'messages') }}</span>
         {% if activeFilterCount > 0 %}
             <span class="badge text-primary ms-2">{{ activeFilterCount }}</span>
         {% endif %}
@@ -36,8 +36,8 @@
     {% if activeFilterCount > 0 and resetUrl is defined and resetUrl %}
         <a href="{{ resetUrl }}"
            class="btn btn-icon btn-outline"
-           title="{{ 'label.filters.reset'|trans }}"
-           aria-label="{{ 'label.filters.reset'|trans }}"
+           title="{{ 'label.filters.reset'|trans({}, 'messages') }}"
+           aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
            {% if clearTestId is defined and clearTestId %}data-testid="{{ clearTestId }}"{% endif %}>
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="icon"

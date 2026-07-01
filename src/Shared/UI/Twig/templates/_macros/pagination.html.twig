@@ -14,24 +14,24 @@
     <div class="dropdown">
         <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="me-1">
-                {{ 'label.pagination_results'|trans({pageSize: pageSize}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: pageSize}), 'messages') }}
             </span>
         </a>
         <div class="dropdown-menu">
             <a class="dropdown-item"
                href="{{ path(app.request.attributes.get('_route'),
                    app.request.query.all|merge({limit: 25, page: 1})) }}">
-                {{ 'label.pagination_results'|trans({pageSize: 25}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: 25}), 'messages') }}
             </a>
             <a class="dropdown-item"
                href="{{ path(app.request.attributes.get('_route'),
                    app.request.query.all|merge({limit: 50, page: 1})) }}">
-                {{ 'label.pagination_results'|trans({pageSize: 50}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: 50}), 'messages') }}
             </a>
             <a class="dropdown-item"
                href="{{ path(app.request.attributes.get('_route'),
                    app.request.query.all|merge({limit: 100, page: 1})) }}">
-                {{ 'label.pagination_results'|trans({pageSize: 100}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: 100}), 'messages') }}
             </a>
         </div>
     </div>
@@ -42,7 +42,7 @@
     <div class="dropdown">
         <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-testid="stats-reports-limit-trigger">
             <span class="me-1">
-                {{ 'label.pagination_results'|trans({pageSize: currentLimit}) }}
+                {{ 'label.pagination_results'|trans(({pageSize: currentLimit}), 'messages') }}
             </span>
         </a>
         <div class="dropdown-menu">
@@ -50,7 +50,7 @@
                 <a class="dropdown-item{% if size == currentLimit %} active{% endif %}"
                    href="{{ url }}"
                    data-testid="stats-reports-limit-{{ size }}">
-                    {{ 'label.pagination_results'|trans({pageSize: size}) }}
+                    {{ 'label.pagination_results'|trans(({pageSize: size}), 'messages') }}
                 </a>
             {% endfor %}
         </div>
@@ -65,14 +65,14 @@
                 <li class="page-item">
                     <a class="page-link" href="{{ path(targetPath, query|merge({page: paginator.previousPage})) }}" tabindex="-1" aria-disabled="true">
                         <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
-                        {{ 'label.previous'|trans }}
+                        {{ 'label.previous'|trans({}, 'messages') }}
                     </a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
                     <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
                         <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
-                        {{ 'label.previous'|trans }}
+                        {{ 'label.previous'|trans({}, 'messages') }}
                     </a>
                 </li>
             {% endif %}
@@ -120,14 +120,14 @@
             {% if paginator.hasNextPage %}
                 <li class="page-item">
                     <a class="page-link" href="{{ path(targetPath, query|merge({page: paginator.nextPage})) }}">
-                        {{ 'label.next'|trans }}
+                        {{ 'label.next'|trans({}, 'messages') }}
                         <twig:ux:icon name="tabler:chevron-right" width="1em" height="1em" />
                     </a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
                     <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                        {{ 'label.next'|trans }}
+                        {{ 'label.next'|trans({}, 'messages') }}
                         <twig:ux:icon name="tabler:chevron-right" width="1em" height="1em" />
                     </a>
                 </li>
