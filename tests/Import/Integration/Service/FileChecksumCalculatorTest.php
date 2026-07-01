@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Import\Integration\Service;
 
 use App\Import\Application\Service\FileChecksumCalculator;
+use App\Import\Application\Service\ImportFileStorage;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -41,7 +43,7 @@ final class FileChecksumCalculatorTest extends TestCase
         $rel = Path::makeRelative($abs, $this->projectDir);
         $rel = str_replace('\\', '/', $rel);
 
-        $calc = new FileChecksumCalculator($this->projectDir, 'sha256');
+        $calc = new FileChecksumCalculator($this->createFileStorage(), 'sha256');
 
         // Act
         $hash = $calc->forPath($rel);
@@ -56,7 +58,7 @@ final class FileChecksumCalculatorTest extends TestCase
         $abs = Path::join($this->projectDir, 'file.csv');
         file_put_contents($abs, 'data');
 
-        $calc = new FileChecksumCalculator($this->projectDir, 'sha256');
+        $calc = new FileChecksumCalculator($this->createFileStorage(), 'sha256');
 
         // Act
         $hash = $calc->forPath($abs);
@@ -68,11 +70,16 @@ final class FileChecksumCalculatorTest extends TestCase
     public function testThrowsOnMissingFile(): void
     {
         // Arrange
-        $calc = new FileChecksumCalculator($this->projectDir, 'sha256');
+        $calc = new FileChecksumCalculator($this->createFileStorage(), 'sha256');
         $rel = 'var/imports/missing.csv';
 
         // Act + Assert
         $this->expectException(\RuntimeException::class);
         $calc->forPath($rel);
+    }
+
+    private function createFileStorage(): ImportFileStorage
+    {
+        return new ImportFileStorage($this->projectDir, $this->fs, $this->createMock(LoggerInterface::class));
     }
 }

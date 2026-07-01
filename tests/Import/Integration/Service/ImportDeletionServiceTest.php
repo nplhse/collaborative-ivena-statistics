@@ -32,6 +32,8 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -85,6 +87,34 @@ final class ImportDeletionServiceTest extends KernelTestCase
         }
     }
 
+    public function testDeleteRemovesRelativeImportFilePath(): void
+    {
+        $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
+        $filesystem = new Filesystem();
+        $relativePath = 'var/imports/delete-relative-'.bin2hex(random_bytes(4)).'.csv';
+        $absolutePath = Path::join($projectDir, $relativePath);
+        $filesystem->mkdir(\dirname($absolutePath));
+        file_put_contents($absolutePath, "header1;header2\nvalue1;value2\n");
+
+        ['import' => $import, 'importId' => $importId] = $this->arrangeImportWithAllocation(
+            namePrefix: 'DeleteRelative',
+            filePath: $relativePath,
+        );
+
+        try {
+            self::assertFileExists($absolutePath);
+
+            $this->deletionService->delete($import);
+
+            self::assertNull($this->imports->find($importId));
+            self::assertFileDoesNotExist($absolutePath);
+        } finally {
+            if ($filesystem->exists($absolutePath)) {
+                $filesystem->remove($absolutePath);
+            }
+        }
+    }
+
     public function testDeleteLastImportRefreshesMaterializedViews(): void
     {
         ['import' => $import, 'csvPath' => $csvPath, 'importId' => $importId, 'hospitalId' => $hospitalId] = $this->arrangeImportWithAllocation();
@@ -131,7 +161,7 @@ final class ImportDeletionServiceTest extends KernelTestCase
     /**
      * @return array{import: Import, importId: int, csvPath: string, hospitalId: int}
      */
-    private function arrangeImportWithAllocation(string $namePrefix = 'DeleteService'): array
+    private function arrangeImportWithAllocation(string $namePrefix = 'DeleteService', ?string $filePath = null): array
     {
         UserFactory::createOne();
         $state = StateFactory::createOne();
@@ -141,8 +171,12 @@ final class ImportDeletionServiceTest extends KernelTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $csvPath = sys_get_temp_dir().'/ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv';
-        file_put_contents($csvPath, "header1;header2\nvalue1;value2\n");
+        if (null === $filePath) {
+            $csvPath = sys_get_temp_dir().'/ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv';
+            file_put_contents($csvPath, "header1;header2\nvalue1;value2\n");
+        } else {
+            $csvPath = $filePath;
+        }
 
         $importProxy = ImportFactory::createOne([
             'name' => $namePrefix.' IT',
