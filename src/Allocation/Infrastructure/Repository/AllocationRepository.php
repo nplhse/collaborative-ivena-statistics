@@ -33,6 +33,52 @@ final class AllocationRepository extends ServiceEntityRepository
             ->execute();
     }
 
+    public function findOneForShow(int $id): ?Allocation
+    {
+        /** @var Allocation|null $allocation */
+        $allocation = $this->createQueryBuilder('a')
+            ->addSelect(
+                'dispatchArea',
+                'state',
+                'department',
+                'speciality',
+                'indicationRaw',
+                'indicationNormalized',
+                'secondaryIndicationRaw',
+                'secondaryIndicationNormalized',
+                'assignment',
+                'occasion',
+                'secondaryTransport',
+                'infection',
+                'assessment',
+                'hospital',
+                'hospitalDispatchArea',
+                'hospitalState',
+            )
+            ->join('a.dispatchArea', 'dispatchArea')
+            ->join('a.state', 'state')
+            ->join('a.department', 'department')
+            ->join('a.speciality', 'speciality')
+            ->join('a.indicationRaw', 'indicationRaw')
+            ->leftJoin('a.indicationNormalized', 'indicationNormalized')
+            ->leftJoin('a.secondaryIndicationRaw', 'secondaryIndicationRaw')
+            ->leftJoin('a.secondaryIndicationNormalized', 'secondaryIndicationNormalized')
+            ->join('a.assignment', 'assignment')
+            ->leftJoin('a.occasion', 'occasion')
+            ->leftJoin('a.secondaryTransport', 'secondaryTransport')
+            ->leftJoin('a.infection', 'infection')
+            ->leftJoin('a.assessment', 'assessment')
+            ->join('a.hospital', 'hospital')
+            ->leftJoin('hospital.dispatchArea', 'hospitalDispatchArea')
+            ->leftJoin('hospital.state', 'hospitalState')
+            ->where('a.id = :id')
+            ->setParameter('id', $id, Types::INTEGER)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $allocation;
+    }
+
     /**
      * @return list<array{year: int, month: int, count: int}>
      */
