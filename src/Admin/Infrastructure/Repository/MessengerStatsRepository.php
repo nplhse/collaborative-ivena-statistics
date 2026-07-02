@@ -34,7 +34,7 @@ final readonly class MessengerStatsRepository
         foreach ($rows as $row) {
             $queueName = $row['queue_name'];
             $pendingCount = (int) $row['pending_count'];
-            $oldest = isset($row['oldest_created_at']) && \is_string($row['oldest_created_at'])
+            $oldest = isset($row['oldest_created_at'])
                 ? new \DateTimeImmutable($row['oldest_created_at'])
                 : null;
 

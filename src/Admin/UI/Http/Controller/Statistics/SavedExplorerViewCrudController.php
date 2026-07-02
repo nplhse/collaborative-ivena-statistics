@@ -61,10 +61,14 @@ final class SavedExplorerViewCrudController extends AbstractCrudController
         yield TextField::new('configJsonPreview', 'Config JSON')
             ->onlyOnDetail()
             ->setValue('')
-            ->formatValue(static fn (mixed $_, SavedExplorerView $view): string => json_encode(
-                $view->getConfigJson(),
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE,
-            ) ?: '');
+            ->formatValue(static function (mixed $_, SavedExplorerView $view): string {
+                $encoded = json_encode(
+                    $view->getConfigJson(),
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE,
+                );
+
+                return \is_string($encoded) ? $encoded : '';
+            });
         yield DateTimeField::new('createdAt', 'Created')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt', 'Updated')

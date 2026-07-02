@@ -61,10 +61,14 @@ final class ImportBatchRunCrudController extends AbstractCrudController
         yield TextField::new('optionsPreview', 'Options')
             ->onlyOnDetail()
             ->setValue('')
-            ->formatValue(static fn (mixed $_, ImportBatchRun $run): string => json_encode(
-                $run->getOptions(),
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE,
-            ) ?: '');
+            ->formatValue(static function (mixed $_, ImportBatchRun $run): string {
+                $encoded = json_encode(
+                    $run->getOptions(),
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE,
+                );
+
+                return \is_string($encoded) ? $encoded : '';
+            });
         yield AssociationField::new('items', 'Items')
             ->onlyOnDetail();
     }
