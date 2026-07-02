@@ -701,6 +701,18 @@
         <source>label.import.mimeTypes</source>
         <target>MIME-Typen</target>
       </trans-unit>
+      <trans-unit id="impValMimeDe" resname="validation.import.file_mime_types">
+        <source>validation.import.file_mime_types</source>
+        <target>Bitte laden Sie eine CSV-Datei hoch. Excel-Dateien (.xls, .xlsx) werden nicht unterstützt.</target>
+      </trans-unit>
+      <trans-unit id="impValExtDe" resname="validation.import.file_extensions">
+        <source>validation.import.file_extensions</source>
+        <target>Nur Dateien mit der Endung .csv oder .txt sind erlaubt.</target>
+      </trans-unit>
+      <trans-unit id="impValXlsDe" resname="validation.import.excel_rejected">
+        <source>validation.import.excel_rejected</source>
+        <target>Excel-Dateien (.xls, .xlsx) werden nicht unterstützt. Bitte exportieren Sie die Daten als CSV.</target>
+      </trans-unit>
       <trans-unit id="pagev001" resname="page.validation.path_unique">
         <source>page.validation.path_unique</source>
         <target>Dieser Pfad existiert bereits.</target>

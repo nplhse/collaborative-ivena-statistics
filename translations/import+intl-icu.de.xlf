@@ -241,6 +241,18 @@
         <source>label.import.new</source>
         <target>Neuer Import</target>
       </trans-unit>
+      <trans-unit id="impHelpFileDe" resname="label.import.helpFile">
+        <source>label.import.helpFile</source>
+        <target>Unterstütztes Format: CSV (Semikolon-getrennt). Excel-Dateien bitte zuerst als CSV exportieren.</target>
+      </trans-unit>
+      <trans-unit id="impSelHospDe" resname="label.import.selectHospital">
+        <source>label.import.selectHospital</source>
+        <target>Krankenhaus auswählen</target>
+      </trans-unit>
+      <trans-unit id="impBtnImportDe" resname="label.btn.import">
+        <source>label.btn.import</source>
+        <target>Import starten</target>
+      </trans-unit>
       <trans-unit id="De0b4cddd7" resname="label.import.section.quick_actions">
         <source>label.import.section.quick_actions</source>
         <target>Schnellaktionen</target>
