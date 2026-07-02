@@ -27,6 +27,7 @@ Legacy URLs with `hospitalScope=my_hospitals` and optional `hospital={id}` remai
 
 | Area | Path |
 |---|---|
+| Filter reference cache | `src/Allocation/Application/Explore/ExploreFilterOptionsProvider.php` (see [explore-filter-reference-cache.md](explore-filter-reference-cache.md)) |
 | Scope resolution | `src/Allocation/Application/Allocations/AllocationListHospitalScopeResolver.php` |
 | Filter criteria | `src/Allocation/Application/Allocations/AllocationListFilterCriteriaFactory.php` |
 | SQL filter | `src/Allocation/Application/Export/AllocationListFilterApplicator.php` |
