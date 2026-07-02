@@ -1,0 +1,124 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'ops.failed_messages.title'|trans({}, 'admin') }}{% endblock %}
+
+{% block main %}
+    <p class="text-muted mb-3">{{ 'ops.failed_messages.help'|trans({}, 'admin') }}</p>
+
+    {% if messages is not empty %}
+        <div class="d-flex flex-wrap align-items-center ea-failed-messages-toolbar mb-3">
+            <form method="post"
+                  action="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_delete_all') }}"
+                  class="m-0"
+                  onsubmit="return confirm('{{ 'ops.failed_messages.confirm_delete_all'|trans({}, 'admin')|e('js') }}');">
+                <input type="hidden" name="_token" value="{{ csrf_token('failed_messages_delete_all') }}">
+                <button type="submit" class="btn btn-primary ea-admin-primary-badge-btn d-inline-flex align-items-center">
+                    {{ 'ops.failed_messages.delete_all'|trans({}, 'admin') }}
+                    <span class="badge ea-admin-primary-badge-btn__badge">{{ total_count }}</span>
+                </button>
+            </form>
+
+            <form method="post"
+                  action="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_delete_selected') }}"
+                  id="failed-messages-batch-form"
+                  class="m-0"
+                  onsubmit="return confirm('{{ 'ops.failed_messages.confirm_delete_selected'|trans({}, 'admin')|e('js') }}');">
+                <input type="hidden" name="_token" value="{{ csrf_token('failed_messages_delete_batch') }}">
+                <button type="submit" class="btn btn-outline-primary ea-admin-action-btn">
+                    {{ 'ops.failed_messages.delete_selected'|trans({}, 'admin') }}
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 2.5rem;">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="failed-messages-select-all"
+                                       aria-label="{{ 'ops.failed_messages.select_all'|trans({}, 'admin') }}">
+                            </th>
+                            <th scope="col">ID</th>
+                            <th scope="col">{{ 'ops.failed_messages.created'|trans({}, 'admin') }}</th>
+                            <th scope="col">{{ 'ops.failed_messages.class'|trans({}, 'admin') }}</th>
+                            <th scope="col">{{ 'ops.failed_messages.preview'|trans({}, 'admin') }}</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox"
+                                           class="form-check-input failed-message-select"
+                                           name="ids[]"
+                                           value="{{ message.id }}"
+                                           form="failed-messages-batch-form"
+                                           aria-label="{{ 'ops.failed_messages.select_item'|trans({'%id%': message.id}, 'admin') }}">
+                                </td>
+                                <td>{{ message.id }}</td>
+                                <td class="text-nowrap">{{ message.created_at|date('d.m.Y H:i:s') }}</td>
+                                <td class="small"><code>{{ message.message_class ?: '—' }}</code></td>
+                                <td class="small text-muted">{{ message.error_preview }}</td>
+                                <td class="text-end text-nowrap">
+                                    <div class="d-inline-flex align-items-center ea-failed-messages-row-actions">
+                                        <a href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_detail', {id: message.id}) }}" class="btn btn-sm btn-outline-primary">
+                                            {{ 'ops.failed_messages.view'|trans({}, 'admin') }}
+                                        </a>
+                                        <form method="post"
+                                              action="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_delete', {id: message.id}) }}"
+                                              class="m-0"
+                                              onsubmit="return confirm('{{ 'ops.failed_messages.confirm_delete_one'|trans({}, 'admin')|e('js') }}');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('failed_message_delete_' ~ message.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                {{ 'ops.failed_messages.delete'|trans({}, 'admin') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('failed-messages-select-all')?.addEventListener('change', (event) => {
+                const checked = event.target.checked;
+                document.querySelectorAll('.failed-message-select').forEach((checkbox) => {
+                    checkbox.checked = checked;
+                });
+            });
+        </script>
+    {% else %}
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">{{ 'ops.failed_messages.created'|trans({}, 'admin') }}</th>
+                            <th scope="col">{{ 'ops.failed_messages.class'|trans({}, 'admin') }}</th>
+                            <th scope="col">{{ 'ops.failed_messages.preview'|trans({}, 'admin') }}</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="text-muted text-center py-4">{{ 'ops.failed_messages.empty'|trans({}, 'admin') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

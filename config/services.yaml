@@ -24,6 +24,8 @@ parameters:
     env(SENTRY_DSN): ''
     env(SENTRY_TRACES_SAMPLE_RATE): '0'
     env(SENTRY_ENABLE_LOGS): 'true'
+    env(APP_ADMIN_STORAGE_LIMIT_BYTES): '0'
+    app.admin.storage_limit_bytes: '%env(int:APP_ADMIN_STORAGE_LIMIT_BYTES)%'
 
 services:
     _defaults:

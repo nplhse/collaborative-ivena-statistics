@@ -137,6 +137,10 @@
         <source>title.dashboard</source>
         <target>Admin-Dashboard</target>
       </trans-unit>
+      <trans-unit id="menuUsr01de" resname="menu.users.accounts">
+        <source>menu.users.accounts</source>
+        <target>Benutzerkonten</target>
+      </trans-unit>
       <trans-unit id="DpRvyMB" resname="title.import_reject.list">
         <source>title.import_reject.list</source>
         <target>Zurückgewiesene Importe</target>
@@ -309,6 +313,14 @@
         <source>kpi.failed_imports.empty</source>
         <target>Keine fehlgeschlagenen Importe gefunden.</target>
       </trans-unit>
+      <trans-unit id="kpi017a" resname="kpi.failed_imports.view_all">
+        <source>kpi.failed_imports.view_all</source>
+        <target>Alle fehlgeschlagenen Importe</target>
+      </trans-unit>
+      <trans-unit id="kpi017b" resname="kpi.failed_imports.subtitle_30d">
+        <source>kpi.failed_imports.subtitle_30d</source>
+        <target>Letzte 30 Tage</target>
+      </trans-unit>
       <trans-unit id="kpi018" resname="kpi.failure_reason.no_rows">
         <source>kpi.failure_reason.no_rows</source>
         <target>Keine verarbeitbaren Zeilen</target>
@@ -432,6 +444,246 @@
       <trans-unit id="FlsAdmPtOkDe" resname="flash.admin.user.grant_participant.success">
         <source>flash.admin.user.grant_participant.success</source>
         <target>Teilnehmer-Rolle wurde zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="admMr04" resname="admin.hospital.action.reminder_history">
+        <source>admin.hospital.action.reminder_history</source>
+        <target>Erinnerungsverlauf</target>
+      </trans-unit>
+      <trans-unit id="opsSec01de" resname="ops.section.title">
+        <source>ops.section.title</source>
+        <target>Betrieb</target>
+      </trans-unit>
+      <trans-unit id="opsCard01de" resname="ops.card.failed_messages">
+        <source>ops.card.failed_messages</source>
+        <target>Fehlgeschlagene Nachrichten</target>
+      </trans-unit>
+      <trans-unit id="opsCard02de" resname="ops.card.queue_high">
+        <source>ops.card.queue_high</source>
+        <target>High-Priority-Warteschlange</target>
+      </trans-unit>
+      <trans-unit id="opsCard03de" resname="ops.card.queue_low">
+        <source>ops.card.queue_low</source>
+        <target>Low-Priority-Warteschlange</target>
+      </trans-unit>
+      <trans-unit id="opsCard04de" resname="ops.card.database_size">
+        <source>ops.card.database_size</source>
+        <target>Datenbankgröße</target>
+      </trans-unit>
+      <trans-unit id="opsCard05de" resname="ops.card.storage_total">
+        <source>ops.card.storage_total</source>
+        <target>Gesamtspeicher</target>
+      </trans-unit>
+      <trans-unit id="opsCard06de" resname="ops.card.reminders_this_month">
+        <source>ops.card.reminders_this_month</source>
+        <target>Erinnerungen diesen Monat</target>
+      </trans-unit>
+      <trans-unit id="opsCard07de" resname="ops.card.imports_media">
+        <source>ops.card.imports_media</source>
+        <target>Importe / Medien</target>
+      </trans-unit>
+      <trans-unit id="opsCard08de" resname="ops.card.trend_up">
+        <source>ops.card.trend_up</source>
+        <target>+{size} in 30 Tagen</target>
+      </trans-unit>
+      <trans-unit id="opsCard09de" resname="ops.card.trend_flat">
+        <source>ops.card.trend_flat</source>
+        <target>Keine Änderung (30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="opsHlth01de" resname="ops.health.status.healthy">
+        <source>ops.health.status.healthy</source>
+        <target>Gesund</target>
+      </trans-unit>
+      <trans-unit id="opsHlth02de" resname="ops.health.status.degraded">
+        <source>ops.health.status.degraded</source>
+        <target>Eingeschränkt</target>
+      </trans-unit>
+      <trans-unit id="opsHlth03de" resname="ops.health.status.unhealthy">
+        <source>ops.health.status.unhealthy</source>
+        <target>Ungesund</target>
+      </trans-unit>
+      <trans-unit id="opsHlth04de" resname="ops.health.version">
+        <source>ops.health.version</source>
+        <target>Version {version}</target>
+      </trans-unit>
+      <trans-unit id="opsHlth05de" resname="ops.health.check.database">
+        <source>ops.health.check.database</source>
+        <target>Datenbank</target>
+      </trans-unit>
+      <trans-unit id="opsHlth06de" resname="ops.health.check.messenger_failed">
+        <source>ops.health.check.messenger_failed</source>
+        <target>Messenger fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="opsStor01de" resname="ops.storage.title">
+        <source>ops.storage.title</source>
+        <target>Speichernutzung</target>
+      </trans-unit>
+      <trans-unit id="opsStor02de" resname="ops.storage.database">
+        <source>ops.storage.database</source>
+        <target>Datenbank</target>
+      </trans-unit>
+      <trans-unit id="opsStor03de" resname="ops.storage.imports">
+        <source>ops.storage.imports</source>
+        <target>CSV-Importe</target>
+      </trans-unit>
+      <trans-unit id="opsStor04de" resname="ops.storage.media">
+        <source>ops.storage.media</source>
+        <target>Medien-Uploads</target>
+      </trans-unit>
+      <trans-unit id="opsStor05de" resname="ops.storage.growth_30d">
+        <source>ops.storage.growth_30d</source>
+        <target>Wachstum (letzte 30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="opsStor06de" resname="ops.storage.growth_imports">
+        <source>ops.storage.growth_imports</source>
+        <target>Importe: {size}</target>
+      </trans-unit>
+      <trans-unit id="opsStor07de" resname="ops.storage.growth_media">
+        <source>ops.storage.growth_media</source>
+        <target>Medien: {size}</target>
+      </trans-unit>
+      <trans-unit id="opsStor08de" resname="ops.storage.application_code">
+        <source>ops.storage.application_code</source>
+        <target>Quellcode</target>
+      </trans-unit>
+      <trans-unit id="opsStor09de" resname="ops.storage.of_limit">
+        <source>ops.storage.of_limit</source>
+        <target>von {limit}</target>
+      </trans-unit>
+      <trans-unit id="opsStor10de" resname="ops.storage.used">
+        <source>ops.storage.used</source>
+        <target>{size} belegt</target>
+      </trans-unit>
+      <trans-unit id="opsStor11de" resname="ops.storage.total_used">
+        <source>ops.storage.total_used</source>
+        <target>{size} gesamt</target>
+      </trans-unit>
+      <trans-unit id="opsNot01de" resname="ops.notifications.title">
+        <source>ops.notifications.title</source>
+        <target>Aktuelle Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="opsNot02de" resname="ops.notifications.time">
+        <source>ops.notifications.time</source>
+        <target>Zeit</target>
+      </trans-unit>
+      <trans-unit id="opsNot03de" resname="ops.notifications.intent">
+        <source>ops.notifications.intent</source>
+        <target>Intent</target>
+      </trans-unit>
+      <trans-unit id="opsNot04de" resname="ops.notifications.action">
+        <source>ops.notifications.action</source>
+        <target>Aktion</target>
+      </trans-unit>
+      <trans-unit id="opsNot05de" resname="ops.notifications.origin">
+        <source>ops.notifications.origin</source>
+        <target>Herkunft</target>
+      </trans-unit>
+      <trans-unit id="opsNot06de" resname="ops.notifications.empty">
+        <source>ops.notifications.empty</source>
+        <target>Keine aktuellen Benachrichtigungsereignisse.</target>
+      </trans-unit>
+      <trans-unit id="opsFm01de" resname="ops.failed_messages.title">
+        <source>ops.failed_messages.title</source>
+        <target>Fehlgeschlagene Messenger-Nachrichten</target>
+      </trans-unit>
+      <trans-unit id="opsFm02de" resname="ops.failed_messages.help">
+        <source>ops.failed_messages.help</source>
+        <target>Fehlgeschlagene Nachrichten einsehen und aus der Failed-Queue entfernen. Für erneutes Zustellen die CLI verwenden.</target>
+      </trans-unit>
+      <trans-unit id="opsFm03de" resname="ops.failed_messages.created">
+        <source>ops.failed_messages.created</source>
+        <target>Erstellt</target>
+      </trans-unit>
+      <trans-unit id="opsFm04de" resname="ops.failed_messages.class">
+        <source>ops.failed_messages.class</source>
+        <target>Nachrichtenklasse</target>
+      </trans-unit>
+      <trans-unit id="opsFm05de" resname="ops.failed_messages.preview">
+        <source>ops.failed_messages.preview</source>
+        <target>Vorschau</target>
+      </trans-unit>
+      <trans-unit id="opsFm06de" resname="ops.failed_messages.empty">
+        <source>ops.failed_messages.empty</source>
+        <target>Keine fehlgeschlagenen Nachrichten.</target>
+      </trans-unit>
+      <trans-unit id="opsFm07de" resname="ops.failed_messages.view">
+        <source>ops.failed_messages.view</source>
+        <target>Ansehen</target>
+      </trans-unit>
+      <trans-unit id="opsFm08de" resname="ops.failed_messages.detail_title">
+        <source>ops.failed_messages.detail_title</source>
+        <target>Fehlgeschlagene Nachricht #{id}</target>
+      </trans-unit>
+      <trans-unit id="opsFm09de" resname="ops.failed_messages.back">
+        <source>ops.failed_messages.back</source>
+        <target>Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="opsFm10de" resname="ops.failed_messages.headers">
+        <source>ops.failed_messages.headers</source>
+        <target>Headers</target>
+      </trans-unit>
+      <trans-unit id="opsFm11de" resname="ops.failed_messages.body">
+        <source>ops.failed_messages.body</source>
+        <target>Body</target>
+      </trans-unit>
+      <trans-unit id="opsFm12de" resname="ops.failed_messages.cli_hint">
+        <source>ops.failed_messages.cli_hint</source>
+        <target>Nach Behebung des Problems bin/console messenger:failed:retry verwenden, um eine Nachricht erneut zuzustellen.</target>
+      </trans-unit>
+      <trans-unit id="opsFm13de" resname="ops.failed_messages.delete">
+        <source>ops.failed_messages.delete</source>
+        <target>Löschen</target>
+      </trans-unit>
+      <trans-unit id="opsFm14de" resname="ops.failed_messages.delete_selected">
+        <source>ops.failed_messages.delete_selected</source>
+        <target>Auswahl löschen</target>
+      </trans-unit>
+      <trans-unit id="opsFm15de" resname="ops.failed_messages.delete_all">
+        <source>ops.failed_messages.delete_all</source>
+        <target>Alle löschen</target>
+      </trans-unit>
+      <trans-unit id="opsFm16de" resname="ops.failed_messages.select_all">
+        <source>ops.failed_messages.select_all</source>
+        <target>Alle auswählen</target>
+      </trans-unit>
+      <trans-unit id="opsFm17de" resname="ops.failed_messages.select_item">
+        <source>ops.failed_messages.select_item</source>
+        <target>Nachricht #{id} auswählen</target>
+      </trans-unit>
+      <trans-unit id="opsFm18de" resname="ops.failed_messages.confirm_delete_one">
+        <source>ops.failed_messages.confirm_delete_one</source>
+        <target>Diese fehlgeschlagene Nachricht endgültig löschen?</target>
+      </trans-unit>
+      <trans-unit id="opsFm19de" resname="ops.failed_messages.confirm_delete_selected">
+        <source>ops.failed_messages.confirm_delete_selected</source>
+        <target>Die ausgewählten fehlgeschlagenen Nachrichten endgültig löschen?</target>
+      </trans-unit>
+      <trans-unit id="opsFm20de" resname="ops.failed_messages.confirm_delete_all">
+        <source>ops.failed_messages.confirm_delete_all</source>
+        <target>Alle fehlgeschlagenen Nachrichten endgültig löschen?</target>
+      </trans-unit>
+      <trans-unit id="opsFm21de" resname="ops.failed_messages.flash.deleted_one">
+        <source>ops.failed_messages.flash.deleted_one</source>
+        <target>Fehlgeschlagene Nachricht gelöscht.</target>
+      </trans-unit>
+      <trans-unit id="opsFm22de" resname="ops.failed_messages.flash.deleted_many">
+        <source>ops.failed_messages.flash.deleted_many</source>
+        <target>{count, plural, =0 {Keine fehlgeschlagenen Nachrichten gelöscht.} =1 {Eine fehlgeschlagene Nachricht gelöscht.} other {# fehlgeschlagene Nachrichten gelöscht.}}</target>
+      </trans-unit>
+      <trans-unit id="opsFm23de" resname="ops.failed_messages.flash.deleted_all">
+        <source>ops.failed_messages.flash.deleted_all</source>
+        <target>{count, plural, =0 {Keine fehlgeschlagenen Nachrichten gelöscht.} =1 {Eine fehlgeschlagene Nachricht gelöscht.} other {# fehlgeschlagene Nachrichten gelöscht.}}</target>
+      </trans-unit>
+      <trans-unit id="opsFm24de" resname="ops.failed_messages.flash.none_selected">
+        <source>ops.failed_messages.flash.none_selected</source>
+        <target>Bitte mindestens eine fehlgeschlagene Nachricht zum Löschen auswählen.</target>
+      </trans-unit>
+      <trans-unit id="opsRd01de" resname="ops.reminder_dispatch.title">
+        <source>ops.reminder_dispatch.title</source>
+        <target>Monatliche Erinnerungsversände</target>
+      </trans-unit>
+      <trans-unit id="opsRd02de" resname="ops.reminder_dispatch.help">
+        <source>ops.reminder_dispatch.help</source>
+        <target>Nur Scheduler-Versände werden hier erfasst. Admin- und CLI-Versände stehen im Audit-Log.</target>
       </trans-unit>
     </body>
   </file>

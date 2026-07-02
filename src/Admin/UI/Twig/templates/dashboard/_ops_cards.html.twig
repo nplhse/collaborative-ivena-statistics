@@ -1,0 +1,37 @@
+<div class="ea-dashboard-ops mb-4">
+    <h3 class="h5 text-muted text-uppercase mb-3">{{ 'ops.section.title'|trans({}, 'admin') }}</h3>
+    <div class="row">
+        {% for card in ops_cards %}
+            <div class="col-12 col-sm-6 col-xl-4 mb-3">
+                {% if card.detailUrl %}
+                    <a href="{{ card.detailUrl }}" class="text-decoration-none text-body d-block h-100">
+                {% endif %}
+                <div class="card h-100 border-{{ card.style }}">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-start justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="{{ card.icon }} fa-lg text-secondary" aria-hidden="true"></i>
+                                <span class="text-muted small mb-0">{{ card.labelKey|trans({}, 'admin') }}</span>
+                            </div>
+                        </div>
+                        <p class="ea-kpi-value mb-1">{{ card.value }}</p>
+                        {% if card.trendBytes is not null %}
+                            {% set trendUp = card.trendBytes > 0 %}
+                            <p class="ea-ops-card-trend mb-0 small {{ trendUp ? 'text-success' : 'text-muted' }}">
+                                <i class="fas {{ trendUp ? 'fa-arrow-trend-up' : 'fa-minus' }} me-1" aria-hidden="true"></i>
+                                {% if trendUp %}
+                                    {{ 'ops.card.trend_up'|trans({'%size%': card.trendBytes|format_bytes}, 'admin') }}
+                                {% else %}
+                                    {{ 'ops.card.trend_flat'|trans({}, 'admin') }}
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if card.detailUrl %}
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>

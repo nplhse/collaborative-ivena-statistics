@@ -284,24 +284,39 @@ SQL;
     /**
      * @return list<Import>
      */
-    public function findRecentFailedImports(int $limit = 10): array
+    public function findRecentFailedImports(int $limit = 10, ?\DateTimeImmutable $since = null): array
     {
         if ($limit <= 0) {
             return [];
         }
 
-        /** @var list<Import> $imports */
-        $imports = $this->createQueryBuilder('i')
+        $qb = $this->createQueryBuilder('i')
             ->addSelect('h')
             ->join('i.hospital', 'h')
             ->where('i.status = :failed')
             ->setParameter('failed', ImportStatus::FAILED)
             ->orderBy('i.createdAt', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults($limit);
+
+        if ($since instanceof \DateTimeImmutable) {
+            $qb->andWhere('i.createdAt >= :since')
+                ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
+        }
+
+        /** @var list<Import> $imports */
+        $imports = $qb->getQuery()->getResult();
 
         return $imports;
+    }
+
+    public function countFailedImports(): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->where('i.status = :failed')
+            ->setParameter('failed', ImportStatus::FAILED)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function hasImportsCreatedByUserSince(User $user, \DateTimeImmutable $since): bool

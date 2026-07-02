@@ -1,5 +1,14 @@
 <div class="ea-dashboard-kpi mb-4">
-    <h3 class="h5 text-muted text-uppercase mb-3">{{ 'kpi.failed_imports.title'|trans({}, 'admin') }}</h3>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div>
+            <h3 class="h5 text-muted text-uppercase mb-1">{{ 'kpi.failed_imports.title'|trans({}, 'admin') }}</h3>
+            <p class="text-muted small mb-0">{{ 'kpi.failed_imports.subtitle_30d'|trans({}, 'admin') }}</p>
+        </div>
+        <a href="{{ failed_imports.allFailedImportsUrl }}" class="btn btn-primary ea-admin-primary-badge-btn d-inline-flex align-items-center">
+            {{ 'kpi.failed_imports.view_all'|trans({}, 'admin') }}
+            <span class="badge ea-admin-primary-badge-btn__badge">{{ failed_imports.totalFailedCount }}</span>
+        </a>
+    </div>
     <div class="card">
         <div class="table-responsive">
             <table class="table table-striped table-hover mb-0 align-middle">
@@ -15,12 +24,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if failed_imports is empty %}
+                    {% if failed_imports.rows is empty %}
                         <tr>
                             <td colspan="7" class="text-muted text-center py-4">{{ 'kpi.failed_imports.empty'|trans({}, 'admin') }}</td>
                         </tr>
                     {% else %}
-                        {% for row in failed_imports %}
+                        {% for row in failed_imports.rows %}
                             <tr>
                                 <td class="text-nowrap">{{ row.createdAt|date('d.m.Y H:i') }}</td>
                                 <td>{{ row.hospitalName }}</td>

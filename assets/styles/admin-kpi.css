@@ -17,3 +17,47 @@
 .ea-dashboard-kpi .ea-kpi-chart-target {
     min-height: 280px;
 }
+
+.ea-ops-health-banner {
+    border-color: var(--bs-border-color, #dee2e6) !important;
+}
+
+.ea-ops-health-badge {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.ea-dashboard-ops .ea-kpi-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.ea-ops-card-trend {
+    font-size: 0.8125rem;
+}
+
+.ea-admin-primary-badge-btn {
+    gap: 0.625rem;
+    padding: 0.5rem 1rem;
+}
+
+.ea-admin-primary-badge-btn__badge {
+    background-color: #fff;
+    color: var(--bs-primary, #0d6efd);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.35em 0.65em;
+}
+
+.ea-admin-action-btn {
+    padding: 0.5rem 1rem;
+}
+
+.ea-failed-messages-toolbar {
+    gap: 0.75rem;
+}
+
+.ea-failed-messages-row-actions {
+    gap: 0.5rem;
+}
