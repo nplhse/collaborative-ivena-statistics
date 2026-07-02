@@ -128,6 +128,41 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
+    public function testDownloadSourceGrantedForAdmin(): void
+    {
+        $admin = UserFactory::new()->asAdmin()->create();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
+    public function testDownloadSourceDeniedForHospitalOwner(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
+    public function testDownloadSourceDeniedForForeignParticipant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $intruder = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($intruder), $import, [ImportVoter::DOWNLOAD_SOURCE]),
+        );
+    }
+
     public function testDeleteDeniedForCreatorWithoutHospitalAccess(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
