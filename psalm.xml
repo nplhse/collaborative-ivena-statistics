@@ -60,6 +60,7 @@
                 <directory name="src/Statistics/" />
                 <directory name="src/Kpi/" />
                 <directory name="src/Engagement/" />
+                <directory name="src/Admin/Application/Service/" />
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>
