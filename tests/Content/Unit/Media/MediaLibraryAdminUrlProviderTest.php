@@ -25,10 +25,10 @@ final class MediaLibraryAdminUrlProviderTest extends TestCase
             ->willReturnSelf();
         $generator->expects(self::once())
             ->method('generateUrl')
-            ->willReturn('/admin?crudAction=index&crudControllerFqcn=MediaCrudController');
+            ->willReturn('/admin/media');
 
         self::assertSame(
-            '/admin?crudAction=index&crudControllerFqcn=MediaCrudController',
+            '/admin/media',
             new MediaLibraryAdminUrlProvider($generator)->getIndexUrl(),
         );
     }
