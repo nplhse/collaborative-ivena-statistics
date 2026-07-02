@@ -107,7 +107,7 @@ final class GrantParticipantControllerTest extends WebTestCase
         $uriSigner = self::getContainer()->get(UriSigner::class);
 
         $url = $urlGenerator->generate(
-            'app_admin_user_grant_participant',
+            'app_admin_dashboard_user_grant_participant',
             ['id' => $target->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL,
         );

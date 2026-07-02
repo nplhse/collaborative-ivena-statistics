@@ -8,16 +8,18 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\UriSigner;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
 #[IsGranted('ROLE_ADMIN')]
+#[AdminRoute(path: '/users', name: 'user')]
 final class GrantParticipantController extends AbstractController
 {
     /** @psalm-suppress PossiblyUnusedMethod */
@@ -29,9 +31,9 @@ final class GrantParticipantController extends AbstractController
     ) {
     }
 
-    #[Route('/admin/users/{id}/grant-participant', name: 'app_admin_user_grant_participant', requirements: ['id' => '\d+'])]
+    #[AdminRoute(path: '/{id}/grant-participant', name: 'grant_participant', options: ['methods' => ['GET'], 'requirements' => ['id' => '\d+']])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function __invoke(int $id, Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
+    public function __invoke(int $id, Request $request): RedirectResponse
     {
         if (!$this->uriSigner->check($request->getUri())) {
             throw $this->createAccessDeniedException('Invalid or expired link.');
