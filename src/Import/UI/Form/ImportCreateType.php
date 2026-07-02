@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Validation\Constraints\ImportSourceFile;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -60,17 +61,14 @@ final class ImportCreateType extends AbstractType
             ->add('file', FileType::class, [
                 'mapped' => false,
                 'required' => true,
+                'attr' => [
+                    'accept' => '.csv,.txt',
+                ],
                 'constraints' => [
                     new Assert\NotNull(),
+                    new ImportSourceFile(),
                     new FileConstraint(
                         maxSize: $this->maxSize,
-                        mimeTypes: [
-                            'text/csv',
-                            'application/vnd.ms-excel',
-                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            'text/plain',
-                        ],
-                        mimeTypesMessage: 'label.import.mimeTypes',
                     ),
                 ],
                 'help' => 'label.import.helpFile',
@@ -86,6 +84,7 @@ final class ImportCreateType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Import::class,
+            'translation_domain' => 'import',
         ]);
     }
 }
