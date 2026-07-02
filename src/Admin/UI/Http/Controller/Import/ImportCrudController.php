@@ -117,7 +117,7 @@ final class ImportCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function deleteEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
         $this->importDeletionService->delete($entityInstance);
     }
