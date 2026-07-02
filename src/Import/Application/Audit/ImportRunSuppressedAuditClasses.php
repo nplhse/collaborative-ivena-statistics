@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Application\Audit;
 
 use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\Assessment;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\MciCase;
 use App\Import\Domain\Entity\ImportReject;
@@ -16,6 +17,7 @@ final class ImportRunSuppressedAuditClasses
     {
         return [
             Allocation::class,
+            Assessment::class,
             IndicationRaw::class,
             ImportReject::class,
             MciCase::class,
