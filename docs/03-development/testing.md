@@ -4,7 +4,7 @@
 
 - **Unit / integration / functional** via PHPUnit under `tests/`
 - **Fixture tests** under `tests/DataFixtures/` (reference YAML, pattern validation)
-- **Import integration tests** for CSV processing and reject behavior
+- **Import integration tests** for CSV processing, reject behaviour, and upload validation (Excel / unsupported extensions)
 - **Command tests** for requeue and exit-code behavior
 
 ## Run locally

@@ -29,7 +29,7 @@
     <div class="page-body">
         <div class="container-xl">
             <twig:Card>
-                {{ form_start(form, {attr: {enctype: 'multipart/form-data'}}) }}
+                {{ form_start(form, {attr: {enctype: 'multipart/form-data', 'data-turbo': 'false'}}) }}
                     {{ form_row(form.name) }}
                     {{ form_row(form.hospital) }}
                     {{ form_row(form.file) }}

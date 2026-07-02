@@ -5,7 +5,7 @@ This document describes the primary data pipeline from CSV upload to analytics-r
 ## Import pipeline
 
 ```
-UI (NewImportController)
+UI (NewImportController; form + ImportUploadGuard reject Excel and unsupported types)
   → file stored in var/imports/
   → ImportAllocationsMessage (async_priority_high)
   → ImportAllocationsMessageHandler
@@ -38,7 +38,7 @@ Details: [../04-features/statistics/statistics-filter-and-scope.md](../04-featur
 
 ## Sequence
 
-1. Create upload/import (`NewImportController`)
+1. Create upload/import (`NewImportController`; upload validated before dispatch — see [upload validation](../04-features/import/import-pipeline.md#upload-validation))
 2. Dispatch `ImportAllocationsMessage`
 3. Process in `ImportAllocationsMessageHandler`
 4. Emit domain event `ImportCompleted`

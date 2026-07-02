@@ -20,6 +20,7 @@ journalctl --user -u messenger -f
 | Symptom | Likely cause | Quick fix |
 |---|---|---|
 | Imports/mail stuck in queue | Worker not running | Start/restart worker and inspect queue |
+| Excel upload rejected on import form | `.xls` / `.xlsx` not supported (CSV-only importer) | Export as CSV (`.csv` or `.txt`); see [import-pipeline.md](../04-features/import/import-pipeline.md#upload-validation) |
 | `import.failed.precondition` | Missing CSV or invalid path | Verify import file path and file availability |
 | Requeue exits with code `2` | Critical error / retry limit | Fix affected import, retry |
 | Statistics look outdated | Messenger worker not processing projection rebuild, manual projection SQL, or hospital metadata changed without re-import | Check worker queue; run `app:statistics:refresh-mviews` if projection was changed outside the app |

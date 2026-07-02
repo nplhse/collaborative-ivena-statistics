@@ -26,6 +26,7 @@ twig:
         '%kernel.project_dir%/src/Statistics/UI/Twig/templates': Statistics
 
     form_themes:
+        - 'bootstrap_5_layout.html.twig'
         - '@Shared/form/password_visibility_theme.html.twig'
 
 when@test:

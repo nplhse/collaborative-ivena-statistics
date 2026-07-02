@@ -4,7 +4,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 
 | Context | Responsibility |
 |---|---|
-| `Import` | CSV upload, dispatch, async processing, rejects |
+| `Import` | CSV upload (`.csv`/`.txt` only), validation, dispatch, async processing, rejects |
 | `Statistics` | Projection, materialized views, analytics (Explorer, Benchmarking, Case Flow, …) |
 | `Allocation` | Core domain data (allocations, master data, indication review) |
 | `User` | Authentication, registration, password reset |

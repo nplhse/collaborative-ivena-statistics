@@ -6,7 +6,7 @@ Alpha onboarding for users with `ROLE_PARTICIPANT`: a dashboard card guides new 
 
 1. Request clinic access (feedback drawer)
 2. Review own clinic
-3. Start first import
+3. Start first import (CSV or `.txt` export; not Excel — see [import-pipeline.md](../import/import-pipeline.md#upload-validation))
 4. Browse imported allocations in Explore (links to `/explore/allocation?hospitalFilter=my_hospitals`)
 5. Open statistics overview
 

@@ -11,7 +11,30 @@ Upload/dispatch is separated from processing in the worker.
 - MCI/MANV-related rows
 - Rejected rows are recorded as rejects
 
-Source: CSV files uploaded through the import UI.
+Source: CSV or plain-text files (`.csv`, `.txt`) uploaded through the import UI.
+
+Excel files (`.xls`, `.xlsx`) are **not** supported. The importer reads rows via `SplCsvRowReader`; users must export spreadsheet data as CSV first.
+
+## Upload validation
+
+Rejected uploads are caught **before** dispatch to the worker. Validation runs in three layers:
+
+1. **Form constraint** — `ImportSourceFile` on the file field in `ImportCreateType` (Symfony Validator).
+2. **Controller guard** — `NewImportController::rejectUnsupportedImportFile()` adds a field error when the form is submitted but not yet fully validated (defensive duplicate of the guard logic).
+3. **Upload service** — `FileUploader::resolveExtension()` rejects Excel extensions and guessed Excel types as a last line of defence.
+
+Shared rules live in `ImportAllowedFileTypes` and `ImportUploadGuard`:
+
+| Check | Result |
+|---|---|
+| Extension `.xls` / `.xlsx` | Rejected with `validation.import.excel_rejected` |
+| Extension other than `.csv` / `.txt` | Rejected with `validation.import.file_extensions` |
+| Allowed extension but content MIME not in `EXTENSION_MIME_MAP` | Rejected with `validation.import.file_mime_types` |
+| Spreadsheet content MIME on a `.csv` file | Rejected as Excel (`validation.import.excel_rejected`) |
+
+The file input uses `accept=".csv,.txt"`. Windows may report CSV exports as `application/vnd.ms-excel`; that MIME is mapped to `.csv` when the extension is allowed.
+
+User-facing messages are in the `validators` domain (`validation.import.*`); help text on the form uses `label.import.helpFile` in the `import` domain.
 
 ## Technical flow
 
@@ -30,6 +53,8 @@ Source: CSV files uploaded through the import UI.
 - `AllocationImporter`
 - `RuleBasedRowTypeDetector`
 - `ImportRequeueBatchOrchestrator`
+- `ImportAllowedFileTypes`, `ImportUploadGuard`, `ImportSourceFile` / `ImportSourceFileValidator` (upload validation)
+- `FileUploader` (store file under `var/imports/...`)
 
 ## Audit during import
 
@@ -79,6 +104,9 @@ php bin/console app:import:requeue-all --resume
 Useful tests:
 - `tests/Import/Integration/...`
 - `tests/Import/Functional/Command/RequeueAllImportsCommandTest.php`
+- `tests/Import/Functional/Controller/NewImportControllerTest.php` (upload validation, Excel rejection)
+- `tests/Import/Unit/Service/ImportUploadGuardTest.php`
+- `tests/Import/Integration/Validator/Constraints/ImportSourceFileValidatorTest.php`
 
 ## Reject writer configuration
 

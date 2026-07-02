@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
+use App\Import\Application\Service\ImportUploadGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
@@ -18,6 +19,9 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +29,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[IsGranted('ROLE_PARTICIPANT')]
 #[Route('/import/new', name: 'app_import_new', methods: ['GET', 'POST'])]
@@ -35,6 +40,8 @@ final class NewImportController extends AbstractController
         private readonly MessageBusInterface $bus,
         private readonly FileChecksumCalculator $checksumCalculator,
         private readonly FileUploader $fileUploader,
+        private readonly ImportUploadGuard $importUploadGuard,
+        private readonly TranslatorInterface $translator,
         private readonly AuditContext $auditContext,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
@@ -47,6 +54,10 @@ final class NewImportController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        }
+
+        if ($form->isSubmitted()) {
+            $this->rejectUnsupportedImportFile($form);
         }
 
         if (!$form->isSubmitted() || !$form->isValid()) {
@@ -88,7 +99,17 @@ final class NewImportController extends AbstractController
 
         $clientMime = $file->getClientMimeType();
         $clientSize = $file->getSize();
-        $targetPath = $this->fileUploader->upload($file);
+
+        try {
+            $targetPath = $this->fileUploader->upload($file);
+        } catch (FileException) {
+            $message = $this->translator->trans('validation.import.excel_rejected', [], 'validators');
+            $form->get('file')->addError(new FormError($message));
+
+            return $this->render('@Import/new.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
 
         $import = new Import()
             ->setName($name)
@@ -126,5 +147,32 @@ final class NewImportController extends AbstractController
         $this->addFlash('success', new TranslatableMessage('flash.import.created', domain: 'import'));
 
         return $this->redirectToRoute('app_import_processing', ['id' => $importId]);
+    }
+
+    /**
+     * @param FormInterface<mixed> $form
+     */
+    private function rejectUnsupportedImportFile(FormInterface $form): void
+    {
+        if (!$form->has('file')) {
+            return;
+        }
+
+        $file = $form->get('file')->getData();
+        if (!$file instanceof UploadedFile) {
+            return;
+        }
+
+        $messageKey = $this->importUploadGuard->resolveRejectionMessageKey($file);
+        if (null === $messageKey) {
+            return;
+        }
+
+        $message = $this->translator->trans($messageKey, [], 'validators');
+        $fileField = $form->get('file');
+
+        if (0 === $fileField->getErrors()->count()) {
+            $fileField->addError(new FormError($message));
+        }
     }
 }

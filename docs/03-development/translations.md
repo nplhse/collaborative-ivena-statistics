@@ -115,6 +115,7 @@ Use this table when adding a new key. When in doubt, prefer the **feature domain
 | Statistics, explorer, benchmarking, case flow, KPIs | `statistics` | `stats.*`, `statistics.*` |
 | Allocations, hospitals (participant UI), indications, MCI, export | `allocation` | `flash.indication.*`, `help.export.*`, `allocations.field.*`, `hospital.tier.*`, `hospital.location.*`, `title.allocation.*`, `title.hospital*` |
 | CSV import, import status, import admin | `import` | `flash.import.*`, `title.import.*`, `label.import.*` |
+| Import upload validation (Symfony Validator) | `validators` | `validation.import.excel_rejected`, `validation.import.file_extensions`, `validation.import.file_mime_types` |
 | Login, registration, password, settings, user emails | `user` | `flash.user.*`, `title.settings*`, `email.*` (user context) |
 | Blog, public pages, dashboard CMS snippets | `content` | `blog.*`, `dashboard.*`, `public.*`, `title.blog` |
 | Onboarding checklist | `onboarding` | `onboarding.steps.*` |

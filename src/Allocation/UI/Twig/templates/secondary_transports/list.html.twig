@@ -97,7 +97,7 @@
                     <tr>
                         <th class="col-8">
                             <a class="text-muted" href="{{ path('app_explore_secondary_transport_list', {
-                                ...app.request.query.all(),
+                                ... app.request.query.all(),
                                 sortBy: 'name',
                                 orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
                             }) }}">
@@ -106,7 +106,7 @@
                         </th>
                         <th class="col-2">
                             <a class="text-muted" href="{{ path('app_explore_secondary_transport_list', {
-                                ...app.request.query.all(),
+                                ... app.request.query.all(),
                                 sortBy: 'lastChange',
                                 orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
                             }) }}">
