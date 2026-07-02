@@ -15,7 +15,7 @@ use Doctrine\DBAL\Connection;
 /**
  * Single-scan aggregation for all indication-only dashboard dimensions.
  *
- * @see docs/indication-dashboard-performance.md
+ * @see docs/04-features/statistics/indication-dashboard-performance.md
  */
 final readonly class IndicationDashboardSliceQuery
 {
