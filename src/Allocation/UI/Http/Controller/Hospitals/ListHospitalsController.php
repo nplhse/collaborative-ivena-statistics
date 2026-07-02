@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Hospitals;
 
+use App\Allocation\Application\Explore\ExploreFilterOptionsProvider;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
-use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
-use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,8 +20,7 @@ final class ListHospitalsController extends AbstractController
 {
     public function __construct(
         private readonly HospitalRepository $hospitalRepository,
-        private readonly DispatchAreaRepository $dispatchAreaRepository,
-        private readonly StateRepository $stateRepository,
+        private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
     ) {
     }
 
@@ -42,8 +40,8 @@ final class ListHospitalsController extends AbstractController
             'tiers' => HospitalTier::cases(),
             'locations' => HospitalLocation::cases(),
             'sizes' => HospitalSize::cases(),
-            'states' => $this->stateRepository->findAll(),
-            'dispatchAreas' => $this->dispatchAreaRepository->findAll(),
+            'states' => $this->filterOptionsProvider->states(),
+            'dispatchAreas' => $this->filterOptionsProvider->dispatchAreas(),
         ]);
     }
 
