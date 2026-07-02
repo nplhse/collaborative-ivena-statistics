@@ -50,7 +50,7 @@ final class HospitalCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function persistEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $this->auditContext->beginIntent('hospital.admin.created', ['source' => 'easyadmin']);
         try {
@@ -61,7 +61,7 @@ final class HospitalCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $this->auditContext->beginIntent('hospital.admin.updated', ['source' => 'easyadmin']);
         try {
