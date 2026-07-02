@@ -18,6 +18,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -123,6 +125,16 @@ final class AllocationCrudController extends AbstractCrudController
         yield AssociationField::new('indicationNormalized', 'Indication Normalized')
             ->hideOnIndex();
         yield AssociationField::new('assessment', 'Assessment')
+            ->hideOnIndex();
+        yield AssociationField::new('secondaryTransport', 'Secondary transport')
+            ->hideOnIndex();
+        yield AssociationField::new('secondaryIndicationRaw', 'Secondary indication raw')
+            ->hideOnIndex();
+        yield AssociationField::new('secondaryIndicationNormalized', 'Secondary indication normalized')
+            ->hideOnIndex();
+        yield TextField::new('caseIdHash', 'Case ID hash')
+            ->hideOnIndex();
+        yield TextareaField::new('notes', 'Notes')
             ->hideOnIndex();
     }
 }

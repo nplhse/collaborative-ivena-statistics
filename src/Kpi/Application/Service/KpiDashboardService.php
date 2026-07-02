@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Kpi\Application\Service;
 
 use App\Admin\UI\Http\Controller\Allocation\AllocationCrudController;
+use App\Admin\UI\Http\Controller\DashboardController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportCrudController;
 use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
@@ -12,10 +13,14 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Kpi\Application\DTO\FailedImportRowDto;
+use App\Kpi\Application\DTO\FailedImportsDashboardDto;
 use App\Kpi\Application\DTO\KpiCardDto;
 use App\Kpi\Application\DTO\KpiCardsDto;
 use App\Kpi\Application\DTO\KpiChartSeriesDto;
 use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -97,12 +102,27 @@ final readonly class KpiDashboardService
         return new KpiChartSeriesDto($labels, $recordsPerDay, $rejectionRatePerDay);
     }
 
+    public function getFailedImportsDashboard(int $limit = 10): FailedImportsDashboardDto
+    {
+        $since = new \DateTimeImmutable('-30 days', new \DateTimeZone(self::TIMEZONE))
+            ->setTime(0, 0);
+
+        return new FailedImportsDashboardDto(
+            rows: $this->buildFailedImportRows(
+                $this->importRepository->findRecentFailedImports($limit, $since),
+            ),
+            totalFailedCount: $this->importRepository->countFailedImports(),
+            allFailedImportsUrl: $this->generateFailedImportsIndexUrl(),
+        );
+    }
+
     /**
+     * @param list<Import> $imports
+     *
      * @return list<FailedImportRowDto>
      */
-    public function getRecentFailedImports(int $limit = 10): array
+    private function buildFailedImportRows(array $imports): array
     {
-        $imports = $this->importRepository->findRecentFailedImports($limit);
         $rows = [];
 
         foreach ($imports as $import) {
@@ -124,6 +144,22 @@ final readonly class KpiDashboardService
         }
 
         return $rows;
+    }
+
+    private function generateFailedImportsIndexUrl(): string
+    {
+        return $this->adminUrlGenerator
+            ->unsetAll()
+            ->setDashboard(DashboardController::class)
+            ->setController(ImportCrudController::class)
+            ->setAction(Action::INDEX)
+            ->set(EA::FILTERS, [
+                'status' => [
+                    'comparison' => ComparisonType::EQ,
+                    'value' => ImportStatus::FAILED->value,
+                ],
+            ])
+            ->generateUrl();
     }
 
     /**

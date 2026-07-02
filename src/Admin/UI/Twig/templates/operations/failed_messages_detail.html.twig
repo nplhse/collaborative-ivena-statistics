@@ -1,0 +1,38 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'ops.failed_messages.detail_title'|trans({'%id%': message.id}, 'admin') }}{% endblock %}
+
+{% block main %}
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <a href="{{ back_url }}" class="btn btn-outline-secondary ea-admin-action-btn">&larr; {{ 'ops.failed_messages.back'|trans({}, 'admin') }}</a>
+        <form method="post"
+              action="{{ delete_url }}"
+              class="m-0"
+              onsubmit="return confirm('{{ 'ops.failed_messages.confirm_delete_one'|trans({}, 'admin')|e('js') }}');">
+            <input type="hidden" name="_token" value="{{ csrf_token('failed_message_delete_' ~ message.id) }}">
+            <button type="submit" class="btn btn-outline-secondary ea-admin-action-btn">
+                {{ 'ops.failed_messages.delete'|trans({}, 'admin') }}
+            </button>
+        </form>
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-2">{{ 'ops.failed_messages.created'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-10">{{ message.created_at|date('d.m.Y H:i:s') }}</dd>
+        <dt class="col-sm-2">{{ 'ops.failed_messages.class'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-10"><code>{{ message.message_class ?: '—' }}</code></dd>
+    </dl>
+
+    <h3 class="h5 mt-4">{{ 'ops.failed_messages.headers'|trans({}, 'admin') }}</h3>
+    <pre class="rounded border bg-white p-3 overflow-auto small" style="max-height: 16rem;">{{ message.headers }}</pre>
+
+    <h3 class="h5 mt-4">{{ 'ops.failed_messages.body'|trans({}, 'admin') }}</h3>
+    <pre class="rounded border bg-white p-3 overflow-auto small" style="max-height: 28rem;">{{ message.body }}</pre>
+
+    <p class="text-muted small mt-3">{{ 'ops.failed_messages.cli_hint'|trans({}, 'admin') }}</p>
+{% endblock %}

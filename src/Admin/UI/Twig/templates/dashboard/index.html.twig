@@ -8,6 +8,11 @@
 {% block content_title %}{{ 'title.dashboard'|trans({}, 'admin') }}{% endblock %}
 
 {% block main %}
+    {{ include('@Admin/dashboard/_ops_health.html.twig') }}
+    {{ include('@Admin/dashboard/_ops_cards.html.twig') }}
+    {{ include('@Admin/dashboard/_ops_notifications.html.twig') }}
+
+    <h3 class="h5 text-muted text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
     {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
     {{ include('@Admin/dashboard/_kpi_chart.html.twig') }}
     {{ include('@Admin/dashboard/_failed_imports_table.html.twig') }}

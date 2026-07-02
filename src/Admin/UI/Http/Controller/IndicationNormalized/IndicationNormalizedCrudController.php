@@ -57,6 +57,7 @@ final class IndicationNormalizedCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield AssociationField::new('children', 'Children')
             ->onlyOnDetail();
+        yield AssociationField::new('groups', 'Groups');
         yield DateTimeField::new('createdAt', 'Created')
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();

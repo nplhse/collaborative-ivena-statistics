@@ -1,0 +1,26 @@
+<div class="ea-dashboard-kpi mb-3">
+    <div class="card ea-ops-health-banner border-2">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    {% set statusIcon = ops_health.status.value == 'healthy' ? 'fas fa-circle-check' : (ops_health.status.value == 'degraded' ? 'fas fa-circle-exclamation' : 'fas fa-circle-xmark') %}
+                    {% set statusClass = ops_health.status.value == 'healthy' ? 'success' : (ops_health.status.value == 'degraded' ? 'warning' : 'danger') %}
+                    <i class="{{ statusIcon }} fa-2x text-{{ statusClass }}" aria-hidden="true"></i>
+                    <div>
+                        <div class="h4 mb-0">{{ ('ops.health.status.' ~ ops_health.status.value)|trans({}, 'admin') }}</div>
+                        <div class="text-muted small">{{ 'ops.health.version'|trans({'%version%': ops_health.appVersion}, 'admin') }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                {% for item in ops_health.items %}
+                    <span class="badge rounded-pill ea-ops-health-badge bg-{{ item.severity }} text-white d-inline-flex align-items-center gap-2 px-3 py-2">
+                        <i class="{{ item.icon }}" aria-hidden="true"></i>
+                        <span class="fw-semibold">{{ item.labelKey|trans({}, 'admin') }}:</span>
+                        <span>{{ item.value }}</span>
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

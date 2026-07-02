@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\User;
 
+use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
@@ -12,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -97,6 +99,16 @@ final class UserCrudController extends AbstractCrudController
         yield BooleanField::new('credentialsExpired');
         yield BooleanField::new('isEnabled')
             ->renderAsSwitch();
+        yield ChoiceField::new('locale', 'Locale')
+            ->setChoices([
+                'English' => SupportedLocales::DEFAULT,
+                'German' => SupportedLocales::GERMAN,
+            ])
+            ->setRequired(false);
+        yield BooleanField::new('receivesMonthlySubmissionReminder', 'Monthly submission reminder')
+            ->renderAsSwitch();
+        yield AssociationField::new('hospitals', 'Owned hospitals')
+            ->hideOnForm();
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => UserRole::ADMIN,
