@@ -128,6 +128,14 @@
                                     </div>
                                 </div>
                             </div>
+                            {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DOWNLOAD_SOURCE'), import) %}
+                                <div class="mt-3">
+                                    <a class="btn btn-outline-primary" href="{{ path('app_import_source_file_download', {id: import.id}) }}">
+                                        <twig:ux:icon name="tabler:download" class="w-3 h-3" />
+                                        {{ 'import.action.download_source_file'|trans({}, 'import') }}
+                                    </a>
+                                </div>
+                            {% endif %}
                         </twig:Card>
                     </div>
 

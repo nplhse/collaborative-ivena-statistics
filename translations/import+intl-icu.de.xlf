@@ -21,6 +21,10 @@
         <source>import.action.delete</source>
         <target>Import löschen</target>
       </trans-unit>
+      <trans-unit id="DeActDlSrc" resname="import.action.download_source_file">
+        <source>import.action.download_source_file</source>
+        <target>Originaldatei herunterladen</target>
+      </trans-unit>
       <trans-unit id="De5c35af0b" resname="import.action.preview_mci_cases">
         <source>import.action.preview_mci_cases</source>
         <target>MANV-Fälle ansehen</target>
