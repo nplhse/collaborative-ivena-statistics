@@ -65,7 +65,7 @@
                 <tr>
                     <th class="col-2">
                         <a class="text-muted" href="{{ path('app_explore_mci_case_list', {
-                            ...app.request.query.all(),
+                            ... app.request.query.all(),
                             sortBy: 'createdAt',
                             orderBy: sortBy == 'createdAt' and orderBy == 'asc' ? 'desc' : 'asc',
                         }) }}">
