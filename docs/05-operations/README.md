@@ -15,6 +15,7 @@
 | [observability-sentry.md](observability-sentry.md) | Guide | Sentry integration and monitoring |
 | [health-check.md](health-check.md) | Reference | `GET /health` endpoint |
 | [troubleshooting.md](troubleshooting.md) | Guide | Symptom → cause → fix |
+| [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
 
 ## Reading order
 
@@ -23,5 +24,6 @@
 3. [backup-restore.md](backup-restore.md)
 4. [health-check.md](health-check.md)
 5. [troubleshooting.md](troubleshooting.md)
+6. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
 
 Other role-based paths: [../README.md#reading-paths](../README.md#reading-paths)
