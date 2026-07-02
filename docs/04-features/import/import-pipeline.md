@@ -93,6 +93,15 @@ Reimports intentionally keep the source file; only result data from the previous
 
 File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesystem::remove()`). Failed deletions are logged as `import.file.delete_failed`.
 
+## Source file download (admin)
+
+Administrators can download the original uploaded CSV from the import detail page (`/import/{id}`). The file is served through `DownloadImportSourceFileController` at `/import/{id}/source-file` — not via a public path under `var/imports/`.
+
+- Access requires `ROLE_ADMIN` and `ImportVoter::DOWNLOAD_SOURCE`
+- The download link is shown only when the voter grants access
+- Missing or deleted source files return HTTP 404
+- Downloads are recorded with audit intent `import.source_file.downloaded`
+
 ## Test locally
 
 ```bash
@@ -104,7 +113,7 @@ php bin/console app:import:requeue-all --resume
 Useful tests:
 - `tests/Import/Integration/...`
 - `tests/Import/Functional/Command/RequeueAllImportsCommandTest.php`
-- `tests/Import/Functional/Controller/NewImportControllerTest.php` (upload validation, Excel rejection)
+- `tests/Import/Functional/Controller/DownloadImportSourceFileControllerTest.php` (admin source file download)
 - `tests/Import/Unit/Service/ImportUploadGuardTest.php`
 - `tests/Import/Integration/Validator/Constraints/ImportSourceFileValidatorTest.php`
 

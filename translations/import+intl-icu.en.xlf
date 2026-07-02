@@ -29,6 +29,10 @@
         <source>import.action.delete</source>
         <target>Delete import</target>
       </trans-unit>
+      <trans-unit id="impActDlSrc" resname="import.action.download_source_file">
+        <source>import.action.download_source_file</source>
+        <target>Download original file</target>
+      </trans-unit>
       <trans-unit id="impDelTit" resname="import.delete.modal.title">
         <source>import.delete.modal.title</source>
         <target>Delete import?</target>
