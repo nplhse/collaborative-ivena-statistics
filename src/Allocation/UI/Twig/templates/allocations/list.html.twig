@@ -84,7 +84,7 @@
                 <tr>
                     <th class="col-2">
                         <a class="text-muted" href="{{ path('app_explore_allocation_list', {
-                            ...app.request.query.all(),
+                            ... app.request.query.all(),
                             cursor: null,
                             sortBy: 'arrivalAt',
                             orderBy: sortBy == 'arrivalAt' and orderBy == 'asc' ? 'desc' : 'asc',
@@ -94,7 +94,7 @@
                     </th>
                     <th class="col-1">
                         <a class="text-muted" href="{{ path('app_explore_allocation_list', {
-                            ...app.request.query.all(),
+                            ... app.request.query.all(),
                             cursor: null,
                             sortBy: 'age',
                             orderBy: sortBy == 'age' and orderBy == 'asc' ? 'desc' : 'asc',

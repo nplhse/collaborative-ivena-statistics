@@ -70,10 +70,20 @@ final class AuditLogCrudController extends AbstractCrudController
             ->addAction(Action::new('auditLast30d', 'Last 30 days', 'fas fa-calendar')
                 ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-30 days'))));
 
+        $notificationGroup = ActionGroup::new('audit_notifications', 'Notifications', 'fas fa-envelope')
+            ->createAsGlobalActionGroup()
+            ->addAction(Action::new('auditReminderSent', 'Monthly reminders', 'fas fa-bell')
+                ->linkToUrl(fn (): string => $this->indexUrlWithMetadataIntent('hospital.reminder_sent')))
+            ->addAction(Action::new('auditUserRegistration', 'User registrations', 'fas fa-user-plus')
+                ->linkToUrl(fn (): string => $this->indexUrlWithMetadataIntent('user.registration')))
+            ->addAction(Action::new('auditImportFailed', 'Import failures', 'fas fa-triangle-exclamation')
+                ->linkToUrl(fn (): string => $this->indexUrlWithMetadataIntent('import.failed')));
+
         return $actions
             ->disable(Action::NEW, Action::EDIT, Action::DELETE, Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $timeRangeGroup)
+            ->add(Crud::PAGE_INDEX, $notificationGroup)
             ->add(Crud::PAGE_DETAIL, Action::new('auditSameRequest', 'All in this request', 'fas fa-stream')
                 ->linkToUrl(fn (AuditEntry $entry): string => $this->indexUrlWithFilters([
                     'requestId' => [
@@ -112,6 +122,7 @@ final class AuditLogCrudController extends AbstractCrudController
             ]))
             ->add(TextFilter::new('requestId', 'Request ID'))
             ->add(TextFilter::new('entityClass', 'Entity class (substring)'))
+            ->add(TextFilter::new('metadata', 'Metadata (substring)'))
             ->add(EntityFilter::new('actor', 'Actor'));
     }
 
@@ -341,6 +352,16 @@ final class AuditLogCrudController extends AbstractCrudController
             'occurredAt' => [
                 'comparison' => ComparisonType::GTE,
                 'value' => $from->format('Y-m-d H:i:s'),
+            ],
+        ]);
+    }
+
+    private function indexUrlWithMetadataIntent(string $intent): string
+    {
+        return $this->indexUrlWithFilters([
+            'metadata' => [
+                'comparison' => ComparisonType::CONTAINS,
+                'value' => $intent,
             ],
         ]);
     }

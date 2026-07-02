@@ -93,7 +93,7 @@
             <tr>
                 <th class="col-2">
                     <a class="text-muted" href="{{ path(pagination_route, {
-                        ...app.request.query.all(),
+                        ... app.request.query.all(),
                         sortBy: 'createdAt',
                         orderBy: sortBy == 'createdAt' and orderBy == 'asc' ? 'desc' : 'asc',
                     }) }}">
@@ -104,7 +104,7 @@
 
                 <th class="col-3">
                     <a class="text-muted" href="{{ path(pagination_route, {
-                        ...app.request.query.all(),
+                        ... app.request.query.all(),
                         sortBy: 'hospital',
                         orderBy: sortBy == 'hospital' and orderBy == 'asc' ? 'desc' : 'asc',
                     }) }}">
@@ -115,7 +115,7 @@
 
                 <th class="col-3">
                     <a class="text-muted" href="{{ path(pagination_route, {
-                        ...app.request.query.all(),
+                        ... app.request.query.all(),
                         sortBy: 'importId',
                         orderBy: sortBy == 'importId' and orderBy == 'asc' ? 'desc' : 'asc',
                     }) }}">
@@ -126,7 +126,7 @@
 
                 <th class="col-1">
                     <a class="text-muted" href="{{ path(pagination_route, {
-                        ...app.request.query.all(),
+                        ... app.request.query.all(),
                         sortBy: 'lineNumber',
                         orderBy: sortBy == 'lineNumber' and orderBy == 'asc' ? 'desc' : 'asc',
                     }) }}">

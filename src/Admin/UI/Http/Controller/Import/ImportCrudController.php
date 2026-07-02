@@ -114,6 +114,17 @@ final class ImportCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield TextField::new('rejectFilePath', 'Reject file')
             ->onlyOnDetail();
+        yield TextField::new('fileExtension', 'File extension')
+            ->onlyOnDetail();
+        yield TextField::new('fileMimeType', 'MIME type')
+            ->onlyOnDetail();
+        yield IntegerField::new('fileSize', 'File size (bytes)')
+            ->onlyOnDetail();
+        yield TextField::new('fileChecksum', 'Checksum')
+            ->onlyOnDetail();
+        yield DateTimeField::new('updatedAt', 'Updated')
+            ->setFormat('dd.MM.yy HH:mm')
+            ->onlyOnDetail();
     }
 
     #[\Override]

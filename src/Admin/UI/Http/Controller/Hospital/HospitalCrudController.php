@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Hospital;
 
+use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
@@ -16,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -23,7 +25,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -89,10 +93,24 @@ final class HospitalCrudController extends AbstractCrudController
             ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
             ->askConfirmation(new TranslatableMessage('admin.hospital.action.send_reminder.confirm', domain: 'admin'));
 
+        $reminderHistory = Action::new('reminderHistory', 'admin.hospital.action.reminder_history', 'fas fa-clock-rotate-left')
+            ->linkToUrl(fn (Hospital $hospital): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(MonthlyReminderDispatchCrudController::class)
+                ->setAction(Action::INDEX)
+                ->set(EA::FILTERS, [
+                    'hospital' => [
+                        'comparison' => ComparisonType::EQ,
+                        'value' => $hospital->getId(),
+                    ],
+                ])
+                ->generateUrl());
+
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_EDIT, Action::INDEX)
-            ->add(Crud::PAGE_DETAIL, $sendReminder);
+            ->add(Crud::PAGE_DETAIL, $sendReminder)
+            ->add(Crud::PAGE_DETAIL, $reminderHistory);
     }
 
     #[AdminRoute(path: '/{entityId}/send-monthly-reminder', name: 'send_monthly_reminder')]
@@ -158,7 +176,13 @@ final class HospitalCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield IntegerField::new('beds', 'Beds')
             ->hideOnIndex();
+        yield NumberField::new('latitude', 'Latitude')
+            ->hideOnIndex();
+        yield NumberField::new('longitude', 'Longitude')
+            ->hideOnIndex();
         yield BooleanField::new('isParticipating', 'Participating');
+        yield AssociationField::new('accessGrants', 'Access grants')
+            ->onlyOnDetail();
 
         yield DateTimeField::new('createdAt', 'Created')
             ->setFormat('dd.MM.yyyy HH:mm')
