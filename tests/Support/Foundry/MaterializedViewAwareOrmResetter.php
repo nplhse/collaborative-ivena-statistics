@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Support\Foundry;
 
 use App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller;
+use Symfony\Component\HttpKernel\CacheClearer\Psr6CacheClearer;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Zenstruck\Foundry\ORM\ResetDatabase\OrmResetter;
 
@@ -25,6 +26,7 @@ final readonly class MaterializedViewAwareOrmResetter implements OrmResetter
     public function __construct(
         private OrmResetter $decorated,
         private OverviewMaterializedViewsInstaller $materializedViewsInstaller,
+        private Psr6CacheClearer $cacheClearer,
     ) {
     }
 
@@ -33,6 +35,7 @@ final readonly class MaterializedViewAwareOrmResetter implements OrmResetter
         $this->materializedViewsInstaller->resetInstallationState();
         $this->decorated->resetBeforeFirstTest($kernel);
         $this->materializedViewsInstaller->ensureInstalled();
+        $this->clearExploreFilterReferenceCache();
     }
 
     public function resetBeforeEachTest(KernelInterface $kernel): void
@@ -40,5 +43,11 @@ final readonly class MaterializedViewAwareOrmResetter implements OrmResetter
         $this->materializedViewsInstaller->resetInstallationState();
         $this->decorated->resetBeforeEachTest($kernel);
         $this->materializedViewsInstaller->ensureInstalled();
+        $this->clearExploreFilterReferenceCache();
+    }
+
+    private function clearExploreFilterReferenceCache(): void
+    {
+        $this->cacheClearer->clearPool('cache.allocation.reference_data');
     }
 }

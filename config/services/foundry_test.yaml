@@ -8,3 +8,4 @@ when@test:
             arguments:
                 $decorated: '@.inner'
                 $materializedViewsInstaller: '@App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller'
+                $cacheClearer: '@cache.global_clearer'
