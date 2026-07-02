@@ -491,7 +491,7 @@
       </trans-unit>
       <trans-unit id="opsHlth01de" resname="ops.health.status.healthy">
         <source>ops.health.status.healthy</source>
-        <target>Gesund</target>
+        <target>Fehlerfrei</target>
       </trans-unit>
       <trans-unit id="opsHlth02de" resname="ops.health.status.degraded">
         <source>ops.health.status.degraded</source>
