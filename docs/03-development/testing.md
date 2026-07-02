@@ -68,6 +68,12 @@ make lint-trans-de  # lint DE catalogue only
 - Linting: `.github/workflows/lint.yml`
 - Security scan: `.github/workflows/security.yml`
 
+## Rector and EasyAdmin CRUD lifecycle hooks
+
+EasyAdmin 5 declares `persistEntity()`, `updateEntity()`, and `deleteEntity()` with `object $entityInstance` in `AbstractCrudController`. CRUD controller overrides must use the same parameter type — not an entity-specific type (PHP forbids narrowing `object` to e.g. `Post`).
+
+After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `composer.lock`. If Rector behaves unexpectedly locally, clear `var/cache/rector` and re-run `vendor/bin/rector --dry-run` (CI always runs without a persisted Rector cache).
+
 ## Common pitfalls
 
 - Tests using `#[ResetDatabase]` or `DatabaseKernelTestCase` belong under `tests/*/Integration/` (or higher layers), not `tests/*/Unit/`: the CI unit job runs ParaTest without PostgreSQL.

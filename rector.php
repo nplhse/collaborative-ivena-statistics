@@ -6,20 +6,8 @@ use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Symfony\CodeQuality\Rector\Class_\ControllerMethodInjectionToConstructorRector;
 use Rector\Symfony\Set\SymfonySetList;
-use Rector\TypeDeclaration\Rector\ClassMethod\ParamTypeByParentCallTypeRector;
 
 $entityPath = __DIR__.'/src/**/Domain/Entity/*';
-
-/** EasyAdmin AbstractCrudController keeps $entityInstance untyped; object breaks LSP. */
-$easyAdminCrudControllerPaths = [
-    __DIR__.'/src/Admin/UI/Http/Controller/Blog/PostCategoryCrudController.php',
-    __DIR__.'/src/Admin/UI/Http/Controller/Blog/PostCrudController.php',
-    __DIR__.'/src/Admin/UI/Http/Controller/Blog/PostTagCrudController.php',
-    __DIR__.'/src/Admin/UI/Http/Controller/Hospital/HospitalCrudController.php',
-    __DIR__.'/src/Admin/UI/Http/Controller/Media/MediaCrudController.php',
-    __DIR__.'/src/Admin/UI/Http/Controller/Page/PageCrudController.php',
-    __DIR__.'/src/Admin/UI/Http/Controller/User/UserCrudController.php',
-];
 
 return RectorConfig::configure()
     ->withPaths([
@@ -50,7 +38,6 @@ return RectorConfig::configure()
         ControllerMethodInjectionToConstructorRector::class => [
             __DIR__.'/src/Admin/UI/Http/Controller/Hospital/HospitalCrudController.php',
         ],
-        ParamTypeByParentCallTypeRector::class => $easyAdminCrudControllerPaths,
     ])
     ->withCache(__DIR__.'/var/cache/rector')
     ->withParallel();

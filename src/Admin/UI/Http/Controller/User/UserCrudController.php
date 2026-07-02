@@ -146,7 +146,7 @@ final class UserCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
         if (!$entityInstance instanceof User) {
             return;
@@ -168,7 +168,7 @@ final class UserCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
         if (!$entityInstance instanceof User) {
             return;
