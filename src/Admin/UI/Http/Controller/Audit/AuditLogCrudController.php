@@ -7,6 +7,7 @@ namespace App\Admin\UI\Http\Controller\Audit;
 use App\Admin\UI\Http\Controller\DashboardController;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\ActionGroup;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -60,15 +61,19 @@ final class AuditLogCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
+        $timeRangeGroup = ActionGroup::new('audit_time_range', 'Time range', 'fas fa-calendar')
+            ->createAsGlobalActionGroup()
+            ->addAction(Action::new('auditLast24h', 'Last 24 hours', 'fas fa-calendar-day')
+                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-24 hours'))))
+            ->addAction(Action::new('auditLast7d', 'Last 7 days', 'fas fa-calendar-week')
+                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-7 days'))))
+            ->addAction(Action::new('auditLast30d', 'Last 30 days', 'fas fa-calendar')
+                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-30 days'))));
+
         return $actions
             ->disable(Action::NEW, Action::EDIT, Action::DELETE, Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_INDEX, Action::new('auditLast24h', 'Last 24 hours', 'fas fa-calendar-day')
-                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-24 hours'))))
-            ->add(Crud::PAGE_INDEX, Action::new('auditLast7d', 'Last 7 days', 'fas fa-calendar-week')
-                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-7 days'))))
-            ->add(Crud::PAGE_INDEX, Action::new('auditLast30d', 'Last 30 days', 'fas fa-calendar')
-                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-30 days'))))
+            ->add(Crud::PAGE_INDEX, $timeRangeGroup)
             ->add(Crud::PAGE_DETAIL, Action::new('auditSameRequest', 'All in this request', 'fas fa-stream')
                 ->linkToUrl(fn (AuditEntry $entry): string => $this->indexUrlWithFilters([
                     'requestId' => [

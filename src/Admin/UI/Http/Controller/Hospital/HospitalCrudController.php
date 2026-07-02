@@ -12,10 +12,10 @@ use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -25,6 +25,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -49,7 +50,7 @@ final class HospitalCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
         $this->auditContext->beginIntent('hospital.admin.created', ['source' => 'easyadmin']);
         try {
@@ -60,7 +61,7 @@ final class HospitalCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
         $this->auditContext->beginIntent('hospital.admin.updated', ['source' => 'easyadmin']);
         try {
@@ -86,9 +87,7 @@ final class HospitalCrudController extends AbstractCrudController
         $sendReminder = Action::new('sendMonthlyReminder', 'admin.hospital.action.send_reminder', 'fas fa-envelope')
             ->linkToCrudAction('sendMonthlyReminder')
             ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
-            ->setHtmlAttributes([
-                'data-ea-confirm' => 'admin.hospital.action.send_reminder.confirm',
-            ]);
+            ->askConfirmation(new TranslatableMessage('admin.hospital.action.send_reminder.confirm', domain: 'admin'));
 
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
@@ -96,15 +95,9 @@ final class HospitalCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $sendReminder);
     }
 
-    public function sendMonthlyReminder(MonthlyReminderSender $monthlyReminderSender): \Symfony\Component\HttpFoundation\RedirectResponse
+    #[AdminRoute(path: '/{entityId}/send-monthly-reminder', name: 'send_monthly_reminder')]
+    public function sendMonthlyReminder(Hospital $hospital, MonthlyReminderSender $monthlyReminderSender): RedirectResponse
     {
-        $context = $this->getContext();
-        if (!$context instanceof AdminContext) {
-            throw new \LogicException('EasyAdmin context is missing.');
-        }
-
-        /** @var Hospital $hospital */
-        $hospital = $context->getEntity()->getInstance();
         $errors = $monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
         if ([] === $errors) {
             $this->addFlash('success', new TranslatableMessage('flash.admin.hospital.reminder.sent', domain: 'admin'));

@@ -21,7 +21,7 @@ final readonly class GrantParticipantUrlGenerator
     public function generate(int $userId): string
     {
         $url = $this->urlGenerator->generate(
-            'app_admin_user_grant_participant',
+            'app_admin_dashboard_user_grant_participant',
             ['id' => $userId],
             UrlGeneratorInterface::ABSOLUTE_URL,
         );

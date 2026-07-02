@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Form;
 
-use App\Admin\UI\Http\Controller\Media\MediaCrudController;
+use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Enum\MediaType;
 use App\Content\Domain\Enum\PageContentBlockType;
@@ -17,7 +17,6 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -38,7 +37,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private MediaRepository $mediaRepository,
-        private UrlGeneratorInterface $urlGenerator,
+        private MediaLibraryAdminUrlProvider $mediaLibraryAdminUrlProvider,
         private TranslatorInterface $translator,
     ) {
     }
@@ -101,7 +100,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
      */
     private function addImageFields(FormInterface $dataForm): void
     {
-        $mediaLibraryUrl = $this->urlGenerator->generate('app_admin_dashboard').'?crudAction=index&crudControllerFqcn='.urlencode(MediaCrudController::class);
+        $mediaLibraryUrl = $this->mediaLibraryAdminUrlProvider->getIndexUrl();
 
         $dataForm
             ->add('mediaId', EntityType::class, [
