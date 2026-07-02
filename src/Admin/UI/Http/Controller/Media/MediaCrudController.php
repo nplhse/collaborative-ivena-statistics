@@ -124,7 +124,7 @@ final class MediaCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function persistEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $this->mediaTypeResolver->applyTo($entityInstance);
 
@@ -132,7 +132,7 @@ final class MediaCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $this->mediaTypeResolver->applyTo($entityInstance);
 

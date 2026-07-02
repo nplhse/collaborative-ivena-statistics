@@ -549,6 +549,30 @@ final class ImportAllocationsMessageHandlerTest extends DatabaseKernelTestCase
         self::assertNotSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
+    public function testDispatchViaMessageBusRunsImportWithSuppressedAssessmentAudits(): void
+    {
+        ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport(withAssessment: true);
+
+        $assessmentAuditsBeforeInvoke = $this->countAuditEntriesForEntityClass(Assessment::class);
+
+        $bus = self::getContainer()->get(MessageBusInterface::class);
+
+        try {
+            $bus->dispatch(new ImportAllocationsMessage($id));
+        } finally {
+            if (is_file($csvPath)) {
+                @unlink($csvPath);
+            }
+        }
+
+        self::assertSame(
+            $assessmentAuditsBeforeInvoke,
+            $this->countAuditEntriesForEntityClass(Assessment::class),
+            'Import via MessageBus must suppress per-row Assessment audit entries (middleware + handler path)',
+        );
+        self::assertGreaterThan(0, $this->countAssessmentsForImport($id));
+    }
+
     public function testDispatchViaMessageBusRunsAllocationImportSampleFixture(): void
     {
         ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeAllocationImportSampleCsvImport();

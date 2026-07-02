@@ -31,6 +31,22 @@ Source: CSV files uploaded through the import UI.
 - `RuleBasedRowTypeDetector`
 - `ImportRequeueBatchOrchestrator`
 
+## Audit during import
+
+`ImportAllocationsMessageHandler::__invoke()` suppresses per-row Doctrine audit entries for bulk import entities via `ImportRunSuppressedAuditClasses`:
+
+- `Allocation`
+- `Assessment`
+- `IndicationRaw`
+- `ImportReject`
+- `MciCase`
+
+The `Import` entity itself remains audited (status updates and run intents such as `import.run.started` / `import.run.finished`).
+
+Assessments are created when a CSV row has valid ABCD values (`AllocationAssessmentResolver`). Empty placeholders (`A-`, `B-`, …) skip assessment creation entirely.
+
+To clean up historical import-generated `Assessment` `create` audit entries, see [../../05-operations/audit-log-maintenance.md](../../05-operations/audit-log-maintenance.md).
+
 ## Order and error handling
 
 - Previous run data may be cleaned up before a re-run

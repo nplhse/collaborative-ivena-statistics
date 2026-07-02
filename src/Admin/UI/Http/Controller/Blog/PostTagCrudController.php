@@ -58,7 +58,7 @@ final class PostTagCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function persistEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         /* @var PostTag $entityInstance */
         $entityInstance->setSlug(strtolower(new AsciiSlugger()->slug((string) $entityInstance->getName())->toString()));
@@ -67,7 +67,7 @@ final class PostTagCrudController extends AbstractCrudController
     }
 
     #[\Override]
-    public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         /* @var PostTag $entityInstance */
         $entityInstance->setSlug(strtolower(new AsciiSlugger()->slug((string) $entityInstance->getName())->toString()));

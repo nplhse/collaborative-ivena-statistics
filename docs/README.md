@@ -28,6 +28,7 @@ Entry point for project documentation.
 | Deployment | [05-operations/deployment.md](05-operations/deployment.md) |
 | Backups | [05-operations/backup-restore.md](05-operations/backup-restore.md) |
 | Troubleshooting | [05-operations/troubleshooting.md](05-operations/troubleshooting.md) |
+| Audit log maintenance | [05-operations/audit-log-maintenance.md](05-operations/audit-log-maintenance.md) |
 | Glossary | [06-reference/glossary.md](06-reference/glossary.md) |
 | i18n glossary (DE) | [06-reference/glossary-i18n-de.md](06-reference/glossary-i18n-de.md) |
 
