@@ -22,6 +22,8 @@ final class ImportVoter extends Voter
 
     public const string DELETE = 'DELETE';
 
+    public const string DOWNLOAD_SOURCE = 'DOWNLOAD_SOURCE';
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private readonly ImportListAccess $importListAccess,
@@ -38,7 +40,7 @@ final class ImportVoter extends Voter
     #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $subject instanceof Import && \in_array($attribute, [self::VIEW, self::DELETE], true);
+        return $subject instanceof Import && \in_array($attribute, [self::VIEW, self::DELETE, self::DOWNLOAD_SOURCE], true);
     }
 
     #[\Override]
@@ -52,6 +54,18 @@ final class ImportVoter extends Voter
         $hospitalId = $subject->getHospital()?->getId();
 
         if (self::VIEW === $attribute) {
+            if (null === $hospitalId) {
+                return false;
+            }
+
+            return $this->importListAccess->canAccessImportHospital($user, $hospitalId);
+        }
+
+        if (self::DOWNLOAD_SOURCE === $attribute) {
+            if (!\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
+                return false;
+            }
+
             if (null === $hospitalId) {
                 return false;
             }
