@@ -14,7 +14,7 @@ The platform was initiated by members of the DGINA working group in Hesse to com
 and enable shared statistics, benchmarking, and research in emergency care. It supports the complete workflow from data 
 import and validation to statistical analysis and reporting.
 
-Key capabilities
+### Key capabilities
 * Import and processing of IVENA allocation data
 * Centralised storage of anonymised multi-centre datasets
 * Interactive statistics and analysis views
@@ -51,15 +51,15 @@ If you already have a database (e.g. a mirror of production), use `make upgrade-
 | Clear files + empty DB | `make purge` |
 | Clear files + empty DB + fixtures | `make reset` |
 
-### `.env` / configuration
+#### `.env` / configuration
 
 ```bash
 php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
 ```
 
-Set at least: `APP_SECRET` and `DATABASE_URL`, find more about the configuration here: [docs/Configuration.md](docs/Configuration.md)
+Set at least: `APP_SECRET` and `DATABASE_URL`. Full reference: [docs/06-reference/configuration.md](docs/06-reference/configuration.md)
 
-### Prepare the database manually (optional)
+#### Prepare the database manually (optional)
 
 ```bash
 symfony composer setup-database   # drop, create, migrate (no fixtures)
@@ -73,29 +73,12 @@ symfony composer setup-test-env   # fresh test database
 ```bash
 make start
 symfony serve -d
-make consume   # async jobs + scheduled KPIs (see docs/Development-Workflow.md)
+make consume   # async jobs + scheduled KPIs (see docs/03-development/development-workflow.md)
 ```
 
-## Documentation index
+## Documentation
 
-For a full overview of the documentation, look at [docs/Overview.md](docs/Overview.md)
-
-- Setup: [docs/Setup.md](docs/Setup.md)
-- Configuration: [docs/Configuration.md](docs/Configuration.md)
-- Import: [docs/Import-workflow.md](docs/Import-workflow.md)
-- Development: [docs/Development-Workflow.md](docs/Development-Workflow.md)
-- Fixtures: [docs/Development-fixtures.md](docs/Development-fixtures.md)
-- Testing: [docs/Testing.md](docs/Testing.md)
-- Deployment / operations: [docs/Deployment.md](docs/Deployment.md)
-- Troubleshooting: [docs/Troubleshooting.md](docs/Troubleshooting.md)
-- Glossary: [docs/Glossary.md](docs/Glossary.md)
-
-### Deep dives:
-- [docs/Import-batch-requeue.md](docs/Import-batch-requeue.md)
-- [docs/Import-reject-analysis.md](docs/Import-reject-analysis.md)
-- [docs/Statistics-projection-materialized-views.md](docs/Statistics-projection-materialized-views.md)
-- [docs/Development-fixtures.md](docs/Development-fixtures.md)
-- [docs/Observability-sentry.md](docs/Observability-sentry.md)
+You can find our full documentation index here: [docs/README.md](docs/README.md)
 
 ## Contributing
 
@@ -104,7 +87,7 @@ This project thrives on collaboration between developers, clinicians, researcher
 Before contributing, please review the following documents:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
-- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [CODE OF CONDUCT.md](CODE_OF_CONDUCT.md)
 
 Thank you for helping us build a platform that supports collaborative research and quality improvement in emergency care.
 

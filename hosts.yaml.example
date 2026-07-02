@@ -1,5 +1,5 @@
 # Copy to hosts.yaml and adjust hostnames, users, and paths.
-# See docs/Deployment.md for full setup instructions.
+# See docs/05-operations/deployment.md for full setup instructions.
 
 hosts:
   prod:

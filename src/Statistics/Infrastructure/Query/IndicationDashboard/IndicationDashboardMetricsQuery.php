@@ -20,7 +20,7 @@ use Doctrine\DBAL\Connection;
  * 1) scope totals (full scope filter), 2) indication slice (scope + indication id).
  * Additive baseline counts are derived as scope - indication.
  *
- * @see docs/indication-dashboard-performance.md
+ * @see docs/04-features/statistics/indication-dashboard-performance.md
  */
 final readonly class IndicationDashboardMetricsQuery
 {
