@@ -9,6 +9,9 @@ use App\Import\Domain\Validation\Constraints\ImportSourceFile;
 use App\Import\Domain\Validation\Constraints\ImportSourceFileValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
@@ -60,6 +63,47 @@ final class ImportSourceFileValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate($file, new ImportSourceFile());
 
         $this->assertNoViolation();
+    }
+
+    public function testSkipsNullValue(): void
+    {
+        $this->validator->validate(null, new ImportSourceFile());
+
+        $this->assertNoViolation();
+    }
+
+    public function testThrowsForInvalidConstraintType(): void
+    {
+        $this->expectException(UnexpectedTypeException::class);
+
+        $this->validator->validate(null, new NotBlank());
+    }
+
+    public function testThrowsForNonUploadedFileValue(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+
+        $this->validator->validate('not-a-file', new ImportSourceFile());
+    }
+
+    public function testRejectsInvalidMimeWithDedicatedMessage(): void
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'import_val_');
+        file_put_contents($tmp, '%PDF-1.4');
+
+        $file = new UploadedFile(
+            $tmp,
+            'notes.txt',
+            'application/pdf',
+            null,
+            true,
+        );
+
+        $this->validator->validate($file, new ImportSourceFile());
+
+        $this
+            ->buildViolation('validation.import.file_mime_types')
+            ->assertRaised();
     }
 
     /**

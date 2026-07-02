@@ -83,6 +83,37 @@ final class ImportUploadGuardTest extends TestCase
         self::assertSame('validation.import.file_mime_types', $this->guard->resolveRejectionMessageKey($file));
     }
 
+    public function testReturnsNullForInvalidUpload(): void
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'import_guard_');
+        file_put_contents($tmp, 'broken');
+
+        $file = new UploadedFile(
+            $tmp,
+            'broken.csv',
+            'text/csv',
+            \UPLOAD_ERR_CANT_WRITE,
+            true,
+        );
+
+        self::assertNull($this->guard->resolveRejectionMessageKey($file));
+    }
+
+    public function testRejectsSpreadsheetMimeForCsvExtension(): void
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'import_guard_');
+        file_put_contents($tmp, 'spreadsheet-content');
+
+        $file = new class($tmp, 'report.csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true) extends UploadedFile {
+            public function getMimeType(): string
+            {
+                return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            }
+        };
+
+        self::assertSame('validation.import.excel_rejected', $this->guard->resolveRejectionMessageKey($file));
+    }
+
     /**
      * @return iterable<string, array{0: string, 1: ?string}>
      */

@@ -6,7 +6,7 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[Glossary-i
 
 | Term | Meaning |
 |---|---|
-| Import | A processing run over an uploaded CSV file |
+| Import | A processing run over an uploaded CSV or plain-text (`.csv`/`.txt`) file; Excel is not accepted at upload |
 | Requeue | Re-dispatching existing imports to the queue |
 | Reject | A rejected import row with error context |
 | Projection | Denormalized statistics table (`allocation_stats_projection`) |

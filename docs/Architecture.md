@@ -13,7 +13,7 @@ Typical layering per context:
 
 | Context | Responsibility |
 |---|---|
-| `Import` | CSV upload, dispatch, async processing, rejects |
+| `Import` | CSV upload (`.csv`/`.txt` only), validation, dispatch, async processing, rejects |
 | `Statistics` | Projection, materialized views, analytics |
 | `Allocation` | Core domain data (allocations, master data) |
 | `User` | Authentication, registration, password reset |
@@ -41,7 +41,7 @@ Typical layering per context:
 
 ## Import → statistics data flow
 
-1. Create upload/import (`NewImportController`)
+1. Create upload/import (`NewImportController`; form + `ImportUploadGuard` reject Excel and unsupported types)
 2. Dispatch `ImportAllocationsMessage`
 3. Process in `ImportAllocationsMessageHandler`
 4. Emit domain event `ImportCompleted`

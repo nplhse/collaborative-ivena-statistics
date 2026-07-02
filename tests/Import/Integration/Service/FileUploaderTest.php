@@ -239,6 +239,30 @@ final class FileUploaderTest extends TestCase
         self::assertStringEndsWith('.csv', $returnedRel);
     }
 
+    public function testUploadRejectsWhenGuessedExtensionIsExcel(): void
+    {
+        $this->logger->expects($this->never())->method('info');
+
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('isValid')->willReturn(true);
+        $file->method('getClientMimeType')->willReturn('application/octet-stream');
+        $file->method('getClientOriginalName')->willReturn('upload');
+        $file->method('guessExtension')->willReturn('xlsx');
+        $file->expects($this->never())->method('move');
+
+        $uploader = new FileUploader(
+            $this->baseDir,
+            $this->createFileStorage(),
+            $this->logger,
+            $this->filesystem,
+        );
+
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Excel files (.xls, .xlsx) are not supported');
+
+        $uploader->upload($file);
+    }
+
     public function testUploadLogsErrorAndRethrowsOnMoveFailure(): void
     {
         // Arrange
