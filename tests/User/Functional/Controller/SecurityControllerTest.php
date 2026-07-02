@@ -94,6 +94,48 @@ final class SecurityControllerTest extends WebTestCase
         ;
     }
 
+    public function testWrongPasswordShowsInvalidCredentialsError(): void
+    {
+        UserFactory::new(['username' => 'login-user'])->create();
+
+        $this->acceptEssentialCookies($this->browser())
+            ->visit('/login')
+            ->fillField('Username', 'login-user')
+            ->fillField('Password', 'wrong-password')
+            ->click('Sign in')
+            ->assertSuccessful()
+            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
+            ->assertSee('Login')
+            ->use(static function (Crawler $crawler): void {
+                self::assertSame('login-user', $crawler->filter('input[name="login[username]"]')->attr('value'));
+            })
+        ;
+    }
+
+    public function testGuestCannotAccessProtectedRouteWithoutLogin(): void
+    {
+        $this->acceptEssentialCookies($this->browser())
+            ->visit('/settings')
+            ->assertSeeIn('h2', 'Login')
+            ->assertNotSeeElement('#user_name')
+        ;
+    }
+
+    public function testLoginRedirectsToOriginallyRequestedProtectedRoute(): void
+    {
+        UserFactory::new(['username' => 'redirect-user'])->create();
+
+        $this->acceptEssentialCookies($this->browser())
+            ->visit('/settings')
+            ->assertSeeIn('h2', 'Login')
+            ->fillField('Username', 'redirect-user')
+            ->fillField('Password', 'password')
+            ->click('Sign in')
+            ->assertSuccessful()
+            ->assertSee('Account Settings')
+        ;
+    }
+
     public function testLoginIsRateLimitedAfterMaxAttempts(): void
     {
         UserFactory::new(['username' => 'throttle-user'])->create();
