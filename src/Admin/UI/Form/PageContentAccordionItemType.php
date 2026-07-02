@@ -42,6 +42,7 @@ final class PageContentAccordionItemType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
+            'translation_domain' => 'content',
         ]);
     }
 }

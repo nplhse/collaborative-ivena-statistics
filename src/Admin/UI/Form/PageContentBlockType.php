@@ -32,13 +32,16 @@ final class PageContentBlockType extends AbstractType
             ->add('type', ChoiceType::class, [
                 'label' => 'label.block_type',
                 'choices' => ContentBlockTypeEnum::formChoices(),
+                'translation_domain' => 'content',
             ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'label.enabled',
                 'required' => false,
+                'translation_domain' => 'messages',
             ])
             ->add('data', FormType::class, [
                 'label' => false,
+                'translation_domain' => 'content',
             ])
         ;
 
