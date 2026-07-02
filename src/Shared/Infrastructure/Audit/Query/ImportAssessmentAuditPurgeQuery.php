@@ -13,6 +13,7 @@ final readonly class ImportAssessmentAuditPurgeQuery
 
     private const string ACTION_CREATE = 'create';
 
+    /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private Connection $connection,
     ) {
