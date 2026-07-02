@@ -14,12 +14,15 @@ framework:
         # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
         #app: cache.adapter.apcu
 
-        # Namespaced pools use the above "app" backend by default
-        #pools:
-            #my.dedicated.cache: null
+        pools:
+            cache.allocation.reference_data:
+                adapter: cache.app
 
 when@test:
     framework:
         cache:
             # "TEST_TOKEN" is typically set by ParaTest
             directory: '%kernel.cache_dir%/pools/%env(default::TEST_TOKEN)%'
+            pools:
+                cache.allocation.reference_data:
+                    adapter: cache.adapter.array
