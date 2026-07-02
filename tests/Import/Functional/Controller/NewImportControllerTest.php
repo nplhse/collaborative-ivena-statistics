@@ -97,6 +97,64 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSeeElement('[data-import-status-target="detailLink"]:not(.d-none)');
     }
 
+    public function testSubmitWithXlsxShowsValidationErrorAndDoesNotPersist(): void
+    {
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+
+        $xlsxPath = $this->fixturesDir.'/sample.xlsx';
+        self::assertFileExists($xlsxPath, 'Fixture sample.xlsx fehlt');
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import/new')
+            ->assertSuccessful()
+            ->fillField('import_create[name]', 'Excel Import Attempt')
+            ->selectField('import_create[hospital]', (string) $hospitalId)
+            ->attachFile('import_create[file]', $xlsxPath)
+            ->click('import_create[submit]')
+            ->assertSuccessful()
+            ->assertSee('Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.')
+            ->assertSeeElement('.is-invalid[name="import_create[file]"]')
+            ->assertSeeElement('#import_create_file_error1')
+            ->use(function (): void {
+                /** @var EntityManagerInterface $em */
+                $em = self::getContainer()->get(EntityManagerInterface::class);
+
+                self::assertNull(
+                    $em->getRepository(Import::class)->findOneBy(['name' => 'Excel Import Attempt']),
+                    'Excel upload must not create an import.',
+                );
+            });
+    }
+
+    public function testSubmitWithXlsShowsValidationErrorAndDoesNotPersist(): void
+    {
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+
+        $xlsPath = $this->fixturesDir.'/sample.xls';
+        copy($this->fixturesDir.'/sample.xlsx', $xlsPath);
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import/new')
+            ->assertSuccessful()
+            ->fillField('import_create[name]', 'Excel XLS Import Attempt')
+            ->selectField('import_create[hospital]', (string) $hospitalId)
+            ->attachFile('import_create[file]', $xlsPath)
+            ->click('import_create[submit]')
+            ->assertSuccessful()
+            ->assertSee('Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.')
+            ->use(function (): void {
+                /** @var EntityManagerInterface $em */
+                $em = self::getContainer()->get(EntityManagerInterface::class);
+
+                self::assertNull(
+                    $em->getRepository(Import::class)->findOneBy(['name' => 'Excel XLS Import Attempt']),
+                    'Excel upload must not create an import.',
+                );
+            });
+    }
+
     /**
      * @return array{0:User,1:int} [Owner, HospitalId]
      */

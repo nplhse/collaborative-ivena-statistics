@@ -113,7 +113,51 @@ final class FileUploaderTest extends TestCase
 
         // Act + Assert
         $this->expectException(FileException::class);
-        $this->expectExceptionMessage('Unsupported import file type. Allowed extensions: csv, txt, xls, xlsx.');
+        $this->expectExceptionMessage('Unsupported import file type. Allowed extensions: csv, txt.');
+
+        $uploader->upload($file);
+    }
+
+    public function testUploadRejectsXlsxExtension(): void
+    {
+        $this->logger->expects($this->never())->method('info');
+
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('isValid')->willReturn(true);
+        $file->method('getClientOriginalName')->willReturn('report.xlsx');
+        $file->expects($this->never())->method('move');
+
+        $uploader = new FileUploader(
+            $this->baseDir,
+            $this->createFileStorage(),
+            $this->logger,
+            $this->filesystem,
+        );
+
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Excel files (.xls, .xlsx) are not supported');
+
+        $uploader->upload($file);
+    }
+
+    public function testUploadRejectsXlsExtension(): void
+    {
+        $this->logger->expects($this->never())->method('info');
+
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('isValid')->willReturn(true);
+        $file->method('getClientOriginalName')->willReturn('report.xls');
+        $file->expects($this->never())->method('move');
+
+        $uploader = new FileUploader(
+            $this->baseDir,
+            $this->createFileStorage(),
+            $this->logger,
+            $this->filesystem,
+        );
+
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('Excel files (.xls, .xlsx) are not supported');
 
         $uploader->upload($file);
     }
@@ -150,9 +194,9 @@ final class FileUploaderTest extends TestCase
      */
     public static function mimeTypeExtensionProvider(): iterable
     {
-        yield 'spreadsheet mime' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ['.xlsx']];
-        yield 'excel mime' => ['application/vnd.ms-excel', ['.xls']];
         yield 'plain text mime' => ['text/plain', ['.csv']];
+        yield 'csv mime' => ['text/csv', ['.csv']];
+        yield 'windows csv mime' => ['application/vnd.ms-excel', ['.csv']];
     }
 
     public function testUploadUsesGuessedExtensionWhenMimeTypeIsUnknown(): void
