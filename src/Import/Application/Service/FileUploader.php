@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Service;
 
+use App\Import\Application\ImportAllowedFileTypes;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,9 +15,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /** @psalm-suppress ClassMustBeFinal */
 final readonly class FileUploader
 {
-    /** @var list<string> */
-    private const array ALLOWED_EXTENSIONS = ['csv', 'txt', 'xls', 'xlsx'];
-
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         #[Autowire(param: 'app.imports_base_dir')] private string $baseDir,
@@ -65,34 +63,36 @@ final readonly class FileUploader
     private function resolveExtension(UploadedFile $file): string
     {
         $originalExt = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
-        if ('' !== $originalExt && \in_array($originalExt, self::ALLOWED_EXTENSIONS, true)) {
+        if (\in_array($originalExt, ImportAllowedFileTypes::REJECTED_EXTENSIONS, true)) {
+            throw new FileException('Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.');
+        }
+
+        if ('' !== $originalExt && \in_array($originalExt, ImportAllowedFileTypes::EXTENSIONS, true)) {
             return $originalExt;
         }
 
         $mime = strtolower($file->getClientMimeType());
-        $csvMimes = [
+        $allowedMimes = [
             'text/csv',
             'text/plain',
             'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ];
 
-        if (\in_array($mime, $csvMimes, true)) {
-            return match ($mime) {
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
-                'application/vnd.ms-excel' => 'xls',
-                default => 'csv',
-            };
+        if (\in_array($mime, $allowedMimes, true)) {
+            return 'csv';
         }
 
         $guessed = $file->guessExtension();
         if (is_string($guessed) && '' !== $guessed) {
             $guessed = strtolower($guessed);
-            if (\in_array($guessed, self::ALLOWED_EXTENSIONS, true)) {
+            if (\in_array($guessed, ImportAllowedFileTypes::REJECTED_EXTENSIONS, true)) {
+                throw new FileException('Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.');
+            }
+            if (\in_array($guessed, ImportAllowedFileTypes::EXTENSIONS, true)) {
                 return $guessed;
             }
         }
 
-        throw new FileException(sprintf('Unsupported import file type. Allowed extensions: %s.', implode(', ', self::ALLOWED_EXTENSIONS)));
+        throw new FileException(sprintf('Unsupported import file type. Allowed extensions: %s.', implode(', ', ImportAllowedFileTypes::EXTENSIONS)));
     }
 }
