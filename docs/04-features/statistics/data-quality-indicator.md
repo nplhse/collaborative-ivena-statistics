@@ -179,5 +179,5 @@ There is no runtime configuration or admin UI for thresholds yet.
 
 ## Related documentation
 
-- [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md) — projection table used for participant and allocation counts
+- [projection-and-materialized-views.md](projection-and-materialized-views.md) — projection table used for participant and allocation counts
 - [indication-dashboard-performance.md](indication-dashboard-performance.md) — dashboard query optimisation (separate from data quality evaluation)

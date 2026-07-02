@@ -1,6 +1,6 @@
 # Glossary
 
-For EN↔DE UI translation terms, open decisions, and MT rules see **[Glossary-i18n-de.md](Glossary-i18n-de.md)**.
+For EN↔DE UI translation terms, open decisions, and MT rules see **[glossary-i18n-de.md](glossary-i18n-de.md)**.
 
 ## Terms
 
@@ -17,12 +17,12 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[Glossary-i
 | Distribution pattern | YAML file describing statistical weights for synthetic allocations |
 | Messenger worker | Process that consumes asynchronous messages |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |
-| Participant onboarding | Dashboard checklist for `ROLE_PARTICIPANT`; see [participant-onboarding.md](participant-onboarding.md) |
+| Participant onboarding | Dashboard checklist for `ROLE_PARTICIPANT`; see [../04-features/onboarding/participant-onboarding.md](../04-features/onboarding/participant-onboarding.md) |
 | Audit context | Context for traceable changes and events |
 
 ## Important commands
 
-See [Console-commands.md](Console-commands.md) for the full list and conventions.
+See [console-commands.md](console-commands.md) for the full list and conventions.
 
 | Command | Purpose |
 |---|---|

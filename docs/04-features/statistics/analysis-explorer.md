@@ -317,5 +317,5 @@ Grain resolution is centralized in `AnalysisAxisResolver` (per-axis defaults and
 
 ## Related documentation
 
-- [Statistics projection materialized views](Statistics-projection-materialized-views.md)
+- [projection-and-materialized-views.md](projection-and-materialized-views.md)
 - [Data quality indicator](data-quality-indicator.md)

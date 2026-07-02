@@ -79,7 +79,7 @@ These are **displayed as-is** — never run them through the translator:
 | Entity / reference names from DB | Indication names, departments, occasions, infections | `choice_translation_domain => false` |
 | Hospital names | `Kiel Klinikum` | `choice_translation_domain => false` |
 | SK urgency labels | `SK1`, `SK2`, `SK3` | `choice_translation_domain => false` |
-| Product / format names | IVENA, CSV, PNG | Keys or plain text; see [Glossary-i18n-de.md](Glossary-i18n-de.md) |
+| Product / format names | IVENA, CSV, PNG | Keys or plain text; see [glossary-i18n-de.md](../06-reference/glossary-i18n-de.md) |
 
 UI **labels for** these concepts (`label.indication`, `field.urgency`) are translated; the **values** in dropdowns are not.
 
@@ -213,4 +213,4 @@ make trans-de-all # scaffold missing DE units
 make lint-trans   # lint EN + DE catalogues
 ```
 
-See also [Glossary-i18n-de.md](Glossary-i18n-de.md) for EN↔DE terminology and [Testing.md](Testing.md) for CI checks.
+See also [glossary-i18n-de.md](glossary-i18n-de.md) for EN↔DE terminology and [../03-development/testing.md](../03-development/testing.md) for CI checks.

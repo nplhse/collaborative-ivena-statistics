@@ -100,7 +100,7 @@ After bulk allocation fixture loads, the projection table is rebuilt automatical
 php bin/console app:statistics:rebuild-projection
 ```
 
-See [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md) for the relationship between the projection table and materialized views.
+See [../04-features/statistics/projection-and-materialized-views.md](../04-features/statistics/projection-and-materialized-views.md) for the relationship between the projection table and materialized views.
 
 ## Purging in development
 
@@ -124,7 +124,7 @@ php bin/phpunit --no-coverage tests/DataFixtures/
 
 ## Related documentation
 
-- [Setup.md](Setup.md) — `make setup-dev`, `make reset`
-- [Development-Workflow.md](Development-Workflow.md) — daily commands
-- [Testing.md](Testing.md) — test environment and MV refresh
-- [Architecture.md](Architecture.md) — bounded contexts and commands
+- [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md) — `make setup-dev`, `make reset`
+- [development-workflow.md](development-workflow.md) — daily commands
+- [testing.md](testing.md) — test environment and MV refresh
+- [../02-architecture/overview.md](../02-architecture/overview.md) — bounded contexts and commands

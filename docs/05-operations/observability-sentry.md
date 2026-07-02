@@ -16,10 +16,10 @@ For alpha deployments, set a DSN, `SENTRY_ENVIRONMENT=alpha`, and `SENTRY_TRACES
 
 ## Integration
 
-- **Bundle:** [`config/packages/sentry.yaml`](../config/packages/sentry.yaml) — errors, HTTP/Messenger/Doctrine tracing, and structured logs.
-- **Monolog:** [`config/packages/monolog.yaml`](../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
-- **Scrubbing:** [`SentryEventScrubber`](../src/Shared/Infrastructure/Monitoring/Sentry/SentryEventScrubber.php) and [`SentryLogScrubber`](../src/Shared/Infrastructure/Monitoring/Sentry/SentryLogScrubber.php) filter events, breadcrumbs, and log attributes before send.
-- **Request context:** [`SentryRequestContextSubscriber`](../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets user (ID/username), `route`, `bounded_context`, `origin`, and `request_id`.
+- **Bundle:** [`config/packages/sentry.yaml`](../../config/packages/sentry.yaml) — errors, HTTP/Messenger/Doctrine tracing, and structured logs.
+- **Monolog:** [`config/packages/monolog.yaml`](../../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
+- **Scrubbing:** [`SentryEventScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryEventScrubber.php) and [`SentryLogScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryLogScrubber.php) filter events, breadcrumbs, and log attributes before send.
+- **Request context:** [`SentryRequestContextSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets user (ID/username), `route`, `bounded_context`, `origin`, and `request_id`.
 
 ## Issues vs. logs
 
@@ -79,6 +79,6 @@ The Symfony SDK (`sentry/sentry-symfony`) sends errors, logs, and traces **from 
 | HTTP **503** (`unhealthy`, database down) | yes |
 | HTTP **200** with `"status": "degraded"` (failed Messenger messages) | no (by design) |
 
-`degraded` means the app is up but the failed queue has messages. Use `php bin/console messenger:failed:show` and the [beta readiness checklist](Beta-readiness-checklist.md) — Sentry Uptime does not parse JSON response bodies.
+`degraded` means the app is up but the failed queue has messages. Use `php bin/console messenger:failed:show` and [health-check.md](health-check.md) — Sentry Uptime does not parse JSON response bodies.
 
-Related: [Deployment.md](Deployment.md#health-check) (`GET /health` response format).
+Related: [health-check.md](health-check.md) (`GET /health` response format).

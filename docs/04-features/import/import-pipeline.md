@@ -48,7 +48,7 @@ When an import is deleted (UI or admin), `ImportDeletionService` removes:
 - The uploaded source file under `var/imports/...`
 - The reject CSV file, if one was written during processing
 
-Reimports intentionally keep the source file; only result data from the previous run is cleared. See [Import-batch-requeue.md](Import-batch-requeue.md).
+Reimports intentionally keep the source file; only result data from the previous run is cleared. See [batch-requeue.md](batch-requeue.md).
 
 File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesystem::remove()`). Failed deletions are logged as `import.file.delete_failed`.
 
@@ -64,9 +64,20 @@ Useful tests:
 - `tests/Import/Integration/...`
 - `tests/Import/Functional/Command/RequeueAllImportsCommandTest.php`
 
+## Reject writer configuration
+
+Reject persistence is configured via `app.import.reject_writer` in `config/packages/app.yaml`:
+
+| Value | Behaviour |
+|-------|-----------|
+| `db` | Rejects stored in database (default in production) |
+| `csv` | Rejects written to `app.import.csv_reject_dir` (default `var/import_rejects`) |
+
+See [../../02-architecture/decisions/005-reject-writer-strategy.md](../../02-architecture/decisions/005-reject-writer-strategy.md).
+
 ## Related documentation
 
-- Requeue: [Import-batch-requeue.md](Import-batch-requeue.md)
-- Reject analysis: [Import-reject-analysis.md](Import-reject-analysis.md)
-- Statistics projection: [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md)
-- Operations diagnosis: [Troubleshooting.md](Troubleshooting.md)
+- Requeue: [batch-requeue.md](batch-requeue.md)
+- Reject analysis: [reject-analysis.md](reject-analysis.md)
+- Statistics projection: [../statistics/projection-and-materialized-views.md](../statistics/projection-and-materialized-views.md)
+- Operations diagnosis: [../../05-operations/troubleshooting.md](../../05-operations/troubleshooting.md)

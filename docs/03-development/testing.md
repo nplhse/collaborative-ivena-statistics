@@ -44,7 +44,7 @@ make psalm
 
 ## Translations (i18n)
 
-Extract and lint (see [Translations.md](Translations.md) and [Glossary-i18n-de.md](Glossary-i18n-de.md)):
+Extract and lint (see [translations.md](translations.md) and [../06-reference/glossary-i18n-de.md](../06-reference/glossary-i18n-de.md)):
 
 ```bash
 make trans-all      # extract EN for all app domains
@@ -78,6 +78,6 @@ make lint-trans-de  # lint DE catalogue only
 
 ## Related documentation
 
-- Statistics projection: [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md)
-- Fixtures: [Development-fixtures.md](Development-fixtures.md)
-- Development: [Development-Workflow.md](Development-Workflow.md)
+- Statistics projection: [../04-features/statistics/projection-and-materialized-views.md](../04-features/statistics/projection-and-materialized-views.md)
+- Fixtures: [fixtures.md](fixtures.md)
+- Development: [development-workflow.md](development-workflow.md)

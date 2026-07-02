@@ -118,4 +118,4 @@ Legend: **Link** = replace chart with library deep-link; **Keep** = stay bespoke
 - Geo / choropleth
 - KPI decks and narrative insights
 
-See also [analysis-explorer-v2.md](analysis-explorer-v2.md) for technical architecture.
+See also [analysis-explorer.md](analysis-explorer.md) for technical architecture.

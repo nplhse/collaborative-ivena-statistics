@@ -129,7 +129,7 @@ If `pg_dump` / `pg_restore` is installed on the host and Docker is not running, 
 
 ## Production (Uberspace)
 
-Deployer keeps persistent data outside release directories ([Deployment.md](Deployment.md)):
+Deployer keeps persistent data outside release directories ([deployment.md](deployment.md)):
 
 - `shared/.env.local`
 - `shared/var/imports`
@@ -245,6 +245,6 @@ Record each restore drill (recommended before beta):
 
 ## Related docs
 
-- [Deployment.md](Deployment.md) — Deployer, shared directories, worker
-- [Configuration.md](Configuration.md) — `DATABASE_URL` and env variables
-- [Troubleshooting.md](Troubleshooting.md) — runtime diagnostics
+- [deployment.md](deployment.md) — Deployer, shared directories, worker
+- [../06-reference/configuration.md](../06-reference/configuration.md) — `DATABASE_URL` and env variables
+- [troubleshooting.md](troubleshooting.md) — runtime diagnostics

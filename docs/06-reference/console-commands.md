@@ -1,6 +1,6 @@
 # Console commands
 
-Symfony console commands for operations, repair, and development. Shell scripts in `bin/ops/` are documented separately in [Backup-restore.md](Backup-restore.md).
+Symfony console commands for operations, repair, and development. Shell scripts in `bin/ops/` are documented separately in [../05-operations/backup-restore.md](../05-operations/backup-restore.md).
 
 ## Conventions
 
@@ -45,7 +45,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:env:check` | Validate required environment variables (beta/prod gate). See [Configuration.md](Configuration.md), [Beta-readiness-checklist.md](Beta-readiness-checklist.md). |
+| `app:env:check` | Validate required environment variables. See [configuration.md](configuration.md), [../05-operations/deployment.md](../05-operations/deployment.md). |
 | `app:install` | One-time server bootstrap (initial admin user). Run after `app:env:check`. |
 
 ### Import
@@ -53,8 +53,8 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:import:allocations <importId>` | Dispatch a single import job via Messenger. |
-| `app:import:requeue-all` | Re-queue imports sequentially with resume/checkpoint support. See [Import-batch-requeue.md](Import-batch-requeue.md). |
-| `app:import:analyze-rejects` | Aggregate and export import rejects for transformer planning. See [Import-reject-analysis.md](Import-reject-analysis.md). |
+| `app:import:requeue-all` | Re-queue imports sequentially with resume/checkpoint support. See [../04-features/import/batch-requeue.md](../04-features/import/batch-requeue.md). |
+| `app:import:analyze-rejects` | Aggregate and export import rejects for transformer planning. See [../04-features/import/reject-analysis.md](../04-features/import/reject-analysis.md). |
 
 ### Allocation
 
@@ -67,17 +67,17 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:statistics:rebuild-projection` | Truncate and rebuild `allocation_stats_projection` per import. See [Statistics-projection-materialized-views.md](Statistics-projection-materialized-views.md). |
+| `app:statistics:rebuild-projection` | Truncate and rebuild `allocation_stats_projection` per import. See [../04-features/statistics/projection-and-materialized-views.md](../04-features/statistics/projection-and-materialized-views.md). |
 | `app:statistics:refresh-mviews` | Refresh materialized views manually. |
 | `app:statistics:deduplicate-projection` | Detect and remove duplicate projection/allocation rows. Use `--dry-run` first. |
-| `app:statistics:explorer-views:sync` | Seed or update Analysis Explorer system demo views. See [analysis-explorer-v2.md](analysis-explorer-v2.md). |
+| `app:statistics:explorer-views:sync` | Seed or update Analysis Explorer system demo views. See [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md). |
 | `app:statistics:case-flow:build-geojson` | Build merged Hessen dispatch-area GeoJSON asset for Case Flow maps. |
 
 ### KPI and engagement
 
 | Command | Purpose |
 |---|---|
-| `app:kpi:aggregate` | Aggregate daily KPIs into `kpi_daily`. Scheduler equivalent; see [Development-Workflow.md](Development-Workflow.md). |
+| `app:kpi:aggregate` | Aggregate daily KPIs into `kpi_daily`. Scheduler equivalent; see [../04-features/kpi/kpi-aggregation.md](../04-features/kpi/kpi-aggregation.md). |
 | `app:reminder:preview --hospital-id=ID` | Preview or send monthly submission reminder email. |
 
 ### Content
@@ -95,7 +95,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:fixtures:validate-patterns` | Validate committed pattern YAML files. |
 | `app:fixtures:generate-csv` | Generate CSV encoding test fixtures. |
 
-For full fixture loading, use `doctrine:fixtures:load` with groups — see [Development-fixtures.md](Development-fixtures.md).
+For full fixture loading, use `doctrine:fixtures:load` with groups — see [../03-development/fixtures.md](../03-development/fixtures.md).
 
 ---
 

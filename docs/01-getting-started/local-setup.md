@@ -38,7 +38,7 @@ make setup-dev
 | `lint-js` | Check JavaScript formatting (Prettier) and ESLint rules |
 | `fix-js` | Auto-fix JavaScript formatting and fixable ESLint issues |
 
-All variables: [Configuration.md](Configuration.md)
+All variables: [../06-reference/configuration.md](../06-reference/configuration.md)
 
 ## Create `.env.local`
 
@@ -84,4 +84,4 @@ make lint
 
 If both pass, the local development environment is ready.
 
-Fixture details: [Development-fixtures.md](Development-fixtures.md)
+Fixture details: [../03-development/fixtures.md](../03-development/fixtures.md)
