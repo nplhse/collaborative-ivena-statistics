@@ -5,21 +5,13 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Allocations;
 
 use App\Allocation\Application\Allocations\AllocationListHospitalScopeOptionsProvider;
+use App\Allocation\Application\Explore\ExploreFilterOptionsProvider;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
-use App\Allocation\Infrastructure\Repository\AssignmentRepository;
-use App\Allocation\Infrastructure\Repository\DepartmentRepository;
-use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
-use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
-use App\Allocation\Infrastructure\Repository\InfectionRepository;
-use App\Allocation\Infrastructure\Repository\OccasionRepository;
-use App\Allocation\Infrastructure\Repository\SecondaryTransportRepository;
-use App\Allocation\Infrastructure\Repository\SpecialityRepository;
-use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,16 +24,8 @@ final class ListAllocationsController extends AbstractController
 {
     public function __construct(
         private readonly ListAllocationsQuery $allocationsQuery,
-        private readonly DispatchAreaRepository $dispatchAreaRepository,
-        private readonly StateRepository $stateRepository,
-        private readonly IndicationNormalizedRepository $normalizedRepository,
-        private readonly SecondaryTransportRepository $secondaryTransportRepository,
-        private readonly InfectionRepository $infectionRepository,
-        private readonly DepartmentRepository $departmentRepository,
-        private readonly SpecialityRepository $specialityRepository,
+        private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
         private readonly AllocationListHospitalScopeOptionsProvider $hospitalScopeOptionsProvider,
-        private readonly AssignmentRepository $assignmentRepository,
-        private readonly OccasionRepository $occasionRepository,
     ) {
     }
 
@@ -67,15 +51,7 @@ final class ListAllocationsController extends AbstractController
             'locations' => HospitalLocation::cases(),
             'sizes' => HospitalSize::cases(),
             'urgencies' => AllocationUrgency::cases(),
-            'states' => $this->stateRepository->findAll(),
-            'dispatchAreas' => $this->dispatchAreaRepository->findAll(),
-            'indications' => $this->normalizedRepository->findAll(),
-            'secondaryTransports' => $this->secondaryTransportRepository->findBy([], ['name' => 'ASC']),
-            'infections' => $this->infectionRepository->findBy([], ['name' => 'ASC']),
-            'departments' => $this->departmentRepository->findBy([], ['name' => 'ASC']),
-            'specialities' => $this->specialityRepository->findBy([], ['name' => 'ASC']),
-            'assignments' => $this->assignmentRepository->findBy([], ['name' => 'ASC']),
-            'occasions' => $this->occasionRepository->findBy([], ['name' => 'ASC']),
+            ...$this->filterOptionsProvider->allocationListOptions(),
             'transportTypes' => AllocationTransportType::cases(),
             'hospitalScopeOptions' => $hospitalScopeOptions,
         ]);

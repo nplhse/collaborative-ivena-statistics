@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\DispatchAreas;
 
+use App\Allocation\Application\Explore\ExploreFilterOptionsProvider;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
-use App\Allocation\Infrastructure\Repository\StateRepository;
 use App\Allocation\UI\Http\DTO\AreaListQueryParametersDTO;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,7 @@ final class ListDispatchAreasController extends AbstractController
 {
     public function __construct(
         private readonly DispatchAreaRepository $dispatchAreaRepository,
-        private readonly StateRepository $stateRepository,
+        private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
     ) {
     }
 
@@ -34,7 +34,7 @@ final class ListDispatchAreasController extends AbstractController
             'orderBy' => $query->orderBy,
             'filters' => $query,
             'activeFilterCount' => $this->countActiveFilters($query),
-            'states' => $this->stateRepository->findAll(),
+            'states' => $this->filterOptionsProvider->states(),
         ]);
     }
 
