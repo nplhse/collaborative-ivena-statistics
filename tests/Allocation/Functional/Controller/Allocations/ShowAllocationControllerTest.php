@@ -42,7 +42,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowUsesBoundedQueryCount(): void
     {
-        static::bootKernel();
+        self::bootKernel();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -100,7 +100,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         $allocationId = $allocation->getId();
         self::assertNotNull($allocationId);
 
-        static::ensureKernelShutdown();
+        self::ensureKernelShutdown();
 
         $client = $this->createClientAsParticipant();
         $client->enableProfiler();
