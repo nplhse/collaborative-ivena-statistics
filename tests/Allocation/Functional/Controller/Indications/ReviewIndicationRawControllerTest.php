@@ -50,7 +50,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloaded = $repo->find($raw->getPublicIdString());
+        $reloaded = $repo->find($raw->getId());
         self::assertNotNull($reloaded);
         self::assertSame(IndicationRawReviewStatus::NeedsReview, $reloaded->getReviewStatus());
         self::assertNotNull($reloaded->getFirstMatchedBy());
@@ -83,7 +83,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloaded = $repo->find($raw->getPublicIdString());
+        $reloaded = $repo->find($raw->getId());
         self::assertNotNull($reloaded);
         self::assertSame(IndicationRawReviewStatus::Matched, $reloaded->getReviewStatus());
     }
@@ -107,7 +107,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloaded = $repo->find($raw->getPublicIdString());
+        $reloaded = $repo->find($raw->getId());
         self::assertNotNull($reloaded);
         self::assertSame(IndicationRawReviewStatus::Matched, $reloaded->getReviewStatus());
         self::assertSame($admin->getId(), $reloaded->getFirstMatchedBy()?->getId());
@@ -202,7 +202,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloaded = $repo->find($raw->getPublicIdString());
+        $reloaded = $repo->find($raw->getId());
         self::assertNotNull($reloaded);
         self::assertSame(IndicationRawReviewStatus::Matched, $reloaded->getReviewStatus());
         self::assertSame($admin->getId(), $reloaded->getReviewedBy()?->getId());
@@ -252,7 +252,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloaded = $repo->find($raw->getPublicIdString());
+        $reloaded = $repo->find($raw->getId());
         self::assertNotNull($reloaded);
         self::assertSame(IndicationRawReviewStatus::Unreviewed, $reloaded->getReviewStatus());
         self::assertNull($reloaded->getTarget());
@@ -276,8 +276,8 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloadedIgnore = $repo->find($ignoreRaw->getPublicIdString());
-        $reloadedNotMatchable = $repo->find($notMatchableRaw->getPublicIdString());
+        $reloadedIgnore = $repo->find($ignoreRaw->getId());
+        $reloadedNotMatchable = $repo->find($notMatchableRaw->getId());
         self::assertNotNull($reloadedIgnore);
         self::assertNotNull($reloadedNotMatchable);
         self::assertSame(IndicationRawReviewStatus::Ignored, $reloadedIgnore->getReviewStatus());
@@ -302,7 +302,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloaded = $repo->find($raw->getPublicIdString());
+        $reloaded = $repo->find($raw->getId());
         self::assertNotNull($reloaded);
         self::assertSame(IndicationRawReviewStatus::Unreviewed, $reloaded->getReviewStatus());
     }
@@ -323,7 +323,7 @@ final class ReviewIndicationRawControllerTest extends WebTestCase
 
         /** @var IndicationRawRepository $repo */
         $repo = self::getContainer()->get(IndicationRawRepository::class);
-        $reloaded = $repo->find($raw->getPublicIdString());
+        $reloaded = $repo->find($raw->getId());
         self::assertNotNull($reloaded);
         self::assertSame('Needs second opinion', $reloaded->getReviewComment());
     }
