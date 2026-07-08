@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLabelResolver;
 use App\Statistics\AnalysisExplorer\UI\Http\Navigation\ExplorerLibraryQueryKeys;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
@@ -25,6 +26,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     public function __construct(
         private SavedExplorerViewRepository $repository,
         private SavedExplorerViewFavoriteService $favoriteService,
+        private SavedExplorerViewLabelResolver $labelResolver,
         private UrlGeneratorInterface $router,
         private TranslatorInterface $translator,
     ) {
@@ -139,7 +141,9 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         }
 
         $needle = mb_strtolower($searchQuery);
-        $haystack = mb_strtolower(trim($view->getTitle()."\n".($view->getDescription() ?? '')));
+        $haystack = mb_strtolower(trim(
+            $this->labelResolver->title($view)."\n".($this->labelResolver->description($view) ?? ''),
+        ));
 
         return str_contains($haystack, $needle);
     }
@@ -308,8 +312,8 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
 
         return [
             'id' => $viewId,
-            'title' => $view->getTitle(),
-            'description' => $view->getDescription() ?? '',
+            'title' => $this->labelResolver->title($view),
+            'description' => $this->labelResolver->description($view) ?? '',
             'dimension' => $this->dimensionLabel($dimension),
             'grain' => $this->grainLabel($grain),
             'chartType' => $this->chartTypeLabel((string) ($presentation['chartType'] ?? '')),
