@@ -18,12 +18,14 @@ use App\Allocation\UI\Form\IndicationRawReviewType;
 use App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\ClickableInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -40,9 +42,14 @@ final class ReviewIndicationRawController extends AbstractController
     ) {
     }
 
-    #[Route('/explore/indication/raw/review/{id}', name: 'app_explore_indication_raw_review', methods: ['GET', 'POST'])]
+    #[Route(
+        '/explore/indication/raw/review/{publicId}',
+        name: 'app_explore_indication_raw_review',
+        requirements: ['publicId' => Requirement::UUID],
+        methods: ['GET', 'POST'],
+    )]
     public function __invoke(
-        IndicationRaw $raw,
+        #[MapEntity(expr: 'repository.findOneByPublicId(publicId)')] IndicationRaw $raw,
         Request $request,
     ): Response {
         $context = $this->buildContextFromRequest($request);
@@ -65,7 +72,7 @@ final class ReviewIndicationRawController extends AbstractController
                 $this->addFlash('danger', $exception->getMessage());
 
                 return $this->redirectToRoute('app_explore_indication_raw_review', [
-                    'id' => $raw->getId(),
+                    'publicId' => $raw->getPublicIdString(),
                     ...$this->contextQueryParams($context),
                 ]);
             }
@@ -94,9 +101,16 @@ final class ReviewIndicationRawController extends AbstractController
         ]);
     }
 
-    #[Route('/explore/indication/raw/review/{id}/skip', name: 'app_explore_indication_raw_review_skip', methods: ['GET'])]
-    public function skip(IndicationRaw $raw, Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
-    {
+    #[Route(
+        '/explore/indication/raw/review/{publicId}/skip',
+        name: 'app_explore_indication_raw_review_skip',
+        requirements: ['publicId' => Requirement::UUID],
+        methods: ['GET'],
+    )]
+    public function skip(
+        #[MapEntity(expr: 'repository.findOneByPublicId(publicId)')] IndicationRaw $raw,
+        Request $request,
+    ): \Symfony\Component\HttpFoundation\RedirectResponse {
         $context = $this->buildContextFromRequest($request);
         $next = $this->navigator->findNext($context, $raw->getId());
 
@@ -107,7 +121,7 @@ final class ReviewIndicationRawController extends AbstractController
         }
 
         return $this->redirectToRoute('app_explore_indication_raw_review', [
-            'id' => $next->getId(),
+            'publicId' => $next->getPublicIdString(),
             ...$this->contextQueryParams($context),
         ]);
     }
@@ -140,7 +154,7 @@ final class ReviewIndicationRawController extends AbstractController
         }
 
         return $this->redirectToRoute('app_explore_indication_raw_review', [
-            'id' => $first->getId(),
+            'publicId' => $first->getPublicIdString(),
             'segment' => $segment->value,
         ]);
     }
@@ -211,7 +225,7 @@ final class ReviewIndicationRawController extends AbstractController
             $this->addFlash('success', $this->translator->trans('flash.indication.review.reopened', [], 'allocation'));
 
             return $this->redirectToRoute('app_explore_indication_raw_review', [
-                'id' => $raw->getId(),
+                'publicId' => $raw->getPublicIdString(),
                 ...$this->contextQueryParams($context),
             ]);
         }
@@ -221,13 +235,13 @@ final class ReviewIndicationRawController extends AbstractController
             $this->addFlash('success', $this->translator->trans('flash.indication.review.comment_saved', [], 'allocation'));
 
             return $this->redirectToRoute('app_explore_indication_raw_review', [
-                'id' => $raw->getId(),
+                'publicId' => $raw->getPublicIdString(),
                 ...$this->contextQueryParams($context),
             ]);
         }
 
         return $this->redirectToRoute('app_explore_indication_raw_review', [
-            'id' => $raw->getId(),
+            'publicId' => $raw->getPublicIdString(),
             ...$this->contextQueryParams($context),
         ]);
     }
@@ -242,7 +256,7 @@ final class ReviewIndicationRawController extends AbstractController
         }
 
         return $this->redirectToRoute('app_explore_indication_raw_review', [
-            'id' => $next->getId(),
+            'publicId' => $next->getPublicIdString(),
             ...$this->contextQueryParams($context),
         ]);
     }

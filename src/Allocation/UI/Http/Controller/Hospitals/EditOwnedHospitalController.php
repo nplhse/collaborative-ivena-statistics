@@ -71,7 +71,7 @@ final class EditOwnedHospitalController extends AbstractController
 
             $this->addFlash('success', new TranslatableMessage('flash.hospital.updated', domain: 'allocation'));
 
-            return $this->redirectToRoute('app_explore_hospital_show', ['id' => $hospital->getId()]);
+            return $this->redirectToRoute('app_explore_hospital_show', ['publicId' => $hospital->getPublicIdString()]);
         }
 
         return $this->render('@Allocation/hospitals/edit_owned.html.twig', [

@@ -38,7 +38,7 @@
                 {% endif %}
             </div>
             <div class="card-footer d-flex justify-content-end gap-2">
-                <a class="btn btn-link" href="{{ path('app_explore_hospital_show', {id: hospital.id}) }}">{{ 'label.hospital.back_to_profile'|trans({}, 'messages') }}</a>
+                <a class="btn btn-link" href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">{{ 'label.hospital.back_to_profile'|trans({}, 'messages') }}</a>
                 <button type="submit" class="btn btn-primary">{{ 'action.save_changes'|trans({}, 'messages') }}</button>
             </div>
             {{ form_end(form) }}

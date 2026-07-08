@@ -150,7 +150,7 @@
                         <td>{{ counts.occurrence_count }}</td>
                         <td>{{ raw.createdAt|date('d.m.Y H:i') }}</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_explore_indication_raw_review', {id: raw.id, segment: query.segment.value, search: query.search}) }}" target="_top">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_explore_indication_raw_review', {publicId: raw.publicId, segment: query.segment.value, search: query.search}) }}" target="_top">
                                 {{ 'btn.indication.review'|trans({}, 'allocation') }}
                             </a>
                         </td>

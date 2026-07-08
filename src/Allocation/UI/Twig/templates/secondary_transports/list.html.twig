@@ -122,7 +122,7 @@
                 {% for st in paginator.results %}
                     <tr>
                         <td>
-                            <a href="{{ path('app_explore_secondary_transport_show', {id: st.id}) }}">{{ st.name }}</a>
+                            <a href="{{ path('app_explore_secondary_transport_show', {publicId: st.publicId}) }}">{{ st.name }}</a>
                         </td>
                         <td>
                             {{ st.updatedAt ? st.updatedAt|date('d.m.Y H:i') : st.createdAt|date('d.m.Y H:i') }}
