@@ -23,10 +23,8 @@ final class ExplorerEditFormData
         public string $hospitalPopulation = 'participating',
         /** @var list<string> */
         public array $additionalTableMetrics = [],
-        /** @var list<int> */
-        public array $filterDepartmentIds = [],
-        /** @var list<int> */
-        public array $filterSpecialityIds = [],
+        public ?int $filterDepartmentId = null,
+        public ?int $filterSpecialityId = null,
         public ?int $filterUrgency = null,
         public ?int $filterTransportType = null,
         public ?int $filterGender = null,
@@ -35,6 +33,9 @@ final class ExplorerEditFormData
         public ?bool $filterCpr = null,
         public ?bool $filterVentilation = null,
         public ?int $filterAssignmentId = null,
+        public ?int $filterIndicationId = null,
+        public ?int $filterSecondaryIndicationId = null,
+        public ?int $filterIndicationGroupId = null,
     ) {
     }
 }

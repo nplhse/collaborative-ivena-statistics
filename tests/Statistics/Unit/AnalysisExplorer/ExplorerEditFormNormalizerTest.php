@@ -161,6 +161,24 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         self::assertSame('total', $normalized->columnGrain);
     }
 
+    public function testNormalizePreservesFilterFields(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            rowDimension: 'time',
+            rowGrain: 'month',
+            metric: 'allocation_count',
+            chartType: 'bar',
+            filterUrgency: 2,
+            filterIndicationId: 15,
+            filterIndicationGroupId: 3,
+        ));
+
+        self::assertSame(2, $normalized->filterUrgency);
+        self::assertSame(15, $normalized->filterIndicationId);
+        self::assertSame(3, $normalized->filterIndicationGroupId);
+    }
+
     private function formData(
         string $rowDimension,
         ?string $rowGrain,

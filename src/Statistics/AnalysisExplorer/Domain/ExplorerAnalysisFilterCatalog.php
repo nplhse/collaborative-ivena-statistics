@@ -21,6 +21,9 @@ final class ExplorerAnalysisFilterCatalog
         'cpr',
         'ventilation',
         'assignment',
+        'indication',
+        'secondary_indication',
+        'indication_group',
     ];
 
     public static function isAllowed(string $dimensionKey): bool

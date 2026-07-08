@@ -36,6 +36,10 @@ final readonly class ExplorerFilterBadgePresenter
 
     private function dimensionLabel(string $dimensionKey): string
     {
+        if ('indication_group' === $dimensionKey) {
+            return $this->translator->trans('label.indication_group', [], 'messages');
+        }
+
         if (!$this->dimensionRegistry->has($dimensionKey)) {
             return $dimensionKey;
         }
@@ -46,13 +50,16 @@ final readonly class ExplorerFilterBadgePresenter
     private function valueLabel(AnalysisFilter $filter): string
     {
         return match ($filter->dimensionKey) {
-            'department' => $this->entityListLabel($this->choiceProvider->departmentChoices(), $filter->value),
-            'speciality' => $this->entityListLabel($this->choiceProvider->specialityChoices(), $filter->value),
+            'department' => $this->singleChoiceLabel($this->choiceProvider->departmentChoices(), $filter->value),
+            'speciality' => $this->singleChoiceLabel($this->choiceProvider->specialityChoices(), $filter->value),
             'assignment' => $this->entityListLabel($this->choiceProvider->assignmentChoices(), $filter->value),
             'urgency' => $this->singleChoiceLabel($this->choiceProvider->urgencyChoices(), $filter->value),
             'transport_type' => $this->singleChoiceLabel($this->choiceProvider->transportTypeChoices(), $filter->value),
             'gender' => $this->singleChoiceLabel($this->choiceProvider->genderChoices(), $filter->value),
             'age_group' => $this->singleChoiceLabel($this->choiceProvider->ageGroupChoices(), $filter->value),
+            'indication' => $this->singleChoiceLabel($this->choiceProvider->indicationChoices(), $filter->value),
+            'secondary_indication' => $this->singleChoiceLabel($this->choiceProvider->indicationChoices(), $filter->value),
+            'indication_group' => $this->singleChoiceLabel($this->choiceProvider->indicationGroupChoices(), $filter->value),
             'resus', 'cpr', 'ventilation' => $this->booleanLabel($filter->value),
             default => \is_array($filter->value) ? implode(', ', array_map(strval(...), $filter->value)) : (string) $filter->value,
         };

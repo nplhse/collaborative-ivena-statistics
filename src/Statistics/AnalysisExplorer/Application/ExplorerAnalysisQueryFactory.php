@@ -16,12 +16,20 @@ final readonly class ExplorerAnalysisQueryFactory
     public function __construct(
         private StatisticsContextFactory $statisticsContextFactory,
         private StatisticsScopeResolver $statisticsScopeResolver,
+        private ExplorerAnalysisFilterExpander $analysisFilterExpander,
+        private ExplorerAnalysisFilterPolicy $analysisFilterPolicy,
     ) {
     }
 
     public function create(AnalysisViewConfig $config, ?User $user): AnalysisQuery
     {
         $context = $this->statisticsContextFactory->create($user, $config->statisticsFilter);
+        $filters = $this->analysisFilterExpander->expand($config->filters);
+        $filters = $this->analysisFilterPolicy->excludeAxisDimensions(
+            $filters,
+            $config->rowAxis,
+            $config->columnAxis,
+        );
 
         return new AnalysisQuery(
             dataSourceKey: $config->dataSourceKey,
@@ -32,7 +40,7 @@ final readonly class ExplorerAnalysisQueryFactory
             scopeCriteria: $this->statisticsScopeResolver->resolveCriteria($context),
             periodBounds: StatisticsPeriodResolver::resolve($config->statisticsFilter),
             hospitalPopulationMode: $config->hospitalPopulationMode,
-            filters: $config->filters,
+            filters: $filters,
         );
     }
 }
