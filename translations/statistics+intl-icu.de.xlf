@@ -4625,6 +4625,358 @@
         <source>stats.reports.top_specialities.label</source>
         <target>Top-Fachrichtungen</target>
       </trans-unit>
+      <trans-unit id="statsSvc3ed06c6" resname="stats.analysis_explorer.system_view.allocations-over-time.title">
+        <source>stats.analysis_explorer.system_view.allocations-over-time.title</source>
+        <target>Allokationen im Zeitverlauf</target>
+      </trans-unit>
+      <trans-unit id="statsSv56914bf1" resname="stats.analysis_explorer.system_view.allocations-over-time.description">
+        <source>stats.analysis_explorer.system_view.allocations-over-time.description</source>
+        <target>Monatliche Allokationszahlen im gewählten Zeitraum.</target>
+      </trans-unit>
+      <trans-unit id="statsSv143a1766" resname="stats.analysis_explorer.system_view.allocations-by-year.title">
+        <source>stats.analysis_explorer.system_view.allocations-by-year.title</source>
+        <target>Allokationen nach Jahr</target>
+      </trans-unit>
+      <trans-unit id="statsSvc2901c41" resname="stats.analysis_explorer.system_view.allocations-by-year.description">
+        <source>stats.analysis_explorer.system_view.allocations-by-year.description</source>
+        <target>Jährliche Allokationssummen als Liniendiagramm.</target>
+      </trans-unit>
+      <trans-unit id="statsSva7de68ae" resname="stats.analysis_explorer.system_view.gender-distribution.title">
+        <source>stats.analysis_explorer.system_view.gender-distribution.title</source>
+        <target>Geschlechterverteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSva78386f9" resname="stats.analysis_explorer.system_view.gender-distribution.description">
+        <source>stats.analysis_explorer.system_view.gender-distribution.description</source>
+        <target>Allokationszahlen nach Patientengeschlecht.</target>
+      </trans-unit>
+      <trans-unit id="statsSvad6e9fb0" resname="stats.analysis_explorer.system_view.gender-over-time.title">
+        <source>stats.analysis_explorer.system_view.gender-over-time.title</source>
+        <target>Geschlecht im Zeitverlauf</target>
+      </trans-unit>
+      <trans-unit id="statsSv816a93f0" resname="stats.analysis_explorer.system_view.gender-over-time.description">
+        <source>stats.analysis_explorer.system_view.gender-over-time.description</source>
+        <target>Monatliche Allokationszahlen aufgeteilt nach Geschlecht.</target>
+      </trans-unit>
+      <trans-unit id="statsSvaef1c236" resname="stats.analysis_explorer.system_view.urgency-distribution.title">
+        <source>stats.analysis_explorer.system_view.urgency-distribution.title</source>
+        <target>Dringlichkeitsverteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSve6993834" resname="stats.analysis_explorer.system_view.urgency-distribution.description">
+        <source>stats.analysis_explorer.system_view.urgency-distribution.description</source>
+        <target>Allokationszahlen nach Dringlichkeitsstufe.</target>
+      </trans-unit>
+      <trans-unit id="statsSva4b33e1d" resname="stats.analysis_explorer.system_view.urgency-over-time.title">
+        <source>stats.analysis_explorer.system_view.urgency-over-time.title</source>
+        <target>Dringlichkeit im Zeitverlauf</target>
+      </trans-unit>
+      <trans-unit id="statsSv5d0672ed" resname="stats.analysis_explorer.system_view.urgency-over-time.description">
+        <source>stats.analysis_explorer.system_view.urgency-over-time.description</source>
+        <target>Jährliche Allokationszahlen gestapelt nach Dringlichkeit.</target>
+      </trans-unit>
+      <trans-unit id="statsSvcbf401a9" resname="stats.analysis_explorer.system_view.age-group-distribution.title">
+        <source>stats.analysis_explorer.system_view.age-group-distribution.title</source>
+        <target>Altersgruppenverteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSvbb559f93" resname="stats.analysis_explorer.system_view.age-group-distribution.description">
+        <source>stats.analysis_explorer.system_view.age-group-distribution.description</source>
+        <target>Allokationszahlen nach Patientenaltersgruppe.</target>
+      </trans-unit>
+      <trans-unit id="statsSvbfb7743c" resname="stats.analysis_explorer.system_view.allocations-by-weekday.title">
+        <source>stats.analysis_explorer.system_view.allocations-by-weekday.title</source>
+        <target>Allokationen nach Wochentag</target>
+      </trans-unit>
+      <trans-unit id="statsSv0c086cc6" resname="stats.analysis_explorer.system_view.allocations-by-weekday.description">
+        <source>stats.analysis_explorer.system_view.allocations-by-weekday.description</source>
+        <target>Allokationszahlen verteilt auf Wochentage.</target>
+      </trans-unit>
+      <trans-unit id="statsSvf9285cec" resname="stats.analysis_explorer.system_view.allocations-by-department.title">
+        <source>stats.analysis_explorer.system_view.allocations-by-department.title</source>
+        <target>Allokationen nach Abteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSv18d041c8" resname="stats.analysis_explorer.system_view.allocations-by-department.description">
+        <source>stats.analysis_explorer.system_view.allocations-by-department.description</source>
+        <target>Welche Abteilungen die meisten Allokationen bearbeiten.</target>
+      </trans-unit>
+      <trans-unit id="statsSvea0b797f" resname="stats.analysis_explorer.system_view.transport-type-distribution.title">
+        <source>stats.analysis_explorer.system_view.transport-type-distribution.title</source>
+        <target>Transportartverteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSvd0ceea20" resname="stats.analysis_explorer.system_view.transport-type-distribution.description">
+        <source>stats.analysis_explorer.system_view.transport-type-distribution.description</source>
+        <target>Allokationszahlen für Boden- versus Lufttransport.</target>
+      </trans-unit>
+      <trans-unit id="statsSva5c8c02e" resname="stats.analysis_explorer.system_view.day-time-bucket-distribution.title">
+        <source>stats.analysis_explorer.system_view.day-time-bucket-distribution.title</source>
+        <target>Tageszeitverteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSv5a0aade1" resname="stats.analysis_explorer.system_view.day-time-bucket-distribution.description">
+        <source>stats.analysis_explorer.system_view.day-time-bucket-distribution.description</source>
+        <target>Allokationszahlen nach Tageszeit-Bucket.</target>
+      </trans-unit>
+      <trans-unit id="statsSve1881e1f" resname="stats.analysis_explorer.system_view.shift-bucket-distribution.title">
+        <source>stats.analysis_explorer.system_view.shift-bucket-distribution.title</source>
+        <target>Schichtverteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSve8c60089" resname="stats.analysis_explorer.system_view.shift-bucket-distribution.description">
+        <source>stats.analysis_explorer.system_view.shift-bucket-distribution.description</source>
+        <target>Allokationszahlen nach Schicht-Bucket.</target>
+      </trans-unit>
+      <trans-unit id="statsSvef25ae5d" resname="stats.analysis_explorer.system_view.with-physician-distribution.title">
+        <source>stats.analysis_explorer.system_view.with-physician-distribution.title</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="statsSv5200a298" resname="stats.analysis_explorer.system_view.with-physician-distribution.description">
+        <source>stats.analysis_explorer.system_view.with-physician-distribution.description</source>
+        <target>Allokationen mit versus ohne Arztbegleitung.</target>
+      </trans-unit>
+      <trans-unit id="statsSv03e6731e" resname="stats.analysis_explorer.system_view.secondary-indication-distribution.title">
+        <source>stats.analysis_explorer.system_view.secondary-indication-distribution.title</source>
+        <target>Sekundärindikationsverteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSvf6ca1139" resname="stats.analysis_explorer.system_view.secondary-indication-distribution.description">
+        <source>stats.analysis_explorer.system_view.secondary-indication-distribution.description</source>
+        <target>Allokationszahlen nach Sekundärindikation.</target>
+      </trans-unit>
+      <trans-unit id="statsSvc787cf34" resname="stats.analysis_explorer.system_view.transport-time-bucket-distribution.title">
+        <source>stats.analysis_explorer.system_view.transport-time-bucket-distribution.title</source>
+        <target>Transportzeit-Bucket-Verteilung</target>
+      </trans-unit>
+      <trans-unit id="statsSv46cad464" resname="stats.analysis_explorer.system_view.transport-time-bucket-distribution.description">
+        <source>stats.analysis_explorer.system_view.transport-time-bucket-distribution.description</source>
+        <target>Allokationszahlen nach Transportdauer-Bucket in Minuten.</target>
+      </trans-unit>
+      <trans-unit id="statsSva2457723" resname="stats.analysis_explorer.system_view.transport-time-distribution-by-urgency.title">
+        <source>stats.analysis_explorer.system_view.transport-time-distribution-by-urgency.title</source>
+        <target>Transportzeitverteilung nach Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="statsSv1d1293b7" resname="stats.analysis_explorer.system_view.transport-time-distribution-by-urgency.description">
+        <source>stats.analysis_explorer.system_view.transport-time-distribution-by-urgency.description</source>
+        <target>Verteilung der Transportzeiten in Minuten pro Dringlichkeitsstufe als Boxplot.</target>
+      </trans-unit>
+      <trans-unit id="statsSv21215c60" resname="stats.analysis_explorer.system_view.allocations-weekday-by-day-time-heatmap.title">
+        <source>stats.analysis_explorer.system_view.allocations-weekday-by-day-time-heatmap.title</source>
+        <target>Allokationen nach Wochentag und Tageszeit</target>
+      </trans-unit>
+      <trans-unit id="statsSvc6cd18c8" resname="stats.analysis_explorer.system_view.allocations-weekday-by-day-time-heatmap.description">
+        <source>stats.analysis_explorer.system_view.allocations-weekday-by-day-time-heatmap.description</source>
+        <target>Allokationszahlen als Heatmap von Wochentag versus Tageszeit-Bucket.</target>
+      </trans-unit>
+      <trans-unit id="statsSv503b9f69" resname="stats.analysis_explorer.system_view.allocations-weekday-by-shift-heatmap.title">
+        <source>stats.analysis_explorer.system_view.allocations-weekday-by-shift-heatmap.title</source>
+        <target>Allokationen nach Wochentag und Schicht</target>
+      </trans-unit>
+      <trans-unit id="statsSv257f8f9b" resname="stats.analysis_explorer.system_view.allocations-weekday-by-shift-heatmap.description">
+        <source>stats.analysis_explorer.system_view.allocations-weekday-by-shift-heatmap.description</source>
+        <target>Allokationszahlen als Heatmap von Wochentag versus Schicht-Bucket.</target>
+      </trans-unit>
+      <trans-unit id="statsSv17dce39e" resname="stats.analysis_explorer.system_view.allocations-by-hour.title">
+        <source>stats.analysis_explorer.system_view.allocations-by-hour.title</source>
+        <target>Allokationen nach Stunde</target>
+      </trans-unit>
+      <trans-unit id="statsSva2586c09" resname="stats.analysis_explorer.system_view.allocations-by-hour.description">
+        <source>stats.analysis_explorer.system_view.allocations-by-hour.description</source>
+        <target>Allokationszahlen verteilt auf Tagesstunden (0–23).</target>
+      </trans-unit>
+      <trans-unit id="statsSvd786c9ee" resname="stats.analysis_explorer.system_view.overview-clinical-resources.title">
+        <source>stats.analysis_explorer.system_view.overview-clinical-resources.title</source>
+        <target>Übersicht klinische Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="statsSvef952b8f" resname="stats.analysis_explorer.system_view.overview-clinical-resources.description">
+        <source>stats.analysis_explorer.system_view.overview-clinical-resources.description</source>
+        <target>Reanimationsraum- und Herzkatheterlabor-Raten im gewählten Zeitraum im Vergleich.</target>
+      </trans-unit>
+      <trans-unit id="statsSvd4609154" resname="stats.analysis_explorer.system_view.overview-clinical-features.title">
+        <source>stats.analysis_explorer.system_view.overview-clinical-features.title</source>
+        <target>Übersicht klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="statsSv0b15aba6" resname="stats.analysis_explorer.system_view.overview-clinical-features.description">
+        <source>stats.analysis_explorer.system_view.overview-clinical-features.description</source>
+        <target>Raten klinischer Merkmale im gewählten Zeitraum im Vergleich.</target>
+      </trans-unit>
+      <trans-unit id="statsSv8d9a09d7" resname="stats.analysis_explorer.system_view.clinical-resources-by-gender.title">
+        <source>stats.analysis_explorer.system_view.clinical-resources-by-gender.title</source>
+        <target>Klinische Ressourcen nach Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="statsSv2c5ce05f" resname="stats.analysis_explorer.system_view.clinical-resources-by-gender.description">
+        <source>stats.analysis_explorer.system_view.clinical-resources-by-gender.description</source>
+        <target>Reanimationsraum- und Herzkatheterlabor-Raten nach Geschlecht.</target>
+      </trans-unit>
+      <trans-unit id="statsSvc4a87594" resname="stats.analysis_explorer.system_view.clinical-features-by-urgency.title">
+        <source>stats.analysis_explorer.system_view.clinical-features-by-urgency.title</source>
+        <target>Klinische Merkmale nach Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="statsSvb2e0a370" resname="stats.analysis_explorer.system_view.clinical-features-by-urgency.description">
+        <source>stats.analysis_explorer.system_view.clinical-features-by-urgency.description</source>
+        <target>Raten klinischer Merkmale nach Dringlichkeitsstufe.</target>
+      </trans-unit>
+      <trans-unit id="statsSv2b30908a" resname="stats.analysis_explorer.system_view.resus-distribution.title">
+        <source>stats.analysis_explorer.system_view.resus-distribution.title</source>
+        <target>Reanimationsraum erforderlich</target>
+      </trans-unit>
+      <trans-unit id="statsSv2691454a" resname="stats.analysis_explorer.system_view.resus-distribution.description">
+        <source>stats.analysis_explorer.system_view.resus-distribution.description</source>
+        <target>Allokationszahlen danach, ob bei der Anmeldung ein Reanimationsraum angefordert wurde.</target>
+      </trans-unit>
+      <trans-unit id="statsSvaec53cf7" resname="stats.analysis_explorer.system_view.cathlab-distribution.title">
+        <source>stats.analysis_explorer.system_view.cathlab-distribution.title</source>
+        <target>Herzkatheterlabor erforderlich</target>
+      </trans-unit>
+      <trans-unit id="statsSv636bd3ff" resname="stats.analysis_explorer.system_view.cathlab-distribution.description">
+        <source>stats.analysis_explorer.system_view.cathlab-distribution.description</source>
+        <target>Allokationszahlen danach, ob bei der Anmeldung ein Herzkatheterlabor angefordert wurde.</target>
+      </trans-unit>
+      <trans-unit id="statsSv70f2a4fe" resname="stats.analysis_explorer.system_view.cpr-distribution.title">
+        <source>stats.analysis_explorer.system_view.cpr-distribution.title</source>
+        <target>CPR-Fälle</target>
+      </trans-unit>
+      <trans-unit id="statsSv8d3f2325" resname="stats.analysis_explorer.system_view.cpr-distribution.description">
+        <source>stats.analysis_explorer.system_view.cpr-distribution.description</source>
+        <target>Allokationszahlen nach CPR-Fallkennzeichen.</target>
+      </trans-unit>
+      <trans-unit id="statsSv505fd7ff" resname="stats.analysis_explorer.system_view.ventilation-distribution.title">
+        <source>stats.analysis_explorer.system_view.ventilation-distribution.title</source>
+        <target>Beatmungsfälle</target>
+      </trans-unit>
+      <trans-unit id="statsSv38d7f9c7" resname="stats.analysis_explorer.system_view.ventilation-distribution.description">
+        <source>stats.analysis_explorer.system_view.ventilation-distribution.description</source>
+        <target>Allokationszahlen nach Beatmungsfallkennzeichen.</target>
+      </trans-unit>
+      <trans-unit id="statsSvd77b6aaf" resname="stats.analysis_explorer.system_view.shock-distribution.title">
+        <source>stats.analysis_explorer.system_view.shock-distribution.title</source>
+        <target>Schockfälle</target>
+      </trans-unit>
+      <trans-unit id="statsSvcf1c98d9" resname="stats.analysis_explorer.system_view.shock-distribution.description">
+        <source>stats.analysis_explorer.system_view.shock-distribution.description</source>
+        <target>Allokationszahlen nach Schockfallkennzeichen.</target>
+      </trans-unit>
+      <trans-unit id="statsSvac2d0696" resname="stats.analysis_explorer.system_view.allocations-by-speciality.title">
+        <source>stats.analysis_explorer.system_view.allocations-by-speciality.title</source>
+        <target>Allokationen nach Fachrichtung</target>
+      </trans-unit>
+      <trans-unit id="statsSv1025bb50" resname="stats.analysis_explorer.system_view.allocations-by-speciality.description">
+        <source>stats.analysis_explorer.system_view.allocations-by-speciality.description</source>
+        <target>Welche medizinischen Fachrichtungen die meisten Allokationen bearbeiten.</target>
+      </trans-unit>
+      <trans-unit id="statsSvc72eebaa" resname="stats.analysis_explorer.system_view.allocations-by-occasion.title">
+        <source>stats.analysis_explorer.system_view.allocations-by-occasion.title</source>
+        <target>Allokationen nach Anlass</target>
+      </trans-unit>
+      <trans-unit id="statsSv5083b54e" resname="stats.analysis_explorer.system_view.allocations-by-occasion.description">
+        <source>stats.analysis_explorer.system_view.allocations-by-occasion.description</source>
+        <target>Allokationszahlen nach Anlass.</target>
+      </trans-unit>
+      <trans-unit id="statsSv421702a5" resname="stats.analysis_explorer.system_view.allocations-by-infection.title">
+        <source>stats.analysis_explorer.system_view.allocations-by-infection.title</source>
+        <target>Allokationen nach Infektion</target>
+      </trans-unit>
+      <trans-unit id="statsSv24445748" resname="stats.analysis_explorer.system_view.allocations-by-infection.description">
+        <source>stats.analysis_explorer.system_view.allocations-by-infection.description</source>
+        <target>Allokationszahlen nach Infektionskennzeichen.</target>
+      </trans-unit>
+      <trans-unit id="statsSv8bb57528" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.title">
+        <source>stats.analysis_explorer.system_view.hospitals-by-cohort.title</source>
+        <target>Krankenhäuser nach Master-Kohorte</target>
+      </trans-unit>
+      <trans-unit id="statsSva2c79a3c" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.description">
+        <source>stats.analysis_explorer.system_view.hospitals-by-cohort.description</source>
+        <target>Zahlen teilnehmender Krankenhäuser nach Master-Kohorte.</target>
+      </trans-unit>
+      <trans-unit id="statsSv0be85ed4" resname="stats.analysis_explorer.system_view.hospitals-by-tier.title">
+        <source>stats.analysis_explorer.system_view.hospitals-by-tier.title</source>
+        <target>Krankenhäuser nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="statsSv45e90aaf" resname="stats.analysis_explorer.system_view.hospitals-by-tier.description">
+        <source>stats.analysis_explorer.system_view.hospitals-by-tier.description</source>
+        <target>Zahlen teilnehmender Krankenhäuser nach Versorgungsstufe.</target>
+      </trans-unit>
+      <trans-unit id="statsSv31e07cdc" resname="stats.analysis_explorer.system_view.hospitals-by-tier-compare.title">
+        <source>stats.analysis_explorer.system_view.hospitals-by-tier-compare.title</source>
+        <target>Krankenhäuser nach Versorgungsstufe (Teilnahmevergleich)</target>
+      </trans-unit>
+      <trans-unit id="statsSvb1edf18b" resname="stats.analysis_explorer.system_view.hospitals-by-tier-compare.description">
+        <source>stats.analysis_explorer.system_view.hospitals-by-tier-compare.description</source>
+        <target>Krankenhauszahlen nach Versorgungsstufe aufgeteilt in teilnehmend und nicht teilnehmend.</target>
+      </trans-unit>
+      <trans-unit id="statsSvbc639bc0" resname="stats.analysis_explorer.system_view.hospitals-by-size.title">
+        <source>stats.analysis_explorer.system_view.hospitals-by-size.title</source>
+        <target>Krankenhäuser nach Größe</target>
+      </trans-unit>
+      <trans-unit id="statsSv50459702" resname="stats.analysis_explorer.system_view.hospitals-by-size.description">
+        <source>stats.analysis_explorer.system_view.hospitals-by-size.description</source>
+        <target>Zahlen teilnehmender Krankenhäuser und durchschnittliche Betten nach Größenklasse.</target>
+      </trans-unit>
+      <trans-unit id="statsSv5f7809dc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.title">
+        <source>stats.analysis_explorer.system_view.hospital-tier-by-location.title</source>
+        <target>Krankenhausstufe nach Standort</target>
+      </trans-unit>
+      <trans-unit id="statsSvb9c925cc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.description">
+        <source>stats.analysis_explorer.system_view.hospital-tier-by-location.description</source>
+        <target>Zahlen teilnehmender Krankenhäuser in einer Matrix aus Versorgungsstufe und Standort.</target>
+      </trans-unit>
+      <trans-unit id="statsSvf4ba0449" resname="stats.analysis_explorer.system_view.allocations-per-hospital-tier.title">
+        <source>stats.analysis_explorer.system_view.allocations-per-hospital-tier.title</source>
+        <target>Allokationen pro Krankenhausstufe</target>
+      </trans-unit>
+      <trans-unit id="statsSv7f174ca7" resname="stats.analysis_explorer.system_view.allocations-per-hospital-tier.description">
+        <source>stats.analysis_explorer.system_view.allocations-per-hospital-tier.description</source>
+        <target>Wie viele Allokationen teilnehmende Krankenhäuser pro Versorgungsstufe bearbeiten.</target>
+      </trans-unit>
+      <trans-unit id="statsSvb371fe1e" resname="stats.analysis_explorer.system_view.beds-distribution-by-tier.title">
+        <source>stats.analysis_explorer.system_view.beds-distribution-by-tier.title</source>
+        <target>Bettenverteilung nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="statsSvb53ad9d0" resname="stats.analysis_explorer.system_view.beds-distribution-by-tier.description">
+        <source>stats.analysis_explorer.system_view.beds-distribution-by-tier.description</source>
+        <target>Verteilung der Krankenhausbetten pro Versorgungsstufe als Boxplot.</target>
+      </trans-unit>
+      <trans-unit id="statsSva4978daf" resname="stats.analysis_explorer.system_view.allocations-distribution-by-tier.title">
+        <source>stats.analysis_explorer.system_view.allocations-distribution-by-tier.title</source>
+        <target>Allokationsverteilung nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="statsSv444f76e5" resname="stats.analysis_explorer.system_view.allocations-distribution-by-tier.description">
+        <source>stats.analysis_explorer.system_view.allocations-distribution-by-tier.description</source>
+        <target>Verteilung der Allokationen pro Krankenhaus nach Versorgungsstufe als Boxplot.</target>
+      </trans-unit>
+      <trans-unit id="statsSv1e17d522" resname="stats.analysis_explorer.system_view.transport-time-distribution-by-tier.title">
+        <source>stats.analysis_explorer.system_view.transport-time-distribution-by-tier.title</source>
+        <target>Transportzeitverteilung nach Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="statsSv5f379603" resname="stats.analysis_explorer.system_view.transport-time-distribution-by-tier.description">
+        <source>stats.analysis_explorer.system_view.transport-time-distribution-by-tier.description</source>
+        <target>Verteilung der medianen Transportzeiten pro Krankenhaus nach Versorgungsstufe als Boxplot.</target>
+      </trans-unit>
+      <trans-unit id="statsSv064077b1" resname="stats.analysis_explorer.system_view.hospitals-by-location.title">
+        <source>stats.analysis_explorer.system_view.hospitals-by-location.title</source>
+        <target>Krankenhäuser nach Standort</target>
+      </trans-unit>
+      <trans-unit id="statsSvccd56425" resname="stats.analysis_explorer.system_view.hospitals-by-location.description">
+        <source>stats.analysis_explorer.system_view.hospitals-by-location.description</source>
+        <target>Zahlen teilnehmender Krankenhäuser nach Standorttyp.</target>
+      </trans-unit>
+      <trans-unit id="statsSv3c1801c2" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.title">
+        <source>stats.analysis_explorer.system_view.beds-distribution-by-location.title</source>
+        <target>Bettenverteilung nach Standort</target>
+      </trans-unit>
+      <trans-unit id="statsSv0b410d6e" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.description">
+        <source>stats.analysis_explorer.system_view.beds-distribution-by-location.description</source>
+        <target>Verteilung der Krankenhausbetten pro Standorttyp als Boxplot.</target>
+      </trans-unit>
+      <trans-unit id="statsSv66da63ca" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.title">
+        <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.title</source>
+        <target>Allokationen pro Krankenhausgröße</target>
+      </trans-unit>
+      <trans-unit id="statsSv7e8a70e5" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.description">
+        <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.description</source>
+        <target>Wie viele Allokationen teilnehmende Krankenhäuser pro Größenklasse bearbeiten.</target>
+      </trans-unit>
+      <trans-unit id="statsSv56532599" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.title">
+        <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.title</source>
+        <target>Allokationen pro Krankenhausstandort</target>
+      </trans-unit>
+      <trans-unit id="statsSvf1c4b376" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.description">
+        <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.description</source>
+        <target>Wie viele Allokationen teilnehmende Krankenhäuser pro Standorttyp bearbeiten.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
