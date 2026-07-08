@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Engagement\Domain\Entity;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,6 +30,14 @@ class MonthlyReminderDispatch
         private string $trigger,
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
         private \DateTimeImmutable $sentAt,
+        #[ORM\Column(enumType: MonthlyReminderDispatchStatus::class, options: ['default' => 'queued'])]
+        private MonthlyReminderDispatchStatus $status = MonthlyReminderDispatchStatus::Queued,
+        #[ORM\Column(length: 255)]
+        private string $recipientEmail = '',
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
+        private ?string $failureReason = null,
+        #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+        private ?\DateTimeImmutable $deliveredAt = null,
     ) {
     }
 
@@ -55,5 +64,47 @@ class MonthlyReminderDispatch
     public function getSentAt(): \DateTimeImmutable
     {
         return $this->sentAt;
+    }
+
+    public function getStatus(): MonthlyReminderDispatchStatus
+    {
+        return $this->status;
+    }
+
+    public function getRecipientEmail(): string
+    {
+        return $this->recipientEmail;
+    }
+
+    public function getFailureReason(): ?string
+    {
+        return $this->failureReason;
+    }
+
+    public function getDeliveredAt(): ?\DateTimeImmutable
+    {
+        return $this->deliveredAt;
+    }
+
+    public function markSent(\DateTimeImmutable $deliveredAt): void
+    {
+        $this->status = MonthlyReminderDispatchStatus::Sent;
+        $this->deliveredAt = $deliveredAt;
+        $this->failureReason = null;
+    }
+
+    public function markFailed(string $failureReason): void
+    {
+        $this->status = MonthlyReminderDispatchStatus::Failed;
+        $this->failureReason = $failureReason;
+    }
+
+    public function prepareForSend(string $recipientEmail, \DateTimeImmutable $queuedAt): void
+    {
+        $this->recipientEmail = $recipientEmail;
+        $this->sentAt = $queuedAt;
+        $this->status = MonthlyReminderDispatchStatus::Queued;
+        $this->failureReason = null;
+        $this->deliveredAt = null;
     }
 }

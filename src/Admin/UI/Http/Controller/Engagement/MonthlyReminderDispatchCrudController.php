@@ -6,6 +6,7 @@ namespace App\Admin\UI\Http\Controller\Engagement;
 
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
+use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -15,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
@@ -64,7 +66,12 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
                 'Admin' => MonthlyReminderTrigger::Admin->value,
                 'CLI' => MonthlyReminderTrigger::Cli->value,
             ]))
-            ->add(DateTimeFilter::new('sentAt', 'Sent at'));
+            ->add(ChoiceFilter::new('status', 'Status')->setChoices([
+                'Queued' => MonthlyReminderDispatchStatus::Queued->value,
+                'Sent' => MonthlyReminderDispatchStatus::Sent->value,
+                'Failed' => MonthlyReminderDispatchStatus::Failed->value,
+            ]))
+            ->add(DateTimeFilter::new('sentAt', 'Queued at'));
     }
 
     #[\Override]
@@ -85,7 +92,24 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
                 MonthlyReminderTrigger::Admin->value => 'warning',
                 MonthlyReminderTrigger::Cli->value => 'secondary',
             ]);
-        yield DateTimeField::new('sentAt', 'Sent at')
+        yield ChoiceField::new('status', 'Status')
+            ->setChoices([
+                'Queued' => MonthlyReminderDispatchStatus::Queued->value,
+                'Sent' => MonthlyReminderDispatchStatus::Sent->value,
+                'Failed' => MonthlyReminderDispatchStatus::Failed->value,
+            ])
+            ->renderAsBadges([
+                MonthlyReminderDispatchStatus::Queued->value => 'info',
+                MonthlyReminderDispatchStatus::Sent->value => 'success',
+                MonthlyReminderDispatchStatus::Failed->value => 'danger',
+            ]);
+        yield TextField::new('recipientEmail', 'Recipient');
+        yield DateTimeField::new('sentAt', 'Queued at')
             ->setFormat('dd.MM.yyyy HH:mm');
+        yield DateTimeField::new('deliveredAt', 'Delivered at')
+            ->setFormat('dd.MM.yyyy HH:mm');
+        yield TextareaField::new('failureReason', 'Failure reason')
+            ->onlyOnDetail()
+            ->renderAsHtml(false);
     }
 }

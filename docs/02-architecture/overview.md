@@ -16,7 +16,7 @@ See [bounded-contexts.md](bounded-contexts.md) for context responsibilities and 
 
 - **Bundles / stack:** Symfony 8.1, Doctrine ORM/Migrations, Messenger, EasyAdmin, UX components, Sentry
 - **Persistence:** PostgreSQL
-- **Async:** Messenger with `async_priority_high`, `async_priority_low`, `failed`, `scheduler_default`
+- **Async:** Messenger with `async_priority_high`, `async_priority_low`, `async_mail`, `failed`, `scheduler_default`
 - **Admin:** CRUD controllers under `src/Admin/UI/Http/Controller`
 
 ## Key entry points

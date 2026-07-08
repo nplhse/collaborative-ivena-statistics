@@ -7,6 +7,7 @@ namespace App\Tests\Admin\Functional\Controller;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
+use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,10 @@ final class MonthlyReminderDispatchCrudControllerTest extends WebTestCase
             $hospital,
             '2026-06',
             MonthlyReminderTrigger::Scheduler->value,
+            new \DateTimeImmutable(),
+            MonthlyReminderDispatchStatus::Sent,
+            'owner@example.test',
+            null,
             new \DateTimeImmutable(),
         ));
         $entityManager->flush();

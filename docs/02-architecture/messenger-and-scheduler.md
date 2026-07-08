@@ -11,7 +11,8 @@ Configured in `config/packages/messenger.yaml`:
 | Transport | Purpose |
 |-----------|---------|
 | `async_priority_high` | Import processing |
-| `async_priority_low` | Statistics rebuild, KPI aggregation, mail |
+| `async_priority_low` | Statistics rebuild, KPI aggregation |
+| `async_mail` | Transactional and bulk mail (rate-limited) |
 | `scheduler_default` | Symfony Scheduler messages |
 | `failed` | Failed message store |
 
@@ -24,7 +25,7 @@ Default DSN: `doctrine://default?auto_setup=0` (PostgreSQL `messenger_messages` 
 | `ImportAllocationsMessage` | `async_priority_high` |
 | `RebuildAllocationStatsProjection` | `async_priority_low` |
 | `GenerateDailyKpisMessage` | `async_priority_low` |
-| `SendEmailMessage` (prod) | `async_priority_low` |
+| `SendEmailMessage` (prod) | `async_mail` |
 
 In `dev`, mail is synchronous. In `test`, most messages use `sync`.
 
@@ -47,7 +48,7 @@ Details: [../04-features/kpi/kpi-aggregation.md](../04-features/kpi/kpi-aggregat
 make consume
 ```
 
-This runs `messenger:consume async_priority_high async_priority_low scheduler_default` with verbose output.
+This runs `messenger:consume async_priority_high async_priority_low async_mail scheduler_default` with verbose output.
 
 ## Production
 

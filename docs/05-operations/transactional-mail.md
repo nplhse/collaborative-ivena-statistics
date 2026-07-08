@@ -72,7 +72,7 @@ If no matching user exists, feedback is still stored but no email is sent. Check
 
 ## Async delivery in production
 
-In `prod`, Symfony Mailer dispatches `SendEmailMessage` to the **`async_priority_low`** queue. In `dev`, mail is sent synchronously.
+In `prod`, Symfony Mailer dispatches `SendEmailMessage` to the **`async_mail`** queue (rate-limited, with exponential backoff). In `dev`, mail is sent synchronously.
 
 Requirements:
 
@@ -95,7 +95,7 @@ Configure SPF, DKIM, and DMARC for the domain used in `MAILER_FROM`.
 
 | Symptom | Likely cause |
 |---------|----------------|
-| No verification / reset / feedback mail | `MAILER_DSN` missing or worker not consuming `async_priority_low` |
+| No verification / reset / feedback mail | `MAILER_DSN` missing or worker not consuming `async_mail` |
 | Reset link or mail images use `http://localhost` | `APP_URL` unset or wrong; restart worker after change |
 | Feedback saved but no admin email | No user with Admin + Receives Feedback |
 | Mail in spam | SPF/DKIM/DMARC or `MAILER_FROM` not aligned with SMTP provider |

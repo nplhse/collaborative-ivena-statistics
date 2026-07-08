@@ -29,6 +29,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -88,12 +89,20 @@ final class HospitalCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        $sendReminder = Action::new('sendMonthlyReminder', 'admin.hospital.action.send_reminder', 'fas fa-envelope')
+        $sendReminder = Action::new(
+            'sendMonthlyReminder',
+            new TranslatableMessage('admin.hospital.action.send_reminder', domain: 'admin'),
+            'fas fa-envelope',
+        )
             ->linkToCrudAction('sendMonthlyReminder')
             ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
             ->askConfirmation(new TranslatableMessage('admin.hospital.action.send_reminder.confirm', domain: 'admin'));
 
-        $reminderHistory = Action::new('reminderHistory', 'admin.hospital.action.reminder_history', 'fas fa-clock-rotate-left')
+        $reminderHistory = Action::new(
+            'reminderHistory',
+            new TranslatableMessage('admin.hospital.action.reminder_history', domain: 'admin'),
+            'fas fa-clock-rotate-left',
+        )
             ->linkToUrl(fn (Hospital $hospital): string => $this->adminUrlGenerator
                 ->unsetAll()
                 ->setController(MonthlyReminderDispatchCrudController::class)
@@ -114,8 +123,10 @@ final class HospitalCrudController extends AbstractCrudController
     }
 
     #[AdminRoute(path: '/{entityId}/send-monthly-reminder', name: 'send_monthly_reminder')]
-    public function sendMonthlyReminder(Hospital $hospital, MonthlyReminderSender $monthlyReminderSender): RedirectResponse
-    {
+    public function sendMonthlyReminder(
+        #[MapEntity(id: 'entityId')] Hospital $hospital,
+        MonthlyReminderSender $monthlyReminderSender,
+    ): RedirectResponse {
         $errors = $monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
         if ([] === $errors) {
             $this->addFlash('success', new TranslatableMessage('flash.admin.hospital.reminder.sent', domain: 'admin'));

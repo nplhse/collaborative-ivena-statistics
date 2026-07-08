@@ -11,6 +11,10 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Messenger\SendEmailMessage;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MonthlyReminderMailerTest extends TestCase
@@ -51,11 +55,15 @@ final class MonthlyReminderMailerTest extends TestCase
                 return true;
             }));
 
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects(self::never())->method('dispatch');
+
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('info');
 
         new MonthlyReminderMailer(
             $mailer,
+            $messageBus,
             new MailConfig(
                 fromEmail: 'no-reply@example.test',
                 fromName: 'IVENA Stats',
@@ -64,6 +72,7 @@ final class MonthlyReminderMailerTest extends TestCase
             ),
             $translator,
             $logger,
+            bulkDelayMs: 0,
         )->send('owner@example.test', $content, 'de');
 
         self::assertSame('de', $capturedLocale);
@@ -88,6 +97,7 @@ final class MonthlyReminderMailerTest extends TestCase
 
         new MonthlyReminderMailer(
             $mailer,
+            $this->createMock(MessageBusInterface::class),
             new MailConfig(
                 fromEmail: 'no-reply@example.test',
                 fromName: 'IVENA Stats',
@@ -96,7 +106,78 @@ final class MonthlyReminderMailerTest extends TestCase
             ),
             $translator,
             $this->createMock(LoggerInterface::class),
+            bulkDelayMs: 0,
         )->send('owner@example.test', $this->content(), 'en');
+    }
+
+    public function testBulkIndexDispatchesDelayedSendEmailMessage(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('subject');
+
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::never())->method('send');
+
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects(self::once())
+            ->method('dispatch')
+            ->with(
+                self::callback(static fn (SendEmailMessage $message): bool => $message->getMessage() instanceof TemplatedEmail),
+                self::callback(function (array $stamps): bool {
+                    self::assertCount(1, $stamps);
+                    self::assertInstanceOf(DelayStamp::class, $stamps[0]);
+                    self::assertSame(6000, $stamps[0]->getDelay());
+
+                    return true;
+                }),
+            )
+            ->willReturn(new Envelope(new SendEmailMessage(new TemplatedEmail())));
+
+        new MonthlyReminderMailer(
+            $mailer,
+            $messageBus,
+            new MailConfig(
+                fromEmail: 'no-reply@example.test',
+                fromName: 'IVENA Stats',
+                appName: 'IVENA Stats',
+                replyTo: '',
+            ),
+            $translator,
+            $this->createMock(LoggerInterface::class),
+            bulkDelayMs: 3000,
+        )->send('owner@example.test', $this->content(), 'en', bulkIndex: 2);
+    }
+
+    public function testDispatchIdHeaderIsAddedWhenProvided(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('subject');
+
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())
+            ->method('send')
+            ->with(self::callback(function (TemplatedEmail $email): bool {
+                self::assertSame(
+                    '42',
+                    $email->getHeaders()->get(MonthlyReminderMailer::DISPATCH_ID_HEADER)?->getBodyAsString(),
+                );
+
+                return true;
+            }));
+
+        new MonthlyReminderMailer(
+            $mailer,
+            $this->createMock(MessageBusInterface::class),
+            new MailConfig(
+                fromEmail: 'no-reply@example.test',
+                fromName: 'IVENA Stats',
+                appName: 'IVENA Stats',
+                replyTo: '',
+            ),
+            $translator,
+            $this->createMock(LoggerInterface::class),
+            bulkDelayMs: 0,
+        )->send('owner@example.test', $this->content(), 'en', dispatchId: 42);
     }
 
     private function content(): MonthlyReminderContent

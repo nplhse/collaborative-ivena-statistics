@@ -1,0 +1,7 @@
+parameters:
+    app.default.mailer_bulk_delay_ms: 3000
+    app.mailer_bulk_delay_ms: '%env(int:default:app.default.mailer_bulk_delay_ms:MAILER_BULK_DELAY_MS)%'
+
+when@test:
+    parameters:
+        app.mailer_bulk_delay_ms: 0
