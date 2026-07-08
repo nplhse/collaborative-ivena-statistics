@@ -89,12 +89,20 @@ final class HospitalCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        $sendReminder = Action::new('sendMonthlyReminder', 'admin.hospital.action.send_reminder', 'fas fa-envelope')
+        $sendReminder = Action::new(
+            'sendMonthlyReminder',
+            new TranslatableMessage('admin.hospital.action.send_reminder', domain: 'admin'),
+            'fas fa-envelope',
+        )
             ->linkToCrudAction('sendMonthlyReminder')
             ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
             ->askConfirmation(new TranslatableMessage('admin.hospital.action.send_reminder.confirm', domain: 'admin'));
 
-        $reminderHistory = Action::new('reminderHistory', 'admin.hospital.action.reminder_history', 'fas fa-clock-rotate-left')
+        $reminderHistory = Action::new(
+            'reminderHistory',
+            new TranslatableMessage('admin.hospital.action.reminder_history', domain: 'admin'),
+            'fas fa-clock-rotate-left',
+        )
             ->linkToUrl(fn (Hospital $hospital): string => $this->adminUrlGenerator
                 ->unsetAll()
                 ->setController(MonthlyReminderDispatchCrudController::class)
