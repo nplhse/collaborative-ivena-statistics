@@ -47,7 +47,13 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library page lists **Overview** (38 system views with category filters), **Favorites**, and **My views** for signed-in users.
+The analysis library page lists **Overview** (44 system views with category filters), **Favorites**, and **My views** for signed-in users.
+
+### System view labels (i18n)
+
+System views store **translation keys** (not display text) in `title`, `description`, and `config_json.title`, for example `stats.analysis_explorer.system_view.allocations-over-time.title`. At display time, [`SavedExplorerViewLabelResolver`](../../../src/Statistics/AnalysisExplorer/Application/SavedExplorerViewLabelResolver.php) resolves them via the `statistics` translation domain according to the active locale. User-created views keep plain-text titles and descriptions.
+
+Copy for system views lives in `translations/statistics+intl-icu.{en,de}.xlf`. The sync command updates analysis configuration only; wording changes are made in the XLF files.
 
 Library standards, dashboard alignment, and phased refactor backlog: [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md).
 
