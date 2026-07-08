@@ -50,9 +50,11 @@ final class ExplorerSystemViewSeederTest extends KernelTestCase
         ];
 
         foreach ($seeder->definitions() as $definition) {
-            $config = $mapper->buildViewConfig($filterState, $definition['preferences'], null);
+            $preferences = $definition['preferences'];
+            $preferences['title'] = ExplorerSystemViewSeeder::titleKey($definition['slug']);
+            $config = $mapper->buildViewConfig($filterState, $preferences, null);
 
-            self::assertSame($definition['title'], $config->title, $definition['slug']);
+            self::assertSame(ExplorerSystemViewSeeder::titleKey($definition['slug']), $config->title, $definition['slug']);
             self::assertNotEmpty($config->metricKeys, $definition['slug']);
 
             if ('box_plot' === ($definition['preferences']['chartType'] ?? null)) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 
+use App\Statistics\AnalysisExplorer\Application\ExplorerSystemViewSeeder;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
@@ -57,7 +58,7 @@ final class SavedExplorerViewFavoriteServiceTest extends KernelTestCase
         $this->service->toggle($user, $second);
 
         $titles = array_map(static fn (SavedExplorerView $view): string => $view->getTitle(), $this->service->listViewsForUser($user));
-        self::assertContains('Allocations over time', $titles);
-        self::assertContains('Urgency over time', $titles);
+        self::assertContains(ExplorerSystemViewSeeder::titleKey('allocations-over-time'), $titles);
+        self::assertContains(ExplorerSystemViewSeeder::titleKey('urgency-over-time'), $titles);
     }
 }
