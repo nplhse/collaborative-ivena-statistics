@@ -368,6 +368,48 @@ final class AnalysisExplorerShellTest extends WebTestCase
         self::assertFalse($testComponent->component()->isEditOpen);
     }
 
+    public function testApplyEditPersistsAnalysisFiltersInAppliedState(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->call('openEdit');
+        $formName = $this->formName($testComponent->render());
+
+        $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'filterUrgency' => '1',
+                'filterAgeGroup' => 'under_18',
+            ]))
+            ->call('applyEdit');
+
+        $filters = $testComponent->component()->appliedConfigState['query']['filters'] ?? [];
+        self::assertCount(2, $filters);
+        self::assertSame('urgency', $filters[0]['dimensionKey']);
+        self::assertSame(1, $filters[0]['value']);
+        self::assertSame('age_group', $filters[1]['dimensionKey']);
+        self::assertSame('under_18', $filters[1]['value']);
+    }
+
+    public function testRefreshEditFormPreservesSubmittedFilters(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->call('openEdit');
+        $formName = $this->formName($testComponent->render());
+
+        $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'filterUrgency' => '2',
+                'rowDimension' => 'gender',
+                'rowGrain' => 'total',
+            ]))
+            ->call('refreshEditForm')
+            ->call('applyEdit');
+
+        $filters = $testComponent->component()->appliedConfigState['query']['filters'] ?? [];
+        self::assertCount(1, $filters);
+        self::assertSame('urgency', $filters[0]['dimensionKey']);
+        self::assertSame(2, $filters[0]['value']);
+    }
+
     public function testFormChangeWithoutApplyDoesNotUpdateAppliedConfig(): void
     {
         $testComponent = $this->createShellComponent();

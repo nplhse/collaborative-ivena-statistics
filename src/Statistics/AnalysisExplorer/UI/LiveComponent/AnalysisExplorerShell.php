@@ -14,6 +14,7 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditAxisSwapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormFilterFieldMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter;
@@ -188,6 +189,7 @@ final class AnalysisExplorerShell
         private readonly AnalysisViewConfigValidator $configValidator,
         private readonly AnalysisViewConfigNormalizer $configNormalizer,
         private readonly ExplorerEditFormNormalizer $editFormNormalizer,
+        private readonly ExplorerEditFormFilterFieldMapper $editFormFilterFieldMapper,
         private readonly TranslatorInterface $translator,
         private readonly Security $security,
         private readonly LoggerInterface $logger,
@@ -792,7 +794,7 @@ final class AnalysisExplorerShell
 
         $scopePeriod = $this->resolveScopePeriodFormData($formData->scopePeriod, $submitted);
 
-        return new ExplorerEditFormData(
+        $base = new ExplorerEditFormData(
             scopePeriod: $scopePeriod,
             dataSource: \is_string($submitted['dataSource'] ?? null) ? $submitted['dataSource'] : $formData->dataSource,
             rowDimension: \is_string($submitted['rowDimension'] ?? null) ? $submitted['rowDimension'] : $formData->rowDimension,
@@ -817,7 +819,22 @@ final class AnalysisExplorerShell
                     static fn (mixed $value): bool => \is_string($value) && '' !== $value,
                 ))
                 : $formData->additionalTableMetrics,
+            filterDepartmentId: $formData->filterDepartmentId,
+            filterSpecialityId: $formData->filterSpecialityId,
+            filterUrgency: $formData->filterUrgency,
+            filterTransportType: $formData->filterTransportType,
+            filterGender: $formData->filterGender,
+            filterAgeGroup: $formData->filterAgeGroup,
+            filterResus: $formData->filterResus,
+            filterCpr: $formData->filterCpr,
+            filterVentilation: $formData->filterVentilation,
+            filterAssignmentId: $formData->filterAssignmentId,
+            filterIndicationId: $formData->filterIndicationId,
+            filterSecondaryIndicationId: $formData->filterSecondaryIndicationId,
+            filterIndicationGroupId: $formData->filterIndicationGroupId,
         );
+
+        return $this->editFormFilterFieldMapper->mergeSubmittedFilters($base, $submitted);
     }
 
     /**
