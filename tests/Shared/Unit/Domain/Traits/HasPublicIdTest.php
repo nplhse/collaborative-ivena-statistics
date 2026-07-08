@@ -39,4 +39,16 @@ final class HasPublicIdTest extends TestCase
 
         self::assertTrue($existing->equals($entity->getPublicId()));
     }
+
+    public function testGetPublicIdStringThrowsWhenMissing(): void
+    {
+        $entity = new class {
+            use HasPublicId;
+        };
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('missing publicId');
+
+        $entity->getPublicIdString();
+    }
 }
