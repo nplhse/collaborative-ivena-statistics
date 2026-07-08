@@ -55,8 +55,8 @@ final class ExplorerFilterBadgePresenterIntegrationTest extends KernelTestCase
         self::assertNotNull($assignmentId);
 
         $badges = $this->presenter->present($this->viewConfig([
-            new AnalysisFilter('department', AnalysisFilterOperator::In, [$departmentId]),
-            new AnalysisFilter('speciality', AnalysisFilterOperator::In, [$specialityId]),
+            new AnalysisFilter('department', AnalysisFilterOperator::Equals, $departmentId),
+            new AnalysisFilter('speciality', AnalysisFilterOperator::Equals, $specialityId),
             new AnalysisFilter('assignment', AnalysisFilterOperator::Equals, $assignmentId),
             new AnalysisFilter('urgency', AnalysisFilterOperator::Equals, 1),
             new AnalysisFilter('gender', AnalysisFilterOperator::Equals, 2),
@@ -77,7 +77,7 @@ final class ExplorerFilterBadgePresenterIntegrationTest extends KernelTestCase
     {
         $badges = $this->presenter->present($this->viewConfig([
             new AnalysisFilter('custom_metric', AnalysisFilterOperator::Equals, ['a', 'b']),
-            new AnalysisFilter('department', AnalysisFilterOperator::In, [99]),
+            new AnalysisFilter('department', AnalysisFilterOperator::Equals, 99),
         ]));
 
         self::assertSame('custom_metric', $badges[0]['label']);

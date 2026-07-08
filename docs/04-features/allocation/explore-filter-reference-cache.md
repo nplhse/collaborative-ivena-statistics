@@ -31,8 +31,17 @@ User-specific hospital scope options stay uncached via `AllocationListHospitalSc
 | `explore_filter.specialities` | `specialities()` | `/explore/allocation` |
 | `explore_filter.assignments` | `assignments()` | `/explore/allocation` |
 | `explore_filter.occasions` | `occasions()` | `/explore/allocation` |
+| `explore_filter.indication_groups` | `indicationGroups()` | Analysis Explorer filter drawer |
 
 **Not cached:** `hospitalScopeOptions` (per-user hospital access).
+
+## Shared with Analysis Explorer
+
+The Statistics Analysis Explorer reuses the same provider via `AnalysisFilterChoiceProvider` for entity-backed filter dropdowns (departments, specialities, assignments, indications, indication groups). Enum-backed filters (urgency, gender, transport, age group, boolean) are built in memory and are not cached.
+
+| Consumer | Path |
+|----------|------|
+| Analysis Explorer filter choices | `src/Statistics/AnalysisExplorer/Application/AnalysisFilterChoiceProvider.php` |
 
 ## Arrays instead of entities
 
@@ -47,6 +56,7 @@ Cached values are plain arrays (`id`, `name`, and `code` for indications), not D
 | Allocation list | `src/Allocation/UI/Http/Controller/Allocations/ListAllocationsController.php` |
 | Hospital list | `src/Allocation/UI/Http/Controller/Hospitals/ListHospitalsController.php` |
 | Dispatch area list | `src/Allocation/UI/Http/Controller/DispatchAreas/ListDispatchAreasController.php` |
+| Analysis Explorer | `src/Statistics/AnalysisExplorer/Application/AnalysisFilterChoiceProvider.php` |
 
 ## Limits
 

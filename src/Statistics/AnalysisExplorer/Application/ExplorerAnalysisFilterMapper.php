@@ -18,12 +18,12 @@ final readonly class ExplorerAnalysisFilterMapper
     {
         $filters = [];
 
-        if ([] !== $formData->filterDepartmentIds) {
-            $filters[] = new AnalysisFilter('department', AnalysisFilterOperator::In, $formData->filterDepartmentIds);
+        if (null !== $formData->filterDepartmentId) {
+            $filters[] = new AnalysisFilter('department', AnalysisFilterOperator::Equals, $formData->filterDepartmentId);
         }
 
-        if ([] !== $formData->filterSpecialityIds) {
-            $filters[] = new AnalysisFilter('speciality', AnalysisFilterOperator::In, $formData->filterSpecialityIds);
+        if (null !== $formData->filterSpecialityId) {
+            $filters[] = new AnalysisFilter('speciality', AnalysisFilterOperator::Equals, $formData->filterSpecialityId);
         }
 
         if (null !== $formData->filterUrgency) {
@@ -58,6 +58,18 @@ final readonly class ExplorerAnalysisFilterMapper
             $filters[] = new AnalysisFilter('assignment', AnalysisFilterOperator::Equals, $formData->filterAssignmentId);
         }
 
+        if (null !== $formData->filterIndicationId) {
+            $filters[] = new AnalysisFilter('indication', AnalysisFilterOperator::Equals, $formData->filterIndicationId);
+        }
+
+        if (null !== $formData->filterSecondaryIndicationId) {
+            $filters[] = new AnalysisFilter('secondary_indication', AnalysisFilterOperator::Equals, $formData->filterSecondaryIndicationId);
+        }
+
+        if (null !== $formData->filterIndicationGroupId) {
+            $filters[] = new AnalysisFilter('indication_group', AnalysisFilterOperator::Equals, $formData->filterIndicationGroupId);
+        }
+
         return $this->sanitize($filters);
     }
 
@@ -66,8 +78,8 @@ final readonly class ExplorerAnalysisFilterMapper
      */
     public function applyToFormData(ExplorerEditFormData $formData, array $filters): ExplorerEditFormData
     {
-        $formData->filterDepartmentIds = [];
-        $formData->filterSpecialityIds = [];
+        $formData->filterDepartmentId = null;
+        $formData->filterSpecialityId = null;
         $formData->filterUrgency = null;
         $formData->filterTransportType = null;
         $formData->filterGender = null;
@@ -76,11 +88,14 @@ final readonly class ExplorerAnalysisFilterMapper
         $formData->filterCpr = null;
         $formData->filterVentilation = null;
         $formData->filterAssignmentId = null;
+        $formData->filterIndicationId = null;
+        $formData->filterSecondaryIndicationId = null;
+        $formData->filterIndicationGroupId = null;
 
         foreach ($this->sanitize($filters) as $filter) {
             match ($filter->dimensionKey) {
-                'department' => $formData->filterDepartmentIds = $this->intList($filter->value),
-                'speciality' => $formData->filterSpecialityIds = $this->intList($filter->value),
+                'department' => $formData->filterDepartmentId = $this->singleEntityId($filter->value),
+                'speciality' => $formData->filterSpecialityId = $this->singleEntityId($filter->value),
                 'urgency' => $formData->filterUrgency = $this->intValue($filter->value),
                 'transport_type' => $formData->filterTransportType = $this->intValue($filter->value),
                 'gender' => $formData->filterGender = $this->intValue($filter->value),
@@ -89,6 +104,9 @@ final readonly class ExplorerAnalysisFilterMapper
                 'cpr' => $formData->filterCpr = 1 === $this->intValue($filter->value),
                 'ventilation' => $formData->filterVentilation = 1 === $this->intValue($filter->value),
                 'assignment' => $formData->filterAssignmentId = $this->intValue($filter->value),
+                'indication' => $formData->filterIndicationId = $this->singleEntityId($filter->value),
+                'secondary_indication' => $formData->filterSecondaryIndicationId = $this->singleEntityId($filter->value),
+                'indication_group' => $formData->filterIndicationGroupId = $this->intValue($filter->value),
                 default => null,
             };
         }
@@ -159,26 +177,21 @@ final readonly class ExplorerAnalysisFilterMapper
 
     /**
      * @param int|string|bool|list<int|string|bool> $value
-     *
-     * @return list<int>
      */
-    private function intList(int|string|bool|array $value): array
+    private function singleEntityId(int|string|bool|array $value): ?int
     {
-        if (!\is_array($value)) {
-            $int = $this->intValue($value);
-
-            return null === $int ? [] : [$int];
-        }
-
-        $ids = [];
-        foreach ($value as $item) {
-            $int = $this->intValue($item);
-            if (null !== $int) {
-                $ids[] = $int;
+        if (\is_array($value)) {
+            foreach ($value as $item) {
+                $int = $this->intValue($item);
+                if (null !== $int) {
+                    return $int;
+                }
             }
+
+            return null;
         }
 
-        return $ids;
+        return $this->intValue($value);
     }
 
     /**

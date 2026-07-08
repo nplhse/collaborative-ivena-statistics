@@ -22,8 +22,8 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
     public function testFromFormDataMapsAllSupportedFilters(): void
     {
         $filters = $this->mapper->fromFormData(new ExplorerEditFormData(
-            filterDepartmentIds: [10, 20],
-            filterSpecialityIds: [3],
+            filterDepartmentId: 10,
+            filterSpecialityId: 3,
             filterUrgency: 1,
             filterTransportType: 2,
             filterGender: 1,
@@ -32,18 +32,25 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
             filterCpr: false,
             filterVentilation: true,
             filterAssignmentId: 7,
+            filterIndicationId: 11,
+            filterSecondaryIndicationId: 21,
+            filterIndicationGroupId: 4,
         ));
 
-        self::assertCount(10, $filters);
+        self::assertCount(13, $filters);
         self::assertSame('department', $filters[0]->dimensionKey);
-        self::assertSame(AnalysisFilterOperator::In, $filters[0]->operator);
-        self::assertSame([10, 20], $filters[0]->value);
+        self::assertSame(AnalysisFilterOperator::Equals, $filters[0]->operator);
+        self::assertSame(10, $filters[0]->value);
         self::assertSame('urgency', $filters[2]->dimensionKey);
         self::assertSame(1, $filters[2]->value);
         self::assertSame('resus', $filters[6]->dimensionKey);
         self::assertSame(1, $filters[6]->value);
         self::assertSame('cpr', $filters[7]->dimensionKey);
         self::assertSame(0, $filters[7]->value);
+        self::assertSame('indication', $filters[10]->dimensionKey);
+        self::assertSame(11, $filters[10]->value);
+        self::assertSame('indication_group', $filters[12]->dimensionKey);
+        self::assertSame(4, $filters[12]->value);
     }
 
     public function testFromFormDataIgnoresEmptyValues(): void
@@ -54,7 +61,7 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
     public function testApplyToFormDataRoundTripsFilters(): void
     {
         $original = new ExplorerEditFormData(
-            filterDepartmentIds: [5],
+            filterDepartmentId: 5,
             filterUrgency: 2,
             filterAgeGroup: 'over_80',
             filterResus: false,
@@ -63,7 +70,7 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
         $filters = $this->mapper->fromFormData($original);
         $restored = $this->mapper->applyToFormData(new ExplorerEditFormData(), $filters);
 
-        self::assertSame([5], $restored->filterDepartmentIds);
+        self::assertSame(5, $restored->filterDepartmentId);
         self::assertSame(2, $restored->filterUrgency);
         self::assertSame('over_80', $restored->filterAgeGroup);
         self::assertFalse($restored->filterResus);
@@ -74,7 +81,7 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
     {
         $filters = [
             new AnalysisFilter('gender', AnalysisFilterOperator::Equals, 2),
-            new AnalysisFilter('department', AnalysisFilterOperator::In, [1, 2]),
+            new AnalysisFilter('department', AnalysisFilterOperator::Equals, 1),
         ];
 
         $state = $this->mapper->toStateArray($filters);
@@ -83,7 +90,7 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
         self::assertCount(2, $restored);
         self::assertSame('gender', $restored[0]->dimensionKey);
         self::assertSame(2, $restored[0]->value);
-        self::assertSame([1, 2], $restored[1]->value);
+        self::assertSame(1, $restored[1]->value);
     }
 
     public function testFromStateArraySkipsInvalidRowsAndUnknownDimensions(): void
@@ -112,7 +119,7 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
             new AnalysisFilter('unknown_axis', AnalysisFilterOperator::Equals, 1),
         ]);
 
-        self::assertSame([10, 20], $restored->filterDepartmentIds);
+        self::assertSame(10, $restored->filterDepartmentId);
         self::assertSame(3, $restored->filterUrgency);
         self::assertSame('30_39', $restored->filterAgeGroup);
         self::assertTrue($restored->filterVentilation);

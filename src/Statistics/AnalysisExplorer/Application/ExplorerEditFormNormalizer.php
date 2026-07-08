@@ -151,6 +151,19 @@ final readonly class ExplorerEditFormNormalizer
             chartRowLimit: $chartRowLimit->value,
             hospitalPopulation: $hospitalPopulation->value,
             additionalTableMetrics: $additionalTableMetrics,
+            filterDepartmentId: $formData->filterDepartmentId,
+            filterSpecialityId: $formData->filterSpecialityId,
+            filterUrgency: $formData->filterUrgency,
+            filterTransportType: $formData->filterTransportType,
+            filterGender: $formData->filterGender,
+            filterAgeGroup: $formData->filterAgeGroup,
+            filterResus: $formData->filterResus,
+            filterCpr: $formData->filterCpr,
+            filterVentilation: $formData->filterVentilation,
+            filterAssignmentId: $formData->filterAssignmentId,
+            filterIndicationId: $formData->filterIndicationId,
+            filterSecondaryIndicationId: $formData->filterSecondaryIndicationId,
+            filterIndicationGroupId: $formData->filterIndicationGroupId,
         );
     }
 }
