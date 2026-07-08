@@ -27,11 +27,14 @@ final class SettingsPasswordType extends AbstractType
                 'constraints' => [new NotBlank()],
             ])
             ->add('plainPassword', RepeatedType::class, [
-                'type' => PasswordType::class,
+                'type' => UserPasswordType::class,
                 'mapped' => false,
                 'invalid_message' => 'validation.password.mismatch',
                 'first_options' => ['label' => 'label.settings.new_password'],
-                'second_options' => ['label' => 'label.settings.repeat_new_password'],
+                'second_options' => [
+                    'label' => 'label.settings.repeat_new_password',
+                    'strength_feedback' => false,
+                ],
                 'constraints' => UserPasswordConstraints::forPlainPassword(),
             ]);
     }
