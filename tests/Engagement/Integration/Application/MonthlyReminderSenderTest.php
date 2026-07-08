@@ -17,6 +17,9 @@ use App\User\Domain\Factory\UserFactory;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Mailer\Envelope;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\RawMessage;
 
 final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 {
@@ -211,6 +214,66 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         self::assertSame(MonthlyReminderTrigger::Admin->value, $dispatch->getTrigger());
         self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus());
         self::assertNotNull($dispatch->getDeliveredAt());
+    }
+
+    public function testSchedulerRetryReusesFailedDispatchRecord(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+        $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
+
+        $dispatch = $dispatchRepository->findForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            '2026-06',
+            MonthlyReminderTrigger::Scheduler->value,
+        );
+        self::assertNotNull($dispatch);
+        $dispatchId = (int) $dispatch->getId();
+
+        $dispatch->markFailed('SMTP rate limit');
+        $dispatchRepository->save($dispatch);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
+
+        $retried = $dispatchRepository->find($dispatchId);
+        self::assertNotNull($retried);
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $retried->getStatus());
+        self::assertNull($retried->getFailureReason());
+    }
+
+    public function testMarksDispatchFailedWhenMailerThrows(): void
+    {
+        self::ensureKernelShutdown();
+        self::bootKernel();
+
+        $hospital = $this->createHospital(optedOut: false);
+        $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
+
+        self::getContainer()->set(MailerInterface::class, new class implements MailerInterface {
+            public function send(RawMessage $message, ?Envelope $envelope = null): void
+            {
+                throw new \RuntimeException('SMTP unavailable');
+            }
+        });
+
+        $sender = self::getContainer()->get(MonthlyReminderSender::class);
+
+        try {
+            $sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler);
+            self::fail('Expected mailer exception.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('SMTP unavailable', $exception->getMessage());
+        }
+
+        $dispatch = $dispatchRepository->findForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            '2026-06',
+            MonthlyReminderTrigger::Scheduler->value,
+        );
+        self::assertNotNull($dispatch);
+        self::assertSame(MonthlyReminderDispatchStatus::Failed, $dispatch->getStatus());
+        self::assertSame('SMTP unavailable', $dispatch->getFailureReason());
     }
 
     public function testSendUsesOwnerGermanLocale(): void

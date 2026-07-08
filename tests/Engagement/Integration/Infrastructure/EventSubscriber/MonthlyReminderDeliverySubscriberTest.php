@@ -25,6 +25,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\RawMessage;
 
 final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
 {
@@ -91,6 +92,141 @@ final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
         self::assertNotNull($updated);
         self::assertSame(MonthlyReminderDispatchStatus::Failed, $updated->getStatus());
         self::assertStringContainsString('SMTP rate limit', (string) $updated->getFailureReason());
+    }
+
+    public function testOnSentIgnoresMessagesWithoutDispatchHeader(): void
+    {
+        self::bootKernel();
+
+        $dispatch = $this->createDispatch();
+        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
+
+        $subscriber->onSent($this->sentMessageEvent($this->email()));
+
+        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
+        self::assertNotNull($unchanged);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+    }
+
+    public function testOnSentIgnoresUnknownDispatchId(): void
+    {
+        self::bootKernel();
+
+        $dispatch = $this->createDispatch();
+        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
+
+        $email = $this->email();
+        $email->getHeaders()->addTextHeader(MonthlyReminderMailer::DISPATCH_ID_HEADER, '999999');
+
+        $subscriber->onSent($this->sentMessageEvent($email));
+
+        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
+        self::assertNotNull($unchanged);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+    }
+
+    public function testOnMessengerFailedIgnoresRetryableFailures(): void
+    {
+        self::bootKernel();
+
+        $dispatch = $this->createDispatch();
+        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
+
+        $email = $this->email();
+        $email->getHeaders()->addTextHeader(
+            MonthlyReminderMailer::DISPATCH_ID_HEADER,
+            (string) $dispatch->getId(),
+        );
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope(new SendEmailMessage($email)),
+            'async_mail',
+            new \RuntimeException('temporary'),
+        );
+        $event->setForRetry();
+
+        $subscriber->onMessengerFailed($event);
+
+        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
+        self::assertNotNull($unchanged);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+    }
+
+    public function testOnMessengerFailedIgnoresNonEmailMessages(): void
+    {
+        self::bootKernel();
+
+        $dispatch = $this->createDispatch();
+        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
+
+        $subscriber->onMessengerFailed(new WorkerMessageFailedEvent(
+            new Envelope(new \stdClass()),
+            'async_mail',
+            new \RuntimeException('failed'),
+        ));
+
+        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
+        self::assertNotNull($unchanged);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+    }
+
+    public function testOnMessengerFailedIgnoresInvalidDispatchHeader(): void
+    {
+        self::bootKernel();
+
+        $dispatch = $this->createDispatch();
+        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
+
+        $email = $this->email();
+        $email->getHeaders()->addTextHeader(MonthlyReminderMailer::DISPATCH_ID_HEADER, 'not-numeric');
+
+        $subscriber->onMessengerFailed(new WorkerMessageFailedEvent(
+            new Envelope(new SendEmailMessage($email)),
+            'async_mail',
+            new \RuntimeException('failed'),
+        ));
+
+        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
+        self::assertNotNull($unchanged);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+    }
+
+    public function testOnMessengerFailedIgnoresRawMessagesWithoutHeaders(): void
+    {
+        self::bootKernel();
+
+        $dispatch = $this->createDispatch();
+        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
+
+        $subscriber->onMessengerFailed(new WorkerMessageFailedEvent(
+            new Envelope(new SendEmailMessage(new RawMessage('body'))),
+            'async_mail',
+            new \RuntimeException('failed'),
+        ));
+
+        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
+        self::assertNotNull($unchanged);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+    }
+
+    private function email(): TemplatedEmail
+    {
+        return new TemplatedEmail()
+            ->from('no-reply@example.test')
+            ->to('owner@example.test')
+            ->subject('Reminder')
+            ->text('Reminder body');
+    }
+
+    private function sentMessageEvent(TemplatedEmail $email): SentMessageEvent
+    {
+        return new SentMessageEvent(new SentMessage(
+            $email,
+            new MailerEnvelope(
+                new Address('no-reply@example.test'),
+                [new Address('owner@example.test')],
+            ),
+        ));
     }
 
     private function createDispatch(): MonthlyReminderDispatch
