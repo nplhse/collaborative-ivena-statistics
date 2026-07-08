@@ -101,6 +101,42 @@
         <source>label.password.hide</source>
         <target>Hide password</target>
       </trans-unit>
+      <trans-unit id="pwdStrLbl01" resname="password.strength.label">
+        <source>password.strength.label</source>
+        <target>Password strength</target>
+      </trans-unit>
+      <trans-unit id="pwdStrVw01" resname="password.strength.very_weak">
+        <source>password.strength.very_weak</source>
+        <target>Very weak</target>
+      </trans-unit>
+      <trans-unit id="pwdStrWk01" resname="password.strength.weak">
+        <source>password.strength.weak</source>
+        <target>Weak</target>
+      </trans-unit>
+      <trans-unit id="pwdStrAc01" resname="password.strength.acceptable">
+        <source>password.strength.acceptable</source>
+        <target>Acceptable</target>
+      </trans-unit>
+      <trans-unit id="pwdStrMd01" resname="password.strength.medium">
+        <source>password.strength.medium</source>
+        <target>Medium</target>
+      </trans-unit>
+      <trans-unit id="pwdStrSt01" resname="password.strength.strong">
+        <source>password.strength.strong</source>
+        <target>Strong</target>
+      </trans-unit>
+      <trans-unit id="pwdStrVs01" resname="password.strength.very_strong">
+        <source>password.strength.very_strong</source>
+        <target>Very strong</target>
+      </trans-unit>
+      <trans-unit id="pwdReqMl01" resname="password.requirement.min_length">
+        <source>password.requirement.min_length</source>
+        <target>At least {min} characters</target>
+      </trans-unit>
+      <trans-unit id="pwdReqSt01" resname="password.requirement.strength">
+        <source>password.requirement.strength</source>
+        <target>Sufficient password strength</target>
+      </trans-unit>
       <trans-unit id="sKwVoqy" resname="label.settings">
         <source>label.settings</source>
         <target>Settings</target>
