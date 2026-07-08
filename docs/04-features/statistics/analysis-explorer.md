@@ -237,6 +237,36 @@ Legacy flat state (`scopeGroup`, `period`, `dimensionGrain`, …) is upgraded on
 
 `ExplorerConfigMapper::buildViewConfig()` / `filterToStateArray()` / `viewPreferencesToStateArray()` are convenience helpers for future URL or partial-state composition.
 
+### Analysis filters (drawer)
+
+Analysis filters narrow the allocation set **before** row/column grouping. They are stored in config state as `query.filters` (array of `{ dimensionKey, operator, value }`). This is separate from **scope/period** (see [statistics-filter-and-scope.md](statistics-filter-and-scope.md)).
+
+| Dimension key | Form field | Operator | Notes |
+|---|---|---|---|
+| `department` | `filterDepartmentId` | `equals` | Single-select dropdown |
+| `speciality` | `filterSpecialityId` | `equals` | Single-select dropdown |
+| `indication` | `filterIndicationId` | `equals` | Single-select; labels show name + code |
+| `secondary_indication` | `filterSecondaryIndicationId` | `equals` | Single-select dropdown |
+| `indication_group` | `filterIndicationGroupId` | `equals` | Virtual filter; expanded to `indication IN (...)` at query time |
+| `urgency` | `filterUrgency` | `equals` | Readable labels (emergency/inpatient/outpatient) |
+| `transport_type` | `filterTransportType` | `equals` | |
+| `gender` | `filterGender` | `equals` | |
+| `age_group` | `filterAgeGroup` | `equals` | Includes aggregate buckets |
+| `resus` / `cpr` / `ventilation` | boolean fields | `equals` | `0` / `1` |
+| `assignment` | `filterAssignmentId` | `equals` | |
+
+**Legacy saved views:** Older configs may still store `department` / `speciality` / `indication` filters with operator `in` and an array value. On load, only the first ID is applied to the dropdown.
+
+**Axis conflict:** A filter is disabled (and removed from config) when its dimension is already used as a row or column axis. `indication_group` is also disabled when `indication` is an axis (it resolves to the same column).
+
+**Hospitals data source:** All analysis filters are disabled; only allocation analyses support drawer filters.
+
+**Combined filters:** Multiple filters are combined with AND logic. Selecting both specific indications and an indication group restricts to the intersection.
+
+**Reference data cache:** Entity-backed dropdown choices (department, speciality, assignment, indication, indication group) are loaded through [`ExploreFilterOptionsProvider`](../allocation/explore-filter-reference-cache.md) (`cache.allocation.reference_data`, TTL 1 hour). After cache warmup, opening or refreshing the edit drawer does not re-query those tables. Manual invalidation: `bin/console cache:pool:clear cache.allocation.reference_data`.
+
+**Classes:** `ExplorerAnalysisFilterMapper`, `ExplorerAnalysisFilterExpander`, `ExplorerAnalysisFilterPolicy`, `AnalysisFilterChoiceProvider`, `ExplorerFilterBadgePresenter`.
+
 ## Supported capabilities (allocations)
 
 | Area | Values |
