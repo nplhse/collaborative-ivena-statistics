@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactoryRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
+use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLabelResolver;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
@@ -42,6 +43,7 @@ final class AnalysisExplorerController extends AbstractController
         private readonly ExplorerConfigMapper $explorerConfigMapper,
         private readonly SavedExplorerViewLoader $savedExplorerViewLoader,
         private readonly SavedExplorerViewFavoriteService $favoriteService,
+        private readonly SavedExplorerViewLabelResolver $labelResolver,
         private readonly UrlGeneratorInterface $router,
         private readonly TranslatorInterface $translator,
     ) {
@@ -125,8 +127,8 @@ final class AnalysisExplorerController extends AbstractController
             && $this->favoriteService->isFavorite($user, $view);
 
         return [
-            'savedViewTitle' => $view?->getTitle(),
-            'savedViewDescription' => $view?->getDescription(),
+            'savedViewTitle' => $view instanceof SavedExplorerView ? $this->labelResolver->title($view) : null,
+            'savedViewDescription' => $view instanceof SavedExplorerView ? $this->labelResolver->description($view) : null,
             'savedViewId' => $savedViewId,
             'isSystemView' => $isSystemView,
             'canSave' => $canSave,
