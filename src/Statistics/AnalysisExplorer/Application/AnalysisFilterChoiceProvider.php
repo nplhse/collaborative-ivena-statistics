@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
-use App\Allocation\Infrastructure\Repository\AssignmentRepository;
-use App\Allocation\Infrastructure\Repository\DepartmentRepository;
-use App\Allocation\Infrastructure\Repository\SpecialityRepository;
+use App\Allocation\Application\Explore\ExploreFilterOptionsProvider;
+use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
-use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -17,9 +15,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class AnalysisFilterChoiceProvider
 {
     public function __construct(
-        private DepartmentRepository $departmentRepository,
-        private SpecialityRepository $specialityRepository,
-        private AssignmentRepository $assignmentRepository,
+        private ExploreFilterOptionsProvider $referenceData,
         private DimensionRegistry $dimensionRegistry,
         private TranslatorInterface $translator,
     ) {
@@ -30,7 +26,7 @@ final readonly class AnalysisFilterChoiceProvider
      */
     public function departmentChoices(): array
     {
-        return $this->entityChoices($this->departmentRepository->findBy([], ['name' => 'ASC']));
+        return $this->choicesFromIdNameList($this->referenceData->departments());
     }
 
     /**
@@ -38,7 +34,7 @@ final readonly class AnalysisFilterChoiceProvider
      */
     public function specialityChoices(): array
     {
-        return $this->entityChoices($this->specialityRepository->findBy([], ['name' => 'ASC']));
+        return $this->choicesFromIdNameList($this->referenceData->specialities());
     }
 
     /**
@@ -46,7 +42,7 @@ final readonly class AnalysisFilterChoiceProvider
      */
     public function assignmentChoices(): array
     {
-        return $this->entityChoices($this->assignmentRepository->findBy([], ['name' => 'ASC']));
+        return $this->choicesFromIdNameList($this->referenceData->assignments());
     }
 
     /**
@@ -55,8 +51,8 @@ final readonly class AnalysisFilterChoiceProvider
     public function urgencyChoices(): array
     {
         $choices = [];
-        foreach (AllocationStatsUrgencyProjectionCode::cases() as $case) {
-            $choices[$case->value] = $this->translator->trans($case->labelTranslationKey(), [], 'statistics');
+        foreach (AllocationUrgency::cases() as $case) {
+            $choices[$case->value] = $this->translator->trans($case->label(), [], 'messages');
         }
 
         return $choices;
@@ -131,19 +127,51 @@ final readonly class AnalysisFilterChoiceProvider
     }
 
     /**
-     * @param list<object> $entities
+     * @return array<int, string>
+     */
+    public function indicationChoices(): array
+    {
+        return $this->choicesFromIndicationList($this->referenceData->indications());
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function indicationGroupChoices(): array
+    {
+        return $this->choicesFromIdNameList($this->referenceData->indicationGroups());
+    }
+
+    /**
+     * @param list<array{id: int, name: string}> $rows
      *
      * @return array<int, string>
      */
-    private function entityChoices(array $entities): array
+    private function choicesFromIdNameList(array $rows): array
     {
         $choices = [];
-        foreach ($entities as $entity) {
-            if (!method_exists($entity, 'getId') || !method_exists($entity, 'getName')) {
-                continue;
+        foreach ($rows as $row) {
+            $choices[$row['id']] = $row['name'];
+        }
+
+        return $choices;
+    }
+
+    /**
+     * @param list<array{id: int, code: int, name: string}> $rows
+     *
+     * @return array<int, string>
+     */
+    private function choicesFromIndicationList(array $rows): array
+    {
+        $choices = [];
+        foreach ($rows as $row) {
+            $label = $row['name'];
+            if (0 !== $row['code']) {
+                $label .= ' ('.$row['code'].')';
             }
 
-            $choices[(int) $entity->getId()] = (string) $entity->getName();
+            $choices[$row['id']] = $label;
         }
 
         return $choices;

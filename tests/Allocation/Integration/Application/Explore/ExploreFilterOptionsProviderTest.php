@@ -8,6 +8,7 @@ use App\Allocation\Application\Explore\ExploreFilterOptionsProvider;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\IndicationGroupFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
@@ -90,5 +91,21 @@ final class ExploreFilterOptionsProviderTest extends KernelTestCase
             'name' => 'STEMI',
         ], $options['indications'][0]);
         self::assertSame(['Alpha Assignment', 'Zebra Assignment'], array_column($options['assignments'], 'name'));
+    }
+
+    public function testSecondCallUsesCachedIndicationGroups(): void
+    {
+        self::bootKernel();
+        IndicationGroupFactory::createOne(['name' => 'Cardiac group']);
+
+        $provider = self::getContainer()->get(ExploreFilterOptionsProvider::class);
+        self::assertInstanceOf(ExploreFilterOptionsProvider::class, $provider);
+
+        $first = $provider->indicationGroups();
+        IndicationGroupFactory::createOne(['name' => 'Neurology group']);
+        $second = $provider->indicationGroups();
+
+        self::assertSame([['id' => $first[0]['id'], 'name' => 'Cardiac group']], $first);
+        self::assertSame($first, $second);
     }
 }
