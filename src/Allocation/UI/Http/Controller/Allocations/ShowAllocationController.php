@@ -21,7 +21,7 @@ final class ShowAllocationController extends AbstractController
         methods: ['GET'],
     )]
     public function index(
-        #[MapEntity(expr: 'repository.findOneByPublicId(publicId)')] Allocation $allocation,
+        #[MapEntity(expr: 'repository.findOneForShowByPublicId(publicId)')] Allocation $allocation,
     ): Response {
         $this->denyAccessUnlessGranted(AllocationVoter::VIEW, $allocation);
 
