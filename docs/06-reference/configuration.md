@@ -22,6 +22,7 @@
 | `MAILER_DSN` | Mail transport | required in production |
 | `MAILER_FROM` | Sender address | transactional mail |
 | `MAILER_REPLY_TO` | Reply-to address | optional |
+| `MAILER_BULK_DELAY_MS` | Delay between bulk reminder emails | default `3000` |
 | `APP_URL` | Public base URL | required in prod for correct links |
 | `APP_TITLE` | Application display title | overrides `app.title` in `app.yaml` |
 | `SENTRY_DSN` | Sentry DSN | empty = disabled |
@@ -60,6 +61,7 @@ Transports (see `config/packages/messenger.yaml`):
 
 - `async_priority_high`
 - `async_priority_low`
+- `async_mail`
 - `scheduler_default`
 - `failed`
 - `sync`
@@ -68,7 +70,7 @@ Routing examples:
 
 - Import dispatch → `async_priority_high`
 - Statistics rebuild → `async_priority_low`
-- Mail / notifier → async in prod, partly sync in dev
+- Mail / notifier → `async_mail` in prod, sync in dev/test
 
 Details: [../02-architecture/messenger-and-scheduler.md](../02-architecture/messenger-and-scheduler.md)
 

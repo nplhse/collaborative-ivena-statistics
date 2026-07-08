@@ -20,6 +20,10 @@ framework:
             policy: fixed_window
             limit: 3
             interval: '1 hour'
+        transactional_mail:
+            policy: sliding_window
+            limit: 1
+            interval: '3 seconds'
 
 when@test:
     framework:
@@ -39,4 +43,8 @@ when@test:
             feedback_submit_anonymous_email:
                 policy: fixed_window
                 limit: 10000
+                interval: '1 second'
+            transactional_mail:
+                policy: sliding_window
+                limit: 1000
                 interval: '1 second'
