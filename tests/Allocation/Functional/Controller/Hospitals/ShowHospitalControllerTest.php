@@ -55,7 +55,7 @@ final class ShowHospitalControllerTest extends WebTestCase
             'createdAt' => new \DateTimeImmutable('2025-01-02 03:04:05'),
         ]);
 
-        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
 
         self::assertResponseIsSuccessful();
 
@@ -82,7 +82,7 @@ final class ShowHospitalControllerTest extends WebTestCase
         $hospital = HospitalFactory::createOne(['owner' => $owner, 'name' => 'Owned Clinic']);
 
         $client->loginUser($owner);
-        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
@@ -99,7 +99,7 @@ final class ShowHospitalControllerTest extends WebTestCase
         $hospital = HospitalFactory::createOne(['owner' => $owner, 'name' => 'Foreign Clinic']);
 
         $client->loginUser($admin);
-        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getId());
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
@@ -116,7 +116,7 @@ final class ShowHospitalControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $client->request(Request::METHOD_POST, '/explore/hospital/'.$hospital->getId());
+        $client->request(Request::METHOD_POST, '/explore/hospital/'.$hospital->getPublicIdString());
 
         self::assertResponseStatusCodeSame(405);
     }
@@ -124,7 +124,7 @@ final class ShowHospitalControllerTest extends WebTestCase
     public function testShow404ForUnknownHospital(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/hospital/999999');
+        $client->request(Request::METHOD_GET, '/explore/hospital/00000000-0000-4000-8000-000000000000');
         self::assertResponseStatusCodeSame(404);
     }
 }

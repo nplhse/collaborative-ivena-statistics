@@ -11,6 +11,7 @@ use App\Allocation\Domain\Enum\IndicationRawReviewWorklistSegment;
 use App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO;
 use App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
@@ -22,6 +23,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class IndicationRawRepository extends ServiceEntityRepository
 {
+    use PublicIdRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, IndicationRaw::class);

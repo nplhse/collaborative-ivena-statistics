@@ -62,6 +62,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 |---|---|
 | `app:allocation:backfill-indications` | Repair tool: sync normalized indication fields (not for routine use). |
 | `app:allocation:audit-indication-review` | Health check for indication raw review data consistency. |
+| `app:explore:backfill-public-ids` | Backfill `public_id` UUID v4 values for explore detail resources. See [../04-features/allocation/explore-public-ids.md](../04-features/allocation/explore-public-ids.md). |
 
 ### Statistics
 

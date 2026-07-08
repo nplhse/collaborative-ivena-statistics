@@ -248,7 +248,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{ path('app_explore_hospital_show', {id: hospital.id}) }}" target="_top">{{ hospital.name }}</a>
+                            <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" target="_top">{{ hospital.name }}</a>
                         </td>
                         <td>
                             {{ hospital.dispatchArea }}

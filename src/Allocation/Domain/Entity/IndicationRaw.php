@@ -7,6 +7,7 @@ namespace App\Allocation\Domain\Entity;
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Shared\Domain\Traits\Blamable;
+use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 class IndicationRaw implements \Stringable
 {
     use Blamable;
+    use HasPublicId;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

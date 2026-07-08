@@ -43,7 +43,7 @@
                     {% for hospital in hospitals %}
                         <tr>
                             <td>
-                                <a href="{{ path('app_explore_hospital_show', {id: hospital.id}) }}">
+                                <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">
                                     {{ hospital.name }}
                                 </a>
                             </td>

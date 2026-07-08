@@ -14,6 +14,7 @@ use App\Allocation\Domain\Entity\State;
 use App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
@@ -23,6 +24,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class MciCaseRepository extends ServiceEntityRepository
 {
+    use PublicIdRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, MciCase::class);
@@ -41,8 +44,8 @@ final class MciCaseRepository extends ServiceEntityRepository
     public function getListPaginator(MciCaseQueryParametersDTO $queryParametersDTO): Paginator
     {
         $qb = $this->createQueryBuilder('m')
-            ->select('m.id, m.createdAt, m.arrivalAt,
-                h.id as hospital_id, h.name as hospital,
+            ->select('m.id, m.publicId, m.createdAt, m.arrivalAt,
+                h.id as hospital_id, h.publicId as hospital_public_id, h.name as hospital,
                 da.id as dispatch_area_id, da.name as dispatchArea,
                 s.id as state_id, s.name as state,
                 m.mciId, m.mciTitle,

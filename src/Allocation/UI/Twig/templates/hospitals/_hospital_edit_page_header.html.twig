@@ -2,7 +2,7 @@
     <twig:Breadcrumbs
         :items="[
             { label: 'title.hospitals.my', path: path('app_hospitals_index') },
-            { label: hospital.name, path: path('app_explore_hospital_show', {id: hospital.id}), translatable: false },
+            { label: hospital.name, path: path('app_explore_hospital_show', {publicId: hospital.publicId}), translatable: false },
             { label: 'title.hospital.edit' }
         ]"
     />

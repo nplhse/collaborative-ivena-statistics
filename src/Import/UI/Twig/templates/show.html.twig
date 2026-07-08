@@ -68,7 +68,7 @@
                     <div class="col-12 mb-3">
                         <twig:Card title="{{ 'label.hospital'|trans({}, 'messages') }}">
                             <h3 class="card-title mb-1 fs-3">
-                                <a href="{{ path('app_explore_hospital_show', {id: import.hospital.id}) }}">{{ import.hospital.name }}</a>
+                                <a href="{{ path('app_explore_hospital_show', {publicId: import.hospital.publicId}) }}">{{ import.hospital.name }}</a>
                             </h3>
 
                             <div class="text-muted small mb-3 d-flex align-items-center gap-2">

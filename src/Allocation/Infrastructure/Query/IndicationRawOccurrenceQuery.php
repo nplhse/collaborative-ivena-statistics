@@ -92,14 +92,15 @@ SQL,
     }
 
     /**
-     * @return list<array{id: int, created_at: string, hospital_name: string|null}>
+     * @return list<array{id: int, public_id: string, created_at: string, hospital_name: string|null}>
      */
     public function fetchSampleAllocations(int $rawId, int $limit = 5): array
     {
-        /** @var list<array{id: int|string, created_at: string, hospital_name: string|null}> $rows */
+        /** @var list<array{id: int|string, public_id: string, created_at: string, hospital_name: string|null}> $rows */
         $rows = $this->connection->executeQuery(
             <<<'SQL'
 SELECT a.id,
+       a.public_id,
        a.created_at,
        h.name AS hospital_name
 FROM allocation a
@@ -114,6 +115,7 @@ SQL,
 
         return array_map(static fn (array $row): array => [
             'id' => (int) $row['id'],
+            'public_id' => $row['public_id'],
             'created_at' => $row['created_at'],
             'hospital_name' => $row['hospital_name'],
         ], $rows);
