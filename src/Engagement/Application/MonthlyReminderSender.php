@@ -72,13 +72,13 @@ final readonly class MonthlyReminderSender
         }
 
         $period = $this->periodResolver->resolve($referenceDate);
-        $reportingPeriod = sprintf('%04d-%02d', $period['reportingYear'], $period['reportingMonth']);
+        $dispatchPeriod = sprintf('%04d-%02d', $period['uploadYear'], $period['uploadMonth']);
 
         if (
             MonthlyReminderTrigger::Scheduler === $trigger
             && $this->dispatchRepository->existsForHospitalPeriodAndTrigger(
                 (int) $hospital->getId(),
-                $reportingPeriod,
+                $dispatchPeriod,
                 $trigger->value,
             )
         ) {
@@ -102,7 +102,7 @@ final readonly class MonthlyReminderSender
             if (MonthlyReminderTrigger::Scheduler === $trigger) {
                 $this->dispatchRepository->save(new MonthlyReminderDispatch(
                     $hospital,
-                    $reportingPeriod,
+                    $dispatchPeriod,
                     $trigger->value,
                     new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin')),
                 ));

@@ -39,7 +39,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
 
     public function testBuildUsesFallbackContentWhenHospitalHasLittleData(): void
     {
-        $referenceDate = new \DateTimeImmutable('2026-06-17', new \DateTimeZone('Europe/Berlin'));
+        $referenceDate = new \DateTimeImmutable('2026-07-01', new \DateTimeZone('Europe/Berlin'));
         $hospital = $this->seedHospital();
 
         $content = $this->builder->build($hospital, $referenceDate, 'en');
@@ -55,7 +55,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
 
     public function testBuildPersonalizedContentWhenReportingMonthHasEnoughAllocations(): void
     {
-        $referenceDate = new \DateTimeImmutable('2026-06-17', new \DateTimeZone('Europe/Berlin'));
+        $referenceDate = new \DateTimeImmutable('2026-07-01', new \DateTimeZone('Europe/Berlin'));
         $seed = $this->seedHospitalGraph();
         $hospital = $seed['hospital'];
         $import = ImportFactory::createOne([
@@ -82,13 +82,13 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
 
         $this->insertHospitalKpi(
             (int) $hospital->getId(),
-            '2026-04-01',
+            '2026-03-01',
             100,
             15,
         );
         $this->insertHospitalKpi(
             (int) $hospital->getId(),
-            '2026-05-01',
+            '2026-04-01',
             100,
             5,
         );
@@ -105,7 +105,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
 
     public function testBuildUsesGermanPeriodLabelsForGermanLocale(): void
     {
-        $referenceDate = new \DateTimeImmutable('2026-06-17', new \DateTimeZone('Europe/Berlin'));
+        $referenceDate = new \DateTimeImmutable('2026-07-01', new \DateTimeZone('Europe/Berlin'));
         $hospital = $this->seedHospital();
 
         $content = $this->builder->build($hospital, $referenceDate, 'de');
