@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
+use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
@@ -159,6 +160,8 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         self::assertNotNull($dispatch);
         self::assertSame('2026-06', $dispatch->getReportingPeriod());
         self::assertSame(MonthlyReminderTrigger::Scheduler->value, $dispatch->getTrigger());
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus());
+        self::assertNotNull($dispatch->getDeliveredAt());
     }
 
     public function testSchedulerTriggerReturnsErrorWhenAlreadySentForPeriod(): void
@@ -179,6 +182,35 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
         self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
         self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+
+        $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
+        self::assertTrue($dispatchRepository->existsForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            '2026-06',
+            MonthlyReminderTrigger::Scheduler->value,
+        ));
+        self::assertTrue($dispatchRepository->existsForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            '2026-06',
+            MonthlyReminderTrigger::Admin->value,
+        ));
+    }
+
+    public function testAdminSendPersistsDispatchLogWithDeliveryStatus(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+
+        $dispatch = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->findForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            '2026-06',
+            MonthlyReminderTrigger::Admin->value,
+        );
+        self::assertNotNull($dispatch);
+        self::assertSame(MonthlyReminderTrigger::Admin->value, $dispatch->getTrigger());
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus());
+        self::assertNotNull($dispatch->getDeliveredAt());
     }
 
     public function testSendUsesOwnerGermanLocale(): void

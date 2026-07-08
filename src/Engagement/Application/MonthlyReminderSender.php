@@ -7,6 +7,7 @@ namespace App\Engagement\Application;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
+use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
@@ -35,6 +36,7 @@ final readonly class MonthlyReminderSender
         Hospital $hospital,
         MonthlyReminderTrigger $trigger,
         ?\DateTimeImmutable $referenceDate = null,
+        int $bulkIndex = 0,
     ): array {
         if (!$hospital->isParticipating()) {
             return ['monthly_reminder.error.not_participating'];
@@ -76,7 +78,7 @@ final readonly class MonthlyReminderSender
 
         if (
             MonthlyReminderTrigger::Scheduler === $trigger
-            && $this->dispatchRepository->existsForHospitalPeriodAndTrigger(
+            && $this->dispatchRepository->hasActiveDispatchForHospitalPeriodAndTrigger(
                 (int) $hospital->getId(),
                 $dispatchPeriod,
                 $trigger->value,
@@ -89,24 +91,50 @@ final readonly class MonthlyReminderSender
         $content = $this->contentBuilder->build($hospital, $referenceDate, $ownerLocale);
         $reportingMonth = $content->reportingPeriodLabel;
 
+        $queuedAt = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin'));
+        $existingDispatch = $this->dispatchRepository->findForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            $dispatchPeriod,
+            $trigger->value,
+        );
+
+        if ($existingDispatch instanceof MonthlyReminderDispatch) {
+            $existingDispatch->prepareForSend($email, $queuedAt);
+            $dispatch = $existingDispatch;
+        } else {
+            $dispatch = new MonthlyReminderDispatch(
+                $hospital,
+                $dispatchPeriod,
+                $trigger->value,
+                $queuedAt,
+                MonthlyReminderDispatchStatus::Queued,
+                $email,
+            );
+        }
+
+        $this->dispatchRepository->save($dispatch);
+
         $this->auditContext->beginIntent('hospital.reminder_sent', [
             'hospital_id' => $hospital->getId(),
             'owner_id' => $owner->getId(),
             'reporting_period' => $reportingMonth,
             'trigger' => $trigger->value,
             'owner_locale' => $ownerLocale,
+            'dispatch_id' => $dispatch->getId(),
         ]);
         try {
-            $this->mailer->send($email, $content, $ownerLocale);
+            $this->mailer->send(
+                $email,
+                $content,
+                $ownerLocale,
+                $bulkIndex,
+                $dispatch->getId(),
+            );
+        } catch (\Throwable $exception) {
+            $dispatch->markFailed($exception->getMessage());
+            $this->dispatchRepository->save($dispatch);
 
-            if (MonthlyReminderTrigger::Scheduler === $trigger) {
-                $this->dispatchRepository->save(new MonthlyReminderDispatch(
-                    $hospital,
-                    $dispatchPeriod,
-                    $trigger->value,
-                    new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin')),
-                ));
-            }
+            throw $exception;
         } finally {
             $this->auditContext->endIntent();
         }
