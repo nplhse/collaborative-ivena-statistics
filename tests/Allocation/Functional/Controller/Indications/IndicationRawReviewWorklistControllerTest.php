@@ -83,7 +83,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/explore/indication/raw/review/start/matching');
 
-        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%d?segment=unreviewed', $raw->getId()));
+        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%s?segment=unreviewed', $raw->getPublicIdString()));
     }
 
     public function testStartReviewingRedirectsToFirstNeedsReviewItem(): void
@@ -108,7 +108,7 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/explore/indication/raw/review/start/reviewing');
 
-        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%d?segment=needs_review', $raw->getId()));
+        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%s?segment=needs_review', $raw->getPublicIdString()));
     }
 
     public function testWorklistCanSortByOccurrence(): void

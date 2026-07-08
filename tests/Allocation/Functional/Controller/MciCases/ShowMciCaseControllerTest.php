@@ -33,10 +33,7 @@ final class ShowMciCaseControllerTest extends WebTestCase
     {
         $client = $this->createClientAsParticipant();
         $mciCase = $this->createMciCase('Mass casualty incident alpha');
-        $id = $mciCase->getId();
-        self::assertNotNull($id);
-
-        $client->request(Request::METHOD_GET, '/explore/mci_case/'.$id);
+        $client->request(Request::METHOD_GET, '/explore/mci_case/'.$mciCase->getPublicIdString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1.fw-bold', 'Mass casualty incident alpha');
@@ -48,10 +45,7 @@ final class ShowMciCaseControllerTest extends WebTestCase
     {
         $client = $this->createClientAsParticipant();
         $mciCase = $this->createMciCase();
-        $id = $mciCase->getId();
-        self::assertNotNull($id);
-
-        $client->request(Request::METHOD_POST, '/explore/mci_case/'.$id);
+        $client->request(Request::METHOD_POST, '/explore/mci_case/'.$mciCase->getPublicIdString());
 
         self::assertResponseStatusCodeSame(405);
     }

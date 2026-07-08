@@ -97,15 +97,14 @@ final class ShowAllocationControllerTest extends WebTestCase
             'occasion' => OccasionFactory::createOne(),
             'assessment' => AssessmentFactory::createOne(),
         ]);
-        $allocationId = $allocation->getId();
-        self::assertNotNull($allocationId);
+        $allocationPublicId = $allocation->getPublicIdString();
 
         self::ensureKernelShutdown();
 
         $client = $this->createClientAsParticipant();
         $client->enableProfiler();
 
-        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocationId);
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocationPublicId);
 
         self::assertResponseIsSuccessful();
 
@@ -184,7 +183,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         ]);
 
         // Act
-        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getId());
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         // Assert
         self::assertResponseIsSuccessful();
@@ -244,7 +243,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'departmentWasClosed' => true,
         ]);
 
-        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getId());
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.department-line [data-testid="department-was-closed-indicator"]');
@@ -254,7 +253,7 @@ final class ShowAllocationControllerTest extends WebTestCase
     public function testShowRejectsPostMethod(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_POST, '/explore/allocation/1');
+        $client->request(Request::METHOD_POST, '/explore/allocation/00000000-0000-4000-8000-000000000000');
 
         self::assertResponseStatusCodeSame(405);
     }
@@ -262,7 +261,7 @@ final class ShowAllocationControllerTest extends WebTestCase
     public function testShow404ForUnknownAllocation(): void
     {
         $client = $this->createClientAsParticipant();
-        $client->request(Request::METHOD_GET, '/explore/allocation/999999');
+        $client->request(Request::METHOD_GET, '/explore/allocation/00000000-0000-4000-8000-000000000000');
         self::assertResponseStatusCodeSame(404);
     }
 }

@@ -21,10 +21,7 @@ final class ShowSecondaryTransportControllerTest extends WebTestCase
     {
         $client = $this->createClientAsAreaUser();
         $st = SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
-        $id = $st->getId();
-        self::assertNotNull($id);
-
-        $client->request(Request::METHOD_GET, '/explore/secondary_transport/'.$id);
+        $client->request(Request::METHOD_GET, '/explore/secondary_transport/'.$st->getPublicIdString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#secondary-transport-name', 'Kapazitätsengpass');
