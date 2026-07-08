@@ -300,4 +300,27 @@ final class RegistrationControllerTest extends WebTestCase
             })
         ;
     }
+
+    public function testRegistrationPasswordFieldShowsStrengthFeedbackUi(): void
+    {
+        $this->browser()
+            ->visit('/register')
+            ->assertSuccessful()
+            ->assertSeeElement('[data-testid="password-strength-registration_form_plainPassword"]')
+            ->assertSee('Password strength')
+            ->assertSee('At least 8 characters')
+            ->assertSee('Sufficient password strength')
+            ->use(static function (Crawler $crawler): void {
+                $wrapper = $crawler->filter('[data-controller*="password-strength"]');
+                $input = $crawler->filter('input[name="registration_form[plainPassword]"]');
+
+                self::assertCount(1, $wrapper);
+                self::assertStringContainsString('password-visibility', (string) $wrapper->attr('data-controller'));
+                self::assertStringContainsString('password-strength', (string) $wrapper->attr('data-controller'));
+                self::assertSame('input->password-strength#evaluate', $input->attr('data-action'));
+                self::assertNotEmpty($wrapper->attr('data-password-strength-policy-value'));
+                self::assertNotEmpty($wrapper->attr('data-password-strength-strength-labels-value'));
+            })
+        ;
+    }
 }

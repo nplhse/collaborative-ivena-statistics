@@ -203,4 +203,19 @@ final class SecurityControllerTest extends WebTestCase
             })
         ;
     }
+
+    public function testLoginPasswordFieldDoesNotShowStrengthFeedbackUi(): void
+    {
+        $this->browser()
+            ->visit('/login')
+            ->assertSuccessful()
+            ->assertNotSeeElement('[data-testid="password-strength-login_password"]')
+            ->use(static function (Crawler $crawler): void {
+                $wrapper = $crawler->filter('[data-controller="password-visibility"]');
+
+                self::assertCount(1, $wrapper);
+                self::assertStringNotContainsString('password-strength', (string) $wrapper->attr('data-controller'));
+            })
+        ;
+    }
 }
