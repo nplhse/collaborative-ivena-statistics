@@ -277,6 +277,22 @@
         <source>label.all_urgencies</source>
         <target>All urgencies</target>
       </trans-unit>
+      <trans-unit id="lblAllGendersEn" resname="label.all_genders">
+        <source>label.all_genders</source>
+        <target>All genders</target>
+      </trans-unit>
+      <trans-unit id="lblAllAgeGroupsEn" resname="label.all_age_groups">
+        <source>label.all_age_groups</source>
+        <target>All age groups</target>
+      </trans-unit>
+      <trans-unit id="lblAllSecIndEn" resname="label.all_secondary_indications">
+        <source>label.all_secondary_indications</source>
+        <target>All secondary indications</target>
+      </trans-unit>
+      <trans-unit id="lblAllIndGrpEn" resname="label.all_indication_groups">
+        <source>label.all_indication_groups</source>
+        <target>All indication groups</target>
+      </trans-unit>
       <trans-unit id="allocAllDept" resname="label.all_departments">
         <source>label.all_departments</source>
         <target>All departments</target>
@@ -524,6 +540,14 @@
       <trans-unit id="UcOVbOd" resname="label.indication">
         <source>label.indication</source>
         <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="LblSecInd" resname="label.secondary_indication">
+        <source>label.secondary_indication</source>
+        <target>Secondary indication</target>
+      </trans-unit>
+      <trans-unit id="LblIndGrp" resname="label.indication_group">
+        <source>label.indication_group</source>
+        <target>Indication group</target>
       </trans-unit>
       <trans-unit id="vBKlakB" resname="label.indication.code">
         <source>label.indication.code</source>
