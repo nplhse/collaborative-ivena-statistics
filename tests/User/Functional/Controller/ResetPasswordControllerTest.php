@@ -9,6 +9,8 @@ use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Repository\ResetPasswordRequestRepository;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -81,6 +83,34 @@ final class ResetPasswordControllerTest extends WebTestCase
         $user = $this->getUserRepository()->findOneBy(['email' => 'disabled@example.test']);
         self::assertInstanceOf(User::class, $user);
         self::assertSame(0, $this->getResetPasswordRequestRepository()->count(['user' => $user]));
+    }
+
+    public function testResetPasswordFormShowsStrengthFeedbackOnNewPasswordFieldOnly(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'reset-pwd-ui@example.test',
+            'isVerified' => true,
+            'username' => 'reset-pwd-ui-user',
+        ])->create();
+
+        $resetToken = self::getContainer()->get(ResetPasswordHelperInterface::class)->generateResetToken($user);
+
+        $this->browser()
+            ->visit('/reset-password/reset/'.$resetToken->getToken())
+            ->assertSuccessful()
+            ->assertSee('Set a new password')
+            ->assertSee('Password strength')
+            ->use(static function (Crawler $crawler): void {
+                self::assertGreaterThan(
+                    0,
+                    $crawler->filter('[data-testid^="password-strength-"][data-testid*="_first"]')->count(),
+                );
+                self::assertCount(
+                    0,
+                    $crawler->filter('[data-testid^="password-strength-"][data-testid*="_second"]'),
+                );
+            })
+        ;
     }
 
     private function getUserRepository(): UserRepository

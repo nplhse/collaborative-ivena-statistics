@@ -133,6 +133,8 @@ final class SettingsControllerTest extends WebTestCase
             ->visit('/settings/password')
             ->assertSuccessful()
             ->assertSee('Change password')
+            ->assertSee('Password strength')
+            ->assertSeeElement('[data-controller*="password-strength"]')
         ;
     }
 
@@ -152,6 +154,23 @@ final class SettingsControllerTest extends WebTestCase
             ->click('Save password')
             ->assertSuccessful()
             ->assertSee('Current password is invalid.')
+        ;
+    }
+
+    public function testForcePasswordChangeShowsStrengthFeedbackUi(): void
+    {
+        UserFactory::new([
+            'credentialsExpired' => true,
+            'email' => 'force-pwd-ui@example.test',
+            'isVerified' => true,
+            'username' => 'force-pwd-ui-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'force-pwd-ui-user')
+            ->assertSuccessful()
+            ->assertSee('Set a new password')
+            ->assertSee('Password strength')
+            ->assertSeeElement('[data-controller*="password-strength"]')
         ;
     }
 
