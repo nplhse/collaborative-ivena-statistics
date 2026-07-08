@@ -54,11 +54,11 @@
                             <td>{{ badges.render('hospital_size', hospital.size.value, hospital.beds) }}</td>
                             <td class="text-nowrap">
                                 {% if is_granted(constant('App\\Allocation\\Infrastructure\\Security\\Voter\\HospitalVoter::MANAGE_ACCESS_GRANTS'), hospital) %}
-                                    <a class="btn btn-sm btn-outline-secondary me-1" href="{{ path('app_hospitals_edit_access', {publicId: hospital.publicId}) }}">
+                                    <a class="btn btn-sm btn-outline-secondary me-1" href="{{ path('app_hospitals_edit_access', {id: hospital.id}) }}">
                                         {{ 'label.hospital_access_grants.manage'|trans({}, 'messages') }}
                                     </a>
                                 {% endif %}
-                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_hospitals_edit', {publicId: hospital.publicId}) }}">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_hospitals_edit', {id: hospital.id}) }}">
                                     {{ 'label.edit'|trans({}, 'messages') }}
                                 </a>
                             </td>

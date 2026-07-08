@@ -14,7 +14,7 @@
     } %}
         {% block edit_card_title %}{{ 'label.hospital.access_grants.overview'|trans({}, 'messages') }}{% endblock %}
         {% block edit_card_actions %}
-            <a class="btn btn-primary" href="{{ path('app_hospitals_edit_access_new', {publicId: hospital.publicId}) }}">{{ 'label.hospital_access_grants.add'|trans({}, 'messages') }}</a>
+            <a class="btn btn-primary" href="{{ path('app_hospitals_edit_access_new', {id: hospital.id}) }}">{{ 'label.hospital_access_grants.add'|trans({}, 'messages') }}</a>
         {% endblock %}
         {% block edit_content %}
             {{ include('@Allocation/hospitals/_access_grants_matrix.html.twig', {
