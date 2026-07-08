@@ -29,6 +29,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -114,8 +115,10 @@ final class HospitalCrudController extends AbstractCrudController
     }
 
     #[AdminRoute(path: '/{entityId}/send-monthly-reminder', name: 'send_monthly_reminder')]
-    public function sendMonthlyReminder(Hospital $hospital, MonthlyReminderSender $monthlyReminderSender): RedirectResponse
-    {
+    public function sendMonthlyReminder(
+        #[MapEntity(id: 'entityId')] Hospital $hospital,
+        MonthlyReminderSender $monthlyReminderSender,
+    ): RedirectResponse {
         $errors = $monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
         if ([] === $errors) {
             $this->addFlash('success', new TranslatableMessage('flash.admin.hospital.reminder.sent', domain: 'admin'));
