@@ -9,13 +9,16 @@ use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Repository\MciCaseRepository;
 use App\Import\Domain\Entity\Import;
+use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\ORM\Mapping as ORM;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: MciCaseRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class MciCase
 {
+    use HasPublicId;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
