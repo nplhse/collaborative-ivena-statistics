@@ -13,6 +13,9 @@ twig:
         'app_blog_title': '%app.blog.title%'
         'app_blog_description': '%app.blog.description%'
         'app_mailer_from': '%app.mailer_from%'
+        'app_copyright_start_year': '%app.meta.copyright_start_year%'
+        'app_hoster_name': '%app.meta.hoster.name%'
+        'app_hoster_url': '%app.meta.hoster.url%'
 
     paths:
         '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin

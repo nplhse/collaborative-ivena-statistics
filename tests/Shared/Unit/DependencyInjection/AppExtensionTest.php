@@ -27,11 +27,21 @@ final class AppExtensionTest extends TestCase
                     'reject_writer' => 'csv',
                     'csv_reject_dir' => 'var/import_rejects',
                 ],
+                'meta' => [
+                    'copyright_start_year' => 2024,
+                    'hoster' => [
+                        'name' => 'Uberspace',
+                        'url' => 'https://uberspace.de',
+                    ],
+                ],
             ],
         ], $container);
 
         self::assertSame('Our Blog', $container->getParameter('app.blog.title'));
         self::assertSame('Blog Description', $container->getParameter('app.blog.description'));
         self::assertSame('COIS', $container->getParameter('app.short_title'));
+        self::assertSame(2024, $container->getParameter('app.meta.copyright_start_year'));
+        self::assertSame('Uberspace', $container->getParameter('app.meta.hoster.name'));
+        self::assertSame('https://uberspace.de', $container->getParameter('app.meta.hoster.url'));
     }
 }
