@@ -134,7 +134,7 @@ final readonly class DataSourceCapabilities
             return false;
         }
 
-        return !(AnalysisDimensionKey::Time === $axis->dimensionKey && AnalysisDimensionGrain::Total === $grain);
+        return AnalysisDimensionKey::Time !== $axis->dimensionKey || AnalysisDimensionGrain::Total !== $grain;
     }
 
     public function supportsColumnAxis(AnalysisAxisRef $rowAxis, AnalysisAxisRef $columnAxis): bool
