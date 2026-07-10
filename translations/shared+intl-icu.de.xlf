@@ -257,6 +257,26 @@
         <source>menu.blog.tags</source>
         <target>Schlagwörter</target>
       </trans-unit>
+      <trans-unit id="FtrColProjDe" resname="footer.column.project">
+        <source>footer.column.project</source>
+        <target>Projekt</target>
+      </trans-unit>
+      <trans-unit id="FtrColHelpDe" resname="footer.column.help">
+        <source>footer.column.help</source>
+        <target>Hilfe</target>
+      </trans-unit>
+      <trans-unit id="FtrColLegalDe" resname="footer.column.legal">
+        <source>footer.column.legal</source>
+        <target>Rechtliches</target>
+      </trans-unit>
+      <trans-unit id="FtrColMoreDe" resname="footer.column.more">
+        <source>footer.column.more</source>
+        <target>Weiteres</target>
+      </trans-unit>
+      <trans-unit id="FtrHosterDe" resname="footer.hoster">
+        <source>footer.hoster</source>
+        <target>Gehostet bei {hoster}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
