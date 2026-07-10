@@ -257,6 +257,26 @@
         <source>locale.german_short</source>
         <target>DE</target>
       </trans-unit>
+      <trans-unit id="FtrColProjEn" resname="footer.column.project">
+        <source>footer.column.project</source>
+        <target>Project</target>
+      </trans-unit>
+      <trans-unit id="FtrColHelpEn" resname="footer.column.help">
+        <source>footer.column.help</source>
+        <target>Help</target>
+      </trans-unit>
+      <trans-unit id="FtrColLegalEn" resname="footer.column.legal">
+        <source>footer.column.legal</source>
+        <target>Legal</target>
+      </trans-unit>
+      <trans-unit id="FtrColMoreEn" resname="footer.column.more">
+        <source>footer.column.more</source>
+        <target>More</target>
+      </trans-unit>
+      <trans-unit id="FtrHosterEn" resname="footer.hoster">
+        <source>footer.hoster</source>
+        <target>Hosted on {hoster}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -22,6 +22,11 @@ final class AppExtension extends Extension
         $container->setParameter('app.blog.title', $config['blog']['title']);
         $container->setParameter('app.blog.description', $config['blog']['description']);
 
+        $metaConfig = $config['meta'];
+        $container->setParameter('app.meta.copyright_start_year', $metaConfig['copyright_start_year']);
+        $container->setParameter('app.meta.hoster.name', $metaConfig['hoster']['name']);
+        $container->setParameter('app.meta.hoster.url', $metaConfig['hoster']['url']);
+
         // Import settings
         $importConfig = $config['import'];
         $container->setParameter('app.import.reject_writer', $importConfig['reject_writer']);

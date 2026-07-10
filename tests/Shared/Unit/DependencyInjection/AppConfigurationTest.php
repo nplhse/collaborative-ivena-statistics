@@ -22,6 +22,9 @@ final class AppConfigurationTest extends TestCase
 
         self::assertSame('Blog', $processed['blog']['title']);
         self::assertSame('Neuigkeiten, Updates und Hintergrundinformationen.', $processed['blog']['description']);
+        self::assertSame(2025, $processed['meta']['copyright_start_year']);
+        self::assertSame('', $processed['meta']['hoster']['name']);
+        self::assertSame('', $processed['meta']['hoster']['url']);
         self::assertSame('csv', $processed['import']['reject_writer']);
         self::assertSame(4, $processed['feedback']['spam']['min_submission_seconds']);
         self::assertSame(1800, $processed['feedback']['spam']['long_message_threshold']);

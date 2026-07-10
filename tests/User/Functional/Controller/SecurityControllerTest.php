@@ -42,7 +42,7 @@ final class SecurityControllerTest extends WebTestCase
             ->click('Sign in')
             ->assertSuccessful()
             ->assertSeeIn('.alert.alert-danger', 'Please confirm your cookie settings before signing in.')
-            ->assertNotSee('foo')
+            ->assertNotSeeElement('#user_name')
         ;
     }
 
@@ -54,7 +54,7 @@ final class SecurityControllerTest extends WebTestCase
             ->assertSeeIn('#user_name', 'foo')
             ->assertNotSee('Login')
             ->visit('/logout')
-            ->assertNotSee('foo')
+            ->assertNotSeeElement('#user_name')
         ;
     }
 

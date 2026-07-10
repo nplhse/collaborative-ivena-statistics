@@ -62,6 +62,7 @@
                 <directory name="src/Kpi/" />
                 <directory name="src/Engagement/" />
                 <directory name="src/Admin/Application/Service/" />
+                <directory name="src/Shared/Application/Navigation/" />
             </errorLevel>
         </PossiblyUnusedMethod>
         <PossiblyUnusedProperty>
@@ -70,6 +71,7 @@
                 <directory name="src/Allocation/Application/Export/DTO/" />
                 <directory name="src/Shared/Application/Export/" />
                 <directory name="src/*/Application/Page/DTO/" />
+                <directory name="src/Shared/Application/Navigation/DTO/" />
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Statistics/" />

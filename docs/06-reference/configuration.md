@@ -46,6 +46,8 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 | `app.import.reject_writer` | `db` | Reject persistence: `db` or `csv` |
 | `app.import.csv_reject_dir` | `var/import_rejects` | CSV reject output directory |
 | `app.feedback.spam.*` | — | Feedback spam detection thresholds |
+| `app.meta.copyright_start_year` | `2025` | Start year for footer copyright range (`© 2025–{current year}`) |
+| `app.meta.hoster.name` / `app.meta.hoster.url` | `Uberspace` / `https://uberspace.de` | Optional hosting provider shown in the footer meta line |
 
 See [../02-architecture/decisions/005-reject-writer-strategy.md](../02-architecture/decisions/005-reject-writer-strategy.md).
 
