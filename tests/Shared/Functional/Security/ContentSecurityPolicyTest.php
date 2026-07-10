@@ -63,6 +63,11 @@ final class ContentSecurityPolicyTest extends WebTestCase
      */
     private function assertProdHealthCspHeader(?string $expectedReportUri = null, array $env = []): void
     {
+        $databaseUrl = $this->resolveProdDatabaseUrl();
+        if (null !== $databaseUrl) {
+            $env['DATABASE_URL'] = $databaseUrl;
+        }
+
         $cacheDir = sys_get_temp_dir().'/ivena_csp_test_'.uniqid('', true);
         $envKeys = array_keys($env);
         $envKeys[] = 'APP_CACHE_DIR';
@@ -106,6 +111,35 @@ final class ContentSecurityPolicyTest extends WebTestCase
                 new Filesystem()->remove($cacheDir);
             }
         }
+    }
+
+    /**
+     * Prod kernels do not apply Doctrine's test dbname suffix; point them at the same
+     * migrated database ParaTest uses so /health does not fail on missing tables in CI.
+     */
+    private function resolveProdDatabaseUrl(): ?string
+    {
+        $databaseUrl = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'] ?? getenv('DATABASE_URL');
+        if (!is_string($databaseUrl) || '' === $databaseUrl) {
+            return null;
+        }
+
+        $path = parse_url($databaseUrl, PHP_URL_PATH);
+        $databaseName = is_string($path) ? ltrim($path, '/') : '';
+        if ('' === $databaseName || preg_match('/_test\d*$/', $databaseName)) {
+            return $databaseUrl;
+        }
+
+        $token = $_ENV['TEST_TOKEN'] ?? $_SERVER['TEST_TOKEN'] ?? getenv('TEST_TOKEN');
+        $token = is_string($token) ? $token : '';
+
+        $resolved = preg_replace(
+            '#^(postgres(?:ql)?://[^/]+/)([^/?]+)(.*)$#i',
+            '$1$2_test'.$token.'$3',
+            $databaseUrl,
+        );
+
+        return is_string($resolved) ? $resolved : $databaseUrl;
     }
 
     /**
