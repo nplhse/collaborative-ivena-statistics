@@ -30,6 +30,7 @@
 | `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::APP_VERSION` |
 | `SENTRY_TRACES_SAMPLE_RATE` | Trace sampling rate | `0.0`–`1.0` |
 | `SENTRY_ENABLE_LOGS` | Structured logs | `true` / `false` |
+| `SENTRY_CSP_REPORT_URI` | Sentry CSP report endpoint | optional; prod only; adds `report-uri` when set (see [content-security-policy.md](../05-operations/content-security-policy.md)) |
 | `FIXTURES_SCALE` | Dev fixture volume multiplier | `1`–`10`; see [../03-development/fixtures.md](../03-development/fixtures.md) |
 
 ## Application configuration (`app.yaml`)
@@ -109,4 +110,5 @@ Production verification checklist: [../05-operations/deployment.md](../05-operat
 
 - [../05-operations/deployment.md](../05-operations/deployment.md)
 - [../05-operations/observability-sentry.md](../05-operations/observability-sentry.md)
+- [../05-operations/content-security-policy.md](../05-operations/content-security-policy.md)
 - [../05-operations/transactional-mail.md](../05-operations/transactional-mail.md)

@@ -82,6 +82,8 @@ Manual checks that `app:env:check` cannot perform:
 - [ ] No stuck failed messages: `php bin/console messenger:failed:show`
 - [ ] Transactional mail works (registration or password reset test) — see [transactional-mail.md](transactional-mail.md)
 - [ ] Sentry receives a test event (if `SENTRY_DSN` is set) — see [observability-sentry.md](observability-sentry.md)
+- [ ] CSP report-only header present: `curl -sI https://<APP_URL>/statistics/ | grep -i content-security-policy` — see [content-security-policy.md](content-security-policy.md#verification)
+- [ ] Optional: `SENTRY_CSP_REPORT_URI` set and CSP violations appear in Sentry — see [content-security-policy.md#sentry-integration](content-security-policy.md#sentry-integration)
 - [ ] Backups scheduled on Uberspace (cron — see [backup-restore.md](backup-restore.md))
 - [ ] Sentry Uptime Monitor on `GET /health` — see [health-check.md](health-check.md)
 

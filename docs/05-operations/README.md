@@ -13,6 +13,7 @@
 | [transactional-mail.md](transactional-mail.md) | Guide | Mail transport, `APP_URL`, deliverability |
 | [backup-restore.md](backup-restore.md) | Guide | Database and file backups |
 | [observability-sentry.md](observability-sentry.md) | Guide | Sentry integration and monitoring |
+| [content-security-policy.md](content-security-policy.md) | Guide | CSP report-only, Sentry triage, beta checklist |
 | [health-check.md](health-check.md) | Reference | `GET /health` endpoint |
 | [troubleshooting.md](troubleshooting.md) | Guide | Symptom → cause → fix |
 | [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
