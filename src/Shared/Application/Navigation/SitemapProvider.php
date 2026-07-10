@@ -216,8 +216,35 @@ final readonly class SitemapProvider
     {
         return match ($sectionKey) {
             'public', 'account' => $links,
+            'statistics' => $this->pinFirstRouteLink('app_stats_dashboard', $links),
             default => $this->sortAlphabetically($links),
         };
+    }
+
+    /**
+     * @param list<SitemapLink> $links
+     *
+     * @return list<SitemapLink>
+     */
+    private function pinFirstRouteLink(string $routeName, array $links): array
+    {
+        $pinnedUrl = $this->urlGenerator->generate($routeName);
+        $pinned = null;
+        $rest = [];
+
+        foreach ($links as $link) {
+            if ($link->url === $pinnedUrl) {
+                $pinned = $link;
+
+                continue;
+            }
+
+            $rest[] = $link;
+        }
+
+        $orderedRest = $this->sortAlphabetically($rest);
+
+        return null === $pinned ? $orderedRest : [$pinned, ...$orderedRest];
     }
 
     /**
