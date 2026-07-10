@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Content\Application\Page;
 
 use App\Content\Application\Page\DTO\PageNavigationLink;
+use App\Content\Application\Page\DTO\PublishedPageLink;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Repository\PageRepository;
+use App\Shared\Application\Navigation\DTO\SitemapPageNode;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
@@ -32,6 +34,7 @@ final class PageNavigationProvider
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly PageAccessChecker $pageAccessChecker,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly PageNavigationTreeBuilder $pageNavigationTreeBuilder,
     ) {
     }
 
@@ -82,6 +85,72 @@ final class PageNavigationProvider
             PageKey::Privacy,
             PageKey::Terms,
         );
+    }
+
+    /**
+     * @return list<PublishedPageLink>
+     */
+    public function getVisiblePublishedPageLinks(): array
+    {
+        return $this->flattenPageTree($this->getVisiblePublishedPageTree());
+    }
+
+    /**
+     * @return list<SitemapPageNode>
+     */
+    public function getVisiblePublishedPageTree(): array
+    {
+        $pages = array_values(array_filter(
+            $this->pageRepository->findAllPublished(),
+            $this->pageAccessChecker->canView(...),
+        ));
+
+        return $this->buildSitemapPageNodes($this->pageNavigationTreeBuilder->build($pages));
+    }
+
+    /**
+     * @param array<int, array{page: Page, children: array<int, mixed>}> $nodes
+     *
+     * @return list<SitemapPageNode>
+     */
+    private function buildSitemapPageNodes(array $nodes): array
+    {
+        $tree = [];
+
+        foreach ($nodes as $node) {
+            $url = $this->buildUrl($node['page']);
+            if (null === $url) {
+                continue;
+            }
+
+            $tree[] = new SitemapPageNode(
+                url: $url,
+                label: (string) $node['page']->getTitle(),
+                children: $this->buildSitemapPageNodes($node['children']),
+            );
+        }
+
+        return $tree;
+    }
+
+    /**
+     * @param list<SitemapPageNode> $nodes
+     *
+     * @return list<PublishedPageLink>
+     */
+    private function flattenPageTree(array $nodes): array
+    {
+        $links = [];
+
+        foreach ($nodes as $node) {
+            $links[] = new PublishedPageLink(
+                url: $node->url,
+                label: $node->label,
+            );
+            $links = [...$links, ...$this->flattenPageTree($node->children)];
+        }
+
+        return $links;
     }
 
     /**
