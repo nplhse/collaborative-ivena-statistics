@@ -1,0 +1,54 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'sitemap.title'|trans({}, 'shared') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'sitemap.title' }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'sitemap.title'|trans({}, 'shared') }}</h2>
+                    <div class="text-secondary mt-1">{{ 'sitemap.intro'|trans({}, 'shared') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            {% if sections is empty %}
+                <div class="card">
+                    <div class="card-body text-secondary">{{ 'sitemap.empty'|trans({}, 'shared') }}</div>
+                </div>
+            {% else %}
+                <div class="row row-cards">
+                    {% for section in sections %}
+                        <div class="col-12 col-md-6 col-lg-4" data-testid="sitemap-section-{{ section.key }}">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h3 class="card-title">{{ section.labelKey|trans({}, 'shared') }}</h3>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    {% for link in section.links %}
+                                        <li class="list-group-item">
+                                            <a href="{{ link.url }}" class="link-secondary">{{ link.label }}</a>
+                                        </li>
+                                    {% endfor %}
+                                    {% if section.pageTree is not empty %}
+                                        {{ include('@Shared/sitemap/_page_tree_nodes.html.twig', {nodes: section.pageTree}) }}
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

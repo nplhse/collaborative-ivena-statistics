@@ -1,0 +1,22 @@
+{% for node in nodes %}
+    {% set currentDepth = depth|default(0) %}
+    {% if currentDepth == 0 %}
+        <li class="list-group-item">
+            <a href="{{ node.url }}" class="link-secondary">{{ node.label }}</a>
+            {% if node.children is not empty %}
+                <ul class="list-unstyled mb-0 mt-2 ms-2">
+                    {{ include('@Shared/sitemap/_page_tree_nodes.html.twig', {nodes: node.children, depth: currentDepth + 1}) }}
+                </ul>
+            {% endif %}
+        </li>
+    {% else %}
+        <li class="mb-1">
+            <a href="{{ node.url }}" class="link-secondary">{{ node.label }}</a>
+            {% if node.children is not empty %}
+                <ul class="list-unstyled mb-0 mt-1 ms-2">
+                    {{ include('@Shared/sitemap/_page_tree_nodes.html.twig', {nodes: node.children, depth: currentDepth + 1}) }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endif %}
+{% endfor %}

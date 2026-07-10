@@ -277,6 +277,54 @@
         <source>footer.hoster</source>
         <target>Hosted on {hoster}</target>
       </trans-unit>
+      <trans-unit id="LnkSitemapEn" resname="link.sitemap">
+        <source>link.sitemap</source>
+        <target>Sitemap</target>
+      </trans-unit>
+      <trans-unit id="SitemapTitleEn" resname="sitemap.title">
+        <source>sitemap.title</source>
+        <target>Sitemap</target>
+      </trans-unit>
+      <trans-unit id="SitemapIntroEn" resname="sitemap.intro">
+        <source>sitemap.intro</source>
+        <target>Overview of available pages and features in this application.</target>
+      </trans-unit>
+      <trans-unit id="SitemapEmptyEn" resname="sitemap.empty">
+        <source>sitemap.empty</source>
+        <target>No pages are available for your current account.</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecPublicEn" resname="sitemap.section.public">
+        <source>sitemap.section.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecDocEn" resname="sitemap.section.content">
+        <source>sitemap.section.content</source>
+        <target>Content</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecAppEn" resname="sitemap.section.data_exchange">
+        <source>sitemap.section.data_exchange</source>
+        <target>Import &amp; Export</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecStatsEn" resname="sitemap.section.statistics">
+        <source>sitemap.section.statistics</source>
+        <target>Statistics &amp; Analysis</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecExploreEn" resname="sitemap.section.explore">
+        <source>sitemap.section.explore</source>
+        <target>Explore Data</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecAccountEn" resname="sitemap.section.account">
+        <source>sitemap.section.account</source>
+        <target>User Account</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecClinicEn" resname="sitemap.section.clinic">
+        <source>sitemap.section.clinic</source>
+        <target>Clinic</target>
+      </trans-unit>
+      <trans-unit id="SitemapSecAdminEn" resname="sitemap.section.admin">
+        <source>sitemap.section.admin</source>
+        <target>Administration</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
