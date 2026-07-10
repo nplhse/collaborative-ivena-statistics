@@ -1,20 +1,49 @@
-<footer class="footer footer-transparent d-print-none">
+<footer class="footer site-footer d-print-none mt-auto bg-light border-top-0">
     <div class="container-xl">
-        <div class="row text-center align-items-center flex-row-reverse">
-            <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+        {% set footer_columns = footer_nav_columns() %}
+        {% if footer_columns is not empty %}
+            <div class="row py-4">
+                {% for column in footer_columns %}
+                    <div class="col-6 col-md-3 mb-3 mb-md-0" data-testid="footer-nav-column-{{ column.key }}">
+                        <div class="subheader fw-semibold text-body mb-2">{{ column.labelKey|trans({}, 'shared') }}</div>
+                        <ul class="list-unstyled mb-0 lh-lg">
+                            {% for link in column.links %}
+                                <li>
+                                    <a href="{{ link.url }}" class="link-secondary site-footer__link">{{ link.label }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row border-top py-3 text-center text-lg-start">
+            <div class="col-12">
+                {% set copyright_end_year = 'now'|date('Y') %}
                 <ul class="list-inline list-inline-dots mb-0">
-                    <li class="list-inline-item">
-                        &copy; 2025 <a href="https://github.com/nplhse/collaborative-ivena-statistics" class="link-secondary">collaborative-ivena-statistics</a>
+                    <li class="list-inline-item" data-testid="footer-meta-copyright">
+                        &copy; {{ app_copyright_start_year }}{% if app_copyright_start_year != copyright_end_year %}&ndash;{{ copyright_end_year }}{% endif %}
                     </li>
-                    {% for item in page_nav_footer_items() %}
-                        <li class="list-inline-item">
-                            <a href="{{ item.url }}" class="link-secondary">{{ item.label }}</a>
+                    <li class="list-inline-item">
+                        <a href="https://github.com/nplhse/collaborative-ivena-statistics" class="link-secondary" data-testid="footer-meta-repository">
+                            <twig:ux:icon name="tabler:brand-github" style="height: 1em;" />
+                            collaborative-ivena-statistics
+                        </a>
+                    </li>
+                    {% if app_hoster_name %}
+                        <li class="list-inline-item" data-testid="footer-meta-hoster">
+                            <twig:ux:icon name="game-icons:asteroid" style="height: 1em;" />
+                            {% if app_hoster_url %}
+                                <a href="{{ app_hoster_url }}" class="link-secondary">
+                                    {{ 'footer.hoster'|trans({hoster: app_hoster_name}, 'shared') }}
+                                </a>
+                            {% else %}
+                                {{ 'footer.hoster'|trans({hoster: app_hoster_name}, 'shared') }}
+                            {% endif %}
                         </li>
-                    {% endfor %}
-                    <li class="list-inline-item">
-                        <a href="{{ path('app_cookie_preferences') }}" class="link-secondary">{{ 'link.cookie_preferences'|trans({}, 'shared') }}</a>
-                    </li>
-                    <li class="list-inline-item">
+                    {% endif %}
+                    <li class="list-inline-item" data-testid="footer-meta-version">
                         {{ app_version }}
                     </li>
                 </ul>

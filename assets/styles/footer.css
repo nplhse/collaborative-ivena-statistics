@@ -1,0 +1,15 @@
+.site-footer.footer {
+    border-top: 0;
+    padding: 0;
+}
+
+.site-footer a.site-footer__link {
+    color: var(--tblr-secondary-color);
+    text-decoration: none;
+}
+
+.site-footer a.site-footer__link:hover,
+.site-footer a.site-footer__link:focus-visible {
+    color: var(--tblr-body-color);
+    text-decoration: underline;
+}
