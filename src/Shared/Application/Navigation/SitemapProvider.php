@@ -19,7 +19,6 @@ final readonly class SitemapProvider
     private const string VISIBILITY_AUTHENTICATED = 'authenticated';
     private const string VISIBILITY_PARTICIPANT = 'participant';
     private const string VISIBILITY_EXPORT = 'export';
-    private const string VISIBILITY_ADMIN = 'admin';
 
     /**
      * @var array<string, array{labelKey: string, labelDomain: string}>
@@ -57,7 +56,6 @@ final readonly class SitemapProvider
         'app_settings_password' => ['labelKey' => 'label.settings.set_new_password', 'labelDomain' => 'user'],
         'app_settings_notifications' => ['labelKey' => 'label.settings.notifications', 'labelDomain' => 'user'],
         'app_hospitals_index' => ['labelKey' => 'label.my_hospitals', 'labelDomain' => 'messages'],
-        'app_admin_dashboard' => ['labelKey' => 'label.backend', 'labelDomain' => 'messages'],
     ];
 
     /**
@@ -137,13 +135,6 @@ final readonly class SitemapProvider
                 ['route' => 'app_settings_password', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_settings_notifications', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_hospitals_index', 'visibility' => self::VISIBILITY_PARTICIPANT],
-            ],
-        ],
-        [
-            'key' => 'admin',
-            'labelKey' => 'sitemap.section.admin',
-            'entries' => [
-                ['route' => 'app_admin_dashboard', 'visibility' => self::VISIBILITY_ADMIN],
             ],
         ],
     ];
@@ -252,7 +243,6 @@ final readonly class SitemapProvider
             self::VISIBILITY_AUTHENTICATED => $this->authorizationChecker->isGranted('ROLE_USER'),
             self::VISIBILITY_PARTICIPANT => $this->authorizationChecker->isGranted('ROLE_PARTICIPANT'),
             self::VISIBILITY_EXPORT => $this->authorizationChecker->isGranted(ExportVoter::EXPORT),
-            self::VISIBILITY_ADMIN => $this->authorizationChecker->isGranted('ROLE_ADMIN'),
             default => false,
         };
     }

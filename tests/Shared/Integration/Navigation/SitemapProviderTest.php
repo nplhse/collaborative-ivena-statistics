@@ -192,18 +192,15 @@ final class SitemapProviderTest extends KernelTestCase
         self::assertTrue($this->sectionContainsRoute($this->provider->getSections(), 'app_hospitals_export_allocations'));
     }
 
-    public function testAdminSeesAdministrationSection(): void
+    public function testAdminDoesNotSeeAdministrationSection(): void
     {
         $this->seedContentPages();
         $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_PARTICIPANT']]));
 
         $sectionKeys = $this->sectionKeys($this->provider->getSections());
 
-        self::assertContains('admin', $sectionKeys);
-
-        $adminSection = $this->findSection('admin');
-        self::assertCount(1, $adminSection->links);
-        self::assertStringContainsString('/admin', $adminSection->links[0]->url);
+        self::assertNotContains('admin', $sectionKeys);
+        self::assertFalse($this->sectionContainsRoute($this->provider->getSections(), 'app_admin_dashboard'));
     }
 
     public function testContentSectionShowsBlogWithoutPublishedPages(): void

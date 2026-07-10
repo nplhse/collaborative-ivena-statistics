@@ -321,10 +321,6 @@
         <source>sitemap.section.clinic</source>
         <target>Clinic</target>
       </trans-unit>
-      <trans-unit id="SitemapSecAdminEn" resname="sitemap.section.admin">
-        <source>sitemap.section.admin</source>
-        <target>Administration</target>
-      </trans-unit>
     </body>
   </file>
 </xliff>
