@@ -26,3 +26,14 @@ when@prod:
             hsts_max_age: 31536000
             hsts_subdomains: true
             hsts_preload: false
+        csp:
+            report:
+                default-src: ["'self'"]
+                base-uri: ["'self'"]
+                object-src: ["'none'"]
+                script-src: ["'self'", "'unsafe-inline'", "data:"]
+                style-src: ["'self'", "'unsafe-inline'"]
+                img-src: ["'self'", "data:", "https://*.tile.openstreetmap.org"]
+                font-src: ["'self'", "data:"]
+                connect-src: ["'self'", "https://*.tile.openstreetmap.org", "https://*.ingest.sentry.io"]
+                form-action: ["'self'"]

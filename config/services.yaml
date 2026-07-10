@@ -22,6 +22,7 @@ parameters:
     app.mailer_from: '%env(MAILER_FROM)%'
     app.mailer_reply_to: '%env(MAILER_REPLY_TO)%'
     env(SENTRY_DSN): ''
+    env(SENTRY_CSP_REPORT_URI): ''
     env(SENTRY_TRACES_SAMPLE_RATE): '0'
     env(SENTRY_ENABLE_LOGS): 'true'
     env(APP_ADMIN_STORAGE_LIMIT_BYTES): '0'

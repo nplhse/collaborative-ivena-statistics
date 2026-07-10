@@ -58,3 +58,4 @@ php bin/console app:import:analyze-rejects --format=md
 - Deployment / ops: [deployment.md](deployment.md)
 - Import flow: [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)
 - Sentry / observability: [observability-sentry.md](observability-sentry.md)
+- CSP report-only / Sentry triage: [content-security-policy.md](content-security-policy.md)
