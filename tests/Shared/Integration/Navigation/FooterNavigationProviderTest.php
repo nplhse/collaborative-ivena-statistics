@@ -121,8 +121,9 @@ final class FooterNavigationProviderTest extends KernelTestCase
 
         $moreColumn = $columns[3];
         self::assertSame('more', $moreColumn->key);
-        self::assertCount(1, $moreColumn->links);
-        self::assertStringContainsString('/cookies/preferences', $moreColumn->links[0]->url);
+        self::assertCount(2, $moreColumn->links);
+        self::assertStringContainsString('/sitemap', $moreColumn->links[0]->url);
+        self::assertStringContainsString('/cookies/preferences', $moreColumn->links[1]->url);
     }
 
     public function testGetColumnsSkipsDraftPages(): void
@@ -150,5 +151,12 @@ final class FooterNavigationProviderTest extends KernelTestCase
         ))[0];
         self::assertCount(1, $projectColumn->links);
         self::assertStringContainsString('/blog', $projectColumn->links[0]->url);
+
+        $moreColumn = array_values(array_filter(
+            $this->provider->getColumns(),
+            static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationColumn $column): bool => 'more' === $column->key,
+        ))[0];
+        self::assertCount(2, $moreColumn->links);
+        self::assertStringContainsString('/sitemap', $moreColumn->links[0]->url);
     }
 }

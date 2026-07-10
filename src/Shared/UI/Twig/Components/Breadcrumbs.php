@@ -89,6 +89,7 @@ final class Breadcrumbs
             'monthly_reminder.',
             'onboarding.',
             'public.',
+            'sitemap.',
             'stats.',
             'statistics.',
             'text.',
@@ -99,7 +100,7 @@ final class Breadcrumbs
 
     private function resolveLabelDomain(string $label): string
     {
-        if (str_starts_with($label, 'link.')) {
+        if (str_starts_with($label, 'link.') || str_starts_with($label, 'sitemap.') || str_starts_with($label, 'cookie.')) {
             return 'shared';
         }
 

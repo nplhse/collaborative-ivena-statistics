@@ -176,4 +176,78 @@ final class PageNavigationProviderTest extends KernelTestCase
 
         self::assertSame([PageKey::Imprint, PageKey::Terms], $keys);
     }
+
+    public function testGetVisiblePublishedPageLinksIncludesPagesWithoutKeyAndRespectsVisibility(): void
+    {
+        PageFactory::createOne([
+            'title' => 'Public guide',
+            'slug' => 'public-guide',
+            'path' => '/guides/public-guide',
+            'key' => null,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Members only',
+            'slug' => 'members-only',
+            'path' => '/members-only',
+            'key' => null,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+        ]);
+
+        $guestLinks = $this->provider->getVisiblePublishedPageLinks();
+        $guestLabels = array_map(static fn (\App\Content\Application\Page\DTO\PublishedPageLink $link): string => $link->label, $guestLinks);
+
+        self::assertContains('Public guide', $guestLabels);
+        self::assertNotContains('Members only', $guestLabels);
+
+        $user = \App\User\Domain\Factory\UserFactory::createOne(['username' => 'page-nav-user']);
+        $tokenStorage = self::getContainer()->get(\Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface::class);
+        $tokenStorage->setToken(new \Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken(
+            $user,
+            'main',
+            $user->getRoles(),
+        ));
+
+        $authenticatedLabels = array_map(
+            static fn (\App\Content\Application\Page\DTO\PublishedPageLink $link): string => $link->label,
+            $this->provider->getVisiblePublishedPageLinks(),
+        );
+
+        self::assertContains('Public guide', $authenticatedLabels);
+        self::assertContains('Members only', $authenticatedLabels);
+    }
+
+    public function testGetVisiblePublishedPageTreePreservesHierarchy(): void
+    {
+        $parent = PageFactory::createOne([
+            'title' => 'Documentation',
+            'slug' => 'documentation',
+            'path' => '/documentation',
+            'key' => null,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 1,
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Getting started',
+            'slug' => 'getting-started',
+            'path' => '/documentation/getting-started',
+            'parent' => $parent,
+            'key' => null,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 1,
+        ]);
+
+        $tree = $this->provider->getVisiblePublishedPageTree();
+
+        self::assertCount(1, $tree);
+        self::assertSame('Documentation', $tree[0]->label);
+        self::assertCount(1, $tree[0]->children);
+        self::assertSame('Getting started', $tree[0]->children[0]->label);
+    }
 }

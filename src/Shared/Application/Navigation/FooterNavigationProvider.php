@@ -17,6 +17,7 @@ final readonly class FooterNavigationProvider
     private const array ROUTE_LABEL_KEYS = [
         'app_blog_index' => 'link.blog',
         'app_cookie_preferences' => 'link.cookie_preferences',
+        'app_sitemap' => 'link.sitemap',
     ];
 
     /**
@@ -50,7 +51,7 @@ final readonly class FooterNavigationProvider
             'key' => 'more',
             'labelKey' => 'footer.column.more',
             'pageKeys' => [],
-            'routes' => ['app_cookie_preferences'],
+            'routes' => ['app_sitemap', 'app_cookie_preferences'],
         ],
     ];
 
