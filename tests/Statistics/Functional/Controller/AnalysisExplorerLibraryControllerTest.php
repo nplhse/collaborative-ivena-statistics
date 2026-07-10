@@ -95,4 +95,25 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-view-card-'.$genderView->getId().'"]');
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-view-card-'.$overTime->getId().'"]');
     }
+
+    public function testSystemViewTitleIsLocalizedInGerman(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedExplorerSystemViews();
+
+        $view = self::getContainer()->get(SavedExplorerViewRepository::class)->findBySlug('allocations-over-time');
+        self::assertNotNull($view?->getId());
+
+        $client->followRedirects(true);
+        $client->request(
+            Request::METHOD_GET,
+            '/locale/switch/de?_target_path=/statistics/analysis/library?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-view-card-'.$view->getId().'"]',
+            'Allokationen im Zeitverlauf',
+        );
+    }
 }

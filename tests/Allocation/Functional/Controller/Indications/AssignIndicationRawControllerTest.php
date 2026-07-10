@@ -24,8 +24,8 @@ final class AssignIndicationRawControllerTest extends WebTestCase
         $raw = IndicationRawFactory::createOne();
         $client->loginUser($user);
 
-        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%d', $raw->getId()));
+        $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%s', $raw->getPublicIdString()));
 
-        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%d', $raw->getId()));
+        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
     }
 }

@@ -50,15 +50,18 @@ final readonly class SendMonthlySubmissionRemindersMessageHandler
             $hospitals = $this->hospitalRepository->findParticipatingWithOwner();
             $sent = 0;
             $skipped = 0;
+            $bulkIndex = 0;
 
             foreach ($hospitals as $hospital) {
                 $errors = $this->reminderSender->sendForHospital(
                     $hospital,
                     MonthlyReminderTrigger::Scheduler,
                     $referenceDate,
+                    $bulkIndex,
                 );
                 if ([] === $errors) {
                     ++$sent;
+                    ++$bulkIndex;
                 } else {
                     ++$skipped;
                     $this->logger->info('Monthly submission reminder skipped for hospital.', [

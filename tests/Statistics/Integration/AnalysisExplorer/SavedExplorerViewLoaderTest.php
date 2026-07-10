@@ -126,6 +126,14 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
         self::assertSame(2024, $result->state['query']['period']['year'] ?? null);
     }
 
+    public function testSystemViewStateTitleIsLocalized(): void
+    {
+        $result = $this->loader->load('allocations-over-time', $this->publicFilter(), null);
+
+        self::assertFalse($result->notFound);
+        self::assertSame('Allocations over time', $result->state['title'] ?? null);
+    }
+
     public function testForeignUserViewIsNotFoundForOtherUsers(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);

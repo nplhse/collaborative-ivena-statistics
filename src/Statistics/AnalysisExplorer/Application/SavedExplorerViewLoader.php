@@ -18,6 +18,7 @@ final readonly class SavedExplorerViewLoader
         private SavedExplorerViewRepository $repository,
         private ExplorerConfigMapper $configMapper,
         private DefaultAnalysisViewFactoryRegistry $defaultAnalysisViewFactory,
+        private SavedExplorerViewLabelResolver $labelResolver,
     ) {
     }
 
@@ -69,9 +70,13 @@ final readonly class SavedExplorerViewLoader
             $state = $configJson;
             $this->applyFilterOverlay($state, $filter);
             $config = $this->configMapper->viewConfigFromState($state, $user);
+            $state = $this->configMapper->toStateArray($config);
+            if ($savedView->isSystem()) {
+                $state['title'] = $this->labelResolver->title($savedView);
+            }
 
             return new SavedExplorerViewLoadResult(
-                state: $this->configMapper->toStateArray($config),
+                state: $state,
                 view: $savedView,
             );
         } catch (\Throwable) {

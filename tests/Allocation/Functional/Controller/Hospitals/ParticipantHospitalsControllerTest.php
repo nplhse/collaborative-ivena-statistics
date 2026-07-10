@@ -200,7 +200,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        self::assertResponseRedirects('/explore/hospital/'.$hospital->getId());
+        self::assertResponseRedirects('/explore/hospital/'.$hospital->getPublicIdString());
 
         /** @var Hospital|null $updatedHospital */
         $updatedHospital = self::getContainer()->get('doctrine')->getRepository(Hospital::class)->find($hospital->getId());
@@ -272,7 +272,7 @@ final class ParticipantHospitalsControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        self::assertResponseRedirects('/explore/hospital/'.$hospital->getId());
+        self::assertResponseRedirects('/explore/hospital/'.$hospital->getPublicIdString());
 
         /** @var Hospital|null $updatedHospital */
         $updatedHospital = self::getContainer()->get('doctrine')->getRepository(Hospital::class)->find($hospital->getId());

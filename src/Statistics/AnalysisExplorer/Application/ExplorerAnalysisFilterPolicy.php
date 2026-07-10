@@ -25,7 +25,13 @@ final readonly class ExplorerAnalysisFilterPolicy
 
         return array_values(array_filter(
             $filters,
-            static fn (AnalysisFilter $filter): bool => !\in_array($filter->dimensionKey, $axisKeys, true),
+            static function (AnalysisFilter $filter) use ($axisKeys): bool {
+                if (\in_array($filter->dimensionKey, $axisKeys, true)) {
+                    return false;
+                }
+
+                return !('indication_group' === $filter->dimensionKey && \in_array('indication', $axisKeys, true));
+            },
         ));
     }
 

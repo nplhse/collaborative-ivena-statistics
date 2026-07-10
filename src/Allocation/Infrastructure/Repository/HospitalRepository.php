@@ -14,6 +14,7 @@ use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -26,6 +27,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class HospitalRepository extends ServiceEntityRepository implements HospitalLookupInterface
 {
+    use PublicIdRepositoryTrait;
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,

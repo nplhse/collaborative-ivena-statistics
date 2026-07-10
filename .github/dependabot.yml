@@ -19,6 +19,14 @@ updates:
           doctrine:
               patterns:
                   - "doctrine/*"
+          phpstan:
+              patterns:
+                  - "phpstan/*"
+          psalm:
+              patterns:
+                  - "vimeo/psalm"
+                  - "psalm/*"
+                  - "weirdan/doctrine-psalm-plugin"
       ignore:
           - dependency-name: "roave/security-advisories"
 

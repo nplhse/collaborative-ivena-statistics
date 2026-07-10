@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MAX_RUNTIME_SECONDS="${MAX_RUNTIME_SECONDS:-300}"
+SLEEP_SECONDS="${SLEEP_SECONDS:-10}"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+cd "$PROJECT_DIR"
+
+while true; do
+    php bin/console app:explore:backfill-public-ids --max-runtime="$MAX_RUNTIME_SECONDS"
+    EXIT_CODE=$?
+
+    if [[ "$EXIT_CODE" -eq 0 ]]; then
+        echo "All explore resources have public_id values."
+        exit 0
+    fi
+
+    if [[ "$EXIT_CODE" -eq 2 ]]; then
+        echo "Critical failure (exit $EXIT_CODE); not restarting." >&2
+        exit 2
+    fi
+
+    echo "More work remains (exit $EXIT_CODE); restarting after ${SLEEP_SECONDS}s…"
+    sleep "$SLEEP_SECONDS"
+done

@@ -9,14 +9,17 @@ use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
 use App\Import\Domain\Entity\Import;
+use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: AllocationRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Allocation
 {
+    use HasPublicId;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

@@ -54,7 +54,7 @@ final class ExplorerEditFormTypeTest extends KernelTestCase
             'locale' => 'en',
         ]);
 
-        self::assertTrue($form->get('filterDepartmentIds')->getConfig()->getOption('disabled'));
+        self::assertTrue($form->get('filterDepartmentId')->getConfig()->getOption('disabled'));
         self::assertTrue($form->get('filterUrgency')->getConfig()->getOption('disabled'));
     }
 
@@ -69,6 +69,19 @@ final class ExplorerEditFormTypeTest extends KernelTestCase
 
         self::assertTrue($form->get('filterUrgency')->getConfig()->getOption('disabled'));
         self::assertFalse($form->get('filterGender')->getConfig()->getOption('disabled'));
+    }
+
+    public function testPreSetDataDisablesIndicationGroupFilterWhenIndicationIsRowAxis(): void
+    {
+        $form = $this->formFactory->create(ExplorerEditFormType::class, $this->defaultFormData(
+            rowDimension: 'indication',
+            rowGrain: 'total',
+        ), [
+            'locale' => 'en',
+        ]);
+
+        self::assertTrue($form->get('filterIndicationId')->getConfig()->getOption('disabled'));
+        self::assertTrue($form->get('filterIndicationGroupId')->getConfig()->getOption('disabled'));
     }
 
     private function defaultFormData(

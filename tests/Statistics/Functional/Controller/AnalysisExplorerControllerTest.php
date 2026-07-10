@@ -218,6 +218,25 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         yield 'urgency over time' => ['urgency-over-time', 'Urgency over time', '"stacked_bar"'];
     }
 
+    public function testSystemViewTitleIsLocalizedInGerman(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedExplorerSystemViews();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/locale/switch/de?_target_path=/statistics/analysis/explorer/allocations-over-time?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-title"]',
+            'Allokationen im Zeitverlauf',
+        );
+    }
+
     public function testTransportTimeBucketDistributionViewOpensInExplorer(): void
     {
         $client = $this->createClientAsRoleUser();

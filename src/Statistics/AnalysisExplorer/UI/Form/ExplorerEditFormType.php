@@ -10,6 +10,7 @@ use App\Statistics\AnalysisExplorer\Application\DataSourceCapabilitiesRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerColumnGrainResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditChoicePresenter;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormFilterFieldMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerMetricCapabilityPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerStatisticsFilterInputFactory;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
@@ -56,6 +57,7 @@ final class ExplorerEditFormType extends AbstractType
         private readonly AnalysisAxisResolver $axisResolver,
         private readonly Security $security,
         private readonly AnalysisFilterChoiceProvider $filterChoiceProvider,
+        private readonly ExplorerEditFormFilterFieldMapper $filterFieldMapper,
     ) {
     }
 
@@ -91,16 +93,19 @@ final class ExplorerEditFormType extends AbstractType
                 'expanded' => true,
                 'required' => false,
             ])
-            ->add('filterDepartmentIds', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.department', 'choices' => [], 'multiple' => true, 'required' => false]))
-            ->add('filterSpecialityIds', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.speciality', 'choices' => [], 'multiple' => true, 'required' => false]))
-            ->add('filterUrgency', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.urgency', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
-            ->add('filterTransportType', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.transport_type', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
-            ->add('filterGender', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.gender', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
-            ->add('filterAgeGroup', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.age_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterDepartmentId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.department', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_departments']))
+            ->add('filterSpecialityId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.speciality', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_specialities']))
+            ->add('filterUrgency', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.urgency', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_urgencies']))
+            ->add('filterTransportType', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.transport_type', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_transport_types']))
+            ->add('filterGender', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.gender', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_genders']))
+            ->add('filterAgeGroup', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.age_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_age_groups']))
             ->add('filterResus', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.requires_resus', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
             ->add('filterCpr', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.is_cpr', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
             ->add('filterVentilation', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.is_ventilated', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
-            ->add('filterAssignmentId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.assignment', 'choices' => [], 'required' => false, 'placeholder' => 'label.all']))
+            ->add('filterAssignmentId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.assignment', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_assignments']))
+            ->add('filterIndicationId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.indication', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_indications']))
+            ->add('filterSecondaryIndicationId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.secondary_indication', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_secondary_indications']))
+            ->add('filterIndicationGroupId', PreTranslatedChoiceType::class, $this->messagesField(['label' => 'label.indication_group', 'choices' => [], 'required' => false, 'placeholder' => 'label.all_indication_groups']))
         ;
 
         $scopePeriodField = $builder->get('scopePeriod');
@@ -164,7 +169,7 @@ final class ExplorerEditFormType extends AbstractType
      */
     private function previewFromSubmitted(array $submitted, ExplorerEditFormData $current): ExplorerEditFormData
     {
-        return new ExplorerEditFormData(
+        $base = new ExplorerEditFormData(
             scopePeriod: $current->scopePeriod,
             dataSource: \is_string($submitted['dataSource'] ?? null) ? $submitted['dataSource'] : $current->dataSource,
             rowDimension: \is_string($submitted['rowDimension'] ?? null) ? $submitted['rowDimension'] : $current->rowDimension,
@@ -189,85 +194,22 @@ final class ExplorerEditFormType extends AbstractType
                     static fn (mixed $value): bool => \is_string($value) && '' !== $value,
                 ))
                 : $current->additionalTableMetrics,
-            filterDepartmentIds: $this->intListFromSubmitted($submitted, 'filterDepartmentIds', $current->filterDepartmentIds),
-            filterSpecialityIds: $this->intListFromSubmitted($submitted, 'filterSpecialityIds', $current->filterSpecialityIds),
-            filterUrgency: $this->nullableIntFromSubmitted($submitted, 'filterUrgency', $current->filterUrgency),
-            filterTransportType: $this->nullableIntFromSubmitted($submitted, 'filterTransportType', $current->filterTransportType),
-            filterGender: $this->nullableIntFromSubmitted($submitted, 'filterGender', $current->filterGender),
-            filterAgeGroup: $this->nullableStringFromSubmitted($submitted, 'filterAgeGroup', $current->filterAgeGroup),
-            filterResus: $this->nullableBoolFromSubmitted($submitted, 'filterResus', $current->filterResus),
-            filterCpr: $this->nullableBoolFromSubmitted($submitted, 'filterCpr', $current->filterCpr),
-            filterVentilation: $this->nullableBoolFromSubmitted($submitted, 'filterVentilation', $current->filterVentilation),
-            filterAssignmentId: $this->nullableIntFromSubmitted($submitted, 'filterAssignmentId', $current->filterAssignmentId),
+            filterDepartmentId: $current->filterDepartmentId,
+            filterSpecialityId: $current->filterSpecialityId,
+            filterUrgency: $current->filterUrgency,
+            filterTransportType: $current->filterTransportType,
+            filterGender: $current->filterGender,
+            filterAgeGroup: $current->filterAgeGroup,
+            filterResus: $current->filterResus,
+            filterCpr: $current->filterCpr,
+            filterVentilation: $current->filterVentilation,
+            filterAssignmentId: $current->filterAssignmentId,
+            filterIndicationId: $current->filterIndicationId,
+            filterSecondaryIndicationId: $current->filterSecondaryIndicationId,
+            filterIndicationGroupId: $current->filterIndicationGroupId,
         );
-    }
 
-    /**
-     * @param array<string, mixed> $submitted
-     * @param list<int>            $current
-     *
-     * @return list<int>
-     */
-    private function intListFromSubmitted(array $submitted, string $key, array $current): array
-    {
-        if (!\array_key_exists($key, $submitted)) {
-            return $current;
-        }
-
-        $values = \is_array($submitted[$key]) ? $submitted[$key] : [];
-
-        return array_values(array_map(intval(...), array_filter($values, static fn (mixed $value): bool => '' !== $value && null !== $value)));
-    }
-
-    /**
-     * @param array<string, mixed> $submitted
-     */
-    private function nullableIntFromSubmitted(array $submitted, string $key, ?int $current): ?int
-    {
-        if (!\array_key_exists($key, $submitted)) {
-            return $current;
-        }
-
-        $value = $submitted[$key];
-        if (null === $value || '' === $value) {
-            return null;
-        }
-
-        return (int) $value;
-    }
-
-    /**
-     * @param array<string, mixed> $submitted
-     */
-    private function nullableStringFromSubmitted(array $submitted, string $key, ?string $current): ?string
-    {
-        if (!\array_key_exists($key, $submitted)) {
-            return $current;
-        }
-
-        $value = $submitted[$key];
-        if (!\is_string($value) || '' === $value) {
-            return null;
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param array<string, mixed> $submitted
-     */
-    private function nullableBoolFromSubmitted(array $submitted, string $key, ?bool $current): ?bool
-    {
-        if (!\array_key_exists($key, $submitted)) {
-            return $current;
-        }
-
-        $value = $submitted[$key];
-        if (null === $value || '' === $value) {
-            return null;
-        }
-
-        return (bool) (int) $value;
+        return $this->filterFieldMapper->mergeSubmittedFilters($base, $submitted);
     }
 
     /**
@@ -453,46 +395,46 @@ final class ExplorerEditFormType extends AbstractType
             $this->translator->trans('label.no', [], 'messages') => 0,
         ];
 
-        $form->add('filterDepartmentIds', PreTranslatedChoiceType::class, $this->messagesField([
+        $form->add('filterDepartmentId', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.department',
             'choices' => $this->flipChoices($this->filterChoiceProvider->departmentChoices()),
-            'multiple' => true,
             'required' => false,
+            'placeholder' => 'label.all_departments',
             'disabled' => $disabled || $isAxis('department'),
         ]));
-        $form->add('filterSpecialityIds', PreTranslatedChoiceType::class, $this->messagesField([
+        $form->add('filterSpecialityId', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.speciality',
             'choices' => $this->flipChoices($this->filterChoiceProvider->specialityChoices()),
-            'multiple' => true,
             'required' => false,
+            'placeholder' => 'label.all_specialities',
             'disabled' => $disabled || $isAxis('speciality'),
         ]));
         $form->add('filterUrgency', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.urgency',
             'choices' => $this->flipChoices($this->filterChoiceProvider->urgencyChoices()),
             'required' => false,
-            'placeholder' => 'label.all',
+            'placeholder' => 'label.all_urgencies',
             'disabled' => $disabled || $isAxis('urgency'),
         ]));
         $form->add('filterTransportType', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.transport_type',
             'choices' => $this->flipChoices($this->filterChoiceProvider->transportTypeChoices()),
             'required' => false,
-            'placeholder' => 'label.all',
+            'placeholder' => 'label.all_transport_types',
             'disabled' => $disabled || $isAxis('transport_type'),
         ]));
         $form->add('filterGender', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.gender',
             'choices' => $this->flipChoices($this->filterChoiceProvider->genderChoices()),
             'required' => false,
-            'placeholder' => 'label.all',
+            'placeholder' => 'label.all_genders',
             'disabled' => $disabled || $isAxis('gender'),
         ]));
         $form->add('filterAgeGroup', PreTranslatedChoiceType::class, $this->messagesField([
             'label' => 'label.age_group',
             'choices' => $this->flipChoices($this->filterChoiceProvider->ageGroupChoices()),
             'required' => false,
-            'placeholder' => 'label.all',
+            'placeholder' => 'label.all_age_groups',
             'disabled' => $disabled || $isAxis('age_group'),
         ]));
         $form->add('filterResus', PreTranslatedChoiceType::class, $this->messagesField([
@@ -520,8 +462,29 @@ final class ExplorerEditFormType extends AbstractType
             'label' => 'label.assignment',
             'choices' => $this->flipChoices($this->filterChoiceProvider->assignmentChoices()),
             'required' => false,
-            'placeholder' => 'label.all',
+            'placeholder' => 'label.all_assignments',
             'disabled' => $disabled || $isAxis('assignment'),
+        ]));
+        $form->add('filterIndicationId', PreTranslatedChoiceType::class, $this->messagesField([
+            'label' => 'label.indication',
+            'choices' => $this->flipChoices($this->filterChoiceProvider->indicationChoices()),
+            'required' => false,
+            'placeholder' => 'label.all_indications',
+            'disabled' => $disabled || $isAxis('indication'),
+        ]));
+        $form->add('filterSecondaryIndicationId', PreTranslatedChoiceType::class, $this->messagesField([
+            'label' => 'label.secondary_indication',
+            'choices' => $this->flipChoices($this->filterChoiceProvider->indicationChoices()),
+            'required' => false,
+            'placeholder' => 'label.all_secondary_indications',
+            'disabled' => $disabled || $isAxis('secondary_indication'),
+        ]));
+        $form->add('filterIndicationGroupId', PreTranslatedChoiceType::class, $this->messagesField([
+            'label' => 'label.indication_group',
+            'choices' => $this->flipChoices($this->filterChoiceProvider->indicationGroupChoices()),
+            'required' => false,
+            'placeholder' => 'label.all_indication_groups',
+            'disabled' => $disabled || $isAxis('indication'),
         ]));
     }
 
@@ -532,6 +495,10 @@ final class ExplorerEditFormType extends AbstractType
      */
     private function messagesField(array $options): array
     {
+        if (isset($options['help']) && \is_string($options['help'])) {
+            $options['help'] = $this->translator->trans($options['help'], [], 'statistics');
+        }
+
         return array_merge($options, [
             'translation_domain' => 'messages',
             'choice_translation_domain' => false,
@@ -737,8 +704,8 @@ final class ExplorerEditFormType extends AbstractType
             chartRowLimit: $overrides['chartRowLimit'] ?? $source->chartRowLimit,
             hospitalPopulation: $overrides['hospitalPopulation'] ?? $source->hospitalPopulation,
             additionalTableMetrics: $overrides['additionalTableMetrics'] ?? $source->additionalTableMetrics,
-            filterDepartmentIds: $source->filterDepartmentIds,
-            filterSpecialityIds: $source->filterSpecialityIds,
+            filterDepartmentId: $source->filterDepartmentId,
+            filterSpecialityId: $source->filterSpecialityId,
             filterUrgency: $source->filterUrgency,
             filterTransportType: $source->filterTransportType,
             filterGender: $source->filterGender,
@@ -747,6 +714,9 @@ final class ExplorerEditFormType extends AbstractType
             filterCpr: $source->filterCpr,
             filterVentilation: $source->filterVentilation,
             filterAssignmentId: $source->filterAssignmentId,
+            filterIndicationId: $source->filterIndicationId,
+            filterSecondaryIndicationId: $source->filterSecondaryIndicationId,
+            filterIndicationGroupId: $source->filterIndicationGroupId,
         );
     }
 }

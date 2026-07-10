@@ -8,7 +8,7 @@ Production runs on Uberspace without dedicated Redis or RabbitMQ infrastructure.
 
 ## Decision
 
-Use Doctrine transport (`doctrine://default`) backed by the PostgreSQL `messenger_messages` table. A single systemd user service consumes `async_priority_high`, `async_priority_low`, and `scheduler_default`.
+Use Doctrine transport (`doctrine://default`) backed by the PostgreSQL `messenger_messages` table. A single systemd user service consumes `async_priority_high`, `async_priority_low`, `async_mail`, and `scheduler_default`.
 
 ## Consequences
 

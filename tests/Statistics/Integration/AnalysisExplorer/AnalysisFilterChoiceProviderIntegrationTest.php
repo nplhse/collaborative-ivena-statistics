@@ -6,6 +6,8 @@ namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\IndicationGroupFactory;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Statistics\AnalysisExplorer\Application\AnalysisFilterChoiceProvider;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
@@ -57,6 +59,8 @@ final class AnalysisFilterChoiceProviderIntegrationTest extends KernelTestCase
         self::assertNotEmpty($transportChoices);
         self::assertNotEmpty($genderChoices);
         self::assertContainsOnly('string', $urgencyChoices);
+        self::assertNotContains('U1', $urgencyChoices);
+        self::assertContains('Emergency Care', $urgencyChoices);
     }
 
     public function testAgeGroupChoicesIncludeAggregatesAndDecadeBuckets(): void
@@ -76,5 +80,42 @@ final class AnalysisFilterChoiceProviderIntegrationTest extends KernelTestCase
         self::assertArrayHasKey('', $choices);
         self::assertArrayHasKey(1, $choices);
         self::assertArrayHasKey(0, $choices);
+    }
+
+    public function testIndicationChoicesUseNameAndCodeLabel(): void
+    {
+        UserFactory::createOne();
+        $indication = IndicationNormalizedFactory::createOne([
+            'name' => 'STEMI',
+            'code' => 42,
+        ]);
+        $indicationId = $indication->getId();
+        self::assertNotNull($indicationId);
+
+        self::assertSame('STEMI (42)', $this->provider->indicationChoices()[$indicationId]);
+    }
+
+    public function testIndicationGroupChoicesReturnSeededLabels(): void
+    {
+        UserFactory::createOne();
+        $group = IndicationGroupFactory::createOne(['name' => 'Cardiac group']);
+        $groupId = $group->getId();
+        self::assertNotNull($groupId);
+
+        self::assertSame('Cardiac group', $this->provider->indicationGroupChoices()[$groupId]);
+    }
+
+    public function testSecondEntityChoiceCallUsesCachedReferenceData(): void
+    {
+        UserFactory::createOne();
+        DepartmentFactory::createOne(['name' => 'Cached Department']);
+
+        $first = $this->provider->departmentChoices();
+        DepartmentFactory::createOne(['name' => 'New Department']);
+        $second = $this->provider->departmentChoices();
+
+        self::assertSame($first, $second);
+        self::assertCount(1, $second);
+        self::assertSame('Cached Department', $second[array_key_first($second)]);
     }
 }

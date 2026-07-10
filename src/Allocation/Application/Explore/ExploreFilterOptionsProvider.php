@@ -7,6 +7,7 @@ namespace App\Allocation\Application\Explore;
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\Occasion;
@@ -16,6 +17,7 @@ use App\Allocation\Domain\Entity\State;
 use App\Allocation\Infrastructure\Repository\AssignmentRepository;
 use App\Allocation\Infrastructure\Repository\DepartmentRepository;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
+use App\Allocation\Infrastructure\Repository\IndicationGroupRepository;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
 use App\Allocation\Infrastructure\Repository\InfectionRepository;
 use App\Allocation\Infrastructure\Repository\OccasionRepository;
@@ -48,12 +50,15 @@ final readonly class ExploreFilterOptionsProvider
 
     private const string CACHE_KEY_OCCASIONS = 'explore_filter.occasions';
 
+    private const string CACHE_KEY_INDICATION_GROUPS = 'explore_filter.indication_groups';
+
     public function __construct(
         #[Autowire(service: 'cache.allocation.reference_data')]
         private CacheInterface $cache,
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
         private IndicationNormalizedRepository $indicationNormalizedRepository,
+        private IndicationGroupRepository $indicationGroupRepository,
         private SecondaryTransportRepository $secondaryTransportRepository,
         private InfectionRepository $infectionRepository,
         private DepartmentRepository $departmentRepository,
@@ -215,6 +220,24 @@ final readonly class ExploreFilterOptionsProvider
             $item->expiresAfter(self::TTL_SECONDS);
 
             return $this->mapNamedEntities($this->occasionRepository->findBy([], ['name' => 'ASC']));
+        });
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     */
+    public function indicationGroups(): array
+    {
+        return $this->cache->get(self::CACHE_KEY_INDICATION_GROUPS, function (ItemInterface $item): array {
+            $item->expiresAfter(self::TTL_SECONDS);
+
+            return array_map(
+                static fn (IndicationGroup $group): array => [
+                    'id' => (int) $group->getId(),
+                    'name' => (string) $group->getName(),
+                ],
+                $this->indicationGroupRepository->findBy([], ['name' => 'ASC']),
+            );
         });
     }
 

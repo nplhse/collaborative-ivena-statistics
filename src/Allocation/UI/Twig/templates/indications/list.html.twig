@@ -162,7 +162,7 @@
                         </td>
                         {% if active_type == 'raw' %}
                             <td>
-                                <a href="{{ path('app_explore_indication_raw_review', {id: indication.id}) }}" target="_top">
+                                <a href="{{ path('app_explore_indication_raw_review', {publicId: indication.publicId}) }}" target="_top">
                                     {{ indication.name }}
                                 </a>
                             </td>

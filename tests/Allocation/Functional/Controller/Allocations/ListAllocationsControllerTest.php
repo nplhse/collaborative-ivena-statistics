@@ -158,7 +158,7 @@ final class ListAllocationsControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $ids = $this->extractAllocationIds($crawler);
-        self::assertSame([(int) $matchingAllocation->getId()], $ids);
+        self::assertSame([$matchingAllocation->getPublicIdString()], $ids);
     }
 
     public function testIsVentilatedFilterOnlyReturnsVentilatedAllocations(): void
@@ -176,7 +176,7 @@ final class ListAllocationsControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $ids = $this->extractAllocationIds($crawler);
-        self::assertSame([(int) $ventilatedAllocation->getId()], $ids);
+        self::assertSame([$ventilatedAllocation->getPublicIdString()], $ids);
     }
 
     public function testDepartmentSpecialityAndTransportTypeFilters(): void
@@ -214,7 +214,7 @@ final class ListAllocationsControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="allocation-filters-apply"]');
         self::assertSelectorExists('[data-testid="allocation-filters-reset"].btn-outline-secondary');
         $ids = $this->extractAllocationIds($crawler);
-        self::assertSame([(int) $matchingAllocation->getId()], $ids);
+        self::assertSame([$matchingAllocation->getPublicIdString()], $ids);
     }
 
     public function testMyHospitalsScopeFiltersToAccessibleHospitals(): void
@@ -261,7 +261,7 @@ final class ListAllocationsControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="allocation-filter-hospital"]');
         $ids = $this->extractAllocationIds($crawler);
-        self::assertSame([(int) $ownAllocation->getId()], $ids);
+        self::assertSame([$ownAllocation->getPublicIdString()], $ids);
     }
 
     public function testSingleHospitalFilterSelectsAccessibleHospital(): void
@@ -302,7 +302,7 @@ final class ListAllocationsControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $ids = $this->extractAllocationIds($crawler);
-        self::assertSame([(int) $allocationA->getId()], $ids);
+        self::assertSame([$allocationA->getPublicIdString()], $ids);
     }
 
     public function testLegacyHospitalScopeQueryStillWorks(): void
@@ -332,7 +332,7 @@ final class ListAllocationsControllerTest extends WebTestCase
         );
 
         self::assertResponseIsSuccessful();
-        self::assertSame([(int) $allocation->getId()], $this->extractAllocationIds($crawler));
+        self::assertSame([$allocation->getPublicIdString()], $this->extractAllocationIds($crawler));
     }
 
     public function testMyHospitalsScopeWithHospitalDetailFiltersToSingleHospital(): void
@@ -376,7 +376,7 @@ final class ListAllocationsControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $ids = $this->extractAllocationIds($crawler);
-        self::assertSame([(int) $allocationA->getId()], $ids);
+        self::assertSame([$allocationA->getPublicIdString()], $ids);
     }
 
     public function testAssignmentOccasionAndDepartmentWasClosedFilters(): void
@@ -410,7 +410,7 @@ final class ListAllocationsControllerTest extends WebTestCase
         self::assertSelectorExists('select[name="occasion"]');
         self::assertSelectorExists('[data-testid="allocation-filter-department-was-closed"]');
         $ids = $this->extractAllocationIds($crawler);
-        self::assertSame([(int) $matchingAllocation->getId()], $ids);
+        self::assertSame([$matchingAllocation->getPublicIdString()], $ids);
         self::assertSelectorExists('.alert.alert-info');
         self::assertSelectorTextContains('.alert.alert-info', 'Test Assignment');
         self::assertSelectorTextContains('.alert.alert-info', 'Test Occasion');
@@ -463,7 +463,7 @@ final class ListAllocationsControllerTest extends WebTestCase
     }
 
     /**
-     * @return list<int>
+     * @return list<string>
      */
     private function extractAllocationIds(Crawler $crawler): array
     {
@@ -473,8 +473,8 @@ final class ListAllocationsControllerTest extends WebTestCase
                 continue;
             }
             $href = $node->getAttribute('href');
-            if (preg_match('/\/explore\/allocation\/(\d+)$/', $href, $matches)) {
-                $ids[] = (int) $matches[1];
+            if (preg_match('/\/explore\/allocation\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/', $href, $matches)) {
+                $ids[] = $matches[1];
             }
         }
 

@@ -45,7 +45,7 @@
                             attr: {class: 'btn btn-outline-secondary', form: 'indication-raw-review-form'},
                         }) }}
                     {% endif %}
-                    <a href="{{ path('app_explore_indication_raw_review_skip', {id: raw.id, segment: context.segment.value, search: context.search}) }}" class="btn">
+                    <a href="{{ path('app_explore_indication_raw_review_skip', {publicId: raw.publicId, segment: context.segment.value, search: context.search}) }}" class="btn">
                         {{ 'btn.indication.skip'|trans({}, 'allocation') }}
                         <twig:ux:icon name="tabler:player-skip-forward" class="w-3 h-3 ms-1" />
                     </a>
@@ -113,7 +113,7 @@
                         <ul class="list-unstyled">
                             {% for allocation in sample_allocations %}
                                 <li>
-                                    <a href="{{ path('app_explore_allocation_show', {id: allocation.id}) }}" target="_top">
+                                    <a href="{{ path('app_explore_allocation_show', {publicId: allocation.public_id}) }}" target="_top">
                                         #{{ allocation.id }} — {{ allocation.created_at|date('d.m.Y') }}
                                         {% if allocation.hospital_name %} ({{ allocation.hospital_name }}){% endif %}
                                     </a>

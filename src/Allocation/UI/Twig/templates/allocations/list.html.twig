@@ -136,7 +136,7 @@
                             {{ allocation.age }}
                         </td>
                         <td>
-                            <a href="{{ path('app_explore_hospital_show', {id: allocation.hospital_id}) }}" target="_top">{{ allocation.hospital }}</a><br />
+                            <a href="{{ path('app_explore_hospital_show', {publicId: allocation.hospital_public_id}) }}" target="_top">{{ allocation.hospital }}</a><br />
                             {{ allocation.dispatchArea }} - {{ allocation.state }}
                         </td>
                         <td>
@@ -197,7 +197,7 @@
                         </td>
                         <td>
                             <div class="btn-actions">
-                                <a href="{{ path('app_explore_allocation_show', {id: allocation.id}) }}" class="btn btn-action" target="_top">
+                                <a href="{{ path('app_explore_allocation_show', {publicId: allocation.publicId}) }}" class="btn btn-action" target="_top">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                                         <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
                                             <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>

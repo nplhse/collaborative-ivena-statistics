@@ -1,8 +1,8 @@
 # Messenger workers
 
-Async messages use three transports (`async_priority_high`, `async_priority_low`, `scheduler_default`) configured in [`config/packages/messenger.yaml`](../../config/packages/messenger.yaml).
+Async messages use four transports (`async_priority_high`, `async_priority_low`, `async_mail`, `scheduler_default`) configured in [`config/packages/messenger.yaml`](../../config/packages/messenger.yaml).
 
-In production, email and domain jobs are routed to the async queues; scheduled KPI aggregation uses `scheduler_default`. Without a running worker, messages stay in the database.
+In production, email uses the dedicated `async_mail` transport with rate limiting and slower retries; other domain jobs use the priority queues. Scheduled KPI aggregation uses `scheduler_default`. Without a running worker, messages stay in the database.
 
 Related: [deployment.md](deployment.md), [transactional-mail.md](transactional-mail.md), [../02-architecture/messenger-and-scheduler.md](../02-architecture/messenger-and-scheduler.md)
 
@@ -20,7 +20,7 @@ Replace:
 
 ```ini
 [Unit]
-Description=Symfony Messenger worker (high + low + scheduler)
+Description=Symfony Messenger worker (high + low + mail + scheduler)
 StartLimitIntervalSec=60
 StartLimitBurst=5
 
@@ -30,7 +30,7 @@ WorkingDirectory=/home/YOUR_USERNAME/www/current
 Environment=APP_ENV=prod
 Environment=APP_DEBUG=0
 
-ExecStart=/usr/bin/php -d memory_limit=-1 bin/console messenger:consume async_priority_high async_priority_low scheduler_default --env=prod --memory-limit=256M --time-limit=3600 -q
+ExecStart=/usr/bin/php -d memory_limit=-1 bin/console messenger:consume async_priority_high async_priority_low async_mail scheduler_default --env=prod --memory-limit=256M --time-limit=3600 -q
 
 Restart=always
 RestartSec=5
@@ -64,7 +64,7 @@ Before relying on systemd, run the consumer manually from the deploy path:
 
 ```bash
 cd ~/html/current
-php bin/console messenger:consume async_priority_high async_priority_low scheduler_default -vv --time-limit=30
+php bin/console messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv --time-limit=30
 ```
 
 Trigger an async action in the app (for example an import or statistics rebuild) and confirm messages are processed.

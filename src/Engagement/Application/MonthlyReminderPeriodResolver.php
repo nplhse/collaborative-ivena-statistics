@@ -9,6 +9,9 @@ final readonly class MonthlyReminderPeriodResolver
     private const string TIMEZONE = 'Europe/Berlin';
 
     /**
+     * reporting* = last complete reporting month used for insights and KPIs.
+     * upload* = month users are asked to upload (one month ahead of reporting).
+     *
      * @return array{
      *     referenceDate: \DateTimeImmutable,
      *     reportingYear: int,
@@ -28,7 +31,8 @@ final readonly class MonthlyReminderPeriodResolver
         $reference = ($referenceDate ?? new \DateTimeImmutable('now', $tz))->setTimezone($tz);
 
         $currentMonthStart = $reference->modify('first day of this month 00:00:00');
-        $reportingMonthStart = $currentMonthStart->modify('-1 month');
+        $uploadMonthStart = $currentMonthStart->modify('-1 month');
+        $reportingMonthStart = $uploadMonthStart->modify('-1 month');
         $reportingYear = (int) $reportingMonthStart->format('Y');
         $reportingMonth = (int) $reportingMonthStart->format('n');
         $reportingMonthEnd = $reportingMonthStart->modify('+1 month');
@@ -49,8 +53,8 @@ final readonly class MonthlyReminderPeriodResolver
             'reportingMonth' => $reportingMonth,
             'reportingMonthStart' => $reportingMonthStart,
             'reportingMonthEnd' => $reportingMonthEnd,
-            'uploadYear' => (int) $currentMonthStart->format('Y'),
-            'uploadMonth' => (int) $currentMonthStart->format('n'),
+            'uploadYear' => (int) $uploadMonthStart->format('Y'),
+            'uploadMonth' => (int) $uploadMonthStart->format('n'),
             'chartStart' => $chartStart,
             'chartMonthKeys' => $chartMonthKeys,
             'chartLabels' => $chartLabels,

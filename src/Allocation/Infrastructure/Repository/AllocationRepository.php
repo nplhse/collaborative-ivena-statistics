@@ -8,16 +8,20 @@ use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Import\Domain\Entity\Import;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<Allocation>
  */
 final class AllocationRepository extends ServiceEntityRepository
 {
+    use PublicIdRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Allocation::class);
@@ -73,6 +77,54 @@ final class AllocationRepository extends ServiceEntityRepository
             ->leftJoin('hospital.state', 'hospitalState')
             ->where('a.id = :id')
             ->setParameter('id', $id, Types::INTEGER)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $allocation;
+    }
+
+    public function findOneForShowByPublicId(Uuid|string $publicId): ?Allocation
+    {
+        $resolved = $publicId instanceof Uuid ? $publicId : Uuid::fromString($publicId);
+
+        /** @var Allocation|null $allocation */
+        $allocation = $this->createQueryBuilder('a')
+            ->addSelect(
+                'dispatchArea',
+                'state',
+                'department',
+                'speciality',
+                'indicationRaw',
+                'indicationNormalized',
+                'secondaryIndicationRaw',
+                'secondaryIndicationNormalized',
+                'assignment',
+                'occasion',
+                'secondaryTransport',
+                'infection',
+                'assessment',
+                'hospital',
+                'hospitalDispatchArea',
+                'hospitalState',
+            )
+            ->join('a.dispatchArea', 'dispatchArea')
+            ->join('a.state', 'state')
+            ->join('a.department', 'department')
+            ->join('a.speciality', 'speciality')
+            ->join('a.indicationRaw', 'indicationRaw')
+            ->leftJoin('a.indicationNormalized', 'indicationNormalized')
+            ->leftJoin('a.secondaryIndicationRaw', 'secondaryIndicationRaw')
+            ->leftJoin('a.secondaryIndicationNormalized', 'secondaryIndicationNormalized')
+            ->join('a.assignment', 'assignment')
+            ->leftJoin('a.occasion', 'occasion')
+            ->leftJoin('a.secondaryTransport', 'secondaryTransport')
+            ->leftJoin('a.infection', 'infection')
+            ->leftJoin('a.assessment', 'assessment')
+            ->join('a.hospital', 'hospital')
+            ->leftJoin('hospital.dispatchArea', 'hospitalDispatchArea')
+            ->leftJoin('hospital.state', 'hospitalState')
+            ->where('a.publicId = :publicId')
+            ->setParameter('publicId', $resolved->toRfc4122())
             ->getQuery()
             ->getOneOrNullResult();
 
