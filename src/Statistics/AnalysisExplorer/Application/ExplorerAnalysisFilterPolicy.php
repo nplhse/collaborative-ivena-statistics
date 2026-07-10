@@ -30,7 +30,7 @@ final readonly class ExplorerAnalysisFilterPolicy
                     return false;
                 }
 
-                return !('indication_group' === $filter->dimensionKey && \in_array('indication', $axisKeys, true));
+                return 'indication_group' !== $filter->dimensionKey || !\in_array('indication', $axisKeys, true);
             },
         ));
     }
