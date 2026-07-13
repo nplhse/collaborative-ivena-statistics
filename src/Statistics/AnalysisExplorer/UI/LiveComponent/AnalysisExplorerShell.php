@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 
-use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
-use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisRunner;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
@@ -22,18 +21,15 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
-use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
-use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -181,8 +177,7 @@ final class AnalysisExplorerShell
 
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
-        private readonly AnalysisRunnerRegistry $runnerRegistry,
-        private readonly ExplorerAnalysisQueryFactory $queryFactory,
+        private readonly ExplorerAnalysisRunner $analysisRunner,
         private readonly ExplorerChartPresenter $chartPresenter,
         private readonly ExplorerResultsTablePresenter $tablePresenter,
         private readonly ExplorerConfigMapper $configMapper,
@@ -192,7 +187,6 @@ final class AnalysisExplorerShell
         private readonly ExplorerEditFormFilterFieldMapper $editFormFilterFieldMapper,
         private readonly TranslatorInterface $translator,
         private readonly Security $security,
-        private readonly LoggerInterface $logger,
         private readonly SavedExplorerViewService $savedViewService,
         private readonly SavedExplorerViewRepository $savedViewRepository,
         private readonly ExplorerDescriptionFactory $descriptionFactory,
@@ -681,50 +675,39 @@ final class AnalysisExplorerShell
 
     private function rerunAnalysis(): void
     {
-        $this->emptyReason = null;
+        $outcome = $this->analysisRunner->run(
+            $this->appliedConfigState,
+            $this->resolveUser(),
+            $this->configWarning,
+        );
 
-        $currentConfig = $this->appliedConfig();
-        if (!$currentConfig instanceof AnalysisViewConfig) {
-            $this->emptyReason = 'no_config';
+        if (null !== $outcome->normalizedConfigState) {
+            $this->appliedConfigState = $outcome->normalizedConfigState;
+        }
+
+        $this->emptyReason = $outcome->emptyReason;
+        $this->configWarning = $outcome->configWarning;
+
+        if (null === $outcome->result) {
             $this->clearPresentation();
 
             return;
         }
 
-        $originalConfig = $currentConfig;
-        $normalizedConfig = $this->configNormalizer->normalize($currentConfig);
-        $this->setNormalizationWarning($originalConfig, $normalizedConfig);
-        if ([] !== $this->configNormalizer->diffWarnings($originalConfig, $normalizedConfig)) {
-            $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
-        }
-        $currentConfig = $normalizedConfig;
+        $this->result = $outcome->result;
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            $this->clearPresentation();
 
-        try {
-            $query = $this->queryFactory->create($currentConfig, $this->resolveUser());
-            $this->result = $this->runnerRegistry->run($currentConfig, $query);
-        } catch (UnsupportedAnalysisException) {
-            $this->configWarning ??= $this->translator->trans('stats.analysis_explorer.unsupported_config', [], 'statistics');
-            $this->emptyReason = 'unsupported';
-            $this->result = $this->emptyResult($currentConfig);
-        } catch (\Throwable $exception) {
-            $this->logger->error('Analysis Explorer query failed.', [
-                'exception' => $exception,
-            ]);
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.query_failed', [], 'statistics');
-            $this->emptyReason = 'query_error';
-            $this->result = $this->emptyResult($currentConfig);
+            return;
         }
 
-        if ([] === $this->result->rows && null === $this->emptyReason) {
-            $this->emptyReason = 'no_data';
-        }
-
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $currentConfig->presentation);
-        $this->defaultChartType = $this->chartPresenter->defaultChartType($currentConfig->presentation);
+        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
+        $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
-        $this->chartRowLimit = $currentConfig->presentation->chartRowLimit->value;
-        $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($currentConfig);
-        $this->table = $this->tablePresenter->create($currentConfig, $this->result);
+        $this->chartRowLimit = $config->presentation->chartRowLimit->value;
+        $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
+        $this->table = $this->tablePresenter->create($config, $this->result);
         ++$this->analysisRevision;
     }
 
@@ -869,19 +852,6 @@ final class AnalysisExplorerShell
         }
 
         return $fallback;
-    }
-
-    private function emptyResult(AnalysisViewConfig $config): AnalysisRunResult
-    {
-        return new AnalysisRunResult(
-            title: $config->title,
-            metricKeys: $config->metricKeys,
-            visualMetricKey: $config->visualMetricKey,
-            rowAxis: $config->rowAxis,
-            columnAxis: $config->columnAxis,
-            rows: [],
-            totals: new AnalysisTotals(grand: []),
-        );
     }
 
     private function clearPresentation(): void
