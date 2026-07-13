@@ -307,11 +307,6 @@ deptrac:
       - App\Kpi\Infrastructure\Query\KpiDayAggregationQuery
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Kpi\Application\Service\KpiDashboardService:
-      - App\Admin\UI\Http\Controller\Allocation\AllocationCrudController
-      - App\Admin\UI\Http\Controller\DashboardController
-      - App\Admin\UI\Http\Controller\Hospital\HospitalCrudController
-      - App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController
-      - App\Admin\UI\Http\Controller\Import\ImportCrudController
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Kpi\Domain\Entity\KpiDaily:
       - App\Allocation\Domain\Entity\Hospital
