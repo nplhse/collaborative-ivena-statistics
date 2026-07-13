@@ -41,7 +41,7 @@ Details: [../04-features/statistics/statistics-filter-and-scope.md](../04-featur
 1. Create upload/import (`NewImportController`; upload validated before dispatch — see [upload validation](../04-features/import/import-pipeline.md#upload-validation))
 2. Dispatch `ImportAllocationsMessage`
 3. Process in `ImportAllocationsMessageHandler`
-4. Emit domain event `ImportCompleted`
+4. Emit integration event `ImportCompleted` (triggers projection rebuild via subscriber)
 5. Dispatch statistics projection rebuild
 6. Rebuild via `AllocationStatsProjectionRebuilder`
 7. Refresh materialized views when hospital structure changes

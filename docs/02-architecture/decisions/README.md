@@ -22,6 +22,12 @@ Each ADR includes:
 | [004](004-colocated-templates.md) | Colocated Twig templates | accepted |
 | [005](005-reject-writer-strategy.md) | Reject writer strategy (db vs. csv) | accepted |
 | [006](006-analysis-explorer-saved-views.md) | Analysis Explorer saved views (JSON schema v3) | accepted |
+| [007](007-pragmatic-domain-layer-with-doctrine.md) | Pragmatic domain layer with Doctrine | accepted |
+| [008](008-bounded-context-taxonomy.md) | Bounded context taxonomy | accepted |
+| [009](009-cross-context-dependency-rules.md) | Cross-context dependency rules | accepted |
+| [010](010-shared-kernel-boundaries.md) | Shared kernel boundaries | accepted |
+| [011](011-statistics-internal-modules.md) | Statistics internal modules | accepted |
+| [012](012-domain-events-for-significant-state-changes.md) | Domain events for significant state changes | accepted |
 
 ## Template
 

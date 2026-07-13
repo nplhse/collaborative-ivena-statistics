@@ -1,26 +1,30 @@
 # Bounded contexts
 
-Each bounded context under `src/` follows the layered structure described in [overview.md](overview.md).
+Each bounded context under `src/` follows the layered structure described in [overview.md](overview.md). **Binding architecture rules** are defined in [target-architecture.md](target-architecture.md) and [dependency-rules.md](dependency-rules.md).
 
-| Context | Responsibility |
-|---|---|
-| `Import` | CSV upload (`.csv`/`.txt` only), validation, dispatch, async processing, rejects |
-| `Statistics` | Projection, materialized views, analytics (Explorer, Benchmarking, Case Flow, …) |
-| `Allocation` | Core domain data (allocations, master data, indication review) |
-| `User` | Authentication, registration, password reset |
-| `Feedback` | Feedback widget and notifications |
-| `Admin` | EasyAdmin back office |
-| `Kpi` | Daily KPI aggregation into `kpi_daily` |
-| `Install` | `app:install`, `app:env:check` |
-| `Shared` | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
-| `Content` | Content pages and blog |
-| `Onboarding` | Participant dashboard onboarding steps and progress |
-| `Engagement` | Monthly submission reminders and related mail content |
-| `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |
+Context taxonomy (BC vs. technical module vs. dev-only): [decisions/008-bounded-context-taxonomy.md](decisions/008-bounded-context-taxonomy.md).
+
+| Context | Type | Responsibility |
+|---|---|---|
+| `Import` | BC | CSV upload (`.csv`/`.txt` only), validation, dispatch, async processing, rejects |
+| `Statistics` | BC | Projection, materialized views, analytics (Explorer, Benchmarking, Case Flow, …) |
+| `Allocation` | BC | Core domain data (allocations, master data, indication review) |
+| `User` | BC | Authentication, registration, password reset |
+| `Feedback` | BC | Feedback widget and notifications |
+| `Admin` | Technical module | EasyAdmin back office |
+| `Kpi` | BC | Daily KPI aggregation into `kpi_daily` |
+| `Install` | Technical module | `app:install`, `app:env:check` |
+| `Shared` | Shared kernel | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
+| `Content` | BC | Content pages and blog |
+| `Onboarding` | BC | Participant dashboard onboarding steps and progress |
+| `Engagement` | BC | Monthly submission reminders and related mail content |
+| `DataFixtures` | Dev-only | Reference YAML, pattern-based demo data, dev/test fixture groups |
 
 ## Statistics submodules
 
-The `Statistics` context is internally divided:
+The `Statistics` context is internally divided into **modules within one bounded context** (not separate BCs). See [decisions/011-statistics-internal-modules.md](decisions/011-statistics-internal-modules.md).
+
+Significant domain changes across contexts should emit **domain events** (`Domain/Event/`) where appropriate; see [decisions/012-domain-events-for-significant-state-changes.md](decisions/012-domain-events-for-significant-state-changes.md).
 
 | Submodule | Purpose |
 |-----------|---------|

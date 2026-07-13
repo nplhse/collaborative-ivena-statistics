@@ -10,7 +10,7 @@ Typical layering per context:
 - `Domain` (entities, rules)
 - `Infrastructure` (Doctrine, queries, adapters)
 
-See [bounded-contexts.md](bounded-contexts.md) for context responsibilities and [data-flow.md](data-flow.md) for the import → statistics pipeline.
+See [bounded-contexts.md](bounded-contexts.md) for context responsibilities, [target-architecture.md](target-architecture.md) for binding layer and dependency rules, and [data-flow.md](data-flow.md) for the import → statistics pipeline.
 
 ## Core components
 
