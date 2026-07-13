@@ -7,10 +7,10 @@ namespace App\Allocation\Infrastructure\Repository;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Infrastructure\Query\AllocationTimeSeriesQuery;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Uid\Uuid;
@@ -22,8 +22,10 @@ final class AllocationRepository extends ServiceEntityRepository
 {
     use PublicIdRepositoryTrait;
 
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly AllocationTimeSeriesQuery $timeSeriesQuery,
+    ) {
         parent::__construct($registry, Allocation::class);
     }
 
@@ -136,11 +138,7 @@ final class AllocationRepository extends ServiceEntityRepository
      */
     public function countByMonthLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->aggregateCountByMonthSince($from, null);
+        return $this->timeSeriesQuery->countByMonthLast12Months();
     }
 
     /**
@@ -152,64 +150,7 @@ final class AllocationRepository extends ServiceEntityRepository
      */
     public function countByMonthLast12MonthsForHospitals(array $hospitalIds): array
     {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->aggregateCountByMonthSince($from, $hospitalIds);
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return list<array{year: int, month: int, count: int}>
-     */
-    private function aggregateCountByMonthSince(\DateTimeImmutable $from, ?array $hospitalIds): array
-    {
-        $sql = <<<'SQL'
-SELECT EXTRACT(YEAR FROM created_at)::INT AS year,
-       EXTRACT(MONTH FROM created_at)::INT AS month,
-       COUNT(id)::INT AS count
-FROM allocation
-WHERE created_at >= :from
-  AND created_at IS NOT NULL
-SQL;
-        $params = ['from' => $from];
-        $types = ['from' => Types::DATETIME_IMMUTABLE];
-
-        if (null !== $hospitalIds) {
-            $sql .= ' AND hospital_id IN (:hospitalIds)';
-            $params['hospitalIds'] = $hospitalIds;
-            $types['hospitalIds'] = ArrayParameterType::INTEGER;
-        }
-
-        $sql .= ' GROUP BY 1, 2 ORDER BY 1 ASC, 2 ASC';
-
-        /** @var list<array{year:numeric-string|int,month:numeric-string|int,count:numeric-string|int}> $raw */
-        $raw = $this->getEntityManager()->getConnection()->fetchAllAssociative($sql, $params, $types);
-
-        return $this->mapMonthCountRows($raw);
-    }
-
-    /**
-     * @param list<array{year:numeric-string|int,month:numeric-string|int,count:numeric-string|int}> $raw
-     *
-     * @return list<array{year: int, month: int, count: int}>
-     */
-    private function mapMonthCountRows(array $raw): array
-    {
-        return array_map(
-            static fn (array $row): array => [
-                'year' => (int) $row['year'],
-                'month' => (int) $row['month'],
-                'count' => (int) $row['count'],
-            ],
-            $raw,
-        );
+        return $this->timeSeriesQuery->countByMonthLast12MonthsForHospitals($hospitalIds);
     }
 
     public function countAll(): int
@@ -461,41 +402,7 @@ SQL;
      */
     public function countAllocationsByMonthInRange(\DateTimeInterface $from, ?\DateTimeInterface $toExclusive): array
     {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-            $key = $createdAt->format('Y-m');
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
-            ++$buckets[$key];
-        }
-
-        $result = [];
-        foreach ($buckets as $key => $count) {
-            [$year, $month] = explode('-', $key);
-            $result[] = [
-                'year' => (int) $year,
-                'month' => (int) $month,
-                'count' => $count,
-            ];
-        }
-
-        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
-
-        return $result;
+        return $this->timeSeriesQuery->countAllocationsByMonthInRange($from, $toExclusive);
     }
 
     /**
@@ -510,47 +417,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->andWhere('a.hospital IN (:hospitalIds)')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->setParameter('hospitalIds', $hospitalIds)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-            $key = $createdAt->format('Y-m');
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
-            ++$buckets[$key];
-        }
-
-        $result = [];
-        foreach ($buckets as $key => $count) {
-            [$year, $month] = explode('-', $key);
-            $result[] = [
-                'year' => (int) $year,
-                'month' => (int) $month,
-                'count' => $count,
-            ];
-        }
-
-        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
-
-        return $result;
+        return $this->timeSeriesQuery->countAllocationsByMonthInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -993,7 +860,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->aggregateCountByCalendarMonthOfYear($from, $toExclusive, null);
+        return $this->timeSeriesQuery->countAllocationsByCalendarMonthOfYearInRange($from, $toExclusive);
     }
 
     /**
@@ -1006,11 +873,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->aggregateCountByCalendarMonthOfYear($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesQuery->countAllocationsByCalendarMonthOfYearInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1020,7 +883,7 @@ SQL;
         \DateTimeInterface $from,
         \DateTimeInterface $toExclusive,
     ): array {
-        return $this->aggregateCountByDay($from, $toExclusive, null);
+        return $this->timeSeriesQuery->countAllocationsByDayInRange($from, $toExclusive);
     }
 
     /**
@@ -1033,11 +896,7 @@ SQL;
         \DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->aggregateCountByDay($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesQuery->countAllocationsByDayInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1254,91 +1113,6 @@ SQL;
         }
 
         return $this->bucketClinicalFeaturesByDay($from, $toExclusive, $hospitalIds);
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, int>
-     */
-    private function aggregateCountByCalendarMonthOfYear(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, int> $counts */
-        $counts = [];
-        foreach (range(1, 12) as $m) {
-            $counts[sprintf('cal-%02d', $m)] = 0;
-        }
-
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $k = sprintf('cal-%02d', (int) $createdAt->format('n'));
-            ++$counts[$k];
-        }
-
-        return $counts;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, int>
-     */
-    private function aggregateCountByDay(
-        \DateTimeInterface $from,
-        \DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, int> $counts */
-        $counts = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $k = $createdAt->format('Y-m-d');
-            if (!isset($counts[$k])) {
-                $counts[$k] = 0;
-            }
-            ++$counts[$k];
-        }
-
-        return $counts;
     }
 
     /**
