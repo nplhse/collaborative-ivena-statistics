@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Repository;
 
-use App\Allocation\Application\Contracts\DispatchAreaLookupInterface;
+use App\Allocation\Application\Contract\DispatchAreaLookupInterface;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\UI\Http\DTO\AreaListQueryParametersDTO;

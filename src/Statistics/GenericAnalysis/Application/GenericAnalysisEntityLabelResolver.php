@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Application;
 
-use App\Allocation\Application\Contracts\HospitalLookupInterface;
+use App\Allocation\Application\Contract\HospitalLookupInterface;
 use App\Allocation\Infrastructure\Repository\AssignmentRepository;
 use App\Allocation\Infrastructure\Repository\DepartmentRepository;
 use App\Allocation\Infrastructure\Repository\DispatchAreaRepository;
