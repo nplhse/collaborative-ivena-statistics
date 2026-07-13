@@ -123,6 +123,7 @@ final readonly class KpiDashboardService
             }
 
             $hospital = $import->getHospital();
+            $importId = $import->getId();
             $rows[] = new FailedImportRowDto(
                 createdAt: $import->getCreatedAt(),
                 hospitalName: $hospital?->getName() ?? '—',
@@ -131,8 +132,8 @@ final readonly class KpiDashboardService
                 failureReasonKey: $this->failureReasonResolver->resolve($import),
                 recordCount: $import->getRowCount() ?? 0,
                 rejectionCount: $import->getRowsRejected() ?? 0,
-                detailUrl: null !== $import->getId()
-                    ? $this->adminLinkGenerator->importDetailUrl($import->getId())
+                detailUrl: null !== $importId
+                    ? $this->adminLinkGenerator->importDetailUrl($importId)
                     : null,
             );
         }

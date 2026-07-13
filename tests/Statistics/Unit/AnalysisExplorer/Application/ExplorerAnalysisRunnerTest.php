@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisRunner;
-use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -24,14 +23,11 @@ final class ExplorerAnalysisRunnerTest extends KernelTestCase
 
     private ExplorerAnalysisRunner $runner;
 
-    private ExplorerConfigMapper $configMapper;
-
     #[\Override]
     protected function setUp(): void
     {
         self::bootKernel();
         $this->runner = self::getContainer()->get(ExplorerAnalysisRunner::class);
-        $this->configMapper = self::getContainer()->get(ExplorerConfigMapper::class);
     }
 
     public function testRunWithEmptyConfigReturnsNoConfigOutcome(): void

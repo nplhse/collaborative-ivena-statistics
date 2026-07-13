@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 
+/** @psalm-suppress UnusedClass Bound as AdminLinkGeneratorInterface implementation */
 final readonly class EasyAdminAdminLinkGenerator implements AdminLinkGeneratorInterface
 {
     public function __construct(
@@ -23,26 +24,31 @@ final readonly class EasyAdminAdminLinkGenerator implements AdminLinkGeneratorIn
     ) {
     }
 
+    #[\Override]
     public function hospitalCrudIndexUrl(): string
     {
         return $this->crudIndexUrl(HospitalCrudController::class);
     }
 
+    #[\Override]
     public function importCrudIndexUrl(): string
     {
         return $this->crudIndexUrl(ImportCrudController::class);
     }
 
+    #[\Override]
     public function allocationCrudIndexUrl(): string
     {
         return $this->crudIndexUrl(AllocationCrudController::class);
     }
 
+    #[\Override]
     public function importRejectCrudIndexUrl(): string
     {
         return $this->crudIndexUrl(ImportRejectCrudController::class);
     }
 
+    #[\Override]
     public function failedImportsCrudIndexUrl(): string
     {
         return $this->adminUrlGenerator
@@ -59,6 +65,7 @@ final readonly class EasyAdminAdminLinkGenerator implements AdminLinkGeneratorIn
             ->generateUrl();
     }
 
+    #[\Override]
     public function importDetailUrl(int $importId): string
     {
         return $this->adminUrlGenerator

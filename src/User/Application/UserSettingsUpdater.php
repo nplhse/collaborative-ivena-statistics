@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class UserSettingsUpdater
 {
+    /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private EntityManagerInterface $entityManager,
     ) {
