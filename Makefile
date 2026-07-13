@@ -108,7 +108,7 @@ compile: ## Execute some tasks before deployment
 	@$(CONSOLE) cache:warmup
 
 consume: ## Consume messages from symfony messenger
-	@$(CONSOLE) messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv
+	@$(CONSOLE) messenger:consume async_priority_high async_priority_low async_mail scheduler_default scheduler_engagement -vv
 
 ## —— Backups 💾 ———————————————————————————————————————————————————————————————
 backup-db: ## PostgreSQL dump to var/backups (uses Docker database service when running)

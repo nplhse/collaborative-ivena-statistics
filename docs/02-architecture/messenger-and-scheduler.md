@@ -36,7 +36,14 @@ In `dev`, mail is synchronous. In `test`, most messages use `sync`.
 | Schedule | Message |
 |----------|---------|
 | `0 */6 * * *` (every 6 hours) | `GenerateDailyKpisMessage` |
+
+`EngagementScheduleProvider` (`src/Engagement/Infrastructure/Scheduler/EngagementScheduleProvider.php`, schedule name `engagement`) registers:
+
+| Schedule | Message |
+|----------|---------|
 | `0 8 * * *` (daily 08:00 Europe/Berlin) | `SendMonthlySubmissionRemindersMessage` |
+
+Workers must consume `scheduler_default` and `scheduler_engagement` (see `make consume`).
 
 The scheduler requires a running worker consuming `scheduler_default`. Locally: `make consume`.
 

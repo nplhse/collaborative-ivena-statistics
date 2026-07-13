@@ -2,19 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Kpi\Infrastructure\Scheduler;
+namespace App\Engagement\Infrastructure\Scheduler;
 
-use App\Kpi\Application\Message\GenerateDailyKpisMessage;
+use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
-/** @psalm-suppress UnusedClass Registered via #[AsSchedule]. */
-#[AsSchedule]
-final readonly class KpiScheduleProvider implements ScheduleProviderInterface
+/** @psalm-suppress UnusedClass Registered via #[AsSchedule('engagement')]. */
+#[AsSchedule('engagement')]
+final readonly class EngagementScheduleProvider implements ScheduleProviderInterface
 {
+    private const string TIMEZONE = 'Europe/Berlin';
+
     public function __construct(
         private CacheInterface $cache,
     ) {
@@ -28,8 +30,9 @@ final readonly class KpiScheduleProvider implements ScheduleProviderInterface
             ->processOnlyLastMissedRun(true)
             ->add(
                 RecurringMessage::cron(
-                    '0 */6 * * *',
-                    new GenerateDailyKpisMessage(),
+                    '0 8 * * *',
+                    new SendMonthlySubmissionRemindersMessage(),
+                    self::TIMEZONE,
                 ),
             );
     }
