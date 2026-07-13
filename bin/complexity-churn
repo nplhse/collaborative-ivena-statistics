@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SUMMARY="${ROOT}/var/complexity/summary.csv"
+OUTPUT="${ROOT}/var/complexity/churn.csv"
+LIMIT="${1:-50}"
+SINCE="${COMPLEXITY_CHURN_SINCE:-12 months ago}"
+
+mkdir -p "${ROOT}/var/complexity"
+
+if [[ ! -f "${SUMMARY}" ]]; then
+    echo "Missing ${SUMMARY}. Run bin/complexity-summarize first." >&2
+    exit 1
+fi
+
+echo "class,file,commits,lines_added,lines_removed,last_commit" > "${OUTPUT}"
+
+tail -n +2 "${SUMMARY}" | sed -n "1,${LIMIT}p" | while IFS=',' read -r class file _rest; do
+    class="${class//\"/}"
+    file="${file//\"/}"
+
+    if [[ -z "${file}" || ! -f "${file}" ]]; then
+        continue
+    fi
+
+    rel="${file#${ROOT}/}"
+    stats="$(git -C "${ROOT}" log --since="${SINCE}" --follow --numstat --format='%H' -- "${rel}" 2>/dev/null || true)"
+
+    commits=0
+    added=0
+    removed=0
+    last_commit=""
+
+    while IFS=$'\t' read -r a r path; do
+        if [[ -z "${path}" ]]; then
+            if [[ "${a}" =~ ^[0-9a-f]{40}$ ]]; then
+                commits=$((commits + 1))
+                if [[ -z "${last_commit}" ]]; then
+                    last_commit="${a}"
+                fi
+            fi
+            continue
+        fi
+
+        if [[ "${a}" =~ ^[0-9]+$ ]]; then
+            added=$((added + a))
+        fi
+
+        if [[ "${r}" =~ ^[0-9]+$ ]]; then
+            removed=$((removed + r))
+        fi
+    done <<< "${stats}"
+
+    echo "\"${class}\",\"${rel}\",${commits},${added},${removed},${last_commit}" >> "${OUTPUT}"
+done
+
+echo "Wrote ${OUTPUT}"

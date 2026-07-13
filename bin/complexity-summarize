@@ -1,0 +1,186 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__);
+$crap4jFile = $root.'/var/coverage/logs/crap4j.xml';
+$cloverFile = $root.'/var/coverage/logs/clover.xml';
+$baselineFile = $root.'/deptrac.baseline.yaml';
+$outputDir = $root.'/var/complexity';
+$outputCsv = $outputDir.'/summary.csv';
+$limit = max(1, (int) ($argv[1] ?? 30));
+
+if (!is_file($crap4jFile)) {
+    fwrite(STDERR, "Missing {$crap4jFile}. Run `make coverage` first.\n");
+    exit(1);
+}
+
+/** @var array<string, array{file: string, class: string, max_crap: float, sum_crap: float, max_complexity: int, method_count: int, min_coverage: float}> */
+$byClass = [];
+
+$crap = new DOMDocument();
+$crap->load($crap4jFile);
+
+foreach ($crap->getElementsByTagName('method') as $methodNode) {
+    if (!$methodNode instanceof DOMElement) {
+        continue;
+    }
+
+    $class = trim($methodNode->getElementsByTagName('className')->item(0)?->textContent ?? '');
+    if ($class === '') {
+        continue;
+    }
+
+    $crapValue = (float) ($methodNode->getElementsByTagName('crap')->item(0)?->textContent ?? 0);
+    $complexity = (int) ($methodNode->getElementsByTagName('complexity')->item(0)?->textContent ?? 0);
+    $coverage = (float) ($methodNode->getElementsByTagName('coverage')->item(0)?->textContent ?? 0);
+
+    if (!isset($byClass[$class])) {
+        $byClass[$class] = [
+            'file' => '',
+            'class' => $class,
+            'max_crap' => 0.0,
+            'sum_crap' => 0.0,
+            'max_complexity' => 0,
+            'method_count' => 0,
+            'min_coverage' => 100.0,
+        ];
+    }
+
+    $byClass[$class]['max_crap'] = max($byClass[$class]['max_crap'], $crapValue);
+    $byClass[$class]['sum_crap'] += $crapValue;
+    $byClass[$class]['max_complexity'] = max($byClass[$class]['max_complexity'], $complexity);
+    $byClass[$class]['method_count']++;
+    $byClass[$class]['min_coverage'] = min($byClass[$class]['min_coverage'], $coverage);
+}
+
+/** @var array<string, array{statements: int, covered: int, percent: float}> */
+$fileCoverage = [];
+
+if (is_file($cloverFile)) {
+    $clover = new DOMDocument();
+    $clover->load($cloverFile);
+
+    foreach ($clover->getElementsByTagName('file') as $fileNode) {
+        if (!$fileNode instanceof DOMElement) {
+            continue;
+        }
+
+        $path = $fileNode->getAttribute('name');
+        $metrics = $fileNode->getElementsByTagName('metrics')->item(0);
+
+        if (!$metrics instanceof DOMElement) {
+            continue;
+        }
+
+        $statements = (int) $metrics->getAttribute('statements');
+        $covered = (int) $metrics->getAttribute('coveredstatements');
+        $percent = $statements > 0 ? round(100 * $covered / $statements, 1) : 0.0;
+        $fileCoverage[$path] = ['statements' => $statements, 'covered' => $covered, 'percent' => $percent];
+    }
+}
+
+/** @var array<string, int> */
+$deptracSkips = [];
+
+if (is_file($baselineFile)) {
+    $lines = file($baselineFile, FILE_IGNORE_NEW_LINES);
+    $currentClass = null;
+
+    foreach ($lines as $line) {
+        if (preg_match('/^\s{4}([^:\s].+):$/', $line, $matches)) {
+            $currentClass = $matches[1];
+            $deptracSkips[$currentClass] ??= 0;
+            continue;
+        }
+
+        if ($currentClass !== null && preg_match('/^\s{6}-\s/', $line)) {
+            ++$deptracSkips[$currentClass];
+        }
+    }
+}
+
+foreach ($byClass as $class => &$row) {
+    $file = classFilePath($class, $root);
+    $row['file'] = $file;
+    $row['loc'] = $file !== '' && is_file($file) ? countLines($file) : 0;
+    $row['line_coverage'] = $file !== '' && isset($fileCoverage[$file]) ? $fileCoverage[$file]['percent'] : null;
+    $row['deptrac_skips'] = $deptracSkips[$class] ?? 0;
+}
+unset($row);
+
+$rows = array_values($byClass);
+
+usort($rows, static function (array $a, array $b): int {
+    return [$b['max_crap'], $b['sum_crap'], $b['max_complexity'], $b['loc']]
+        <=> [$a['max_crap'], $a['sum_crap'], $a['max_complexity'], $a['loc']];
+});
+
+if (!is_dir($outputDir) && !mkdir($outputDir, 0777, true) && !is_dir($outputDir)) {
+    fwrite(STDERR, "Cannot create {$outputDir}\n");
+    exit(1);
+}
+
+$fp = fopen($outputCsv, 'w');
+fputcsv($fp, ['class', 'file', 'max_crap', 'sum_crap', 'max_complexity', 'method_count', 'min_method_coverage', 'line_coverage', 'loc', 'deptrac_skips'], ',', '"', '\\');
+
+foreach ($rows as $row) {
+    fputcsv($fp, [
+        $row['class'],
+        $row['file'],
+        $row['max_crap'],
+        round($row['sum_crap'], 1),
+        $row['max_complexity'],
+        $row['method_count'],
+        $row['min_coverage'],
+        $row['line_coverage'] ?? '',
+        $row['loc'],
+        $row['deptrac_skips'],
+    ], ',', '"', '\\');
+}
+
+fclose($fp);
+
+echo "Wrote {$outputCsv} (".count($rows)." classes)\n\n";
+echo "Top {$limit} classes by max CRAP:\n";
+printf("%-8s %-8s %-5s %-5s %-6s %s\n", 'maxCRAP', 'sumCRAP', 'ccn', 'LOC', 'line%', 'class');
+
+foreach (array_slice($rows, 0, $limit) as $row) {
+    printf(
+        "%-8.1f %-8.1f %-5d %-5d %-6s %s\n",
+        $row['max_crap'],
+        $row['sum_crap'],
+        $row['max_complexity'],
+        $row['loc'],
+        $row['line_coverage'] !== null ? (string) $row['line_coverage'] : 'n/a',
+        $row['class'],
+    );
+}
+
+function classFilePath(string $class, string $root): string
+{
+    $relative = str_replace('\\', '/', $class);
+    $relative = preg_replace('#^App/#', 'src/', $relative) ?? $relative;
+    $candidate = $root.'/'.$relative.'.php';
+
+    return is_file($candidate) ? $candidate : '';
+}
+
+function countLines(string $file): int
+{
+    $count = 0;
+    $handle = fopen($file, 'r');
+
+    if ($handle === false) {
+        return 0;
+    }
+
+    while (fgets($handle) !== false) {
+        ++$count;
+    }
+
+    fclose($handle);
+
+    return $count;
+}

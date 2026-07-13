@@ -94,6 +94,8 @@
         <report>
             <clover outputFile="var/coverage/logs/clover.xml" />
             <html outputDirectory="var/coverage/report" />
+            <crap4j outputFile="var/coverage/logs/crap4j.xml" />
+            <xml outputDirectory="var/coverage/xml" />
             <text outputFile="php://stdout" showOnlySummary="true" />
         </report>
     </coverage>

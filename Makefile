@@ -232,6 +232,12 @@ testdox: ## Run tests with testdox (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS
 coverage: ## Run tests with coverage (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
 	@XDEBUG_MODE=coverage SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests $(ARGS)
 
+complexity: ## Run coverage and summarize complexity metrics (CRAP, churn)
+	@mkdir -p var/complexity
+	@$(MAKE) coverage
+	@./bin/complexity-summarize
+	@./bin/complexity-churn
+
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs
 	@rm -rf public/assets/*

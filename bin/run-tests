@@ -8,7 +8,6 @@ SUITE="${SUITE:-all}"
 PATH_ARG="${PATH_ARG:-}"
 GROUP="${GROUP:-}"
 EXCLUDE_GROUP="${EXCLUDE_GROUP:-}"
-EXTRA_ARGS=("$@")
 
 PHPUNIT_ARGS=(-d memory_limit=-1)
 
@@ -51,4 +50,4 @@ if [[ "${GROUP}" == "browser" || "${SUITE}" == "browser" ]]; then
     export BROWSER_ALWAYS_START_WEBSERVER=1
 fi
 
-exec "${PHPUNIT}" "${PHPUNIT_ARGS[@]}" "${EXTRA_ARGS[@]}"
+exec "${PHPUNIT}" "${PHPUNIT_ARGS[@]}" "$@"
