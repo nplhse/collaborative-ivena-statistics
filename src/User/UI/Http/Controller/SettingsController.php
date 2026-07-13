@@ -8,6 +8,7 @@ use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Application\Locale\UserLocalePreferenceUpdater;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Application\UserSettingsUpdater;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\ForceChangePasswordType;
@@ -15,7 +16,6 @@ use App\User\UI\Form\SettingsEmailType;
 use App\User\UI\Form\SettingsLocaleType;
 use App\User\UI\Form\SettingsNotificationsType;
 use App\User\UI\Form\SettingsPasswordType;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -32,7 +32,7 @@ final class SettingsController extends AbstractController
 {
     public function __construct(
         private readonly EmailVerifier $emailVerifier,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UserSettingsUpdater $userSettingsUpdater,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
         private readonly UserLocalePreferenceUpdater $userLocalePreferenceUpdater,
@@ -136,11 +136,9 @@ final class SettingsController extends AbstractController
 
             $newEmail = mb_strtolower(trim($data['email']));
             if ($newEmail !== $user->getEmail()) {
-                $user->setEmail($newEmail);
-                $user->setIsVerified(false);
                 $this->auditContext->beginIntent('user.settings.email_changed', []);
                 try {
-                    $this->entityManager->flush();
+                    $this->userSettingsUpdater->updateEmail($user, $newEmail);
                 } finally {
                     $this->auditContext->endIntent();
                 }
@@ -180,11 +178,12 @@ final class SettingsController extends AbstractController
                 throw new \LogicException('Password form did not provide a new password.');
             }
 
-            $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
-            $user->setCredentialsExpired(false);
             $this->auditContext->beginIntent('user.settings.password_changed', []);
             try {
-                $this->entityManager->flush();
+                $this->userSettingsUpdater->updatePassword(
+                    $user,
+                    $this->passwordHasher->hashPassword($user, $plainPassword),
+                );
             } finally {
                 $this->auditContext->endIntent();
             }
@@ -213,10 +212,12 @@ final class SettingsController extends AbstractController
             /** @var array{receivesMonthlySubmissionReminder?: bool} $data */
             $data = $form->getData();
 
-            $user->setReceivesMonthlySubmissionReminder($data['receivesMonthlySubmissionReminder'] ?? false);
             $this->auditContext->beginIntent('user.settings.notifications_updated', []);
             try {
-                $this->entityManager->flush();
+                $this->userSettingsUpdater->updateNotifications(
+                    $user,
+                    $data['receivesMonthlySubmissionReminder'] ?? false,
+                );
             } finally {
                 $this->auditContext->endIntent();
             }
@@ -247,11 +248,12 @@ final class SettingsController extends AbstractController
                 throw new \LogicException('Forced password form did not provide a new password.');
             }
 
-            $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
-            $user->setCredentialsExpired(false);
             $this->auditContext->beginIntent('user.settings.forced_password_changed', []);
             try {
-                $this->entityManager->flush();
+                $this->userSettingsUpdater->updatePassword(
+                    $user,
+                    $this->passwordHasher->hashPassword($user, $plainPassword),
+                );
             } finally {
                 $this->auditContext->endIntent();
             }
