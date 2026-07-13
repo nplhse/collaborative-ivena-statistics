@@ -13,6 +13,8 @@
 | [target-architecture.md](target-architecture.md) | **Rules** | Binding layer rules, exceptions, Deptrac preview |
 | [dependency-rules.md](dependency-rules.md) | **Rules** | Allowed cross-context dependencies |
 | [deptrac.md](deptrac.md) | **Tooling** | Deptrac layer checks and baseline |
+| [complexity-analysis.md](complexity-analysis.md) | **Analysis** | Phase 4 metrics, hotspots, CRAP |
+| [refactoring-backlog.md](refactoring-backlog.md) | **Backlog** | Phase 5 ordered refactorings |
 | [data-flow.md](data-flow.md) | Concept | Import → statistics pipeline |
 | [permission-model.md](permission-model.md) | Concept | Roles, hospital grants, voters |
 | [messenger-and-scheduler.md](messenger-and-scheduler.md) | Concept | Async processing and scheduled jobs |
@@ -25,5 +27,6 @@
 2. [bounded-contexts.md](bounded-contexts.md)
 3. [target-architecture.md](target-architecture.md) and [dependency-rules.md](dependency-rules.md)
 4. [deptrac.md](deptrac.md) — automated layer checks
-5. [data-flow.md](data-flow.md)
-5. Feature guides under [../04-features/](../04-features/)
+5. [complexity-analysis.md](complexity-analysis.md) and [refactoring-backlog.md](refactoring-backlog.md)
+6. [data-flow.md](data-flow.md)
+7. Feature guides under [../04-features/](../04-features/)

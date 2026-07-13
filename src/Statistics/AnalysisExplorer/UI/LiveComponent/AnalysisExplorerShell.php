@@ -4,39 +4,30 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 
-use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
-use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
-use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
-use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
+use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisPresentationCoordinator;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisRunner;
-use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
-use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditApplyHandler;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditAxisSwapper;
-use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormFilterFieldMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
+use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSubmittedDataFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter;
-use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
-use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
+use App\Statistics\AnalysisExplorer\Application\ExplorerSavedViewHandler;
+use App\Statistics\AnalysisExplorer\Application\ExplorerViewStateHandler;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
-use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
-use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
-use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
@@ -169,7 +160,7 @@ final class AnalysisExplorerShell
     #[LiveProp]
     public string $chartRowLimit = ExplorerChartRowLimit::All->value;
 
-    public ?ExplorerResultsTableViewModel $table = null;
+    public ?\App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel $table = null;
 
     public ?string $emptyReason = null;
 
@@ -178,22 +169,18 @@ final class AnalysisExplorerShell
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
         private readonly ExplorerAnalysisRunner $analysisRunner,
-        private readonly ExplorerChartPresenter $chartPresenter,
-        private readonly ExplorerResultsTablePresenter $tablePresenter,
+        private readonly ExplorerAnalysisPresentationCoordinator $presentationCoordinator,
         private readonly ExplorerConfigMapper $configMapper,
-        private readonly AnalysisViewConfigValidator $configValidator,
-        private readonly AnalysisViewConfigNormalizer $configNormalizer,
         private readonly ExplorerEditFormNormalizer $editFormNormalizer,
-        private readonly ExplorerEditFormFilterFieldMapper $editFormFilterFieldMapper,
-        private readonly TranslatorInterface $translator,
+        private readonly ExplorerEditFormSubmittedDataFactory $submittedDataFactory,
+        private readonly ExplorerEditApplyHandler $editApplyHandler,
+        private readonly ExplorerViewStateHandler $viewStateHandler,
+        private readonly ExplorerSavedViewHandler $savedViewHandler,
         private readonly Security $security,
-        private readonly SavedExplorerViewService $savedViewService,
         private readonly SavedExplorerViewRepository $savedViewRepository,
-        private readonly ExplorerDescriptionFactory $descriptionFactory,
         private readonly ExplorerEditFormSummaryFactory $editFormSummaryFactory,
         private readonly ExplorerEditAxisSwapper $editAxisSwapper,
         private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
-        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -253,7 +240,7 @@ final class AnalysisExplorerShell
 
         $this->chartRowLimit = $config->presentation->chartRowLimit->value;
         if ($this->result instanceof AnalysisRunResult) {
-            $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
+            $this->showChartRowLimitControl = $this->presentationCoordinator->shouldShowChartRowLimitControl($config, $this->result);
         }
     }
 
@@ -358,7 +345,7 @@ final class AnalysisExplorerShell
         }
 
         $this->editFormData = $this->configMapper->toFormData($config);
-        $this->populateEditViewMetadataFields($config);
+        $this->applyEditViewMetadataFields($config);
         $this->editViewTitleAtOpen = $this->editViewTitle;
         $this->editViewDescriptionAtOpen = $this->editViewDescription;
         $this->isEditOpen = true;
@@ -372,7 +359,7 @@ final class AnalysisExplorerShell
         $this->editFormData = null;
         $config = $this->appliedConfig();
         if ($config instanceof AnalysisViewConfig) {
-            $this->populateEditViewMetadataFields($config);
+            $this->applyEditViewMetadataFields($config);
         } else {
             $this->editViewTitle = $this->savedViewTitle ?? '';
             $this->editViewDescription = $this->savedViewDescription ?? '';
@@ -427,23 +414,37 @@ final class AnalysisExplorerShell
         $this->submitForm(true);
 
         $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
-        $newConfig = $this->configMapper->toViewConfig($formData, $currentConfig, $this->resolveUser());
-        $normalizedConfig = $this->configNormalizer->normalize($newConfig);
-        $this->setNormalizationWarning($newConfig, $normalizedConfig);
+        $outcome = $this->editApplyHandler->apply($currentConfig, $formData, $this->resolveUser());
+        if (null !== $outcome->configWarning) {
+            $this->configWarning = $outcome->configWarning;
+        }
+        if (!$outcome->applied || !$outcome->normalizedConfig instanceof AnalysisViewConfig) {
+            return;
+        }
 
-        try {
-            $this->configValidator->validate($normalizedConfig);
-        } catch (InvalidExplorerConfigException $exception) {
-            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
+        $metadataOutcome = $this->viewStateHandler->commitMetadataFromApply(
+            $outcome->normalizedConfig,
+            $this->metadataManuallyEdited,
+            $this->viewStateHandler->metadataEditedInCurrentDrawerSession(
+                $this->editViewTitle,
+                $this->editViewDescription,
+                $this->editViewTitleAtOpen,
+                $this->editViewDescriptionAtOpen,
+            ),
+            $this->editViewTitle,
+            $this->editViewDescription,
+        );
+        if (!$metadataOutcome->success) {
+            $this->configWarning = $metadataOutcome->configWarning;
 
             return;
         }
 
-        if (!$this->commitMetadataFromApply($normalizedConfig)) {
-            return;
-        }
+        $this->savedViewTitle = $metadataOutcome->savedViewTitle;
+        $this->savedViewDescription = $metadataOutcome->savedViewDescription;
+        $this->metadataManuallyEdited = $metadataOutcome->metadataManuallyEdited;
 
-        $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
+        $this->appliedConfigState = $this->configMapper->toStateArray($outcome->normalizedConfig);
         $this->editFormData = null;
         $this->isEditOpen = false;
         $this->configWarning = null;
@@ -459,17 +460,14 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $config = $this->appliedConfig();
-        if ($config instanceof AnalysisViewConfig) {
-            if ($this->metadataManuallyEdited) {
-                $this->saveAsTitle = $this->savedViewTitle ?? '';
-                $this->saveAsDescription = $this->savedViewDescription ?? '';
-            } else {
-                $this->saveAsTitle = $config->title;
-                $this->saveAsDescription = $this->descriptionFactory->descriptionForConfig($config);
-            }
-        }
-
+        $defaults = $this->savedViewHandler->prepareSaveAsDefaults(
+            $this->appliedConfig(),
+            $this->metadataManuallyEdited,
+            $this->savedViewTitle,
+            $this->savedViewDescription,
+        );
+        $this->saveAsTitle = $defaults['title'];
+        $this->saveAsDescription = $defaults['description'];
         $this->isSaveAsOpen = true;
     }
 
@@ -483,38 +481,24 @@ final class AnalysisExplorerShell
     public function submitSaveAs(): ?RedirectResponse
     {
         $user = $this->requireParticipant();
+        $outcome = $this->savedViewHandler->saveAs(
+            $user,
+            $this->saveAsTitle,
+            $this->saveAsDescription,
+            $this->appliedConfigState,
+        );
 
-        $title = trim($this->saveAsTitle);
-        if ('' === $title) {
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required', [], 'statistics');
-
-            return null;
-        }
-
-        try {
-            $description = '' !== trim($this->saveAsDescription) ? trim($this->saveAsDescription) : null;
-            $view = $this->savedViewService->create(
-                $user,
-                $title,
-                $this->appliedConfigState,
-                $description,
-            );
-        } catch (InvalidExplorerConfigException $exception) {
-            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
+        if (null !== $outcome->configWarning) {
+            $this->configWarning = $outcome->configWarning;
 
             return null;
         }
 
-        $viewId = $view->getId();
-        if (null === $viewId) {
-            return null;
+        if ($outcome->metadataManuallyEditedReset) {
+            $this->metadataManuallyEdited = false;
         }
 
-        $this->metadataManuallyEdited = false;
-
-        return new RedirectResponse($this->urlGenerator->generate('app_stats_analysis_explorer_view', [
-            'view' => (string) $viewId,
-        ]));
+        return $outcome->redirect;
     }
 
     #[LiveAction]
@@ -530,117 +514,71 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $title = $this->savedViewTitle ?? $view->getTitle();
-        $description = null !== $this->savedViewDescription && '' !== trim($this->savedViewDescription)
-            ? trim($this->savedViewDescription)
-            : $view->getDescription();
+        $outcome = $this->savedViewHandler->save(
+            $view,
+            $user,
+            $this->savedViewTitle,
+            $this->savedViewDescription,
+            $this->appliedConfigState,
+        );
 
-        try {
-            $this->savedViewService->update(
-                $view,
-                $user,
-                $title,
-                $this->appliedConfigState,
-                $description,
-            );
-        } catch (SavedExplorerViewForbiddenException) {
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden', [], 'statistics');
-
-            return;
-        } catch (InvalidExplorerConfigException $exception) {
-            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
+        if (!$outcome->saved) {
+            $this->configWarning = $outcome->configWarning;
 
             return;
         }
 
-        $this->savedViewTitle = $view->getTitle();
-        $this->savedViewDescription = $view->getDescription() ?? '';
+        $this->savedViewTitle = $outcome->savedViewTitle;
+        $this->savedViewDescription = $outcome->savedViewDescription;
         $this->baselineConfigState = $this->appliedConfigState;
         $this->baselineViewTitle = $this->savedViewTitle;
         $this->baselineViewDescription = $this->savedViewDescription;
         $this->metadataManuallyEdited = false;
         $this->syncUnsavedChangeState();
-        $this->configWarning = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
+        $this->configWarning = $outcome->configWarning;
     }
 
     private function syncUnsavedChangeState(): void
     {
-        $configDirty = $this->configStatesDiffer(
+        $state = $this->viewStateHandler->unsavedChangeState(
             $this->baselineConfigState,
             $this->appliedConfigState,
+            $this->canSave,
+            $this->canSaveAs,
+            $this->savedViewTitle,
+            $this->baselineViewTitle,
+            $this->savedViewDescription,
+            $this->baselineViewDescription,
         );
-        $metadataDirty = $this->canSave && $this->metadataDiffersFromBaseline();
-        $this->hasUnsavedChanges = $configDirty || $metadataDirty;
-        $this->showSaveAs = $this->canSaveAs && $configDirty;
-    }
-
-    private function metadataDiffersFromBaseline(): bool
-    {
-        return ($this->savedViewTitle ?? '') !== ($this->baselineViewTitle ?? '')
-            || ($this->savedViewDescription ?? '') !== ($this->baselineViewDescription ?? '');
+        $this->hasUnsavedChanges = $state->hasUnsavedChanges;
+        $this->showSaveAs = $state->showSaveAs;
     }
 
     private function initializeMetadataBaselines(): void
     {
-        $config = $this->appliedConfig();
-        if (null !== $this->savedViewTitle && '' !== trim($this->savedViewTitle)) {
-            $this->baselineViewTitle = $this->savedViewTitle;
-            $this->baselineViewDescription = $this->savedViewDescription ?? '';
-
-            return;
-        }
-
-        if ($config instanceof AnalysisViewConfig) {
-            $this->baselineViewTitle = $config->title;
-            $this->baselineViewDescription = $this->descriptionFactory->descriptionForConfig($config);
-            $this->savedViewTitle = $this->baselineViewTitle;
-            $this->savedViewDescription = $this->baselineViewDescription;
+        $baselines = $this->viewStateHandler->initializeMetadataBaselines(
+            $this->appliedConfig(),
+            $this->savedViewTitle,
+            $this->savedViewDescription,
+        );
+        $this->baselineViewTitle = $baselines['title'];
+        $this->baselineViewDescription = $baselines['description'];
+        if (null !== $baselines['title']) {
+            $this->savedViewTitle = $baselines['title'];
+            $this->savedViewDescription = $baselines['description'];
         }
     }
 
-    private function populateEditViewMetadataFields(AnalysisViewConfig $config): void
+    private function applyEditViewMetadataFields(AnalysisViewConfig $config): void
     {
-        if ($this->metadataManuallyEdited) {
-            $this->editViewTitle = $this->savedViewTitle ?? '';
-            $this->editViewDescription = $this->savedViewDescription ?? '';
-
-            return;
-        }
-
-        $this->editViewTitle = $this->savedViewTitle ?? $config->title;
-        $this->editViewDescription = $this->savedViewDescription ?? $this->descriptionFactory->descriptionForConfig($config);
-    }
-
-    private function commitMetadataFromApply(AnalysisViewConfig $normalizedConfig): bool
-    {
-        if ($this->metadataEditedInCurrentDrawerSession()) {
-            $this->metadataManuallyEdited = true;
-        }
-
-        if ($this->metadataManuallyEdited) {
-            $title = trim($this->editViewTitle);
-            if ('' === $title) {
-                $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required', [], 'statistics');
-
-                return false;
-            }
-
-            $this->savedViewTitle = $title;
-            $this->savedViewDescription = trim($this->editViewDescription);
-
-            return true;
-        }
-
-        $this->savedViewTitle = $normalizedConfig->title;
-        $this->savedViewDescription = $this->descriptionFactory->descriptionForConfig($normalizedConfig);
-
-        return true;
-    }
-
-    private function metadataEditedInCurrentDrawerSession(): bool
-    {
-        return trim($this->editViewTitle) !== trim($this->editViewTitleAtOpen)
-            || trim($this->editViewDescription) !== trim($this->editViewDescriptionAtOpen);
+        $fields = $this->viewStateHandler->populateEditViewMetadataFields(
+            $config,
+            $this->metadataManuallyEdited,
+            $this->savedViewTitle,
+            $this->savedViewDescription,
+        );
+        $this->editViewTitle = $fields['title'];
+        $this->editViewDescription = $fields['description'];
     }
 
     #[LiveAction]
@@ -652,15 +590,6 @@ final class AnalysisExplorerShell
         );
         $this->rebuildCharts();
         $this->syncUnsavedChangeState();
-    }
-
-    /**
-     * @param array<string, mixed> $left
-     * @param array<string, mixed> $right
-     */
-    private function configStatesDiffer(array $left, array $right): bool
-    {
-        return json_encode($left, \JSON_THROW_ON_ERROR) !== json_encode($right, \JSON_THROW_ON_ERROR);
     }
 
     private function requireParticipant(): User
@@ -685,30 +614,14 @@ final class AnalysisExplorerShell
             $this->appliedConfigState = $outcome->normalizedConfigState;
         }
 
-        $this->emptyReason = $outcome->emptyReason;
         $this->configWarning = $outcome->configWarning;
 
-        if (null === $outcome->result) {
-            $this->clearPresentation();
-
-            return;
-        }
-
-        $this->result = $outcome->result;
-        $config = $this->appliedConfig();
-        if (!$config instanceof AnalysisViewConfig) {
-            $this->clearPresentation();
-
-            return;
-        }
-
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
-        $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
-        $this->hasChart = $this->chartPresenter->hasChart($this->result);
-        $this->chartRowLimit = $config->presentation->chartRowLimit->value;
-        $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
-        $this->table = $this->tablePresenter->create($config, $this->result);
-        ++$this->analysisRevision;
+        $presentation = $this->presentationCoordinator->present(
+            $outcome->result,
+            $this->appliedConfig(),
+            $outcome->emptyReason,
+        );
+        $this->applyPresentationState($presentation);
     }
 
     private function rebuildCharts(): void
@@ -722,48 +635,13 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
-        $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
-        $this->hasChart = $this->chartPresenter->hasChart($this->result);
-        $this->chartRowLimit = $config->presentation->chartRowLimit->value;
-        $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
-        ++$this->analysisRevision;
-    }
-
-    private function shouldShowChartRowLimitControl(AnalysisViewConfig $config): bool
-    {
-        if ($config->rowAxis->dimensionKey->isTemporalPrimary()) {
-            return false;
-        }
-
-        if (!$this->result instanceof AnalysisRunResult) {
-            return false;
-        }
-
-        return $this->distinctRowBucketCount($this->result) > 5;
-    }
-
-    private function distinctRowBucketCount(AnalysisRunResult $result): int
-    {
-        if ($result->hasSeries()) {
-            return \count(AnalysisMatrix::fromRunResult($result)->chartLabels());
-        }
-
-        $labels = [];
-        foreach ($result->rows as $row) {
-            $labels[$row->bucketLabel] = true;
-        }
-
-        return \count($labels);
-    }
-
-    private function setNormalizationWarning(AnalysisViewConfig $original, AnalysisViewConfig $normalized): void
-    {
-        if ([] === $this->configNormalizer->diffWarnings($original, $normalized)) {
-            return;
-        }
-
-        $this->configWarning = $this->translator->trans('stats.analysis_explorer.config_normalized', [], 'statistics');
+        $presentation = $this->presentationCoordinator->rebuildCharts($this->result, $config);
+        $this->chartSpecs = $presentation->chartSpecs;
+        $this->defaultChartType = $presentation->defaultChartType;
+        $this->hasChart = $presentation->hasChart;
+        $this->chartRowLimit = $presentation->chartRowLimit;
+        $this->showChartRowLimitControl = $presentation->showChartRowLimitControl;
+        $this->analysisRevision += $presentation->analysisRevisionDelta;
     }
 
     private function syncFormDataFromForm(): ExplorerEditFormData
@@ -771,97 +649,28 @@ final class AnalysisExplorerShell
         /** @var ExplorerEditFormData $formData */
         $formData = $this->getForm()->getData();
         $formName = $this->getFormName();
+        /** @var array<string, mixed> $submitted */
         $submitted = isset($this->formValues[$formName]) && \is_array($this->formValues[$formName])
             ? $this->formValues[$formName]
             : [];
 
-        $scopePeriod = $this->resolveScopePeriodFormData($formData->scopePeriod, $submitted);
-
-        $base = new ExplorerEditFormData(
-            scopePeriod: $scopePeriod,
-            dataSource: \is_string($submitted['dataSource'] ?? null) ? $submitted['dataSource'] : $formData->dataSource,
-            rowDimension: \is_string($submitted['rowDimension'] ?? null) ? $submitted['rowDimension'] : $formData->rowDimension,
-            rowGrain: \array_key_exists('rowGrain', $submitted)
-                ? (\is_string($submitted['rowGrain']) ? $submitted['rowGrain'] : null)
-                : $formData->rowGrain,
-            columnDimension: \array_key_exists('columnDimension', $submitted)
-                ? (\is_string($submitted['columnDimension']) ? $submitted['columnDimension'] : null)
-                : $formData->columnDimension,
-            columnGrain: \array_key_exists('columnGrain', $submitted)
-                ? (\is_string($submitted['columnGrain']) ? $submitted['columnGrain'] : null)
-                : $formData->columnGrain,
-            metric: \is_string($submitted['metric'] ?? null) ? $submitted['metric'] : $formData->metric,
-            showPercentOfTotal: (bool) ($submitted['showPercentOfTotal'] ?? $formData->showPercentOfTotal),
-            chartType: \is_string($submitted['chartType'] ?? null) ? $submitted['chartType'] : $formData->chartType,
-            tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $formData->tableLayout,
-            chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $formData->chartRowLimit,
-            hospitalPopulation: \is_string($submitted['hospitalPopulation'] ?? null) ? $submitted['hospitalPopulation'] : $formData->hospitalPopulation,
-            additionalTableMetrics: \array_key_exists('additionalTableMetrics', $submitted)
-                ? array_values(array_filter(
-                    \is_array($submitted['additionalTableMetrics']) ? $submitted['additionalTableMetrics'] : [],
-                    static fn (mixed $value): bool => \is_string($value) && '' !== $value,
-                ))
-                : $formData->additionalTableMetrics,
-            filterDepartmentId: $formData->filterDepartmentId,
-            filterSpecialityId: $formData->filterSpecialityId,
-            filterUrgency: $formData->filterUrgency,
-            filterTransportType: $formData->filterTransportType,
-            filterGender: $formData->filterGender,
-            filterAgeGroup: $formData->filterAgeGroup,
-            filterResus: $formData->filterResus,
-            filterCpr: $formData->filterCpr,
-            filterVentilation: $formData->filterVentilation,
-            filterAssignmentId: $formData->filterAssignmentId,
-            filterIndicationId: $formData->filterIndicationId,
-            filterSecondaryIndicationId: $formData->filterSecondaryIndicationId,
-            filterIndicationGroupId: $formData->filterIndicationGroupId,
-        );
-
-        return $this->editFormFilterFieldMapper->mergeSubmittedFilters($base, $submitted);
+        return $this->submittedDataFactory->createFromSubmitted($formData, $submitted, $this->getForm());
     }
 
-    /**
-     * @param array<string, mixed> $submitted
-     */
-    private function resolveScopePeriodFormData(
-        StatisticsScopePeriodFormData $fallback,
-        array $submitted,
-    ): StatisticsScopePeriodFormData {
-        if (isset($submitted['scopePeriod']) && \is_array($submitted['scopePeriod'])) {
-            $scopeSubmitted = $submitted['scopePeriod'];
-
-            return new StatisticsScopePeriodFormData(
-                (string) ($scopeSubmitted['scopeGroup'] ?? $fallback->scopeGroup),
-                isset($scopeSubmitted['scopeDetail']) ? (string) $scopeSubmitted['scopeDetail'] : $fallback->scopeDetail,
-                (string) ($scopeSubmitted['period'] ?? $fallback->period),
-                isset($scopeSubmitted['periodYear']) && '' !== $scopeSubmitted['periodYear']
-                    ? (int) $scopeSubmitted['periodYear']
-                    : $fallback->periodYear,
-                isset($scopeSubmitted['periodQuarter']) && '' !== $scopeSubmitted['periodQuarter']
-                    ? (int) $scopeSubmitted['periodQuarter']
-                    : $fallback->periodQuarter,
-                isset($scopeSubmitted['periodMonth']) && '' !== $scopeSubmitted['periodMonth']
-                    ? (int) $scopeSubmitted['periodMonth']
-                    : $fallback->periodMonth,
-            );
-        }
-
-        $scopePeriod = $this->getForm()->get('scopePeriod')->getData();
-        if ($scopePeriod instanceof StatisticsScopePeriodFormData) {
-            return $scopePeriod;
-        }
-
-        return $fallback;
-    }
-
-    private function clearPresentation(): void
+    private function applyPresentationState(\App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisPresentationState $state): void
     {
-        $this->result = null;
-        $this->chartSpecs = [];
-        $this->defaultChartType = 'bar';
-        $this->hasChart = false;
-        $this->showChartRowLimitControl = false;
-        $this->chartRowLimit = ExplorerChartRowLimit::All->value;
-        $this->table = null;
+        $this->result = $state->result;
+        $this->chartSpecs = $state->chartSpecs;
+        $this->defaultChartType = $state->defaultChartType;
+        $this->hasChart = $state->hasChart;
+        $this->showChartRowLimitControl = $state->showChartRowLimitControl;
+        $this->chartRowLimit = $state->chartRowLimit;
+        $this->emptyReason = $state->emptyReason;
+        if ($state->table instanceof \App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel) {
+            $this->table = $state->table;
+        } elseif (!$state->result instanceof AnalysisRunResult) {
+            $this->table = null;
+        }
+        $this->analysisRevision += $state->analysisRevisionDelta;
     }
 }

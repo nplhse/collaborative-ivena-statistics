@@ -8,6 +8,7 @@ use App\Statistics\Application\Contract\ProjectionEarliestDateProviderInterface;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use App\Statistics\Infrastructure\Query\ProjectionDiagnosisQuery;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
+use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesBucketQuery;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -20,6 +21,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
     public function __construct(
         ManagerRegistry $registry,
         private readonly ProjectionTimeSeriesQuery $timeSeriesQuery,
+        private readonly ProjectionTimeSeriesBucketQuery $timeSeriesBucketQuery,
         private readonly ProjectionFeatureQuery $featureQuery,
         private readonly ProjectionDiagnosisQuery $diagnosisQuery,
     ) {
@@ -102,7 +104,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
      */
     public function bucketByMonthAndGender(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->timeSeriesQuery->bucketByMonthAndGender($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesBucketQuery->bucketByMonthAndGender($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -112,7 +114,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
      */
     public function bucketByMonthAndUrgency(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->timeSeriesQuery->bucketByMonthAndUrgency($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesBucketQuery->bucketByMonthAndUrgency($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -122,7 +124,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
      */
     public function bucketByDayAndGender(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->timeSeriesQuery->bucketByDayAndGender($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesBucketQuery->bucketByDayAndGender($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -132,7 +134,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
      */
     public function bucketByDayAndUrgency(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->timeSeriesQuery->bucketByDayAndUrgency($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesBucketQuery->bucketByDayAndUrgency($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -142,7 +144,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
      */
     public function bucketByCalendarMonthAndGender(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->timeSeriesQuery->bucketByCalendarMonthAndGender($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesBucketQuery->bucketByCalendarMonthAndGender($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -152,7 +154,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
      */
     public function bucketByCalendarMonthAndUrgency(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
-        return $this->timeSeriesQuery->bucketByCalendarMonthAndUrgency($from, $toExclusive, $hospitalIds);
+        return $this->timeSeriesBucketQuery->bucketByCalendarMonthAndUrgency($from, $toExclusive, $hospitalIds);
     }
 
     /**

@@ -152,6 +152,8 @@ Implemented in [`deptrac.yaml`](../../deptrac.yaml). See [deptrac.md](deptrac.md
 
 **Baseline (390 skipped violations):** documented in `deptrac.baseline.yaml` — see [deptrac.md](deptrac.md).
 
+**Phase 4 complexity analysis:** see [complexity-analysis.md](complexity-analysis.md) and [refactoring-backlog.md](refactoring-backlog.md).
+
 Dependency rules: [dependency-rules.md](dependency-rules.md).
 
 ## Decision summary (Phase 2)

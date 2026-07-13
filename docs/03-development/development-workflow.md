@@ -57,6 +57,8 @@ Key constraints: no `EntityManagerInterface` in new controllers; no imports of f
 
 Run architecture checks: `make deptrac` (see [../02-architecture/deptrac.md](../02-architecture/deptrac.md)).
 
+Complexity metrics (PHPUnit CRAP + coverage): `make complexity` (see [../02-architecture/complexity-analysis.md](../02-architecture/complexity-analysis.md)).
+
 ### Translations
 
 ```bash
