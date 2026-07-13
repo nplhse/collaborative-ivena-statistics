@@ -59,3 +59,7 @@ security-audit/
 # Production DB dumps (never commit)
 /prod-dump.sql.gz
 /var/dumps/
+
+###> deptrac/deptrac ###
+/.deptrac.cache
+###< deptrac/deptrac ###

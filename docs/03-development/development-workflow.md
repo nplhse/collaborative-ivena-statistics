@@ -45,6 +45,18 @@ make static-analysis
 make cs
 ```
 
+### Architecture rules (new features)
+
+Before adding cross-context dependencies or new layers, read:
+
+- [../02-architecture/target-architecture.md](../02-architecture/target-architecture.md) — layer rules and exceptions
+- [../02-architecture/dependency-rules.md](../02-architecture/dependency-rules.md) — allowed context dependencies
+- [../02-architecture/bounded-contexts.md](../02-architecture/bounded-contexts.md) — where new code belongs
+
+Key constraints: no `EntityManagerInterface` in new controllers; no imports of foreign `Infrastructure` from Shared; extension points via `Application/Contract/` and tags; significant domain writes should dispatch `Domain/Event/` classes (see [ADR 012](../02-architecture/decisions/012-domain-events-for-significant-state-changes.md)) — incremental adoption.
+
+Run architecture checks: `make deptrac` (see [../02-architecture/deptrac.md](../02-architecture/deptrac.md)).
+
 ### Translations
 
 ```bash

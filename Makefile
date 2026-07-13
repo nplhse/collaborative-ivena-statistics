@@ -17,6 +17,7 @@ PHPSTAN       = ./vendor/bin/phpstan
 PHP_CS_FIXER  = ./vendor/bin/php-cs-fixer
 PSALM         = ./vendor/bin/psalm
 RECTOR        = ./vendor/bin/rector
+DEPTRAC       = ./vendor/bin/deptrac
 SWISS_KNIFE   = ./vendor/bin/swiss-knife
 SWISS_KNIFE_FINALIZE_OPTS = --skip-mocked --skip-file 'src/**/Domain/Entity/*' --skip-file 'src/**/Infrastructure/Entity/*'
 TWIG_CS_FIXER = ./vendor/bin/twig-cs-fixer
@@ -200,6 +201,12 @@ psalm: ## Run Psalm
 
 rector: ## Run Rector
 	@$(RECTOR)
+
+deptrac: ## Run Deptrac architecture analysis
+	@$(DEPTRAC) analyse --no-progress
+
+deptrac-baseline: ## Regenerate deptrac.baseline.yaml from current violations
+	@$(DEPTRAC) analyse --formatter=baseline --output=deptrac.baseline.yaml --no-progress
 
 swiss-knife: ## Apply Swiss Knife fixes (conflicts, commented code, finalize)
 	@$(SWISS_KNIFE) check-conflicts . --exclude vendor --exclude var

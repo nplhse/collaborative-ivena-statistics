@@ -1,0 +1,460 @@
+deptrac:
+  skip_violations:
+    App\Allocation\Application\Allocations\AllocationListFilterCriteriaFactory:
+      - App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO
+    App\Allocation\Application\Allocations\AllocationListHospitalScopeOptionsProvider:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+      - App\Statistics\Application\StatisticsHospitalScopeLabelResolver
+    App\Allocation\Application\Explore\ExploreFilterOptionsProvider:
+      - App\Allocation\Infrastructure\Repository\AssignmentRepository
+      - App\Allocation\Infrastructure\Repository\DepartmentRepository
+      - App\Allocation\Infrastructure\Repository\DispatchAreaRepository
+      - App\Allocation\Infrastructure\Repository\IndicationGroupRepository
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+      - App\Allocation\Infrastructure\Repository\InfectionRepository
+      - App\Allocation\Infrastructure\Repository\OccasionRepository
+      - App\Allocation\Infrastructure\Repository\SecondaryTransportRepository
+      - App\Allocation\Infrastructure\Repository\SpecialityRepository
+      - App\Allocation\Infrastructure\Repository\StateRepository
+    App\Allocation\Application\Export\ExportHospitalFormOptionsProvider:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+      - App\Statistics\Application\StatisticsHospitalScopeLabelResolver
+    App\Allocation\Application\Export\OwnHospitalAllocationsExportFilterMapper:
+      - App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData
+    App\Allocation\Application\Export\OwnHospitalAllocationsExporter:
+      - App\Allocation\Infrastructure\Query\OwnHospitalAllocationsExportQuery
+    App\Allocation\Application\Indication\IndicationMatchSuggestionService:
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+      - App\Import\Infrastructure\Indication\IndicationKey
+    App\Allocation\Application\Indication\IndicationRawReviewNavigator:
+      - App\Allocation\Infrastructure\Repository\IndicationRawRepository
+      - App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO
+    App\Allocation\Application\Indication\IndicationRawReviewService:
+      - App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter
+    App\Allocation\Application\Service\HospitalPermissionAccess:
+      - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+    App\Allocation\Domain\Entity\Allocation:
+      - App\Allocation\Infrastructure\Repository\AllocationRepository
+    App\Allocation\Domain\Entity\Assessment:
+      - App\Allocation\Infrastructure\Repository\AssessmentRepository
+    App\Allocation\Domain\Entity\Assignment:
+      - App\Allocation\Infrastructure\Repository\AssignmentRepository
+    App\Allocation\Domain\Entity\Department:
+      - App\Allocation\Infrastructure\Repository\DepartmentRepository
+    App\Allocation\Domain\Entity\DispatchArea:
+      - App\Allocation\Infrastructure\Repository\DispatchAreaRepository
+    App\Allocation\Domain\Entity\Hospital:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+    App\Allocation\Domain\Entity\HospitalAccessGrant:
+      - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository
+    App\Allocation\Domain\Entity\IndicationGroup:
+      - App\Allocation\Infrastructure\Repository\IndicationGroupRepository
+    App\Allocation\Domain\Entity\IndicationNormalized:
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+    App\Allocation\Domain\Entity\IndicationRaw:
+      - App\Allocation\Infrastructure\Repository\IndicationRawRepository
+    App\Allocation\Domain\Entity\Infection:
+      - App\Allocation\Infrastructure\Repository\InfectionRepository
+    App\Allocation\Domain\Entity\MciCase:
+      - App\Allocation\Infrastructure\Repository\MciCaseRepository
+    App\Allocation\Domain\Entity\Occasion:
+      - App\Allocation\Infrastructure\Repository\OccasionRepository
+    App\Allocation\Domain\Entity\SecondaryTransport:
+      - App\Allocation\Infrastructure\Repository\SecondaryTransportRepository
+    App\Allocation\Domain\Entity\Speciality:
+      - App\Allocation\Infrastructure\Repository\SpecialityRepository
+    App\Allocation\Domain\Entity\State:
+      - App\Allocation\Infrastructure\Repository\StateRepository
+    App\Allocation\Infrastructure\Query\ListAllocationsQuery:
+      - App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\AssignmentRepository:
+      - App\Allocation\UI\Http\DTO\AssignmentQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\DepartmentRepository:
+      - App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\DispatchAreaRepository:
+      - App\Allocation\UI\Http\DTO\AreaListQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\HospitalRepository:
+      - App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository:
+      - App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\IndicationRawRepository:
+      - App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO
+      - App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO
+    App\Allocation\Infrastructure\Repository\InfectionRepository:
+      - App\Allocation\UI\Http\DTO\InfectionQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\MciCaseRepository:
+      - App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\OccasionRepository:
+      - App\Allocation\UI\Http\DTO\OccasionQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\SecondaryTransportRepository:
+      - App\Allocation\UI\Http\DTO\SecondaryTransportQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\SpecialityRepository:
+      - App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO
+    App\Allocation\Infrastructure\Security\Voter\HospitalVoter:
+      - App\Import\Application\Service\ImportListAccess
+    App\Allocation\UI\Console\Command\AuditIndicationReviewCommand:
+      - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckQuery
+      - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckResult
+      - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckSeverity
+    App\Allocation\UI\Console\Command\BackfillAllocationIndicationNormalizedCommand:
+      - App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface
+    App\Allocation\UI\Form\IndicationRawReviewType:
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+    App\Allocation\UI\Form\OwnHospitalAllocationsExportType:
+      - App\Allocation\Infrastructure\Repository\AssignmentRepository
+      - App\Allocation\Infrastructure\Repository\DepartmentRepository
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+      - App\Allocation\Infrastructure\Repository\InfectionRepository
+      - App\Allocation\Infrastructure\Repository\OccasionRepository
+      - App\Allocation\Infrastructure\Repository\SecondaryTransportRepository
+      - App\Allocation\Infrastructure\Repository\SpecialityRepository
+    App\Allocation\UI\Form\Transformer\IndicationToIdTransformer:
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+    App\Allocation\UI\Http\Controller\Allocations\ListAllocationsController:
+      - App\Allocation\Infrastructure\Query\ListAllocationsQuery
+    App\Allocation\UI\Http\Controller\Allocations\ShowAllocationController:
+      - App\Allocation\Infrastructure\Security\Voter\AllocationVoter
+    App\Allocation\UI\Http\Controller\Assignments\ListAssignmentController:
+      - App\Allocation\Infrastructure\Repository\AssignmentRepository
+    App\Allocation\UI\Http\Controller\DispatchAreas\ListDispatchAreasController:
+      - App\Allocation\Infrastructure\Repository\DispatchAreaRepository
+    App\Allocation\UI\Http\Controller\Export\DownloadAllocationsExportController:
+      - App\Allocation\Infrastructure\Security\Voter\ExportVoter
+    App\Allocation\UI\Http\Controller\Export\EstimateAllocationsExportController:
+      - App\Allocation\Infrastructure\Security\Voter\ExportVoter
+    App\Allocation\UI\Http\Controller\Export\ShowAllocationsExportController:
+      - App\Allocation\Infrastructure\Security\Voter\ExportVoter
+    App\Allocation\UI\Http\Controller\Hospitals\DeleteHospitalAccessGrantController:
+      - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
+    App\Allocation\UI\Http\Controller\Hospitals\EditHospitalAccessGrantController:
+      - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
+    App\Allocation\UI\Http\Controller\Hospitals\EditOwnedHospitalController:
+      - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
+    App\Allocation\UI\Http\Controller\Hospitals\ListHospitalAccessGrantsController:
+      - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository
+      - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
+    App\Allocation\UI\Http\Controller\Hospitals\ListHospitalsController:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+    App\Allocation\UI\Http\Controller\Hospitals\ListOwnedHospitalsController:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+    App\Allocation\UI\Http\Controller\Hospitals\NewHospitalAccessGrantController:
+      - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository
+      - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
+    App\Allocation\UI\Http\Controller\Indications\IndicationRawReviewWorklistController:
+      - App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery
+      - App\Allocation\Infrastructure\Repository\IndicationRawRepository
+      - App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter
+    App\Allocation\UI\Http\Controller\Indications\ListIndicationController:
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+      - App\Allocation\Infrastructure\Repository\IndicationRawRepository
+    App\Allocation\UI\Http\Controller\Indications\ReviewIndicationRawController:
+      - App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery
+      - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
+      - App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter
+    App\Allocation\UI\Http\Controller\Infections\ListInfectionController:
+      - App\Allocation\Infrastructure\Repository\InfectionRepository
+    App\Allocation\UI\Http\Controller\MciCases\ListMciCasesController:
+      - App\Allocation\Infrastructure\Repository\MciCaseRepository
+    App\Allocation\UI\Http\Controller\Occasions\ListOccasionsController:
+      - App\Allocation\Infrastructure\Repository\OccasionRepository
+    App\Allocation\UI\Http\Controller\SecondaryTransports\ListSecondaryTransportsController:
+      - App\Allocation\Infrastructure\Repository\SecondaryTransportRepository
+    App\Allocation\UI\Http\Controller\Specialities\ListDepartmentController:
+      - App\Allocation\Infrastructure\Repository\DepartmentRepository
+    App\Allocation\UI\Http\Controller\Specialities\ListSpecialitiesController:
+      - App\Allocation\Infrastructure\Repository\SpecialityRepository
+    App\Content\Application\Media\MediaDimensionsBackfillService:
+      - App\Content\Infrastructure\Media\LocalMediaFileLocator
+      - App\Content\Infrastructure\Media\MediaDimensionsExtractor
+      - App\Content\Infrastructure\Repository\MediaRepository
+    App\Content\Application\Media\MediaLibraryAdminUrlProvider:
+      - App\Admin\UI\Http\Controller\Media\MediaCrudController
+    App\Content\Application\Page\PageContentMediaResolver:
+      - App\Content\Infrastructure\Repository\MediaRepository
+    App\Content\Application\Page\PageImageContentAnalyzer:
+      - App\Content\Infrastructure\Media\LocalMediaFileLocator
+      - App\Content\Infrastructure\Media\MediaDimensionsExtractor
+      - App\Content\Infrastructure\Repository\MediaRepository
+      - App\Content\Infrastructure\Repository\PageRepository
+    App\Content\Application\Page\PageImageContentMigrationService:
+      - App\Content\Infrastructure\Repository\PageRepository
+    App\Content\Application\Page\PageNavigationProvider:
+      - App\Content\Infrastructure\Repository\PageRepository
+    App\Content\Application\Page\PageSidebarDataProvider:
+      - App\Content\Infrastructure\Repository\PageRepository
+      - App\Content\Infrastructure\Repository\PostRepository
+    App\Content\Domain\Entity\Media:
+      - App\Content\Infrastructure\Repository\MediaRepository
+    App\Content\Domain\Entity\Page:
+      - App\Content\Infrastructure\Repository\PageRepository
+    App\Content\Domain\Entity\Post:
+      - App\Content\Infrastructure\Repository\PostRepository
+    App\Content\Domain\Entity\PostCategory:
+      - App\Content\Infrastructure\Repository\PostCategoryRepository
+    App\Content\Domain\Entity\PostComment:
+      - App\Content\Infrastructure\Repository\PostCommentRepository
+    App\Content\Domain\Entity\PostTag:
+      - App\Content\Infrastructure\Repository\PostTagRepository
+    App\Content\Infrastructure\Repository\PostRepository:
+      - App\Content\UI\Http\DTO\BlogListQueryParametersDTO
+    App\Content\UI\Http\Controller\BlogController:
+      - App\Content\Infrastructure\Repository\PostCategoryRepository
+      - App\Content\Infrastructure\Repository\PostCommentRepository
+      - App\Content\Infrastructure\Repository\PostRepository
+      - App\Content\Infrastructure\Repository\PostTagRepository
+    App\Content\UI\Http\Controller\DefaultController:
+      - App\Allocation\Infrastructure\Repository\AllocationRepository
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+      - App\Content\Infrastructure\Repository\PostRepository
+      - App\Import\Infrastructure\Repository\ImportRepository
+      - App\Onboarding\Application\OnboardingProgressService
+    App\Content\UI\Http\Controller\PageController:
+      - App\Content\Infrastructure\Repository\PageRepository
+    App\Engagement\Application\MonthlyReminderContentBuilder:
+      - App\Import\Domain\Entity\Import
+      - App\Import\Infrastructure\Repository\ImportRepository
+      - App\Kpi\Infrastructure\Repository\KpiDailyRepository
+    App\Engagement\Application\MonthlyReminderSender:
+      - App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository
+      - App\User\Domain\Entity\User
+    App\Engagement\Domain\Entity\MonthlyReminderDispatch:
+      - App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository
+    App\Feedback\Domain\Entity\Feedback:
+      - App\Feedback\Infrastructure\Repository\FeedbackRepository
+    App\Import\Application\Analysis\ImportRejectAnalysisService:
+      - App\Import\Infrastructure\Repository\ImportRejectRepository
+    App\Import\Application\Analysis\RejectMessageNormalizer:
+      - App\Import\Infrastructure\Mapping\DispatchAreaSourceResolver
+    App\Import\Application\Factory\RowReaderFactory:
+      - App\Import\Infrastructure\Adapter\SplCsvRowReader
+      - App\Import\Infrastructure\Adapter\SplCsvStreamFactory
+      - App\Import\Infrastructure\Charset\EncodingDetector
+    App\Import\Application\MessageHandler\ImportAllocationsMessageHandler:
+      - App\Import\Infrastructure\Repository\ImportRepository
+    App\Import\Application\Service\AllocationRowProcessor:
+      - App\Import\Infrastructure\Mapping\AllocationImportFactory
+    App\Import\Application\Service\ImportAllocationDeduplicationService:
+      - App\Statistics\Application\Projection\AllocationProjectionDeduplicator
+      - App\Statistics\Application\Projection\Dto\DeduplicationResult
+    App\Import\Application\Service\ImportAllocationsDispatcher:
+      - App\Import\Infrastructure\Repository\ImportRepository
+      - App\User\Domain\Entity\User
+    App\Import\Application\Service\ImportDeletionService:
+      - App\Import\Infrastructure\Repository\ImportBatchRunItemRepository
+    App\Import\Application\Service\ImportListAccess:
+      - App\User\Domain\Entity\User
+    App\Import\Application\Service\ImportRelatedDataCleanupService:
+      - App\Import\Infrastructure\Repository\ImportRejectRepository
+      - App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface
+      - App\Statistics\Application\Contract\MaterializedViewRefresherInterface
+      - App\Statistics\Application\Contract\ProjectionOverviewChangeDetectorInterface
+      - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
+    App\Import\Application\Service\ImportRequeueBatchOrchestrator:
+      - App\Import\Infrastructure\Repository\ImportBatchRunRepository
+      - App\Import\Infrastructure\Repository\ImportRepository
+    App\Import\Application\Service\MciCaseRowProcessor:
+      - App\Import\Infrastructure\Mapping\MciCaseImportFactory
+    App\Import\Domain\Entity\Import:
+      - App\Import\Infrastructure\Repository\ImportRepository
+      - App\User\Domain\Entity\User
+    App\Import\Domain\Entity\ImportBatchRun:
+      - App\Import\Infrastructure\Repository\ImportBatchRunRepository
+    App\Import\Domain\Entity\ImportBatchRunItem:
+      - App\Import\Infrastructure\Repository\ImportBatchRunItemRepository
+    App\Import\Domain\Entity\ImportReject:
+      - App\Import\Infrastructure\Repository\ImportRejectRepository
+    App\Import\Domain\Service\ImportEvaluation:
+      - App\Import\Application\DTO\ImportSummary
+    App\Import\Domain\Validation\Constraints\ImportSourceFileValidator:
+      - App\Import\Application\Service\ImportUploadGuard
+    App\Import\Infrastructure\EventSubscriber\ImportCompletedSubscriber:
+      - App\Statistics\Application\Message\RebuildAllocationStatsProjection
+    App\Import\Infrastructure\Query\ListImportRejectsQuery:
+      - App\Import\UI\Http\DTO\ImportRejectQueryParametersDTO
+    App\Import\Infrastructure\Query\ListImportsQuery:
+      - App\Import\UI\Http\DTO\ListImportQueryParametersDTO
+      - App\User\Domain\Entity\User
+    App\Import\Infrastructure\Repository\ImportRepository:
+      - App\User\Domain\Entity\User
+    App\Import\Infrastructure\Resolver\Strategy\IndicationCreationStrategy:
+      - App\User\Domain\Entity\User
+    App\Import\Infrastructure\Security\Voter\ImportVoter:
+      - App\User\Domain\Entity\User
+      - App\User\Domain\Security\UserRole
+    App\Import\UI\Console\Command\AnalyzeImportRejectsCommand:
+      - App\Import\Infrastructure\Analysis\Export\RejectAnalysisExporterRegistry
+    App\Import\UI\Form\ImportCreateType:
+      - App\User\Domain\Entity\User
+    App\Import\UI\Http\Controller\DeleteImportController:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
+    App\Import\UI\Http\Controller\DownloadImportSourceFileController:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
+    App\Import\UI\Http\Controller\ImportStatusController:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
+    App\Import\UI\Http\Controller\ListImportController:
+      - App\Import\Infrastructure\Query\ListImportsQuery
+      - App\User\Domain\Entity\User
+    App\Import\UI\Http\Controller\NewImportController:
+      - App\User\Domain\Entity\User
+    App\Import\UI\Http\Controller\ProcessingImportController:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
+    App\Import\UI\Http\Controller\ShowImportController:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
+    App\Kpi\Application\Service\KpiAggregationService:
+      - App\Allocation\Domain\Entity\Hospital
+      - App\Allocation\Infrastructure\Repository\HospitalRepository
+      - App\Kpi\Infrastructure\Query\KpiDayAggregationQuery
+      - App\Kpi\Infrastructure\Repository\KpiDailyRepository
+    App\Kpi\Application\Service\KpiDashboardService:
+      - App\Admin\UI\Http\Controller\Allocation\AllocationCrudController
+      - App\Admin\UI\Http\Controller\DashboardController
+      - App\Admin\UI\Http\Controller\Hospital\HospitalCrudController
+      - App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController
+      - App\Admin\UI\Http\Controller\Import\ImportCrudController
+      - App\Kpi\Infrastructure\Repository\KpiDailyRepository
+    App\Kpi\Domain\Entity\KpiDaily:
+      - App\Allocation\Domain\Entity\Hospital
+      - App\Kpi\Infrastructure\Repository\KpiDailyRepository
+    App\Onboarding\Application\OnboardingProgressService:
+      - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
+    App\Onboarding\Application\OnboardingStepCatalog:
+      - App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver
+      - App\Allocation\Application\Service\HospitalPermissionAccess
+      - App\Allocation\Domain\Enum\HospitalPermission
+      - App\Import\Application\Service\ImportListAccess
+    App\Onboarding\Domain\Entity\UserOnboardingStep:
+      - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
+    App\Shared\Application\Navigation\FooterNavigationProvider:
+      - App\Content\Domain\Entity\Page
+      - App\Content\Domain\Enum\PageKey
+    App\Shared\Infrastructure\Audit\AuditValueNormalizer:
+      - App\Allocation\Domain\Entity\Address
+    App\Shared\Infrastructure\Audit\Query\ImportAssessmentAuditPurgeQuery:
+      - App\Allocation\Domain\Entity\Assessment
+    App\Shared\Infrastructure\Mail\SymfonyTransactionalMailer:
+      - App\Feedback\Domain\Entity\Feedback
+      - App\Feedback\Domain\Enum\FeedbackCategory
+    App\Shared\Infrastructure\Mail\TransactionalMailer:
+      - App\Feedback\Domain\Entity\Feedback
+      - App\Feedback\Domain\Enum\FeedbackCategory
+    App\Statistics\Application\ClinicalFeaturesProvider:
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+    App\Statistics\Application\ClinicalFeaturesQuery:
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+    App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker:
+      - App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsByCohortQuery
+    App\Statistics\Application\ComparisonFilterInputFactory:
+      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
+    App\Statistics\Application\ComparisonScopeResolver:
+      - App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery
+    App\Statistics\Application\HospitalSummaryProvider:
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+    App\Statistics\Application\HospitalSummaryQuery:
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+    App\Statistics\Application\IndicationCompare\IndicationCompareBenchmarkAdapter:
+      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult
+      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareDistributionRow
+      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts
+    App\Statistics\Application\IndicationCompare\IndicationCompareInsightEngine:
+      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts
+    App\Statistics\Application\IndicationCompare\IndicationCompareReportService:
+      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult
+      - App\Statistics\Infrastructure\Query\IndicationCompare\IndicationCompareMetricsQuery
+      - App\Statistics\Infrastructure\Query\IndicationCompare\IndicationCompareSliceQuery
+    App\Statistics\Application\IndicationCompare\IndicationCompareSubjectRequestParser:
+      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
+    App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult:
+      - App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow
+    App\Statistics\Application\IndicationDashboard\IndicationDashboardAssembler:
+      - App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow
+    App\Statistics\Application\IndicationDashboard\IndicationDashboardService:
+      - App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardMetricsQuery
+      - App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSliceQuery
+    App\Statistics\Application\IndicationDashboard\IndicationInsightEngine:
+      - App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow
+    App\Statistics\Application\IndicationGroup\IndicationGroupMemberCompareService:
+      - App\Statistics\Infrastructure\Query\IndicationGroup\IndicationGroupMemberMetricsQuery
+    App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler:
+      - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
+    App\Statistics\Application\OverviewDashboardProvider:
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
+    App\Statistics\Application\Overview\OverviewChartsFactory:
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+      - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria
+      - App\Statistics\Infrastructure\Query\Overview\OverviewSliceQuery
+    App\Statistics\Application\Overview\OverviewDefaultPeriodResolver:
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
+    App\Statistics\Application\Overview\OverviewExecutiveDashboardAssembler:
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+      - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria
+      - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
+    App\Statistics\Application\Overview\OverviewIndicationSectionFactory:
+      - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
+    App\Statistics\Application\Overview\OverviewPeriodComparisonService:
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
+    App\Statistics\Application\Overview\OverviewPopulationProfileFactory:
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+    App\Statistics\Application\Overview\OverviewTopReportsFactory:
+      - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria
+      - App\Statistics\Infrastructure\Query\Overview\OverviewTopEntitiesBatchQuery
+      - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
+    App\Statistics\Application\StatisticsDrawerFilterFactory:
+      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
+    App\Statistics\Application\StatisticsFilterFactory:
+      - App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForDispatchAreaQuery
+      - App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForStateQuery
+    App\Statistics\Application\StatisticsScopeResolver:
+      - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByCohortQuery
+      - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByDispatchAreaQuery
+      - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery
+    App\Statistics\Application\TopDiagnosesQuery:
+      - App\Statistics\Infrastructure\Query\ProjectionDiagnosisQuery
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
+    App\Statistics\Application\TopEntityQuery:
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
+      - App\Statistics\Infrastructure\Query\ProjectionTopEntityQuery
+    App\Statistics\Application\TopIndicationGroupsQuery:
+      - App\Statistics\Infrastructure\Query\IndicationGroup\ProjectionTopIndicationGroupsQuery
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
+    App\Statistics\Domain\Entity\SavedExplorerView:
+      - App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository
+    App\Statistics\Domain\Entity\SavedExplorerViewFavorite:
+      - App\Statistics\Infrastructure\Repository\SavedExplorerViewFavoriteRepository
+    App\Statistics\Infrastructure\Adapter\DoctrineImportTimeline:
+      - App\Import\Infrastructure\Repository\ImportRepository
+    App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider:
+      - App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery
+      - App\Statistics\Infrastructure\Query\Overview\GetEligibleDispatchAreaIdsQuery
+      - App\Statistics\Infrastructure\Query\Overview\GetEligibleStateIdsQuery
+    App\Statistics\UI\Console\Command\DeduplicateProjectionCommand:
+      - App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher
+      - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
+    App\Statistics\UI\Console\Command\RebuildAllocationStatsProjectionCommand:
+      - App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher
+      - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
+    App\Statistics\UI\Console\Command\RefreshMaterializedViewsCommand:
+      - App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher
+      - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
+    App\Statistics\UI\Http\Controller\DashboardController:
+      - App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery
+      - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria
+    App\Statistics\UI\Http\Controller\OverviewTopReportsController:
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
+    App\User\Domain\Entity\ResetPasswordRequest:
+      - App\User\Infrastructure\Repository\ResetPasswordRequestRepository
+    App\User\Domain\Entity\User:
+      - App\User\Infrastructure\Repository\UserRepository
+    App\User\Infrastructure\EventSubscriber\UserRegisteredNotificationSubscriber:
+      - App\Admin\Application\Service\AdminUserUrlGenerator
+      - App\Admin\Application\Service\GrantParticipantUrlGenerator
+    App\User\Infrastructure\Security\ConfirmPasswordAuthenticator:
+      - App\User\UI\Form\ConfirmPasswordType
+      - App\User\UI\Http\DTO\ConfirmPasswordTypeDTO
+    App\User\Infrastructure\Security\LoginFormAuthenticator:
+      - App\User\UI\Form\LoginType
+      - App\User\UI\Http\DTO\LoginTypeDTO
+    App\User\UI\Http\Controller\RegistrationController:
+      - App\User\Infrastructure\Security\EmailVerifier
+    App\User\UI\Http\Controller\SettingsController:
+      - App\User\Infrastructure\Security\EmailVerifier
