@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Application\Navigation;
 
-use App\Allocation\Infrastructure\Security\Voter\ExportVoter;
 use App\Content\Application\Page\PageNavigationProvider;
 use App\Shared\Application\Navigation\DTO\SitemapLink;
 use App\Shared\Application\Navigation\DTO\SitemapSection;
@@ -269,7 +268,7 @@ final readonly class SitemapProvider
             self::VISIBILITY_GUEST => !$this->authorizationChecker->isGranted('ROLE_USER'),
             self::VISIBILITY_AUTHENTICATED => $this->authorizationChecker->isGranted('ROLE_USER'),
             self::VISIBILITY_PARTICIPANT => $this->authorizationChecker->isGranted('ROLE_PARTICIPANT'),
-            self::VISIBILITY_EXPORT => $this->authorizationChecker->isGranted(ExportVoter::EXPORT),
+            self::VISIBILITY_EXPORT => $this->authorizationChecker->isGranted('EXPORT'),
             default => false,
         };
     }
