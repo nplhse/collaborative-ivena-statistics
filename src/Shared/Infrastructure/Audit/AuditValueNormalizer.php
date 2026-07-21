@@ -36,14 +36,11 @@ final readonly class AuditValueNormalizer
             return $value->format(\DateTimeInterface::ATOM);
         }
 
-        if ($this->isAddressLike($value)) {
-            return [
-                'street' => $value->getStreet(),
-                'postalCode' => $value->getPostalCode(),
-                'city' => $value->getCity(),
-                'state' => $value->getState(),
-                'country' => $value->getCountry(),
-            ];
+        if (\is_object($value)) {
+            $address = $this->normalizeAddressLike($value);
+            if (null !== $address) {
+                return $address;
+            }
         }
 
         if ($value instanceof Collection) {
@@ -67,16 +64,27 @@ final readonly class AuditValueNormalizer
     }
 
     /**
-     * @phpstan-assert-if-true object{getStreet(): string, getPostalCode(): string, getCity(): string, getState(): string, getCountry(): string} $value
+     * @return array{street: string, postalCode: string, city: string, state: string, country: string}|null
      */
-    private function isAddressLike(mixed $value): bool
+    private function normalizeAddressLike(object $value): ?array
     {
-        return \is_object($value)
-            && method_exists($value, 'getStreet')
-            && method_exists($value, 'getPostalCode')
-            && method_exists($value, 'getCity')
-            && method_exists($value, 'getState')
-            && method_exists($value, 'getCountry');
+        if (
+            !method_exists($value, 'getStreet')
+            || !method_exists($value, 'getPostalCode')
+            || !method_exists($value, 'getCity')
+            || !method_exists($value, 'getState')
+            || !method_exists($value, 'getCountry')
+        ) {
+            return null;
+        }
+
+        return [
+            'street' => (string) $value->getStreet(),
+            'postalCode' => (string) $value->getPostalCode(),
+            'city' => (string) $value->getCity(),
+            'state' => (string) $value->getState(),
+            'country' => (string) $value->getCountry(),
+        ];
     }
 
     /**
