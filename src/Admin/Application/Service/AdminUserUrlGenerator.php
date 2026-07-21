@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Admin\Application\Service;
 
+use App\User\Application\Contract\AdminUserDetailUrlGeneratorInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final readonly class AdminUserUrlGenerator
+#[AsAlias(AdminUserDetailUrlGeneratorInterface::class)]
+final readonly class AdminUserUrlGenerator implements AdminUserDetailUrlGeneratorInterface
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
