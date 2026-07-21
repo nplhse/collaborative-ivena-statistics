@@ -17,6 +17,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/** @psalm-suppress UnusedClass Wired via #[AsAlias] for AdminFeedbackNotifierInterface. */
 #[AsAlias(AdminFeedbackNotifierInterface::class)]
 final readonly class AdminFeedbackMailer implements AdminFeedbackNotifierInterface
 {
@@ -30,6 +31,7 @@ final readonly class AdminFeedbackMailer implements AdminFeedbackNotifierInterfa
     ) {
     }
 
+    #[\Override]
     public function notify(
         Feedback $feedback,
         FeedbackCategory $category,

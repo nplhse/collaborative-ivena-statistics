@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/** @psalm-suppress UnusedClass Wired via #[AsAlias] for GrantParticipantUrlGeneratorInterface. */
 #[AsAlias(GrantParticipantUrlGeneratorInterface::class)]
 final readonly class GrantParticipantUrlGenerator implements GrantParticipantUrlGeneratorInterface
 {
@@ -21,6 +22,7 @@ final readonly class GrantParticipantUrlGenerator implements GrantParticipantUrl
     ) {
     }
 
+    #[\Override]
     public function generate(int $userId): string
     {
         $url = $this->urlGenerator->generate(

@@ -84,8 +84,8 @@ final class AllocationBucketQueryTest extends KernelTestCase
 
         $buckets = $this->query->bucketByMonthAndUrgencyInRange($from, $toExclusive);
 
-        self::assertSame(1, $buckets['2024-03']['1']);
-        self::assertSame(1, $buckets['2024-03']['2']);
+        $this->assertNestedBucketCount($buckets, '2024-03', (string) AllocationUrgency::EMERGENCY->value, 1);
+        $this->assertNestedBucketCount($buckets, '2024-03', (string) AllocationUrgency::INPATIENT->value, 1);
     }
 
     public function testBucketByMonthResourcesRequiredInRangeCountsFlags(): void
@@ -174,10 +174,22 @@ final class AllocationBucketQueryTest extends KernelTestCase
             'import' => $import,
         ]);
 
+        $emergency = (string) AllocationUrgency::EMERGENCY->value;
+
         self::assertSame(1, $this->query->bucketByCalendarMonthAndGenderInRange($from, $toExclusive)['cal-03']['M']);
         self::assertSame(1, $this->query->bucketByDayAndGenderInRange($from, $toExclusive)['2024-03-10']['M']);
-        self::assertSame(1, $this->query->bucketByCalendarMonthAndUrgencyInRange($from, $toExclusive)['cal-03']['1']);
-        self::assertSame(1, $this->query->bucketByDayAndUrgencyInRange($from, $toExclusive)['2024-03-10']['1']);
+        $this->assertNestedBucketCount(
+            $this->query->bucketByCalendarMonthAndUrgencyInRange($from, $toExclusive),
+            'cal-03',
+            $emergency,
+            1,
+        );
+        $this->assertNestedBucketCount(
+            $this->query->bucketByDayAndUrgencyInRange($from, $toExclusive),
+            '2024-03-10',
+            $emergency,
+            1,
+        );
         self::assertSame(1, $this->query->bucketByCalendarMonthResourcesRequiredInRange($from, $toExclusive)['cal-03']['cathlab']);
         self::assertSame(1, $this->query->bucketByDayResourcesRequiredInRange($from, $toExclusive)['2024-03-10']['cathlab']);
         self::assertSame(1, $this->query->bucketByCalendarMonthClinicalFeaturesInRange($from, $toExclusive)['cal-03']['with_physician']);
@@ -223,15 +235,32 @@ final class AllocationBucketQueryTest extends KernelTestCase
 
         $hospitalIds = [(int) $hospitalA->getId()];
 
+        $emergency = (string) AllocationUrgency::EMERGENCY->value;
+
         self::assertSame(1, $this->query->bucketByMonthAndGenderInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03']['M']);
         self::assertArrayNotHasKey('F', $this->query->bucketByMonthAndGenderInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03'] ?? []);
-        self::assertSame(1, $this->query->bucketByMonthAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03']['1']);
+        $this->assertNestedBucketCount(
+            $this->query->bucketByMonthAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds),
+            '2024-03',
+            $emergency,
+            1,
+        );
         self::assertSame(1, $this->query->bucketByMonthResourcesRequiredInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03']['cathlab']);
         self::assertSame(1, $this->query->bucketByMonthClinicalFeaturesInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03']['with_physician']);
         self::assertSame(1, $this->query->bucketByCalendarMonthAndGenderInRangeForHospitals($from, $toExclusive, $hospitalIds)['cal-03']['M']);
         self::assertSame(1, $this->query->bucketByDayAndGenderInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03-10']['M']);
-        self::assertSame(1, $this->query->bucketByCalendarMonthAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds)['cal-03']['1']);
-        self::assertSame(1, $this->query->bucketByDayAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03-10']['1']);
+        $this->assertNestedBucketCount(
+            $this->query->bucketByCalendarMonthAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds),
+            'cal-03',
+            $emergency,
+            1,
+        );
+        $this->assertNestedBucketCount(
+            $this->query->bucketByDayAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds),
+            '2024-03-10',
+            $emergency,
+            1,
+        );
         self::assertSame(1, $this->query->bucketByCalendarMonthResourcesRequiredInRangeForHospitals($from, $toExclusive, $hospitalIds)['cal-03']['cathlab']);
         self::assertSame(1, $this->query->bucketByDayResourcesRequiredInRangeForHospitals($from, $toExclusive, $hospitalIds)['2024-03-10']['cathlab']);
         self::assertSame(1, $this->query->bucketByCalendarMonthClinicalFeaturesInRangeForHospitals($from, $toExclusive, $hospitalIds)['cal-03']['with_physician']);
@@ -280,10 +309,17 @@ final class AllocationBucketQueryTest extends KernelTestCase
 
         $hospitalIds = [(int) $hospital->getId()];
 
+        $emergency = (string) AllocationUrgency::EMERGENCY->value;
+
         self::assertSame(1, $this->query->bucketByMonthAndGenderLast12Months()[$ym]['M']);
         self::assertSame(1, $this->query->bucketByMonthAndGenderLast12MonthsForHospitals($hospitalIds)[$ym]['M']);
-        self::assertSame(1, $this->query->bucketByMonthAndUrgencyLast12Months()[$ym]['1']);
-        self::assertSame(1, $this->query->bucketByMonthAndUrgencyLast12MonthsForHospitals($hospitalIds)[$ym]['1']);
+        $this->assertNestedBucketCount($this->query->bucketByMonthAndUrgencyLast12Months(), $ym, $emergency, 1);
+        $this->assertNestedBucketCount(
+            $this->query->bucketByMonthAndUrgencyLast12MonthsForHospitals($hospitalIds),
+            $ym,
+            $emergency,
+            1,
+        );
         self::assertSame(1, $this->query->bucketByMonthResourcesRequiredLast12Months()[$ym]['cathlab']);
         self::assertSame(1, $this->query->bucketByMonthResourcesRequiredLast12MonthsForHospitals($hospitalIds)[$ym]['cathlab']);
         self::assertSame(1, $this->query->bucketByMonthClinicalFeaturesLast12Months()[$ym]['with_physician']);
@@ -456,6 +492,16 @@ final class AllocationBucketQueryTest extends KernelTestCase
             $this->query->bucketByDayClinicalFeaturesInRangeForHospitals($from, $toExclusive, $hospitalIds),
             $this->repository->bucketAllocationsByDayClinicalFeaturesInRangeForHospitals($from, $toExclusive, $hospitalIds),
         );
+    }
+
+    /**
+     * @param array<string, array<string, int>> $buckets
+     */
+    private function assertNestedBucketCount(array $buckets, string $outerKey, string $innerKey, int $expected): void
+    {
+        self::assertArrayHasKey($outerKey, $buckets);
+        self::assertArrayHasKey($innerKey, $buckets[$outerKey]);
+        self::assertSame($expected, $buckets[$outerKey][$innerKey]);
     }
 
     /**

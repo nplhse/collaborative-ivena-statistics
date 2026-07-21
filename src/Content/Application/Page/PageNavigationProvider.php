@@ -68,6 +68,7 @@ final class PageNavigationProvider implements NavigationPageLinksProviderInterfa
     /**
      * @return list<array{url: string, label: string}>
      */
+    #[\Override]
     public function linksForKeys(string ...$keys): array
     {
         $links = [];
