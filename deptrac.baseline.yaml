@@ -166,8 +166,6 @@ deptrac:
       - App\Content\Infrastructure\Media\LocalMediaFileLocator
       - App\Content\Infrastructure\Media\MediaDimensionsExtractor
       - App\Content\Infrastructure\Repository\MediaRepository
-    App\Content\Application\Media\MediaLibraryAdminUrlProvider:
-      - App\Admin\UI\Http\Controller\Media\MediaCrudController
     App\Content\Application\Page\PageContentMediaResolver:
       - App\Content\Infrastructure\Repository\MediaRepository
     App\Content\Application\Page\PageImageContentAnalyzer:
@@ -293,11 +291,6 @@ deptrac:
       - App\Kpi\Infrastructure\Query\KpiDayAggregationQuery
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Kpi\Application\Service\KpiDashboardService:
-      - App\Admin\UI\Http\Controller\Allocation\AllocationCrudController
-      - App\Admin\UI\Http\Controller\DashboardController
-      - App\Admin\UI\Http\Controller\Hospital\HospitalCrudController
-      - App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController
-      - App\Admin\UI\Http\Controller\Import\ImportCrudController
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Kpi\Domain\Entity\KpiDaily:
       - App\Allocation\Domain\Entity\Hospital
@@ -435,9 +428,6 @@ deptrac:
       - App\User\Infrastructure\Repository\ResetPasswordRequestRepository
     App\User\Domain\Entity\User:
       - App\User\Infrastructure\Repository\UserRepository
-    App\User\Infrastructure\EventSubscriber\UserRegisteredNotificationSubscriber:
-      - App\Admin\Application\Service\AdminUserUrlGenerator
-      - App\Admin\Application\Service\GrantParticipantUrlGenerator
     App\User\Infrastructure\Security\ConfirmPasswordAuthenticator:
       - App\User\UI\Form\ConfirmPasswordType
       - App\User\UI\Http\DTO\ConfirmPasswordTypeDTO
