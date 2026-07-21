@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+/** @psalm-suppress UnusedClass Wired via #[AsAlias] for MediaLibraryAdminUrlProviderInterface. */
 #[AsAlias(MediaLibraryAdminUrlProviderInterface::class)]
 final readonly class EasyAdminMediaLibraryUrlProvider implements MediaLibraryAdminUrlProviderInterface
 {
@@ -18,6 +19,7 @@ final readonly class EasyAdminMediaLibraryUrlProvider implements MediaLibraryAdm
     ) {
     }
 
+    #[\Override]
     public function getIndexUrl(): string
     {
         return $this->adminUrlGenerator

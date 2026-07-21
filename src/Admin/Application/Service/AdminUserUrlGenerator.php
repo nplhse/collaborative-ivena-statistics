@@ -8,6 +8,7 @@ use App\User\Application\Contract\AdminUserDetailUrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/** @psalm-suppress UnusedClass Wired via #[AsAlias] for AdminUserDetailUrlGeneratorInterface. */
 #[AsAlias(AdminUserDetailUrlGeneratorInterface::class)]
 final readonly class AdminUserUrlGenerator implements AdminUserDetailUrlGeneratorInterface
 {
@@ -17,6 +18,7 @@ final readonly class AdminUserUrlGenerator implements AdminUserDetailUrlGenerato
     ) {
     }
 
+    #[\Override]
     public function detailUrl(int $userId): string
     {
         return $this->urlGenerator->generate(
