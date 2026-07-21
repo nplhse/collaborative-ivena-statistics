@@ -22,6 +22,10 @@ Each ADR includes:
 | [004](004-colocated-templates.md) | Colocated Twig templates | accepted |
 | [005](005-reject-writer-strategy.md) | Reject writer strategy (db vs. csv) | accepted |
 | [006](006-analysis-explorer-saved-views.md) | Analysis Explorer saved views (JSON schema v3) | accepted |
+| [007](007-bounded-contexts-and-dependency-directions.md) | Bounded contexts, typing, and allowed dependency directions | accepted |
+| [008](008-shared-platform-and-domain-framework-coupling.md) | Shared platform role and domain framework coupling | accepted |
+| [009](009-ports-repositories-query-objects-and-naming.md) | Ports, repositories, query objects, and naming | accepted |
+| [010](010-architecture-guardrails-and-beta-scope.md) | Architecture guardrails and beta complexity scope | accepted |
 
 ## Template
 
