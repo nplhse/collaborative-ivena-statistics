@@ -43,8 +43,8 @@ final class UserRegisteredNotificationSubscriberTest extends KernelTestCase
 
         $subscriber = new UserRegisteredNotificationSubscriber(
             self::getContainer()->get(UserRepository::class),
-            self::getContainer()->get(\App\Admin\Application\Service\AdminUserUrlGenerator::class),
-            self::getContainer()->get(\App\Admin\Application\Service\GrantParticipantUrlGenerator::class),
+            self::getContainer()->get(\App\User\Application\Contract\AdminUserDetailUrlGeneratorInterface::class),
+            self::getContainer()->get(\App\User\Application\Contract\GrantParticipantUrlGeneratorInterface::class),
             $sender,
         );
 

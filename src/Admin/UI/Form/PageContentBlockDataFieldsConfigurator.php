@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Form;
 
-use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
+use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Enum\MediaType;
 use App\Content\Domain\Enum\PageContentBlockType;
@@ -37,7 +37,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private MediaRepository $mediaRepository,
-        private MediaLibraryAdminUrlProvider $mediaLibraryAdminUrlProvider,
+        private MediaLibraryAdminUrlProviderInterface $mediaLibraryAdminUrlProvider,
         private TranslatorInterface $translator,
     ) {
     }

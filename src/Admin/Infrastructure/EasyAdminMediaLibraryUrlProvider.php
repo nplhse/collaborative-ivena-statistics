@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Content\Application\Media;
+namespace App\Admin\Infrastructure;
 
 use App\Admin\UI\Http\Controller\Media\MediaCrudController;
+use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
-final readonly class MediaLibraryAdminUrlProvider
+#[AsAlias(MediaLibraryAdminUrlProviderInterface::class)]
+final readonly class EasyAdminMediaLibraryUrlProvider implements MediaLibraryAdminUrlProviderInterface
 {
-    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private AdminUrlGeneratorInterface $adminUrlGenerator,
     ) {
