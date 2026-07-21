@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Unit\Infrastructure\Mail;
 
-use App\Feedback\Application\RecordFeedbackHandler;
 use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Http\Controller\ResetPasswordController;
@@ -41,13 +40,12 @@ final class TransactionalMailWiringTest extends TestCase
     {
         yield EmailVerifier::class => [EmailVerifier::class];
         yield ResetPasswordController::class => [ResetPasswordController::class];
-        yield RecordFeedbackHandler::class => [RecordFeedbackHandler::class];
     }
 
     public function testResetPasswordControllerDoesNotBuildTemplatedEmailDirectly(): void
     {
         $source = (string) file_get_contents(
-            new \ReflectionClass(ResetPasswordController::class)->getFileName(),
+            (string) new \ReflectionClass(ResetPasswordController::class)->getFileName(),
         );
 
         self::assertStringNotContainsString('TemplatedEmail', $source);

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Feedback\Application;
 
+use App\Feedback\Application\Contract\AdminFeedbackNotifierInterface;
 use App\Feedback\Domain\Entity\Feedback;
 use App\Feedback\Domain\Enum\FeedbackCategory;
-use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -15,7 +15,7 @@ final readonly class RecordFeedbackHandler
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private TransactionalMailer $transactionalMailer,
+        private AdminFeedbackNotifierInterface $adminFeedbackNotifier,
     ) {
     }
 
@@ -51,7 +51,7 @@ final readonly class RecordFeedbackHandler
         $this->entityManager->persist($feedback);
         $this->entityManager->flush();
 
-        $this->transactionalMailer->sendAdminFeedbackEmail(
+        $this->adminFeedbackNotifier->notify(
             $feedback,
             $category,
             $this->encodeContextPreview($feedback->getContext()),
