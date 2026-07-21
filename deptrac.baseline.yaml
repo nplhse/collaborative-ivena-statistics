@@ -317,12 +317,6 @@ deptrac:
       - App\Allocation\Domain\Entity\Address
     App\Shared\Infrastructure\Audit\Query\ImportAssessmentAuditPurgeQuery:
       - App\Allocation\Domain\Entity\Assessment
-    App\Shared\Infrastructure\Mail\SymfonyTransactionalMailer:
-      - App\Feedback\Domain\Entity\Feedback
-      - App\Feedback\Domain\Enum\FeedbackCategory
-    App\Shared\Infrastructure\Mail\TransactionalMailer:
-      - App\Feedback\Domain\Entity\Feedback
-      - App\Feedback\Domain\Enum\FeedbackCategory
     App\Statistics\Application\ClinicalFeaturesProvider:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
     App\Statistics\Application\ClinicalFeaturesQuery:
