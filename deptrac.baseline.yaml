@@ -21,6 +21,8 @@ deptrac:
       - App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData
     App\Allocation\Application\Export\OwnHospitalAllocationsExporter:
       - App\Allocation\Infrastructure\Query\OwnHospitalAllocationsExportQuery
+    App\Allocation\Application\Audit\ImportAssessmentAuditPurgeService:
+      - App\Allocation\Infrastructure\Query\ImportAssessmentAuditPurgeQuery
     App\Allocation\Application\Indication\IndicationMatchSuggestionService:
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
       - App\Import\Infrastructure\Indication\IndicationKey
@@ -306,6 +308,12 @@ deptrac:
       - App\Import\Application\Service\ImportListAccess
     App\Onboarding\Domain\Entity\UserOnboardingStep:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
+    App\Shared\Infrastructure\Mail\SymfonyTransactionalMailer:
+      - App\Feedback\Domain\Entity\Feedback
+      - App\Feedback\Domain\Enum\FeedbackCategory
+    App\Shared\Infrastructure\Mail\TransactionalMailer:
+      - App\Feedback\Domain\Entity\Feedback
+      - App\Feedback\Domain\Enum\FeedbackCategory
     App\Shared\Application\Navigation\FooterNavigationProvider:
       - App\Content\Application\Page\PageNavigationProvider
       - App\Content\Domain\Entity\Page

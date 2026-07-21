@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\UI\Console\Command;
+namespace App\Allocation\UI\Console\Command;
 
-use App\Shared\Infrastructure\Audit\Query\ImportAssessmentAuditPurgeQuery;
-use App\Shared\UI\Console\Input\PurgeImportAssessmentAuditInput;
+use App\Allocation\Application\Audit\ImportAssessmentAuditPurgeService;
+use App\Allocation\UI\Console\Input\PurgeImportAssessmentAuditInput;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final readonly class PurgeImportAssessmentAuditCommand
 {
     public function __construct(
-        private ImportAssessmentAuditPurgeQuery $purgeQuery,
+        private ImportAssessmentAuditPurgeService $purgeService,
     ) {
     }
 
@@ -34,8 +34,8 @@ final readonly class PurgeImportAssessmentAuditCommand
             $dryRun = false;
         }
 
-        $count = $this->purgeQuery->countCandidates();
-        $range = $this->purgeQuery->fetchOccurredAtRange();
+        $count = $this->purgeService->countCandidates();
+        $range = $this->purgeService->fetchOccurredAtRange();
 
         $io->section('Candidates');
         $io->writeln(sprintf('Matching audit entries: <info>%d</info>', $count));
@@ -61,7 +61,7 @@ final readonly class PurgeImportAssessmentAuditCommand
             return Command::SUCCESS;
         }
 
-        $deleted = $this->purgeQuery->deleteCandidates();
+        $deleted = $this->purgeService->deleteCandidates();
         $io->success(sprintf('Deleted %d import-generated Assessment create audit entr%s.', $deleted, 1 === $deleted ? 'y' : 'ies'));
 
         return Command::SUCCESS;

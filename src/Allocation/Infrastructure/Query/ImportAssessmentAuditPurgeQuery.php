@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Audit\Query;
+namespace App\Allocation\Infrastructure\Query;
 
 use App\Allocation\Domain\Entity\Assessment;
 use Doctrine\DBAL\Connection;

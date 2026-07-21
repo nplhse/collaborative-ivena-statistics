@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Shared\Functional\Command;
+namespace App\Tests\Allocation\Functional\Command;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Assessment;
@@ -20,11 +20,11 @@ use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Allocation\Infrastructure\Query\ImportAssessmentAuditPurgeQuery;
+use App\Allocation\UI\Console\Command\PurgeImportAssessmentAuditCommand;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
-use App\Shared\Infrastructure\Audit\Query\ImportAssessmentAuditPurgeQuery;
-use App\Shared\UI\Console\Command\PurgeImportAssessmentAuditCommand;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;

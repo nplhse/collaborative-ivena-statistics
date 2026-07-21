@@ -9,11 +9,14 @@ use App\Content\Application\Page\DTO\PublishedPageLink;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Repository\PageRepository;
+use App\Shared\Application\Navigation\Contract\NavigationPageLinksProviderInterface;
 use App\Shared\Application\Navigation\DTO\SitemapPageNode;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-final class PageNavigationProvider
+#[AsAlias(NavigationPageLinksProviderInterface::class)]
+final class PageNavigationProvider implements NavigationPageLinksProviderInterface
 {
     /** @var list<PageKey> */
     private const array GUEST_ONLY_HEADER_KEYS = [
@@ -63,6 +66,34 @@ final class PageNavigationProvider
     }
 
     /**
+     * @return list<array{url: string, label: string}>
+     */
+    public function linksForKeys(string ...$keys): array
+    {
+        $links = [];
+
+        foreach ($keys as $keyValue) {
+            $pageKey = PageKey::tryFrom($keyValue);
+            if (!$pageKey instanceof PageKey) {
+                continue;
+            }
+
+            $page = $this->getPageByKey($pageKey);
+            $url = $this->getUrlByKey($pageKey);
+            if (!$page instanceof Page || null === $url) {
+                continue;
+            }
+
+            $links[] = [
+                'url' => $url,
+                'label' => (string) $page->getTitle(),
+            ];
+        }
+
+        return $links;
+    }
+
+    /**
      * @return list<PageNavigationLink>
      */
     public function getHeaderPages(): array
@@ -85,6 +116,15 @@ final class PageNavigationProvider
             PageKey::Privacy,
             PageKey::Terms,
         );
+    }
+
+    /**
+     * @return list<SitemapPageNode>
+     */
+    #[\Override]
+    public function visiblePublishedPageTree(): array
+    {
+        return $this->getVisiblePublishedPageTree();
     }
 
     /**

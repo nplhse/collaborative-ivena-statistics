@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Application\Navigation;
 
-use App\Content\Application\Page\PageNavigationProvider;
-use App\Content\Domain\Enum\PageKey;
+use App\Shared\Application\Navigation\Contract\NavigationPageLinksProviderInterface;
 use App\Shared\Application\Navigation\DTO\FooterNavigationColumn;
 use App\Shared\Application\Navigation\DTO\FooterNavigationLink;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -24,7 +23,7 @@ final readonly class FooterNavigationProvider
      * @var list<array{
      *   key: string,
      *   labelKey: string,
-     *   pageKeys: list<PageKey>,
+     *   pageKeys: list<string>,
      *   routes: list<string>
      * }>
      */
@@ -32,19 +31,19 @@ final readonly class FooterNavigationProvider
         [
             'key' => 'project',
             'labelKey' => 'footer.column.project',
-            'pageKeys' => [PageKey::About, PageKey::Features],
+            'pageKeys' => ['about', 'features'],
             'routes' => ['app_blog_index'],
         ],
         [
             'key' => 'help',
             'labelKey' => 'footer.column.help',
-            'pageKeys' => [PageKey::Faq],
+            'pageKeys' => ['faq'],
             'routes' => [],
         ],
         [
             'key' => 'legal',
             'labelKey' => 'footer.column.legal',
-            'pageKeys' => [PageKey::Imprint, PageKey::Privacy, PageKey::Terms],
+            'pageKeys' => ['imprint', 'privacy', 'terms'],
             'routes' => [],
         ],
         [
@@ -56,7 +55,7 @@ final readonly class FooterNavigationProvider
     ];
 
     public function __construct(
-        private PageNavigationProvider $pageNavigationProvider,
+        private NavigationPageLinksProviderInterface $pageLinksProvider,
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
     ) {
@@ -90,20 +89,14 @@ final readonly class FooterNavigationProvider
     /**
      * @return list<FooterNavigationLink>
      */
-    private function buildPageLinks(PageKey ...$pageKeys): array
+    private function buildPageLinks(string ...$pageKeys): array
     {
         $links = [];
 
-        foreach ($pageKeys as $pageKey) {
-            $page = $this->pageNavigationProvider->getPageByKey($pageKey);
-            $url = $this->pageNavigationProvider->getUrlByKey($pageKey);
-            if (!$page instanceof \App\Content\Domain\Entity\Page || null === $url) {
-                continue;
-            }
-
+        foreach ($this->pageLinksProvider->linksForKeys(...$pageKeys) as $pageLink) {
             $links[] = new FooterNavigationLink(
-                url: $url,
-                label: (string) $page->getTitle(),
+                url: $pageLink['url'],
+                label: $pageLink['label'],
             );
         }
 

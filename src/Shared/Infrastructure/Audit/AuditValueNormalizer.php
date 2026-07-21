@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Audit;
 
-use App\Allocation\Domain\Entity\Address;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\Mapping\MappingException;
@@ -37,14 +36,11 @@ final readonly class AuditValueNormalizer
             return $value->format(\DateTimeInterface::ATOM);
         }
 
-        if ($value instanceof Address) {
-            return [
-                'street' => $value->getStreet(),
-                'postalCode' => $value->getPostalCode(),
-                'city' => $value->getCity(),
-                'state' => $value->getState(),
-                'country' => $value->getCountry(),
-            ];
+        if (\is_object($value)) {
+            $address = $this->normalizeAddressLike($value);
+            if (null !== $address) {
+                return $address;
+            }
         }
 
         if ($value instanceof Collection) {
@@ -65,6 +61,30 @@ final readonly class AuditValueNormalizer
         }
 
         return null;
+    }
+
+    /**
+     * @return array{street: string, postalCode: string, city: string, state: string, country: string}|null
+     */
+    private function normalizeAddressLike(object $value): ?array
+    {
+        if (
+            !method_exists($value, 'getStreet')
+            || !method_exists($value, 'getPostalCode')
+            || !method_exists($value, 'getCity')
+            || !method_exists($value, 'getState')
+            || !method_exists($value, 'getCountry')
+        ) {
+            return null;
+        }
+
+        return [
+            'street' => (string) $value->getStreet(),
+            'postalCode' => (string) $value->getPostalCode(),
+            'city' => (string) $value->getCity(),
+            'state' => (string) $value->getState(),
+            'country' => (string) $value->getCountry(),
+        ];
     }
 
     /**
