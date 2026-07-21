@@ -1,0 +1,890 @@
+imports:
+    - deptrac.baseline.yaml
+
+deptrac:
+    paths:
+        - ./src
+    exclude_files:
+        - '#src/DataFixtures/.*#'
+        - '#.*/Infrastructure/Factory/.*#'
+        - '#.*/Infrastructure/Faker/.*#'
+        - '#.*/Domain/Factory/.*#'
+    layers:
+        -
+            name: Allocation_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Allocation/Domain/.*
+        -
+            name: Allocation_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Allocation/Application/.*
+        -
+            name: Allocation_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Allocation/Infrastructure/.*
+        -
+            name: Allocation_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Allocation/UI/.*
+        -
+            name: Import_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Import/Domain/.*
+        -
+            name: Import_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Import/Application/.*
+        -
+            name: Import_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Import/Infrastructure/.*
+        -
+            name: Import_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Import/UI/.*
+        -
+            name: Statistics_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Statistics/Domain/.*
+        -
+            name: Statistics_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Statistics/Application/.*
+        -
+            name: Statistics_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Statistics/Infrastructure/.*
+        -
+            name: Statistics_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Statistics/UI/.*
+        -
+            name: User_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/User/Domain/.*
+        -
+            name: User_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/User/Application/.*
+        -
+            name: User_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/User/Infrastructure/.*
+        -
+            name: User_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/User/UI/.*
+        -
+            name: Content_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Content/Domain/.*
+        -
+            name: Content_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Content/Application/.*
+        -
+            name: Content_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Content/Infrastructure/.*
+        -
+            name: Content_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Content/UI/.*
+        -
+            name: Onboarding_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Onboarding/Domain/.*
+        -
+            name: Onboarding_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Onboarding/Application/.*
+        -
+            name: Onboarding_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Onboarding/Infrastructure/.*
+        -
+            name: Onboarding_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Onboarding/UI/.*
+        -
+            name: Engagement_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Engagement/Domain/.*
+        -
+            name: Engagement_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Engagement/Application/.*
+        -
+            name: Engagement_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Engagement/Infrastructure/.*
+        -
+            name: Engagement_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Engagement/UI/.*
+        -
+            name: Kpi_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Kpi/Domain/.*
+        -
+            name: Kpi_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Kpi/Application/.*
+        -
+            name: Kpi_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Kpi/Infrastructure/.*
+        -
+            name: Kpi_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Kpi/UI/.*
+        -
+            name: Feedback_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Feedback/Domain/.*
+        -
+            name: Feedback_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Feedback/Application/.*
+        -
+            name: Feedback_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Feedback/Infrastructure/.*
+        -
+            name: Feedback_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Feedback/UI/.*
+        -
+            name: Shared_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Shared/Domain/.*
+        -
+            name: Shared_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Shared/Application/.*
+        -
+            name: Shared_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Shared/Infrastructure/.*
+        -
+            name: Shared_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Shared/UI/.*
+        -
+            name: Admin_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Admin/Application/.*
+        -
+            name: Admin_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Admin/Infrastructure/.*
+        -
+            name: Admin_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Admin/UI/.*
+        -
+            name: Install_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Install/Application/.*
+        -
+            name: Install_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Install/UI/.*
+    ruleset:
+        Admin_Application:
+            - Admin_Application
+            - Admin_Infrastructure
+            - Admin_UI
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Content_Application
+            - Content_Domain
+            - Content_Infrastructure
+            - Content_UI
+            - Engagement_Application
+            - Engagement_Domain
+            - Engagement_Infrastructure
+            - Engagement_UI
+            - Feedback_Application
+            - Feedback_Domain
+            - Feedback_Infrastructure
+            - Feedback_UI
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Install_Application
+            - Install_UI
+            - Kpi_Application
+            - Kpi_Domain
+            - Kpi_Infrastructure
+            - Kpi_UI
+            - Onboarding_Application
+            - Onboarding_Domain
+            - Onboarding_Infrastructure
+            - Onboarding_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_Infrastructure
+            - Statistics_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Admin_Infrastructure:
+            - Admin_Application
+            - Admin_Infrastructure
+            - Admin_UI
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Content_Application
+            - Content_Domain
+            - Content_Infrastructure
+            - Content_UI
+            - Engagement_Application
+            - Engagement_Domain
+            - Engagement_Infrastructure
+            - Engagement_UI
+            - Feedback_Application
+            - Feedback_Domain
+            - Feedback_Infrastructure
+            - Feedback_UI
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Install_Application
+            - Install_UI
+            - Kpi_Application
+            - Kpi_Domain
+            - Kpi_Infrastructure
+            - Kpi_UI
+            - Onboarding_Application
+            - Onboarding_Domain
+            - Onboarding_Infrastructure
+            - Onboarding_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_Infrastructure
+            - Statistics_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Admin_UI:
+            - Admin_Application
+            - Admin_Infrastructure
+            - Admin_UI
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Content_Application
+            - Content_Domain
+            - Content_Infrastructure
+            - Content_UI
+            - Engagement_Application
+            - Engagement_Domain
+            - Engagement_Infrastructure
+            - Engagement_UI
+            - Feedback_Application
+            - Feedback_Domain
+            - Feedback_Infrastructure
+            - Feedback_UI
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Install_Application
+            - Install_UI
+            - Kpi_Application
+            - Kpi_Domain
+            - Kpi_Infrastructure
+            - Kpi_UI
+            - Onboarding_Application
+            - Onboarding_Domain
+            - Onboarding_Infrastructure
+            - Onboarding_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_Infrastructure
+            - Statistics_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Allocation_Application:
+            - Allocation_Domain
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Allocation_Domain:
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Allocation_Infrastructure:
+            - Allocation_Application
+            - Allocation_Domain
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Allocation_UI:
+            - Allocation_Application
+            - Allocation_Domain
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Content_Application:
+            - Content_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Content_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Content_Infrastructure:
+            - Content_Application
+            - Content_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Content_UI:
+            - Content_Application
+            - Content_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Engagement_Application:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Engagement_Domain
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Kpi_Application
+            - Kpi_Domain
+            - Kpi_Infrastructure
+            - Kpi_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_Infrastructure
+            - Statistics_UI
+        Engagement_Domain:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_Infrastructure
+            - Statistics_UI
+        Engagement_Infrastructure:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Engagement_Application
+            - Engagement_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_Infrastructure
+            - Statistics_UI
+        Engagement_UI:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Engagement_Application
+            - Engagement_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_Infrastructure
+            - Statistics_UI
+        Feedback_Application:
+            - Feedback_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Feedback_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Feedback_Infrastructure:
+            - Feedback_Application
+            - Feedback_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Feedback_UI:
+            - Feedback_Application
+            - Feedback_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Import_Application:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+        Import_Domain:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Import_Infrastructure:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+        Import_UI:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Install_Application:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Install_UI:
+            - Install_Application
+            - Install_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Kpi_Application:
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Kpi_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Kpi_Domain:
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Kpi_Infrastructure:
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Kpi_Application
+            - Kpi_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Kpi_UI:
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Kpi_Application
+            - Kpi_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Onboarding_Application:
+            - Onboarding_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Onboarding_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Onboarding_Infrastructure:
+            - Onboarding_Application
+            - Onboarding_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Onboarding_UI:
+            - Onboarding_Application
+            - Onboarding_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Shared_Application:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Shared_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Shared_Infrastructure:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Shared_UI:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Statistics_Application:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Domain
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Statistics_Domain:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Statistics_Infrastructure:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Statistics_UI:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        User_Application:
+            - Allocation_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Domain
+        User_Domain:
+            - Allocation_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        User_Infrastructure:
+            - Allocation_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+        User_UI:
+            - Allocation_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain

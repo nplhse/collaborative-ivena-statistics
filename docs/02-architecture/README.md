@@ -14,6 +14,7 @@
 | [permission-model.md](permission-model.md) | Concept | Roles, hospital grants, voters |
 | [messenger-and-scheduler.md](messenger-and-scheduler.md) | Concept | Async processing and scheduled jobs |
 | [extension-points.md](extension-points.md) | Reference | Tagged service registries |
+| [deptrac.md](deptrac.md) | Reference | Deptrac layers, baseline, commands |
 | [decisions/](decisions/) | ADR | Architecture decision records |
 
 ## Reading order
