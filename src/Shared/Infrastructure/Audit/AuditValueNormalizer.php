@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Audit;
 
-use App\Allocation\Domain\Entity\Address;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\Mapping\MappingException;
@@ -37,7 +36,7 @@ final readonly class AuditValueNormalizer
             return $value->format(\DateTimeInterface::ATOM);
         }
 
-        if ($value instanceof Address) {
+        if ($this->isAddressLike($value)) {
             return [
                 'street' => $value->getStreet(),
                 'postalCode' => $value->getPostalCode(),
@@ -65,6 +64,19 @@ final readonly class AuditValueNormalizer
         }
 
         return null;
+    }
+
+    /**
+     * @phpstan-assert-if-true object{getStreet(): string, getPostalCode(): string, getCity(): string, getState(): string, getCountry(): string} $value
+     */
+    private function isAddressLike(mixed $value): bool
+    {
+        return \is_object($value)
+            && method_exists($value, 'getStreet')
+            && method_exists($value, 'getPostalCode')
+            && method_exists($value, 'getCity')
+            && method_exists($value, 'getState')
+            && method_exists($value, 'getCountry');
     }
 
     /**

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\UI\Console\Input;
+namespace App\Allocation\UI\Console\Input;
 
 use Symfony\Component\Console\Attribute\Option;
 

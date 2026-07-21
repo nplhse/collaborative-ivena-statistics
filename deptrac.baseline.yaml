@@ -21,6 +21,8 @@ deptrac:
       - App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData
     App\Allocation\Application\Export\OwnHospitalAllocationsExporter:
       - App\Allocation\Infrastructure\Query\OwnHospitalAllocationsExportQuery
+    App\Allocation\Application\Audit\ImportAssessmentAuditPurgeService:
+      - App\Allocation\Infrastructure\Query\ImportAssessmentAuditPurgeQuery
     App\Allocation\Application\Indication\IndicationMatchSuggestionService:
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
       - App\Import\Infrastructure\Indication\IndicationKey
@@ -313,17 +315,6 @@ deptrac:
       - App\Import\Application\Service\ImportListAccess
     App\Onboarding\Domain\Entity\UserOnboardingStep:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
-    App\Shared\Application\Navigation\FooterNavigationProvider:
-      - App\Content\Application\Page\PageNavigationProvider
-      - App\Content\Domain\Entity\Page
-      - App\Content\Domain\Enum\PageKey
-    App\Shared\Application\Navigation\SitemapProvider:
-      - App\Allocation\Infrastructure\Security\Voter\ExportVoter
-      - App\Content\Application\Page\PageNavigationProvider
-    App\Shared\Infrastructure\Audit\AuditValueNormalizer:
-      - App\Allocation\Domain\Entity\Address
-    App\Shared\Infrastructure\Audit\Query\ImportAssessmentAuditPurgeQuery:
-      - App\Allocation\Domain\Entity\Assessment
     App\Shared\Infrastructure\Mail\SymfonyTransactionalMailer:
       - App\Feedback\Domain\Entity\Feedback
       - App\Feedback\Domain\Enum\FeedbackCategory

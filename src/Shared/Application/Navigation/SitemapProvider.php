@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Application\Navigation;
 
-use App\Allocation\Infrastructure\Security\Voter\ExportVoter;
-use App\Content\Application\Page\PageNavigationProvider;
+use App\Shared\Application\Navigation\Contract\NavigationPageLinksProviderInterface;
 use App\Shared\Application\Navigation\DTO\SitemapLink;
 use App\Shared\Application\Navigation\DTO\SitemapSection;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -140,7 +139,7 @@ final readonly class SitemapProvider
     ];
 
     public function __construct(
-        private PageNavigationProvider $pageNavigationProvider,
+        private NavigationPageLinksProviderInterface $pageLinksProvider,
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
         private AuthorizationCheckerInterface $authorizationChecker,
@@ -162,7 +161,7 @@ final readonly class SitemapProvider
             );
 
             if ('content' === $sectionDefinition['key']) {
-                $pageTree = $this->pageNavigationProvider->getVisiblePublishedPageTree();
+                $pageTree = $this->pageLinksProvider->visiblePublishedPageTree();
             }
 
             if ([] === $links && [] === $pageTree) {
@@ -269,7 +268,7 @@ final readonly class SitemapProvider
             self::VISIBILITY_GUEST => !$this->authorizationChecker->isGranted('ROLE_USER'),
             self::VISIBILITY_AUTHENTICATED => $this->authorizationChecker->isGranted('ROLE_USER'),
             self::VISIBILITY_PARTICIPANT => $this->authorizationChecker->isGranted('ROLE_PARTICIPANT'),
-            self::VISIBILITY_EXPORT => $this->authorizationChecker->isGranted(ExportVoter::EXPORT),
+            self::VISIBILITY_EXPORT => $this->authorizationChecker->isGranted('EXPORT'),
             default => false,
         };
     }
