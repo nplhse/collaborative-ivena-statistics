@@ -143,6 +143,12 @@
         ],
         "check-deprecations": [
             "@php bin/check-deprecations"
+        ],
+        "architecture:analyse": [
+            "deptrac analyse --no-progress"
+        ],
+        "architecture:baseline": [
+            "deptrac analyse --formatter=baseline --output=deptrac.baseline.yaml --no-progress"
         ]
     },
     "conflict": {
@@ -158,6 +164,7 @@
         "brianium/paratest": "^7.20",
         "dama/doctrine-test-bundle": "^8.6",
         "deployer/deployer": "^8.0.5",
+        "deptrac/deptrac": "^4.7",
         "doctrine/doctrine-fixtures-bundle": "^4.3.1",
         "friendsofphp/php-cs-fixer": "^3.95.10",
         "phpstan/extension-installer": "^1.4.3",

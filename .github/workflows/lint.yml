@@ -92,6 +92,11 @@ jobs:
             - name: Run PHPStan
               run: ./vendor/bin/phpstan analyze
 
+            - name: Run Deptrac (architecture report)
+              continue-on-error: true
+              run: vendor/bin/deptrac analyse --no-progress
+              # Report-only for now; remove continue-on-error when baseline violations are reduced (ADR 010).
+
             - name: Set up Node.js
               uses: actions/setup-node@v7
               with:
