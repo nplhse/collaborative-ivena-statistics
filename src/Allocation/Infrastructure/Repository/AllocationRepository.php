@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Repository;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Infrastructure\Query\AllocationBucketQuery;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -22,8 +23,10 @@ final class AllocationRepository extends ServiceEntityRepository
 {
     use PublicIdRepositoryTrait;
 
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly AllocationBucketQuery $bucketQuery,
+    ) {
         parent::__construct($registry, Allocation::class);
     }
 
@@ -560,11 +563,7 @@ SQL;
      */
     public function bucketAllocationsByMonthAndGenderLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthAndGender($from, null, null);
+        return $this->bucketQuery->bucketByMonthAndGenderLast12Months();
     }
 
     /**
@@ -574,15 +573,7 @@ SQL;
      */
     public function bucketAllocationsByMonthAndGenderLast12MonthsForHospitals(array $hospitalIds): array
     {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthAndGender($from, null, $hospitalIds);
+        return $this->bucketQuery->bucketByMonthAndGenderLast12MonthsForHospitals($hospitalIds);
     }
 
     /**
@@ -594,7 +585,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketAllocationsByMonthAndGender($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByMonthAndGenderInRange($from, $toExclusive);
     }
 
     /**
@@ -607,11 +598,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketAllocationsByMonthAndGender($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByMonthAndGenderInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -619,11 +606,7 @@ SQL;
      */
     public function bucketAllocationsByMonthAndUrgencyLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthAndUrgency($from, null, null);
+        return $this->bucketQuery->bucketByMonthAndUrgencyLast12Months();
     }
 
     /**
@@ -633,15 +616,7 @@ SQL;
      */
     public function bucketAllocationsByMonthAndUrgencyLast12MonthsForHospitals(array $hospitalIds): array
     {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthAndUrgency($from, null, $hospitalIds);
+        return $this->bucketQuery->bucketByMonthAndUrgencyLast12MonthsForHospitals($hospitalIds);
     }
 
     /**
@@ -651,7 +626,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketAllocationsByMonthAndUrgency($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByMonthAndUrgencyInRange($from, $toExclusive);
     }
 
     /**
@@ -664,101 +639,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketAllocationsByMonthAndUrgency($from, $toExclusive, $hospitalIds);
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds null = keine Krankenhaus-Einschränkung
-     *
-     * @return array<string, array<string, int>>
-     */
-    private function bucketAllocationsByMonthAndGender(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array<string, int>> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $ym = $createdAt->format('Y-m');
-            $gender = $allocation->getGender() ?? AllocationGender::OTHER;
-            $g = $gender->value;
-
-            if (!isset($buckets[$ym][$g])) {
-                $buckets[$ym][$g] = 0;
-            }
-            ++$buckets[$ym][$g];
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds null = keine Krankenhaus-Einschränkung
-     *
-     * @return array<string, array<string, int>>
-     */
-    private function bucketAllocationsByMonthAndUrgency(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array<string, int>> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $ym = $createdAt->format('Y-m');
-            $urgency = $allocation->getUrgency() ?? AllocationUrgency::OUTPATIENT;
-            $u = sprintf('%d', $urgency->value);
-
-            if (!isset($buckets[$ym][$u])) {
-                $buckets[$ym][$u] = 0;
-            }
-            ++$buckets[$ym][$u];
-        }
-
-        return $buckets;
+        return $this->bucketQuery->bucketByMonthAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -768,11 +649,7 @@ SQL;
      */
     public function bucketAllocationsByMonthResourcesRequiredLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthResourcesRequired($from, null, null);
+        return $this->bucketQuery->bucketByMonthResourcesRequiredLast12Months();
     }
 
     /**
@@ -782,15 +659,7 @@ SQL;
      */
     public function bucketAllocationsByMonthResourcesRequiredLast12MonthsForHospitals(array $hospitalIds): array
     {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthResourcesRequired($from, null, $hospitalIds);
+        return $this->bucketQuery->bucketByMonthResourcesRequiredLast12MonthsForHospitals($hospitalIds);
     }
 
     /**
@@ -800,7 +669,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketAllocationsByMonthResourcesRequired($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByMonthResourcesRequiredInRange($from, $toExclusive);
     }
 
     /**
@@ -813,11 +682,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketAllocationsByMonthResourcesRequired($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByMonthResourcesRequiredInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -827,11 +692,7 @@ SQL;
      */
     public function bucketAllocationsByMonthClinicalFeaturesLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthClinicalFeatures($from, null, null);
+        return $this->bucketQuery->bucketByMonthClinicalFeaturesLast12Months();
     }
 
     /**
@@ -841,15 +702,7 @@ SQL;
      */
     public function bucketAllocationsByMonthClinicalFeaturesLast12MonthsForHospitals(array $hospitalIds): array
     {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        return $this->bucketAllocationsByMonthClinicalFeatures($from, null, $hospitalIds);
+        return $this->bucketQuery->bucketByMonthClinicalFeaturesLast12MonthsForHospitals($hospitalIds);
     }
 
     /**
@@ -859,7 +712,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketAllocationsByMonthClinicalFeatures($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByMonthClinicalFeaturesInRange($from, $toExclusive);
     }
 
     /**
@@ -872,116 +725,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketAllocationsByMonthClinicalFeatures($from, $toExclusive, $hospitalIds);
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds null = keine Krankenhaus-Einschränkung
-     *
-     * @return array<string, array{cathlab: int, resus: int, with_any: int}>
-     */
-    private function bucketAllocationsByMonthResourcesRequired(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array{cathlab: int, resus: int, with_any: int}> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $ym = $createdAt->format('Y-m');
-            if (!isset($buckets[$ym])) {
-                $buckets[$ym] = ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
-            }
-
-            $requiresAny = false;
-            if (true === $allocation->isRequiresCathlab()) {
-                ++$buckets[$ym]['cathlab'];
-                $requiresAny = true;
-            }
-            if (true === $allocation->isRequiresResus()) {
-                ++$buckets[$ym]['resus'];
-                $requiresAny = true;
-            }
-            if ($requiresAny) {
-                ++$buckets[$ym]['with_any'];
-            }
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds null = keine Krankenhaus-Einschränkung
-     *
-     * @return array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}>
-     */
-    private function bucketAllocationsByMonthClinicalFeatures(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $ym = $createdAt->format('Y-m');
-            if (!isset($buckets[$ym])) {
-                $buckets[$ym] = [
-                    'with_physician' => 0,
-                    'cpr' => 0,
-                    'ventilated' => 0,
-                    'shock' => 0,
-                    'pregnant' => 0,
-                    'infectious' => 0,
-                    'with_any' => 0,
-                ];
-            }
-
-            $this->incrementClinicalFeatureCells($allocation, $buckets[$ym]);
-        }
-
-        return $buckets;
+        return $this->bucketQuery->bucketByMonthClinicalFeaturesInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1047,7 +791,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketByCalendarMonthOfYearAndGender($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByCalendarMonthAndGenderInRange($from, $toExclusive);
     }
 
     /**
@@ -1060,11 +804,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketByCalendarMonthOfYearAndGender($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByCalendarMonthAndGenderInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1074,7 +814,7 @@ SQL;
         \DateTimeInterface $from,
         \DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketByDayAndGender($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByDayAndGenderInRange($from, $toExclusive);
     }
 
     /**
@@ -1087,11 +827,7 @@ SQL;
         \DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketByDayAndGender($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByDayAndGenderInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1101,7 +837,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketByCalendarMonthOfYearAndUrgency($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByCalendarMonthAndUrgencyInRange($from, $toExclusive);
     }
 
     /**
@@ -1114,11 +850,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketByCalendarMonthOfYearAndUrgency($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByCalendarMonthAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1128,7 +860,7 @@ SQL;
         \DateTimeInterface $from,
         \DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketByDayAndUrgency($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByDayAndUrgencyInRange($from, $toExclusive);
     }
 
     /**
@@ -1141,11 +873,7 @@ SQL;
         \DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketByDayAndUrgency($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByDayAndUrgencyInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1155,7 +883,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketResourcesRequiredByCalendarMonthOfYear($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByCalendarMonthResourcesRequiredInRange($from, $toExclusive);
     }
 
     /**
@@ -1168,11 +896,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketResourcesRequiredByCalendarMonthOfYear($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByCalendarMonthResourcesRequiredInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1182,7 +906,7 @@ SQL;
         \DateTimeInterface $from,
         \DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketResourcesRequiredByDay($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByDayResourcesRequiredInRange($from, $toExclusive);
     }
 
     /**
@@ -1195,11 +919,7 @@ SQL;
         \DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketResourcesRequiredByDay($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByDayResourcesRequiredInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1209,7 +929,7 @@ SQL;
         \DateTimeInterface $from,
         ?\DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketClinicalFeaturesByCalendarMonthOfYear($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByCalendarMonthClinicalFeaturesInRange($from, $toExclusive);
     }
 
     /**
@@ -1222,11 +942,7 @@ SQL;
         ?\DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketClinicalFeaturesByCalendarMonthOfYear($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByCalendarMonthClinicalFeaturesInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1236,7 +952,7 @@ SQL;
         \DateTimeInterface $from,
         \DateTimeInterface $toExclusive,
     ): array {
-        return $this->bucketClinicalFeaturesByDay($from, $toExclusive, null);
+        return $this->bucketQuery->bucketByDayClinicalFeaturesInRange($from, $toExclusive);
     }
 
     /**
@@ -1249,11 +965,7 @@ SQL;
         \DateTimeInterface $toExclusive,
         array $hospitalIds,
     ): array {
-        if ([] === $hospitalIds) {
-            return [];
-        }
-
-        return $this->bucketClinicalFeaturesByDay($from, $toExclusive, $hospitalIds);
+        return $this->bucketQuery->bucketByDayClinicalFeaturesInRangeForHospitals($from, $toExclusive, $hospitalIds);
     }
 
     /**
@@ -1339,451 +1051,6 @@ SQL;
         }
 
         return $counts;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array<string, int>>
-     */
-    private function bucketByCalendarMonthOfYearAndGender(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array<string, int>> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
-            $gender = $allocation->getGender() ?? AllocationGender::OTHER;
-            $g = $gender->value;
-
-            if (!isset($buckets[$calKey][$g])) {
-                $buckets[$calKey][$g] = 0;
-            }
-            ++$buckets[$calKey][$g];
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array<string, int>>
-     */
-    private function bucketByDayAndGender(
-        \DateTimeInterface $from,
-        \DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array<string, int>> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $dayKey = $createdAt->format('Y-m-d');
-            $gender = $allocation->getGender() ?? AllocationGender::OTHER;
-            $g = $gender->value;
-
-            if (!isset($buckets[$dayKey][$g])) {
-                $buckets[$dayKey][$g] = 0;
-            }
-            ++$buckets[$dayKey][$g];
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array<string, int>>
-     */
-    private function bucketByCalendarMonthOfYearAndUrgency(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array<string, int>> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
-            $urgency = $allocation->getUrgency() ?? AllocationUrgency::OUTPATIENT;
-            $u = sprintf('%d', $urgency->value);
-
-            if (!isset($buckets[$calKey][$u])) {
-                $buckets[$calKey][$u] = 0;
-            }
-            ++$buckets[$calKey][$u];
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array<string, int>>
-     */
-    private function bucketByDayAndUrgency(
-        \DateTimeInterface $from,
-        \DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array<string, int>> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $dayKey = $createdAt->format('Y-m-d');
-            $urgency = $allocation->getUrgency() ?? AllocationUrgency::OUTPATIENT;
-            $u = sprintf('%d', $urgency->value);
-
-            if (!isset($buckets[$dayKey][$u])) {
-                $buckets[$dayKey][$u] = 0;
-            }
-            ++$buckets[$dayKey][$u];
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array{cathlab: int, resus: int, with_any: int}>
-     */
-    private function bucketResourcesRequiredByCalendarMonthOfYear(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array{cathlab: int, resus: int, with_any: int}> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
-            if (!isset($buckets[$calKey])) {
-                $buckets[$calKey] = ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
-            }
-
-            $requiresAny = false;
-            if (true === $allocation->isRequiresCathlab()) {
-                ++$buckets[$calKey]['cathlab'];
-                $requiresAny = true;
-            }
-            if (true === $allocation->isRequiresResus()) {
-                ++$buckets[$calKey]['resus'];
-                $requiresAny = true;
-            }
-            if ($requiresAny) {
-                ++$buckets[$calKey]['with_any'];
-            }
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array{cathlab: int, resus: int, with_any: int}>
-     */
-    private function bucketResourcesRequiredByDay(
-        \DateTimeInterface $from,
-        \DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        /** @var array<string, array{cathlab: int, resus: int, with_any: int}> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $dayKey = $createdAt->format('Y-m-d');
-            if (!isset($buckets[$dayKey])) {
-                $buckets[$dayKey] = ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
-            }
-
-            $requiresAny = false;
-            if (true === $allocation->isRequiresCathlab()) {
-                ++$buckets[$dayKey]['cathlab'];
-                $requiresAny = true;
-            }
-            if (true === $allocation->isRequiresResus()) {
-                ++$buckets[$dayKey]['resus'];
-                $requiresAny = true;
-            }
-            if ($requiresAny) {
-                ++$buckets[$dayKey]['with_any'];
-            }
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}>
-     */
-    private function bucketClinicalFeaturesByCalendarMonthOfYear(
-        \DateTimeInterface $from,
-        ?\DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        return $this->accumulateClinicalBucketsForCalendarMonthKeys(array_values($rows));
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}>
-     */
-    private function bucketClinicalFeaturesByDay(
-        \DateTimeInterface $from,
-        \DateTimeInterface $toExclusive,
-        ?array $hospitalIds,
-    ): array {
-        $qb = $this->createQueryBuilder('a')
-            ->where('a.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
-        $this->applyCreatedAtBefore($qb, $toExclusive);
-
-        if (null !== $hospitalIds) {
-            $qb->andWhere('a.hospital IN (:hospitalIds)')
-                ->setParameter('hospitalIds', $hospitalIds);
-        }
-
-        /** @var Allocation[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        return $this->accumulateClinicalBucketsForDayKeys(array_values($rows));
-    }
-
-    /**
-     * @param iterable<int, Allocation> $rows
-     *
-     * @return array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}>
-     */
-    private function accumulateClinicalBucketsForCalendarMonthKeys(iterable $rows): array
-    {
-        /** @var array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
-            if (!isset($buckets[$calKey])) {
-                $buckets[$calKey] = [
-                    'with_physician' => 0,
-                    'cpr' => 0,
-                    'ventilated' => 0,
-                    'shock' => 0,
-                    'pregnant' => 0,
-                    'infectious' => 0,
-                    'with_any' => 0,
-                ];
-            }
-
-            $this->incrementClinicalFeatureCells($allocation, $buckets[$calKey]);
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param iterable<int, Allocation> $rows
-     *
-     * @return array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}>
-     */
-    private function accumulateClinicalBucketsForDayKeys(iterable $rows): array
-    {
-        /** @var array<string, array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int}> $buckets */
-        $buckets = [];
-        foreach ($rows as $allocation) {
-            $createdAt = $allocation->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $dayKey = $createdAt->format('Y-m-d');
-            if (!isset($buckets[$dayKey])) {
-                $buckets[$dayKey] = [
-                    'with_physician' => 0,
-                    'cpr' => 0,
-                    'ventilated' => 0,
-                    'shock' => 0,
-                    'pregnant' => 0,
-                    'infectious' => 0,
-                    'with_any' => 0,
-                ];
-            }
-
-            $this->incrementClinicalFeatureCells($allocation, $buckets[$dayKey]);
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @param array{with_physician: int, cpr: int, ventilated: int, shock: int, pregnant: int, infectious: int, with_any: int} $cell
-     */
-    private function incrementClinicalFeatureCells(Allocation $allocation, array &$cell): void
-    {
-        $hasAny = false;
-        if (true === $allocation->isWithPhysician()) {
-            ++$cell['with_physician'];
-            $hasAny = true;
-        }
-        if (true === $allocation->isCPR()) {
-            ++$cell['cpr'];
-            $hasAny = true;
-        }
-        if (true === $allocation->isVentilated()) {
-            ++$cell['ventilated'];
-            $hasAny = true;
-        }
-        if (true === $allocation->isShock()) {
-            ++$cell['shock'];
-            $hasAny = true;
-        }
-        if (true === $allocation->isPregnant()) {
-            ++$cell['pregnant'];
-            $hasAny = true;
-        }
-        if ($allocation->getInfection() instanceof \App\Allocation\Domain\Entity\Infection) {
-            ++$cell['infectious'];
-            $hasAny = true;
-        }
-        if ($hasAny) {
-            ++$cell['with_any'];
-        }
     }
 
     /**
