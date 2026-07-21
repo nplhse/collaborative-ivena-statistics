@@ -168,8 +168,6 @@ deptrac:
       - App\Content\Infrastructure\Media\LocalMediaFileLocator
       - App\Content\Infrastructure\Media\MediaDimensionsExtractor
       - App\Content\Infrastructure\Repository\MediaRepository
-    App\Content\Application\Media\MediaLibraryAdminUrlProvider:
-      - App\Admin\UI\Http\Controller\Media\MediaCrudController
     App\Content\Application\Page\PageContentMediaResolver:
       - App\Content\Infrastructure\Repository\MediaRepository
     App\Content\Application\Page\PageImageContentAnalyzer:
@@ -295,11 +293,6 @@ deptrac:
       - App\Kpi\Infrastructure\Query\KpiDayAggregationQuery
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Kpi\Application\Service\KpiDashboardService:
-      - App\Admin\UI\Http\Controller\Allocation\AllocationCrudController
-      - App\Admin\UI\Http\Controller\DashboardController
-      - App\Admin\UI\Http\Controller\Hospital\HospitalCrudController
-      - App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController
-      - App\Admin\UI\Http\Controller\Import\ImportCrudController
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Kpi\Domain\Entity\KpiDaily:
       - App\Allocation\Domain\Entity\Hospital
@@ -321,6 +314,17 @@ deptrac:
     App\Shared\Infrastructure\Mail\TransactionalMailer:
       - App\Feedback\Domain\Entity\Feedback
       - App\Feedback\Domain\Enum\FeedbackCategory
+    App\Shared\Application\Navigation\FooterNavigationProvider:
+      - App\Content\Application\Page\PageNavigationProvider
+      - App\Content\Domain\Entity\Page
+      - App\Content\Domain\Enum\PageKey
+    App\Shared\Application\Navigation\SitemapProvider:
+      - App\Allocation\Infrastructure\Security\Voter\ExportVoter
+      - App\Content\Application\Page\PageNavigationProvider
+    App\Shared\Infrastructure\Audit\AuditValueNormalizer:
+      - App\Allocation\Domain\Entity\Address
+    App\Shared\Infrastructure\Audit\Query\ImportAssessmentAuditPurgeQuery:
+      - App\Allocation\Domain\Entity\Assessment
     App\Statistics\Application\ClinicalFeaturesProvider:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
     App\Statistics\Application\ClinicalFeaturesQuery:
@@ -426,9 +430,6 @@ deptrac:
       - App\User\Infrastructure\Repository\ResetPasswordRequestRepository
     App\User\Domain\Entity\User:
       - App\User\Infrastructure\Repository\UserRepository
-    App\User\Infrastructure\EventSubscriber\UserRegisteredNotificationSubscriber:
-      - App\Admin\Application\Service\AdminUserUrlGenerator
-      - App\Admin\Application\Service\GrantParticipantUrlGenerator
     App\User\Infrastructure\Security\ConfirmPasswordAuthenticator:
       - App\User\UI\Form\ConfirmPasswordType
       - App\User\UI\Http\DTO\ConfirmPasswordTypeDTO

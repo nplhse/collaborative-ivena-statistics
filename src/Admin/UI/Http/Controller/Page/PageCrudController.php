@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Page;
 
 use App\Admin\UI\Form\PageContentBlockType;
-use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
+use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
 use App\Content\Application\Page\PageContentBlockDataNormalizer;
 use App\Content\Application\Page\PageContentMediaResolver;
 use App\Content\Application\Page\PageContentSanitizer;
@@ -49,7 +49,7 @@ final class PageCrudController extends AbstractCrudController
         private readonly PageContentMediaResolver $pageContentMediaResolver,
         private readonly PageContentSanitizer $pageContentSanitizer,
         private readonly PagePathResolver $pagePathResolver,
-        private readonly MediaLibraryAdminUrlProvider $mediaLibraryAdminUrlProvider,
+        private readonly MediaLibraryAdminUrlProviderInterface $mediaLibraryAdminUrlProvider,
         private readonly TranslatorInterface $translator,
     ) {
     }

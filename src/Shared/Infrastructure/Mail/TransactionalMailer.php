@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Mail;
 
-use App\Feedback\Domain\Entity\Feedback;
-use App\Feedback\Domain\Enum\FeedbackCategory;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
 interface TransactionalMailer
@@ -26,11 +24,5 @@ interface TransactionalMailer
         string $recipientEmail,
         ResetPasswordToken $resetToken,
         string $locale,
-    ): void;
-
-    public function sendAdminFeedbackEmail(
-        Feedback $feedback,
-        FeedbackCategory $category,
-        string $contextJsonPreview,
     ): void;
 }

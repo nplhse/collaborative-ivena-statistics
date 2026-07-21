@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Mail;
 
-use App\Feedback\Domain\Entity\Feedback;
-use App\Feedback\Domain\Enum\FeedbackCategory;
-use App\Shared\Application\Locale\LocaleResolver;
-use App\User\Infrastructure\Security\FeedbackRecipientEmailResolver;
-use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Mailer\MailerInterface;
@@ -25,11 +20,8 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
     public function __construct(
         private MailerInterface $mailer,
         private MailConfig $mailConfig,
-        private FeedbackRecipientEmailResolver $feedbackRecipientResolver,
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
-        private LocaleResolver $localeResolver,
-        private LoggerInterface $logger,
     ) {
     }
 
@@ -79,44 +71,6 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
             ]);
 
         $this->mailer->send($email);
-    }
-
-    #[\Override]
-    public function sendAdminFeedbackEmail(
-        Feedback $feedback,
-        FeedbackCategory $category,
-        string $contextJsonPreview,
-    ): void {
-        $recipientsByLocale = $this->localeResolver->groupEmailsByLocale(
-            $this->feedbackRecipientResolver->resolveRecipientUsers(),
-        );
-        if ([] === $recipientsByLocale) {
-            $this->logger->info('feedback.admin_mail_skipped', [
-                'reason' => 'no_feedback_recipients',
-                'feedback_id' => $feedback->getId(),
-            ]);
-
-            return;
-        }
-
-        foreach ($recipientsByLocale as $locale => $recipients) {
-            $email = $this->createTemplatedEmail($locale)
-                ->to(...$recipients)
-                ->subject(sprintf(
-                    '[%s] %s (%s)',
-                    $this->mailConfig->appName,
-                    $this->translator->trans('feedback.email.title', [], 'feedback', $locale),
-                    $category->value,
-                ))
-                ->htmlTemplate('@Feedback/email/admin_feedback_notification.html.twig')
-                ->context([
-                    'feedback' => $feedback,
-                    'categoryLabel' => $category->value,
-                    'contextJson' => $contextJsonPreview,
-                ]);
-
-            $this->mailer->send($email);
-        }
     }
 
     private function createTemplatedEmail(string $locale): TemplatedEmail

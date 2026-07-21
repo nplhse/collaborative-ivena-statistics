@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Admin\Application\Service;
 
+use App\User\Application\Contract\GrantParticipantUrlGeneratorInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final readonly class GrantParticipantUrlGenerator
+#[AsAlias(GrantParticipantUrlGeneratorInterface::class)]
+final readonly class GrantParticipantUrlGenerator implements GrantParticipantUrlGeneratorInterface
 {
     private const int EXPIRATION_SECONDS = 604800;
 

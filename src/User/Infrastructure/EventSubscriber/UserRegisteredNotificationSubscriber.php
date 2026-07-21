@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\EventSubscriber;
 
-use App\Admin\Application\Service\AdminUserUrlGenerator;
-use App\Admin\Application\Service\GrantParticipantUrlGenerator;
 use App\Shared\Application\Notification\AdminNotification;
 use App\Shared\Application\Notification\AdminNotificationSenderInterface;
 use App\Shared\Application\Notification\AdminNotificationType;
+use App\User\Application\Contract\AdminUserDetailUrlGeneratorInterface;
+use App\User\Application\Contract\GrantParticipantUrlGeneratorInterface;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Repository\UserRepository;
@@ -20,8 +20,8 @@ final readonly class UserRegisteredNotificationSubscriber
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private UserRepository $userRepository,
-        private AdminUserUrlGenerator $adminUserUrlGenerator,
-        private GrantParticipantUrlGenerator $grantParticipantUrlGenerator,
+        private AdminUserDetailUrlGeneratorInterface $adminUserUrlGenerator,
+        private GrantParticipantUrlGeneratorInterface $grantParticipantUrlGenerator,
         private AdminNotificationSenderInterface $adminNotificationSender,
     ) {
     }

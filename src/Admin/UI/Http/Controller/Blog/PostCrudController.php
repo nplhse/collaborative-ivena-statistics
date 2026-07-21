@@ -6,7 +6,7 @@ namespace App\Admin\UI\Http\Controller\Blog;
 
 use App\Content\Application\Blog\PostContentSanitizer;
 use App\Content\Application\Blog\PostSlugResolver;
-use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
+use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,7 +42,7 @@ final class PostCrudController extends AbstractCrudController
         private readonly PostSlugResolver $postSlugResolver,
         private readonly TranslatorInterface $translator,
         private readonly PostContentSanitizer $postContentSanitizer,
-        private readonly MediaLibraryAdminUrlProvider $mediaLibraryAdminUrlProvider,
+        private readonly MediaLibraryAdminUrlProviderInterface $mediaLibraryAdminUrlProvider,
     ) {
     }
 
