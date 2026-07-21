@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Content\Unit\Media;
+namespace App\Tests\Admin\Unit\Infrastructure;
 
+use App\Admin\Infrastructure\EasyAdminMediaLibraryUrlProvider;
 use App\Admin\UI\Http\Controller\Media\MediaCrudController;
-use App\Content\Application\Media\MediaLibraryAdminUrlProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use PHPUnit\Framework\TestCase;
 
-final class MediaLibraryAdminUrlProviderTest extends TestCase
+final class EasyAdminMediaLibraryUrlProviderTest extends TestCase
 {
     public function testGetIndexUrlTargetsMediaLibraryIndex(): void
     {
@@ -29,7 +29,7 @@ final class MediaLibraryAdminUrlProviderTest extends TestCase
 
         self::assertSame(
             '/admin/media',
-            new MediaLibraryAdminUrlProvider($generator)->getIndexUrl(),
+            new EasyAdminMediaLibraryUrlProvider($generator)->getIndexUrl(),
         );
     }
 }
