@@ -11,3 +11,14 @@ coverage:
         # adjust accordingly based on how flaky your tests are
         # this allows a 10% drop from the previous base commit coverage
         threshold: 10%
+
+# CI uploads separate clover reports from the unit and database jobs.
+# Carryforward keeps the other flag's last successful report when only one job re-runs.
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: unit
+      carryforward: true
+    - name: integration
+      carryforward: true

@@ -60,6 +60,7 @@ jobs:
             - name: Install PHP with extensions
               uses: shivammathur/setup-php@v2
               with:
+                  coverage: pcov
                   extensions: "intl, mbstring, zip"
                   php-version: ${{ matrix.php-version }}
                   tools: composer:v2
@@ -80,7 +81,38 @@ jobs:
               run: composer install --ansi --no-interaction --no-progress
 
             - name: Execute unit tests via ParaTest
-              run: vendor/bin/paratest --testsuite unit --processes=4 --no-coverage --order-by duration --stop-on-failure
+              run: |
+                  mkdir -p var/coverage/logs
+                  vendor/bin/paratest \
+                    --testsuite unit \
+                    --processes=4 \
+                    --coverage-clover=var/coverage/logs/clover-unit.xml \
+                    --log-junit=junit-unit.xml \
+                    --order-by duration \
+                    --stop-on-failure
+
+            - name: Upload unit coverage to Codecov
+              if: success()
+              uses: codecov/codecov-action@v7
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  files: var/coverage/logs/clover-unit.xml
+                  flags: unit
+                  name: unit
+                  disable_search: true
+                  fail_ci_if_error: true
+
+            - name: Upload unit test results to Codecov
+              if: success()
+              uses: codecov/codecov-action@v7
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  report_type: test_results
+                  files: junit-unit.xml
+                  flags: unit
+                  name: unit-test-results
+                  disable_search: true
+                  fail_ci_if_error: false
 
     database:
         name: Database tests (PHP ${{ matrix.php-version }})
@@ -114,7 +146,7 @@ jobs:
             - name: Install PHP with extensions
               uses: shivammathur/setup-php@v2
               with:
-                  coverage: xdebug
+                  coverage: pcov
                   extensions: "intl, mbstring, pdo_pgsql, zip"
                   php-version: ${{ matrix.php-version }}
                   tools: composer:v2
@@ -144,20 +176,38 @@ jobs:
 
             - name: Execute database-backed tests via ParaTest
               run: |
-                  vendor/bin/paratest --testsuite all --exclude-testsuite unit --processes=4 --log-junit junit.xml --order-by duration --stop-on-failure
+                  mkdir -p var/coverage/logs
+                  vendor/bin/paratest \
+                    --testsuite all \
+                    --exclude-testsuite unit \
+                    --processes=4 \
+                    --coverage-clover=var/coverage/logs/clover-integration.xml \
+                    --log-junit=junit-integration.xml \
+                    --order-by duration \
+                    --stop-on-failure
                   php bin/report-slowest-tests 10 || true
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
-                  XDEBUG_MODE: coverage
 
-            - name: Upload coverage reports to Codecov
+            - name: Upload integration coverage to Codecov
               if: success()
               uses: codecov/codecov-action@v7
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
+                  files: var/coverage/logs/clover-integration.xml
+                  flags: integration
+                  name: integration
+                  disable_search: true
+                  fail_ci_if_error: true
 
-            - name: Upload test results to Codecov
+            - name: Upload integration test results to Codecov
               if: success()
-              uses: codecov/test-results-action@v1
+              uses: codecov/codecov-action@v7
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
+                  report_type: test_results
+                  files: junit-integration.xml
+                  flags: integration
+                  name: integration-test-results
+                  disable_search: true
+                  fail_ci_if_error: false
