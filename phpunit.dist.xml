@@ -32,7 +32,6 @@
             <directory>tests/Import/Unit</directory>
             <directory>tests/Install/Unit</directory>
             <directory>tests/Kpi/Unit</directory>
-            <directory>tests/Onboarding/Unit</directory>
             <directory>tests/Shared/Unit</directory>
             <directory>tests/Statistics/Unit</directory>
             <directory>tests/User/Unit</directory>
@@ -44,6 +43,7 @@
             <directory>tests/Engagement/Integration</directory>
             <directory>tests/Import/Integration</directory>
             <directory>tests/Kpi/Integration</directory>
+            <directory>tests/Onboarding/Integration</directory>
             <directory>tests/Shared/Integration</directory>
             <directory>tests/Statistics/Integration</directory>
             <directory>tests/User/Integration</directory>

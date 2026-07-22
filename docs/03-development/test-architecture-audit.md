@@ -30,7 +30,7 @@ Infrastructure already in good shape:
 
 | ID | Priority | Finding | Evidence | Impact |
 |----|----------|---------|----------|--------|
-| F1 | P0 | Named suites omitted several context directories | Missing from `unit`: Admin, Install, Onboarding. Missing from `functional`: Onboarding. Empty `tests/Seed` only held `.DS_Store` | Unit CI skipped real unit tests; suite macros were incomplete |
+| F1 | P0 | Named suites omitted several context directories | Missing from `unit`: Admin, Install. Missing from `functional`: Onboarding. Empty `tests/Seed` only held `.DS_Store`. A Foundry-backed Onboarding catalog test had been misfiled under `Unit/` | Unit CI skipped real unit tests; suite macros were incomplete; misfiled DB test would fail unit CI once wired |
 | F2 | P1 | `createMock()` used as default double | ~231 `createMock` vs ~6 `createStub`; ~37 files use `createMock` without `expects()` | Intent unclear; suite reads mock-heavy; refactor fragility |
 | F3 | P1 | Strict mocks and spy-style recording mixed without convention | ~129 `expects(` across ~24 files; ~44 `willReturnCallback` | Reviews lack shared vocabulary |
 | F4 | P2 | Hand-written fakes rare but effective | `tests/Import/Doubles/` (`InMemoryRejectWriter`, `InMemoryRowReader`) | Good pattern; underused elsewhere |
@@ -86,7 +86,8 @@ Reference fakes: [`tests/Import/Doubles/`](../../tests/Import/Doubles/).
 ## Quick wins (Phase 0 — done in tree)
 
 1. **Suites completed** in `phpunit.dist.xml`:
-   - `unit`: `tests/Admin/Unit`, `tests/Install/Unit`, `tests/Onboarding/Unit`
+   - `unit`: `tests/Admin/Unit`, `tests/Install/Unit`
+   - `integration`: `tests/Onboarding/Integration` (Foundry/`DatabaseKernelTestCase` catalog tests; not Unit)
    - `functional`: `tests/Onboarding/Functional`
 2. **Empty `tests/Seed/` removed** (only contained `.DS_Store`; no tests to register).
 3. **`testing.md`** extended with test-double guidance and a link here.
