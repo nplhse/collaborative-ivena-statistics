@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Onboarding\Unit\Application;
+namespace App\Tests\Onboarding\Integration\Application;
 
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\HospitalPermissionMask;
