@@ -28,9 +28,8 @@ final class IndicationCreationStrategyTest extends TestCase
         $text = 'Brustschmerz';
         $hash = IndicationKey::hashFrom($code, $text);
 
-        $repo = $this->createMock(IndicationRawRepository::class);
-        $repo->expects(self::once())
-            ->method('preloadAllLight')
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')
             ->willReturn([
                 ['hash' => $hash, 'id' => 10, 'normalized_id' => 5],
             ]);
@@ -103,9 +102,8 @@ final class IndicationCreationStrategyTest extends TestCase
         $hash1 = IndicationKey::hashFrom('123', 'Brustschmerz');
         IndicationKey::hashFrom('456', 'Covid');
 
-        $repo = $this->createMock(IndicationRawRepository::class);
-        $repo->expects(self::once())
-            ->method('preloadAllLight')
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')
             ->willReturn([
                 ['hash' => $hash1, 'id' => 10, 'normalized_id' => 5],
             ]);
@@ -140,10 +138,10 @@ final class IndicationCreationStrategyTest extends TestCase
                 }
             );
 
-        $import = $this->createMock(Import::class);
-        $createdBy = $this->createMock(User::class);
-        $createdBy->expects(self::atLeastOnce())->method('getId')->willReturn(99);
-        $import->expects(self::atLeastOnce())->method('getCreatedBy')->willReturn($createdBy);
+        $createdBy = $this->createStub(User::class);
+        $createdBy->method('getId')->willReturn(99);
+        $import = $this->createStub(Import::class);
+        $import->method('getCreatedBy')->willReturn($createdBy);
 
         $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
         $strategy->warm();
@@ -169,9 +167,8 @@ final class IndicationCreationStrategyTest extends TestCase
     {
         $hash1 = IndicationKey::hashFrom('123', 'Brustschmerz');
 
-        $repo = $this->createMock(IndicationRawRepository::class);
-        $repo->expects(self::once())
-            ->method('preloadAllLight')
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')
             ->willReturn([
                 ['hash' => $hash1, 'id' => 10, 'normalized_id' => null],
             ]);
@@ -189,8 +186,8 @@ final class IndicationCreationStrategyTest extends TestCase
                     : $this->fail("Unexpected getReference: {$class}#{$id}")
             );
 
-        $import = $this->createMock(Import::class);
-        $import->expects(self::atLeastOnce())->method('getCreatedBy')->willReturn(null);
+        $import = $this->createStub(Import::class);
+        $import->method('getCreatedBy')->willReturn(null);
 
         $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
         $strategy->warm();
@@ -213,9 +210,8 @@ final class IndicationCreationStrategyTest extends TestCase
         $hash1 = IndicationKey::hashFrom('123', 'Brustschmerz');
         $hash2 = IndicationKey::hashFrom('456', 'Covid');
 
-        $repo = $this->createMock(IndicationRawRepository::class);
-        $repo->expects(self::once())
-            ->method('preloadAllLight')
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')
             ->willReturn([
                 ['hash' => $hash1, 'id' => 10, 'normalized_id' => 5],
                 ['hash' => $hash2, 'id' => 11, 'normalized_id' => 6],
@@ -265,9 +261,8 @@ final class IndicationCreationStrategyTest extends TestCase
         $hash1 = IndicationKey::hashFrom('123', 'Brustschmerz');
         $hash2 = IndicationKey::hashFrom('456', 'Covid');
 
-        $repo = $this->createMock(IndicationRawRepository::class);
-        $repo->expects(self::once())
-            ->method('preloadAllLight')
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')
             ->willReturn([
                 ['hash' => $hash1, 'id' => 10, 'normalized_id' => 5],
                 ['hash' => $hash2, 'id' => 11, 'normalized_id' => 6],
@@ -315,9 +310,8 @@ final class IndicationCreationStrategyTest extends TestCase
     {
         $hash = IndicationKey::hashFrom('123', 'Brustschmerz');
 
-        $repo = $this->createMock(IndicationRawRepository::class);
-        $repo->expects(self::once())
-            ->method('preloadAllLight')
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')
             ->willReturn([
                 ['hash' => $hash, 'id' => 10, 'normalized_id' => 5],
             ]);
@@ -357,9 +351,8 @@ final class IndicationCreationStrategyTest extends TestCase
     {
         $hash1 = IndicationKey::hashFrom('123', 'Brustschmerz');
 
-        $repo = $this->createMock(IndicationRawRepository::class);
-        $repo->expects(self::once())
-            ->method('preloadAllLight')
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')
             ->willReturn([
                 ['hash' => $hash1, 'id' => 10, 'normalized_id' => 5],
             ]);
