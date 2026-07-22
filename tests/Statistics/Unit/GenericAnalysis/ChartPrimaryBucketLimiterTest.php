@@ -14,7 +14,7 @@ final class ChartPrimaryBucketLimiterTest extends TestCase
 
     protected function setUp(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Other');
 
         $this->limiter = new ChartPrimaryBucketLimiter($translator);

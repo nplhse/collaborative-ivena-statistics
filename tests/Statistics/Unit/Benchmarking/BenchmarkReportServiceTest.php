@@ -45,7 +45,7 @@ final class BenchmarkReportServiceTest extends TestCase
 
         $aggregationProvider = new FixedBenchmarkAggregationProvider($aggregation);
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
 
         $this->service = new BenchmarkReportService(
@@ -109,7 +109,7 @@ final class BenchmarkReportServiceTest extends TestCase
             [],
         );
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
 
         $service = new BenchmarkReportService(

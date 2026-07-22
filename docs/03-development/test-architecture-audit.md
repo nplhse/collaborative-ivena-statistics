@@ -168,7 +168,7 @@ Use `make coverage SUITE=unit` for fast loops; full Codecov from CI for trends.
 - [x] Suite gaps fixed; empty Seed removed
 - [x] Test-double section in testing docs
 - [x] Backlog formulated (B1–B18)
-- [ ] B1–B5 double hygiene PRs
+- [x] B1–B5 double hygiene PRs
 - [ ] B6–B8 large-class splits
 - [ ] B9–B13 coverage gap PRs (as needed)
 - [ ] B14–B18 process / automation (optional)

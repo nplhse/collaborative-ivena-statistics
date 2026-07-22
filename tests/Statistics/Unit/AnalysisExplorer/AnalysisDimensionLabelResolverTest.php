@@ -18,7 +18,7 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
 {
     public function testTranslatesGenderBucketViaTranslationKey(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id, array $parameters = [], ?string $domain = null): string => match ($id) {
                 AllocationStatsGenderProjectionCode::Male->labelTranslationKey() => 'Male',
@@ -34,7 +34,7 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
 
     public function testBooleanDimensionUsesYesNoTranslations(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id, array $parameters = [], ?string $domain = null): string => match ($id) {
                 'action.yes' => 'Yes',
@@ -57,7 +57,7 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
 
     private function resolver(TranslatorInterface $translator): AnalysisDimensionLabelResolver
     {
-        $entityLabelResolver = $this->createMock(GenericAnalysisEntityLabelResolverInterface::class);
+        $entityLabelResolver = $this->createStub(GenericAnalysisEntityLabelResolverInterface::class);
         $entityLabelResolver->method('supports')->willReturn(false);
 
         return new AnalysisDimensionLabelResolver(

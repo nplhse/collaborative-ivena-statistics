@@ -15,11 +15,11 @@ final class BenchmarkDefaultResolverTest extends TestCase
 {
     public function testRedirectsToPublicScopesForUserWithoutHospitalAccess(): void
     {
-        $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
+        $hospitalAccess = $this->createStub(HospitalAccessInterface::class);
         $hospitalAccess->method('canUseBenchmarkingScope')->willReturn(false);
 
         $resolver = new BenchmarkDefaultResolver($hospitalAccess);
-        $payload = $resolver->maybeRedirectPayload(new Request(), $this->createMock(User::class));
+        $payload = $resolver->maybeRedirectPayload(new Request(), $this->createStub(User::class));
 
         self::assertNotNull($payload);
         self::assertSame('public', $payload['query']['scope']);
@@ -30,13 +30,13 @@ final class BenchmarkDefaultResolverTest extends TestCase
 
     public function testRedirectsToMyHospitalsAndHospitalCohortForParticipant(): void
     {
-        $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
+        $hospitalAccess = $this->createStub(HospitalAccessInterface::class);
         $hospitalAccess->method('canUseBenchmarkingScope')->willReturn(true);
 
         $resolver = new BenchmarkDefaultResolver($hospitalAccess);
         $payload = $resolver->maybeRedirectPayload(
             new Request(),
-            $this->createMock(User::class),
+            $this->createStub(User::class),
         );
 
         self::assertNotNull($payload);
@@ -48,7 +48,7 @@ final class BenchmarkDefaultResolverTest extends TestCase
 
     public function testDoesNotRedirectWhenComparisonScopePresent(): void
     {
-        $hospitalAccess = $this->createMock(HospitalAccessInterface::class);
+        $hospitalAccess = $this->createStub(HospitalAccessInterface::class);
 
         $resolver = new BenchmarkDefaultResolver($hospitalAccess);
         $request = new Request([StatisticsQueryKeys::COMPARISON_SCOPE => 'public']);

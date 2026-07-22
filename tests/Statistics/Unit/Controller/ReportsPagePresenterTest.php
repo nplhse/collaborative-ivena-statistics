@@ -18,7 +18,7 @@ final class ReportsPagePresenterTest extends TestCase
 {
     public function testAddsLimitFooterAndSelectUrls(): void
     {
-        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
         );
@@ -39,7 +39,7 @@ final class ReportsPagePresenterTest extends TestCase
 
     private function definition(string $key): ReportDefinitionInterface
     {
-        $definition = $this->createMock(ReportDefinitionInterface::class);
+        $definition = $this->createStub(ReportDefinitionInterface::class);
         $definition->method('key')->willReturn($key);
         $definition->method('labelTranslationKey')->willReturn('label.'.$key);
         $definition->method('descriptionTranslationKey')->willReturn('description.'.$key);

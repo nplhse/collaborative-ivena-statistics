@@ -194,7 +194,7 @@ final class HospitalInsightSelectorTest extends TestCase
     public function testSelectPassesExplicitLocaleToTranslator(): void
     {
         $capturedLocale = null;
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static function (
                 string $id,
@@ -225,7 +225,7 @@ final class HospitalInsightSelectorTest extends TestCase
 
     private function translator(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static function (string $id, array $parameters = []): string {
                 if ([] === $parameters) {
