@@ -27,13 +27,13 @@ final class AdminFeedbackMailerTest extends TestCase
             ->setMessage('Broken filter')
             ->setPageUrl('https://example.test/page');
 
-        $recipientResolver = $this->createMock(FeedbackRecipientEmailResolver::class);
+        $recipientResolver = $this->createStub(FeedbackRecipientEmailResolver::class);
         $recipientResolver->method('resolveRecipientUsers')->willReturn([
             $this->createAdminUser('admin-a@example.test', 'de'),
             $this->createAdminUser('admin-b@example.test', 'de'),
         ]);
 
-        $translator = $this->createTranslatorMock();
+        $translator = $this->createTranslatorStub();
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
             ->method('send')
@@ -63,7 +63,7 @@ final class AdminFeedbackMailerTest extends TestCase
             ->setMessage('Broken filter')
             ->setPageUrl('https://example.test/page');
 
-        $recipientResolver = $this->createMock(FeedbackRecipientEmailResolver::class);
+        $recipientResolver = $this->createStub(FeedbackRecipientEmailResolver::class);
         $recipientResolver->method('resolveRecipientUsers')->willReturn([
             $this->createAdminUser('de-admin@example.test', 'de'),
             $this->createAdminUser('en-admin@example.test', 'en'),
@@ -71,7 +71,7 @@ final class AdminFeedbackMailerTest extends TestCase
 
         $localeResolver = new LocaleResolver(new LocaleCookieManager());
 
-        $translator = $this->createTranslatorMock();
+        $translator = $this->createTranslatorStub();
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::exactly(2))
             ->method('send')
@@ -96,7 +96,7 @@ final class AdminFeedbackMailerTest extends TestCase
             ->setMessage('Broken filter')
             ->setPageUrl('https://example.test/page');
 
-        $recipientResolver = $this->createMock(FeedbackRecipientEmailResolver::class);
+        $recipientResolver = $this->createStub(FeedbackRecipientEmailResolver::class);
         $recipientResolver->method('resolveRecipientUsers')->willReturn([]);
 
         $mailer = $this->createMock(MailerInterface::class);
@@ -132,16 +132,16 @@ final class AdminFeedbackMailerTest extends TestCase
                 appName: 'Test App',
                 replyTo: '',
             ),
-            $recipientResolver ?? $this->createMock(FeedbackRecipientEmailResolver::class),
-            $translator ?? $this->createTranslatorMock(),
+            $recipientResolver ?? $this->createStub(FeedbackRecipientEmailResolver::class),
+            $translator ?? $this->createTranslatorStub(),
             $localeResolver ?? new LocaleResolver(new LocaleCookieManager()),
-            $logger ?? $this->createMock(LoggerInterface::class),
+            $logger ?? $this->createStub(LoggerInterface::class),
         );
     }
 
-    private function createTranslatorMock(): TranslatorInterface
+    private function createTranslatorStub(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id): string => match ($id) {
                 'feedback.email.title' => 'Feedback',
