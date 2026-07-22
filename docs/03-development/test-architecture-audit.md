@@ -43,9 +43,9 @@ Infrastructure already in good shape:
 
 | Lines (approx.) | File | Suggested split axis (later) |
 |-----------------|------|------------------------------|
-| ~973 | `tests/Statistics/Integration/AnalysisExplorer/AnalysisExplorerShellTest.php` | Happy path / filters / auth / edges |
-| ~950 | `tests/Import/Integration/MessageHandler/ImportAllocationsMessageHandlerTest.php` | Success / rejects / idempotency / failure |
-| ~925 | `tests/Statistics/Unit/AnalysisExplorer/ExplorerResultsTablePresenterTest.php` | Columns / empty data / formatting |
+| ~~973~~ split | `AnalysisExplorerShell*Test.php` (HappyPath / Filter / Auth / EdgeCases) | Done |
+| ~~950~~ split | `ImportAllocationsMessageHandler*Test.php` (Run / Reimport / Failure / MessageBus) | Done |
+| ~~925~~ split | `ExplorerResultsTablePresenter*Test.php` (Columns / Matrix / BoxPlot / HospitalMetrics) | Done |
 | ~717 | `tests/Content/Integration/Page/PageImageContentAnalyzerTest.php` | Analyzer scenarios by content type |
 | ~611 | `tests/Statistics/Functional/Controller/DashboardControllerTest.php` | Auth / widgets / empty states |
 | ~577 | `tests/Content/Unit/Page/PageContentValidatorTest.php` | Rule groups |
@@ -169,7 +169,7 @@ Use `make coverage SUITE=unit` for fast loops; full Codecov from CI for trends.
 - [x] Test-double section in testing docs
 - [x] Backlog formulated (B1–B18)
 - [x] B1–B5 double hygiene PRs
-- [ ] B6–B8 large-class splits
+- [x] B6–B8 large-class splits
 - [ ] B9–B13 coverage gap PRs (as needed)
 - [ ] B14–B18 process / automation (optional)
 
