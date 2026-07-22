@@ -144,6 +144,9 @@
         "check-deprecations": [
             "@php bin/check-deprecations"
         ],
+        "check-phpunit-suite-dirs": [
+            "@php bin/check-phpunit-suite-dirs"
+        ],
         "architecture:analyse": [
             "deptrac analyse --no-progress"
         ],

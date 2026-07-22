@@ -160,7 +160,7 @@ lint: lint-container lint-php lint-twig lint-trans lint-js static-analysis ## Ru
 
 cs: rector fix-php ## Run all coding standards checks
 
-ci: swiss-knife rector fix-php fix-twig fix-js static-analysis
+ci: check-phpunit-suite-dirs swiss-knife rector fix-php fix-twig fix-js static-analysis
 
 static-analysis: phpstan psalm ## Run the static analysis
 
@@ -215,6 +215,9 @@ swiss-knife: ## Apply Swiss Knife fixes (conflicts, commented code, finalize)
 
 check-deprecations: ## Run deprecation checks (console + phpunit)
 	@./bin/check-deprecations
+
+check-phpunit-suite-dirs: ## Fail if tests/{Context}/{Unit|Integration|Functional} drift from phpunit.dist.xml suites
+	@./bin/check-phpunit-suite-dirs
 
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
 SUITE ?= all

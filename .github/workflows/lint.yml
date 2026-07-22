@@ -68,6 +68,9 @@ jobs:
             - name: Check Symfony deprecations
               run: ./bin/check-deprecations
 
+            - name: Check PHPUnit suite directories
+              run: ./bin/check-phpunit-suite-dirs
+
             - name: Lint Composer config
               run: composer validate --strict
 
