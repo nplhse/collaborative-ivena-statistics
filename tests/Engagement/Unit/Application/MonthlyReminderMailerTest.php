@@ -24,7 +24,7 @@ final class MonthlyReminderMailerTest extends TestCase
         $content = $this->content();
         $capturedLocale = null;
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static function (string $id, array $parameters = [], ?string $domain = null, ?string $locale = null) use (&$capturedLocale): string {
                 if ('monthly_reminder.subject' === $id) {
@@ -80,7 +80,7 @@ final class MonthlyReminderMailerTest extends TestCase
 
     public function testReplyToIsAppliedWhenConfigured(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('subject');
 
         $mailer = $this->createMock(MailerInterface::class);
@@ -97,7 +97,7 @@ final class MonthlyReminderMailerTest extends TestCase
 
         new MonthlyReminderMailer(
             $mailer,
-            $this->createMock(MessageBusInterface::class),
+            $this->createStub(MessageBusInterface::class),
             new MailConfig(
                 fromEmail: 'no-reply@example.test',
                 fromName: 'IVENA Stats',
@@ -105,14 +105,14 @@ final class MonthlyReminderMailerTest extends TestCase
                 replyTo: 'support@example.test',
             ),
             $translator,
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(LoggerInterface::class),
             bulkDelayMs: 0,
         )->send('owner@example.test', $this->content(), 'en');
     }
 
     public function testBulkIndexDispatchesDelayedSendEmailMessage(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('subject');
 
         $mailer = $this->createMock(MailerInterface::class);
@@ -143,14 +143,14 @@ final class MonthlyReminderMailerTest extends TestCase
                 replyTo: '',
             ),
             $translator,
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(LoggerInterface::class),
             bulkDelayMs: 3000,
         )->send('owner@example.test', $this->content(), 'en', bulkIndex: 2);
     }
 
     public function testDispatchIdHeaderIsAddedWhenProvided(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('subject');
 
         $mailer = $this->createMock(MailerInterface::class);
@@ -167,7 +167,7 @@ final class MonthlyReminderMailerTest extends TestCase
 
         new MonthlyReminderMailer(
             $mailer,
-            $this->createMock(MessageBusInterface::class),
+            $this->createStub(MessageBusInterface::class),
             new MailConfig(
                 fromEmail: 'no-reply@example.test',
                 fromName: 'IVENA Stats',
@@ -175,7 +175,7 @@ final class MonthlyReminderMailerTest extends TestCase
                 replyTo: '',
             ),
             $translator,
-            $this->createMock(LoggerInterface::class),
+            $this->createStub(LoggerInterface::class),
             bulkDelayMs: 0,
         )->send('owner@example.test', $this->content(), 'en', dispatchId: 42);
     }
