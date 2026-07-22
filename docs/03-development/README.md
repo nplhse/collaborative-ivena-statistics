@@ -10,7 +10,8 @@
 |----------|------|-------------|
 | [development-workflow.md](development-workflow.md) | Guide | Make targets, worker, lint, migrations |
 | [fixtures.md](fixtures.md) | Guide | Reference YAML, fixture groups, synthetic data |
-| [testing.md](testing.md) | Guide | PHPUnit suites, CI, static analysis |
+| [testing.md](testing.md) | Guide | PHPUnit suites, CI, test doubles, static analysis |
+| [test-architecture-audit.md](test-architecture-audit.md) | Audit | Suite findings, double strategy, improvement backlog (#324) |
 | [translations.md](translations.md) | Guide | Symfony domains, extract/lint workflow |
 | [frontend.md](frontend.md) | Concept | Stimulus, Asset Mapper, Live Components |
 

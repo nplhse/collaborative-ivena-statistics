@@ -34,6 +34,28 @@ Cross-cutting groups: `browser` (Zenstruck browser tests), `materialized-view` (
 
 `BROWSER_ALWAYS_START_WEBSERVER=1` is set only when running browser tests (`make test SUITE=browser` or `GROUP=browser`), not globally.
 
+When adding a new bounded context under `tests/`, register its `Unit` / `Integration` / `Functional` directories in the matching named suites in `phpunit.dist.xml`. The CI unit job only runs the `unit` suite.
+
+## Test doubles
+
+Prefer the lightest double that matches what the test asserts. PHPUnit’s `createMock()` can act as stub, spy, or mock depending on usage — choose the API that communicates intent.
+
+| Need | Prefer | PHPUnit |
+|------|--------|---------|
+| Unused constructor dependency | Dummy | `createStub()` (no method setup) or a null object |
+| Control collaborator **input**; assert SUT output | Stub | `createStub()` + `method()->willReturn(…)` |
+| Verify a **side effect** after the act | Spy | `createMock()` + `willReturnCallback` recording into an array, then `assert*` |
+| Exact call count / `never()` is the spec | Mock | `createMock()` + `expects(…)` |
+| Stateful collaborator across several calls | Fake | Hand-written class under `tests/*/Doubles/` (see Import) |
+
+Heuristics:
+
+- Asserting on a return value or domain state → stubs for queries; real value objects / entities (do not mock them).
+- Asserting that mail / messages / writes happened → spy before a strict mock.
+- Database or HTTP → Integration / Functional with Foundry, not Unit doubles of persistence.
+
+Do not introduce Mockery or Prophecy for application tests. Full taxonomy, findings, and follow-up backlog: [test-architecture-audit.md](test-architecture-audit.md).
+
 ## Static analysis and linting
 
 ```bash
@@ -84,6 +106,7 @@ After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `compose
 
 ## Related documentation
 
+- Test architecture audit and backlog: [test-architecture-audit.md](test-architecture-audit.md)
 - Statistics projection: [../04-features/statistics/projection-and-materialized-views.md](../04-features/statistics/projection-and-materialized-views.md)
 - Fixtures: [fixtures.md](fixtures.md)
 - Development: [development-workflow.md](development-workflow.md)
