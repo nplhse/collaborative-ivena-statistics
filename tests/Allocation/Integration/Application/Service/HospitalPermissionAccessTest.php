@@ -94,6 +94,67 @@ final class HospitalPermissionAccessTest extends KernelTestCase
         self::assertTrue($this->access->canManageAccessGrants($admin, $hospital));
     }
 
+    public function testAdminHasPermissionOnForeignHospitalWithoutGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $hospital = $this->createHospitalForOwner($owner);
+
+        self::assertTrue($this->access->hasPermission($admin, (int) $hospital->getId(), HospitalPermission::Import));
+        self::assertTrue($this->access->hasPermission($admin, (int) $hospital->getId(), HospitalPermission::Benchmarking));
+    }
+
+    public function testHasPermissionFalseWhenNoGrantAndNotOwner(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $intruder = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospital = $this->createHospitalForOwner($owner);
+
+        self::assertFalse($this->access->hasPermission($intruder, (int) $hospital->getId(), HospitalPermission::View));
+    }
+
+    public function testHasPermissionFalseForUnknownHospitalId(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+
+        self::assertFalse($this->access->hasPermission($user, 999_999_999, HospitalPermission::View));
+    }
+
+    public function testHasPermissionFalseForWrongHospital(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospitalA = $this->createHospitalForOwner($owner);
+        $hospitalB = $this->createHospitalForOwner($owner);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospitalA,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertTrue($this->access->hasPermission($grantee, (int) $hospitalA->getId(), HospitalPermission::View));
+        self::assertFalse($this->access->hasPermission($grantee, (int) $hospitalB->getId(), HospitalPermission::View));
+    }
+
+    public function testCanEditHospitalDeniedForGranteeWithViewGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospital = $this->createHospitalForOwner($owner);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertFalse($this->access->canEditHospital($grantee, $hospital));
+        self::assertFalse($this->access->canManageAccessGrants($grantee, $hospital));
+    }
+
     private function createHospitalForOwner(object $owner): object
     {
         StateFactory::createOne();

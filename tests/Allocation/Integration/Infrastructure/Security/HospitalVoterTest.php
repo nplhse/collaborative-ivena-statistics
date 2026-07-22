@@ -166,6 +166,40 @@ final class HospitalVoterTest extends KernelTestCase
         );
     }
 
+    public function testEditDeniedForGranteeWithViewGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospital = $this->createHospitalForOwner($owner);
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($grantee), $hospital, [HospitalVoter::EDIT]),
+        );
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($grantee), $hospital, [HospitalVoter::MANAGE_ACCESS_GRANTS]),
+        );
+    }
+
+    public function testEditDeniedForForeignParticipant(): void
+    {
+        [, $hospital] = $this->createOwnedHospital();
+        $intruder = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($intruder), $hospital, [HospitalVoter::EDIT]),
+        );
+    }
+
     public function testSupportsTypeForHospitalOnly(): void
     {
         self::assertTrue($this->voter->supportsType(Hospital::class));
