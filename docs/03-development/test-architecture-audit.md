@@ -151,7 +151,7 @@ Use `make coverage SUITE=unit` for fast loops; full Codecov from CI for trends.
 
 | ID | Suggested issue title | Scope | Notes |
 |----|----------------------|-------|-------|
-| B16 | `ci: fail if tests/*/Unit dirs missing from phpunit unit suite` | Small script or workflow check | Prevents F1 regression |
+| B16 | `ci: fail if tests/*/Unit dirs missing from phpunit unit suite` | Small script + `make ci` / lint workflow | Covers Unit, Integration, and Functional layer dirs; prevents F1 regression |
 | B17 | `spike: Infection on one domain package` | e.g. Allocation permission or Import reject rules | Spike only; not a beta blocker |
 | B18 | `chore: slow-test budget from report-slowest-tests` | Track outliers after splits | Soft budget first |
 
@@ -173,6 +173,8 @@ Use `make coverage SUITE=unit` for fast loops; full Codecov from CI for trends.
 - [x] B9 hospital permission / voter edge cases
 - [x] B10 import reject and invalid-input paths
 - [ ] B11–B13 coverage gap PRs (as needed)
-- [ ] B14–B18 process / automation (optional)
+- [ ] B14 PR checklist for test doubles (optional; deferred)
+- [x] B16 PHPUnit suite directory drift guard
+- [ ] B15 / B17 / B18 process / automation (optional)
 
 When opening GitHub issues, link back to this file and to #324.

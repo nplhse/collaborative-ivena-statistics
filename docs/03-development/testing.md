@@ -36,6 +36,8 @@ Cross-cutting groups: `browser` (Zenstruck browser tests), `materialized-view` (
 
 When adding a new bounded context under `tests/`, register its `Unit` / `Integration` / `Functional` directories in the matching named suites in `phpunit.dist.xml`. The CI unit job only runs the `unit` suite.
 
+`make check-phpunit-suite-dirs` (also part of `make ci` and the lint workflow) fails if a layer directory that contains `*Test.php` files is missing from its named suite, or if a suite lists a directory that does not exist.
+
 ## Test doubles
 
 Prefer the lightest double that matches what the test asserts. PHPUnit’s `createMock()` can act as stub, spy, or mock depending on usage — choose the API that communicates intent.

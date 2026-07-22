@@ -1,0 +1,115 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Fail when bounded-context test layer directories drift from named PHPUnit suites.
+ *
+ * Prevents F1-style regressions: tests under tests/{Context}/{Unit|Integration|Functional}
+ * that are never picked up by `make test SUITE=…` / CI because they were not registered
+ * in phpunit.dist.xml.
+ *
+ * Usage: make check-phpunit-suite-dirs  or  composer check-phpunit-suite-dirs
+ */
+
+$root = dirname(__DIR__);
+$configPath = $root.'/phpunit.dist.xml';
+
+if (!is_file($configPath)) {
+    fwrite(STDERR, "phpunit.dist.xml not found at {$configPath}\n");
+    exit(1);
+}
+
+$layers = [
+    'Unit' => 'unit',
+    'Integration' => 'integration',
+    'Functional' => 'functional',
+];
+
+$dom = new DOMDocument();
+$dom->preserveWhiteSpace = false;
+if (!$dom->load($configPath)) {
+    fwrite(STDERR, "Failed to parse {$configPath}\n");
+    exit(1);
+}
+
+$xpath = new DOMXPath($dom);
+$errors = [];
+
+foreach ($layers as $layerDir => $suiteName) {
+    $nodes = $xpath->query(sprintf('/phpunit/testsuites/testsuite[@name="%s"]/directory', $suiteName));
+    if (false === $nodes) {
+        $errors[] = sprintf('Could not query suite "%s" in phpunit.dist.xml', $suiteName);
+        continue;
+    }
+
+    /** @var list<string> $configured */
+    $configured = [];
+    foreach ($nodes as $node) {
+        $path = trim($node->textContent ?? '');
+        if ('' === $path) {
+            continue;
+        }
+        $configured[] = str_replace('\\', '/', $path);
+    }
+    $configuredSet = array_fill_keys($configured, true);
+
+    $pattern = $root.'/tests/*/'.$layerDir;
+    $found = glob($pattern, GLOB_ONLYDIR) ?: [];
+
+    foreach ($found as $absoluteDir) {
+        $context = basename(dirname($absoluteDir));
+        $relative = 'tests/'.$context.'/'.$layerDir;
+
+        if (!directoryContainsTestPhp($absoluteDir)) {
+            continue;
+        }
+
+        if (!isset($configuredSet[$relative])) {
+            $errors[] = sprintf(
+                '%s contains *Test.php files but is not listed in the "%s" suite in phpunit.dist.xml',
+                $relative,
+                $suiteName,
+            );
+        }
+    }
+
+    foreach ($configured as $relative) {
+        if (!is_dir($root.'/'.$relative)) {
+            $errors[] = sprintf(
+                'suite "%s" lists %s but that directory does not exist',
+                $suiteName,
+                $relative,
+            );
+        }
+    }
+}
+
+if ([] !== $errors) {
+    fwrite(STDERR, "PHPUnit suite directory check failed:\n");
+    foreach ($errors as $error) {
+        fwrite(STDERR, '  - '.$error."\n");
+    }
+    fwrite(STDERR, "\nRegister every tests/{Context}/{Unit|Integration|Functional} directory that holds tests in the matching named suite.\n");
+    exit(1);
+}
+
+fwrite(STDOUT, "PHPUnit suite directories are in sync with phpunit.dist.xml.\n");
+exit(0);
+
+function directoryContainsTestPhp(string $directory): bool
+{
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS),
+    );
+
+    /** @var SplFileInfo $file */
+    foreach ($iterator as $file) {
+        if ($file->isFile() && str_ends_with($file->getFilename(), 'Test.php')) {
+            return true;
+        }
+    }
+
+    return false;
+}
