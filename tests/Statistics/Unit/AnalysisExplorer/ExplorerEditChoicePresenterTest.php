@@ -84,7 +84,7 @@ final class ExplorerEditChoicePresenterTest extends TestCase
 
     private function presenter(): ExplorerEditChoicePresenter
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id): string => match ($id) {
                 'stats.analysis_explorer.dimension_group.time_and_calendar' => 'Time and calendar',

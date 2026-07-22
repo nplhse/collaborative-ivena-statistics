@@ -17,7 +17,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
 {
     public function testSendVerificationEmailUsesConfiguredSenderRecipientAndLocale(): void
     {
-        $translator = $this->createTranslatorMock();
+        $translator = $this->createTranslatorStub();
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
             ->method('send')
@@ -63,7 +63,7 @@ final class SymfonyTransactionalMailerTest extends TestCase
             )
             ->willReturn('https://example.test/reset-password/reset/selector_verifier');
 
-        $translator = $this->createTranslatorMock();
+        $translator = $this->createTranslatorStub();
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())
             ->method('send')
@@ -115,8 +115,8 @@ final class SymfonyTransactionalMailerTest extends TestCase
         new SymfonyTransactionalMailer(
             $mailer,
             $mailConfig,
-            $this->createMock(UrlGeneratorInterface::class),
-            $this->createTranslatorMock(),
+            $this->createStub(UrlGeneratorInterface::class),
+            $this->createTranslatorStub(),
         )->sendVerificationEmail(
             'user@example.test',
             'https://example.test/verify',
@@ -140,14 +140,14 @@ final class SymfonyTransactionalMailerTest extends TestCase
                 appName: 'Test App',
                 replyTo: '',
             ),
-            $urlGenerator ?? $this->createMock(UrlGeneratorInterface::class),
-            $translator ?? $this->createTranslatorMock(),
+            $urlGenerator ?? $this->createStub(UrlGeneratorInterface::class),
+            $translator ?? $this->createTranslatorStub(),
         );
     }
 
-    private function createTranslatorMock(): TranslatorInterface
+    private function createTranslatorStub(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string => match ($id) {
                 'email.verify.title' => 'de' === $locale ? 'E-Mail-Adresse bestätigen' : 'Confirm your email address',

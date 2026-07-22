@@ -12,7 +12,7 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
 {
     public function testPresentsReadableBadgesSortedByLabel(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $key): string => match ($key) {
             'label.gender' => 'Gender',
             'label.urgency' => 'Urgency',
@@ -45,7 +45,7 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
 
     public function testPresentsAgeGroupInfectionAndBooleanNo(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $key): string => match ($key) {
             'label.age_group' => 'Age group',
             'label.infection' => 'Infection',

@@ -31,7 +31,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
 
     public function testNormalizesTimeRowsWithGenderColumnsBarToGroupedBar(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
 
         $normalizer = new AnalysisViewConfigNormalizer(
@@ -70,7 +70,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
 
     public function testNormalizesGenderRowsWithoutGrainToTotal(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
 
         $normalizer = new AnalysisViewConfigNormalizer(
@@ -107,7 +107,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
 
     public function testForcesBoxPlotForDistributionProfile(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
 
         $normalizer = new AnalysisViewConfigNormalizer(

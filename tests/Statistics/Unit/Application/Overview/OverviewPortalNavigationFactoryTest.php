@@ -19,7 +19,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
             static function (string $name, array $params = []): string {
                 if ('app_stats_analysis_explorer_view' === $name) {

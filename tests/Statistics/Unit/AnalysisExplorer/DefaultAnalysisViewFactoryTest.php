@@ -20,7 +20,7 @@ final class DefaultAnalysisViewFactoryTest extends TestCase
 {
     public function testCreateDefaultReturnsAllocationsOverTimeConfig(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->with('stats.analysis_explorer.allocations_over_time')->willReturn('Allocations over time');
 
         $filter = new StatisticsFilter(

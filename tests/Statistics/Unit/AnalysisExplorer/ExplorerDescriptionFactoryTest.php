@@ -75,7 +75,7 @@ final class ExplorerDescriptionFactoryTest extends TestCase
      */
     private function factory(array $map): ExplorerDescriptionFactory
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static function (string $id, array $parameters = []) use ($map): string {
                 $template = $map[$id] ?? $id;

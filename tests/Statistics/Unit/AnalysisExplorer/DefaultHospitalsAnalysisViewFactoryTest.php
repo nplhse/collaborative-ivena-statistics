@@ -21,7 +21,7 @@ final class DefaultHospitalsAnalysisViewFactoryTest extends TestCase
 {
     public function testCreateDefaultReturnsParticipatingCohortByHospitalCount(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Hospitals by master cohort');
 
         $filter = new StatisticsFilter(

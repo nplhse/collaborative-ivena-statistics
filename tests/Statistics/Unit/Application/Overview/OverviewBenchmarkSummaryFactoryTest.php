@@ -165,7 +165,7 @@ final class OverviewBenchmarkSummaryFactoryTest extends TestCase
 
     private function factory(): OverviewBenchmarkSummaryFactory
     {
-        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $parameters = []): string => sprintf(
                 'https://example.test/indication/%s',

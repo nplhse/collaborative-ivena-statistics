@@ -18,17 +18,17 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
 {
     private GenericAnalysisDimensionPolicy $policy;
 
-    private \PHPUnit\Framework\MockObject\MockObject $hospitalAccess;
+    private HospitalAccessInterface&\PHPUnit\Framework\MockObject\Stub $hospitalAccess;
 
     protected function setUp(): void
     {
-        $this->hospitalAccess = $this->createMock(HospitalAccessInterface::class);
+        $this->hospitalAccess = $this->createStub(HospitalAccessInterface::class);
         $this->policy = new GenericAnalysisDimensionPolicy($this->hospitalAccess, new DimensionRegistry());
     }
 
     public function testPublicScopeDisallowsHospitalForParticipant(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
 
         self::assertFalse($this->policy->isAllowed(
@@ -40,7 +40,7 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
 
     public function testCohortScopeAllowsHospitalForParticipant(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
 
         self::assertTrue($this->policy->isAllowed(
@@ -52,7 +52,7 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
 
     public function testAdminAllowsHospitalOnPublicScope(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
 
         self::assertTrue($this->policy->isAllowed(
@@ -64,7 +64,7 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
 
     public function testStateDimensionRequiresStateScope(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
         $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
 
         self::assertFalse($this->policy->isAllowed(

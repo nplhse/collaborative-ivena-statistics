@@ -19,7 +19,7 @@ final class BenchmarkHeatmapBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id): string => str_contains($id, 'weekday.') ? substr($id, strrpos($id, '.') + 1) : $id,
         );

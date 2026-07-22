@@ -26,10 +26,10 @@ final class HospitalsDistributionResultMapperTest extends TestCase
 {
     public function testMapsRawHospitalValuesIntoBoxPlotRowsPerBucket(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
 
-        $entityLabelResolver = $this->createMock(GenericAnalysisEntityLabelResolverInterface::class);
+        $entityLabelResolver = $this->createStub(GenericAnalysisEntityLabelResolverInterface::class);
         $entityLabelResolver->method('supports')->willReturn(false);
 
         $mapper = new HospitalsDistributionResultMapper(
@@ -75,10 +75,10 @@ final class HospitalsDistributionResultMapperTest extends TestCase
 
     public function testCastsNumericBucketKeysToString(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
 
-        $entityLabelResolver = $this->createMock(GenericAnalysisEntityLabelResolverInterface::class);
+        $entityLabelResolver = $this->createStub(GenericAnalysisEntityLabelResolverInterface::class);
         $entityLabelResolver->method('supports')->willReturn(false);
 
         $mapper = new HospitalsDistributionResultMapper(
@@ -120,10 +120,10 @@ final class HospitalsDistributionResultMapperTest extends TestCase
 
     public function testMapsRawValuesIntoBoxPlotRowsPerBucketAndSeries(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $id): string => $id);
 
-        $entityLabelResolver = $this->createMock(GenericAnalysisEntityLabelResolverInterface::class);
+        $entityLabelResolver = $this->createStub(GenericAnalysisEntityLabelResolverInterface::class);
         $entityLabelResolver->method('supports')->willReturn(false);
 
         $mapper = new HospitalsDistributionResultMapper(

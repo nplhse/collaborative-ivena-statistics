@@ -25,10 +25,10 @@ final class AdminNotificationSenderTest extends TestCase
         $adminA = $this->createAdminUser('admin-a@example.test', 'de');
         $adminB = $this->createAdminUser('admin-b@example.test', 'de');
 
-        $recipientResolver = $this->createMock(NotificationRecipientEmailResolver::class);
+        $recipientResolver = $this->createStub(NotificationRecipientEmailResolver::class);
         $recipientResolver->method('resolveRecipientUsers')->willReturn([$adminA, $adminB]);
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Neue Benutzerregistrierung');
 
         $mailer = $this->createMock(MailerInterface::class);
@@ -55,12 +55,12 @@ final class AdminNotificationSenderTest extends TestCase
 
     public function testSendUsesImportFailedTemplate(): void
     {
-        $recipientResolver = $this->createMock(NotificationRecipientEmailResolver::class);
+        $recipientResolver = $this->createStub(NotificationRecipientEmailResolver::class);
         $recipientResolver->method('resolveRecipientUsers')->willReturn([
             $this->createAdminUser('admin@example.test', 'en'),
         ]);
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Import failed');
 
         $mailer = $this->createMock(MailerInterface::class);
@@ -92,7 +92,7 @@ final class AdminNotificationSenderTest extends TestCase
 
     public function testSendSkipsWhenNoRecipients(): void
     {
-        $recipientResolver = $this->createMock(NotificationRecipientEmailResolver::class);
+        $recipientResolver = $this->createStub(NotificationRecipientEmailResolver::class);
         $recipientResolver->method('resolveRecipientUsers')->willReturn([]);
 
         $mailer = $this->createMock(MailerInterface::class);
@@ -128,9 +128,9 @@ final class AdminNotificationSenderTest extends TestCase
                 replyTo: '',
             ),
             $recipientResolver,
-            $translator ?? $this->createMock(TranslatorInterface::class),
+            $translator ?? $this->createStub(TranslatorInterface::class),
             new LocaleResolver(new LocaleCookieManager()),
-            $logger ?? $this->createMock(LoggerInterface::class),
+            $logger ?? $this->createStub(LoggerInterface::class),
         );
     }
 

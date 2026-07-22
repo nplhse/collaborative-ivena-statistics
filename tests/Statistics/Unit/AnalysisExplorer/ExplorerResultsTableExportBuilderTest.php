@@ -393,7 +393,7 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
 
     private function createBuilder(): ExplorerResultsTableExportBuilder
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnMap([
             ['stats.analysis_explorer.dimension.month', [], 'statistics', null, 'Month'],
             ['stats.analysis_explorer.dimension.gender', [], 'statistics', null, 'Gender'],

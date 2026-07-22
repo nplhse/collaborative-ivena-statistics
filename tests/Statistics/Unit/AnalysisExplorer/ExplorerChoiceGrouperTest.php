@@ -74,7 +74,7 @@ final class ExplorerChoiceGrouperTest extends TestCase
 
     private function translator(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id): string => match ($id) {
                 'stats.analysis_explorer.metric_group.counts' => 'Counts',
