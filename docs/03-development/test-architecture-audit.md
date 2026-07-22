@@ -170,7 +170,8 @@ Use `make coverage SUITE=unit` for fast loops; full Codecov from CI for trends.
 - [x] Backlog formulated (B1–B18)
 - [x] B1–B5 double hygiene PRs
 - [x] B6–B8 large-class splits
-- [ ] B9–B13 coverage gap PRs (as needed)
+- [x] B9 hospital permission / voter edge cases
+- [ ] B10–B13 coverage gap PRs (as needed)
 - [ ] B14–B18 process / automation (optional)
 
 When opening GitHub issues, link back to this file and to #324.
