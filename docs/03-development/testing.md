@@ -86,11 +86,12 @@ make lint-trans-de  # lint DE catalogue only
 
 ## CI reference
 
-- **Unit job** (parallel, no database, PCOV): `paratest --testsuite unit --coverage-clover=…` → Codecov flag `unit`
-- **Database job** (parallel, PostgreSQL, PCOV): `paratest --testsuite all --exclude-testsuite unit --coverage-clover=…` → Codecov flag `integration`
-- Either job failing fails the workflow; Codecov merges both flags for project coverage
+- **Unit job** (parallel, no database, PCOV): clover artifact `coverage-unit`
+- **Database job** (parallel, PostgreSQL, PCOV): clover artifact `coverage-integration`
+- **Coverage job** (after both succeed): one Codecov upload with both clovers, no flags (full project coverage)
+- Either test job failing fails the workflow; the coverage job does not run unless both succeed
 - Workflows: `.github/workflows/tests.yml`
-- Codecov flags: [`codecov.yml`](../../codecov.yml)
+- Codecov: [`codecov.yml`](../../codecov.yml)
 - Linting: `.github/workflows/lint.yml`
 - Security scan: `.github/workflows/security.yml`
 
