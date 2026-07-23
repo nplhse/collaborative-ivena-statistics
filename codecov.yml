@@ -12,13 +12,6 @@ coverage:
         # this allows a 10% drop from the previous base commit coverage
         threshold: 10%
 
-# CI uploads separate clover reports from the unit and database jobs.
-# Carryforward keeps the other flag's last successful report when only one job re-runs.
-flag_management:
-  default_rules:
-    carryforward: true
-  individual_flags:
-    - name: unit
-      carryforward: true
-    - name: integration
-      carryforward: true
+# CI uploads unit + integration clovers in one unflagged Codecov step
+# (.github/workflows/tests.yml → job "coverage"). Per-flag uploads were
+# deferred after dual flagged reports stayed stuck in processing (#346).

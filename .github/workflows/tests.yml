@@ -91,16 +91,13 @@ jobs:
                     --order-by duration \
                     --stop-on-failure
 
-            - name: Upload unit coverage to Codecov
+            - name: Upload unit coverage artifact
               if: success()
-              uses: codecov/codecov-action@v7
+              uses: actions/upload-artifact@v4
               with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
-                  files: var/coverage/logs/clover-unit.xml
-                  flags: unit
-                  name: unit
-                  disable_search: true
-                  fail_ci_if_error: true
+                  name: coverage-unit
+                  path: var/coverage/logs/clover-unit.xml
+                  if-no-files-found: error
 
             - name: Upload unit test results to Codecov
               if: success()
@@ -109,7 +106,6 @@ jobs:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   report_type: test_results
                   files: junit-unit.xml
-                  flags: unit
                   name: unit-test-results
                   disable_search: true
                   fail_ci_if_error: false
@@ -189,16 +185,13 @@ jobs:
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
 
-            - name: Upload integration coverage to Codecov
+            - name: Upload integration coverage artifact
               if: success()
-              uses: codecov/codecov-action@v7
+              uses: actions/upload-artifact@v4
               with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
-                  files: var/coverage/logs/clover-integration.xml
-                  flags: integration
-                  name: integration
-                  disable_search: true
-                  fail_ci_if_error: true
+                  name: coverage-integration
+                  path: var/coverage/logs/clover-integration.xml
+                  if-no-files-found: error
 
             - name: Upload integration test results to Codecov
               if: success()
@@ -207,7 +200,39 @@ jobs:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   report_type: test_results
                   files: junit-integration.xml
-                  flags: integration
                   name: integration-test-results
                   disable_search: true
                   fail_ci_if_error: false
+
+    # Single unflagged coverage upload (unit + integration clovers).
+    # Dual per-job flagged uploads since #346 stayed stuck in Codecov "started".
+    coverage:
+        name: Upload coverage to Codecov
+        needs: [unit, database]
+        runs-on: ubuntu-latest
+        if: success()
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+
+            - name: Download unit coverage
+              uses: actions/download-artifact@v4
+              with:
+                  name: coverage-unit
+                  path: var/coverage/logs
+
+            - name: Download integration coverage
+              uses: actions/download-artifact@v4
+              with:
+                  name: coverage-integration
+                  path: var/coverage/logs
+
+            - name: Upload combined coverage to Codecov
+              uses: codecov/codecov-action@v7
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  files: var/coverage/logs/clover-unit.xml,var/coverage/logs/clover-integration.xml
+                  name: unit-and-integration
+                  disable_search: true
+                  fail_ci_if_error: true
+                  verbose: true
