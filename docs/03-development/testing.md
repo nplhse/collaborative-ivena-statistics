@@ -58,6 +58,8 @@ Heuristics:
 
 Do not introduce Mockery or Prophecy for application tests. Full taxonomy, findings, and follow-up backlog: [test-architecture-audit.md](test-architecture-audit.md).
 
+PR checklist: see [CONTRIBUTING.md](../../CONTRIBUTING.md) — stub by default, spy for side effects.
+
 ## Static analysis and linting
 
 ```bash

@@ -175,7 +175,7 @@ Use `make coverage SUITE=unit` for fast loops; full Codecov from CI for trends.
 - [x] B12 explore allocations access and filter edges
 - [x] B13 onboarding failure / already-complete paths
 - [x] B11 projection rebuild invariants
-- [ ] B14 PR checklist for test doubles (optional; deferred)
+- [x] B14 PR checklist for test doubles
 - [x] B16 PHPUnit suite directory drift guard
 - [ ] B15 / B17 / B18 process / automation (optional)
 

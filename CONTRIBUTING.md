@@ -12,3 +12,11 @@ However, you should follow the following simple guidelines for your contribution
 -   You should make sure to follow the [PHP Standards Recommendations](http://www.php-fig.org/psr/) and the
     [Symfony best practices](http://symfony.com/doc/current/best_practices/index.html).
 -   Also, you must agree to comply to the [Code of Conduct](CODE_OF_CONDUCT.md) of this project.
+
+## Before opening a pull request
+
+-   Run the relevant tests (`make test SUITE=…` / `PATH_ARG=…`) and keep them green.
+-   In unit tests, prefer `createStub()` for return-only collaborators; use a spy for side effects;
+    reserve `expects()` for when call count or `never()` is part of the spec. See
+    [docs/03-development/testing.md](docs/03-development/testing.md#test-doubles).
+-   Do not commit secrets, credentials, or unrelated scope changes.
