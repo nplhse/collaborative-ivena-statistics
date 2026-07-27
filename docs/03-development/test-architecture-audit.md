@@ -172,7 +172,8 @@ Use `make coverage SUITE=unit` for fast loops; full Codecov from CI for trends.
 - [x] B6–B8 large-class splits
 - [x] B9 hospital permission / voter edge cases
 - [x] B10 import reject and invalid-input paths
-- [ ] B11–B13 coverage gap PRs (as needed)
+- [x] B12 explore allocations access and filter edges
+- [ ] B11 / B13 coverage gap PRs (as needed)
 - [ ] B14 PR checklist for test doubles (optional; deferred)
 - [x] B16 PHPUnit suite directory drift guard
 - [ ] B15 / B17 / B18 process / automation (optional)
