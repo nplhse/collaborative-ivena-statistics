@@ -69,7 +69,7 @@ final class XmlSitemapProviderTest extends KernelTestCase
         ]);
 
         $locs = array_map(
-            static fn ($url): string => $url->loc,
+            static fn (\App\Content\Application\Sitemap\DTO\XmlSitemapUrl $url): string => $url->loc,
             $this->provider->getUrls(),
         );
 
