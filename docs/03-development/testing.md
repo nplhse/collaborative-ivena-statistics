@@ -56,7 +56,7 @@ Heuristics:
 - Asserting that mail / messages / writes happened → spy before a strict mock.
 - Database or HTTP → Integration / Functional with Foundry, not Unit doubles of persistence.
 
-Do not introduce Mockery or Prophecy for application tests. Full taxonomy, findings, and follow-up backlog: [test-architecture-audit.md](test-architecture-audit.md).
+Do not introduce Mockery or Prophecy for application tests.
 
 PR checklist: see [CONTRIBUTING.md](../../CONTRIBUTING.md) — stub by default, spy for side effects.
 
@@ -113,7 +113,6 @@ After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `compose
 
 ## Related documentation
 
-- Test architecture audit and backlog: [test-architecture-audit.md](test-architecture-audit.md)
 - Statistics projection: [../04-features/statistics/projection-and-materialized-views.md](../04-features/statistics/projection-and-materialized-views.md)
 - Fixtures: [fixtures.md](fixtures.md)
 - Development: [development-workflow.md](development-workflow.md)
