@@ -260,6 +260,122 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
         self::assertSame(2, $count);
     }
 
+    public function testDeleteForImportRemovesOnlyMatchingRowsAndIsIdempotent(): void
+    {
+        self::bootKernel();
+
+        $importA = $this->seedReferenceGraph('del-a');
+        $importB = $this->seedReferenceGraph('del-b');
+
+        $baseA = $this->allocationDefaults($importA);
+        AllocationFactory::createOne($baseA);
+        AllocationFactory::createOne(array_merge($baseA, [
+            'createdAt' => new \DateTimeImmutable('2025-03-02 09:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-03-02 10:00:00'),
+            'age' => 61,
+        ]));
+
+        $baseB = $this->allocationDefaults($importB);
+        AllocationFactory::createOne($baseB);
+
+        $importAId = $importA['import']->getId();
+        $importBId = $importB['import']->getId();
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+
+        $rebuilder->rebuildForImport($importAId);
+        $rebuilder->rebuildForImport($importBId);
+
+        self::assertSame(2, $this->countProjectionRows($importAId));
+        self::assertSame(1, $this->countProjectionRows($importBId));
+
+        $deleted = $rebuilder->deleteForImport($importAId);
+        self::assertSame(2, $deleted);
+        self::assertSame(0, $this->countProjectionRows($importAId));
+        self::assertSame(1, $this->countProjectionRows($importBId));
+
+        self::assertSame(0, $rebuilder->deleteForImport($importAId));
+        self::assertSame(1, $this->countProjectionRows($importBId));
+    }
+
+    public function testRebuildForEmptyImportClearsStaleProjectionRows(): void
+    {
+        self::bootKernel();
+
+        $d = $this->seedReferenceGraph('empty');
+        $importId = $d['import']->getId();
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+
+        $allocation = AllocationFactory::createOne($this->allocationDefaults($d));
+        $rebuilder->rebuildForImport($importId);
+        self::assertSame(1, $this->countProjectionRows($importId));
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement(
+            'DELETE FROM allocation WHERE id = :id',
+            ['id' => $allocation->getId()],
+        );
+
+        $rebuilder->rebuildForImport($importId);
+
+        self::assertSame(0, $this->countProjectionRows($importId));
+        self::assertSame(
+            0,
+            (int) $connection->fetchOne(
+                'SELECT COUNT(*) FROM allocation WHERE import_id = :i',
+                ['i' => $importId],
+            ),
+        );
+    }
+
+    public function testRebuildAfterAllocationDeletionDropsOrphanProjectionRows(): void
+    {
+        self::bootKernel();
+
+        $d = $this->seedReferenceGraph('orphan');
+        $base = $this->allocationDefaults($d);
+
+        $kept = AllocationFactory::createOne($base);
+        $removed = AllocationFactory::createOne(array_merge($base, [
+            'createdAt' => new \DateTimeImmutable('2025-03-02 09:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-03-02 10:00:00'),
+            'age' => 62,
+        ]));
+
+        $importId = $d['import']->getId();
+        $keptId = $kept->getId();
+        $removedId = $removed->getId();
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+
+        $rebuilder->rebuildForImport($importId);
+        self::assertSame(2, $this->countProjectionRows($importId));
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement(
+            'DELETE FROM allocation WHERE id = :id',
+            ['id' => $removedId],
+        );
+
+        $rebuilder->rebuildForImport($importId);
+
+        self::assertSame(1, $this->countProjectionRows($importId));
+        self::assertSame(
+            $keptId,
+            (int) $connection->fetchOne(
+                'SELECT id FROM allocation_stats_projection WHERE import_id = :i',
+                ['i' => $importId],
+            ),
+        );
+        self::assertSame(
+            0,
+            (int) $connection->fetchOne(
+                'SELECT COUNT(*) FROM allocation_stats_projection WHERE id = :id',
+                ['id' => $removedId],
+            ),
+        );
+    }
+
     /**
      * @return array{
      *     user: object,
@@ -270,30 +386,31 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
      *     indicationNormalized: object
      * }
      */
-    private function seedReferenceGraph(): array
+    private function seedReferenceGraph(string $suffix = 'seed'): array
     {
-        $user = UserFactory::createOne(['username' => 'stats-proj-seed-'.bin2hex(random_bytes(4))]);
-        $state = StateFactory::createOne(['name' => 'StatsProjSeedState']);
-        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'StatsProjSeedDispatch', 'state' => $state]);
+        $token = $suffix.'-'.bin2hex(random_bytes(3));
+        $user = UserFactory::createOne(['username' => 'stats-proj-'.$token]);
+        $state = StateFactory::createOne(['name' => 'StatsProjState-'.$token]);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'StatsProjDispatch-'.$token, 'state' => $state]);
         $hospital = HospitalFactory::createOne([
-            'name' => 'StatsProjSeedHospital',
+            'name' => 'StatsProjHospital-'.$token,
             'state' => $state,
             'dispatchArea' => $dispatchArea,
         ]);
         $import = ImportFactory::createOne([
-            'name' => 'StatsProjSeedImport',
+            'name' => 'StatsProjImport-'.$token,
             'hospital' => $hospital,
             'createdBy' => $user,
         ]);
 
-        SpecialityFactory::createOne(['name' => 'StatsProjSeedSpec']);
-        DepartmentFactory::createOne(['name' => 'StatsProjSeedDept']);
-        AssignmentFactory::createOne(['name' => 'StatsProjSeedAssign']);
-        OccasionFactory::createOne(['name' => 'StatsProjSeedOcc']);
-        SecondaryTransportFactory::createOne(['name' => 'StatsProjSeedSec']);
-        InfectionFactory::createOne(['name' => 'StatsProjSeedInf']);
-        IndicationRawFactory::createOne(['name' => 'StatsProjSeedRaw', 'code' => 912_346]);
-        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'StatsProjSeedNorm']);
+        SpecialityFactory::createOne(['name' => 'StatsProjSpec-'.$token]);
+        DepartmentFactory::createOne(['name' => 'StatsProjDept-'.$token]);
+        AssignmentFactory::createOne(['name' => 'StatsProjAssign-'.$token]);
+        OccasionFactory::createOne(['name' => 'StatsProjOcc-'.$token]);
+        SecondaryTransportFactory::createOne(['name' => 'StatsProjSec-'.$token]);
+        InfectionFactory::createOne(['name' => 'StatsProjInf-'.$token]);
+        IndicationRawFactory::createOne(['name' => 'StatsProjRaw-'.$token, 'code' => random_int(100_000, 999_999)]);
+        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'StatsProjNorm-'.$token]);
 
         return [
             'user' => $user,
@@ -303,6 +420,54 @@ final class AllocationStatsProjectionRebuilderTest extends KernelTestCase
             'import' => $import,
             'indicationNormalized' => $indicationNormalized,
         ];
+    }
+
+    /**
+     * @param array{
+     *     user: object,
+     *     state: object,
+     *     dispatchArea: object,
+     *     hospital: object,
+     *     import: object,
+     *     indicationNormalized: object
+     * } $graph
+     *
+     * @return array<string, mixed>
+     */
+    private function allocationDefaults(array $graph): array
+    {
+        return [
+            'import' => $graph['import'],
+            'hospital' => $graph['hospital'],
+            'state' => $graph['state'],
+            'dispatchArea' => $graph['dispatchArea'],
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'transportType' => AllocationTransportType::AIR,
+            'age' => 55,
+            'requiresResus' => false,
+            'requiresCathlab' => true,
+            'isCPR' => false,
+            'isVentilated' => false,
+            'isWorkAccident' => false,
+            'isWithPhysician' => true,
+            'occasion' => null,
+            'infection' => null,
+            'indicationNormalized' => $graph['indicationNormalized'],
+            'createdAt' => new \DateTimeImmutable('2025-03-01 08:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-03-01 08:45:00'),
+        ];
+    }
+
+    private function countProjectionRows(int $importId): int
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+
+        return (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = :i',
+            ['i' => $importId],
+        );
     }
 
     private function toBool(mixed $value): bool
