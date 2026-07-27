@@ -46,7 +46,7 @@ Infrastructure already in good shape:
 | ~~973~~ split | `AnalysisExplorerShell*Test.php` (HappyPath / Filter / Auth / EdgeCases) | Done |
 | ~~950~~ split | `ImportAllocationsMessageHandler*Test.php` (Run / Reimport / Failure / MessageBus) | Done |
 | ~~925~~ split | `ExplorerResultsTablePresenter*Test.php` (Columns / Matrix / BoxPlot / HospitalMetrics) | Done |
-| ~717 | `tests/Content/Integration/Page/PageImageContentAnalyzerTest.php` | Analyzer scenarios by content type |
+| ~~717~~ split | `PageImageContentAnalyzer*Test.php` (ImageBlock / HtmlSnippet) | Done |
 | ~611 | `tests/Statistics/Functional/Controller/DashboardControllerTest.php` | Auth / widgets / empty states |
 | ~577 | `tests/Content/Unit/Page/PageContentValidatorTest.php` | Rule groups |
 | ~535 | `tests/Allocation/Integration/Query/AllocationBucketQueryTest.php` | Query variants |
