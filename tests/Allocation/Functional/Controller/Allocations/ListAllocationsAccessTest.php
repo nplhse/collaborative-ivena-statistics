@@ -5,32 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Allocations;
 
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
-use App\Allocation\Infrastructure\Factory\AssignmentFactory;
-use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
-use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
-use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
-use App\Allocation\Infrastructure\Factory\InfectionFactory;
-use App\Allocation\Infrastructure\Factory\OccasionFactory;
-use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
-use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
-use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
-use Zenstruck\Foundry\Attribute\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 
-#[ResetDatabase]
-final class ListAllocationsAccessTest extends WebTestCase
+final class ListAllocationsAccessTest extends ListAllocationsControllerTestCase
 {
-    use InteractsWithAuthenticatedUser;
-    use Factories;
-
     public function testListRedirectsWhenNotAuthenticated(): void
     {
         $client = self::createClient();
@@ -95,36 +78,5 @@ final class ListAllocationsAccessTest extends WebTestCase
         $ids = $this->extractAllocationIds($crawler);
         self::assertSame([], $ids);
         self::assertNotContains($foreignAllocation->getPublicIdString(), $ids);
-    }
-
-    private function seedLookupDependencies(): void
-    {
-        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
-        DepartmentFactory::createOne(['name' => 'Kardiologie']);
-        AssignmentFactory::createOne(['name' => 'Test Assignment']);
-        OccasionFactory::createOne(['name' => 'Test Occasion']);
-        SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
-        InfectionFactory::createOne(['name' => 'Test Infection']);
-        IndicationRawFactory::createOne(['name' => 'Test Indication']);
-        IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function extractAllocationIds(Crawler $crawler): array
-    {
-        $ids = [];
-        foreach ($crawler->filter('td .btn-actions a') as $node) {
-            if (!$node instanceof \DOMElement) {
-                continue;
-            }
-            $href = $node->getAttribute('href');
-            if (preg_match('/\/explore\/allocation\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/', $href, $matches)) {
-                $ids[] = $matches[1];
-            }
-        }
-
-        return $ids;
     }
 }
