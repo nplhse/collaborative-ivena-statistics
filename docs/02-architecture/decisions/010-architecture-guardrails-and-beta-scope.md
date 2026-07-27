@@ -4,7 +4,7 @@
 
 ## Context
 
-Issue #258 calls for architecture review and reduced software complexity before beta. Phase 1 inventory found solid structure, missing automated boundary checks on `main`, and a few large hotspots (especially `AllocationRepository` and Analysis Explorer UI/application classes). Experimental Deptrac work exists on branch `refactor/architecture-review` but is not wired on `main`.
+Issue #258 calls for architecture review and reduced software complexity before beta. Phase 1 inventory found solid structure and a few large hotspots (especially `AllocationRepository` and Analysis Explorer UI/application classes). Automated boundary checks were missing on `main` at the time; Deptrac has since been introduced in report-only mode with a baseline (see Decision below and [deptrac.md](../deptrac.md)). Experimental work on `refactor/architecture-review` informed that introduction and was not merged as a big-bang change.
 
 Enforcing every ideal boundary and refactoring every large class before beta would delay release without matching risk reduction.
 
@@ -17,7 +17,7 @@ After ADRs 007–009 are accepted:
 1. Introduce Deptrac on `main`, aligned with those ADRs
 2. Start in **report-only** mode with a baseline of known violations
 3. Add CI visibility without failing the build until the baseline is stable and the team agrees to ratchet
-4. Treat `refactor/architecture-review` as **input to review**, not as an automatic merge
+4. Use `refactor/architecture-review` only as input to the Deptrac design on `main`, not as an automatic merge — that introduction is complete. The experimental branch was not merged wholesale
 
 Deptrac rules should encode the policies in ADRs 007–009 (context directions, Shared limits, pragmatic domain/Doctrine allowance, query/repository intent where expressible). Exact YAML is out of scope for this ADR and belongs to the Deptrac introduction PR.
 
@@ -67,5 +67,6 @@ Architecture follow-ups for Issue #258 are delivered as **small, single-purpose 
 - [007-bounded-contexts-and-dependency-directions.md](007-bounded-contexts-and-dependency-directions.md)
 - [008-shared-platform-and-domain-framework-coupling.md](008-shared-platform-and-domain-framework-coupling.md)
 - [009-ports-repositories-query-objects-and-naming.md](009-ports-repositories-query-objects-and-naming.md)
+- [../deptrac.md](../deptrac.md)
 - [../overview.md](../overview.md)
 - Issue [#258](https://github.com/nplhse/collaborative-ivena-statistics/issues/258)
