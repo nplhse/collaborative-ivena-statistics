@@ -175,7 +175,7 @@ There is no runtime configuration or admin UI for thresholds yet.
 | Type | Location |
 |---|---|
 | Unit | `tests/Statistics/Unit/DataQuality/` — calculators, cap rules, population resolver, SQL filter |
-| Functional | `IndicationDashboardControllerTest`, `DashboardControllerTest`, `IndicationInsightsIndexControllerTest` — assert `data-testid="stats-data-quality-indicator"`; overview also asserts `data-controller="data-quality-indicator"` |
+| Functional | `IndicationDashboardControllerTest`, `DashboardControllerWidgetsTest`, `IndicationInsightsIndexControllerTest` — assert `data-testid="stats-data-quality-indicator"`; overview also asserts `data-controller="data-quality-indicator"` |
 
 ## Related documentation
 
