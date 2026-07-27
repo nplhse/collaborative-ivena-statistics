@@ -61,6 +61,8 @@ final class AppRoutesTest extends SystemWebTestCase
         yield 'app_check_email' => ['/reset-password/check-email'];
         yield 'app_cookie_preferences' => ['/cookies/preferences'];
         yield 'app_sitemap' => ['/sitemap'];
+        yield 'app_xml_sitemap' => ['/sitemap.xml'];
+        yield 'app_robots_txt' => ['/robots.txt'];
         yield 'app_blog_index' => ['/blog'];
         yield 'app_blog_rss' => ['/blog/rss.xml'];
     }
