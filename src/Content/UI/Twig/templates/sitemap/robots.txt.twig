@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /statistics
+Disallow: /explore
+Disallow: /hospitals
+Disallow: /settings
+Disallow: /import
+Disallow: /health
+Disallow: /login/confirm
+Disallow: /_error
+Disallow: /_error_preview
+Disallow: /_ui/
+Disallow: /feedback
+
+Sitemap: {{ absolute_url(path('app_xml_sitemap')) }}
