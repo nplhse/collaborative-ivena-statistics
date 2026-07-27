@@ -50,9 +50,9 @@ Infrastructure already in good shape:
 | ~~611~~ split | `DashboardController*Test.php` (Widgets / Scope / Period) | Done |
 | ~~577~~ split | `PageContentValidator*Test.php` (Structure / Image / BlockFields) | Done |
 | ~~535~~ split | `AllocationBucketQuery*Test.php` (MonthDimension / TimeGranularity / HospitalScope / WindowAndRepository) | Done |
-| ~499 | `tests/Allocation/Functional/Controller/Allocations/ListAllocationsControllerTest.php` | Filters / pagination / access |
+| ~~499~~ split | `ListAllocations*Test.php` (Pagination / Filters / HospitalScope; Access+FilterEdges from B12) | Done |
 
-Further classes in the ~350–480 line range (export builders, explorer controllers, indication review) can follow the same “split by behaviour” rule once the top three are done.
+Further classes in the ~350–480 line range (export builders, explorer controllers, indication review) can follow the same “split by behaviour” rule once the top hotspots are done.
 
 ## Test double strategy
 
