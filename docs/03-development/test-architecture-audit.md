@@ -49,7 +49,7 @@ Infrastructure already in good shape:
 | ~~717~~ split | `PageImageContentAnalyzer*Test.php` (ImageBlock / HtmlSnippet) | Done |
 | ~~611~~ split | `DashboardController*Test.php` (Widgets / Scope / Period) | Done |
 | ~~577~~ split | `PageContentValidator*Test.php` (Structure / Image / BlockFields) | Done |
-| ~535 | `tests/Allocation/Integration/Query/AllocationBucketQueryTest.php` | Query variants |
+| ~~535~~ split | `AllocationBucketQuery*Test.php` (MonthDimension / TimeGranularity / HospitalScope / WindowAndRepository) | Done |
 | ~499 | `tests/Allocation/Functional/Controller/Allocations/ListAllocationsControllerTest.php` | Filters / pagination / access |
 
 Further classes in the ~350–480 line range (export builders, explorer controllers, indication review) can follow the same “split by behaviour” rule once the top three are done.
