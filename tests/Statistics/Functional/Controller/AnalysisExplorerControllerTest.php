@@ -233,7 +233,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains(
             '[data-testid="stats-analysis-explorer-title"]',
-            'Allokationen im Zeitverlauf',
+            'Zuweisungen im Zeitverlauf',
         );
     }
 
