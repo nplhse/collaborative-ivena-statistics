@@ -120,4 +120,25 @@ final class PageRepository extends ServiceEntityRepository
 
         return $pages;
     }
+
+    /**
+     * Published pages with public visibility (guest-reachable CMS content).
+     *
+     * @return list<Page>
+     */
+    public function findAllPublishedPublic(): array
+    {
+        /** @var list<Page> $pages */
+        $pages = $this->createQueryBuilder('p')
+            ->addSelect('parent')
+            ->leftJoin('p.parent', 'parent')
+            ->andWhere('p.status = :status')
+            ->andWhere('p.visibility = :visibility')
+            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->setParameter('visibility', Page::VISIBILITY_PUBLIC)
+            ->getQuery()
+            ->getResult();
+
+        return $pages;
+    }
 }

@@ -95,6 +95,36 @@ final class PageRepositoryQueryTest extends KernelTestCase
         self::assertContains('vis-auth', $slugs);
     }
 
+    public function testFindAllPublishedPublicOnlyReturnsPublishedPublicPages(): void
+    {
+        PageFactory::createOne([
+            'slug' => 'public-live',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageFactory::createOne([
+            'slug' => 'auth-only',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+        ]);
+
+        PageFactory::createOne([
+            'slug' => 'public-draft',
+            'status' => Page::STATUS_DRAFT,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        $slugs = array_map(
+            static fn (Page $p): ?string => $p->getSlug(),
+            $this->repo->findAllPublishedPublic(),
+        );
+
+        self::assertContains('public-live', $slugs);
+        self::assertNotContains('auth-only', $slugs);
+        self::assertNotContains('public-draft', $slugs);
+    }
+
     public function testFindOnePublishedByKeyReturnsPublishedPage(): void
     {
         PageFactory::createOne([
