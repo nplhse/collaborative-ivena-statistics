@@ -54,3 +54,4 @@ Role-based reading orders live in each section's README:
 - [Explore allocation list](04-features/allocation/explore-allocation-list.md)
 - [Sentry observability](05-operations/observability-sentry.md)
 - [Content Security Policy (report-only)](05-operations/content-security-policy.md)
+- [Pre-beta security audit](05-operations/security-audit-beta.md)

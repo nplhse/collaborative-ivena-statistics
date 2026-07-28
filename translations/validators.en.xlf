@@ -725,6 +725,10 @@
         <source>validation.registration.accept_terms_required</source>
         <target>You must accept the terms and conditions to register.</target>
       </trans-unit>
+      <trans-unit id="regv002" resname="validation.registration.identity_taken">
+        <source>validation.registration.identity_taken</source>
+        <target>This username or email address is already taken.</target>
+      </trans-unit>
       <trans-unit id="pagev013" resname="page.validation.key_unique">
         <source>page.validation.key_unique</source>
         <target>This page key is already assigned to another page.</target>

@@ -725,6 +725,10 @@
         <source>validation.registration.accept_terms_required</source>
         <target>Sie müssen die Nutzungsbedingungen akzeptieren, um sich zu registrieren.</target>
       </trans-unit>
+      <trans-unit id="regv002" resname="validation.registration.identity_taken">
+        <source>validation.registration.identity_taken</source>
+        <target>Dieser Benutzername oder diese E-Mail-Adresse ist bereits vergeben.</target>
+      </trans-unit>
       <trans-unit id="pagev013" resname="page.validation.key_unique">
         <source>page.validation.key_unique</source>
         <target>Dieser Seiten-Schlüssel ist bereits einer anderen Seite zugewiesen.</target>
