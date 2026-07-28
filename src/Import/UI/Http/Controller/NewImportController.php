@@ -15,10 +15,12 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Form\ImportCreateType;
+use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -26,6 +28,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -47,8 +50,11 @@ final class NewImportController extends AbstractController
     ) {
     }
 
-    public function __invoke(Request $request): Response
-    {
+    public function __invoke(
+        Request $request,
+        #[Autowire(service: 'limiter.import_create')]
+        RateLimiterFactory $importCreateLimiter,
+    ): Response {
         $form = $this->createForm(ImportCreateType::class);
         $form->handleRequest($request);
 
@@ -77,6 +83,12 @@ final class NewImportController extends AbstractController
         $userId = $user->getId();
         if (null === $userId) {
             throw new \LogicException('Authenticated user has no ID.');
+        }
+
+        if (!ClientRateLimit::acceptUserAndIp($importCreateLimiter, 'import_create', (string) $userId, $request)) {
+            $this->addFlash('warning', new TranslatableMessage('flash.import.rate_limited', domain: 'import'));
+
+            return $this->redirectToRoute('app_import_new');
         }
 
         /** @var Hospital $managedHospital */

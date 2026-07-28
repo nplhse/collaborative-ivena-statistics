@@ -9,6 +9,10 @@
         <source>flash.import.created</source>
         <target>New Import has been created successfully!</target>
       </trans-unit>
+      <trans-unit id="FlsImpRlEn" resname="flash.import.rate_limited">
+        <source>flash.import.rate_limited</source>
+        <target>Too many import attempts. Please try again later.</target>
+      </trans-unit>
       <trans-unit id="impFlDelOk" resname="flash.import.deleted">
         <source>flash.import.deleted</source>
         <target>Import has been deleted successfully.</target>

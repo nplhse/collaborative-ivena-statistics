@@ -9,6 +9,10 @@
         <source>flash.import.created</source>
         <target>Neuer Import wurde erfolgreich erstellt!</target>
       </trans-unit>
+      <trans-unit id="FlsImpRlDe" resname="flash.import.rate_limited">
+        <source>flash.import.rate_limited</source>
+        <target>Zu viele Importversuche. Bitte versuche es später erneut.</target>
+      </trans-unit>
       <trans-unit id="FlsImpRunDe" resname="flash.import.delete_running_blocked">
         <source>flash.import.delete_running_blocked</source>
         <target>Dieser Import wird gerade ausgeführt und kann deshalb nicht gelöscht werden.</target>

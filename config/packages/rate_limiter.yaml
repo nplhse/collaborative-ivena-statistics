@@ -24,6 +24,26 @@ framework:
             policy: sliding_window
             limit: 1
             interval: '3 seconds'
+        register:
+            policy: fixed_window
+            limit: 5
+            interval: '1 hour'
+        reset_password_request:
+            policy: fixed_window
+            limit: 10
+            interval: '1 hour'
+        import_create:
+            policy: fixed_window
+            limit: 10
+            interval: '1 hour'
+        allocations_export:
+            policy: fixed_window
+            limit: 10
+            interval: '10 minutes'
+        analysis_explorer_export:
+            policy: fixed_window
+            limit: 20
+            interval: '10 minutes'
 
 when@test:
     framework:
@@ -47,4 +67,24 @@ when@test:
             transactional_mail:
                 policy: sliding_window
                 limit: 1000
+                interval: '1 second'
+            register:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            reset_password_request:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            import_create:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            allocations_export:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            analysis_explorer_export:
+                policy: fixed_window
+                limit: 10000
                 interval: '1 second'

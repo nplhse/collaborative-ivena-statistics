@@ -41,6 +41,10 @@
         <source>flash.settings.email.resend_rate_limited</source>
         <target>Please wait before requesting another verification email.</target>
       </trans-unit>
+      <trans-unit id="FlsRegRlEn" resname="flash.registration.rate_limited">
+        <source>flash.registration.rate_limited</source>
+        <target>Too many registration attempts. Please try again later.</target>
+      </trans-unit>
       <trans-unit id="FHE32nf" resname="flash.settings.email.updated_verify_required">
         <source>flash.settings.email.updated_verify_required</source>
         <target>Email address updated. Please verify your new email.</target>

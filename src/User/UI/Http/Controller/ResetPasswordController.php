@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\UI\Http\Controller;
 
 use App\Shared\Application\Locale\LocaleResolver;
+use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
@@ -12,10 +13,12 @@ use App\User\UI\Form\ResetPasswordFormType;
 use App\User\UI\Form\ResetPasswordRequestFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Translation\TranslatableMessage;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
@@ -38,12 +41,20 @@ final class ResetPasswordController extends AbstractController
     }
 
     #[Route('/reset-password', name: 'app_forgot_password_request')]
-    public function request(Request $request): Response
-    {
+    public function request(
+        Request $request,
+        #[Autowire(service: 'limiter.reset_password_request')]
+        RateLimiterFactory $resetPasswordRequestLimiter,
+    ): Response {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!ClientRateLimit::acceptIp($resetPasswordRequestLimiter, 'reset_password_request', $request)) {
+                // Same UX as success — avoid account/IP enumeration via distinct responses.
+                return $this->redirectToRoute('app_check_email');
+            }
+
             /** @var array{email: string} $data */
             $data = $form->getData();
             $this->processSendingPasswordResetEmail($data['email']);
