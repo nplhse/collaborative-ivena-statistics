@@ -18,7 +18,7 @@ Top risks to track:
 1. ~~Registration account enumeration via duplicate username/email (error path).~~ **Resolved** (SEC-001 — generic validation).
 2. ~~Blog index preview renders unsanitized HTML (`|raw`) while show uses `PostContentSanitizer`.~~ **Resolved** (SEC-002 — sanitized list preview).
 3. ~~CSV exports without formula neutralization (Excel formula injection).~~ **Resolved** (SEC-003 — `CsvFormulaEscaper`).
-4. Live Component mount path `/_components` outside `access_control`.
+4. ~~Live Component mount path `/_components` outside `access_control`.~~ **Resolved** (SEC-004 — `ROLE_USER` path gate).
 5. Cross-hospital Explore visibility for all participants (product decision: accept or restrict).
 
 ---
@@ -37,9 +37,10 @@ Source: [`config/packages/security.yaml`](../../config/packages/security.yaml)
 | `^/hospitals` | `ROLE_PARTICIPANT` |
 | `^/explore/...`, `^/explore` | `ROLE_PARTICIPANT` |
 | `^/statistics` | `ROLE_USER` |
+| `^/_components` | `ROLE_USER` |
 | `^/login/confirm` | `IS_AUTHENTICATED_REMEMBERED` |
 
-**Not listed** (controller attributes only): `/import`, `/settings`, `/_components`, public content (`/`, `/blog`, `/register`, `/feedback`, …).
+**Not listed** (controller attributes only): `/import`, `/settings`, public content (`/`, `/blog`, `/register`, `/feedback`, …).
 
 Firewall `main`: form login + confirm-password authenticators, `UserAccountStatusChecker`, login throttling **5 / 15 min**, remember-me 7 days, `switch_user` for `ROLE_ADMIN`, `expose_security_errors: none`.
 
@@ -131,7 +132,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`config/routes/ux_live_component.yaml`](../../config/routes/ux_live_component.yaml) prefix `/_components`; not matched by `^/statistics` / `^/explore`; [`AnalysisExplorerShell`](../../src/Statistics/AnalysisExplorer/UI/LiveComponent/AnalysisExplorerShell.php) calls `requireParticipant()` only on `save` / `submitSaveAs` |
 | Risk | Component endpoints are reachable without path-level auth; relies on per-action checks and LiveProp integrity. Persist paths are guarded; preview/rerun actions are weaker. |
 | Mitigation | Add `access_control` for `^/_components` (e.g. `IS_AUTHENTICATED_REMEMBERED` or `ROLE_USER`); require participant (or ownership) on mutating/analysis LiveActions; add denial tests for guest / non-participant. |
-| Status | open |
+| Status | resolved (2026-07-28) — `^/_components` → `ROLE_USER` in `access_control`; `#[IsGranted('ROLE_USER')]` on both Live Components; persist still requires participant; guest denial tests added |
 
 ### SEC-005 — Cross-hospital Explore allocation visibility
 
