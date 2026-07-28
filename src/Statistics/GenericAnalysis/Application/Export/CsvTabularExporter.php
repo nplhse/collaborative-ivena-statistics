@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Application\Export;
 
+use App\Shared\Application\Export\CsvFormulaEscaper;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('statistics.tabular_exporter')]
@@ -42,7 +43,10 @@ final class CsvTabularExporter implements TabularExporterInterface
 
         fputcsv(
             $stream,
-            array_map(static fn (TabularExportColumn $column): string => $column->label, $document->headers),
+            array_map(
+                static fn (TabularExportColumn $column): string => CsvFormulaEscaper::escape($column->label),
+                $document->headers,
+            ),
             self::DELIMITER,
             self::ENCLOSURE,
             self::ESCAPE,
@@ -83,6 +87,6 @@ final class CsvTabularExporter implements TabularExporterInterface
             return rtrim(rtrim(sprintf('%.10F', $value), '0'), '.');
         }
 
-        return $value;
+        return CsvFormulaEscaper::escape($value);
     }
 }
