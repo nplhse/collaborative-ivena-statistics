@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Content\UI\Http\Controller;
 
 use App\Content\Application\Blog\PostContentSanitizer;
+use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Entity\PostComment;
 use App\Content\Infrastructure\Repository\PostCategoryRepository;
 use App\Content\Infrastructure\Repository\PostCommentRepository;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Content\Infrastructure\Repository\PostTagRepository;
 use App\Content\UI\Http\DTO\BlogListQueryParametersDTO;
+use App\Shared\Infrastructure\Pagination\Paginator;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,8 +40,11 @@ final class BlogController extends AbstractController
     #[Route('/blog', name: 'app_blog_index', methods: ['GET'])]
     public function index(#[MapQueryString] BlogListQueryParametersDTO $query): Response
     {
+        $paginator = $this->postRepository->getPublishedPaginator($query);
+
         return $this->render('@Content/blog/index.html.twig', [
-            'paginator' => $this->postRepository->getPublishedPaginator($query),
+            'paginator' => $paginator,
+            'previews' => $this->buildPreviews($paginator),
             'pagination_route' => 'app_blog_index',
             'pagination_route_params' => [],
             'list_title' => 'blog.list.all_posts',
@@ -56,8 +61,11 @@ final class BlogController extends AbstractController
             throw $this->createNotFoundException($this->translator->trans('error.blog.category_not_found', [], 'content'));
         }
 
+        $paginator = $this->postRepository->getPublishedByCategorySlugPaginator($slug, $query);
+
         return $this->render('@Content/blog/index.html.twig', [
-            'paginator' => $this->postRepository->getPublishedByCategorySlugPaginator($slug, $query),
+            'paginator' => $paginator,
+            'previews' => $this->buildPreviews($paginator),
             'pagination_route' => 'app_blog_category',
             'pagination_route_params' => ['slug' => $slug],
             'activeCategory' => $category,
@@ -75,8 +83,11 @@ final class BlogController extends AbstractController
             throw $this->createNotFoundException($this->translator->trans('error.blog.tag_not_found', [], 'content'));
         }
 
+        $paginator = $this->postRepository->getPublishedByTagSlugPaginator($slug, $query);
+
         return $this->render('@Content/blog/index.html.twig', [
-            'paginator' => $this->postRepository->getPublishedByTagSlugPaginator($slug, $query),
+            'paginator' => $paginator,
+            'previews' => $this->buildPreviews($paginator),
             'pagination_route' => 'app_blog_tag',
             'pagination_route_params' => ['slug' => $slug],
             'activeTag' => $tag,
@@ -101,7 +112,7 @@ final class BlogController extends AbstractController
     public function show(string $slug): Response
     {
         $post = $this->postRepository->findPublishedBySlug($slug);
-        if (!$post instanceof \App\Content\Domain\Entity\Post) {
+        if (!$post instanceof Post) {
             throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found', [], 'content'));
         }
 
@@ -120,7 +131,7 @@ final class BlogController extends AbstractController
     public function createComment(string $slug, Request $request): RedirectResponse
     {
         $post = $this->postRepository->findPublishedBySlug($slug);
-        if (!$post instanceof \App\Content\Domain\Entity\Post) {
+        if (!$post instanceof Post) {
             throw $this->createNotFoundException($this->translator->trans('error.blog.post_not_found', [], 'content'));
         }
 
@@ -167,8 +178,22 @@ final class BlogController extends AbstractController
     }
 
     /**
+     * @return array<int, string>
+     */
+    private function buildPreviews(Paginator $paginator): array
+    {
+        $previews = [];
+        foreach ($paginator->getResults() as $post) {
+            /* @var Post $post */
+            $previews[(int) $post->getId()] = $this->postContentSanitizer->preview((string) $post->getContent());
+        }
+
+        return $previews;
+    }
+
+    /**
      * @return array{
-     *   latest_posts: list<\App\Content\Domain\Entity\Post>,
+     *   latest_posts: list<Post>,
      *   sidebar_categories: list<array{category: \App\Content\Domain\Entity\PostCategory, postCount: int}>,
      *   sidebar_tags: list<array{tag: \App\Content\Domain\Entity\PostTag, postCount: int}>
      * }

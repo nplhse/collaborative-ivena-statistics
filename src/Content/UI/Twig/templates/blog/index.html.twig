@@ -52,12 +52,7 @@
                                             <span>| {{ 'blog.comments.count'|trans(({count: post.comments|length}), 'content') }}</span>
                                         </div>
                                         <div>
-                                            {% if '</p>' in post.content %}
-                                                {{ (post.content|split('</p>')|first ~ '</p>')|raw }}
-                                            {% else %}
-                                                {% set preview = post.content|striptags %}
-                                                {{ preview|length > 260 ? preview|slice(0, 260) ~ '...' : preview }}
-                                            {% endif %}
+                                            {{ previews[post.id]|default('')|raw }}
                                         </div>
                                         <div class="mt-3 d-flex align-items-center justify-content-between gap-2 flex-wrap">
                                             <a class="btn btn-outline-primary btn-sm" href="{{ path('app_blog_show', {slug: post.slug}) }}">

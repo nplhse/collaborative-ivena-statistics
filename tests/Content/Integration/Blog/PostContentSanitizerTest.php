@@ -61,4 +61,41 @@ final class PostContentSanitizerTest extends KernelTestCase
         self::assertStringContainsString('page-content-image--float-left', $html);
         self::assertStringContainsString('float-start', $html);
     }
+
+    public function testPreviewKeepsFirstParagraphAndStripsScript(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PostContentSanitizer::class);
+        $preview = $sut->preview('<p>Safe intro</p><script>alert(1)</script><p>More</p>');
+
+        self::assertStringContainsString('<p>Safe intro</p>', $preview);
+        self::assertStringNotContainsString('<script>', $preview);
+        self::assertStringNotContainsString('More', $preview);
+    }
+
+    public function testPreviewTruncatesPlainTextWithoutParagraph(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PostContentSanitizer::class);
+        $long = str_repeat('a', PostContentSanitizer::PLAIN_PREVIEW_MAX_LENGTH + 40);
+        $preview = $sut->preview($long);
+
+        self::assertStringNotContainsString('<', $preview);
+        self::assertStringEndsWith('...', $preview);
+        self::assertSame(
+            PostContentSanitizer::PLAIN_PREVIEW_MAX_LENGTH + 3,
+            mb_strlen(html_entity_decode($preview, ENT_QUOTES | ENT_HTML5, 'UTF-8')),
+        );
+    }
+
+    public function testPreviewReturnsEmptyStringForEmptyContent(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PostContentSanitizer::class);
+
+        self::assertSame('', $sut->preview(''));
+    }
 }
