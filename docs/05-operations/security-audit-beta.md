@@ -155,7 +155,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`ExploreListRateLimitSubscriber`](../../src/Allocation/Infrastructure/Http/ExploreListRateLimitSubscriber.php) exact match on four paths only; other lists (`indication`, `infection`, `occasion`, `speciality`, `department`, `dispatch_area`, `secondary_transport`, …) unlimited |
 | Risk | Authenticated participants can scrape unbounded Explore lists. |
 | Mitigation | Include all Explore list routes (prefix or explicit allowlist); keep ~100 / 10 min per user+IP as baseline. |
-| Status | resolved (2026-07-28) — all GET under `/explore` share `explore_list` (100 / 10 min per user+IP); previously unlimited lists included |
+| Status | resolved (2026-07-28) — all GET under `/explore` share `explore_list` (100 / 10 min per user+IP); subscriber runs after firewall; test env uses a high limit so suites are not poisoned |
 
 ### SEC-007 — No RateLimiter on register / reset-password / import / export
 

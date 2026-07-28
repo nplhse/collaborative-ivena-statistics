@@ -17,6 +17,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * Shared rate limit for Explore GET scraping protection (lists, details, worklists).
  *
+ * Runs after the security firewall (priority 8) so the user identity is available
+ * for the limiter key instead of collapsing every request into "anon".
+ *
  * @psalm-suppress UnusedClass
  */
 final readonly class ExploreListRateLimitSubscriber
@@ -30,7 +33,7 @@ final readonly class ExploreListRateLimitSubscriber
     ) {
     }
 
-    #[AsEventListener(event: KernelEvents::REQUEST, priority: 8)]
+    #[AsEventListener(event: KernelEvents::REQUEST, priority: 7)]
     public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
