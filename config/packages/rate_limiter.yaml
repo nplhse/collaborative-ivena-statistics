@@ -30,8 +30,8 @@ when@test:
         rate_limiter:
             explore_list:
                 policy: fixed_window
-                limit: 3
-                interval: '15 minutes'
+                limit: 10000
+                interval: '1 second'
             feedback_submit:
                 policy: fixed_window
                 limit: 10000

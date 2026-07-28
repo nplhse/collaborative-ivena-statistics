@@ -14,16 +14,17 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/** @psalm-suppress UnusedClass */
+/**
+ * Shared rate limit for Explore GET scraping protection (lists, details, worklists).
+ *
+ * Runs after the security firewall (priority 8) so the user identity is available
+ * for the limiter key instead of collapsing every request into "anon".
+ *
+ * @psalm-suppress UnusedClass
+ */
 final readonly class ExploreListRateLimitSubscriber
 {
-    /** @var list<string> */
-    private const array LIMITED_PATH_PREFIXES = [
-        '/explore/allocation',
-        '/explore/mci_case',
-        '/explore/hospital',
-        '/explore/assignment',
-    ];
+    private const string EXPLORE_PATH_PREFIX = '/explore';
 
     public function __construct(
         #[Autowire(service: 'limiter.explore_list')]
@@ -32,7 +33,7 @@ final readonly class ExploreListRateLimitSubscriber
     ) {
     }
 
-    #[AsEventListener(event: KernelEvents::REQUEST, priority: 8)]
+    #[AsEventListener(event: KernelEvents::REQUEST, priority: 7)]
     public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
@@ -40,7 +41,7 @@ final readonly class ExploreListRateLimitSubscriber
         }
 
         $request = $event->getRequest();
-        if (Request::METHOD_GET !== $request->getMethod() || !$this->isLimitedExploreListPath($request->getPathInfo())) {
+        if (Request::METHOD_GET !== $request->getMethod() || !$this->isLimitedExplorePath($request->getPathInfo())) {
             return;
         }
 
@@ -56,8 +57,8 @@ final readonly class ExploreListRateLimitSubscriber
         $event->setResponse(new Response('Too many requests. Please try again later.', Response::HTTP_TOO_MANY_REQUESTS));
     }
 
-    private function isLimitedExploreListPath(string $path): bool
+    private function isLimitedExplorePath(string $path): bool
     {
-        return \in_array($path, self::LIMITED_PATH_PREFIXES, true);
+        return self::EXPLORE_PATH_PREFIX === $path || str_starts_with($path, self::EXPLORE_PATH_PREFIX.'/');
     }
 }

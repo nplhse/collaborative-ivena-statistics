@@ -155,7 +155,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`ExploreListRateLimitSubscriber`](../../src/Allocation/Infrastructure/Http/ExploreListRateLimitSubscriber.php) exact match on four paths only; other lists (`indication`, `infection`, `occasion`, `speciality`, `department`, `dispatch_area`, `secondary_transport`, …) unlimited |
 | Risk | Authenticated participants can scrape unbounded Explore lists. |
 | Mitigation | Include all Explore list routes (prefix or explicit allowlist); keep ~100 / 10 min per user+IP as baseline. |
-| Status | open |
+| Status | resolved (2026-07-28) — all GET under `/explore` share `explore_list` (100 / 10 min per user+IP); subscriber runs after firewall; test env uses a high limit so suites are not poisoned |
 
 ### SEC-007 — No RateLimiter on register / reset-password / import / export
 
@@ -319,7 +319,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |---------|-------------------|-------|
 | `POST /register` | 5 / hour / IP | SEC-007 |
 | `POST /reset-password` | 10 / hour / IP | Complements per-user bundle throttle |
-| Explore list GETs | Extend existing `explore_list` to all list routes | SEC-006 |
+| Explore list GETs | All GET `/explore` via `explore_list` | SEC-006 **resolved** |
 | Allocations export estimate/download | 10 / 10 min / user | SEC-007 |
 | Analysis Explorer CSV export | 20 / 10 min / user | SEC-007 |
 | Import create (`POST /import/new`) | 10 / hour / user | Optional DoS guard |
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004, SEC-008 | Export safety, Live Component defense-in-depth, audit gap |
-| P2 hardening | SEC-006, SEC-007, SEC-009–SEC-016, SEC-019 | Rate limits, path containment, redirects, headers, docs |
+| P2 hardening | SEC-007, SEC-009–SEC-016, SEC-019 | Rate limits, path containment, redirects, headers, docs |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
