@@ -8,10 +8,13 @@ use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\RegistrationFormType;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,6 +34,7 @@ final class RegistrationController extends AbstractController
         private readonly AuditContext $auditContext,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LocaleResolver $localeResolver,
+        private readonly RegistrationIdentityGuard $registrationIdentityChecker,
     ) {
     }
 
@@ -65,6 +69,11 @@ final class RegistrationController extends AbstractController
             $this->auditContext->beginIntent('user.registered', []);
             try {
                 $this->entityManager->flush();
+            } catch (UniqueConstraintViolationException) {
+                $this->entityManager->clear();
+                $form->addError($this->registrationIdentityChecker->createIdentityTakenFormError());
+
+                return $this->renderInvalidRegistrationForm($form);
             } finally {
                 $this->auditContext->endIntent();
             }
@@ -77,6 +86,10 @@ final class RegistrationController extends AbstractController
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
 
             return $this->redirectToRoute('app_register_check_email');
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            return $this->renderInvalidRegistrationForm($form);
         }
 
         return $this->render('@User/registration/register.html.twig', [
@@ -127,5 +140,17 @@ final class RegistrationController extends AbstractController
         $this->addFlash('success', new TranslatableMessage('flash.registration.verify.success', domain: 'user'));
 
         return $this->redirectToRoute('app_login');
+    }
+
+    /**
+     * @param FormInterface<mixed> $form
+     */
+    private function renderInvalidRegistrationForm(FormInterface $form): Response
+    {
+        return $this->render(
+            '@User/registration/register.html.twig',
+            ['registrationForm' => $form],
+            new Response(status: Response::HTTP_UNPROCESSABLE_ENTITY),
+        );
     }
 }

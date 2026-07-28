@@ -9,13 +9,16 @@ use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\Translation\AssertsNoMissingTranslations;
+use App\Tests\User\Support\AlwaysAvailableRegistrationIdentityChecker;
 use App\User\Domain\Factory\UserFactory;
+use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Email;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -185,6 +188,105 @@ final class RegistrationControllerTest extends WebTestCase
             ->assertSeeIn('h2', 'Register')
             ->assertSee('You must accept the terms and conditions to register.')
         ;
+    }
+
+    public function testRegistrationFailsWithGenericMessageWhenUsernameIsTaken(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $existingUsername = sprintf('taken-user-%s', $suffix);
+        UserFactory::createOne([
+            'username' => $existingUsername,
+            'email' => sprintf('existing-%s@example.test', $suffix),
+        ]);
+
+        $attemptEmail = sprintf('new-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', $existingUsername)
+            ->fillField('registration_form[email]', $attemptEmail)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertStatus(422)
+            ->assertSeeIn('h2', 'Register')
+            ->assertSee('This username or email address is already taken.')
+            ->assertNotSee('Check your email')
+        ;
+
+        UserFactory::assert()->notExists(['email' => $attemptEmail]);
+        UserFactory::assert()->count(1, ['username' => $existingUsername]);
+    }
+
+    public function testRegistrationFailsWithSameGenericMessageWhenEmailIsTaken(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $existingEmail = sprintf('taken-email-%s@example.test', $suffix);
+        UserFactory::createOne([
+            'username' => sprintf('existing-user-%s', $suffix),
+            'email' => $existingEmail,
+        ]);
+
+        $attemptUsername = sprintf('new-user-%s', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', $attemptUsername)
+            ->fillField('registration_form[email]', strtoupper($existingEmail))
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertStatus(422)
+            ->assertSeeIn('h2', 'Register')
+            ->assertSee('This username or email address is already taken.')
+            ->assertNotSee('Check your email')
+        ;
+
+        UserFactory::assert()->notExists(['username' => $attemptUsername]);
+        UserFactory::assert()->count(1, ['email' => $existingEmail]);
+    }
+
+    public function testRegistrationHandlesUniqueConstraintRaceWithGenericMessage(): void
+    {
+        self::ensureKernelShutdown();
+        $client = self::createClient();
+
+        $suffix = bin2hex(random_bytes(4));
+        $existingUsername = sprintf('race-user-%s', $suffix);
+        $existingEmail = sprintf('race-%s@example.test', $suffix);
+        UserFactory::createOne([
+            'username' => $existingUsername,
+            'email' => $existingEmail,
+        ]);
+
+        $container = self::getContainer();
+        $container->set(
+            RegistrationIdentityGuard::class,
+            new AlwaysAvailableRegistrationIdentityChecker(
+                $container->get(TranslatorInterface::class),
+            ),
+        );
+
+        $client->request(Request::METHOD_GET, '/register');
+        self::assertResponseIsSuccessful();
+
+        $client->submitForm('Register', [
+            'registration_form[username]' => $existingUsername,
+            'registration_form[email]' => sprintf('other-%s@example.test', $suffix),
+            'registration_form[plainPassword]' => 'super-secret-password',
+            'registration_form[acceptTerms]' => true,
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('h2', 'Register');
+        self::assertSelectorExists('body');
+        self::assertStringContainsString(
+            'This username or email address is already taken.',
+            (string) $client->getResponse()->getContent(),
+        );
+        self::assertStringNotContainsString('Check your email', (string) $client->getResponse()->getContent());
+
+        UserFactory::assert()->count(1, ['username' => $existingUsername]);
     }
 
     public function testRegistrationShowsTermsLinkWhenPublishedTermsPageExists(): void

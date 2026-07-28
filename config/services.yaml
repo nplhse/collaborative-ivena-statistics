@@ -57,6 +57,9 @@ services:
 
     Symfony\Component\Lock\LockFactory: '@app.lock.factory'
 
+    App\User\Infrastructure\Registration\RegistrationIdentityGuard:
+        alias: App\User\Infrastructure\Registration\RegistrationIdentityChecker
+
     sentry.callback.before_send:
         class: App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback
         factory: ['@App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback', 'getBeforeSend']
