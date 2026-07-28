@@ -103,6 +103,31 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorExists('.pagination');
     }
 
+    public function testIndexPreviewSanitizesScriptTagsFromPostContent(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'Security', 'slug' => 'security']);
+
+        PostFactory::createOne([
+            'title' => 'XSS Preview Post',
+            'slug' => 'xss-preview-post',
+            'content' => '<p>Hello preview</p><script>alert(1)</script><p>Hidden second</p>',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'category' => $category,
+        ]);
+
+        $client->request(Request::METHOD_GET, '/blog');
+        self::assertResponseIsSuccessful();
+
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('Hello preview', $html);
+        self::assertStringContainsString('<p>Hello preview</p>', $html);
+        self::assertStringNotContainsString('<script>', $html);
+        self::assertStringNotContainsString('alert(1)', $html);
+        self::assertStringNotContainsString('Hidden second', $html);
+    }
+
     public function testCategoryAndTagFiltersUsePublishedDuePosts(): void
     {
         $client = self::createClient();

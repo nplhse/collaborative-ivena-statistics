@@ -16,7 +16,7 @@ Related: [Issue #257](https://github.com/nplhse/collaborative-ivena-statistics/i
 Top risks to track:
 
 1. ~~Registration account enumeration via duplicate username/email (error path).~~ **Resolved** (SEC-001 — generic validation).
-2. Blog index preview renders unsanitized HTML (`|raw`) while show uses `PostContentSanitizer`.
+2. ~~Blog index preview renders unsanitized HTML (`|raw`) while show uses `PostContentSanitizer`.~~ **Resolved** (SEC-002 — sanitized list preview).
 3. CSV exports without formula neutralization (Excel formula injection).
 4. Live Component mount path `/_components` outside `access_control`.
 5. Cross-hospital Explore visibility for all participants (product decision: accept or restrict).
@@ -109,7 +109,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`blog/index.html.twig`](../../src/Content/UI/Twig/templates/blog/index.html.twig) L55–56; show path sanitizes via [`PostContentSanitizer`](../../src/Content/Application/Blog/PostContentSanitizer.php) in [`BlogController`](../../src/Content/UI/Http/Controller/BlogController.php) |
 | Risk | Stored XSS on public blog listing if admin-authored HTML bypasses intended sanitizer (or sanitizer config drifts). Show is safe; index is inconsistent. |
 | Mitigation | Sanitize preview in controller (same sanitizer as show) or stop using `\|raw` on index (e.g. `striptags` + truncate only). |
-| Status | open |
+| Status | resolved (2026-07-28) — `PostContentSanitizer::preview()` builds list snippets; index/category/tag pass `previews` map (no unsanitized Twig `|raw` on `post.content`) |
 
 ### SEC-003 — CSV exports lack formula neutralization
 
