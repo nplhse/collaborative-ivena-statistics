@@ -319,7 +319,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |---------|-------------------|-------|
 | `POST /register` | 5 / hour / IP | SEC-007 |
 | `POST /reset-password` | 10 / hour / IP | Complements per-user bundle throttle |
-| Explore list GETs | Extend existing `explore_list` to all list routes | SEC-006 |
+| Explore list GETs | All GET `/explore` via `explore_list` | SEC-006 **resolved** |
 | Allocations export estimate/download | 10 / 10 min / user | SEC-007 |
 | Analysis Explorer CSV export | 20 / 10 min / user | SEC-007 |
 | Import create (`POST /import/new`) | 10 / hour / user | Optional DoS guard |
