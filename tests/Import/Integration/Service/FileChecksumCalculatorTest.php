@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Integration\Service;
 
+use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\ImportFileStorage;
 use PHPUnit\Framework\TestCase;
@@ -55,7 +56,8 @@ final class FileChecksumCalculatorTest extends TestCase
     public function testComputesHashForAbsolutePath(): void
     {
         // Arrange
-        $abs = Path::join($this->projectDir, 'file.csv');
+        $abs = Path::join($this->projectDir, 'var', 'imports', 'file.csv');
+        $this->fs->mkdir(\dirname($abs));
         file_put_contents($abs, 'data');
 
         $calc = new FileChecksumCalculator($this->createFileStorage(), 'sha256');
@@ -65,6 +67,17 @@ final class FileChecksumCalculatorTest extends TestCase
 
         // Assert
         self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $hash);
+    }
+
+    public function testThrowsOnAbsolutePathOutsideImportsBase(): void
+    {
+        $abs = Path::join($this->projectDir, 'outside.csv');
+        file_put_contents($abs, 'data');
+
+        $calc = new FileChecksumCalculator($this->createFileStorage(), 'sha256');
+
+        $this->expectException(ImportFilePathOutsideBaseException::class);
+        $calc->forPath($abs);
     }
 
     public function testThrowsOnMissingFile(): void
@@ -80,6 +93,11 @@ final class FileChecksumCalculatorTest extends TestCase
 
     private function createFileStorage(): ImportFileStorage
     {
-        return new ImportFileStorage($this->projectDir, $this->fs, $this->createMock(LoggerInterface::class));
+        return new ImportFileStorage(
+            $this->projectDir,
+            Path::join($this->projectDir, 'var', 'imports'),
+            $this->fs,
+            $this->createMock(LoggerInterface::class),
+        );
     }
 }

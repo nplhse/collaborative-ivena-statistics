@@ -295,7 +295,12 @@ final class FileUploaderTest extends TestCase
 
     private function createFileStorage(): ImportFileStorage
     {
-        return new ImportFileStorage($this->projectDir, $this->filesystem, $this->logger);
+        return new ImportFileStorage(
+            $this->projectDir,
+            Path::join($this->projectDir, 'var', 'imports'),
+            $this->filesystem,
+            $this->logger,
+        );
     }
 
     /**

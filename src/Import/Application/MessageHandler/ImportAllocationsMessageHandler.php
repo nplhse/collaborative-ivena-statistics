@@ -10,6 +10,7 @@ use App\Import\Application\Contracts\RowReaderInterface;
 use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
+use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
 use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
@@ -65,7 +66,20 @@ final readonly class ImportAllocationsMessageHandler
             return;
         }
 
-        $filePath = $this->fileStorage->resolve($filePath);
+        try {
+            $filePath = $this->fileStorage->resolve($filePath);
+        } catch (ImportFilePathOutsideBaseException $e) {
+            $reason = 'Invalid import file path';
+            $this->importLogger->error('import.file_path.outside_base', [
+                'id' => $message->importId,
+                'msg' => $e->getMessage(),
+            ]);
+            $this->markFailed($import, $reason);
+            $this->dispatchImportOutcome($message->importId, $reason);
+
+            return;
+        }
+
         if (!\is_file($filePath)) {
             $reason = 'CSV not found: '.$filePath;
             $this->markFailed($import, $reason);

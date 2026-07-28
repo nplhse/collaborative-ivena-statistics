@@ -24,8 +24,14 @@ final class ImportSourceFileDownloadServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->projectDir = sys_get_temp_dir().'/import-download-'.bin2hex(random_bytes(4));
-        new Filesystem()->mkdir($this->projectDir);
-        $this->service = new ImportSourceFileDownloadService(new ImportFileStorage($this->projectDir, new Filesystem(), new \Psr\Log\NullLogger()));
+        $importsBaseDir = Path::join($this->projectDir, 'var', 'imports');
+        new Filesystem()->mkdir($importsBaseDir);
+        $this->service = new ImportSourceFileDownloadService(new ImportFileStorage(
+            $this->projectDir,
+            $importsBaseDir,
+            new Filesystem(),
+            new \Psr\Log\NullLogger(),
+        ));
     }
 
     #[\Override]
@@ -48,7 +54,16 @@ final class ImportSourceFileDownloadServiceTest extends TestCase
         self::assertStringContainsString('attachment', (string) $response->headers->get('Content-Disposition'));
         self::assertStringContainsString('My Import File.csv', (string) $response->headers->get('Content-Disposition'));
         self::assertSame('text/csv', $response->headers->get('Content-Type'));
-        self::assertSame($absolutePath, $response->getFile()->getPathname());
+        self::assertSame(realpath($absolutePath), $response->getFile()->getPathname());
+    }
+
+    public function testCreateDownloadResponseThrowsWhenPathOutsideImportsBase(): void
+    {
+        $import = $this->createImport('/etc/passwd', 'Escape', 'csv', 'text/csv');
+
+        $this->expectException(ImportSourceFileNotFoundException::class);
+
+        $this->service->createDownloadResponse($import);
     }
 
     public function testCreateDownloadResponseThrowsWhenFileMissingOnDisk(): void

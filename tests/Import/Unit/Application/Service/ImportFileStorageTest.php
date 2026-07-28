@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Application\Service;
 
+use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
 use App\Import\Application\Service\ImportFileStorage;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -15,6 +16,7 @@ use Symfony\Component\Filesystem\Path;
 final class ImportFileStorageTest extends TestCase
 {
     private string $projectDir;
+    private string $importsBaseDir;
     private Filesystem $filesystem;
     /** @var MockObject&LoggerInterface */
     private MockObject $logger;
@@ -23,10 +25,16 @@ final class ImportFileStorageTest extends TestCase
     protected function setUp(): void
     {
         $this->projectDir = sys_get_temp_dir().'/import-storage-'.bin2hex(random_bytes(4));
+        $this->importsBaseDir = Path::join($this->projectDir, 'var', 'imports');
         $this->filesystem = new Filesystem();
-        $this->filesystem->mkdir($this->projectDir, 0775);
+        $this->filesystem->mkdir($this->importsBaseDir, 0775);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->storage = new ImportFileStorage($this->projectDir, $this->filesystem, $this->logger);
+        $this->storage = new ImportFileStorage(
+            $this->projectDir,
+            $this->importsBaseDir,
+            $this->filesystem,
+            $this->logger,
+        );
     }
 
     protected function tearDown(): void
@@ -38,18 +46,51 @@ final class ImportFileStorageTest extends TestCase
         parent::tearDown();
     }
 
-    public function testResolveJoinsRelativePathWithProjectDir(): void
+    public function testResolveJoinsRelativePathUnderImportsBase(): void
     {
+        $base = realpath($this->importsBaseDir);
+        self::assertNotFalse($base);
+
         self::assertSame(
-            Path::join($this->projectDir, 'var/imports/file.csv'),
+            Path::canonicalize(Path::join($base, 'file.csv')),
             $this->storage->resolve('var/imports/file.csv'),
         );
     }
 
-    public function testResolveReturnsAbsolutePathUnchanged(): void
+    public function testResolveAcceptsAbsolutePathInsideBase(): void
     {
-        $abs = Path::join($this->projectDir, 'absolute.csv');
-        self::assertSame($abs, $this->storage->resolve($abs));
+        $abs = Path::join($this->importsBaseDir, 'absolute.csv');
+        file_put_contents($abs, 'data');
+
+        self::assertSame(realpath($abs), $this->storage->resolve($abs));
+    }
+
+    public function testResolveRejectsAbsolutePathOutsideBase(): void
+    {
+        $this->expectException(ImportFilePathOutsideBaseException::class);
+
+        $this->storage->resolve('/etc/passwd');
+    }
+
+    public function testResolveRejectsRelativeEscapeViaDotDot(): void
+    {
+        $this->expectException(ImportFilePathOutsideBaseException::class);
+
+        $this->storage->resolve('var/imports/../../.env');
+    }
+
+    public function testResolveRejectsEmptyPath(): void
+    {
+        $this->expectException(ImportFilePathOutsideBaseException::class);
+
+        $this->storage->resolve('');
+    }
+
+    public function testResolveRejectsNullByte(): void
+    {
+        $this->expectException(ImportFilePathOutsideBaseException::class);
+
+        $this->storage->resolve("var/imports/file.csv\0.txt");
     }
 
     public function testToRelativeReturnsForwardSlashes(): void
@@ -64,11 +105,13 @@ final class ImportFileStorageTest extends TestCase
         $abs = Path::join($this->projectDir, $rel);
         $this->filesystem->mkdir(\dirname($abs));
         file_put_contents($abs, 'data');
+        $resolved = realpath($abs);
+        self::assertNotFalse($resolved);
 
         $this->logger
             ->expects($this->once())
             ->method('info')
-            ->with('import.source_file.deleted', $this->callback(static fn (array $context): bool => 42 === $context['import_id'] && $abs === $context['path']));
+            ->with('import.source_file.deleted', $this->callback(static fn (array $context): bool => 42 === $context['import_id'] && $resolved === $context['path']));
 
         $this->storage->delete($rel, 'import.source_file.deleted', 42);
 
@@ -92,6 +135,19 @@ final class ImportFileStorageTest extends TestCase
         $this->storage->delete('', 'import.source_file.deleted', 1);
     }
 
+    public function testDeleteIgnoresPathOutsideBase(): void
+    {
+        $outside = Path::join($this->projectDir, 'outside.csv');
+        file_put_contents($outside, 'secret');
+
+        $this->logger->expects($this->never())->method('info');
+        $this->logger->expects($this->never())->method('warning');
+
+        $this->storage->delete($outside, 'import.source_file.deleted', 1);
+
+        self::assertFileExists($outside);
+    }
+
     public function testDeleteLogsWarningWhenRemovalFails(): void
     {
         $filesystem = $this->createMock(Filesystem::class);
@@ -108,7 +164,7 @@ final class ImportFileStorageTest extends TestCase
                 && 'import.reject_file.deleted' === $context['event']
                 && 'permission denied' === $context['error']));
 
-        $storage = new ImportFileStorage($this->projectDir, $filesystem, $logger);
+        $storage = new ImportFileStorage($this->projectDir, $this->importsBaseDir, $filesystem, $logger);
         $storage->delete('var/imports/locked.csv', 'import.reject_file.deleted', 7);
     }
 }
