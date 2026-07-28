@@ -17,7 +17,7 @@ Top risks to track:
 
 1. ~~Registration account enumeration via duplicate username/email (error path).~~ **Resolved** (SEC-001 — generic validation).
 2. ~~Blog index preview renders unsanitized HTML (`|raw`) while show uses `PostContentSanitizer`.~~ **Resolved** (SEC-002 — sanitized list preview).
-3. CSV exports without formula neutralization (Excel formula injection).
+3. ~~CSV exports without formula neutralization (Excel formula injection).~~ **Resolved** (SEC-003 — `CsvFormulaEscaper`).
 4. Live Component mount path `/_components` outside `access_control`.
 5. Cross-hospital Explore visibility for all participants (product decision: accept or restrict).
 
@@ -120,7 +120,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`CsvStreamExportResponseFactory::writeRow`](../../src/Shared/Application/Export/CsvStreamExportResponseFactory.php) L44–57; analogous tabular exporter for Analysis Explorer — cells written via `fputcsv` without escaping leading `=`, `+`, `-`, `@`, tab |
 | Risk | Imported free-text fields opened in Excel/LibreOffice can execute formulas (CSV injection) on the analyst’s machine. |
 | Mitigation | Prefix risky cells with `'` (or neutralize) in shared CSV writers before `fputcsv`. |
-| Status | open |
+| Status | resolved (2026-07-28) — `CsvFormulaEscaper` prefixes dangerous string cells in stream/tabular/reject CSV writers; numeric cells unchanged |
 
 ### SEC-004 — Live Component route `/_components` not in `access_control`
 

@@ -6,6 +6,7 @@ namespace App\Import\Infrastructure\Adapter;
 
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Domain\Entity\Import;
+use App\Shared\Application\Export\CsvFormulaEscaper;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -59,7 +60,7 @@ final class SplCsvRejectWriter implements RejectWriterInterface
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
         $this->file->fputcsv(
-            ['line', 'error_messages', 'row_json'],
+            array_map(CsvFormulaEscaper::escape(...), ['line', 'error_messages', 'row_json']),
             $this->delimiter,
             $this->enclosure,
             $this->escape
@@ -75,9 +76,9 @@ final class SplCsvRejectWriter implements RejectWriterInterface
 
         $this->file->fputcsv(
             [
-                $line ?? '',
-                implode(' | ', $messages),
-                json_encode($row, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+                null === $line ? '' : (string) $line,
+                CsvFormulaEscaper::escape(implode(' | ', $messages)),
+                CsvFormulaEscaper::escape(json_encode($row, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE)),
             ],
             $this->delimiter,
             $this->enclosure,

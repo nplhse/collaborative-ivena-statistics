@@ -49,7 +49,7 @@ final class CsvStreamExportResponseFactory
                 null === $value => '',
                 \is_int($value) => (string) $value,
                 \is_float($value) => rtrim(rtrim(sprintf('%.10F', $value), '0'), '.'),
-                default => $value,
+                default => CsvFormulaEscaper::escape($value),
             }, $cells),
             ',',
             '"',

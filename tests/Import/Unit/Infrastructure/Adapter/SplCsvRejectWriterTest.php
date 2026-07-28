@@ -66,6 +66,16 @@ final class SplCsvRejectWriterTest extends TestCase
         self::assertStringContainsString('boom', $content);
     }
 
+    public function testWriteNeutralizesFormulaInjectionInMessages(): void
+    {
+        $this->writer->start($this->createImportStub());
+        $this->writer->write(['field' => 'value'], ['=CMD|calc'], 3);
+
+        $content = file_get_contents((string) $this->writer->getPath());
+        self::assertNotFalse($content);
+        self::assertStringContainsString("'=CMD|calc", $content);
+    }
+
     public function testWriteBeforeStartThrowsLogicException(): void
     {
         $this->expectException(\LogicException::class);

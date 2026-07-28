@@ -22,4 +22,18 @@ final class CsvStreamExportResponseFactoryTest extends TestCase
 
         self::assertSame("id,name,,42\n", $line);
     }
+
+    public function testWriteRowNeutralizesFormulaInjectionInStrings(): void
+    {
+        $factory = new CsvStreamExportResponseFactory();
+        $stream = fopen('php://temp', 'w+');
+        self::assertIsResource($stream);
+
+        $factory->writeRow($stream, ['=1+1', -5, 3.5, 'safe']);
+        rewind($stream);
+        $line = stream_get_contents($stream) ?: '';
+        fclose($stream);
+
+        self::assertSame("'=1+1,-5,3.5,safe\n", $line);
+    }
 }

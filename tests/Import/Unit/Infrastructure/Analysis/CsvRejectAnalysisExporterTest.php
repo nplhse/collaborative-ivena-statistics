@@ -57,4 +57,34 @@ final class CsvRejectAnalysisExporterTest extends TestCase
             @unlink($path);
         }
     }
+
+    public function testExportNeutralizesFormulaInjectionInStringFields(): void
+    {
+        $group = new RejectAnalysisGroup(
+            count: 1,
+            field: 'indication',
+            rejectedValue: '=CMD|"/C calc"!A0',
+            reason: '-bad',
+            exampleFile: '@file.csv',
+            exampleLine: '9',
+            suggestedTransformerHint: '+hint',
+            exampleRawRow: '{"x":1}',
+        );
+
+        $path = sys_get_temp_dir().'/reject-analysis-formula-'.bin2hex(random_bytes(4)).'.csv';
+        $exporter = new CsvRejectAnalysisExporter();
+        $exporter->export(new RejectAnalysisResult(1, [$group]), $path);
+
+        try {
+            $content = file_get_contents($path);
+            self::assertNotFalse($content);
+            self::assertStringContainsString("\"'=CMD|\"\"/C calc\"\"!A0\"", $content);
+            self::assertStringContainsString("'-bad,", $content);
+            self::assertStringContainsString("'@file.csv,", $content);
+            self::assertStringContainsString("'+hint,", $content);
+            self::assertStringContainsString('"{""x"":1}"', $content);
+        } finally {
+            @unlink($path);
+        }
+    }
 }

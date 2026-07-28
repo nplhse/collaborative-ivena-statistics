@@ -78,6 +78,23 @@ final class CsvTabularExporterTest extends TestCase
         self::assertStringContainsString("33.3333333333\n", $csv);
     }
 
+    public function testNeutralizesFormulaInjectionInStringCellsAndHeaders(): void
+    {
+        $document = new TabularExportDocument(
+            headers: [new TabularExportColumn('label', '=Danger')],
+            rows: [['=1+2'], ['-text'], [-7]],
+            footerRows: [['+total']],
+        );
+
+        $csv = $this->exportToString($document);
+
+        self::assertStringContainsString("'=Danger\n", $csv);
+        self::assertStringContainsString("'=1+2\n", $csv);
+        self::assertStringContainsString("'-text\n", $csv);
+        self::assertStringContainsString("-7\n", $csv);
+        self::assertStringContainsString("'+total\n", $csv);
+    }
+
     public function testSupportsDynamicColumnCount(): void
     {
         $document = new TabularExportDocument(
