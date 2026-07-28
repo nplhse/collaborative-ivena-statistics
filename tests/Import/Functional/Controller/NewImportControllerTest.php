@@ -15,10 +15,13 @@ use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -26,6 +29,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class NewImportControllerTest extends WebTestCase
 {
+    use DeniesRateLimiter;
     use HasBrowser;
     use Factories;
 
@@ -95,6 +99,55 @@ final class NewImportControllerTest extends WebTestCase
             })
             ->assertSee('View import details')
             ->assertSeeElement('[data-import-status-target="detailLink"]:not(.d-none)');
+    }
+
+    public function testSubmitIsRateLimited(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $ownerId = $owner->getId();
+        self::assertNotNull($ownerId);
+
+        $csvPath = $this->fixturesDir.'/allocation_import_sample.csv';
+        self::assertFileExists($csvPath);
+
+        $client->loginUser($owner);
+
+        $this->denyRateLimiter(
+            'limiter.import_create',
+            $this->userAndIpRateLimitKey('import_create', $ownerId),
+        );
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->filter('form')->form();
+        $client->request(
+            Request::METHOD_POST,
+            '/import/new',
+            [
+                'import_create' => [
+                    'name' => 'Rate Limited Import',
+                    'hospital' => (string) $hospitalId,
+                    '_token' => $form['import_create[_token]']->getValue(),
+                ],
+            ],
+            [
+                'import_create' => [
+                    'file' => new UploadedFile($csvPath, 'allocation_import_sample.csv', 'text/csv', null, true),
+                ],
+            ],
+        );
+
+        self::assertResponseRedirects('/import/new');
+        $client->followRedirect();
+        self::assertSelectorTextContains('body', 'Too many import attempts');
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertNull($em->getRepository(Import::class)->findOneBy(['name' => 'Rate Limited Import']));
     }
 
     public function testSubmitWithXlsxShowsValidationErrorAndDoesNotPersist(): void

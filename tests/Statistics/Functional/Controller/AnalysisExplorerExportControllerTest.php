@@ -21,18 +21,21 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
 final class AnalysisExplorerExportControllerTest extends WebTestCase
 {
+    use DeniesRateLimiter;
     use Factories;
     use InteractsWithAuthenticatedUser;
     use RefreshesStatisticsFunctionalDataTrait;
@@ -94,6 +97,35 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
         );
 
         self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testExportIsRateLimited(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        $user = $this->loginAsRoleUser($client);
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+
+        $client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=all');
+        self::assertResponseIsSuccessful();
+        $token = $this->csrfToken($client, 'explorer_export_csv');
+
+        $this->denyRateLimiter(
+            'limiter.analysis_explorer_export',
+            $this->userAndIpRateLimitKey('analysis_explorer_export', $userId),
+        );
+
+        $client->request(
+            Request::METHOD_POST,
+            '/statistics/analysis/explorer/export/table.csv?scope=public&period=all',
+            [
+                '_token' => $token,
+                'appliedConfigState' => '{}',
+            ],
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_TOO_MANY_REQUESTS);
     }
 
     private function csrfToken(KernelBrowser $client, string $tokenId): string

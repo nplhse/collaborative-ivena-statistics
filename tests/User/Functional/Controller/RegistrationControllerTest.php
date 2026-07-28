@@ -8,6 +8,7 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\Tests\User\Support\AlwaysAvailableRegistrationIdentityChecker;
 use App\User\Domain\Factory\UserFactory;
@@ -29,6 +30,7 @@ final class RegistrationControllerTest extends WebTestCase
 {
     use AssertsNoMissingTranslations;
     use CookieConsentTestHelper;
+    use DeniesRateLimiter;
     use Factories;
     use HasBrowser;
     use MailerAssertionsTrait;
@@ -93,6 +95,31 @@ final class RegistrationControllerTest extends WebTestCase
             'username' => $username,
             'locale' => 'en',
         ]);
+    }
+
+    public function testRegistrationIsRateLimited(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('register-rate-limit-%s', $suffix);
+        $email = sprintf('register-rate-limit-%s@example.test', $suffix);
+
+        $client = self::createClient();
+        $client->disableReboot();
+        $this->denyRateLimiter('limiter.register', $this->ipRateLimitKey('register'));
+
+        $client->request(Request::METHOD_GET, '/register');
+        self::assertResponseIsSuccessful();
+
+        $client->submitForm('Register', [
+            'registration_form[username]' => $username,
+            'registration_form[email]' => $email,
+            'registration_form[plainPassword]' => 'super-secret-password',
+            'registration_form[acceptTerms]' => true,
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Too many registration attempts');
+        UserFactory::assert()->notExists(['email' => $email]);
     }
 
     public function testRegistrationSendsAdminNotificationToNotificationRecipients(): void
