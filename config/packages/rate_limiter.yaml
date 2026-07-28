@@ -34,7 +34,7 @@ framework:
             interval: '1 hour'
         import_create:
             policy: fixed_window
-            limit: 10
+            limit: 30
             interval: '1 hour'
         allocations_export:
             policy: fixed_window

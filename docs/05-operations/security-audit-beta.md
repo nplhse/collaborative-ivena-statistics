@@ -165,8 +165,8 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Area | RateLimit |
 | Evidence | Limiter config has no register/export/import keys; reset-password has bundle per-user throttle only |
 | Risk | Registration spam / mail flood; export DoS (CPU/IO); reset-password cross-account mail flooding via IP. Login already throttled. |
-| Mitigation | IP (+ optional email) limiters: e.g. register 5/h, reset-password 10/h per IP, allocations export 10/10 min, explorer export 20/10 min, import upload 10/h. |
-| Status | resolved (2026-07-28) — `register`, `reset_password_request`, `import_create`, `allocations_export`, `analysis_explorer_export` limiters via `ClientRateLimit`; reset reject keeps check-email UX |
+| Mitigation | IP (+ optional email) limiters: e.g. register 5/h, reset-password 10/h per IP, allocations export 10/10 min, explorer export 20/10 min, import upload 30/h. |
+| Status | resolved (2026-07-28) — `register`, `reset_password_request`, `import_create` (30/h), `allocations_export`, `analysis_explorer_export` limiters via `ClientRateLimit`; reset reject keeps check-email UX |
 
 ### SEC-008 — Import source download audit intent does not persist
 
@@ -322,7 +322,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Explore list GETs | All GET `/explore` via `explore_list` | SEC-006 **resolved** |
 | Allocations export estimate/download | 10 / 10 min / user+IP | SEC-007 **resolved** |
 | Analysis Explorer CSV export | 20 / 10 min / user+IP | SEC-007 **resolved** |
-| Import create (`POST /import/new`) | 10 / hour / user+IP | SEC-007 **resolved** |
+| Import create (`POST /import/new`) | 30 / hour / user+IP | SEC-007 **resolved** |
 
 Do **not** implement in this audit deliverable.
 
