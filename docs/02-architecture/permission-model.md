@@ -2,7 +2,7 @@
 
 The application uses Symfony roles for global access and hospital-scoped permission grants for participants.
 
-Related: [decisions/002-hospital-permission-bitmask.md](decisions/002-hospital-permission-bitmask.md)
+Related: [decisions/002-hospital-permission-bitmask.md](decisions/002-hospital-permission-bitmask.md), [decisions/011-collaborative-explore-allocation-visibility.md](decisions/011-collaborative-explore-allocation-visibility.md)
 
 ## Global roles
 
@@ -11,7 +11,7 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | Role | Purpose |
 |------|---------|
 | `ROLE_USER` | Base access; public statistics (`/statistics`) |
-| `ROLE_PARTICIPANT` | Hospital participant; `/hospitals`, `/explore` |
+| `ROLE_PARTICIPANT` | Hospital participant; `/hospitals`, `/explore` (allocation list/detail) |
 | `ROLE_ADMIN` | EasyAdmin back office, impersonation |
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_FEEDBACK_RECIPIENT` | Receives feedback admin notifications (with `ROLE_ADMIN`) |
@@ -49,7 +49,15 @@ Grants are stored in `HospitalAccessGrant` as an integer mask and validated via 
 | `ExportVoter` | `EXPORT` | (none) |
 | `IndicationRawReviewVoter` | `VIEW`, `EDIT_MATCH`, `REVIEW` | `IndicationRaw` |
 
+`AllocationVoter::VIEW` requires `ROLE_PARTICIPANT` (not merely `ROLE_USER`) and applies to **any** allocation — it does **not** check `HospitalPermission::View`. Path `access_control` on `/explore` also requires `ROLE_PARTICIPANT`.
+
 Use `$this->denyAccessUnlessGranted()` in controllers and `#[IsGranted]` attributes where appropriate.
+
+## Explore collaboration
+
+Explore is a **collaborative** overview: participants may list and open allocations from other hospitals. Hospital filters (including “My hospitals”) are optional UX, not an authz boundary. See [ADR 011](decisions/011-collaborative-explore-allocation-visibility.md).
+
+Import, export, clinic management, and hospital-scoped statistics filters remain grant-based via `HospitalPermissionAccess`.
 
 ## Benchmarking vs. statistics
 

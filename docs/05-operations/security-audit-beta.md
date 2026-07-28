@@ -19,7 +19,7 @@ Top risks to track:
 2. ~~Blog index preview renders unsanitized HTML (`|raw`) while show uses `PostContentSanitizer`.~~ **Resolved** (SEC-002 — sanitized list preview).
 3. ~~CSV exports without formula neutralization (Excel formula injection).~~ **Resolved** (SEC-003 — `CsvFormulaEscaper`).
 4. ~~Live Component mount path `/_components` outside `access_control`.~~ **Resolved** (SEC-004 — `ROLE_USER` path gate).
-5. Cross-hospital Explore visibility for all participants (product decision: accept or restrict).
+5. ~~Cross-hospital Explore visibility for all participants.~~ **Accepted** (SEC-005 — collaborative by design; `ROLE_PARTICIPANT` required).
 
 ---
 
@@ -144,7 +144,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Risk | Every participant can read allocation detail (incl. hospital identity and clinical fields) for other centers. Fits a collaborative model; conflicts with strict tenant isolation. |
 | Mitigation | **If collaborative-by-design:** document as accepted risk in permission model + onboarding. **If isolation required:** bind `VIEW` to `HospitalPermission::View` and default list scope to accessible hospitals. |
 | Notes | Pure `ROLE_USER` cannot reach `/explore` (403). Firewall is the effective gate; voter alone would be weaker. |
-| Status | open (needs product confirmation) |
+| Status | accepted (2026-07-28) — collaborative by design ([ADR 011](../02-architecture/decisions/011-collaborative-explore-allocation-visibility.md)); `AllocationVoter` requires `ROLE_PARTICIPANT` (hierarchy-aware); not hospital-grant-scoped |
 
 ### SEC-006 — Incomplete Explore list rate limiting
 
@@ -276,7 +276,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`permission-model.md`](../02-architecture/permission-model.md) ImportVoter table omits `DOWNLOAD_SOURCE`; AllocationVoter collaborative semantics undocumented |
 | Risk | Maintainers mis-implement access checks. |
 | Mitigation | Update voter table + document Explore collaboration / accepted risk (SEC-005). |
-| Status | open |
+| Status | open — AllocationVoter / Explore collaboration documented with SEC-005 (ADR 011); `ImportVoter::DOWNLOAD_SOURCE` still missing from voter table |
 
 ### SEC-018 — Messenger import handlers trust queue without permission re-check
 
@@ -343,11 +343,11 @@ Do **not** implement in this audit deliverable.
 
 ---
 
-## Accepted / intentional designs (confirm SEC-005)
+## Accepted / intentional designs
 
 | Topic | Current behaviour | Recommendation |
 |-------|-------------------|----------------|
-| Collaborative Explore | Participants see cross-hospital allocations | Product: accept (document) **or** restrict (SEC-005) |
+| Collaborative Explore | Participants see cross-hospital allocations; `ROLE_PARTICIPANT` required | **Accepted** (SEC-005 / ADR 011) |
 | Public statistics | `ROLE_USER` sees aggregates / public scopes | Keep |
 | Public health endpoint | Uptime-friendly JSON | Keep or slim (SEC-012) |
 | CSP report-only | Beta monitoring before enforce | Follow CSP ops guide |
@@ -362,7 +362,6 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004, SEC-008 | Export safety, Live Component defense-in-depth, audit gap |
-| P1 product call | SEC-005 | Isolation vs collaboration |
 | P2 hardening | SEC-006, SEC-007, SEC-009–SEC-016, SEC-019 | Rate limits, path containment, redirects, headers, docs |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 

@@ -2,7 +2,9 @@
 
 Route: `/explore/allocation` (`app_explore_allocation_list`)
 
-Cursor-paginated list of allocation records with a filter drawer (hospital attributes, geography, clinical flags, and more).
+Requires `ROLE_PARTICIPANT` (`access_control` on `/explore`). Cursor-paginated list of allocation records with a filter drawer (hospital attributes, geography, clinical flags, and more).
+
+**Collaborative by design** ([ADR 011](../../02-architecture/decisions/011-collaborative-explore-allocation-visibility.md)): the default “All hospitals” scope shows allocations across centers. That is intentional; hospital filters are UX, not an authorization boundary. `ROLE_USER` alone cannot access Explore.
 
 ## My hospitals filter
 

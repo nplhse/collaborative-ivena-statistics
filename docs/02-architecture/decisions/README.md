@@ -26,6 +26,7 @@ Each ADR includes:
 | [008](008-shared-platform-and-domain-framework-coupling.md) | Shared platform role and domain framework coupling | accepted |
 | [009](009-ports-repositories-query-objects-and-naming.md) | Ports, repositories, query objects, and naming | accepted |
 | [010](010-architecture-guardrails-and-beta-scope.md) | Architecture guardrails and beta complexity scope | accepted |
+| [011](011-collaborative-explore-allocation-visibility.md) | Collaborative Explore allocation visibility | accepted |
 
 ## Template
 
