@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
+use App\Shared\UI\Http\SafeRedirectTargetResolver;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
@@ -19,6 +20,7 @@ final class SavedExplorerViewFavoriteController extends AbstractController
     public function __construct(
         private readonly SavedExplorerViewRepository $viewRepository,
         private readonly SavedExplorerViewFavoriteService $favoriteService,
+        private readonly SafeRedirectTargetResolver $safeRedirectTargetResolver,
     ) {
     }
 
@@ -49,11 +51,14 @@ final class SavedExplorerViewFavoriteController extends AbstractController
 
         $this->favoriteService->toggle($user, $view);
 
-        $referer = $request->headers->get('referer');
-        if (\is_string($referer) && '' !== $referer) {
-            return $this->redirect($referer);
-        }
+        $fallback = $this->generateUrl('app_stats_analysis_library');
 
-        return $this->redirectToRoute('app_stats_analysis_library');
+        return $this->redirect(
+            $this->safeRedirectTargetResolver->resolve(
+                $request->headers->get('referer'),
+                $request,
+                $fallback,
+            ),
+        );
     }
 }
