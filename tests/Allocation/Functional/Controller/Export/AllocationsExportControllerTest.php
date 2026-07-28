@@ -25,6 +25,7 @@ use App\Shared\Application\Export\ExportBlockedException;
 use App\Shared\Application\Export\ExportEstimate;
 use App\Shared\Application\Export\ExportLimits;
 use App\Shared\Application\Export\ExportOrchestrator;
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
@@ -39,6 +40,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class AllocationsExportControllerTest extends WebTestCase
 {
     use AssertsNoMissingTranslations;
+    use DeniesRateLimiter;
     use Factories;
 
     public function testNonParticipantCannotAccessExportPage(): void
@@ -101,6 +103,46 @@ final class AllocationsExportControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="export-allocations-download"]');
         self::assertSelectorNotExists('#export-estimate select[name*="[urgency]"]');
         self::assertSelectorNotExists('#export-estimate #export-allocations-download-form');
+    }
+
+    public function testExportEstimateIsRateLimited(): void
+    {
+        [$client, $owner] = $this->createOwnerClient();
+        $client->disableReboot();
+        $ownerId = $owner->getId();
+        self::assertNotNull($ownerId);
+
+        $this->denyRateLimiter(
+            'limiter.allocations_export',
+            $this->userAndIpRateLimitKey('allocations_export', $ownerId),
+        );
+
+        $client->request(
+            Request::METHOD_POST,
+            '/hospitals/export/allocations/estimate',
+            [],
+            [],
+            ['HTTP_TURBO_FRAME' => 'export-estimate'],
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_TOO_MANY_REQUESTS);
+    }
+
+    public function testExportDownloadIsRateLimited(): void
+    {
+        [$client, $owner] = $this->createOwnerClient();
+        $client->disableReboot();
+        $ownerId = $owner->getId();
+        self::assertNotNull($ownerId);
+
+        $this->denyRateLimiter(
+            'limiter.allocations_export',
+            $this->userAndIpRateLimitKey('allocations_export', $ownerId),
+        );
+
+        $client->request(Request::METHOD_POST, '/hospitals/export/allocations/download');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_TOO_MANY_REQUESTS);
     }
 
     public function testParticipantWithoutHospitalDoesNotSeeNavLink(): void

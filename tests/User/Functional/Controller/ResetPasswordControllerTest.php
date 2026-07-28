@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Functional\Controller;
 
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Repository\ResetPasswordRequestRepository;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Request;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -18,6 +20,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ResetPasswordControllerTest extends WebTestCase
 {
+    use DeniesRateLimiter;
     use Factories;
     use HasBrowser;
 
@@ -61,6 +64,37 @@ final class ResetPasswordControllerTest extends WebTestCase
         $user = $this->getUserRepository()->findOneBy(['email' => 'verified@example.test']);
         self::assertInstanceOf(User::class, $user);
         self::assertSame(1, $this->getResetPasswordRequestRepository()->count(['user' => $user]));
+    }
+
+    public function testResetRequestIsRateLimitedSilently(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+
+        UserFactory::new([
+            'email' => 'rate-limited-reset@example.test',
+            'isVerified' => true,
+            'username' => 'rate-limited-reset',
+        ])->create();
+
+        $this->denyRateLimiter(
+            'limiter.reset_password_request',
+            $this->ipRateLimitKey('reset_password_request'),
+        );
+
+        $crawler = $client->request(Request::METHOD_GET, '/reset-password');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Send reset email')->form([
+            'reset_password_request_form[email]' => 'rate-limited-reset@example.test',
+        ]);
+        $client->submit($form);
+
+        self::assertResponseRedirects('/reset-password/check-email');
+
+        $user = $this->getUserRepository()->findOneBy(['email' => 'rate-limited-reset@example.test']);
+        self::assertInstanceOf(User::class, $user);
+        self::assertSame(0, $this->getResetPasswordRequestRepository()->count(['user' => $user]));
     }
 
     public function testResetRequestIsBlockedForDisabledEmail(): void

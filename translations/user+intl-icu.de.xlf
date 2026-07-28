@@ -117,6 +117,10 @@
         <source>flash.settings.email.resend_rate_limited</source>
         <target>Bitte warten Sie, bevor Sie erneut eine Verifizierungs-E-Mail anfordern.</target>
       </trans-unit>
+      <trans-unit id="FlsRegRlDe" resname="flash.registration.rate_limited">
+        <source>flash.registration.rate_limited</source>
+        <target>Zu viele Registrierungsversuche. Bitte versuchen Sie es später erneut.</target>
+      </trans-unit>
       <trans-unit id="FlsSetEmUpDe" resname="flash.settings.email.updated_verify_required">
         <source>flash.settings.email.updated_verify_required</source>
         <target>E-Mail-Adresse aktualisiert. Bitte verifizieren Sie Ihre neue E-Mail-Adresse.</target>

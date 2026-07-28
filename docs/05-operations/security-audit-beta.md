@@ -165,8 +165,8 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Area | RateLimit |
 | Evidence | Limiter config has no register/export/import keys; reset-password has bundle per-user throttle only |
 | Risk | Registration spam / mail flood; export DoS (CPU/IO); reset-password cross-account mail flooding via IP. Login already throttled. |
-| Mitigation | IP (+ optional email) limiters: e.g. register 5/h, reset-password 10/h per IP, allocations export 10/10 min, explorer export 20/10 min, import upload 10/h. |
-| Status | open |
+| Mitigation | IP (+ optional email) limiters: e.g. register 5/h, reset-password 10/h per IP, allocations export 10/10 min, explorer export 20/10 min, import upload 30/h. |
+| Status | resolved (2026-07-28) — `register`, `reset_password_request`, `import_create` (30/h), `allocations_export`, `analysis_explorer_export` limiters via `ClientRateLimit`; reset reject keeps check-email UX |
 
 ### SEC-008 — Import source download audit intent does not persist
 
@@ -317,12 +317,12 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 
 | Surface | Suggested limiter | Notes |
 |---------|-------------------|-------|
-| `POST /register` | 5 / hour / IP | SEC-007 |
-| `POST /reset-password` | 10 / hour / IP | Complements per-user bundle throttle |
+| `POST /register` | 5 / hour / IP | SEC-007 **resolved** |
+| `POST /reset-password` | 10 / hour / IP | SEC-007 **resolved** (silent check-email) |
 | Explore list GETs | All GET `/explore` via `explore_list` | SEC-006 **resolved** |
-| Allocations export estimate/download | 10 / 10 min / user | SEC-007 |
-| Analysis Explorer CSV export | 20 / 10 min / user | SEC-007 |
-| Import create (`POST /import/new`) | 10 / hour / user | Optional DoS guard |
+| Allocations export estimate/download | 10 / 10 min / user+IP | SEC-007 **resolved** |
+| Analysis Explorer CSV export | 20 / 10 min / user+IP | SEC-007 **resolved** |
+| Import create (`POST /import/new`) | 30 / hour / user+IP | SEC-007 **resolved** |
 
 Do **not** implement in this audit deliverable.
 
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004, SEC-008 | Export safety, Live Component defense-in-depth, audit gap |
-| P2 hardening | SEC-007, SEC-009–SEC-016, SEC-019 | Rate limits, path containment, redirects, headers, docs |
+| P2 hardening | SEC-009–SEC-016, SEC-019 | Path containment, redirects, headers, docs |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.

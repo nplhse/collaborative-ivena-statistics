@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\UI\Http\Controller;
 
 use App\Shared\Application\Locale\LocaleResolver;
+use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
@@ -14,11 +15,13 @@ use App\User\UI\Form\RegistrationFormType;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -41,6 +44,8 @@ final class RegistrationController extends AbstractController
     #[Route('/register', name: 'app_register')]
     public function register(
         Request $request,
+        #[Autowire(service: 'limiter.register')]
+        RateLimiterFactory $registerLimiter,
     ): Response {
         if ($this->getUser() instanceof UserInterface) {
             return $this->redirectToRoute('app_default');
@@ -50,6 +55,14 @@ final class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!ClientRateLimit::acceptIp($registerLimiter, 'register', $request)) {
+                $this->addFlash('warning', new TranslatableMessage('flash.registration.rate_limited', domain: 'user'));
+
+                return $this->render('@User/registration/register.html.twig', [
+                    'registrationForm' => $form,
+                ]);
+            }
+
             /** @var array{username: string, email: string} $data */
             $data = $form->getData();
             $plainPassword = $form->get('plainPassword')->getData();

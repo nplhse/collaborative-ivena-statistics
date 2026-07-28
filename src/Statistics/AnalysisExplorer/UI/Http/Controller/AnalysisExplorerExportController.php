@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
+use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
@@ -17,10 +18,13 @@ use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\User\Domain\Entity\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -50,9 +54,18 @@ final class AnalysisExplorerExportController extends AbstractController
         Request $request,
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
+        #[Autowire(service: 'limiter.analysis_explorer_export')]
+        RateLimiterFactory $analysisExplorerExportLimiter,
     ): Response {
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ID, $request->request->getString('_token'))) {
             throw new BadRequestHttpException('Invalid CSRF token.');
+        }
+
+        $userKey = $user instanceof User && null !== $user->getId()
+            ? (string) $user->getId()
+            : 'anon';
+        if (!ClientRateLimit::acceptUserAndIp($analysisExplorerExportLimiter, 'analysis_explorer_export', $userKey, $request)) {
+            throw new TooManyRequestsHttpException(message: 'Too many export requests. Please try again later.');
         }
 
         $appliedConfigState = $request->request->getString('appliedConfigState');
