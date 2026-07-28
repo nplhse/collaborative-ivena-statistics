@@ -7,11 +7,15 @@ namespace App\Tests\Import\Functional\Controller;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\Service\ImportSourceDownloadAuditLogger;
+use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -39,6 +43,14 @@ final class DownloadImportSourceFileControllerTest extends WebTestCase
 
         $projectDir = self::getContainer()->getParameter('kernel.project_dir');
         self::assertSame($content, file_get_contents(Path::join((string) $projectDir, $relativePath)));
+
+        $auditEntry = $this->findLatestDownloadAudit((string) $importId);
+        self::assertNotNull($auditEntry);
+        self::assertSame($admin->getId(), $auditEntry->getActor()?->getId());
+        self::assertSame(ImportSourceDownloadAuditLogger::ACTION, $auditEntry->getAction());
+        self::assertSame(Import::class, $auditEntry->getEntityClass());
+        self::assertSame(ImportSourceDownloadAuditLogger::INTENT, $auditEntry->getMetadata()['intent'] ?? null);
+        self::assertSame($importId, $auditEntry->getMetadata()['import_id'] ?? null);
     }
 
     public function testHospitalOwnerWithoutAdminRoleCannotDownloadSourceFile(): void
@@ -61,6 +73,7 @@ final class DownloadImportSourceFileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/import/'.$importId.'/source-file');
 
         self::assertResponseStatusCodeSame(404);
+        self::assertNull($this->findLatestDownloadAudit((string) $importId));
     }
 
     public function testShowPageDisplaysDownloadLinkForAdmin(): void
@@ -136,5 +149,24 @@ final class DownloadImportSourceFileControllerTest extends WebTestCase
         ]);
 
         return [$admin, (int) $import->getId(), $relativePath, $content];
+    }
+
+    private function findLatestDownloadAudit(string $importId): ?AuditEntry
+    {
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+
+        /** @var list<AuditEntry> $entries */
+        $entries = $em->getRepository(AuditEntry::class)->findBy(
+            [
+                'action' => ImportSourceDownloadAuditLogger::ACTION,
+                'entityClass' => Import::class,
+                'entityId' => $importId,
+            ],
+            ['id' => 'DESC'],
+            1,
+        );
+
+        return $entries[0] ?? null;
     }
 }
