@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Import\UI\Http\Controller;
 
 use App\Import\Application\Exception\ImportSourceFileNotFoundException;
+use App\Import\Application\Service\ImportSourceDownloadAuditLogger;
 use App\Import\Application\Service\ImportSourceFileDownloadService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Security\Voter\ImportVoter;
-use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -20,7 +21,7 @@ final class DownloadImportSourceFileController extends AbstractController
 {
     public function __construct(
         private readonly ImportSourceFileDownloadService $downloadService,
-        private readonly AuditContext $auditContext,
+        private readonly ImportSourceDownloadAuditLogger $auditLogger,
     ) {
     }
 
@@ -34,13 +35,18 @@ final class DownloadImportSourceFileController extends AbstractController
         }
 
         try {
-            $this->auditContext->beginIntent('import.source_file.downloaded', [
-                'import_id' => $importId,
-            ]);
-
-            return $this->downloadService->createDownloadResponse($import);
+            $response = $this->downloadService->createDownloadResponse($import);
         } catch (ImportSourceFileNotFoundException) {
             throw new NotFoundHttpException();
         }
+
+        $actor = $this->getUser();
+        if (!$actor instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->auditLogger->log($actor, $import);
+
+        return $response;
     }
 }

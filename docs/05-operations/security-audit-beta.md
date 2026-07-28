@@ -177,7 +177,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`DownloadImportSourceFileController`](../../src/Import/UI/Http/Controller/DownloadImportSourceFileController.php) L37–39 — `beginIntent('import.source_file.downloaded')` with no entity mutation; Doctrine audit subscriber only writes on audited entity changes; unlike [`ExportAuditLogger`](../../src/Shared/Application/Export/ExportAuditLogger.php) / impersonation |
 | Risk | Admin downloads of original import files leave no durable audit row. |
 | Mitigation | Persist an explicit `AuditEntry` (same pattern as export/impersonation) including actor, import id, IP. |
-| Status | open |
+| Status | resolved (2026-07-28) — `ImportSourceDownloadAuditLogger` persists `download` AuditEntry after successful source-file delivery; 404 does not audit |
 
 ### SEC-009 — `ImportFileStorage::resolve` lacks path containment
 
@@ -361,7 +361,7 @@ Do **not** implement in this audit deliverable.
 | Priority | Findings | Rationale |
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
-| P1 early beta | SEC-003, SEC-004, SEC-008 | Export safety, Live Component defense-in-depth, audit gap |
+| P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
 | P2 hardening | SEC-009–SEC-016, SEC-019 | Path containment, redirects, headers, docs |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
