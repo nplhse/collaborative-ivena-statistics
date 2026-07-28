@@ -250,6 +250,7 @@ final class RegistrationControllerTest extends WebTestCase
     {
         self::ensureKernelShutdown();
         $client = self::createClient();
+        $client->disableReboot();
 
         $suffix = bin2hex(random_bytes(4));
         $existingUsername = sprintf('race-user-%s', $suffix);
@@ -279,7 +280,6 @@ final class RegistrationControllerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(422);
         self::assertSelectorTextContains('h2', 'Register');
-        self::assertSelectorExists('body');
         self::assertStringContainsString(
             'This username or email address is already taken.',
             (string) $client->getResponse()->getContent(),

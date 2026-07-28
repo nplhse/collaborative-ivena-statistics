@@ -89,13 +89,10 @@ final class RegistrationFormType extends AbstractType
             return;
         }
 
-        /** @var array{username?: mixed, email?: mixed} $data */
+        /** @var array{username: string, email: string} $data */
         $data = $form->getData();
-        $username = $data['username'] ?? null;
-        $email = $data['email'] ?? null;
-        if (!\is_string($username) || !\is_string($email)) {
-            return;
-        }
+        $username = $data['username'];
+        $email = $data['email'];
 
         if ($this->registrationIdentityChecker->isIdentityTaken($username, $email)) {
             $form->addError($this->registrationIdentityChecker->createIdentityTakenFormError());
