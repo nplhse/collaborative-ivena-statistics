@@ -26,5 +26,22 @@ final class ShowSecondaryTransportControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#secondary-transport-name', 'Kapazitätsengpass');
         self::assertSelectorTextContains('a.btn-outline-secondary', 'Back to list');
+        self::assertSelectorExists('[data-testid="catalog-detail"]');
+        self::assertSelectorExists('[data-testid="catalog-coverage"]');
+        self::assertSelectorExists('[data-testid="catalog-actions"]');
+        self::assertSelectorTextContains('[data-testid="catalog-actions"]', 'View allocations');
+    }
+
+    public function testAllocationsActionLinksToExploreListFilter(): void
+    {
+        $client = $this->createClientAsAreaUser();
+        $st = SecondaryTransportFactory::createOne(['name' => 'Verlegung']);
+        $crawler = $client->request(Request::METHOD_GET, '/explore/secondary_transport/'.$st->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');
+        self::assertNotNull($href);
+        self::assertStringContainsString('/explore/allocation', $href);
+        self::assertStringContainsString('secondaryTransport='.$st->getId(), $href);
     }
 }

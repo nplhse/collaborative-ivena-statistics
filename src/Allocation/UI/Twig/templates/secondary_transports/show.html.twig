@@ -28,6 +28,11 @@
             </div>
             <div class="col">
                 <h1 id="secondary-transport-name" class="fw-bold">{{ secondaryTransport.name }}</h1>
+                <div class="list-inline list-inline-dots text-muted">
+                    <div class="list-inline-item">
+                        <span class="badge bg-secondary-lt">{{ 'catalog.type.secondary_transport'|trans({}, 'allocation') }}</span>
+                    </div>
+                </div>
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
@@ -43,9 +48,13 @@
 
 {% block page_content %}
     <div class="container-xl">
-        <div class="row g-3">
-            <div class="col-lg-4">
-                <div class="card">
+        {% embed '@Allocation/catalog/_detail.html.twig' with {
+            coverage: coverage,
+            actions: actions,
+            description: description,
+        } %}
+            {% block catalog_sidebar_extra %}
+                <div class="card mb-3" data-testid="catalog-basic-info">
                     <div class="card-body">
                         <div class="card-title">
                             {{ 'label.basic_info'|trans({}, 'messages') }}
@@ -70,7 +79,7 @@
                         {% endif %}
                     </div>
                 </div>
-            </div>
-        </div>
+            {% endblock %}
+        {% endembed %}
     </div>
 {% endblock %}
