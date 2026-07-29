@@ -85,6 +85,14 @@ final readonly class CatalogActionFactory
     /**
      * @return list<CatalogAction>
      */
+    public function forInfection(int $id): array
+    {
+        return [$this->viewAllocationsAction('infection', $id)];
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
     public function forState(int $id): array
     {
         return [

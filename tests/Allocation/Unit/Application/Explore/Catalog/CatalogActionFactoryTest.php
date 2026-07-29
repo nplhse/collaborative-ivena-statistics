@@ -128,4 +128,22 @@ final class CatalogActionFactoryTest extends TestCase
         self::assertCount(1, $actions);
         self::assertSame('/explore/allocation?dispatchArea=11', $actions[0]->url);
     }
+
+    public function testInfectionActionLinksToAllocationListFilter(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_explore_allocation_list', ['infection' => 8])
+            ->willReturn('/explore/allocation?infection=8');
+
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('View allocations');
+
+        $factory = new CatalogActionFactory($urlGenerator, $translator);
+        $actions = $factory->forInfection(8);
+
+        self::assertCount(1, $actions);
+        self::assertSame('/explore/allocation?infection=8', $actions[0]->url);
+    }
 }
