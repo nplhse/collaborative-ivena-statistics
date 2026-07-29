@@ -132,6 +132,24 @@
     z-index: 2;
 }
 
+.catalog-orientation-map-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: 420px;
+}
+
+.catalog-orientation-map-frame .case-flow-map-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    border-radius: var(--tblr-border-radius, 4px);
+    overflow: hidden;
+    background: var(--tblr-bg-surface-secondary, #f8f9fa);
+}
+
 .data-quality-drawer {
     --bs-offcanvas-width: min(28rem, 100vw);
 }

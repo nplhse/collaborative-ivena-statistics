@@ -1,6 +1,7 @@
 {% set coverage = coverage|default(null) %}
 {% set actions = actions|default([]) %}
 {% set description = description|default(null) %}
+{% set orientationMap = orientationMap|default(null) %}
 
 <div class="row g-3" data-testid="catalog-detail">
     <div class="col-lg-8">
@@ -14,6 +15,8 @@
         {% endif %}
 
         {{ include('@Allocation/catalog/_coverage.html.twig', {coverage: coverage}) }}
+
+        {{ include('@Allocation/catalog/_orientation_map.html.twig', {orientationMap: orientationMap}) }}
     </div>
 
     <div class="col-lg-4">
