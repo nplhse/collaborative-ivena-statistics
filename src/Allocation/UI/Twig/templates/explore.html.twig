@@ -105,6 +105,21 @@
             </a>
         </div>
 
+        <!-- Card: States -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="{{ path('app_explore_state_list') }}">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <div class="me-3 text-primary">
+                        <twig:ux:icon name="tabler:map-2" width="4em" height="4em" />
+                    </div>
+                    <div>
+                        <div class="h3 mb-0">{{ 'link.states'|trans({}, 'shared') }}</div>
+                        <small class="text-muted">{{ 'label.link.states'|trans({}, 'messages') }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         <!-- Card: Hospitals -->
         <div class="col-12 col-sm-6 col-md-4">
             <a href="{{ path('app_explore_hospital_list') }}">

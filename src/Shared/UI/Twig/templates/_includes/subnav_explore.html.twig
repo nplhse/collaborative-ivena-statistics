@@ -33,6 +33,13 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route starts with 'app_explore_state' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_explore_state_list') }}">
+                            <span class="nav-link-title">
+                                {{ 'link.states'|trans({}, 'shared') }}
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ route starts with 'app_explore_hospital' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_explore_hospital_list') }}">
                             <span class="nav-link-title">

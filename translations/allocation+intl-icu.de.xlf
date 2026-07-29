@@ -525,6 +525,46 @@
         <source>catalog.type.occasion</source>
         <target>Anlass</target>
       </trans-unit>
+      <trans-unit id="CatTypeStateDe" resname="catalog.type.state">
+        <source>catalog.type.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="CatTypeDaDe" resname="catalog.type.dispatch_area">
+        <source>catalog.type.dispatch_area</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="CatTitStateLDe" resname="title.state.list">
+        <source>title.state.list</source>
+        <target>Bundesländer</target>
+      </trans-unit>
+      <trans-unit id="CatTitStateSDe" resname="title.state.show">
+        <source>title.state.show</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="CatSecMapDe" resname="catalog.section.orientation_map">
+        <source>catalog.section.orientation_map</source>
+        <target>Orientierungskarte</target>
+      </trans-unit>
+      <trans-unit id="CatMapHintDe" resname="catalog.orientation_map.hint">
+        <source>catalog.orientation_map.hint</source>
+        <target>Hessen-Pilot auf Basis der Leitstellengrenzen. Die Karte dient der Orientierung und ist keine flächengenaue Verwaltungsgrenze.</target>
+      </trans-unit>
+      <trans-unit id="CatActDaDe" resname="catalog.action.view_dispatch_areas">
+        <source>catalog.action.view_dispatch_areas</source>
+        <target>Leitstellenbereiche anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatRelStateDe" resname="catalog.relation.state">
+        <source>catalog.relation.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="CatRelDaDe" resname="catalog.relation.dispatch_areas">
+        <source>catalog.relation.dispatch_areas</source>
+        <target>Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="CatRelHosDe" resname="catalog.relation.hospitals">
+        <source>catalog.relation.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
       <trans-unit id="CatTitDepDe" resname="title.department.show">
         <source>title.department.show</source>
         <target>Abteilung</target>

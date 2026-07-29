@@ -613,6 +613,10 @@
         <source>label.link.dispatch_areas</source>
         <target>Regions covered by emergency dispatch centers</target>
       </trans-unit>
+      <trans-unit id="lblLinkStatesEn" resname="label.link.states">
+        <source>label.link.states</source>
+        <target>Federal states with dispatch areas and related allocations.</target>
+      </trans-unit>
       <trans-unit id="EvJ25zq" resname="label.link.hospitals">
         <source>label.link.hospitals</source>
         <target>Facilities delivering medical care and patient services.</target>
@@ -962,6 +966,10 @@
       <trans-unit id="edHHJTH" resname="title.dispatch_area.list">
         <source>title.dispatch_area.list</source>
         <target>Listing Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="titDaShowEn" resname="title.dispatch_area.show">
+        <source>title.dispatch_area.show</source>
+        <target>Dispatch Area</target>
       </trans-unit>
       <trans-unit id="LblOrSep" resname="label.or">
         <source>label.or</source>

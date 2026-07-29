@@ -97,6 +97,10 @@
         <source>link.dispatch_areas</source>
         <target>Dispatch Areas</target>
       </trans-unit>
+      <trans-unit id="lnkStatesEn" resname="link.states">
+        <source>link.states</source>
+        <target>States</target>
+      </trans-unit>
       <trans-unit id="ojUc4Dn" resname="link.explore">
         <source>link.explore</source>
         <target>Explore</target>

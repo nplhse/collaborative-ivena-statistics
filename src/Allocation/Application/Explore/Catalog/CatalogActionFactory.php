@@ -83,6 +83,31 @@ final readonly class CatalogActionFactory
     }
 
     /**
+     * @return list<CatalogAction>
+     */
+    public function forState(int $id): array
+    {
+        return [
+            $this->viewAllocationsAction('state', $id),
+            new CatalogAction(
+                label: $this->translator->trans('catalog.action.view_dispatch_areas', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_explore_dispatch_area_list', [
+                    'state' => $id,
+                ]),
+                icon: 'tabler:map',
+            ),
+        ];
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
+    public function forDispatchArea(int $id): array
+    {
+        return [$this->viewAllocationsAction('dispatchArea', $id)];
+    }
+
+    /**
      * Indication groups have no allocation-list filter; link to the statistics dashboard.
      *
      * @return list<CatalogAction>

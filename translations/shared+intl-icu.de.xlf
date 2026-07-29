@@ -101,6 +101,10 @@
         <source>link.dispatch_areas</source>
         <target>Leitstellen</target>
       </trans-unit>
+      <trans-unit id="lnkStatesDe" resname="link.states">
+        <source>link.states</source>
+        <target>Bundesländer</target>
+      </trans-unit>
       <trans-unit id="LocDe10" resname="link.explore">
         <source>link.explore</source>
         <target>Erkunden</target>

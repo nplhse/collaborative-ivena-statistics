@@ -88,4 +88,44 @@ final class CatalogActionFactoryTest extends TestCase
         self::assertTrue($actions[0]->primary);
         self::assertSame('/statistics/indication-group/3', $actions[0]->url);
     }
+
+    public function testStateActionsIncludeAllocationsAndDispatchAreas(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::exactly(2))
+            ->method('generate')
+            ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
+                'app_explore_allocation_list' === $route && ($params['state'] ?? null) === 5 => '/explore/allocation?state=5',
+                'app_explore_dispatch_area_list' === $route && ($params['state'] ?? null) === 5 => '/explore/dispatch_area?state=5',
+                default => throw new \InvalidArgumentException($route),
+            });
+
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('label');
+
+        $factory = new CatalogActionFactory($urlGenerator, $translator);
+        $actions = $factory->forState(5);
+
+        self::assertCount(2, $actions);
+        self::assertSame('/explore/allocation?state=5', $actions[0]->url);
+        self::assertSame('/explore/dispatch_area?state=5', $actions[1]->url);
+    }
+
+    public function testDispatchAreaActionLinksToAllocationListFilter(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_explore_allocation_list', ['dispatchArea' => 11])
+            ->willReturn('/explore/allocation?dispatchArea=11');
+
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('View allocations');
+
+        $factory = new CatalogActionFactory($urlGenerator, $translator);
+        $actions = $factory->forDispatchArea(11);
+
+        self::assertCount(1, $actions);
+        self::assertSame('/explore/allocation?dispatchArea=11', $actions[0]->url);
+    }
 }
