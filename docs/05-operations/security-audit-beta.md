@@ -251,10 +251,10 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |-------|-------|
 | Severity | Low |
 | Area | Session hardening |
-| Evidence | [`framework.yaml`](../../config/packages/framework.yaml) `session: true` without explicit `cookie_secure` / `cookie_samesite`; Nelmio forced SSL + HSTS in prod |
+| Evidence | [`framework.yaml`](../../config/packages/framework.yaml) — explicit `cookie_httponly`, `cookie_samesite: lax`, `cookie_secure: auto` (prod override `cookie_secure: true`); Nelmio forced SSL + HSTS in prod |
 | Risk | Defaults (`secure: auto`, `httponly: true`, `samesite: lax`) are acceptable behind HTTPS; not explicitly pinned for ops review. |
 | Mitigation | Set explicit prod values (`cookie_secure: true`, document SameSite choice). |
-| Status | open |
+| Status | resolved (2026-07-29) — explicit session cookie attrs in `framework.yaml`; prod pins `cookie_secure: true`; `SameSite=Lax` documented in [deployment.md](deployment.md) pre-deploy checklist |
 
 ### SEC-016 — Login failure log may miss username hash for form field name
 
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-013, SEC-015–SEC-016, SEC-019 | Media indexes, session cookies, login logs, docs (SEC-014 CSP accepted for beta) |
+| P2 hardening | SEC-013, SEC-016, SEC-019 | Media indexes, login logs, docs (SEC-014 CSP accepted for beta) |
 | P3 backlog | SEC-014 enforce, SEC-017, SEC-018, SEC-020 | CSP enforce + reduce `unsafe-inline`, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
