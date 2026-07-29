@@ -90,4 +90,40 @@ final class CatalogCoverageQueryTest extends TestCase
         self::assertNotNull($coverage->firstAt);
         self::assertNotNull($coverage->lastAt);
     }
+
+    public function testForIndicationIdsReturnsEmptyWhenNoMembers(): void
+    {
+        $connection = $this->createStub(Connection::class);
+        $query = new CatalogCoverageQuery($connection);
+
+        $coverage = $query->forIndicationIds([]);
+
+        self::assertFalse($coverage->hasData());
+    }
+
+    public function testForIndicationIdsAggregatesMemberCoverage(): void
+    {
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'allocation_count' => 12,
+            'hospital_count' => 4,
+            'dispatch_area_count' => 2,
+            'state_count' => 1,
+            'first_at' => '2023-01-01 00:00:00',
+            'last_at' => '2025-01-01 00:00:00',
+        ]);
+        $connection->method('fetchOne')->willReturn(40);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['year' => 2023, 'count' => 5],
+            ['year' => 2025, 'count' => 7],
+        ]);
+
+        $query = new CatalogCoverageQuery($connection);
+        $coverage = $query->forIndicationIds([1, 2, 3]);
+
+        self::assertTrue($coverage->hasData());
+        self::assertFalse($coverage->suppressed);
+        self::assertSame(12, $coverage->allocationCount);
+        self::assertSame(30.0, $coverage->sharePercent());
+    }
 }

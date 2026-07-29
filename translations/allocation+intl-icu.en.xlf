@@ -429,6 +429,50 @@
         <source>catalog.type.indication</source>
         <target>Indication</target>
       </trans-unit>
+      <trans-unit id="CatTypeIgEn" resname="catalog.type.indication_group">
+        <source>catalog.type.indication_group</source>
+        <target>Indication group</target>
+      </trans-unit>
+      <trans-unit id="CatTypeDepEn" resname="catalog.type.department">
+        <source>catalog.type.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="CatTypeSpeEn" resname="catalog.type.speciality">
+        <source>catalog.type.speciality</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="CatTypeAsgEn" resname="catalog.type.assignment">
+        <source>catalog.type.assignment</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="CatTypeOccEn" resname="catalog.type.occasion">
+        <source>catalog.type.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="CatTitDepEn" resname="title.department.show">
+        <source>title.department.show</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="CatTitSpeEn" resname="title.speciality.show">
+        <source>title.speciality.show</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="CatTitAsgEn" resname="title.assignment.show">
+        <source>title.assignment.show</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="CatTitOccEn" resname="title.occasion.show">
+        <source>title.occasion.show</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgLEn" resname="title.indication_group.list">
+        <source>title.indication_group.list</source>
+        <target>Indication groups</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgSEn" resname="title.indication_group.show">
+        <source>title.indication_group.show</source>
+        <target>Indication group</target>
+      </trans-unit>
       <trans-unit id="CatMetAllEn" resname="catalog.metric.allocations">
         <source>catalog.metric.allocations</source>
         <target>Allocations</target>
@@ -489,9 +533,17 @@
         <source>catalog.action.indication_insights</source>
         <target>Open indication insights</target>
       </trans-unit>
+      <trans-unit id="CatActIgEn" resname="catalog.action.indication_group_insights">
+        <source>catalog.action.indication_group_insights</source>
+        <target>Open group insights</target>
+      </trans-unit>
       <trans-unit id="CatRelGrpEn" resname="catalog.relation.groups">
         <source>catalog.relation.groups</source>
         <target>Indication groups</target>
+      </trans-unit>
+      <trans-unit id="CatRelIndEn" resname="catalog.relation.indications">
+        <source>catalog.relation.indications</source>
+        <target>Indications</target>
       </trans-unit>
       <trans-unit id="hag01" resname="title.hospital_access_grants">
         <source>title.hospital_access_grants</source>

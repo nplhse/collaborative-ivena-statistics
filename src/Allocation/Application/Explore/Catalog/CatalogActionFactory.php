@@ -21,16 +21,7 @@ final readonly class CatalogActionFactory
      */
     public function forSecondaryTransport(int $id): array
     {
-        return [
-            new CatalogAction(
-                label: $this->translator->trans('catalog.action.view_allocations', [], 'allocation'),
-                url: $this->urlGenerator->generate('app_explore_allocation_list', [
-                    'secondaryTransport' => $id,
-                ]),
-                icon: 'tabler:list',
-                primary: true,
-            ),
-        ];
+        return [$this->viewAllocationsAction('secondaryTransport', $id)];
     }
 
     /**
@@ -57,5 +48,68 @@ final readonly class CatalogActionFactory
                 icon: 'tabler:chart-bar',
             ),
         ];
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
+    public function forDepartment(int $id): array
+    {
+        return [$this->viewAllocationsAction('department', $id)];
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
+    public function forSpeciality(int $id): array
+    {
+        return [$this->viewAllocationsAction('speciality', $id)];
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
+    public function forAssignment(int $id): array
+    {
+        return [$this->viewAllocationsAction('assignment', $id)];
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
+    public function forOccasion(int $id): array
+    {
+        return [$this->viewAllocationsAction('occasion', $id)];
+    }
+
+    /**
+     * Indication groups have no allocation-list filter; link to the statistics dashboard.
+     *
+     * @return list<CatalogAction>
+     */
+    public function forIndicationGroup(int $id): array
+    {
+        return [
+            new CatalogAction(
+                label: $this->translator->trans('catalog.action.indication_group_insights', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_stats_indication_group_dashboard', [
+                    'groupId' => $id,
+                ]),
+                icon: 'tabler:chart-bar',
+                primary: true,
+            ),
+        ];
+    }
+
+    private function viewAllocationsAction(string $filterParam, int $id): CatalogAction
+    {
+        return new CatalogAction(
+            label: $this->translator->trans('catalog.action.view_allocations', [], 'allocation'),
+            url: $this->urlGenerator->generate('app_explore_allocation_list', [
+                $filterParam => $id,
+            ]),
+            icon: 'tabler:list',
+            primary: true,
+        );
     }
 }

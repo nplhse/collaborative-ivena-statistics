@@ -51,4 +51,41 @@ final class CatalogActionFactoryTest extends TestCase
         self::assertSame('/explore/allocation?indication=101', $actions[0]->url);
         self::assertSame('/statistics/indication/7', $actions[1]->url);
     }
+
+    public function testDepartmentActionLinksToAllocationListFilter(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_explore_allocation_list', ['department' => 9])
+            ->willReturn('/explore/allocation?department=9');
+
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('View allocations');
+
+        $factory = new CatalogActionFactory($urlGenerator, $translator);
+        $actions = $factory->forDepartment(9);
+
+        self::assertCount(1, $actions);
+        self::assertSame('/explore/allocation?department=9', $actions[0]->url);
+    }
+
+    public function testIndicationGroupActionLinksToStatisticsDashboard(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_stats_indication_group_dashboard', ['groupId' => 3])
+            ->willReturn('/statistics/indication-group/3');
+
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Open group insights');
+
+        $factory = new CatalogActionFactory($urlGenerator, $translator);
+        $actions = $factory->forIndicationGroup(3);
+
+        self::assertCount(1, $actions);
+        self::assertTrue($actions[0]->primary);
+        self::assertSame('/statistics/indication-group/3', $actions[0]->url);
+    }
 }

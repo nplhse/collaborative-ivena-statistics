@@ -505,6 +505,50 @@
         <source>catalog.type.indication</source>
         <target>Indikation</target>
       </trans-unit>
+      <trans-unit id="CatTypeIgDe" resname="catalog.type.indication_group">
+        <source>catalog.type.indication_group</source>
+        <target>Indikationsgruppe</target>
+      </trans-unit>
+      <trans-unit id="CatTypeDepDe" resname="catalog.type.department">
+        <source>catalog.type.department</source>
+        <target>Abteilung</target>
+      </trans-unit>
+      <trans-unit id="CatTypeSpeDe" resname="catalog.type.speciality">
+        <source>catalog.type.speciality</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="CatTypeAsgDe" resname="catalog.type.assignment">
+        <source>catalog.type.assignment</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="CatTypeOccDe" resname="catalog.type.occasion">
+        <source>catalog.type.occasion</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="CatTitDepDe" resname="title.department.show">
+        <source>title.department.show</source>
+        <target>Abteilung</target>
+      </trans-unit>
+      <trans-unit id="CatTitSpeDe" resname="title.speciality.show">
+        <source>title.speciality.show</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="CatTitAsgDe" resname="title.assignment.show">
+        <source>title.assignment.show</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="CatTitOccDe" resname="title.occasion.show">
+        <source>title.occasion.show</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgLDe" resname="title.indication_group.list">
+        <source>title.indication_group.list</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgSDe" resname="title.indication_group.show">
+        <source>title.indication_group.show</source>
+        <target>Indikationsgruppe</target>
+      </trans-unit>
       <trans-unit id="CatMetAllDe" resname="catalog.metric.allocations">
         <source>catalog.metric.allocations</source>
         <target>Einsätze</target>
@@ -565,9 +609,17 @@
         <source>catalog.action.indication_insights</source>
         <target>Indikationsanalyse öffnen</target>
       </trans-unit>
+      <trans-unit id="CatActIgDe" resname="catalog.action.indication_group_insights">
+        <source>catalog.action.indication_group_insights</source>
+        <target>Gruppenanalyse öffnen</target>
+      </trans-unit>
       <trans-unit id="CatRelGrpDe" resname="catalog.relation.groups">
         <source>catalog.relation.groups</source>
         <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="CatRelIndDe" resname="catalog.relation.indications">
+        <source>catalog.relation.indications</source>
+        <target>Indikationen</target>
       </trans-unit>
     </body>
   </file>

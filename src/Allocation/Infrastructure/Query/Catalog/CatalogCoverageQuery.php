@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Query\Catalog;
 use App\Allocation\Application\DTO\CatalogCoverage;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Application\Explore\Catalog\CatalogPrivacyPolicy;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 
@@ -30,6 +31,44 @@ final readonly class CatalogCoverageQuery
             return CatalogCoverage::empty();
         }
 
+        return $this->buildCoverage($summary, $total, $years);
+    }
+
+    /**
+     * Aggregates coverage across member indications (e.g. IndicationGroup).
+     *
+     * @param list<int> $indicationIds
+     */
+    public function forIndicationIds(array $indicationIds): CatalogCoverage
+    {
+        if ([] === $indicationIds) {
+            return CatalogCoverage::empty();
+        }
+
+        try {
+            $summary = $this->fetchSummaryForIndicationIds($indicationIds);
+            $total = $this->fetchTotalAllocations();
+            $years = $this->fetchYearsForIndicationIds($indicationIds);
+        } catch (Exception) {
+            return CatalogCoverage::empty();
+        }
+
+        return $this->buildCoverage($summary, $total, $years);
+    }
+
+    /**
+     * @param array{
+     *     allocation_count: int|string|null,
+     *     hospital_count: int|string|null,
+     *     dispatch_area_count: int|string|null,
+     *     state_count: int|string|null,
+     *     first_at: string|\DateTimeInterface|null,
+     *     last_at: string|\DateTimeInterface|null
+     * } $summary
+     * @param list<array{year: int, count: int}> $years
+     */
+    private function buildCoverage(array $summary, int $total, array $years): CatalogCoverage
+    {
         $allocationCount = (int) $summary['allocation_count'];
         $suppressed = $allocationCount > 0 && $allocationCount < CatalogPrivacyPolicy::MIN_ALLOCATIONS;
 
@@ -113,6 +152,61 @@ SQL;
         return $row;
     }
 
+    /**
+     * @param list<int> $indicationIds
+     *
+     * @return array{
+     *     allocation_count: int|string|null,
+     *     hospital_count: int|string|null,
+     *     dispatch_area_count: int|string|null,
+     *     state_count: int|string|null,
+     *     first_at: string|\DateTimeInterface|null,
+     *     last_at: string|\DateTimeInterface|null
+     * }
+     */
+    private function fetchSummaryForIndicationIds(array $indicationIds): array
+    {
+        $sql = <<<'SQL'
+SELECT
+    COUNT(*)::int AS allocation_count,
+    COUNT(DISTINCT hospital_id)::int AS hospital_count,
+    COUNT(DISTINCT dispatch_area_id)::int AS dispatch_area_count,
+    COUNT(DISTINCT state_id)::int AS state_count,
+    MIN(created_at) AS first_at,
+    MAX(created_at) AS last_at
+FROM allocation_stats_projection
+WHERE indication_normalized_id IN (:indicationIds)
+SQL;
+
+        /** @var array{
+         *     allocation_count: int|string|null,
+         *     hospital_count: int|string|null,
+         *     dispatch_area_count: int|string|null,
+         *     state_count: int|string|null,
+         *     first_at: string|\DateTimeInterface|null,
+         *     last_at: string|\DateTimeInterface|null
+         * }|false $row
+         */
+        $row = $this->connection->fetchAssociative(
+            $sql,
+            ['indicationIds' => $indicationIds],
+            ['indicationIds' => ArrayParameterType::INTEGER],
+        );
+
+        if (false === $row) {
+            return [
+                'allocation_count' => 0,
+                'hospital_count' => 0,
+                'dispatch_area_count' => 0,
+                'state_count' => 0,
+                'first_at' => null,
+                'last_at' => null,
+            ];
+        }
+
+        return $row;
+    }
+
     private function fetchTotalAllocations(): int
     {
         return (int) $this->connection->fetchOne('SELECT COUNT(*)::int FROM allocation_stats_projection');
@@ -136,6 +230,42 @@ SQL;
         /** @var list<array{year: int|string, count: int|string}> $rows */
         $rows = $this->connection->fetchAllAssociative($sql, ['entityId' => $entityId]);
 
+        return $this->mapYearRows($rows);
+    }
+
+    /**
+     * @param list<int> $indicationIds
+     *
+     * @return list<array{year: int, count: int}>
+     */
+    private function fetchYearsForIndicationIds(array $indicationIds): array
+    {
+        $sql = <<<'SQL'
+SELECT created_year AS year, COUNT(*)::int AS count
+FROM allocation_stats_projection
+WHERE indication_normalized_id IN (:indicationIds)
+  AND created_year IS NOT NULL
+GROUP BY created_year
+ORDER BY created_year ASC
+SQL;
+
+        /** @var list<array{year: int|string, count: int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            $sql,
+            ['indicationIds' => $indicationIds],
+            ['indicationIds' => ArrayParameterType::INTEGER],
+        );
+
+        return $this->mapYearRows($rows);
+    }
+
+    /**
+     * @param list<array{year: int|string, count: int|string}> $rows
+     *
+     * @return list<array{year: int, count: int}>
+     */
+    private function mapYearRows(array $rows): array
+    {
         return array_map(
             static fn (array $row): array => [
                 'year' => (int) $row['year'],
