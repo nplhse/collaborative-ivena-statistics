@@ -221,7 +221,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`HealthCheckReport::toArray`](../../src/Shared/Application/Health/HealthCheckReport.php); public via `access_control` |
 | Risk | Attackers learn app version and whether the failed messenger queue is non-empty. Useful for uptime monitoring by design. |
 | Mitigation | Slim public payload to `status` (+ optional `database`); put detailed checks behind auth or internal network. Document accepted disclosure if kept for Sentry Uptime. |
-| Status | open |
+| Status | resolved (2026-07-29) — public `GET /health` uses `toPublicArray()` (`status` + `checks.database` only); version/messenger details remain on full report for Admin ops |
 
 ### SEC-013 — Media files publicly served; directory listing not hardened in-app
 
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-012–SEC-016, SEC-019 | Headers, docs (SEC-011 `/import` access_control resolved) |
+| P2 hardening | SEC-013–SEC-016, SEC-019 | Headers, docs (SEC-012 public `/health` payload slimmed) |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.

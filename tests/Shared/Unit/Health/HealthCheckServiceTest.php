@@ -27,6 +27,15 @@ final class HealthCheckServiceTest extends TestCase
         self::assertSame('ok', $report->checks['database']);
         self::assertSame('ok', $report->checks['messenger_failed']);
         self::assertSame(200, $report->httpStatusCode());
+        self::assertSame(
+            [
+                'status' => 'healthy',
+                'checks' => ['database' => 'ok'],
+            ],
+            $report->toPublicArray(),
+        );
+        self::assertArrayHasKey('version', $report->toArray());
+        self::assertArrayHasKey('messenger_failed', $report->toArray()['checks']);
     }
 
     public function testReturnsDegradedWhenFailedMessagesExist(): void
@@ -40,6 +49,13 @@ final class HealthCheckServiceTest extends TestCase
         self::assertSame('ok', $report->checks['database']);
         self::assertSame('3 failed message(s)', $report->checks['messenger_failed']);
         self::assertSame(200, $report->httpStatusCode());
+        self::assertSame(
+            [
+                'status' => 'degraded',
+                'checks' => ['database' => 'ok'],
+            ],
+            $report->toPublicArray(),
+        );
     }
 
     public function testReturnsUnhealthyWhenDatabaseUnreachable(): void
@@ -58,6 +74,13 @@ final class HealthCheckServiceTest extends TestCase
         self::assertSame('unreachable', $report->checks['database']);
         self::assertSame('skipped', $report->checks['messenger_failed']);
         self::assertSame(503, $report->httpStatusCode());
+        self::assertSame(
+            [
+                'status' => 'unhealthy',
+                'checks' => ['database' => 'unreachable'],
+            ],
+            $report->toPublicArray(),
+        );
     }
 
     private function createConnectionMock(int $failedCount): Connection

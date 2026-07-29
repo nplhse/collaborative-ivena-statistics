@@ -22,7 +22,7 @@ final readonly class HealthCheckController
         $report = $this->healthCheckService->check();
 
         return new JsonResponse(
-            $report->toArray(),
+            $report->toPublicArray(),
             $report->httpStatusCode(),
         );
     }

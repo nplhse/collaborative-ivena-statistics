@@ -26,6 +26,8 @@ final readonly class HealthCheckReport
     }
 
     /**
+     * Full report for authenticated ops surfaces (e.g. admin dashboard).
+     *
      * @return array{status: string, version: string, checks: array<string, string>}
      */
     public function toArray(): array
@@ -34,6 +36,24 @@ final readonly class HealthCheckReport
             'status' => $this->status->value,
             'version' => $this->version,
             'checks' => $this->checks,
+        ];
+    }
+
+    /**
+     * Slim public payload for GET /health (no version, no messenger details).
+     *
+     * @return array{status: string, checks: array<string, string>}
+     */
+    public function toPublicArray(): array
+    {
+        $checks = [];
+        if (isset($this->checks['database'])) {
+            $checks['database'] = $this->checks['database'];
+        }
+
+        return [
+            'status' => $this->status->value,
+            'checks' => $checks,
         ];
     }
 }

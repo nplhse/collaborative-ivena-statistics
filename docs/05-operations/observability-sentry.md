@@ -84,6 +84,6 @@ The Symfony SDK (`sentry/sentry-symfony`) sends errors, logs, and traces **from 
 | HTTP **503** (`unhealthy`, database down) | yes |
 | HTTP **200** with `"status": "degraded"` (failed Messenger messages) | no (by design) |
 
-`degraded` means the app is up but the failed queue has messages. Use `php bin/console messenger:failed:show` and [health-check.md](health-check.md) — Sentry Uptime does not parse JSON response bodies.
+`degraded` means the app is up but the failed queue has messages. Use `php bin/console messenger:failed:show`, the Admin ops dashboard, or [health-check.md](health-check.md) — Sentry Uptime does not parse JSON response bodies (public `/health` also omits version and messenger details).
 
 Related: [health-check.md](health-check.md) (`GET /health` response format).
