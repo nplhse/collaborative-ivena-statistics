@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Repository;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,6 +16,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class DepartmentRepository extends ServiceEntityRepository
 {
+    use PublicIdRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Department::class);

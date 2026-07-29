@@ -2,9 +2,14 @@
 
 One-time (or resumable) backfill of `public_id` UUID v4 (RFC 4122) columns for explore detail resources.
 
+## Covered tables
+
+- Existing detail resources: `hospital`, `allocation`, `mci_case`, `secondary_transport`, `indication_raw`
+- Catalog reference tables: `indication_normalized`, `indication_group`, `assignment`, `department`, `speciality`, `occasion`, `infection`, `state`, `dispatch_area`
+
 ## Prerequisites
 
-- Migration `Version20260708183000` applied (`public_id` nullable `VARCHAR(36)` + partial unique indexes)
+- Migrations `Version20260708183119` and `Version20260729120000` applied (`public_id` nullable `VARCHAR(36)` + partial unique indexes)
 - Sufficient DB time budget for `allocation` (~2M rows: plan for multiple runs or use the wrapper script)
 
 ## Commands
